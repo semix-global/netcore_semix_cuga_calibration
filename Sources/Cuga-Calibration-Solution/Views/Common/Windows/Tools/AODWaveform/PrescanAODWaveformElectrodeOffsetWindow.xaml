@@ -239,6 +239,7 @@
                                                                                                     IsVisibleFrequency="False"
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"
+                                                                                                    IsVisibleElectrodeConfiguration="False"
                                                                                                     IsVisibleUniformityConfiguration="False"
                                                                                                     IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                     IsVisibleCompensation="False"
@@ -267,7 +268,6 @@
                                                                                                   IsVisibleFrequency="False"
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
-                                                                                                  IsVisibleElectrodeConfiguration="False"
                                                                                                   IsVisibleUniformityConfiguration="False"
                                                                                                   IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                   IsVisibleCompensation="False"
@@ -1035,7 +1035,7 @@
                                                 <Border Grid.Row="2"
                                                         Style="{StaticResource BorderRegion}"
                                                         Effect="{StaticResource EffectShadow1}">
-                                                    <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                    <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
                                                 </Border>
                                             </Grid>
                                         </Border>

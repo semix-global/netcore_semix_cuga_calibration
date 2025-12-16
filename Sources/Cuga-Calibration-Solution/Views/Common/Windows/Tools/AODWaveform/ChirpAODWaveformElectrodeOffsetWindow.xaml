@@ -110,11 +110,11 @@
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
                                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                                                     <TabControl>
-                                                        <TabItem Header="Prescan AOD Waveform">
-                                                            <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
-                                                        </TabItem>
                                                         <TabItem Header="Chirp AOD Waveform">
                                                             <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                        </TabItem>
+                                                        <TabItem Header="Prescan AOD Waveform">
+                                                            <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
                                                         </TabItem>
                                                     </TabControl>
                                                 </Border>

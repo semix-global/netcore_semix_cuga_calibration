@@ -506,8 +506,7 @@
                                                                            PopupAnimation="Slide"
                                                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
                                                                         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                            <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
-                                                                                                              ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                            <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                         </Border>
                                                                     </Popup>
                                                                 </Grid>
