@@ -62,7 +62,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 var step0Item = new AODWaveformElectrodeInitializeStep0Item<TItem> { Electrodes = electrodes };
                 Cache.Step0.Items = [.. Cache.Step0.Items, step0Item];
 
-                Logger.LogHtmlInformation(step0Item.Title, HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation(step0Item.Title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 foreach (var offsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
                 {
@@ -97,7 +97,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == electrodes[^1])
                     .OffsetFrequencyPeriodCoefficient = step0Item.Items.Maxima(t => t.MeasurePower).Single().OffsetFrequencyPeriodCoefficient;
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]), HtmlLogUniqueId.LoggingHtml());
             }
         }, isNotSilent).ConfigureAwait(false);
     }
@@ -192,8 +192,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 var htmlBullet = new HtmlBullet(new
                 {
                     Table = new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]),
-                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]),
-                    UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
+                    ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))])
                 });
 
                 if (isSuccess)
