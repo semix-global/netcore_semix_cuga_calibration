@@ -147,7 +147,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false })
             ];
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<CIBMMDCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBMMDCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<CIBMMDDTO>();
 
         Calibrations =
@@ -161,7 +161,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 })
         ];
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
