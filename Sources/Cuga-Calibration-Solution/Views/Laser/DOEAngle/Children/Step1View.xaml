@@ -3,71 +3,194 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserDOEAngleCalibrationViewModel}"
-             d:DesignHeight="500"
+             d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="400" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+            <hc:UniformSpacingPanel Orientation="Vertical"
+                                    Spacing="2"
+                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
                 <hc:Shield Subject="Laser DOE Angle Step 4: "
                            Status="{Binding CalibrationStepList[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
-                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Alignment Mode: " Color="{StaticResource InfoBrush}">
+                    <hc:Shield.Style>
+                        <Style TargetType="hc:Shield" BasedOn="{StaticResource ShieldBaseStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="False">
+                                    <Setter Property="Status" Value="BrightFiled" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="True">
+                                    <Setter Property="Status" Value="DarkFiled" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </hc:Shield.Style>
+                </hc:Shield>
             </hc:UniformSpacingPanel>
+
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Find Position"
+                        <TextBlock Text="Alignment Setting Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>                            
+                    <TextBox hc:InfoElement.Title="Low Site1(um): "
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="100"
+                             IsReadOnly="True">
+                        <TextBox.Style>
+                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.LowSite1.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.LowSite1.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <TextBox hc:InfoElement.Title="Low Site2(um): "
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="100"
+                             IsReadOnly="True">
+                        <TextBox.Style>
+                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.LowSite2.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.LowSite2.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <TextBox hc:InfoElement.Title="High Site1(um): "
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="100"
+                             IsReadOnly="True">
+                        <TextBox.Style>
+                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.HighSite1.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.HighSite1.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <TextBox hc:InfoElement.Title="High Site2(um): "
+                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="100"
+                             IsReadOnly="True">
+                        <TextBox.Style>
+                            <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.HighSite2.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.HighSite2.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <hc:UniformSpacingPanel Spacing="10">
+                        <view:CanvasView Width="100"
+                                         Height="100"
+                                         BackgroundColor="#0A0A0A"
+                                         AxisColor="Red"
+                                         Interactive="True"
+                                         ShowAxes="True"
+                                         ShowCursor="False"
+                                         ShowGrid="False">
+                            <view:CanvasView.Style>
+                                <Style TargetType="view:CanvasView">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
+                                            <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheDarkField.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
+                                            <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheBrightField.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </view:CanvasView.Style>
+                        </view:CanvasView>
+                        <view:CanvasView Width="100"
+                                         Height="100"
+                                         BackgroundColor="#0A0A0A"
+                                         AxisColor="Red"
+                                         Interactive="True"
+                                         ShowAxes="True"
+                                         ShowCursor="False"
+                                         ShowGrid="False">
+                            <view:CanvasView.Style>
+                                <Style TargetType="view:CanvasView">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
+                                            <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheDarkField.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Cache.Item.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
+                                            <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheBrightField.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </view:CanvasView.Style>
+                        </view:CanvasView>
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+            </Border>
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="P5"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox x:Name="MagCombobox"
-                                 Width="275"
-                                 HorizontalAlignment="Left"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Magnification: "
-                                 hc:InfoElement.Necessary="True"
-                                 SelectedItem="{Binding Cache.MicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding LensName}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=MagCombobox, Path=SelectedItem}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </hc:ComboBox>
-                    <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position(um): "
+                    <TextBox Text="{Binding Cache.Item.P5Angle, StringFormat={}{0:f10}}"
+                             hc:InfoElement.Title="Degrees(°): "
+                             hc:TitleElement.TitleWidth="90"
                              hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
-
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
-                                            Spacing="10">
+                                            Spacing="10"
+                                            Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
                         <Button Content="Action"
                                 Command="{Binding Step1CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding Step1CalibrateActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
