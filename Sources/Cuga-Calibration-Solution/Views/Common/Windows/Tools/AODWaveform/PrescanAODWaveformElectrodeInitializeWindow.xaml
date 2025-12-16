@@ -2,19 +2,14 @@
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
-           xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-           xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeInitializeWindowViewModel}"
@@ -134,16 +129,15 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{StaticResource SecondaryParamTitleString}"
-                           Style="{StaticResource TextBlockTitle}" />
+                <TextBlock Text="{StaticResource SecondaryParamTitleString}" Style="{StaticResource TextBlockTitle}" />
                 <Button Grid.Column="1"
-                        Style="{StaticResource PrimaryButton}"
+                        Content="保存(Save)"
                         Command="{Binding SaveCommand}"
-                        Content="保存(Save)" />
+                        Style="{StaticResource PrimaryButton}" />
                 <Button Grid.Column="2"
-                        Style="{StaticResource PrimaryButton}"
+                        Content="加载(Load)"
                         Command="{Binding LoadedCommand}"
-                        Content="加载(Load)" />
+                        Style="{StaticResource PrimaryButton}" />
             </Grid>
         </Border>
         <Grid Grid.Row="1" Margin="5">
@@ -164,14 +158,14 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
-                                                                                                     IsVisibleProductivityInformation="False"
-                                                                                                     IsVisibleFrequency="False"
-                                                                                                     IsVisibleAmplitude="False"
-                                                                                                     IsVisibleDirectoryPath="False"
-                                                                                                     IsVisibleUniformityConfiguration="False"
-                                                                                                     IsVisibleSlopeDeltaKConfiguration="False"
-                                                                                                     IsVisibleCompensation="False"
-                                                                                                     DataContext="{Binding Cache.FlatnessGeneratePrescanAODWaveformParam}" />
+                                                                                                    IsVisibleProductivityInformation="False"
+                                                                                                    IsVisibleFrequency="False"
+                                                                                                    IsVisibleAmplitude="False"
+                                                                                                    IsVisibleDirectoryPath="False"
+                                                                                                    IsVisibleUniformityConfiguration="False"
+                                                                                                    IsVisibleSlopeDeltaKConfiguration="False"
+                                                                                                    IsVisibleCompensation="False"
+                                                                                                    DataContext="{Binding Cache.FlatnessGeneratePrescanAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
