@@ -29,8 +29,10 @@
     <hc:Window.Resources>
         <ResourceDictionary>
             <paramUI:GenerateAODWaveformUniformityConfigurationsToPointsConvert x:Key="GenerateAODWaveformUniformityConfigurationsToPointsConvert" />
-            <system:String x:Key="PrimaryParamTitleString">Flatness Changed Chirp AOD Waveform</system:String>
-            <system:String x:Key="SecondaryParamTitleString">Flatness Fixed Prescan AOD Waveform</system:String>
+            <system:String x:Key="PrimaryFlatnessParamTitleString">Flatness Changed Chirp AOD Waveform</system:String>
+            <system:String x:Key="SecondaryFlatnessParamTitleString">Flatness Fixed Prescan AOD Waveform</system:String>
+            <system:String x:Key="PrimaryScanParamTitleString">Scan Changed Chirp AOD Waveform</system:String>
+            <system:String x:Key="SecondaryScanParamTitleString">Scan Fixed Prescan AOD Waveform</system:String>
             <system:String x:Key="ResultParamTitleString">Flatness Result Chirp AOD Waveform</system:String>
             <Style x:Key="FrequencyItemsListViewStyle"
                    x:Shared="False"
@@ -101,7 +103,7 @@
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
                                                 <TabControl>
                                                     <TabItem Header="Prescan AOD Waveform">
-                                                        <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                        <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
                                                     </TabItem>
                                                     <TabItem Header="Chirp AOD Waveform">
                                                         <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
@@ -219,7 +221,7 @@
                                     </hc:UniformSpacingPanel>
                                     <Expander IsExpanded="False" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="{StaticResource PrimaryParamTitleString}" Style="{StaticResource TextBlockDefaultInfo}" />
+                                            <TextBlock Text="{StaticResource PrimaryFlatnessParamTitleString}" Style="{StaticResource TextBlockDefaultInfo}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -238,7 +240,7 @@
                                     </Expander>
                                     <Expander IsExpanded="False" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="{StaticResource SecondaryParamTitleString}" />
+                                            <TextBlock Text="{StaticResource SecondaryFlatnessParamTitleString}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -264,22 +266,10 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
-                                    <Expander Header="Scan Prescan AOD Waveform"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
-                                                                                                    IsVisibleProductivityInformation="False"
-                                                                                                    IsVisibleAmplitude="False"
-                                                                                                    IsVisibleDirectoryPath="False"
-                                                                                                    DataContext="{Binding Cache.ScanGeneratePrescanAODWaveformParam}" />
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="Scan Chirp AOD Waveform"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="{StaticResource PrimaryScanParamTitleString}" Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
@@ -289,6 +279,20 @@
                                                                                                   IsVisibleElectrodeConfiguration="False"
                                                                                                   IsVisibleUniformityConfiguration="False"
                                                                                                   DataContext="{Binding Cache.ScanGenerateChirpAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="{StaticResource SecondaryScanParamTitleString}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
+                                                                                                    IsVisibleProductivityInformation="False"
+                                                                                                    IsVisibleAmplitude="False"
+                                                                                                    IsVisibleDirectoryPath="False"
+                                                                                                    DataContext="{Binding Cache.ScanGeneratePrescanAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -313,10 +317,18 @@
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
                                     <StackPanel>
-                                        <TextBlock Text="{StaticResource PrimaryParamTitleString}"
+                                        <TextBlock Text="{StaticResource PrimaryFlatnessParamTitleString}"
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
+                                    <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
+                                             Height="40"
+                                             TextWrapping="Wrap"
+                                             hc:TitleElement.Title="Frequencies(MHz): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                             Style="{StaticResource TextBoxExtend}" />
                                     <Separator />
                                     <StackPanel>
                                         <TextBlock Text="Step 1 Params"
@@ -348,7 +360,7 @@
                                         </Border>
                                     </Expander>
                                     <StackPanel>
-                                        <TextBlock Text="Step2 Params"
+                                        <TextBlock Text="Step 2 Params"
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
@@ -378,22 +390,6 @@
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="Electrode3 Offset Frequency Weight Params"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
-                                                         Height="50"
-                                                         TextWrapping="Wrap"
-                                                         hc:TitleElement.Title="Frequencies(MHz): "
-                                                         hc:TitleElement.TitlePlacement="Left"
-                                                         hc:TitleElement.TitleWidth="200"
-                                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                         Style="{StaticResource TextBoxExtend}" />
                                                 <TextBox Text="{Binding Cache.Weights, Converter={StaticResource DoublesToStringConverter}}"
                                                          Height="50"
                                                          TextWrapping="Wrap"
@@ -406,7 +402,7 @@
                                         </Border>
                                     </Expander>
                                     <StackPanel>
-                                        <TextBlock Text="Step3 Params"
+                                        <TextBlock Text="Step 3 Params"
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
