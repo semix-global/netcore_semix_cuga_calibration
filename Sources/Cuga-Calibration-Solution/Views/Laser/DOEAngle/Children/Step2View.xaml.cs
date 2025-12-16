@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.Laser.DOEAngle.Children;
+namespace CugaCalibration.Views.Laser.DOEAngle.Children;
 
 public sealed partial class Step2View
 {

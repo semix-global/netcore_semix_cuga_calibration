@@ -4,9 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:behaviours="clr-namespace:Core.Models.Models.Common.Status.Behaviours;assembly=Core.Models"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"             
+             xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"             
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
@@ -54,7 +53,7 @@
          HorizontalAlignment="Center"
          VerticalAlignment="Center"
          BorderThickness="0"
-         ItemContainerStyle="{StaticResource DefaultListBoxItemStyle}"
+         ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
          SelectionMode="Single">
             <ListBox.ItemsSource>
                 <MultiBinding Converter="{StaticResource MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert}">
@@ -63,7 +62,7 @@
                 </MultiBinding>
             </ListBox.ItemsSource>
             <i:Interaction.Behaviors>
-                <behaviours:ProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
+                <behaviors:ProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
             </i:Interaction.Behaviors>
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type status:ProductivityInformationCalibrationStatus}">

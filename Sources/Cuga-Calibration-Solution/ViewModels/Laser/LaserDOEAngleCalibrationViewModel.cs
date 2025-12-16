@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.AODAlignment;
@@ -7,6 +8,7 @@ using Core.Models.Models.AOD.AODDelay;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.DOEAngle;
@@ -27,6 +29,7 @@ using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -45,6 +48,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
+        new() { StepName = "Select Productivity" },
         new() { StepName = "CIB Config" },
         new() { StepName = "PMT Enable Config" },
         new() { StepName = "P5" },
@@ -56,6 +60,9 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
 
     [ObservableProperty]
     private Point[] _afOffsetPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     #endregion 界面相关
 
@@ -212,6 +219,16 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserDOEAngleCache>();
         Calibration = CacheProvider.GetOrDefault<LaserDOEAngleDto>();
 
+        CalibrationStatuses =
+        [
+           ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                {
+                    SelectedItem = t,
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                })
+        ];
+
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
@@ -256,19 +273,19 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 1:
+            case 2:
                 DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
                 Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
 
-            case 4:
+            case 5:
                 if (ResultLaserDOEAngleDto is null)
                 {
                     DialogWindowProvider.ShowDialog("Please calibration first!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;
                 }
 
-                var isCalibrated = CalibrationStepIndex == 4;
+                var isCalibrated = CalibrationStepIndex == 5;
 
                 ResultLaserDOEAngleDto.IsCalibrated = isCalibrated;
                 if (Save(ResultLaserDOEAngleDto, cancellationToken) == false)
@@ -279,7 +296,12 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                     return false;
                 }
 
-                IsCalibrated = isCalibrated;
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
+                .ProductivityInformationCalibrationStatusList
+                .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
+
+                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                //IsCalibrated = isCalibrated;
                 return true;
 
             default:
@@ -335,7 +357,20 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task<bool> Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -408,7 +443,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -425,7 +460,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step3CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {

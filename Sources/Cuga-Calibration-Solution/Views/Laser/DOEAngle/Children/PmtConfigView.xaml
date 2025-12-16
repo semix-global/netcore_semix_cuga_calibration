@@ -41,8 +41,8 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="Laser DOE Angle Step 2: "
-                       Status="{Binding CalibrationStepList[1].StepName}"
+            <hc:Shield Subject="Laser DOE Angle Step 3: "
+                       Status="{Binding CalibrationStepList[2].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <GroupBox Header="PMT Enable">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
