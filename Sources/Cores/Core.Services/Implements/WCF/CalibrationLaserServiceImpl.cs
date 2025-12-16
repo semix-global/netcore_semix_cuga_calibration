@@ -194,7 +194,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.OD1_3 : CgODEnum.None));
+        var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.OD2_0 : CgODEnum.None));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
