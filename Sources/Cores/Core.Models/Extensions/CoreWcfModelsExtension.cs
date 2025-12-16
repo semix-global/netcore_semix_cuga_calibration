@@ -1,5 +1,4 @@
 using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
@@ -324,7 +323,7 @@ public static class CoreWcfModelsExtension
     public static bool IsOk(this LineOrientationOffsetItemDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
-        
+
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
         var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
                                                && t.ProductivityInformation == applicationCookie.NILowProductivityInformation)?.IsOk == true;

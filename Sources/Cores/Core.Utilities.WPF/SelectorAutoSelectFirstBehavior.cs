@@ -1,6 +1,6 @@
-using System.ComponentModel;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Models;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
