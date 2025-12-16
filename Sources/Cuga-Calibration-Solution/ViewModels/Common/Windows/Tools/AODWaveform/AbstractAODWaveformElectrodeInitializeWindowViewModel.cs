@@ -16,10 +16,10 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
 {
     public override IReadOnlyList<string> Steps { get; } =
     [
-        "Step1 Electrode2 Electrode4",
-        "Step2 Electrode3",
-        "Step3 Generate AOD Waveform",
-        "Step4 Set AOD Waveform Config"
+        "Step 1 Electrode2 Electrode4",
+        "Step 2 Electrode3",
+        "Step 3 Generate AOD Waveform",
+        "Step 4 Set AOD Waveform Config"
     ];
 
     [RelayCommand(IncludeCancelCommand = true)]

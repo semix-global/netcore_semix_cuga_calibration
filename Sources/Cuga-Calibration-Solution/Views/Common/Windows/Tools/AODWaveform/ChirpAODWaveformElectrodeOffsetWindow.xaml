@@ -322,7 +322,7 @@
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StepFrequency}" />
                                     <StackPanel>
-                                        <TextBlock Text="Step1 Params"
+                                        <TextBlock Text="Step 1 Params"
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
@@ -856,7 +856,7 @@
                       Padding="5"
                       Header="History">
                 <TabControl>
-                    <TabItem Header="Step1 Plots">
+                    <TabItem Header="Step 1 Plots">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
@@ -884,7 +884,7 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step1 Details">
+                    <TabItem Header="Step 1 Details">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
@@ -923,7 +923,7 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step2">
+                    <TabItem Header="Step 2">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
@@ -951,7 +951,7 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step2 Plots">
+                    <TabItem Header="Step 2 Plots">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
@@ -990,7 +990,7 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step3 Plots">
+                    <TabItem Header="Step 3 Plots">
                         <hc:ScrollViewer>
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>

@@ -19,10 +19,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
     public override IReadOnlyList<string> Steps { get; } =
     [
-        "Step1 Electrode Offset",
-        "Step2 Uniformity",
-        "Step3 Generate AOD Waveform",
-        "Step4 Set AOD Waveform Config"
+        "Step 1 Electrode Offset",
+        "Step 2 Uniformity",
+        "Step 3 Generate AOD Waveform",
+        "Step 4 Set AOD Waveform Config"
     ];
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -273,17 +273,16 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     aodWaveformElectrodeOffsetFrequencyPeriod.InterpolationMaxima(Cache.InterpolationCount);
 
-                    var allWeight = Cache.ElectrodeOffsetFrequencyWeightParams
-                        .Where(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)
-                        .Select(t => t.Weight)
-                        .Sum();
+                    var weightParams = (IReadOnlyList<AODWaveformElectrodeOffsetFrequencyWeightParam>)
+                    [
+                        ..Cache.ElectrodeOffsetFrequencyWeightParams
+                            .Where(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)
+                    ];
 
                     aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.ClosestMaximaPoints
                         .Index()
-                        .Select(t => Cache.ElectrodeOffsetFrequencyWeightParams
-                            .Single(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum &&
-                                          Equals(tt.Frequency, aodWaveformElectrodeOffsetFrequencyPeriod.Items[t.Index].FrequencyItems[0].Frequency)).Weight * t.Item.X)
-                        .Sum() / allWeight;
+                        .Select(t => weightParams.Single(tt => tt.Frequency - aodWaveformElectrodeOffsetFrequencyPeriod.Items[t.Index].FrequencyItems[0].Frequency == 0).Weight * t.Item.X)
+                        .Sum() / weightParams.Sum(t => t.Weight);
 
                     if (Cache.IsConfirmAODWaveformElectrodeOffsetResult)
                     {
