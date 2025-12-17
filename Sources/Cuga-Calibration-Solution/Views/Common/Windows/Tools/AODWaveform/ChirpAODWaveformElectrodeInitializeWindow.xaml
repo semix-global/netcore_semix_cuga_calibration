@@ -101,7 +101,7 @@
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
-                                                <TabControl>
+                                                <TabControl Margin="5">
                                                     <TabItem Header="Chirp AOD Waveform">
                                                         <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
                                                     </TabItem>

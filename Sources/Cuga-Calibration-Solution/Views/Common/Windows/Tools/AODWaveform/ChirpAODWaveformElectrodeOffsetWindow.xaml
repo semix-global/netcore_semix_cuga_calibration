@@ -109,7 +109,7 @@
                                                    PopupAnimation="Slide"
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
                                                 <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                    <TabControl>
+                                                    <TabControl Margin="5">
                                                         <TabItem Header="Chirp AOD Waveform">
                                                             <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
                                                         </TabItem>
