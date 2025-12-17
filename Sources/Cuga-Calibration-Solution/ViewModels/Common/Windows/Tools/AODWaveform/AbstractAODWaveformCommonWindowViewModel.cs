@@ -18,7 +18,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Net.Utilities.Helpers.Helpers.Files;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -221,14 +220,12 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             finally
             {
                 if (isEndHtml)
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{GetType().Name}_{(
-                        isNotSilent ? FileHelper.RemoveInvalidFileName(Steps[stepIndex].Replace(" ", string.Empty)) : "Silent"
-                    )}_{(isSuccess ? "OK" : "Failed")}"));
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isNotSilent ? Steps[stepIndex].Replace(" ", string.Empty) : "All")}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
             if (isSuccess)
             {
-                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {(isNotSilent ? Steps[stepIndex] : "Silent")} Success");
+                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {(isNotSilent ? Steps[stepIndex] : "All")} Success");
             }
             else
                 DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
