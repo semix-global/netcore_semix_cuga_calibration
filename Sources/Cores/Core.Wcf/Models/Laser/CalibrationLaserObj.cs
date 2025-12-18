@@ -550,6 +550,11 @@ public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
     /// GainS16Bit [-2^15, 2^15-1], **需要下发CIB硬件**
     /// </summary>
     public IReadOnlyList<double> GainS16Bits { get; set; }
+
+    /// <summary>
+    /// LogGain 最大值, **需要下发CIB硬件**
+    /// </summary>
+    public double MaxLogGain { get; set; }
 }
 
 /// <summary>

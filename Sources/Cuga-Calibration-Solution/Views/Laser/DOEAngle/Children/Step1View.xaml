@@ -49,7 +49,7 @@
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>                            
+                    </StackPanel>
                     <TextBox hc:InfoElement.Title="Low Site1(um): "
                              hc:InfoElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"

@@ -52,6 +52,8 @@ public sealed partial class AODWaveformElectrodeInitializeStep0<TItem> : Observa
 
     private void RefreshPlot()
     {
+        ScatterPlotControl.Clear();
+
         foreach (var (index, item) in Items.Index())
         {
             if (item.Items.Count <= 0) continue;

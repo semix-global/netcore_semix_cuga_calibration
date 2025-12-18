@@ -221,7 +221,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
 
         CalibrationStatuses =
         [
-           ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+            ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
                     SelectedItem = t,
@@ -297,8 +297,8 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 }
 
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                .ProductivityInformationCalibrationStatusList
-                .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
+                    .ProductivityInformationCalibrationStatusList
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 //IsCalibrated = isCalibrated;

@@ -31,8 +31,8 @@
     <hc:Window.Resources>
         <ResourceDictionary>
             <paramUI:GenerateAODWaveformUniformityConfigurationsToPointsConvert x:Key="GenerateAODWaveformUniformityConfigurationsToPointsConvert" />
-            <system:String x:Key="PrimaryParamTitleString">Flatness Changed Prescan AOD Waveform</system:String>
-            <system:String x:Key="SecondaryParamTitleString">Flatness Fixed Chirp AOD Waveform</system:String>
+            <system:String x:Key="PrimaryFlatnessParamTitleString">Flatness Changed Prescan AOD Waveform</system:String>
+            <system:String x:Key="SecondaryFlatnessParamTitleString">Flatness Fixed Chirp AOD Waveform</system:String>
             <system:String x:Key="ResultParamTitleString">Flatness Result Prescan AOD Waveform</system:String>
             <Style x:Key="FrequencyItemsListViewStyle"
                    x:Shared="False"
@@ -108,16 +108,14 @@
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
-                                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                    <TabControl>
-                                                        <TabItem Header="Chirp AOD Waveform">
-                                                            <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
-                                                        </TabItem>
-                                                        <TabItem Header="Prescan AOD Waveform">
-                                                            <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
-                                                        </TabItem>
-                                                    </TabControl>
-                                                </Border>
+                                                <TabControl>
+                                                    <TabItem Header="Prescan AOD Waveform">
+                                                        <profileUI:PrescanAODWaveformProfilesUserControl Margin="5" DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                    </TabItem>
+                                                    <TabItem Header="Chirp AOD Waveform">
+                                                        <profileUI:ChirpAODWaveformProfilesUserControl Margin="5" DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                    </TabItem>
+                                                </TabControl>
                                             </Popup>
                                         </Grid>
                                     </DataTemplate>
@@ -183,13 +181,11 @@
         </hc:SimplePanel>
         <Grid Grid.Row="1" Margin="5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="500" />
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="500"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
+            <Border Style="{StaticResource BorderRegion}">
                 <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
                                  IsInertiaEnabled="True"
                                  VerticalScrollBarVisibility="Auto">
@@ -230,7 +226,7 @@
                                     </hc:UniformSpacingPanel>
                                     <Expander IsExpanded="False" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="{StaticResource PrimaryParamTitleString}" Style="{StaticResource TextBlockDefaultInfo}" />
+                                            <TextBlock Text="{StaticResource PrimaryFlatnessParamTitleString}" Style="{StaticResource TextBlockDefaultInfo}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -249,7 +245,7 @@
                                     </Expander>
                                     <Expander IsExpanded="False" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="{StaticResource SecondaryParamTitleString}" />
+                                            <TextBlock Text="{StaticResource SecondaryFlatnessParamTitleString}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -268,7 +264,6 @@
                                                                                                   IsVisibleFrequency="False"
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
-                                                                                                  IsVisibleElectrodeConfiguration="False"
                                                                                                   IsVisibleUniformityConfiguration="False"
                                                                                                   IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                   IsVisibleCompensation="False"
@@ -297,7 +292,7 @@
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
                                     <StackPanel>
-                                        <TextBlock Text="{StaticResource PrimaryParamTitleString}"
+                                        <TextBlock Text="{StaticResource PrimaryFlatnessParamTitleString}"
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
@@ -323,12 +318,12 @@
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StepFrequency}" />
                                     <StackPanel>
-                                        <TextBlock Text="Step1 Params"
+                                        <TextBlock Text="Step 1 Params"
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
                                     <Expander Header="Electrode Offset Frequency Period Params"
-                                              IsExpanded="True"
+                                              IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
@@ -521,7 +516,7 @@
                                         </Border>
                                     </Expander>
                                     <StackPanel>
-                                        <TextBlock Text="Step2 Params"
+                                        <TextBlock Text="Step 2 Params"
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
@@ -664,13 +659,14 @@
                                                                                    Foreground="{StaticResource InfoBrush}">
                                                                             <TextBlock.Text>
                                                                                 <MultiBinding StringFormat="{}{0}-{1}">
-                                                                                    <Binding Path="GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum" />
-                                                                                    <Binding Path="GenerateChirpAODWaveformParam.ProductivityInformation" />
+                                                                                    <Binding Path="GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum" />
+                                                                                    <Binding Path="GeneratePrescanAODWaveformParam.ProductivityInformation" />
                                                                                 </MultiBinding>
                                                                             </TextBlock.Text>
                                                                         </TextBlock>
                                                                         <paramUI:GeneratePrescanAODWaveformParamUserControl Grid.Row="2"
                                                                                                                             IsVisibleDirectoryPath="False"
+                                                                                                                            IsVisibleElectrodeConfiguration="False"
                                                                                                                             IsVisibleUniformityConfiguration="False"
                                                                                                                             DataContext="{Binding GeneratePrescanAODWaveformParam}" />
                                                                     </Grid>
@@ -724,7 +720,7 @@
                                                                            AllowsTransparency="True"
                                                                            PopupAnimation="Slide"
                                                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
-                                                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                                        <Border Style="{StaticResource BorderRegion}">
                                                                             <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                         </Border>
                                                                     </Popup>
@@ -856,12 +852,12 @@
                       Padding="5"
                       Header="History">
                 <TabControl>
-                    <TabItem Header="Step1 Plots">
-                        <hc:ScrollViewer>
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step0Items}">
+                    <TabItem Header="Step 1 Plots">
+                        <hc:ScrollViewer Margin="5">
+                            <ItemsControl ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -884,12 +880,12 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step1 Details">
-                        <hc:ScrollViewer>
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step0Items}">
+                    <TabItem Header="Step 1 Details">
+                        <hc:ScrollViewer Margin="5">
+                            <ItemsControl ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -923,12 +919,12 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step2">
-                        <hc:ScrollViewer>
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
+                    <TabItem Header="Step 2 Plots">
+                        <hc:ScrollViewer Margin="5">
+                            <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -951,12 +947,12 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step2 Plots">
-                        <hc:ScrollViewer>
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
+                    <TabItem Header="Step 2 Details">
+                        <hc:ScrollViewer Margin="5">
+                            <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -990,12 +986,12 @@
                             </ItemsControl>
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="Step3 Plots">
-                        <hc:ScrollViewer>
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
+                    <TabItem Header="Step 3 Plots">
+                        <hc:ScrollViewer Margin="5">
+                            <ItemsControl ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -1012,8 +1008,8 @@
                                                            Foreground="{StaticResource SuccessBrush}">
                                                     <TextBlock.Text>
                                                         <MultiBinding StringFormat="{}{0}-{1}">
-                                                            <Binding Path="GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum" />
-                                                            <Binding Path="GenerateChirpAODWaveformParam.ProductivityInformation" />
+                                                            <Binding Path="GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum" />
+                                                            <Binding Path="GeneratePrescanAODWaveformParam.ProductivityInformation" />
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
@@ -1032,9 +1028,7 @@
                                                             Margin="2"
                                                             Style="{StaticResource ButtonWarning}" />
                                                 </UniformGrid>
-                                                <Border Grid.Row="2"
-                                                        Style="{StaticResource BorderRegion}"
-                                                        Effect="{StaticResource EffectShadow1}">
+                                                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                                                     <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
                                                 </Border>
                                             </Grid>

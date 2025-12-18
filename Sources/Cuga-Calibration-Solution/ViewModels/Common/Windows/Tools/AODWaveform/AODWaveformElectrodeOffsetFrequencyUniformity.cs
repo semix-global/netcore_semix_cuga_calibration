@@ -77,7 +77,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
                 index,
                 new Range(0, Items.Count - 1));
 
-            item.MaxItem = item.FrequencyItems.Maxima(t => t.MeasurePower).Single();
+            item.MaxItem = item.FrequencyItems.Maxima(t => t.MeasurePower).First();
 
             isNeedRefreshes[index] = true;
         }

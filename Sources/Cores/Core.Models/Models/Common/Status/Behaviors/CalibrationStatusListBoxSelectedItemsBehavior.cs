@@ -1,7 +1,7 @@
-using System.ComponentModel;
 using Core.Models.Models.Common.Status.Interfaces;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Models;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;

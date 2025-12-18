@@ -69,11 +69,17 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "{@Name}: Generate Failed", Name);
+                if (ex is OperationCanceledException)
+                {
+                    DialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
+
                 DialogWindowProvider.ShowDialog($"""
                                                  {Name}: Generate Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogError(ex, "Generate Failed");
             }
         }, cancellationToken).ConfigureAwait(false);
     }
@@ -91,11 +97,17 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "{@Name}: Set Failed", Name);
+                if (ex is OperationCanceledException)
+                {
+                    DialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
+
                 DialogWindowProvider.ShowDialog($"""
                                                  {Name}: Set Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogError(ex, "Set Failed");
             }
         }).ConfigureAwait(false);
     }

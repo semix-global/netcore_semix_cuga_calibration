@@ -7,21 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.5.0-preview3-xuan" />
-        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.5.0-preview3-xuan" />
-        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.5.0-preview3-xuan" />
-        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.5.0-preview3-xuan" />
-        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.5.0-preview3-xuan" />
-        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.5.0-preview3-xuan" />
-        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.5.0-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.Mapper" />
+        <PackageReference Include="Net.Utilities.Models" />
+        <PackageReference Include="Net.Utilities.DataAnnotations" />
+        <PackageReference Include="Net.Utilities.Helpers" />
+        <PackageReference Include="Net.Utilities.Algorithms" />
+        <PackageReference Include="Net.Utilities.Algorithms.Halcon" />
+        <PackageReference Include="Net.Utilities.IOC" />
 
-        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.5.0-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.Nlog" />
 
-        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.5.0-preview3-xuan" />
-        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.5.0-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics" />
+        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" />
 
-        <PackageReference Include="Local.NoSQL.DB.Providers" VersionOverride="2.5.0-preview3-xuan" />
-        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.5.0-preview3-xuan" />
+        <PackageReference Include="Local.NoSQL.DB.Providers" />
+        <PackageReference Include="Local.SQL.DB.Providers" />
 
         <PackageReference Include="Microsoft.VisualStudio.Threading" />
     </ItemGroup>

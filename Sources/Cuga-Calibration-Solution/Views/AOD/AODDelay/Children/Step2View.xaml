@@ -63,37 +63,19 @@
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.Item.LaserLightInformation}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                     <hc:ComboBox hc:TitleElement.Title="PMT Id: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.Item.PMTId}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}" />
                     <hc:ComboBox hc:TitleElement.Title="Channel Id: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.Item.ChannelId}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
                     <Separator />
                     <hc:NumericUpDown hc:TitleElement.Title="Start Rough AOD Delay(sa): "
                                       hc:TitleElement.TitlePlacement="Left"

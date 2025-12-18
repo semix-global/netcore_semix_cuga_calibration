@@ -126,7 +126,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 .. ApplicationCookie.OpticsIlluminationModeEnums.Select(t => new OpticsIlluminationModeCalibrationStatus { SelectedItem = t, IsCalibrated = false })
             ];
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<OpticsRelayCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<OpticsRelayCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<OpticsRelayDTO>();
 
         Calibrations =
@@ -140,7 +140,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 })
         ];
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -554,7 +554,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         }
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

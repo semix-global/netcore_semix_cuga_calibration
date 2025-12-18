@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
@@ -50,9 +49,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    private CIBProfileModeEnum _cIBProfileMode = CIBProfileModeEnum.PMTVoltage;
-
-    [ObservableProperty]
     private double _measurePowerWaitTime = 5;
 
     [ObservableProperty]
@@ -68,7 +64,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _stopCoefficient = 1;
 
     [ObservableProperty]
-    private double _measurePowerSequenceCommonRatio = 1 / 1.3;
+    private double _measurePowerSequenceCommonRatio = Math.Round(1 / 1.3, 3);
 
     [ObservableProperty]
     private double _measurePowerNotUseODFilterMinValue = 1;
@@ -77,13 +73,13 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _mMDMeasurePowerRangeRatio = 1000;
 
     [ObservableProperty]
-    private double _startGain = -10;
+    private double _startGain = -9.9;
 
     [ObservableProperty]
-    private double _stepGain = 0.5;
+    private double _stepGain = 0.2;
 
     [ObservableProperty]
-    private double _stopGain = 10;
+    private double _stopGain = 9.9;
 
     [ObservableProperty]
     private double _protectedPMTValue = 409.6;
