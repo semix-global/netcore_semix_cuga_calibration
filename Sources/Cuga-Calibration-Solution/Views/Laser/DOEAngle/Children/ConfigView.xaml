@@ -17,8 +17,8 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="Laser DOE Angle Step 1: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+            <hc:Shield Subject="Laser DOE Angle Step 2: "
+                       Status="{Binding CalibrationStepList[1].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">

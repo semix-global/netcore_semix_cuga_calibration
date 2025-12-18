@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Net.Utilities.Helpers.Extensions;
@@ -13,6 +15,9 @@ public sealed partial class LaserDOEAngleCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
