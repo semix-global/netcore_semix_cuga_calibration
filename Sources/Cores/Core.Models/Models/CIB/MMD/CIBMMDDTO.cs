@@ -244,6 +244,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
         ChannelId = CIBInformation.ChannelId,
         LogGainMul128U12Bits = [.. LogGainMul128U12BitPoints.Select(t => t.Y)],
         GainS16Bits = [.. GainS16BitPoints.Select(t => t.Y)],
+        MaxLogGain = ResultLogGainPoints.Maxima(t => t.Y).Single().Y,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck

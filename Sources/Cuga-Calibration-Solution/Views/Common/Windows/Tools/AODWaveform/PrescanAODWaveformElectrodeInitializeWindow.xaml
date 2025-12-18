@@ -101,12 +101,16 @@
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
-                                                <TabControl Margin="5">
+                                                <TabControl>
                                                     <TabItem Header="Prescan AOD Waveform">
-                                                        <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                        <Border Style="{StaticResource BorderRegion}">
+                                                            <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                        </Border>
                                                     </TabItem>
                                                     <TabItem Header="Chirp AOD Waveform">
-                                                        <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                        <Border Style="{StaticResource BorderRegion}">
+                                                            <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                        </Border>
                                                     </TabItem>
                                                 </TabControl>
                                             </Popup>

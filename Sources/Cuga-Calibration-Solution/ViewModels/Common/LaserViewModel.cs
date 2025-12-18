@@ -358,9 +358,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bit)
+    public void SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bit, double maxLogGain)
     {
-        var ret = calibrationLaserService.SetCIBMMD(cibInformation, logGainMul128U12Bits, gainS16Bit);
+        var ret = calibrationLaserService.SetCIBMMD(cibInformation, logGainMul128U12Bits, gainS16Bit, maxLogGain);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

@@ -260,7 +260,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return;
             }
 
-            LaserViewModel.SetCIBMMD(cibMMDDto.CIBInformation, [.. cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)], [.. cibMMDDto.GainS16BitPoints.Select(t => t.Y)]);
+            LaserViewModel.SetCIBMMD(
+                cibMMDDto.CIBInformation,
+                [.. cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)],
+                [.. cibMMDDto.GainS16BitPoints.Select(t => t.Y)],
+                cibMMDDto.ResultLogGainPoints.Maxima(t => t.Y).Single().Y);
 
             DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} {cibMMDDto.CIBInformation} OK!");
         }
