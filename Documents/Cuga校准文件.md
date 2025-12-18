@@ -1287,6 +1287,10 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 
 ## 4.11 MMD校准 `CalibrationLaserCIBMMDItem`
 
+根据不同 `列表.SingleOrDefault(t => t.PMTId== PMTId&& t.ChannelId== ChannelId)` 判断`is not null`后使用
+
+个数：15 * 3 = 45
+
 ```csharp
 /// <summary>
 /// CIB MMD 校准
@@ -1313,6 +1317,11 @@ public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
     /// GainS16Bit [-2^15, 2^15-1], **需要下发CIB硬件**
     /// </summary>
     public IReadOnlyList<double> GainS16Bits { get; set; }
+
+    /// <summary>
+    /// LogGain 最大值, **需要下发CIB硬件**
+    /// </summary>
+    public double MaxLogGain { get; set; }
 }
 ```
 

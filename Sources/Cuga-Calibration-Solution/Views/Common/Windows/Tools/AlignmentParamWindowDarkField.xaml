@@ -75,13 +75,7 @@
                                          hc:InfoElement.Title="BF Low Mag: "
                                          hc:InfoElement.Necessary="True"
                                          SelectedItem="{Binding Cache.LowMag}"
-                                         ItemsSource="{Binding MicroscopeLensInformationList}">
-                                <hc:ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding LensName}" />
-                                    </DataTemplate>
-                                </hc:ComboBox.ItemTemplate>
-                            </hc:ComboBox>
+                                         ItemsSource="{Binding MicroscopeLensInformationList}" />
                             <hc:ComboBox hc:InfoElement.TitleWidth="120"
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="BF Low Size: "
@@ -105,13 +99,7 @@
                                          hc:InfoElement.Title="BF High Mag: "
                                          hc:InfoElement.Necessary="True"
                                          SelectedItem="{Binding Cache.HighMag}"
-                                         ItemsSource="{Binding MicroscopeLensInformationList}">
-                                <hc:ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding LensName}" />
-                                    </DataTemplate>
-                                </hc:ComboBox.ItemTemplate>
-                            </hc:ComboBox>
+                                         ItemsSource="{Binding MicroscopeLensInformationList}" />
                             <hc:ComboBox hc:InfoElement.TitleWidth="120"
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="BF High Size: "

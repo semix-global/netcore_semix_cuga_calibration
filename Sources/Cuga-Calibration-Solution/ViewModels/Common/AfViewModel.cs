@@ -1,8 +1,6 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -271,191 +269,13 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public bool SetDarkFieldAutoFocus(SettingDarkFieldAutoFocusParam darkAutoFocusParam, OpticsMagTypeEnum opticsMagTypeEnum, CalChipSiteModelEnum calChipSiteModelEnum)
+    public void SetDarkField(CalChipSiteModelEnum calChipSiteModelEnum, double ecs, double offsetMotor)
     {
+        ToggleBrightFieldEnable(false);
         ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
 
-        switch (calChipSiteModelEnum)
-        {
-            case CalChipSiteModelEnum.ChuckModel:
-                if (darkAutoFocusParam.IsEnableChuck)
-                {
-                    SetSensorDarkFieldChuckStandardEcsValue(darkAutoFocusParam.ChuckEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.ChuckMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.ChuckEcsValue);
-                }
-
-                break;
-
-            case CalChipSiteModelEnum.DswModel:
-                if (darkAutoFocusParam.IsEnableDsw)
-                {
-                    SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, darkAutoFocusParam.DswEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.DswMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.DswEcsValue);
-                }
-
-                break;
-
-            case CalChipSiteModelEnum.UndefinedModel:
-                if (darkAutoFocusParam.IsEnableUndefined)
-                {
-                    SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, darkAutoFocusParam.UndefinedEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.UndefinedMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.UndefinedEcsValue);
-                }
-
-                break;
-
-            case CalChipSiteModelEnum.HazeModel:
-                if (darkAutoFocusParam.IsEnableHaze)
-                {
-                    SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, darkAutoFocusParam.HazeEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.HazeMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.HazeEcsValue);
-                }
-
-                break;
-
-            case CalChipSiteModelEnum.ShinyWaferModel:
-                if (darkAutoFocusParam.IsEnableShinyWafer)
-                {
-                    SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, darkAutoFocusParam.ShinyWaferEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.ShinyWaferMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.ShinyWaferEcsValue);
-                }
-
-                break;
-        }
-
-        return calChipSiteModelEnum switch
-        {
-            CalChipSiteModelEnum.ChuckModel => darkAutoFocusParam.IsEnableChuck,
-            CalChipSiteModelEnum.DswModel => darkAutoFocusParam.IsEnableDsw,
-            CalChipSiteModelEnum.UndefinedModel => darkAutoFocusParam.IsEnableUndefined,
-            CalChipSiteModelEnum.HazeModel => darkAutoFocusParam.IsEnableHaze,
-            CalChipSiteModelEnum.ShinyWaferModel => darkAutoFocusParam.IsEnableShinyWafer,
-            _ => throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null)
-        };
-    }
-
-
-    public bool SetDarkFieldAutoFocus(SettingDarkFieldAutoFocusParam darkAutoFocusParam, CalChipSiteModelEnum calChipSiteModelEnum)
-    {
-        ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
-
-        switch (calChipSiteModelEnum)
-        {
-            case CalChipSiteModelEnum.ChuckModel:
-                if (darkAutoFocusParam.IsEnableChuck)
-                {
-                    SetSensorDarkFieldChuckStandardEcsValue(darkAutoFocusParam.ChuckEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.ChuckMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.ChuckEcsValue);
-                }
-
-                break;
-
-            case CalChipSiteModelEnum.DswModel:
-                if (darkAutoFocusParam.IsEnableDsw)
-                {
-                    SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, darkAutoFocusParam.DswEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.DswMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.DswEcsValue);
-                }
-
-                break;
-
-            case CalChipSiteModelEnum.UndefinedModel:
-                if (darkAutoFocusParam.IsEnableUndefined)
-                {
-                    SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, darkAutoFocusParam.UndefinedEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.UndefinedMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.UndefinedEcsValue);
-                }
-
-                break;
-
-            case CalChipSiteModelEnum.HazeModel:
-                if (darkAutoFocusParam.IsEnableHaze)
-                {
-                    SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, darkAutoFocusParam.HazeEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.HazeMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.HazeEcsValue);
-                }
-
-                break;
-
-            case CalChipSiteModelEnum.ShinyWaferModel:
-                if (darkAutoFocusParam.IsEnableShinyWafer)
-                {
-                    SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, darkAutoFocusParam.ShinyWaferEcsValue);
-                    SetDarkFieldAutoFocusMotorAbsoluteValue(darkAutoFocusParam.ShinyWaferMotorValue);
-                }
-                else
-                {
-                    ToggleBrightFieldEnable(false);
-                    SetSensorEcsValue(darkAutoFocusParam.ShinyWaferEcsValue);
-                }
-
-                break;
-        }
-
-        return calChipSiteModelEnum switch
-        {
-            CalChipSiteModelEnum.ChuckModel => darkAutoFocusParam.IsEnableChuck,
-            CalChipSiteModelEnum.DswModel => darkAutoFocusParam.IsEnableDsw,
-            CalChipSiteModelEnum.UndefinedModel => darkAutoFocusParam.IsEnableUndefined,
-            CalChipSiteModelEnum.HazeModel => darkAutoFocusParam.IsEnableHaze,
-            CalChipSiteModelEnum.ShinyWaferModel => darkAutoFocusParam.IsEnableShinyWafer,
-            _ => throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null)
-        };
-    }
-
-    public (Point[] traceBuffer, double k) NscDiagnosis(double afEcs, CalChipSiteModelEnum calChipSiteModelEnum)
-    {
-        SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, afEcs);
-
-        var ret = calibrationAfService.NscDiagnosis();
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        return (ret.Anything.tracebuffer, ret.Anything.k);
+        SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, ecs);
+        SetDarkFieldAutoFocusMotorAbsoluteValue(offsetMotor);
     }
 
     #endregion 服务

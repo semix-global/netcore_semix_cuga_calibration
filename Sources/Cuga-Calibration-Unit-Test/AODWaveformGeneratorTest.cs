@@ -16,6 +16,7 @@ using Xunit;
 using Semix.GRPC.DTO;
 #else
 using Semix.WcfTransfer.DTO;
+using Cuga.Data.DataStruct.PMT;
 #endif
 
 namespace CugaCalibrationUnitTest;
@@ -28,9 +29,9 @@ public class AODWaveformUnitTest
     [InlineData(true, false, false, false, nameof(AbstractGenerateAODWaveformParam.SincCoefficient))]
     [InlineData(true, false, true, false, "Uniformity")]
     [InlineData(false, false, false, true, $"{nameof(AbstractGenerateAODWaveformParam.SincCoefficient)}_SlopeDeltaK")]
-    [InlineData(false, false, true, true, $"Uniformity_SlopeDeltaK")]
+    [InlineData(false, false, true, true, "Uniformity_SlopeDeltaK")]
     [InlineData(true, false, false, true, $"{nameof(AbstractGenerateAODWaveformParam.SincCoefficient)}_SlopeDeltaK")]
-    [InlineData(true, false, true, true, $"Uniformity_SlopeDeltaK")]
+    [InlineData(true, false, true, true, "Uniformity_SlopeDeltaK")]
     [InlineData(false, true, false, false, nameof(FunctionMonotonicTypeEnum.Flatness))]
     [InlineData(true, true, false, false, nameof(FunctionMonotonicTypeEnum.Flatness))]
     public void AODWaveformGeneratorTest(bool isChirp, bool isFunctionMonotonicTypeEnumFlatness, bool isUseUniformityConfigurations, bool isUseSlopeDeltaKs, string expectedName)
@@ -43,7 +44,14 @@ public class AODWaveformUnitTest
 
         AbstractGenerateAODWaveformParam param = new GeneratePrescanAODWaveformParam
         {
-            ProductivityInformation = ProductivityInformation.Default.Clone().AdaptIn(new C2MProductivityInfo { Name = string.Empty, Mag = SxMAGEnum.Mid, Speed = (SxSpeedEnum)(-1), IsUsed = true }, new CgSwathSpeedInfo(), -1),
+            ProductivityInformation = ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo { Name = string.Empty, Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true },
+#if NET
+                new CgSwathSpeedInfo(),
+#else
+                new CgSwathSpeedInfo { Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting> { { CgSpeedLevelType.Low, new CgSpeedSetting() } } },
+#endif
+                -1),
             IsHeaderAndFooter = false,
             BandWidth = 210d,
             CenterFrequency = 200d,
@@ -114,13 +122,15 @@ public class AODWaveformUnitTest
 
         var resultFilePath = isChirp
             ? $"chirp_" +
-              $"{((GenerateChirpAODWaveformParam)param).ProductivityInformation.AdaptTo().Mag.ToString()}_" +
+              $"{((GenerateChirpAODWaveformParam)param).OpticsIlluminationModeEnum}_" +
+              $"{((GenerateChirpAODWaveformParam)param).ProductivityInformation.AdaptTo().Mag}_" +
               $"{((GenerateChirpAODWaveformParam)param).SoundPacketLength:0.###}mm_" +
               $"{((GenerateChirpAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz_" +
               $"{((GenerateChirpAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
               $"{AODWaveformGenerator.ChirpAODWaveformFileExtension}"
             : $"prescan_" +
-              $"{((GeneratePrescanAODWaveformParam)param).ProductivityInformation.AdaptTo().Mag.ToString()}_" +
+              $"{((GeneratePrescanAODWaveformParam)param).OpticsIlluminationModeEnum}_" +
+              $"{((GeneratePrescanAODWaveformParam)param).ProductivityInformation.AdaptTo().Mag}_" +
               $"{((GeneratePrescanAODWaveformParam)param).FlatnessTime:0.###}ns_" +
               $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz_" +
               $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
@@ -165,6 +175,7 @@ public class AODWaveformUnitTest
 
             var profileFilePath = isChirp
                 ? $"chirp_" +
+                  $"{((GenerateChirpAODWaveformParam)param).OpticsIlluminationModeEnum}_" +
                   $"{param.ProductivityInformation.AdaptTo().Mag.ToString()}" +
                   $"${((GenerateChirpAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
                   $"${param.ZeroSampleCount:0.###}" +
@@ -172,6 +183,7 @@ public class AODWaveformUnitTest
                   $"${configuration.OffsetFrequency:0.###}" +
                   $"${configuration.OffsetFrequencyPeriodCoefficient:0.###}$.txt"
                 : $"prescan_" +
+                  $"{((GeneratePrescanAODWaveformParam)param).OpticsIlluminationModeEnum}_" +
                   $"{param.ProductivityInformation.AdaptTo().Mag.ToString()}" +
                   $"${((GeneratePrescanAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
                   $"${param.ZeroSampleCount:0.###}" +

@@ -25,11 +25,11 @@
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Laser Line Centricity Step 5: "
                            Status="{Binding CalibrationStepList[4].StepName}"
-                           Color="{StaticResource InfoBrush}" />                
+                           Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Productivity: "
-                       Status="{Binding Cache.ProductivityInformation}"
-                       Color="{StaticResource SuccessBrush}" />
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">

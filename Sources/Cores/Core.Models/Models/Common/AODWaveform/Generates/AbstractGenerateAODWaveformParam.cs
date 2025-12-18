@@ -30,10 +30,10 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     private double _footerFrequency;
 
     [ObservableProperty]
-    private double _bandWidth = 100;
+    private double _bandWidth;
 
     [ObservableProperty]
-    private double _centerFrequency = 150;
+    private double _centerFrequency;
 
     [ObservableProperty]
     private FunctionMonotonicTypeEnum _functionMonotonicTypeEnum;
@@ -112,10 +112,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
                 : FunctionMonotonicTypeEnum.Deceasing;
     }
 
-    protected virtual void OnBandWidthChanged()
-    {
-    }
-
     partial void OnBandWidthChanged(double value)
     {
         OnBandWidthChanged();
@@ -177,6 +173,17 @@ public abstract partial class AbstractGenerateAODWaveformParam :
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(FunctionMonotonicTypeEnum))
         };
         BandWidth = value == FunctionMonotonicTypeEnum.Flatness ? 0d : BandWidth;
+    }
+
+    protected AbstractGenerateAODWaveformParam()
+    {
+        BandWidth = 100;
+        CenterFrequency = 150;
+        FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Deceasing;
+    }
+
+    protected virtual void OnBandWidthChanged()
+    {
     }
 
     public void WithFrequencyFlatness(double frequency)
