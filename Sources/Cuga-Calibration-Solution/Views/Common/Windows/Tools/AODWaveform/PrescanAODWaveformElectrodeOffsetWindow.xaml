@@ -857,7 +857,7 @@
                       Header="History">
                 <TabControl>
                     <TabItem Header="Step 1 Plots">
-                        <hc:ScrollViewer>
+                        <hc:ScrollViewer Margin="5">
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -885,7 +885,7 @@
                         </hc:ScrollViewer>
                     </TabItem>
                     <TabItem Header="Step 1 Details">
-                        <hc:ScrollViewer>
+                        <hc:ScrollViewer Margin="5">
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -924,7 +924,7 @@
                         </hc:ScrollViewer>
                     </TabItem>
                     <TabItem Header="Step 2">
-                        <hc:ScrollViewer>
+                        <hc:ScrollViewer Margin="5">
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -952,7 +952,7 @@
                         </hc:ScrollViewer>
                     </TabItem>
                     <TabItem Header="Step 2 Plots">
-                        <hc:ScrollViewer>
+                        <hc:ScrollViewer Margin="5">
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -991,7 +991,7 @@
                         </hc:ScrollViewer>
                     </TabItem>
                     <TabItem Header="Step 3 Plots">
-                        <hc:ScrollViewer>
+                        <hc:ScrollViewer Margin="5">
                             <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
