@@ -31,6 +31,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using Core.Models.Enums.CIB;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -344,7 +345,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.IsAFEnable,
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
-                Cache.CIBProfileMode,
                 Cache.MeasurePowerWaitTime,
                 Cache.PMTValueWaitTime,
                 Cache.StartCoefficient,
@@ -387,7 +387,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.StartCoefficient))]);
             LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
 
-            LaserViewModel.ToggleProfileMode(Cache.CIBProfileMode);
+            LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTVoltage);
             LaserViewModel.SetGain(Cache.StartGain);
 
             Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -610,6 +610,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
             finally
             {
+                LaserViewModel.ToggleEnableAutoGainControl(true);
+                LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
                 LaserViewModel.ToggleOpticsODFilter(false);
             }
 

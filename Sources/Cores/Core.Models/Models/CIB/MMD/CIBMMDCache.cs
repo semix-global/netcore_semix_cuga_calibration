@@ -50,9 +50,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    private CIBProfileModeEnum _cIBProfileMode = CIBProfileModeEnum.PMTVoltage;
-
-    [ObservableProperty]
     private double _measurePowerWaitTime = 5;
 
     [ObservableProperty]
@@ -68,7 +65,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _stopCoefficient = 1;
 
     [ObservableProperty]
-    private double _measurePowerSequenceCommonRatio = 1 / 1.3;
+    private double _measurePowerSequenceCommonRatio = Math.Round(1 / 1.3, 3);
 
     [ObservableProperty]
     private double _measurePowerNotUseODFilterMinValue = 1;

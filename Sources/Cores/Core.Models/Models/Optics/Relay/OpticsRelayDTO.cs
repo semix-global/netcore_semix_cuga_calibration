@@ -183,6 +183,23 @@ public sealed partial class OpticsRelayDTOItem : CalibrationCacheBase, ICloneabl
     [ObservableProperty]
     private Item? _maxItem;
 
+    partial void OnQualitysChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        OnPropertyChanged(nameof(Qualitys));
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Qualitys));
+    }
+
     public OpticsRelayDTOItem Clone() => new()
     {
         RelayMotorAbsoluteValue = RelayMotorAbsoluteValue,
@@ -192,15 +209,19 @@ public sealed partial class OpticsRelayDTOItem : CalibrationCacheBase, ICloneabl
         Expiration = Expiration
     };
 
-    public sealed class Item : ICloneable<Item>
+    public sealed partial class Item : CalibrationCacheBase, ICloneable<Item>
     {
-        public double ECS { get; init; }
+        [ObservableProperty]
+        private double _eCS;
 
-        public double Quality { get; set; }
+        [ObservableProperty]
+        private double _quality;
 
-        public string ImageFilePath { get; set; } = string.Empty;
+        [ObservableProperty]
+        private string _imageFilePath = string.Empty;
 
-        public string RawImageFilePath { get; set; } = string.Empty;
+        [ObservableProperty]
+        private string _rawImageFilePath = string.Empty;
 
         public Item Clone() => new()
         {

@@ -271,6 +271,23 @@ public sealed partial class CIBMMDItemDto : ObservableCacheBase, ICloneable<CIBM
     [property: LiteDB.BsonIgnore]
     private double _protectedOverflowProtectedPMTValueCount;
 
+    partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        OnPropertyChanged(nameof(Items));
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Items));
+    }
+
     public CIBMMDItemDto Clone() => new()
     {
         Coefficient = Coefficient,
@@ -280,11 +297,13 @@ public sealed partial class CIBMMDItemDto : ObservableCacheBase, ICloneable<CIBM
         Expiration = Expiration
     };
 
-    public sealed class Item : ICloneable<Item>
+    public sealed partial class Item : ObservableCacheBase, ICloneable<Item>
     {
-        public double Gain { get; init; }
+        [ObservableProperty]
+        private double _gain;
 
-        public double PMTValue { get; set; }
+        [ObservableProperty]
+        private double _pMTValue;
 
         public Item Clone() => new()
         {
