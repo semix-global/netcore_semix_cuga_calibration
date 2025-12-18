@@ -554,7 +554,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         }
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

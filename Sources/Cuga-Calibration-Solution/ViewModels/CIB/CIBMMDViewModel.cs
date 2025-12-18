@@ -944,7 +944,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准
