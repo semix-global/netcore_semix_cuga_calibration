@@ -922,8 +922,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
         var directionX = directionRet.Anything.XDirection;
 
-        var scanLineXPixelSize = calibrationSetting.SettingCommonParam.GetScanLineXPixelSize(opticsMagTypeEnum, xStageSpeedEnum);
-        var extendWidth = xWidthPixel * scanLineXPixelSize / 2.0;
+        var extendWidth = xWidthPixel * xPixelSize / 2.0;
 
         var startPointList = new List<SxPointD>();
         var endPointList = new List<SxPointD>();

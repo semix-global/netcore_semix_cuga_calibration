@@ -9,8 +9,6 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
-             xmlns:cibEnum="clr-namespace:Core.Models.Enums.CIB;assembly=Core.Models"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
@@ -157,26 +155,6 @@
                                   ExpandDirection="Down">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <ComboBox hc:TitleElement.Title="Log Mode: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
-                                              SelectedItem="{Binding Path=Cache.CIBProfileMode}">
-                                        <ComboBox.Style>
-                                            <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="ComboBox">
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter Property="Background" Value="LightGray" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ComboBox.Style>
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
                                     <hc:NumericUpDown hc:TitleElement.Title="Measure Power Wait Time(s): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"

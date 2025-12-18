@@ -52,11 +52,6 @@
                                 <i:InvokeCommandAction Command="{Binding SelectedPmtIdChangedCommand}" CommandParameter="{Binding ElementName=ComboBoxPMTId, Path=SelectedItem}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <hc:ComboBox x:Name="ComboChannelId"
                                  HorizontalAlignment="Left"
@@ -70,11 +65,6 @@
                                 <i:InvokeCommandAction Command="{Binding SelectedChannelChangedCommand}" CommandParameter="{Binding ElementName=ComboChannelId, Path=SelectedItem}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
                     <hc:NumericUpDown hc:TitleElement.Title="Gain Min: "
                                       hc:TitleElement.TitlePlacement="Left"

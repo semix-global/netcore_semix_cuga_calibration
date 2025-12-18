@@ -396,16 +396,8 @@ public sealed class LaserViewModel(
 
         var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        var rtfcResult = ret.Anything;
-        var settingDarkFieldAutoFocusParam = calChipSiteModelEnum switch
-        {
-            CalChipSiteModelEnum.ChuckModel => new SettingDarkFieldAutoFocusParam() { ChuckEcsValue = rtfcResult.Ecs, ChuckMotorValue = rtfcResult.AfMotor, IsEnableChuck = true },
-            CalChipSiteModelEnum.DswModel => new SettingDarkFieldAutoFocusParam() { DswEcsValue = rtfcResult.Ecs, DswMotorValue = rtfcResult.AfMotor, IsEnableDsw = true },
-            CalChipSiteModelEnum.HazeModel => new SettingDarkFieldAutoFocusParam() { HazeEcsValue = rtfcResult.Ecs, HazeMotorValue = rtfcResult.AfMotor, IsEnableHaze = true },
-            _ => throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null)
-        };
-        afViewModel.SetDarkFieldAutoFocus(settingDarkFieldAutoFocusParam, yOpticsMagTypeEnum, calChipSiteModelEnum);
+        
+        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
         using var darkFieldImageDto = GetDarkFieldLineScanImage(
             calChipSiteModelEnum,
             position,
@@ -442,7 +434,7 @@ public sealed class LaserViewModel(
             resultImageFilePath = rtfcResultImagePath;
         }
 
-        return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public (double Ecs, double AfMotor) RuntimeAfCalibration(
@@ -468,15 +460,7 @@ public sealed class LaserViewModel(
         var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        var rtfcResult = ret.Anything;
-        var settingDarkFieldAutoFocusParam = calChipSiteModelEnum switch
-        {
-            CalChipSiteModelEnum.ChuckModel => new SettingDarkFieldAutoFocusParam() { ChuckEcsValue = rtfcResult.Ecs, ChuckMotorValue = rtfcResult.AfMotor, IsEnableChuck = true },
-            CalChipSiteModelEnum.DswModel => new SettingDarkFieldAutoFocusParam() { DswEcsValue = rtfcResult.Ecs, DswMotorValue = rtfcResult.AfMotor, IsEnableDsw = true },
-            CalChipSiteModelEnum.HazeModel => new SettingDarkFieldAutoFocusParam() { HazeEcsValue = rtfcResult.Ecs, HazeMotorValue = rtfcResult.AfMotor, IsEnableHaze = true },
-            _ => throw new ArgumentOutOfRangeException(nameof(calChipSiteModelEnum), calChipSiteModelEnum, null)
-        };
-        afViewModel.SetDarkFieldAutoFocus(settingDarkFieldAutoFocusParam, calChipSiteModelEnum);
+        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
         using var darkFieldImageDto = GetDarkFieldLineScanImage(
             calChipSiteModelEnum,
             position,
@@ -513,7 +497,7 @@ public sealed class LaserViewModel(
                 }), logGuid.Value.LoggingHtml());
         }
 
-        return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     [Obsolete]

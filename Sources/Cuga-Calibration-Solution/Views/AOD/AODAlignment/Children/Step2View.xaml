@@ -64,25 +64,13 @@
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.Item.PMTId}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}" />
                     <hc:ComboBox hc:TitleElement.Title="Channel Id: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  SelectedItem="{Binding Cache.Item.ChannelId}"
                                  Style="{StaticResource ComboBoxExtend}"
-                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
+                                 ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="190"

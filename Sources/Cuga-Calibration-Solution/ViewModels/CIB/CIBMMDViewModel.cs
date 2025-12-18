@@ -536,14 +536,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition));
             if (Cache.IsAFEnable)
             {
-                AfViewModel.SetSensorDarkFieldCalChipStandardEcsValue(CalChipSiteModelEnum.HazeModel, Cache.AFECS);
-                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(Cache.AFOffsetMotor);
+                AfViewModel.SetDarkField(CalChipSiteModelEnum.HazeModel, Cache.AFECS, Cache.AFOffsetMotor);
                 AfViewModel.ToggleDarkFieldEnable(true);
             }
             else
             {
-                AfViewModel.ToggleBrightFieldEnable(false);
                 AfViewModel.SetSensorEcsValue(Cache.AFECS);
+                AfViewModel.ToggleBrightFieldEnable(false);
             }
 
             try
