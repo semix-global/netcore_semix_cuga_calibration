@@ -73,13 +73,13 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _mMDMeasurePowerRangeRatio = 1000;
 
     [ObservableProperty]
-    private double _startGain = -10;
+    private double _startGain = -9.9;
 
     [ObservableProperty]
-    private double _stepGain = 0.5;
+    private double _stepGain = 0.2;
 
     [ObservableProperty]
-    private double _stopGain = 10;
+    private double _stopGain = 9.9;
 
     [ObservableProperty]
     private double _protectedPMTValue = 409.6;

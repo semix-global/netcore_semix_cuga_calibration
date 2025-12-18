@@ -12,6 +12,7 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignHeight="1920"
              d:DesignWidth="1920"
@@ -54,13 +55,14 @@
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="200"
                                   Style="{StaticResource ComboBoxExtend}"
+                                  SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
                                   ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
                         <ComboBox hc:TitleElement.Title="Productivity Information: "
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="200"
                                   Style="{StaticResource ComboBoxExtend}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                             </i:Interaction.Behaviors>
                             <ComboBox.ItemsSource>
                                 <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">

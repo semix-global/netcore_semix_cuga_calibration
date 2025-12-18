@@ -229,7 +229,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
+        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
 
         if (isHasCacheNew == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 

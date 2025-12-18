@@ -241,7 +241,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
+        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
@@ -1002,7 +1002,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     private void LineCentricityOffsetsFit(IReadOnlyCollection<(int Pmt, Point offsets)> results)
     {
         var pmtXErrorCoordinatess = results.OrderBy(t => t.Pmt)
-            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PmtInterval, t.offsets.X)).ToArray();
+            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.X)).ToArray();
         var (polynomialX, rSquaredXError, _) = PolynomialLeastSquares.PolynomialFit(
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinatess.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinatess.Select(t => t.Y)),
@@ -1012,7 +1012,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         var pmtXErrorTitle = $"y ={slopeXError:0.######}x + {interceptXError:0.######} r^2 = {rSquaredXError:0.######} angle = {MathUtils.RadianAngleToDegreeAngle(Math.Atan(slopeXError))}";
 
         var pmtYErrorCoordinatess = results.OrderBy(t => t.Pmt)
-            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PmtInterval, t.offsets.Y)).ToArray();
+            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.Y)).ToArray();
         var (polynomialY, rSquaredYError, yPredictedYError) = PolynomialLeastSquares.PolynomialFit(
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinatess.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinatess.Select(t => t.Y)),

@@ -194,7 +194,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
+        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;

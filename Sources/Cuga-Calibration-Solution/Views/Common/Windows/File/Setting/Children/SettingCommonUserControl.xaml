@@ -15,7 +15,7 @@
              mc:Ignorable="d">
     <Border>
         <UniformGrid Columns="2" Rows="2">
-            <GroupBox Header="Min Log Level">
+            <GroupBox Margin="5" Header="Min Log Level">
                 <Border>
                     <ItemsControl HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
@@ -40,7 +40,9 @@
                     </ItemsControl>
                 </Border>
             </GroupBox>
-            <GroupBox Header="Developers Param" Visibility="{Binding SettingCommonParam.IsDebugEnvironment, Converter={StaticResource Boolean2VisibilityConverter}}">
+            <GroupBox Margin="5"
+                      Header="Developers Param"
+                      Visibility="{Binding SettingCommonParam.IsDebugEnvironment, Converter={StaticResource Boolean2VisibilityConverter}}">
                 <Border>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -72,32 +74,37 @@
                     </Grid>
                 </Border>
             </GroupBox>
-            <GroupBox Header="HardWare Param" Visibility="{Binding SettingCommonParam.IsDebugEnvironment, Converter={StaticResource Boolean2VisibilityConverter}}">
+            <GroupBox Margin="5"
+                      Header="HardWare Param"
+                      Visibility="{Binding SettingCommonParam.IsDebugEnvironment, Converter={StaticResource Boolean2VisibilityConverter}}">
                 <ScrollViewer>
                     <Border>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <hc:NumericUpDown hc:TitleElement.Title="PMT Interval(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="150"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding SettingCommonParam.PmtInterval}" />
-                            <hc:ComboBox hc:TitleElement.TitleWidth="150"
-                                         hc:TitleElement.TitlePlacement="Left"
-                                         hc:TitleElement.Title="Light Information: "
-                                         SelectedItem="{Binding SettingCommonParam.MainLaserLightInformation}"
-                                         ItemsSource="{Binding LaserLightInformationList}" />
-                            <hc:ComboBox x:Name="LowMagCombobox"
-                                         hc:TitleElement.TitleWidth="150"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="200"
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.Title="Low Microscope: "
                                          SelectedItem="{Binding SettingCommonParam.LowMicroscopeLensInformation}"
                                          ItemsSource="{Binding MicroscopeLensInformationList}" />
-                            <hc:ComboBox x:Name="HighMagCombobox"
-                                         hc:TitleElement.TitleWidth="150"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="200"
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.Title="High Microscope: "
                                          SelectedItem="{Binding SettingCommonParam.HighMicroscopeLensInformation}"
                                          ItemsSource="{Binding MicroscopeLensInformationList}" />
+                            <hc:ComboBox hc:TitleElement.TitleWidth="200"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="Light Information: "
+                                         SelectedItem="{Binding SettingCommonParam.MainLaserLightInformation}"
+                                         ItemsSource="{Binding LaserLightInformationList}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="PMT Interval(um): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding SettingCommonParam.PMTInterval}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Measure Power Min Value(mW): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding SettingCommonParam.MeasurePowerMeasurementMinValue}" />
                         </hc:UniformSpacingPanel>
                     </Border>
                 </ScrollViewer>

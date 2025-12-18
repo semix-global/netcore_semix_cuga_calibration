@@ -3,7 +3,6 @@ using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Loggings;
-using System.ComponentModel.DataAnnotations;
 
 namespace Core.Models.Models.Setting;
 
@@ -12,11 +11,6 @@ namespace Core.Models.Models.Setting;
 /// </summary>
 public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<SettingCommonParam, SettingCommonParam>
 {
-    private double _pmtInterval = 320; // Pmt相机采集间隔320um
-
-    /// <summary>
-    /// 日志级别
-    /// </summary>
     [ObservableProperty]
     private LogLevelEnum _minLogLevelEnum = LogLevelEnum.Info;
 
@@ -25,6 +19,15 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
 
     [ObservableProperty]
     private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    private LaserLightInformation _mainLaserLightInformation = LaserLightInformation.Default;
+
+    [ObservableProperty]
+    private double _pMTInterval = 320;
+
+    [ObservableProperty]
+    private double _measurePowerMeasurementMinValue = 0.1;
 
     #region 校准状态控制
 
@@ -46,22 +49,6 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
     [ObservableProperty]
     private bool _isDebugEnvironment;
 
-    /// <summary>
-    /// Pmt相机采集间隔(um)
-    /// </summary>
-    [Range(0, 500)]
-    public double PmtInterval
-    {
-        get => _pmtInterval;
-        set => SetProperty(ref _pmtInterval, value, true);
-    }
-
-    /// <summary>
-    /// 校准暗场采集波形功率系数
-    /// </summary>
-    [ObservableProperty]
-    private LaserLightInformation _mainLaserLightInformation = LaserLightInformation.Default;
-
     #endregion 校准状态控制
 
     #region Mapper
@@ -71,11 +58,13 @@ public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<S
         MinLogLevelEnum = obj.MinLogLevelEnum;
         LowMicroscopeLensInformation = obj.LowMicroscopeLensInformation;
         HighMicroscopeLensInformation = obj.HighMicroscopeLensInformation;
+        MainLaserLightInformation = obj.MainLaserLightInformation;
+        PMTInterval = obj.PMTInterval;
+        MeasurePowerMeasurementMinValue = obj.MeasurePowerMeasurementMinValue;
         DependencyEnable = obj.DependencyEnable;
         PrerequisitesEnable = obj.PrerequisitesEnable;
         IsDebugEnvironment = obj.IsDebugEnvironment;
-        PmtInterval = obj.PmtInterval;
-        MainLaserLightInformation = obj.MainLaserLightInformation;
+
         return this;
     }
 

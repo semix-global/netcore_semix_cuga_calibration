@@ -321,6 +321,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             Guard.IsNotEmpty(Cache.CIBInformations);
+            Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, CalibrationSetting.SettingCommonParam.MeasurePowerMeasurementMinValue);
+            Guard.IsGreaterThan(Cache.MeasurePowerSequenceCommonRatio, 0);
+            Guard.IsLessThan(Cache.MeasurePowerSequenceCommonRatio, 1);
+
             Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
@@ -411,7 +415,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
                 var measurePowerNoises = (IReadOnlyList<double>)
                 [
-                    ..Enumerable.Range(0, HostEnvironment.IsDevelopment() ? 0 : 10000)
+                    ..Enumerable.Range(0, HostEnvironment.IsProduction() ? 10000 : 0)
                         .Select(_ =>
                         {
                             cancellationToken.ThrowIfCancellationRequested();
@@ -419,7 +423,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                             return LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
                         })
                 ];
-                var measurePowerNoise = HostEnvironment.IsDevelopment() ? 0 : measurePowerNoises.Average();
+                var measurePowerNoise = HostEnvironment.IsProduction() ? measurePowerNoises.Average() : 0;
 
                 foreach (var coefficient in coefficients)
                 {
@@ -461,13 +465,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
             }
 
+            Cache.MeasurePowerPoints = [..Cache.MeasurePowerPoints.Where(t => t.Y >= CalibrationSetting.SettingCommonParam.MeasurePowerMeasurementMinValue)]; // 过滤量程下限
             (Cache.P0, Cache.P1, Cache.P2, Cache.P3, Cache.RSquared, var yPredicted) = PolynomialLeastSquares.Polynomial3Fit(Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.Y)));
 
             Cache.FitMeasurePowerPoints = [.. Cache.MeasurePowerPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
             var minFitMeasurePowerPoint = Cache.FitMeasurePowerPoints.MinBy(t => t.Y);
             var maxFitMeasurePowerPoint = Cache.FitMeasurePowerPoints.MaxBy(t => t.Y);
 
-            Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, minFitMeasurePowerPoint.X);
+            if (HostEnvironment.IsDevelopment()) Cache.MeasurePowerNotUseODFilterMinValue = (minFitMeasurePowerPoint.Y + maxFitMeasurePowerPoint.Y) / 2d;
+            Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, minFitMeasurePowerPoint.Y);
 
             Cache.NotUseODFilterMeasurePowerPoints =
             [
@@ -478,7 +484,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                         var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                        return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
+                        return HostEnvironment.IsProduction()
+                            ? new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t)
+                            : new Point(solveForX.FirstOrDefault(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X, solveForX.First()), t);
                     })
                     .OrderBy(t => t.X)
             ];
@@ -487,14 +495,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 ..GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
                     .Where(t => t < Cache.NotUseODFilterMeasurePowerPoints[0].Y)
                     .Select(t => t * Cache.ODFilterRatio)
+                    .Where(t => t < maxFitMeasurePowerPoint.Y)
+                    .Where(t => t > minFitMeasurePowerPoint.Y)
                     .Select(t =>
                     {
-                        Guard.IsGreaterThan(t, minFitMeasurePowerPoint.Y);
-                        Guard.IsLessThan(t, maxFitMeasurePowerPoint.Y);
-
                         var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
-                        return new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t);
+                        return HostEnvironment.IsProduction()
+                            ? new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t)
+                            : new Point(solveForX.FirstOrDefault(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X, solveForX.First()), t);
                     })
                     .OrderBy(t => t.X)
             ];
@@ -541,8 +550,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
             else
             {
-                AfViewModel.SetSensorEcsValue(Cache.AFECS);
                 AfViewModel.ToggleBrightFieldEnable(false);
+                AfViewModel.SetSensorEcsValue(Cache.AFECS);
             }
 
             try
@@ -832,8 +841,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 xLogVector = Environment.NewLine + xLogVector.ToVectorString(xLogVector.Count, 1),
                 bLogCurrentValidVector = Environment.NewLine + bValidLogCurrentVector.ToVectorString(bValidLogCurrentVector.Count, 1),*/
                 gainRSquared,
-                gainResidual,
-                Plot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                gainResidual
             }));
 
             isSuccess = cibMMDDto.ResultLogGainPoints.All(t => t.Y is >= 0 and <= 14) && cibMMDDto.ResultLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
