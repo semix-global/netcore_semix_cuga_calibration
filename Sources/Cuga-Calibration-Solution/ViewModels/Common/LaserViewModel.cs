@@ -396,7 +396,7 @@ public sealed class LaserViewModel(
 
         var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-        
+
         afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
         using var darkFieldImageDto = GetDarkFieldLineScanImage(
             calChipSiteModelEnum,

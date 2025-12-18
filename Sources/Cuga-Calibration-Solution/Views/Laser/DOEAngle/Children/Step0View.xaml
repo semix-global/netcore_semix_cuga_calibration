@@ -4,8 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"             
-             xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"             
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
+             xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
@@ -50,11 +50,11 @@
         <!--#region Right-->
         <GridSplitter Grid.Column="1" Width="5" />
         <ListBox Grid.Column="2"
-         HorizontalAlignment="Center"
-         VerticalAlignment="Center"
-         BorderThickness="0"
-         ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
-         SelectionMode="Single">
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 BorderThickness="0"
+                 ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                 SelectionMode="Single">
             <ListBox.ItemsSource>
                 <MultiBinding Converter="{StaticResource MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert}">
                     <Binding Path="CalibrationStatuses" />
@@ -67,8 +67,8 @@
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type status:ProductivityInformationCalibrationStatus}">
                     <TextBlock Text="{Binding SelectedItem}"
-                       Margin="100,5"
-                       FontSize="16">
+                               Margin="100,5"
+                               FontSize="16">
                         <TextBlock.Style>
                             <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
                                 <Style.Triggers>
