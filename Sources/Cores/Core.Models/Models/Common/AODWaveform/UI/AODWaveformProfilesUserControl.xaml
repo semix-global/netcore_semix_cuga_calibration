@@ -71,7 +71,7 @@
                             </hc:UniformSpacingPanel>
                             <TabControl Grid.Row="2">
                                 <TabItem Header="AOD Waveform">
-                                    <Grid>
+                                    <Grid Margin="5">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="*" />
@@ -89,7 +89,7 @@
                                     </Grid>
                                 </TabItem>
                                 <TabItem Header="Flatness Frequency">
-                                    <Grid>
+                                    <Grid Margin="5">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="*" />
