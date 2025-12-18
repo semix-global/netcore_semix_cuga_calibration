@@ -660,10 +660,10 @@
                     </TabItem>
                     <TabItem Header="Step 2 Plots">
                         <hc:ScrollViewer Margin="5">
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
+                            <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -688,10 +688,10 @@
                     </TabItem>
                     <TabItem Header="Step 2 Details">
                         <hc:ScrollViewer Margin="5">
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Step1Items}">
+                            <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
@@ -727,10 +727,10 @@
                     </TabItem>
                     <TabItem Header="Step 3 Plots">
                         <hc:ScrollViewer Margin="5">
-                            <ItemsControl Padding="10,5" ItemsSource="{Binding Cache.Results}">
+                            <ItemsControl ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
