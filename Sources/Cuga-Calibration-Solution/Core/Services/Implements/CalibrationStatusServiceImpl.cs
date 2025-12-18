@@ -12,7 +12,6 @@ using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Laser.PmtGain;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
@@ -124,7 +123,6 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<LaserPmtGainDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
@@ -135,7 +133,6 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<LaserPmtGainDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         return true;
     }
 
@@ -144,14 +141,13 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<LaserPmtGainDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
 
     public bool EnableDependIlluminationProfileCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibration<LaserPmtGainDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        errorMessage = string.Empty;
 
         return true;
     }
@@ -165,7 +161,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependLaserXTCCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibration<LaserPmtGainDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        errorMessage = string.Empty;
 
         return true;
     }

@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
@@ -608,15 +609,6 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
                 ResultMicroscopeCalChipDto = ReviewDto.Clone();
 
-                var settingDarkFieldAutoFocusParam = new SettingDarkFieldAutoFocusParam
-                {
-                    ChuckEcsValue = GuardUtils.IsNotNullAndReturn(ReviewDto.ChuckItem).AfEcsValue,
-                    DswEcsValue = GuardUtils.IsNotNullAndReturn(ReviewDto.DswItem).AfEcsValue,
-                    HazeEcsValue = GuardUtils.IsNotNullAndReturn(ReviewDto.HazeItem).AfEcsValue,
-                    ChuckMotorValue = GuardUtils.IsNotNullAndReturn(ReviewDto.ChuckItem).AfMotorValue,
-                    DswMotorValue = GuardUtils.IsNotNullAndReturn(ReviewDto.DswItem).AfMotorValue,
-                    HazeMotorValue = GuardUtils.IsNotNullAndReturn(ReviewDto.HazeItem).AfMotorValue,
-                };
                 foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
                 {
                     ResultMicroscopeCalChipDto.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = calChipSiteModelEnum;
@@ -670,7 +662,21 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
                     if (!_isSkipRtfc && calChipSiteModelEnum is not CalChipSiteModelEnum.UndefinedModel && calChipSiteModelEnum is not CalChipSiteModelEnum.ShinyWaferModel)
                     {
-                        AfViewModel.SetDarkFieldAutoFocus(settingDarkFieldAutoFocusParam, calChipSiteModelEnum);
+                        AfViewModel.SetDarkField(calChipSiteModelEnum,
+                            calChipSiteModelEnum switch
+                            {
+                                CalChipSiteModelEnum.ChuckModel => GuardUtils.IsNotNullAndReturn(ReviewDto.ChuckItem).AfEcsValue,
+                                CalChipSiteModelEnum.DswModel => GuardUtils.IsNotNullAndReturn(ReviewDto.DswItem).AfEcsValue,
+                                CalChipSiteModelEnum.HazeModel => GuardUtils.IsNotNullAndReturn(ReviewDto.HazeItem).AfEcsValue,
+                                _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(calChipSiteModelEnum))
+                            },
+                            calChipSiteModelEnum switch
+                            {
+                                CalChipSiteModelEnum.ChuckModel => GuardUtils.IsNotNullAndReturn(ReviewDto.ChuckItem).AfMotorValue,
+                                CalChipSiteModelEnum.DswModel => GuardUtils.IsNotNullAndReturn(ReviewDto.DswItem).AfMotorValue,
+                                CalChipSiteModelEnum.HazeModel => GuardUtils.IsNotNullAndReturn(ReviewDto.HazeItem).AfMotorValue,
+                                _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(calChipSiteModelEnum))
+                            });
                         using var darkFieldImageDto =
                             LaserViewModel.GetDarkFieldLineScanImage(
                                 calChipSiteModelEnum,

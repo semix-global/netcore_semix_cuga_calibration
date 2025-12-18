@@ -72,13 +72,7 @@
                                          hc:InfoElement.Title="Low Mag: "
                                          hc:InfoElement.Necessary="True"
                                          SelectedItem="{Binding Cache.LowMag}"
-                                         ItemsSource="{Binding MicroscopeLensInformationList}">
-                                <hc:ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding LensName}" />
-                                    </DataTemplate>
-                                </hc:ComboBox.ItemTemplate>
-                            </hc:ComboBox>
+                                         ItemsSource="{Binding MicroscopeLensInformationList}" />
                             <hc:ComboBox hc:InfoElement.TitleWidth="80"
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="Low Size: "
@@ -102,13 +96,7 @@
                                          hc:InfoElement.Title="High Mag: "
                                          hc:InfoElement.Necessary="True"
                                          SelectedItem="{Binding Cache.HighMag}"
-                                         ItemsSource="{Binding MicroscopeLensInformationList}">
-                                <hc:ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding LensName}" />
-                                    </DataTemplate>
-                                </hc:ComboBox.ItemTemplate>
-                            </hc:ComboBox>
+                                         ItemsSource="{Binding MicroscopeLensInformationList}" />
                             <hc:ComboBox hc:InfoElement.TitleWidth="80"
                                          hc:InfoElement.TitlePlacement="Left"
                                          hc:InfoElement.Title="High Size: "

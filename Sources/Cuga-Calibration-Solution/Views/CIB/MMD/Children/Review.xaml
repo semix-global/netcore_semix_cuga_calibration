@@ -16,7 +16,7 @@
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="430" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -31,9 +31,7 @@
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Grid.Row="2"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="Algorithm Param"
@@ -102,7 +100,7 @@
                                            AllowsTransparency="True"
                                            PopupAnimation="Slide"
                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
-                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                        <Border Style="{StaticResource BorderRegion}">
                                             <DataGrid hc:DataGridAttach.ShowRowNumber="True"
                                                       Style="{StaticResource DataGrid.Small}"
                                                       HeadersVisibility="All"
@@ -157,7 +155,7 @@
                            AllowsTransparency="True"
                            PopupAnimation="Slide"
                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                        <Border Style="{StaticResource BorderRegion}">
                             <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
                         </Border>
                     </Popup>
@@ -173,7 +171,7 @@
                            AllowsTransparency="True"
                            PopupAnimation="Slide"
                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                        <Border Style="{StaticResource BorderRegion}">
                             <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
                         </Border>
                     </Popup>
@@ -189,7 +187,7 @@
                            AllowsTransparency="True"
                            PopupAnimation="Slide"
                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonODFilterResult, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                        <Border Style="{StaticResource BorderRegion}">
                             <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
                         </Border>
                     </Popup>

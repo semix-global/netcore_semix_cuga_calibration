@@ -72,20 +72,18 @@
         </hc:SimplePanel>
         <Grid Grid.Row="1" Margin="5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="500" />
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="500"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
+            <Border Style="{StaticResource BorderRegion}">
                 <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
                                  IsInertiaEnabled="True"
                                  VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <paramUI:GenerateChirpAODWaveformParamUserControl DataContext="{Binding Cache.Param}" />
                         <GroupBox Header="Chirp AOD Waveform Operation">
-                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                            <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                                     <TextBox Text="{Binding Cache.AODWaveformResultFilePath, Mode=OneWay}"
                                              Height="50"
@@ -121,9 +119,7 @@
                 </hc:ScrollViewer>
             </Border>
             <GridSplitter Grid.Column="1" />
-            <Border Grid.Column="2"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
+            <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
                 <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.Profiles}" />
             </Border>
         </Grid>

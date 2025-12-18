@@ -15,7 +15,7 @@
              mc:Ignorable="d">
     <Border>
         <UniformGrid Columns="2" Rows="2">
-            <GroupBox Header="Min Log Level">
+            <GroupBox Margin="5" Header="Min Log Level">
                 <Border>
                     <ItemsControl HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
@@ -40,7 +40,9 @@
                     </ItemsControl>
                 </Border>
             </GroupBox>
-            <GroupBox Header="Developers Param" Visibility="{Binding SettingCommonParam.IsDebugEnvironment, Converter={StaticResource Boolean2VisibilityConverter}}">
+            <GroupBox Margin="5"
+                      Header="Developers Param"
+                      Visibility="{Binding SettingCommonParam.IsDebugEnvironment, Converter={StaticResource Boolean2VisibilityConverter}}">
                 <Border>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -72,123 +74,38 @@
                     </Grid>
                 </Border>
             </GroupBox>
-            <GroupBox Header="HardWare Param" Visibility="{Binding SettingCommonParam.IsDebugEnvironment, Converter={StaticResource Boolean2VisibilityConverter}}">
+            <GroupBox Margin="5"
+                      Header="HardWare Param"
+                      Visibility="{Binding SettingCommonParam.IsDebugEnvironment, Converter={StaticResource Boolean2VisibilityConverter}}">
                 <ScrollViewer>
                     <Border>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <hc:UniformSpacingPanel Grid.Column="0" Orientation="Vertical">
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="PMT Interval(um): "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  hc:InfoElement.TitleWidth="150"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.PmtInterval}" />
-                                <hc:ComboBox Margin="5"
-                                             HorizontalAlignment="Left"
-                                             hc:InfoElement.TitleWidth="150"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.Title="Coefficient: "
-                                             SelectedItem="{Binding SettingCommonParam.MainLaserLightInformation}"
-                                             ItemsSource="{Binding LaserLightInformationList}" />
-                                <hc:ComboBox x:Name="LowMagCombobox"
-                                             HorizontalAlignment="Left"
-                                             hc:InfoElement.TitleWidth="150"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.Title="Low Magnification: "
-                                             hc:InfoElement.Necessary="True"
-                                             SelectedItem="{Binding SettingCommonParam.LowMicroscopeLensInformation}"
-                                             ItemsSource="{Binding MicroscopeLensInformationList}">
-                                    <hc:ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding LensName}" />
-                                        </DataTemplate>
-                                    </hc:ComboBox.ItemTemplate>
-                                </hc:ComboBox>
-                                <hc:ComboBox x:Name="HighMagCombobox"
-                                             HorizontalAlignment="Left"
-                                             hc:InfoElement.TitleWidth="150"
-                                             hc:InfoElement.TitlePlacement="Left"
-                                             hc:InfoElement.Title="High Magnification: "
-                                             hc:InfoElement.Necessary="True"
-                                             SelectedItem="{Binding SettingCommonParam.HighMicroscopeLensInformation}"
-                                             ItemsSource="{Binding MicroscopeLensInformationList}">
-                                    <hc:ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding LensName}" />
-                                        </DataTemplate>
-                                    </hc:ComboBox.ItemTemplate>
-                                </hc:ComboBox>
-                            </hc:UniformSpacingPanel>
-                            <hc:UniformSpacingPanel Grid.Column="1" Orientation="Vertical">
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="Low Mag Low Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeLowMagLowSpeed}" />
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="Low Mag Middle Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeLowMagMiddleSpeed}" />
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="Low Mag High Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeLowMagHighSpeed}" />
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="Middle Mag Low Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeMiddleMagLowSpeed}" />
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="Middle Mag Middle Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeMiddleMagMiddleSpeed}" />
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="Middle Mag High Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeMiddleMagHighSpeed}" />
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="High Mag Low Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeHighMagLowSpeed}" />
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="High Mag Middle Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeHighMagMiddleSpeed}" />
-                                <hc:NumericUpDown Margin="5"
-                                                  hc:InfoElement.Title="High Mag High Speed X PixelSize: "
-                                                  hc:InfoElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Maximum="1"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding SettingCommonParam.ScanLineXPixelSizeHighMagHighSpeed}" />
-                            </hc:UniformSpacingPanel>
-                        </Grid>
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <hc:ComboBox hc:TitleElement.TitleWidth="200"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="Low Microscope: "
+                                         SelectedItem="{Binding SettingCommonParam.LowMicroscopeLensInformation}"
+                                         ItemsSource="{Binding MicroscopeLensInformationList}" />
+                            <hc:ComboBox hc:TitleElement.TitleWidth="200"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="High Microscope: "
+                                         SelectedItem="{Binding SettingCommonParam.HighMicroscopeLensInformation}"
+                                         ItemsSource="{Binding MicroscopeLensInformationList}" />
+                            <hc:ComboBox hc:TitleElement.TitleWidth="200"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="Light Information: "
+                                         SelectedItem="{Binding SettingCommonParam.MainLaserLightInformation}"
+                                         ItemsSource="{Binding LaserLightInformationList}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="PMT Interval(um): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding SettingCommonParam.PMTInterval}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Measure Power Min Value(mW): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding SettingCommonParam.MeasurePowerMeasurementMinValue}" />
+                        </hc:UniformSpacingPanel>
                     </Border>
                 </ScrollViewer>
             </GroupBox>

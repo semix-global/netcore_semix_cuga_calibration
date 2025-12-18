@@ -42,11 +42,6 @@
                                          hc:InfoElement.Necessary="True"
                                          SelectedItem="{Binding Cache.MicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
                                          ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                                <hc:ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding LensName}" />
-                                    </DataTemplate>
-                                </hc:ComboBox.ItemTemplate>
                                 <b:Interaction.Triggers>
                                     <b:EventTrigger EventName="SelectionChanged">
                                         <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=LowMagCombobox, Path=SelectedItem}" />

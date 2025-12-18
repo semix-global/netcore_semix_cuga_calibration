@@ -116,6 +116,11 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
             scatterMarkersClosestMaxima.MarkerSize = 20;
         }
 
+        if (OffsetFrequencyPeriodCoefficient is not null)
+        {
+            ScatterPlotControl.GetOrAddXLine("Result", OffsetFrequencyPeriodCoefficient.Value, Colors.DarkRed);
+        }
+
         ScatterPlotControl.AutoScaleRefresh();
     }
 

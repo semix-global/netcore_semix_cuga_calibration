@@ -210,7 +210,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
         CalibrationStatuses =
         [
-           ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+            ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
                     SelectedItem = t,
@@ -225,11 +225,11 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 .ProductivityInformationCalibrationStatusList
                 .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
-        }      
+        }
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PmtInterval;
+        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
 
         if (isHasCacheNew == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
@@ -275,7 +275,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 1:                
+            case 1:
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
                     .ProductivityInformationCalibrationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = false;
@@ -314,11 +314,11 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                         Logger.LogError("{@Name} Error: Save Failed!", Name);
                         return false;
                     }
-                }               
+                }
 
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
                     .ProductivityInformationCalibrationStatusList
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;               
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;

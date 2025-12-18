@@ -29,7 +29,7 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
-    
+
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 

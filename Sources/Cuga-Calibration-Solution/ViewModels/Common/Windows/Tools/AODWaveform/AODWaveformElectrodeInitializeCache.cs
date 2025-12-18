@@ -40,9 +40,6 @@ public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWa
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurationResults = [];
 
-    [ObservableProperty]
-    private IReadOnlyList<TResult> _results = [];
-
     partial void OnFrequenciesChanged(IReadOnlyList<double> value) => Weights = [.. value.Select(_ => 1)];
 
     public override object ToHtmlAnonymous() => new

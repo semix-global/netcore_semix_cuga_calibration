@@ -464,7 +464,12 @@
         </member>
         <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.CellSize">
             <summary>
-            CellSize
+            CellSize Interger
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.CellSizeNcc">
+            <summary>
+            CellSize Ncc
             </summary>
         </member>
         <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.CellType">
