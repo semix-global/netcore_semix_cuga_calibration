@@ -20,11 +20,11 @@ public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
-    private double _threshold = 15;
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private double _threshold = 15;
 
     public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserXPixelSizeCacheItem>> Items { get; init; } = [];
 

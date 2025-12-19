@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Ads.PressureGains;
@@ -11,6 +12,7 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
@@ -441,36 +443,6 @@ public static class CoreWcfModelsExtension
 
     #endregion Laser
 
-    #region CIB
-
-    public static bool IsOk(this CIBMMDDTO[] result, out string errorMessage)
-    {
-        var cibInformations = HostApplication.GetRequiredService<ApplicationCookie>().CIBInformations;
-
-        errorMessage = string.Empty;
-
-        var isOk = cibInformations.All(t => result.SingleOrDefault(tt => t.Equals(tt.CIBInformation))?.IsOk ?? false);
-
-        if (isOk == false) errorMessage = "CIB MMD is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this OpticsRelayDTO[] result, out string errorMessage)
-    {
-        var opticsIlluminationModeEnums = HostApplication.GetRequiredService<ApplicationCookie>().OpticsIlluminationModeEnums;
-
-        errorMessage = string.Empty;
-
-        var isOk = opticsIlluminationModeEnums.All(t => result.SingleOrDefault(tt => t.Equals(tt.OpticsIlluminationModeEnum))?.IsOk ?? false);
-
-        if (isOk == false) errorMessage = "Optics Relay is Empty";
-
-        return isOk;
-    }
-
-    #endregion
-
     public static bool IsOk(this CalibrationSetting result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -489,4 +461,58 @@ public static class CoreWcfModelsExtension
 
         return lensChanged;
     }
+
+    #region NEW
+
+    public static bool IsOk(this CIBMMDDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation) && t.IsOk);
+        var isOk = isOkCount == applicationCookie.CIBInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB MMD is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this CIBLightMatchingDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                                          && t.OpticsIlluminationModeEnum switch
+                                          {
+                                              OpticsIlluminationModeEnum.OI => applicationCookie.OIProductivityInformations.Contains(t.ProductivityInformation),
+                                              OpticsIlluminationModeEnum.NI => applicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation),
+                                              _ => ThrowHelper.ThrowArgumentException<bool>(nameof(t.OpticsIlluminationModeEnum))
+                                          }
+                                          && applicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
+                                          && applicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
+                                          && applicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum)
+                                          && t.IsOk)
+            .SelectMany(t => t.Items)
+            .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
+
+        var isOk = isOkCount == (applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count)
+            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB MMD is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this OpticsRelayDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum) && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB MMD is Empty";
+
+        return isOk;
+    }
+
+    #endregion
 }

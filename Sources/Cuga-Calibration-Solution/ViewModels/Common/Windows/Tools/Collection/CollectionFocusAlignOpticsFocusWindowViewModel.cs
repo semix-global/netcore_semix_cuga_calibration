@@ -648,27 +648,32 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
             var scatterPlotControl = ScatterPlotControls[keyValuePair.Key];
 
-            foreach (var (index, item) in hazeOriginDictionaryByChannelId.Index())
+            try
             {
-                scatterPlotControl.GetOrAddScatterLine(0, item.Key, item.Value, index, new Range(0, hazeOriginDictionaryByChannelId.Count - 1));
-            }
+                foreach (var (index, item) in hazeOriginDictionaryByChannelId.Index())
+                {
+                    scatterPlotControl.GetOrAddScatterLine(0, item.Key, item.Value, index, new Range(0, hazeOriginDictionaryByChannelId.Count - 1));
+                }
 
-            foreach (var (index, item) in dswOriginDictionaryByChannelId.Index())
+                foreach (var (index, item) in dswOriginDictionaryByChannelId.Index())
+                {
+                    scatterPlotControl.GetOrAddScatterLine(1, item.Key, item.Value, index, new Range(0, dswOriginDictionaryByChannelId.Count - 1));
+                }
+
+                foreach (var (index, item) in hazeNormalizationDictionaryByChannelId.Index())
+                {
+                    scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, hazeNormalizationDictionaryByChannelId.Count - 1));
+                }
+
+                foreach (var (index, item) in dswNormalizationDictionaryByChannelId.Index())
+                {
+                    scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
+                }
+            }
+            finally
             {
-                scatterPlotControl.GetOrAddScatterLine(1, item.Key, item.Value, index, new Range(0, dswOriginDictionaryByChannelId.Count - 1));
+                scatterPlotControl.AutoScaleRefresh();
             }
-
-            foreach (var (index, item) in hazeNormalizationDictionaryByChannelId.Index())
-            {
-                scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, hazeNormalizationDictionaryByChannelId.Count - 1));
-            }
-
-            foreach (var (index, item) in dswNormalizationDictionaryByChannelId.Index())
-            {
-                scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
-            }
-
-            scatterPlotControl.AutoScaleRefresh();
         }
     }
 

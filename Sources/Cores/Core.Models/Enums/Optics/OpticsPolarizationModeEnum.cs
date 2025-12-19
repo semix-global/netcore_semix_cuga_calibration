@@ -1,11 +1,11 @@
 namespace Core.Models.Enums.Optics;
 
 /// <summary>
-/// 偏振
+/// 光学偏振
 /// </summary>
 public enum OpticsPolarizationModeEnum
 {
-    C,
+    P,
     S,
-    P
+    C
 }

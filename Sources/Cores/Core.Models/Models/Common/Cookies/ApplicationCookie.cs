@@ -1,9 +1,11 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Net.Utilities.Helpers.Helpers.Structs;
 
 namespace Core.Models.Models.Common.Cookies;
 
@@ -138,6 +140,21 @@ public sealed partial class ApplicationCookie : ObservableObject
                 : NIProductivityInformations.Count > 0
                     ? [OpticsIlluminationModeEnum.NI]
                     : ThrowHelper.ThrowArgumentException<IReadOnlyList<OpticsIlluminationModeEnum>>("OI NI Productivity Information Is Empty");
+
+    /// <summary>
+    /// 光学切趾列表
+    /// </summary>
+    public IReadOnlyList<OpticsApodizationModeEnum> OpticsApodizationModeEnums => EnumHelper.Enums<OpticsApodizationModeEnum>();
+
+    /// <summary>
+    /// 光学偏振列表
+    /// </summary>
+    public IReadOnlyList<OpticsPolarizationModeEnum> OpticsPolarizationModeEnums => EnumHelper.Enums<OpticsPolarizationModeEnum>();
+
+    /// <summary>
+    /// 采集偏振列表
+    /// </summary>
+    public IReadOnlyList<CollectorPolarizationModeEnum> CollectorPolarizationModeEnums => EnumHelper.Enums<CollectorPolarizationModeEnum>();
 
     /// <summary>
     /// CIB列表

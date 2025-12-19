@@ -66,6 +66,8 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using Core.Models.Models.CIB.LightMatching;
+using CugaCalibration.ViewModels.Optics;
 
 namespace CugaCalibration.ViewModels;
 
@@ -619,11 +621,18 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserDOEAngleCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserDOEAngleDto>().IsOk(out _);
 
+                #region NEW
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBMMDViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBMMDDTO>().IsOk(out _);
 
-                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsRelayDTO>();
+                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBLightMatchingViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBLightMatchingDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsRelayViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsRelayDTO>().IsOk(out _);
+
+                #endregion
             }
             catch (Exception ex)
             {

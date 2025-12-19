@@ -37,8 +37,8 @@ using Generate = MathNet.Numerics.Generate;
 
 namespace CugaCalibration.ViewModels.CIB;
 
-[IOCAppService(ServiceType = typeof(CIBMMDViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(CIBLightMatchingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 {
     #region 属性
 
