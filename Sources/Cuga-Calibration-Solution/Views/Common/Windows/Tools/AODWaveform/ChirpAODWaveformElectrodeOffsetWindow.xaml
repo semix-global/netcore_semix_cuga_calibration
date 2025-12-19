@@ -186,9 +186,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Border Style="{StaticResource BorderRegion}">
-                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                 IsInertiaEnabled="True"
-                                 VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <GroupBox Header="AOD Waveform Params">
                             <Border Style="{StaticResource BorderRegion}">
@@ -645,9 +643,7 @@
                                                             <Border Height="360"
                                                                     Margin="0,2"
                                                                     Style="{StaticResource BorderRegion}">
-                                                                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                                                                 IsInertiaEnabled="True"
-                                                                                 VerticalScrollBarVisibility="Auto">
+                                                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                                                                     <Grid>
                                                                         <Grid.RowDefinitions>
                                                                             <RowDefinition Height="Auto" />
@@ -670,7 +666,7 @@
                                                                                                                           IsVisibleUniformityConfiguration="False"
                                                                                                                           DataContext="{Binding GenerateChirpAODWaveformParam}" />
                                                                     </Grid>
-                                                                </hc:ScrollViewer>
+                                                                </ScrollViewer>
                                                             </Border>
                                                         </DataTemplate>
                                                     </ListBox.ItemTemplate>
@@ -845,7 +841,7 @@
                             </Border>
                         </GroupBox>
                     </hc:UniformSpacingPanel>
-                </hc:ScrollViewer>
+                </ScrollViewer>
             </Border>
             <GridSplitter Grid.Column="1" />
             <GroupBox Grid.Column="2"
@@ -853,7 +849,9 @@
                       Header="History">
                 <TabControl>
                     <TabItem Header="Step 1 Plots">
-                        <hc:ScrollViewer Margin="5">
+                        <ScrollViewer Margin="5"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -878,10 +876,12 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </hc:ScrollViewer>
+                        </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Step 1 Details">
-                        <hc:ScrollViewer Margin="5">
+                        <ScrollViewer Margin="5"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Cache.Step0Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -917,10 +917,12 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </hc:ScrollViewer>
+                        </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Step 2 Plots">
-                        <hc:ScrollViewer Margin="5">
+                        <ScrollViewer Margin="5"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -945,10 +947,12 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </hc:ScrollViewer>
+                        </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Step 2 Details">
-                        <hc:ScrollViewer Margin="5">
+                        <ScrollViewer Margin="5"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -984,10 +988,12 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </hc:ScrollViewer>
+                        </ScrollViewer>
                     </TabItem>
                     <TabItem Header="Step 3 Plots">
-                        <hc:ScrollViewer Margin="5">
+                        <ScrollViewer Margin="5"
+                                      HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -1036,7 +1042,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </hc:ScrollViewer>
+                        </ScrollViewer>
                     </TabItem>
                 </TabControl>
             </GroupBox>
