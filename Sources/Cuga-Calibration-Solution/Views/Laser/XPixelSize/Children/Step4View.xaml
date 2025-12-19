@@ -42,76 +42,78 @@
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:TitleElement.TitleWidth="160"
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:ComboBox HorizontalAlignment="Left"
+                                     hc:TitleElement.TitleWidth="160"
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Template Type: "
+                                     SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
+                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
+                            <hc:ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </hc:ComboBox.ItemTemplate>
+                        </hc:ComboBox>
+                        <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="160"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ImageWidth}" />
+                        <TextBox Text="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="BF Machine Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.Title="Template Type: "
-                                 SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
-                    <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="160"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.ImageWidth}" />
-                    <TextBox Text="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                             hc:TitleElement.Title="BF Machine Position(um): "
-                             hc:TitleElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="160"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <StackPanel>
-                        <TextBlock Text="Result"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultSuccess}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding Cache.Item.TemplateFilePath}"
-                             Height="100"
-                             TextWrapping="Wrap"
-                             hc:TitleElement.Title="Template: "
-                             hc:TitleElement.TitleWidth="90"
-                             hc:TitleElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Background="{StaticResource SecondaryRegionBrush}"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <view:CanvasView Width="100"
-                                     Height="100"
-                                     BackgroundColor="#0A0A0A"
-                                     AxisColor="Red"
-                                     Interactive="True"
-                                     ShowAxes="True"
-                                     ShowCursor="False"
-                                     ShowGrid="False"
-                                     BackgroundImage="{Binding Cache.Item.TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step4CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding Step4CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+                                 hc:TitleElement.TitleWidth="160"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding Cache.Item.TemplateFilePath}"
+                                 Height="100"
+                                 TextWrapping="Wrap"
+                                 hc:TitleElement.Title="Template: "
+                                 hc:TitleElement.TitleWidth="90"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <view:CanvasView Width="100"
+                                         Height="100"
+                                         BackgroundColor="#0A0A0A"
+                                         AxisColor="Red"
+                                         Interactive="True"
+                                         ShowAxes="True"
+                                         ShowCursor="False"
+                                         ShowGrid="False"
+                                         BackgroundImage="{Binding Cache.Item.TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step4CalibrateActionCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step4CalibrateActionCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
     </Grid>

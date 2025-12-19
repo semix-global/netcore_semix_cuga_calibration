@@ -36,69 +36,71 @@
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <ComboBox hc:TitleElement.Title="Microscope Lens: "
-                              hc:TitleElement.TitlePlacement="Left"
-                              hc:TitleElement.TitleWidth="190"
-                              Style="{StaticResource ComboBoxExtend}"
-                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <i:Interaction.Behaviors>
-                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
-                        </i:Interaction.Behaviors>
-                    </ComboBox>
-                    <ComboBox hc:TitleElement.Title="Productivity Information: "
-                              hc:TitleElement.TitlePlacement="Left"
-                              hc:TitleElement.TitleWidth="190"
-                              Style="{StaticResource ComboBoxExtend}">
-                        <i:Interaction.Behaviors>
-                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                        </i:Interaction.Behaviors>
-                        <ComboBox.ItemsSource>
-                            <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
-                                <Binding Path="ApplicationCookie" />
-                                <Binding Path="Cache.OpticsIlluminationModeEnum" />
-                            </MultiBinding>
-                        </ComboBox.ItemsSource>
-                    </ComboBox>
-                    <ComboBox hc:TitleElement.Title="Laser Light Information: "
-                              hc:TitleElement.TitlePlacement="Left"
-                              hc:TitleElement.TitleWidth="190"
-                              Style="{StaticResource ComboBoxExtend}"
-                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                        <i:Interaction.Behaviors>
-                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
-                        </i:Interaction.Behaviors>
-                    </ComboBox>
-                    <ComboBox hc:TitleElement.Title="CIB Information: "
-                              hc:TitleElement.TitlePlacement="Left"
-                              hc:TitleElement.TitleWidth="190"
-                              Style="{StaticResource ComboBoxExtend}"
-                              ItemsSource="{Binding ApplicationCookie.CIBInformations}">
-                        <i:Interaction.Behaviors>
-                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                        </i:Interaction.Behaviors>
-                    </ComboBox>
-                    <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step1CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding Step1CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                            <i:Interaction.Behaviors>
+                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                        </ComboBox>
+                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}">
+                            <i:Interaction.Behaviors>
+                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                            <ComboBox.ItemsSource>
+                                <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
+                                    <Binding Path="ApplicationCookie" />
+                                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
+                                </MultiBinding>
+                            </ComboBox.ItemsSource>
+                        </ComboBox>
+                        <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                            <i:Interaction.Behaviors>
+                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                        </ComboBox>
+                        <ComboBox hc:TitleElement.Title="CIB Information: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                            <i:Interaction.Behaviors>
+                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                        </ComboBox>
+                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step1CalibrateActionCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step1CalibrateActionCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
     </Grid>

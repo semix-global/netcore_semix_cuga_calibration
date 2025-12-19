@@ -30,18 +30,20 @@
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                        VerticalAlignment="Top"
-                                        Spacing="10">
-                    <Button Content="Action"
-                            Command="{Binding Step0CalibrateActionCommand}"
-                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                            Style="{StaticResource ButtonPrimary.Loading}" />
-                    <Button Content="Cancel"
-                            Command="{Binding Step0CalibrateActionCancelCommand}"
-                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                            Style="{StaticResource ButtonWarning}" />
-                </hc:UniformSpacingPanel>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Action"
+                                Command="{Binding Step0CalibrateActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Cancel"
+                                Command="{Binding Step0CalibrateActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
+                    </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
