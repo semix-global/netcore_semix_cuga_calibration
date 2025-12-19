@@ -20,58 +20,50 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="X Pixel Size Review : "
                            Status="Review"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                    <Border Style="{StaticResource BorderRegion}"
-                            Effect="{StaticResource EffectShadow1}"
-                            IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <StackPanel>
-                                <TextBlock Text="Verify"
-                                           HorizontalAlignment="Center"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Style="{StaticResource TextBlockDefaultInfo}" />
-                            </StackPanel>
-                            <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
-                                              hc:TitleElement.TitleWidth="160"
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Threshold}" />
-                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                    VerticalAlignment="Top"
-                                                    Spacing="10">
-                                <Button x:Name="ActionButton"
-                                        Content="Action"
-                                        Command="{Binding VerifyActionCommand}"
-                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                        Style="{StaticResource ButtonPrimary.Loading}"
-                                        Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
-                                <Button x:Name="CancelButton"
-                                        Content="Cancel"
-                                        Command="{Binding VerifyActionCancelCommand}"
-                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                        Style="{StaticResource ButtonWarning}"
-                                        Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
-                            </hc:UniformSpacingPanel>
-                        </hc:UniformSpacingPanel>
-                    </Border>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="Verify"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
+                                      hc:TitleElement.TitleWidth="160"
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.Threshold}" />
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Action"
+                                Command="{Binding VerifyActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                        <Button Content="Cancel"
+                                Command="{Binding VerifyActionCancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                    </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
-        </hc:UniformSpacingPanel>
-        <!--#endregion-->
-
+        </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-
-        <!--#region Right-->
         <GroupBox Grid.Column="2" Header="Calibration Data">
             <Grid>
                 <Grid.RowDefinitions>
@@ -199,6 +191,5 @@
                 </Grid>
             </Grid>
         </GroupBox>
-        <!--#endregion-->
     </Grid>
 </UserControl>

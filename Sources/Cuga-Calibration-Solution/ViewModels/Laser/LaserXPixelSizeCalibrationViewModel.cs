@@ -261,7 +261,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
     #region 校准
 
-    [RelayCommand]
+    [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0CalibrateActionAsync()
     {
         return InvokeCalibrateAsync(() =>

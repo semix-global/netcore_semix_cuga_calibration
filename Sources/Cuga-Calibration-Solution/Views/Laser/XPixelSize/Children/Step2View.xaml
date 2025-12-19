@@ -19,19 +19,24 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="X Pixel Size Step 3: "
-                       Status="{Binding CalibrationStepList[2].StepName}"
-                       Color="{StaticResource InfoBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Optics Illumination Mode: "
-                       Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                       Color="{StaticResource SuccessBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Productivity: "
-                       Status="{Binding Cache.ProductivityInformation}"
-                       Color="{StaticResource SuccessBrush}" />
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="X Pixel Size Step 3: "
+                           Status="{Binding CalibrationStepList[2].StepName}"
+                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Optics Illumination Mode: "
+                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="Param"
@@ -82,6 +87,6 @@
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
-        </hc:UniformSpacingPanel>
+        </Grid>
     </Grid>
 </UserControl>

@@ -31,8 +31,7 @@
                 <hc:Shield Subject="Optics Relay Step 2: "
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Illumination Mode: "
+                <hc:Shield Subject="Optics Illumination Mode: "
                            Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>

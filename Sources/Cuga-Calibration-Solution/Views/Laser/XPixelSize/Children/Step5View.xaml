@@ -16,31 +16,33 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="X Pixel Size Step 6: "
-                       Status="{Binding CalibrationStepList[5].StepName}"
-                       Color="{StaticResource InfoBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Optics Illumination Mode: "
-                       Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                       Color="{StaticResource SuccessBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Productivity: "
-                       Status="{Binding Cache.ProductivityInformation}"
-                       Color="{StaticResource SuccessBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Microscope Lens: "
-                       Status="{Binding Cache.MicroscopeLensInformation}"
-                       Color="{StaticResource SuccessBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="Alignment Degrees(°): "
-                       Status="{Binding Cache.Item.AlignmentResult.Degrees, StringFormat='0.##########'}"
-                       Color="{StaticResource SuccessBrush}" />
-            <hc:Shield DockPanel.Dock="Bottom"
-                       Subject="BF Machine Position(um): "
-                       Status="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                       Color="{StaticResource SuccessBrush}" />
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="X Pixel Size Step 6: "
+                           Status="{Binding CalibrationStepList[5].StepName}"
+                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Optics Illumination Mode: "
+                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Microscope: "
+                           Status="{Binding Cache.Item.MicroscopeLensInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Alignment Degrees(°): "
+                           Status="{Binding Cache.Item.AlignmentResult.Degrees, StringFormat='0.##########'}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="BF Machine Position(um): "
+                           Status="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="Param"
@@ -95,7 +97,7 @@
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
-        </hc:UniformSpacingPanel>
+        </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <Grid>
