@@ -77,7 +77,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Border Style="{StaticResource BorderRegion}">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <paramUI:GeneratePrescanAODWaveformParamUserControl DataContext="{Binding Cache.Param}" />
                         <GroupBox Header="Prescan AOD Waveform Operation">

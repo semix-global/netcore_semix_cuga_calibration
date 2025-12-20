@@ -179,7 +179,7 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Border Style="{StaticResource BorderRegion}">
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <GroupBox Header="AOD Waveform Params">
                             <Border Style="{StaticResource BorderRegion}">
@@ -426,7 +426,7 @@
                                                             <Border Height="360"
                                                                     Margin="0,2"
                                                                     Style="{StaticResource BorderRegion}">
-                                                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                                                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                                                     <Grid>
                                                                         <Grid.RowDefinitions>
                                                                             <RowDefinition Height="Auto" />
@@ -654,7 +654,7 @@
                     </TabItem>
                     <TabItem Header="Step 2 Plots">
                         <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
@@ -684,7 +684,7 @@
                     </TabItem>
                     <TabItem Header="Step 2 Details">
                         <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
                                 <ItemsControl.ItemsPanel>
@@ -725,7 +725,7 @@
                     </TabItem>
                     <TabItem Header="Step 3 Plots">
                         <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
                                       VerticalScrollBarVisibility="Auto">
                             <ItemsControl ItemsSource="{Binding Cache.Results}">
                                 <ItemsControl.ItemsPanel>
