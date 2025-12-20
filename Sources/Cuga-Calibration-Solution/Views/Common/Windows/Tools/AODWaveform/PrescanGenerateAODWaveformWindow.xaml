@@ -91,24 +91,35 @@
                                              IsReadOnly="True"
                                              Style="{StaticResource TextBoxExtend}"
                                              ScrollViewer.VerticalScrollBarVisibility="Auto" />
-                                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                            VerticalAlignment="Top"
-                                                            Spacing="10">
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Loaded Prescan AOD Waveform Electrode Offset"
+                                                Command="{Binding LoadedElectrodeOffsetResultCommand}"
+                                                hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                                Style="{StaticResource ButtonDefault.Loading}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding LoadedElectrodeOffsetResultCancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Generate Prescan AOD Waveform"
                                                 Command="{Binding GenerateAODWaveformCommand}"
+                                                hc:IconElement.Geometry="{StaticResource SaveGeometry}"
                                                 Style="{StaticResource ButtonDefault.Loading}" />
                                         <Button Content="Cancel"
                                                 Command="{Binding GenerateAODWaveformCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                            VerticalAlignment="Top"
-                                                            Spacing="10">
+                                    <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Set Prescan AOD Waveform"
                                                 Command="{Binding SetAODWaveformCommand}"
-                                                HorizontalAlignment="Left"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonDefault.Loading}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding SetAODWaveformCancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                 </hc:UniformSpacingPanel>
                             </Border>

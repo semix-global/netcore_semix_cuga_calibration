@@ -16,17 +16,6 @@ public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
 {
     public override string Name => "Prescan AOD Waveform Electrode Offset";
 
-    protected override async Task LoadedAsync()
-    {
-        await Task.Run(() =>
-        {
-            Cache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
-            var prescanAODWaveformElectrodeOffsetCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
-
-            Cache.ElectrodeConfigurationResults = prescanAODWaveformElectrodeOffsetCache.ElectrodeConfigurationResults;
-        });
-    }
-
     protected override void GenerateFlatnessAODWaveform(PrescanAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         item.PrescanAODWaveformProfiles = [];
