@@ -188,23 +188,6 @@ public sealed partial class OpticsRelayDTOItem : ObservableObject, ICloneable<Op
     [ObservableProperty]
     private Item? _maxItem;
 
-    partial void OnQualitysChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
-    {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
-
-        foreach (var item in newValue)
-        {
-            item.PropertyChanged -= ItemOnPropertyChanged;
-            item.PropertyChanged += ItemOnPropertyChanged;
-        }
-
-        OnPropertyChanged(nameof(Qualitys));
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Qualitys));
-    }
-
     public OpticsRelayDTOItem Clone() => new()
     {
         RelayMotorAbsoluteValue = RelayMotorAbsoluteValue,

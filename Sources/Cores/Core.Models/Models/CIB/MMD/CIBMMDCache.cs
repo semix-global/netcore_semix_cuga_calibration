@@ -88,7 +88,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private int _protectedOverflowProtectedPMTValueCount = 3;
 
     [ObservableProperty]
-    private int _catchPMTValueCount = 10;
+    private int _imageWidth = 10;
 
     [ObservableProperty]
     private double _darkCurrent;

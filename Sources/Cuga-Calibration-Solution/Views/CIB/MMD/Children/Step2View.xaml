@@ -12,7 +12,6 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-             xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignHeight="1920"
              d:DesignWidth="1920"
@@ -238,12 +237,12 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.ProtectedOverflowProtectedPMTValueCount}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Catch PMT Value Count: "
+                                    <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.CatchPMTValueCount}" />
+                                                      Value="{Binding Cache.ImageWidth}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </Expander>

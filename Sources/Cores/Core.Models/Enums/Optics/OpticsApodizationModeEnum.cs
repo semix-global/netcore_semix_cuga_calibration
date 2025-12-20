@@ -3,7 +3,7 @@
 namespace Core.Models.Enums.Optics;
 
 /// <summary>
-/// 光学切趾
+/// 照明切趾模式
 /// </summary>
 public enum OpticsApodizationModeEnum
 {

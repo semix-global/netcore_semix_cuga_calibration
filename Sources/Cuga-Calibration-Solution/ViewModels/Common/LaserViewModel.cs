@@ -121,20 +121,6 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
-    {
-        var ret = calibrationLaserService.ToggleOpticsPolarizationMode(opticsPolarizationModeEnum);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void ToggleOpticsODFilter(bool isEnable)
-    {
-        var ret = calibrationLaserService.ToggleOpticsODFilter(isEnable);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
     [Obsolete]
     public void SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {
@@ -290,29 +276,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public async Task<IReadOnlyList<double>> GetCIBPMTValuesAsync(
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
-        int catchCount,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
-        ProductivityInformation productivityInformation,
-        IReadOnlyList<CIBInformation> cibInformations,
-        bool isAutoFocus,
-        CancellationToken cancellationToken)
-    {
-        var ret = await calibrationLaserService.GetCIBPMTValuesAsync(
-            stageCoordinateSystemEnum,
-            position,
-            catchCount,
-            opticsIlluminationModeEnum,
-            productivityInformation,
-            cibInformations,
-            isAutoFocus,
-            cancellationToken);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     public IReadOnlyList<DarkFieldPmtDataDto> GetCIBOfPMTDataList()
     {
         var ret = calibrationLaserService.GetCIBOfPMTDataList();
@@ -354,13 +317,6 @@ public sealed class LaserViewModel(
     public void SendCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
     {
         var ret = calibrationLaserService.SetCIBChirp(gainList, pmtId, channelId);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bit, double maxLogGain)
-    {
-        var ret = calibrationLaserService.SetCIBMMD(cibInformation, logGainMul128U12Bits, gainS16Bit, maxLogGain);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

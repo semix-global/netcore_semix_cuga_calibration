@@ -69,16 +69,29 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     public CIBLightMatchingDTO()
     {
-        ScatterPlotControl.Configure(new Columns(), 2);
+        var customGrid = new CustomGrid();
+        ScatterPlotControl.Configure(customGrid, 4,
+            plots =>
+            {
+                customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));
+                customGrid.Set(plots[1], new GridCell(0, 1, 2, 2));
+                customGrid.Set(plots[2], new GridCell(1, 0, 2, 2));
+                customGrid.Set(plots[3], new GridCell(1, 1, 2, 2));
+            });
 
         ScatterPlotControl.SetTitle(0, "Haze(Y: PMTValue - X: PMT Id)");
-        ScatterPlotControl.SetTitle(1, "Silica Spheres(Y: PMTValue - X: PMT Id)");
+        ScatterPlotControl.SetTitle(1, "Haze(Y: Digital Gain - X: PMT Id)");
+        ScatterPlotControl.SetTitle(2, "Silica Spheres(Y: PMTValue - X: PMT Id)");
+        ScatterPlotControl.SetTitle(3, "Silica Spheres(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
     }
 
     private void RefreshPlot()
     {
         try
         {
+            ScatterPlotControl.Clear(0);
+            ScatterPlotControl.Clear(2);
+
             var results = (
                 from item in Items
                 group item by item.CIBInformation.ChannelId
@@ -91,38 +104,60 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
             foreach (var (channelId, items) in results)
             {
-                var hazeCount = items.Max(t => t.Hazes.Count);
+                var hazeCount = items.Max(t => t.HazeItems.Count);
                 for (var i = 0; i < hazeCount; i++)
                 {
+                    var hazes = items.Where(t => i < t.HazeItems.Count)
+                        .Select(t => (t.CIBInformation.PMTId, t.DigitalGain, Item: t.HazeItems[i]))
+                        .ToArray();
+
                     var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
                         0,
-                        $"{i + 1}: {channelId}",
-                        items
-                            .Where(t => i < t.Hazes.Count)
-                            .Select(t => new Point(t.CIBInformation.PMTId, t.Hazes[i].PMTValue))
-                            .ToArray(),
+                        $"{i + 1}: {channelId}({hazes.Maxima(t => Math.Abs(t.Item.Ratio)).First().Item.Ratio:0.###})",
+                        [..hazes.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
                         i,
                         new Range(0, hazeCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
 
                     scatterMarkers.MarkerSize = 20;
                     scatterMarkers.IsVisible = i == hazeCount - 1;
-                }
 
-                var silicaSpheresCount = items.Max(t => t.SilicaSpheres.Count);
-                for (var i = 0; i < silicaSpheresCount; i++)
-                {
-                    var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
+                    scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
                         1,
                         $"{i + 1}: {channelId}",
-                        items
-                            .Where(t => i < t.SilicaSpheres.Count)
-                            .Select(t => new Point(t.CIBInformation.PMTId, t.SilicaSpheres[i].PMTValue))
-                            .ToArray(),
+                        [..hazes.Select(t => new Point(t.PMTId, t.DigitalGain))],
                         i,
                         new Range(0, hazeCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
+                    scatterMarkers.MarkerSize = 20;
+                    scatterMarkers.IsVisible = i == hazeCount - 1;
+                }
 
+                var silicaSpheresCount = items.Max(t => t.SilicaSphereItems.Count);
+                for (var i = 0; i < silicaSpheresCount; i++)
+                {
+                    var silicaSpheres = items.Where(t => i < t.SilicaSphereItems.Count)
+                        .Select(t => (t.CIBInformation.PMTId, t.DigitalGainPlusMultiplicativeFactors, Item: t.SilicaSphereItems[i]))
+                        .ToArray();
+
+                    var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
+                        2,
+                        $"{i + 1}: {channelId}({silicaSpheres.Maxima(t => Math.Abs(t.Item.Ratio)).First().Item.Ratio:0.###})",
+                        [..silicaSpheres.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
+                        i,
+                        new Range(0, silicaSpheresCount - 1),
+                        markerShape: MarkerShape.HorizontalBar);
+
+                    scatterMarkers.MarkerSize = 20;
+                    scatterMarkers.IsVisible = i == silicaSpheresCount - 1;
+
+                    scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
+                        3,
+                        $"{i + 1}: {channelId}",
+                        [..silicaSpheres.Select(t => new Point(t.PMTId, t.DigitalGainPlusMultiplicativeFactors))],
+                        i,
+                        new Range(0, hazeCount - 1),
+                        markerShape: MarkerShape.HorizontalBar);
                     scatterMarkers.MarkerSize = 20;
                     scatterMarkers.IsVisible = i == hazeCount - 1;
                 }
@@ -174,10 +209,10 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<Item> _hazes = [];
+    private IReadOnlyList<Item> _hazeItems = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Item> _silicaSpheres = [];
+    private IReadOnlyList<Item> _silicaSphereItems = [];
 
     [ObservableProperty]
     private double _digitalGain;
@@ -191,7 +226,7 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     [LiteDB.BsonIgnore]
     public double DigitalGainPlusMultiplicativeFactors => DigitalGain + MultiplicativeFactors;
 
-    partial void OnHazesChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnHazeItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -201,14 +236,14 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
             item.PropertyChanged += ItemOnPropertyChanged;
         }
 
-        OnPropertyChanged(nameof(Hazes));
+        OnPropertyChanged(nameof(HazeItems));
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Hazes));
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(HazeItems));
     }
 
-    partial void OnSilicaSpheresChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnSilicaSphereItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -218,11 +253,11 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
             item.PropertyChanged += ItemOnPropertyChanged;
         }
 
-        OnPropertyChanged(nameof(SilicaSpheres));
+        OnPropertyChanged(nameof(SilicaSphereItems));
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(SilicaSpheres));
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(SilicaSphereItems));
     }
 
     #region Mapper
@@ -230,8 +265,8 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     public CIBLightMatchingDTOItem Clone() => new()
     {
         CIBInformation = CIBInformation.Clone(),
-        Hazes = [.. Hazes.Select(t => t.Clone())],
-        SilicaSpheres = [.. SilicaSpheres.Select(t => t.Clone())],
+        HazeItems = [.. HazeItems.Select(t => t.Clone())],
+        SilicaSphereItems = [.. SilicaSphereItems.Select(t => t.Clone())],
         DigitalGain = DigitalGain,
         MultiplicativeFactors = MultiplicativeFactors
     };
@@ -251,9 +286,13 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
         [ObservableProperty]
         private double _pMTValue;
 
+        [ObservableProperty]
+        private double _ratio;
+
         public Item Clone() => new()
         {
-            PMTValue = PMTValue
+            PMTValue = PMTValue,
+            Ratio = Ratio
         };
     }
 }

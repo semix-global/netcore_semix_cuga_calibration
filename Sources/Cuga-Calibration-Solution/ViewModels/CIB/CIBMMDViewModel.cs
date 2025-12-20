@@ -32,6 +32,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using Net.Utilities.Helpers.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -261,7 +262,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return;
             }
 
-            LaserViewModel.SetCIBMMD(
+            CIBViewModel.SetMMD(
                 cibMMDDto.CIBInformation,
                 [.. cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)],
                 [.. cibMMDDto.GainS16BitPoints.Select(t => t.Y)],
@@ -362,7 +363,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.StopGain,
                 Cache.ProtectedPMTValue,
                 Cache.ProtectedOverflowProtectedPMTValueCount,
-                Cache.CatchPMTValueCount,
+                Cache.ImageWidth,
                 Cache.DarkCurrent,
                 Cache.Denominator,
                 Cache.ScaleFactor,
@@ -410,7 +411,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MeasureMaxPowerPosition);
             try
             {
-                LaserViewModel.ToggleOpticsODFilter(false);
+                OpticsViewModel.ToggleODFilter(false);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
                 await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
                 var measurePowerNoises = (IReadOnlyList<double>)
@@ -448,7 +449,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 var maxMeasurePowerPoint = Cache.MeasurePowerPoints.MaxBy(t => t.Y);
                 try
                 {
-                    LaserViewModel.ToggleOpticsODFilter(true);
+                    OpticsViewModel.ToggleODFilter(true);
                     LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(maxMeasurePowerPoint.X))]);
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                     await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
@@ -457,7 +458,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 }
                 finally
                 {
-                    LaserViewModel.ToggleOpticsODFilter(false);
+                    OpticsViewModel.ToggleODFilter(false);
                 }
             }
             finally
@@ -566,7 +567,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                     try
                     {
-                        LaserViewModel.ToggleOpticsODFilter(isUseODFilter);
+                        OpticsViewModel.ToggleODFilter(isUseODFilter);
                         LaserViewModel.SetGain(Cache.StartGain);
                         LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
                         LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
@@ -582,13 +583,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                             await Task.Delay(TimeSpan.FromSeconds(Cache.PMTValueWaitTime), cancellationToken).ConfigureAwait(false);
 
-                            var cibPMTValues = await LaserViewModel.GetCIBPMTValuesAsync(
-                                StageCoordinateSystemEnum.Dark,
-                                StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
-                                Cache.CatchPMTValueCount,
+                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
                                 Cache.OpticsIlluminationModeEnum,
                                 Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Dark,
+                                StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
                                 cibInformations,
+                                Cache.ImageWidth,
                                 Cache.IsAFEnable,
                                 cancellationToken);
 
@@ -596,8 +597,14 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
-                                var (index, pmtValue) = t;
-
+                                var (index, darkFieldImage) = t;
+                                using var _ = darkFieldImage;
+                                
+                                var shorts = darkFieldImage.Matrix.AsSpan();
+                                double sum = 0;
+                                foreach (var v in shorts) sum += v;
+                                var pmtValue = sum / shorts.Length;
+                                
                                 var cibMMDDto = noProtectedCIBMMDDtos[index];
 
                                 var item = cibMMDDto.Items[coefficientIndex];
@@ -620,7 +627,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             {
                 LaserViewModel.ToggleEnableAutoGainControl(true);
                 LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
-                LaserViewModel.ToggleOpticsODFilter(false);
+                OpticsViewModel.ToggleODFilter(false);
             }
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());

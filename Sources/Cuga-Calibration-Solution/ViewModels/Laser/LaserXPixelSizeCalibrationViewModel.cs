@@ -8,7 +8,6 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Common.Alignment;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.XPixelSize;
 using Core.Utilities;
@@ -120,32 +119,43 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             return false;
         }
 
-        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
+        if (CalibrationStatuses.Count == 0)
+            CalibrationStatuses =
+            [
+                ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                    {
+                        SelectedItem = t,
+                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    })
+            ];
+
+        AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>();
 
-        CalibrationStatuses =
+        Calibrations =
         [
-            ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+            .. Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationMode)
+                                       && t.OpticsIlluminationMode switch
+                                       {
+                                           OpticsIlluminationModeEnum.OI => ApplicationCookie.OIProductivityInformations.Contains(t.ProductivityInformation),
+                                           OpticsIlluminationModeEnum.NI => ApplicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation),
+                                           _ => ThrowHelper.ThrowArgumentException<bool>(nameof(t.OpticsIlluminationMode))
+                                       })
+                .Select(t =>
                 {
-                    SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI? ApplicationCookie.OIOpticsMagTypeProductivityInformations: ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    CalibrationStatuses
+                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationMode)
+                        .ProductivityInformationCalibrationStatusList
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .IsCalibrated = t.IsCalibrated;
+
+                    return t;
                 })
         ];
-
-        foreach (var calibrationStatus in Calibrations)
-        {
-            var opticsIlluminationModeStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
-            var status = opticsIlluminationModeStatus
-                .ProductivityInformationCalibrationStatusList
-                .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
-            if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
-        }
-
-        if (Cache.Item.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.Item.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
@@ -234,18 +244,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 return true;
 
             case 5:
-                Calibrations =
-                [
-                    .. Calibrations
-                        .Where(t => t.OpticsIlluminationMode != Cache.OpticsIlluminationModeEnum
-                                    || t.ProductivityInformation != Cache.ProductivityInformation)
-                ];
-
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
                     .ProductivityInformationCalibrationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
-                DialogWindowProvider.ShowDialog($"X Pixel Size {Cache.ProductivityInformation} Ok!");
+                DialogWindowProvider.ShowDialog($"X Pixel Size {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -848,7 +851,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
         Calibrations =
         [
-            .. Calibrations.Where(t => t.ProductivityInformation != item.ProductivityInformation),
+            .. Calibrations
+                .Where(t => t.OpticsIlluminationMode != Cache.OpticsIlluminationModeEnum
+                            || t.ProductivityInformation != Cache.ProductivityInformation),
             item.Clone()
         ];
 

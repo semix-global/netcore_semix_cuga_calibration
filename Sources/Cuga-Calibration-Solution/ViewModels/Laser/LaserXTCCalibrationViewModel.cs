@@ -413,7 +413,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                 LaserXTCCalibrationItemDtoList = [.. pmtList.Where(t => pmtConfig[t.PmtId - 1].Enabled).ToList()];
             }
 
-            LaserViewModel.ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum.P);
+            OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
 
             foreach (var pmtItem in LaserXTCCalibrationItemDtoList)
             {

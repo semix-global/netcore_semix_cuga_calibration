@@ -31,4 +31,39 @@ public sealed class OpticsViewModel(
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
+
+    public void ToggleODFilter(bool isEnable)
+    {
+        var ret = calibrationOpticsService.ToggleODFilter(isEnable);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public OpticsApodizationModeEnum GetApodizationMode()
+    {
+        var ret = calibrationOpticsService.GetApodizationMode();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetApodizationMode(OpticsApodizationModeEnum opticsApodizationModeEnum)
+    {
+        var ret = calibrationOpticsService.SetApodizationMode(opticsApodizationModeEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public OpticsPolarizationModeEnum GetPolarizationMode()
+    {
+        var ret = calibrationOpticsService.GetPolarizationMode();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
+    {
+        var ret = calibrationOpticsService.SetPolarizationMode(opticsPolarizationModeEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
 }

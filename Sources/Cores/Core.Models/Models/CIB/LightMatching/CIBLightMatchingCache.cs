@@ -16,6 +16,24 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
+    [ObservableProperty]
+    private int _hazeCalibratingRetryTimes = 5;
+
+    [ObservableProperty]
+    private int _silicaSphereCalibratingRetryTimes = 5;
+
+    [ObservableProperty]
+    private double _hazeCalibratingThreshold = 0.05d;
+
+    [ObservableProperty]
+    private double _silicaSphereCalibratingThreshold = 0.05d;
+
+    [ObservableProperty]
+    private double _hazeThreshold = 0.1;
+
+    [ObservableProperty]
+    private double _silicaSphereThreshold = 0.1;
+
     public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), CIBLightMatchingCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
@@ -28,13 +46,16 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
 public sealed partial class CIBLightMatchingCacheItem : ObservableObject
 {
     [ObservableProperty]
-    private Point _hazeFindBFMachinePosition;
-
-    [ObservableProperty]
-    private Point _dSWFindBFMachinePosition;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+
+    [ObservableProperty]
+    private Point _hazeFindBFMachinePosition;
+
+    [ObservableProperty]
+    private Point _silicaSphereFindBFMachinePosition;
 
     [ObservableProperty]
     private int _imageWidth = 1000;

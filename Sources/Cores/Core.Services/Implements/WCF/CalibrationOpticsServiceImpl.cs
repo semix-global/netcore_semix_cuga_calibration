@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
@@ -39,6 +40,25 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
+    
+    public SxExecuteRet<bool> ToggleODFilter(bool isEnable)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.OD2_0 : CgODEnum.None));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<OpticsApodizationModeEnum> GetApodizationMode()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetApodizationMode(OpticsApodizationModeEnum opticsApodizationModeEnum)
+    {
+        throw new NotImplementedException();
+    }
 
     public SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
     {
@@ -52,5 +72,19 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<OpticsPolarizationModeEnum> GetPolarizationMode()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetPolarization(opticsPolarizationModeEnum.ToCgPolarizationTypeEnum()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 }
