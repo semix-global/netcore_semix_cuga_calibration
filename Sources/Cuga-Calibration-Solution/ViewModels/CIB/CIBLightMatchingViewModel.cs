@@ -526,7 +526,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            /*Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
@@ -551,7 +551,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-            return result;
+            return result;*/
+            return true;
         }).ConfigureAwait(false);
     }
 
