@@ -187,6 +187,14 @@ public static class EnumStageExtension
         _ => throw new ArgumentOutOfRangeException(nameof(stageSpeedEnum), stageSpeedEnum, null)
     };
 
+    public static ESxLevelEnum ToESxLevelEnum(this SxSpeedEnum sxSpeedEnum) => sxSpeedEnum switch
+    {
+        SxSpeedEnum.Low => ESxLevelEnum.Low,
+        SxSpeedEnum.Mid => ESxLevelEnum.Mid,
+        SxSpeedEnum.High => ESxLevelEnum.High,
+        _ => throw new ArgumentOutOfRangeException(nameof(ESxLevelEnum), sxSpeedEnum, null)
+    };
+
     public static StageSpeedEnum ToStageSpeedEnum(this ESxLevelEnum eSxLevelEnum) => eSxLevelEnum switch
     {
         ESxLevelEnum.Low => StageSpeedEnum.Low,

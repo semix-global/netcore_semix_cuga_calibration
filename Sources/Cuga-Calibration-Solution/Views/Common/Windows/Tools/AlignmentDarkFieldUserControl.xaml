@@ -78,11 +78,11 @@
                                            Color="{StaticResource SuccessBrush}" />
                             </hc:UniformSpacingPanel>
                             <hc:UniformSpacingPanel Spacing="5">
-                                <hc:Shield Subject="DF High Mag: "
-                                           Status="{Binding Cache.HighDarkFieldOpticsMagTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                                <hc:Shield Subject="DF Optics Illumination Mode: "
+                                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                                            Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="DF High Speed: "
-                                           Status="{Binding Cache.HighDarkFieldStageSpeedEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                                <hc:Shield Subject="DF Productivity Information: "
+                                           Status="{Binding Cache.ProductivityInformation}"
                                            Color="{StaticResource SuccessBrush}" />
                                 <hc:Shield Subject="DF High Template Size: "
                                            Status="{Binding Cache.HighSizeEnum, Converter={StaticResource EnumDescriptionConverter}}"

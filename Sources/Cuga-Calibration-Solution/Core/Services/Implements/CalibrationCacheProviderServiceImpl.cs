@@ -171,7 +171,7 @@ public class CalibrationCacheProviderServiceImpl(
         return TrySetArray(caches, cancellationToken);
     }
 
-    private bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name)
+    public bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name)
     {
         while (true)
         {

@@ -18,4 +18,6 @@ public interface ICalibrationCacheProvider
     bool TrySetIsRequiredSelfCheck<T>(bool isRequiredSelfCheck, CancellationToken cancellationToken) where T : CalibrationDtoBase, new();
 
     bool TrySetArrayIsRequiredSelfCheck<T>(bool isRequiredSelfCheck, CancellationToken cancellationToken) where T : CalibrationDtoBase, new();
+
+    bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name);
 }

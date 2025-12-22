@@ -96,6 +96,14 @@ public static class EnumOpticsExtension
         _ => throw new ArgumentOutOfRangeException(nameof(opticsMagTypeEnum), opticsMagTypeEnum, null)
     };
 
+    public static ESxLevelEnum ToESxLevelEnum(this SxMAGEnum sxMagEnum) => sxMagEnum switch
+    {
+        SxMAGEnum.Low => ESxLevelEnum.Low,
+        SxMAGEnum.Mid => ESxLevelEnum.Mid,
+        SxMAGEnum.High => ESxLevelEnum.High,
+        _ => throw new ArgumentOutOfRangeException(nameof(SxMAGEnum), sxMagEnum, null)
+    };
+
     public static OpticsMagTypeEnum ToOpticsMagTypeEnum(this ESxLevelEnum eSxLevelEnum) => eSxLevelEnum switch
     {
         ESxLevelEnum.Low => OpticsMagTypeEnum.Low,

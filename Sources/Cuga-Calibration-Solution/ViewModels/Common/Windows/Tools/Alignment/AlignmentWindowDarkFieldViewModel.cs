@@ -1,11 +1,15 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using Core.Models.Enums.Optics;
+using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using CugaCalibration.Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -23,7 +27,7 @@ using System.Reactive.Linq;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 
 [IOCAppService(ServiceType = typeof(AlignmentWindowDarkFieldViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>
+public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>, IRecipient<ValueChangedMessage<ToggleToolsEvent>>
 {
     private readonly ISynchronizationContextProvider _contextProvider;
     private readonly ILogger<AlignmentWindowBrightFieldViewModel> _logger;
@@ -32,6 +36,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     private readonly ICacheProvider _recipeCacheProvider;
     private readonly CalibrationSetting _calibrationSetting;
     private readonly ApplicationCookie _applicationCookie;
+    private readonly ICalibrationCacheProvider _calibrationCacheProvider;
 
     private CancellationTokenSource? _cancellationTokenSource;
 
@@ -52,6 +57,9 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
     [ObservableProperty]
     private AlignmentCacheDarkField _cache = new();
+
+    [ObservableProperty]
+    private AlignmentCacheDarkField[] _caches = [];
 
     #region 界面
 
@@ -119,7 +127,8 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         AlignmentParamWindowDarkFieldViewModel alignmentParamWindowDarkFieldViewModel,
         IWindowManagerService windowManagerService,
         CalibrationSetting calibrationSetting,
-        ApplicationCookie applicationCookie)
+        ApplicationCookie applicationCookie,
+        ICalibrationCacheProvider calibrationCacheProvider)
     {
         _dialogWindowProvider = dialogWindowProvider;
         _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
@@ -129,6 +138,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         _windowManagerService = windowManagerService;
         _calibrationSetting = calibrationSetting;
         _applicationCookie = applicationCookie;
+        _calibrationCacheProvider = calibrationCacheProvider;
         _reviewViewModel = reviewViewModel;
         _stageViewModel = stageViewModel;
         _microscopeViewModel = microscopeViewModel;
@@ -147,20 +157,29 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 _cancellationTokenSource = new CancellationTokenSource();
                 var cancellationToken = _cancellationTokenSource.Token;
 
-                Cache = _recipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
-                Cache.IsVerified = false;
-                Cache.IsOk = false;
+                Caches = _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
+                Cache = Caches.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation
+                                                    && t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum
+                                                    && t is { IsOk: true, IsVerified: true })
+                        ?? Cache;
+
+                var productivityInformations = LaserViewModel.GetProductivityInformations(Cache.OpticsIlluminationModeEnum);
 
                 if (_applicationCookie.MicroscopeLensInformations.Contains(Cache.LowMag) == false ||
                     _applicationCookie.MicroscopeLensInformations.Contains(Cache.HighMag) == false)
                 {
-                    Cache = new()
-                    {
-                        LowMag = _calibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone(),
-                        HighMag = _calibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone()
-                    };
-                    _recipeCacheProvider.Set(Cache, cancellationToken);
+                    Cache.LowMag = _calibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
+                    Cache.HighMag = _calibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
                 }
+
+                if (productivityInformations.Contains(Cache.ProductivityInformation) == false)
+                {
+                    Cache.ProductivityInformation = _applicationCookie.OILowProductivityInformation.Clone();
+                    Cache.OpticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;
+                }
+
+                Cache.IsVerified = false;
+                Cache.IsOk = false;
 
                 _contextProvider.Send(() =>
                 {
@@ -296,7 +315,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultHighSite1 = StageViewModel.MarkAlignSite1DarkField(Cache.HighDarkFieldOpticsMagTypeEnum, Cache.HighDarkFieldStageSpeedEnum, Cache.HighSizeEnum, Cache.AlgorithmWaferTypeEnum);
+                    var resultHighSite1 = StageViewModel.MarkAlignSite1DarkField(Cache.ProductivityInformation, Cache.HighSizeEnum, Cache.AlgorithmWaferTypeEnum, Cache.OpticsIlluminationModeEnum);
 
                     Cache.HighSite1 = resultHighSite1;
                     Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -316,7 +335,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultHighSite2 = StageViewModel.MarkAlignSite2DarkField(Cache.HighDarkFieldOpticsMagTypeEnum, Cache.HighDarkFieldStageSpeedEnum, Cache.HighSite1, Cache.AlgorithmWaferTypeEnum);
+                    var resultHighSite2 = StageViewModel.MarkAlignSite2DarkField(Cache.ProductivityInformation, Cache.HighSite1, Cache.AlgorithmWaferTypeEnum, Cache.OpticsIlluminationModeEnum);
                     StageViewModel.SetBrightFieldAbsoluteStageXy(resultHighSite2.Location);
 
                     Cache.HighSite2 = resultHighSite2;
@@ -340,11 +359,11 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Cache.LowSite2,
                 Cache.HighSite1,
                 Cache.HighSite2,
-                Cache.HighDarkFieldOpticsMagTypeEnum,
-                Cache.HighDarkFieldStageSpeedEnum,
+                Cache.ProductivityInformation,
                 Cache.LowMag,
                 Cache.AlgorithmWaferTypeEnum,
-                _calibrationSetting.SettingCommonParam.MainLaserLightInformation);
+                _calibrationSetting.SettingCommonParam.MainLaserLightInformation,
+                Cache.OpticsIlluminationModeEnum);
 
             _dialogWindowProvider.ShowDialog("Alignment Ok");
             Cache.Result = result;
@@ -361,7 +380,9 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
             Cache.IsOk = true;
             try
             {
-                _recipeCacheProvider.Set(Cache, CancellationToken.None);
+                if (Save(CancellationToken.None) == false)
+                    ThrowHelper.ThrowInvalidOperationException();
+
                 _dialogWindowProvider.ShowDialog("Save Ok");
                 Close();
             }
@@ -373,6 +394,21 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
             }
         });
     }
+
+    private bool Save(CancellationToken cancellationToken) => _calibrationCacheProvider.InvokeSave(update =>
+    {
+        update(Cache);
+        Caches =
+        [
+            .. Caches
+                .Where(t => (t.ProductivityInformation == Cache.ProductivityInformation
+                             && t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum) == false),
+            Cache.Clone()
+        ];
+
+        _recipeCacheProvider.SetArray(Caches, cancellationToken);
+        return true;
+    }, nameof(AlignmentCacheDarkField));
 
     [RelayCommand(CanExecute = nameof(IsAdvancedEnable))]
     private Task AdvancedAsync()
@@ -481,5 +517,11 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
             AdvancedCommand.NotifyCanExecuteChanged();
             CloseCommand.NotifyCanExecuteChanged();
         });
+    }
+
+    public void Receive(ValueChangedMessage<ToggleToolsEvent> message)
+    {
+        if (message.Value.IsToolsWindowEnable.HasValue)
+            AlignmentParamWindowDarkFieldViewModel.IsToolsEnable = message.Value.IsToolsWindowEnable.Value;
     }
 }

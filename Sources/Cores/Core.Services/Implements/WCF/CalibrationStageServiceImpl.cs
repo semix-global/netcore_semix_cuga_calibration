@@ -368,8 +368,8 @@ public sealed class CalibrationStageServiceImpl(
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)
@@ -378,8 +378,8 @@ public sealed class CalibrationStageServiceImpl(
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
 
         var sxExecuteRet = Invoke(() => Service!.MarkAlignDFSite1(
-            opticsMagTypeEnum.ToESxLevelEnum(),
-            xStageSpeedEnum.ToESxLevelEnum(),
+            ((SxMAGEnum)productivityInformation.OpticsMagType).ToESxLevelEnum(),
+            ((SxSpeedEnum)productivityInformation.StageSpeedType).ToESxLevelEnum(),
             algorithmTemplateSizeEnum.ToSize().ToSystemDrawingSize(),
             laserLightInformation.Level));
 
@@ -389,8 +389,8 @@ public sealed class CalibrationStageServiceImpl(
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         AlignmentSiteDto site,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
@@ -398,8 +398,8 @@ public sealed class CalibrationStageServiceImpl(
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
 
         var sxExecuteRet = Invoke(() => Service!.MarkAlignDFSite2(
-            opticsMagTypeEnum.ToESxLevelEnum(),
-            xStageSpeedEnum.ToESxLevelEnum(),
+            ((SxMAGEnum)productivityInformation.OpticsMagType).ToESxLevelEnum(),
+            ((SxSpeedEnum)productivityInformation.StageSpeedType).ToESxLevelEnum(),
             site.AdaptTo()));
 
         return sxExecuteRet.IsSuccess == false
@@ -412,8 +412,8 @@ public sealed class CalibrationStageServiceImpl(
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)
@@ -431,8 +431,8 @@ public sealed class CalibrationStageServiceImpl(
             brightFieldLowSite2.AdaptTo(),
             darkFieldHighSite1.AdaptTo(),
             darkFieldHighSite2.AdaptTo(),
-            opticsMagTypeEnum.ToESxLevelEnum(),
-            xStageSpeedEnum.ToESxLevelEnum(),
+            ((SxMAGEnum)productivityInformation.OpticsMagType).ToESxLevelEnum(),
+            ((SxSpeedEnum)productivityInformation.StageSpeedType).ToESxLevelEnum(),
             Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
             laserLightInformation.Level));
 

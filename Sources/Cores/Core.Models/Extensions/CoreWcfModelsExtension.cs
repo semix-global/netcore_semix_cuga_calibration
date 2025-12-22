@@ -5,6 +5,7 @@ using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
@@ -235,6 +236,19 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
+    public static bool IsOk(this ChuckAlignmentDegreeOffsetItemDto[] result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        var isOk = result.SingleOrDefault(t => t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
+
+        if (isOk == false)
+            errorMessage = "Chuck Alignment Degree Offset is Empty";
+
+        return isOk;
+    }
+
     public static bool IsOk(this ChuckStageMapDto result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -310,7 +324,7 @@ public static class CoreWcfModelsExtension
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
         var isOk = result.SingleOrDefault(t => t.OpticsIlluminationMode == CalibrationConstantsHelper.MainOpticsIlluminationModeEnum
                                                && t.PmtId == CalibrationConstantsHelper.MainPmtId
-                                               && t.ProductivityInformation == applicationCookie.NILowProductivityInformation)?.IsOk == true;
+                                               && t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser Line Centricity is Empty";
@@ -349,7 +363,7 @@ public static class CoreWcfModelsExtension
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
         var isOk = result.SingleOrDefault(t => t.OpticsIlluminationMode == CalibrationConstantsHelper.MainOpticsIlluminationModeEnum
                                                && t.PmtId == CalibrationConstantsHelper.MainPmtId
-                                               && t.ProductivityInformation == applicationCookie.NILowProductivityInformation)?.IsOk == true;
+                                               && t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser Pixel Size is Empty";
@@ -362,7 +376,7 @@ public static class CoreWcfModelsExtension
         errorMessage = string.Empty;
 
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.ProductivityInformation == applicationCookie.NILowProductivityInformation)?.IsOk == true;
+        var isOk = result.SingleOrDefault(t => t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
 
         if (isOk == false)
             errorMessage = "Laser X Pixel Size is Empty";
@@ -376,7 +390,7 @@ public static class CoreWcfModelsExtension
 
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
         var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainChannelId
-                                               && t.ProductivityInformation == applicationCookie.NILowProductivityInformation)?.IsOk == true;
+                                               && t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
         if (isOk == false) errorMessage = "Laser XTC is Empty";
 
         return isOk;
