@@ -22,7 +22,6 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -389,9 +388,7 @@
                 </ScrollViewer>
             </Border>
         </Grid>
-        <!--#endregion-->
         <GridSplitter Grid.Column="1" Width="5" />
-        <!--#region Right-->
         <GroupBox Grid.Column="2" Header="History">
             <Grid>
                 <Grid.RowDefinitions>
@@ -415,6 +412,11 @@
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
+                                <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
+                                    <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
@@ -452,6 +454,5 @@
                 </Border>
             </Grid>
         </GroupBox>
-        <!--#endregion-->
     </Grid>
 </UserControl>

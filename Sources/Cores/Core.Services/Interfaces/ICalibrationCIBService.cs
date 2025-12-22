@@ -28,10 +28,10 @@ public interface ICalibrationCIBService
     /// <summary>
     /// 设置LightMatching
     /// </summary>
-    /// <param name="cibInformation">CIB信息</param>
+    /// <param name="cibInformations">CIB列表</param>
     /// <param name="digitalGainPlusMultiplicativeFactors">数码增益+缩放系数</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetLightMatching(CIBInformation cibInformation, double digitalGainPlusMultiplicativeFactors);
+    SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactors);
 
     /// <summary>
     /// 读取所有CIB的PMT数据

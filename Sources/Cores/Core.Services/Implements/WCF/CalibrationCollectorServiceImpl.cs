@@ -1,7 +1,9 @@
 ﻿using Core.Models.Enums.Collector;
+using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
+using Cuga.Data.DataStruct.Optics;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -27,11 +29,18 @@ public sealed class CalibrationCollectorServiceImpl : BaseService<ICgCalibration
 
     public SxExecuteRet<CollectorPolarizationModeEnum> GetPolarizationMode()
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = Invoke(() => Service?.ReadNDFType(CgNDFCHEnum.ALL));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<CollectorPolarizationModeEnum>(sxExecuteRet.ErrorMsg, default);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.ToCollectorPolarizationModeEnum());
     }
 
     public SxExecuteRet<bool> SetPolarizationMode(CollectorPolarizationModeEnum collectorPolarizationModeEnum)
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = Invoke(() => Service?.SetNDF(CgNDFCHEnum.ALL, collectorPolarizationModeEnum.ToCgNDFTypeEnum()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 }

@@ -223,6 +223,7 @@
                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
                                     <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
                                     <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsVerified}" Value="True">
                                     <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />

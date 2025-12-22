@@ -3,10 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:mmd="clr-namespace:Core.Models.Models.CIB.LightMatching;assembly=Core.Models"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBLightMatchingViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -23,7 +26,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="X Pixel Size Step 6: "
+                <hc:Shield Subject="Light Matching Step 6: "
                            Status="{Binding CalibrationStepList[5].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Optics Illumination Mode: "
@@ -35,11 +38,11 @@
                 <hc:Shield Subject="Microscope: "
                            Status="{Binding Cache.Item.MicroscopeLensInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Alignment Degrees(°): "
-                           Status="{Binding Cache.Item.AlignmentResult.Degrees, StringFormat='0.##########'}"
+                <hc:Shield Subject="Haze BF Machine Position(um): "
+                           Status="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="BF Machine Position(um): "
-                           Status="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                <hc:Shield Subject="Silica SphereBF Machine Position(um): "
+                           Status="{Binding Cache.Item.SilicaSphereFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -57,33 +60,47 @@
                                           hc:TitleElement.TitleWidth="160"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.WaferRadius}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Die Pitch With(um): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="160"
-                                          Minimum="1"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.DiePitchWith}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Reticle Die Count X: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="160"
-                                          Minimum="1"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.ReticleDieCountX}" />
+                                          Value="{Binding Cache.Item.ImageWidth}" />
                         <StackPanel>
-                            <TextBlock Text="Result"
+                            <TextBlock Text="Haze"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.XPixelSize, StringFormat='0.##########'}"
-                                 hc:TitleElement.Title="X Pixel Size(um/px): "
-                                 hc:TitleElement.TitleWidth="160"
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Times: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="160"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.HazeCalibratingRetryTimes}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Threshold: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="160"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.HazeCalibratingThreshold}" />
+                        <StackPanel>
+                            <TextBlock Text="Silica Sphere"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Times: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="160"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.SilicaSphereCalibratingRetryTimes}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Threshold: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="160"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.SilicaSphereCalibratingThreshold}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -100,19 +117,70 @@
                 </ScrollViewer>
             </Border>
         </Grid>
-        <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="5" />
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
-                <Border Style="{StaticResource BorderRegion}">
-                    <controls:ScatterMultiPlotControl Title="Slide Match(Y: Score - X: px)" ScatterLine0Points="{Binding CalibratingItem.SlideItemPoints}" />
-                </Border>
+                <ListView x:Name="CalibratingItemsListView"
+                          ItemsSource="{Binding CalibratingItems}"
+                          Style="{StaticResource ListView.Small}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ListBoxScrollToCurrentBehavior />
+                    </i:Interaction.Behaviors>
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Header="Optics Illumination Mode" DisplayMemberBinding="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="Optics Apodization Mode" DisplayMemberBinding="{Binding OpticsApodizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Header="Optics Polarization Mode" DisplayMemberBinding="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Header="Collector Polarization Mode" DisplayMemberBinding="{Binding CollectorPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                    <controls:ScatterMultiPlotControl Title="Slide Split Differences(Y: px - X: Die - Die)" ScatterLine0Points="{Binding CalibratingItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}}" />
+                    <TabControl ItemsSource="{Binding SelectedItems, ElementName=CalibratingItemsListView}" SelectedIndex="0">
+                        <i:Interaction.Behaviors>
+                            <wpf:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
+                                <TextBlock>
+                                    <Run Text="{Binding OpticsApodizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <Run Text=", " />
+                                    <Run Text="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <Run Text=", " />
+                                    <Run Text="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
+                                <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
                 </Border>
             </Grid>
         </GroupBox>

@@ -29,9 +29,9 @@ public sealed class CIBViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetLightMatching(CIBInformation cibInformation, double digitalGainPlusMultiplicativeFactors)
+    public void SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactors)
     {
-        var ret = calibrationCIBService.SetLightMatching(cibInformation, digitalGainPlusMultiplicativeFactors);
+        var ret = calibrationCIBService.SetLightMatching(cibInformations, digitalGainPlusMultiplicativeFactors);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

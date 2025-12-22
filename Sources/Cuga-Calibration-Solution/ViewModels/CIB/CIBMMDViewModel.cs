@@ -32,6 +32,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Text;
 using Net.Utilities.Helpers.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
@@ -599,12 +600,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                                 var (index, darkFieldImage) = t;
                                 using var _ = darkFieldImage;
-                                
+
                                 var shorts = darkFieldImage.Matrix.AsSpan();
                                 double sum = 0;
                                 foreach (var v in shorts) sum += v;
                                 var pmtValue = sum / shorts.Length;
-                                
+
                                 var cibMMDDto = noProtectedCIBMMDDtos[index];
 
                                 var item = cibMMDDto.Items[coefficientIndex];
@@ -694,6 +695,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         await InvokeVerifyAsync(() =>
         {
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            var errorMessageStringBuilder = new StringBuilder();
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
@@ -707,14 +709,20 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 if (selectedReviewItem.IsVerified)
                     Logger.LogHtmlInformation($"OK: {selectedReviewItem.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
+                {
+                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.CIBInformation.ToString()}: Error");
                     Logger.LogHtmlError($"Error: {selectedReviewItem.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
             }
 
             Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
             var result = SelectedReviewItems.All(t => t.IsOk);
 
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}",
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 

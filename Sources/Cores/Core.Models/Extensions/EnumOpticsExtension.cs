@@ -118,18 +118,18 @@ public static class EnumOpticsExtension
 
     public static CgPolarizationTypeEnum ToCgPolarizationTypeEnum(this OpticsPolarizationModeEnum opticsPolarizationModeEnum) => opticsPolarizationModeEnum switch
     {
-        OpticsPolarizationModeEnum.C => CgPolarizationTypeEnum.C,
-        OpticsPolarizationModeEnum.S => CgPolarizationTypeEnum.S,
         OpticsPolarizationModeEnum.P => CgPolarizationTypeEnum.P,
-        _ => throw new ArgumentOutOfRangeException(nameof(opticsPolarizationModeEnum), opticsPolarizationModeEnum, null)
+        OpticsPolarizationModeEnum.S => CgPolarizationTypeEnum.S,
+        OpticsPolarizationModeEnum.C => CgPolarizationTypeEnum.C,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgPolarizationTypeEnum>(nameof(opticsPolarizationModeEnum))
     };
 
     public static OpticsPolarizationModeEnum ToOpticsPolarizationModeEnum(this CgPolarizationTypeEnum cgPolarizationTypeEnum) => cgPolarizationTypeEnum switch
     {
-        CgPolarizationTypeEnum.C => OpticsPolarizationModeEnum.C,
-        CgPolarizationTypeEnum.S => OpticsPolarizationModeEnum.S,
         CgPolarizationTypeEnum.P => OpticsPolarizationModeEnum.P,
-        _ => throw new ArgumentOutOfRangeException(nameof(cgPolarizationTypeEnum), cgPolarizationTypeEnum, null)
+        CgPolarizationTypeEnum.S => OpticsPolarizationModeEnum.S,
+        CgPolarizationTypeEnum.C => OpticsPolarizationModeEnum.C,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsPolarizationModeEnum>(nameof(cgPolarizationTypeEnum))
     };
 
     #endregion Polarization

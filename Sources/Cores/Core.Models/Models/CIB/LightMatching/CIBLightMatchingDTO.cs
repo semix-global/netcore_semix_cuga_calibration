@@ -81,7 +81,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
         ScatterPlotControl.SetTitle(0, "Haze(Y: PMTValue - X: PMT Id)");
         ScatterPlotControl.SetTitle(1, "Haze(Y: Digital Gain - X: PMT Id)");
-        ScatterPlotControl.SetTitle(2, "Silica Spheres(Y: PMTValue - X: PMT Id)");
+        ScatterPlotControl.SetTitle(2, "Silica Spheres(Y: Value - X: PMT Id)");
         ScatterPlotControl.SetTitle(3, "Silica Spheres(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
     }
 
@@ -113,8 +113,8 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
                     var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
                         0,
-                        $"{i + 1}: {channelId}({hazes.Maxima(t => Math.Abs(t.Item.Ratio)).First().Item.Ratio:0.###})",
-                        [..hazes.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
+                        $"{i + 1}: {channelId}({hazes.Maxima(t => t.Item.AbsRatio).First().Item.Ratio:0.###})",
+                        [..hazes.Select(t => new Point(t.PMTId, t.Item.Value))],
                         i,
                         new Range(0, hazeCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
@@ -142,8 +142,8 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
                     var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
                         2,
-                        $"{i + 1}: {channelId}({silicaSpheres.Maxima(t => Math.Abs(t.Item.Ratio)).First().Item.Ratio:0.###})",
-                        [..silicaSpheres.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
+                        $"{i + 1}: {channelId}({silicaSpheres.Maxima(t => t.Item.AbsRatio).First().Item.Ratio:0.###})",
+                        [..silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Value))],
                         i,
                         new Range(0, silicaSpheresCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
@@ -284,14 +284,18 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _pMTValue;
+        private double _value;
 
         [ObservableProperty]
         private double _ratio;
 
+        public double AbsRatio { get; private set; }
+
+        partial void OnRatioChanged(double value) => AbsRatio = Math.Abs(value);
+
         public Item Clone() => new()
         {
-            PMTValue = PMTValue,
+            Value = Value,
             Ratio = Ratio
         };
     }

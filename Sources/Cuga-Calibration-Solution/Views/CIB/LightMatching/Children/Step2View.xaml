@@ -3,13 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBLightMatchingViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -26,7 +25,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="X Pixel Size Step 3: "
+                <hc:Shield Subject="Light Matching Step 3: "
                            Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Optics Illumination Mode: "
@@ -64,16 +63,6 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
-                        <ComboBox hc:TitleElement.Title="CIB Information: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}">
-                            <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
-                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

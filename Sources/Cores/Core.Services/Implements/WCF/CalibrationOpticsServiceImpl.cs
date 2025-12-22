@@ -76,7 +76,10 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
     public SxExecuteRet<OpticsPolarizationModeEnum> GetPolarizationMode()
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = Invoke(() => Service?.ReadPolarizationType());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<OpticsPolarizationModeEnum>(sxExecuteRet.ErrorMsg, default);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.ToOpticsPolarizationModeEnum());
     }
 
     public SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
