@@ -9,6 +9,7 @@
         <StartupObject>CugaCalibration.App</StartupObject>
         <ApplicationIcon>Assets\Images\CugaCalibration.ico</ApplicationIcon>
         <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Microsoft.Extensions.Configuration.Binder.SourceGeneration</InterceptorsPreviewNamespaces>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -95,6 +96,31 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Page Update="Views\Chuck\AlignmentDegreeOffset\Children\Step0View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Chuck\AlignmentDegreeOffset\Children\Step1View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Chuck\AlignmentDegreeOffset\Children\Step2View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Chuck\AlignmentDegreeOffset\ChuckAlignmentDegreeOffsetCalibrationUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Chuck\AlignmentDegreeOffset\Children\Review.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
     </ItemGroup>
 
     <ItemGroup>

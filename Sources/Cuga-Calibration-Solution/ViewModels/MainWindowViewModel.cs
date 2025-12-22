@@ -11,6 +11,7 @@ using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.AODAlignment;
 using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
@@ -577,6 +578,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckAutoFocusDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckGlobalScaleErrorCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().IsOk(out _);
+                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckAlignmentDegreeOffsetCalibrationViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<ChuckAlignmentDegreeOffsetItemDto>().IsOk(out _);
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AdsPressureGainsCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AdsPressureGainsDto>().IsOk(out _);

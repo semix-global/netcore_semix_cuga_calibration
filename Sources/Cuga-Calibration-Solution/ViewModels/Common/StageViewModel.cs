@@ -298,14 +298,15 @@ public sealed partial class StageViewModel(
     }
 
     public AlignmentSiteDto MarkAlignSite1DarkField(
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI,
         LaserLightInformation? laserLightInformation = null)
     {
+        if (opticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI) throw new NotImplementedException("NI Optics Illumination Mode is not supported.");
         laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
-        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsMagTypeEnum, xStageSpeedEnum, algorithmTemplateSizeEnum, algorithmWaferTypeEnum, laserLightInformation);
+        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsIlluminationModeEnum, productivityInformation, algorithmTemplateSizeEnum, algorithmWaferTypeEnum, laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -314,12 +315,14 @@ public sealed partial class StageViewModel(
     }
 
     public AlignmentSiteDto MarkAlignSite2DarkField(
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        ProductivityInformation productivityInformation,
         AlignmentSiteDto site,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI
+    )
     {
-        var ret = calibrationStageService.MarkAlignSite2DarkField(opticsMagTypeEnum, xStageSpeedEnum, site, algorithmWaferTypeEnum);
+        if (opticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI) throw new NotImplementedException("NI Optics Illumination Mode is not supported.");
+        var ret = calibrationStageService.MarkAlignSite2DarkField(opticsIlluminationModeEnum, productivityInformation, site, algorithmWaferTypeEnum);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -332,20 +335,21 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        LaserLightInformation? laserLightInformation = null)
+        LaserLightInformation? laserLightInformation = null,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI)
     {
+        if (opticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI) throw new NotImplementedException("NI Optics Illumination Mode is not supported.");
         laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
         var ret = calibrationStageService.AlignmentDarkField(
             brightFieldLowSite1,
             brightFieldLowSite2,
             darkFieldHighSite1,
             darkFieldHighSite2,
-            opticsMagTypeEnum,
-            xStageSpeedEnum,
+            opticsIlluminationModeEnum,
+            productivityInformation,
             lowMicroscopeLensInformation,
             algorithmWaferTypeEnum,
             laserLightInformation);

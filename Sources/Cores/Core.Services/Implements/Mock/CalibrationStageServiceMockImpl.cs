@@ -308,8 +308,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)
@@ -332,8 +332,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         AlignmentSiteDto site,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
@@ -360,8 +360,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)

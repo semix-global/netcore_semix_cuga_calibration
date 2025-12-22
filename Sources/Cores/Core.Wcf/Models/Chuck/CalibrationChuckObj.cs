@@ -34,6 +34,11 @@ public sealed class CalibrationChuckObj
     public CalibrationPrealignerObj CalibrationPrealignerObj { get; set; } = new CalibrationPrealignerObj();
 
     /// <summary>
+    /// AlignmentDegreeOffset校准对象
+    /// </summary>
+    public CalibrationChuckAlignmentDegreeOffsetItem[] CalibrationChuckAlignmentDegreeOffsetItemList { get; set; } = Array.Empty<CalibrationChuckAlignmentDegreeOffsetItem>();
+
+    /// <summary>
     /// Stage Map 校准对象
     /// </summary>
     public CalibrationChuckStageMap CalibrationChuckStageMap { get; set; } = new CalibrationChuckStageMap();
@@ -119,6 +124,37 @@ public sealed class CalibrationPrealignerObj : CalibrationBase
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, 校准后EFEM上下料时Chuck的起始旋转角度（绝对角度）, **Cuga内部使用**
     /// </summary>
     public double EfemLoadWaferChuckAbsoluteAngle { get; set; }
+}
+
+/// <summary>
+/// 明暗场对准角度偏差对象
+/// </summary>
+public sealed class CalibrationChuckAlignmentDegreeOffsetItem : CalibrationBase
+{
+    /// <summary>
+    /// 此显微镜镜头下做的校准
+    /// </summary>
+    public CgMicroscopeLens CgMicroscopeLens { get; set; }
+
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, 明暗场对准角度差值(相对偏差)
+    /// </summary>
+    public double DegreeOffset { get; set; }
 }
 
 /// <summary>

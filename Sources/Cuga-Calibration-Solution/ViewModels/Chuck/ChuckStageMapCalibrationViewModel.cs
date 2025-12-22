@@ -112,6 +112,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private AlignmentCacheDarkField _alignmentCacheDarkField = new();
 
     [ObservableProperty]
+    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+
+    [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
@@ -265,7 +268,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckStageMapDto>();
-        AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
+        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         Cache.IsDarkField = false;
 
@@ -422,6 +425,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
             if (IsDarkFieldAlignment)
             {
+                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
+                                              t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
+                                              t.ProductivityInformation == Cache.ProductivityInformation)
+                                          ?? new();
                 if (AlignmentCacheDarkField.IsOk)
                 {
                     alignmentResultDto = StageViewModel.AlignmentDarkField(
@@ -429,10 +436,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                         AlignmentCacheDarkField.LowSite2,
                         AlignmentCacheDarkField.HighSite1,
                         AlignmentCacheDarkField.HighSite2,
-                        AlignmentCacheDarkField.HighDarkFieldOpticsMagTypeEnum,
-                        AlignmentCacheDarkField.HighDarkFieldStageSpeedEnum,
+                        Cache.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
+                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
                     return true;
                 }
 
@@ -953,10 +960,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                             AlignmentCacheDarkField.LowSite2,
                             AlignmentCacheDarkField.HighSite1,
                             AlignmentCacheDarkField.HighSite2,
-                            AlignmentCacheDarkField.HighDarkFieldOpticsMagTypeEnum,
-                            AlignmentCacheDarkField.HighDarkFieldStageSpeedEnum,
+                            Cache.ProductivityInformation,
                             AlignmentCacheDarkField.LowMag,
-                            AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
+                            AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                            opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
                 }
 
                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());

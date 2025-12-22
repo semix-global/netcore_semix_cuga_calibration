@@ -34,7 +34,6 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     [ObservableProperty]
     private double _nccTypeTemplateMatchScoreThreshold = 0.8;
 
-
     /// <summary>
     /// 低倍率mark点1位置(wafer中间掩模版芯粒左上角)
     /// </summary>

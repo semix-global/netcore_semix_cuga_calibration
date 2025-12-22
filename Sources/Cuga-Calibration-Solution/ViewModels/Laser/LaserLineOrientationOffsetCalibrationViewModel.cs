@@ -107,6 +107,9 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     [ObservableProperty]
     private AlignmentCacheDarkField _alignmentCacheDarkField = new();
 
+    [ObservableProperty]
+    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+
     #endregion 缓存
 
     #endregion 属性
@@ -201,7 +204,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LineOrientationOffsetCache>();
 
-        AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
+        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCacheNew, Cache) = CacheProvider.TryGetOrDefault<LineOrientationOffsetCache>();
@@ -434,17 +437,22 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
             if (IsDarkFieldAlignment)
             {
+                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
+                                              t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
+                                              t.ProductivityInformation == Cache.ProductivityInformation)
+                                          ?? new();
                 if (AlignmentCacheDarkField.IsOk)
                 {
+                    // todo:改为oini后传参
                     alignmentResultDto = StageViewModel.AlignmentDarkField(
                         AlignmentCacheDarkField.LowSite1,
                         AlignmentCacheDarkField.LowSite2,
                         AlignmentCacheDarkField.HighSite1,
                         AlignmentCacheDarkField.HighSite2,
-                        AlignmentCacheDarkField.HighDarkFieldOpticsMagTypeEnum,
-                        AlignmentCacheDarkField.HighDarkFieldStageSpeedEnum,
+                        AlignmentCacheDarkField.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
+                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                    opticsIlluminationModeEnum: OpticsIlluminationModeEnum.OI);
                     return true;
                 }
 

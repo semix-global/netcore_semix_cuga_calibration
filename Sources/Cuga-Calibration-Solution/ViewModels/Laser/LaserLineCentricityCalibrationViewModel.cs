@@ -119,6 +119,9 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     [ObservableProperty]
     private AlignmentCacheDarkField _alignmentCacheDarkField = new();
 
+    [ObservableProperty]
+    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+
     #endregion 缓存
 
     #endregion 属性
@@ -213,7 +216,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         LaserPixelSizes = laserPixelSizes;
 
-        AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
+        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserLineCentricityCache>();
@@ -226,7 +229,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI? ApplicationCookie.OIOpticsMagTypeProductivityInformations: ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
                 })
         ];
 
@@ -421,6 +424,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     {
         return InvokeCalibrateAsync(() =>
         {
+            AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
+                                          t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
+                                          t.ProductivityInformation == Cache.ProductivityInformation)
+                                      ?? new();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation
@@ -445,10 +452,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                         AlignmentCacheDarkField.LowSite2,
                         AlignmentCacheDarkField.HighSite1,
                         AlignmentCacheDarkField.HighSite2,
-                        AlignmentCacheDarkField.HighDarkFieldOpticsMagTypeEnum,
-                        AlignmentCacheDarkField.HighDarkFieldStageSpeedEnum,
+                        AlignmentCacheDarkField.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
+                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                       opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
                     return true;
                 }
 
@@ -792,10 +799,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     AlignmentCacheDarkField.LowSite2,
                     AlignmentCacheDarkField.HighSite1,
                     AlignmentCacheDarkField.HighSite2,
-                    AlignmentCacheDarkField.HighDarkFieldOpticsMagTypeEnum,
-                    AlignmentCacheDarkField.HighDarkFieldStageSpeedEnum,
+                    AlignmentCacheDarkField.ProductivityInformation,
                     AlignmentCacheDarkField.LowMag,
-                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
+                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                    opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
             }
         }
 

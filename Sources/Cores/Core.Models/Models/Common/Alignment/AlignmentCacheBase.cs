@@ -11,7 +11,7 @@ public partial class AlignmentCacheBase : ObservableCacheBase
     /// 算法匹配类型
     /// </summary>
     [ObservableProperty]
-    private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum;
+    private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;
 
     /// <summary>
     /// 晶圆类型
