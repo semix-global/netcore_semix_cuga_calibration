@@ -14,6 +14,7 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]

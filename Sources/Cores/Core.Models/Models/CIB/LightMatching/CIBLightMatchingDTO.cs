@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
@@ -83,6 +83,10 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         ScatterPlotControl.SetTitle(1, "Haze(Y: Digital Gain - X: PMT Id)");
         ScatterPlotControl.SetTitle(2, "Silica Spheres(Y: Value - X: PMT Id)");
         ScatterPlotControl.SetTitle(3, "Silica Spheres(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
+        ScatterPlotControl.ToggleLegend(0, false);
+        ScatterPlotControl.ToggleLegend(1, false);
+        ScatterPlotControl.ToggleLegend(2, false);
+        ScatterPlotControl.ToggleLegend(3, false);
     }
 
     private void RefreshPlot()
@@ -114,23 +118,23 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                     var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
                         0,
                         $"{i + 1}: {channelId}({hazes.Maxima(t => t.Item.AbsRatio).First().Item.Ratio:0.###})",
-                        [..hazes.Select(t => new Point(t.PMTId, t.Item.Value))],
+                        [.. hazes.Select(t => new Point(t.PMTId, t.Item.Value))],
                         i,
                         new Range(0, hazeCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
 
-                    scatterMarkers.MarkerSize = 20;
-                    scatterMarkers.IsVisible = i == hazeCount - 1;
+                    scatterMarkers.MarkerSize = 30;
+                    scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
 
                     scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
                         1,
                         $"{i + 1}: {channelId}",
-                        [..hazes.Select(t => new Point(t.PMTId, t.DigitalGain))],
+                        [.. hazes.Select(t => new Point(t.PMTId, t.DigitalGain))],
                         i,
                         new Range(0, hazeCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
-                    scatterMarkers.MarkerSize = 20;
-                    scatterMarkers.IsVisible = i == hazeCount - 1;
+                    scatterMarkers.MarkerSize = 30;
+                    scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
                 }
 
                 var silicaSpheresCount = items.Max(t => t.SilicaSphereItems.Count);
@@ -143,23 +147,23 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                     var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
                         2,
                         $"{i + 1}: {channelId}({silicaSpheres.Maxima(t => t.Item.AbsRatio).First().Item.Ratio:0.###})",
-                        [..silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Value))],
+                        [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Value))],
                         i,
                         new Range(0, silicaSpheresCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
 
-                    scatterMarkers.MarkerSize = 20;
-                    scatterMarkers.IsVisible = i == silicaSpheresCount - 1;
+                    scatterMarkers.MarkerSize = 30;
+                    scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
 
                     scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
                         3,
                         $"{i + 1}: {channelId}",
-                        [..silicaSpheres.Select(t => new Point(t.PMTId, t.DigitalGainPlusMultiplicativeFactors))],
+                        [.. silicaSpheres.Select(t => new Point(t.PMTId, t.DigitalGainPlusMultiplicativeFactors))],
                         i,
                         new Range(0, hazeCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
-                    scatterMarkers.MarkerSize = 20;
-                    scatterMarkers.IsVisible = i == hazeCount - 1;
+                    scatterMarkers.MarkerSize = 30;
+                    scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
                 }
             }
         }
@@ -194,7 +198,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = (int)OpticsPolarizationModeEnum,
         CollectorPolarizationModeEnum = (int)CollectorPolarizationModeEnum,
-        Items = [..Items.Select(t => t.AdaptTo())],
+        Items = [.. Items.Select(t => t.AdaptTo())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck

@@ -23,7 +23,6 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace Core.Services.Implements.WCF;
 

@@ -15,7 +15,7 @@
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="430" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -55,7 +55,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="160"
                                           Minimum="1"
@@ -140,6 +140,11 @@
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
+                                <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
+                                    <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
@@ -171,7 +176,7 @@
                                     <Run Text=", " />
                                     <Run Text="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                     <Run Text=", " />
-                                    <Run Text="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <Run Text="{Binding CollectorPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                 </TextBlock>
                             </DataTemplate>
                         </TabControl.ItemTemplate>

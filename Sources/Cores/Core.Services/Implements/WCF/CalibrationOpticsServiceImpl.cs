@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Helper;
@@ -52,12 +52,12 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
     public SxExecuteRet<OpticsApodizationModeEnum> GetApodizationMode()
     {
-        throw new NotImplementedException();
+        return SxExecuteRetHelper.CreateSuccess(OpticsApodizationModeEnum.Cosine);
     }
 
     public SxExecuteRet<bool> SetApodizationMode(OpticsApodizationModeEnum opticsApodizationModeEnum)
     {
-        throw new NotImplementedException();
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)

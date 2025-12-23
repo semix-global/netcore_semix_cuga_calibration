@@ -20,7 +20,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -122,11 +121,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+                ..ApplicationCookie.OpticsIlluminationModeEnums
                     .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                     {
                         SelectedItem = t,
-                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
                     })
             ];
 
@@ -293,7 +292,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 Cache.CalChipSiteModelEnum
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.NIProductivityInformations.Contains(Cache.ProductivityInformation);
+            return ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation);
         });
     }
 
