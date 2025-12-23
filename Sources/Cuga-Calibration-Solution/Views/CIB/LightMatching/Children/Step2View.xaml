@@ -9,7 +9,7 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBLightMatchingViewModel}"
-             d:DesignHeight="500"
+             d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>

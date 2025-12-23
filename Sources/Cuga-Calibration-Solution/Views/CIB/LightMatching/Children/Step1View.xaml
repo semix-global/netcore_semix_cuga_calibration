@@ -10,7 +10,7 @@
              xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBLightMatchingViewModel}"
-             d:DesignHeight="500"
+             d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>

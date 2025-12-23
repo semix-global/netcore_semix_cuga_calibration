@@ -222,11 +222,11 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                 customGrid.Set(plots[5], new GridCell(2, 1, 3, 2));
             });
 
-        scatterPlotControl.SetTitle(0, "Haze(Y: PMTValue - X: PMT Id)");
-        scatterPlotControl.SetTitle(1, "Haze Error(Y: PMTValue - X: PMT Id)");
+        scatterPlotControl.SetTitle(0, "Haze(Y: Log - X: PMT Id)");
+        scatterPlotControl.SetTitle(1, "Haze Error(Y: Log - X: PMT Id)");
         scatterPlotControl.SetTitle(2, "Haze Result(Y: Digital Gain - X: PMT Id)");
-        scatterPlotControl.SetTitle(3, "Silica Spheres(Y: Value - X: PMT Id)");
-        scatterPlotControl.SetTitle(4, "Silica Spheres Error(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
+        scatterPlotControl.SetTitle(3, "Silica Spheres(Y: Log - X: PMT Id)");
+        scatterPlotControl.SetTitle(4, "Silica Spheres Error(Y: Log - X: PMT Id)");
         scatterPlotControl.SetTitle(5, "Silica Spheres Result(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
         scatterPlotControl.ToggleLegend(0, false);
         scatterPlotControl.ToggleLegend(1, false);
