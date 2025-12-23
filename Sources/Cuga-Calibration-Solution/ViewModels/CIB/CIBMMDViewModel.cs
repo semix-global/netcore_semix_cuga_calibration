@@ -62,7 +62,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDTO> _calibratingItems = [];
+    private IReadOnlyList<CIBMMDDTO> _calibratings = [];
 
     [ObservableProperty]
     private IReadOnlyList<CIBMMDDTO> _selectedCalibratingItems = [];
@@ -197,7 +197,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
-                CalibratingItems = [];
+                Calibratings = [];
 
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
@@ -330,7 +330,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
-            CalibratingItems = [];
+            Calibratings = [];
             Cache.PrescanAODWaveformResultFilePath = Cache.ChirpAODWaveformResultFilePath = string.Empty;
             Cache.PrescanAODWaveformProfiles = [];
             Cache.ChirpAODWaveformProfiles = [];
@@ -518,7 +518,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             // 获取gain
             var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
-            CalibratingItems =
+            Calibratings =
             [
                 ..Cache.CIBInformations
                     .Select(t => new CIBMMDDTO
@@ -576,9 +576,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         foreach (var (gainIndex, gain) in gains.Index())
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            SelectedCalibratingItems = CalibratingItems;
+                            SelectedCalibratingItems = Calibratings;
 
-                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDTO>)[.. CalibratingItems.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
+                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDTO>)[.. Calibratings.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
                             var cibInformations = (IReadOnlyList<CIBInformation>)[.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)];
                             LaserViewModel.SetGain(cibInformations, gain);
 
@@ -633,16 +633,16 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            await Task.WhenAll(CalibratingItems.Select(cibMMDDto => Task.Run(() =>
+            await Task.WhenAll(Calibratings.Select(cibMMDDto => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 Algorithm(cibMMDDto);
             }, cancellationToken)));
 
-            Guard.IsTrue(Save(CalibratingItems, cancellationToken));
+            Guard.IsTrue(Save(Calibratings, cancellationToken));
 
-            return CalibratingItems.All(t => t.IsCalibrated);
+            return Calibratings.All(t => t.IsCalibrated);
         });
     }
 

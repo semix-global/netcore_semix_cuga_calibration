@@ -75,13 +75,27 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.HazeCalibratingRetryTimes}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Range Ratio: "
+                                          hc:TitleElement.TitleWidth="160"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.CalibratingThresholdRangeRatio}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Calibrating Threshold: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="160"
                                           Minimum="0"
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.HazeCalibratingThreshold}" />
+                                          Value="{Binding Cache.HazeThreshold}" />
+                        <TextBox Text="{Binding Cache.CalibratingHazeThreshold, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="F Range: "
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <StackPanel>
                             <TextBlock Text="Silica Sphere"
                                        HorizontalAlignment="Center"
@@ -95,13 +109,27 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.SilicaSphereCalibratingRetryTimes}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Threshold: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Range Ratio: "
+                                          hc:TitleElement.TitleWidth="160"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.CalibratingThresholdRangeRatio}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="160"
                                           Minimum="0"
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.SilicaSphereCalibratingThreshold}" />
+                                          Value="{Binding Cache.SilicaSphereThreshold}" />
+                        <TextBox Text="{Binding Cache.CalibratingSilicaSphereThreshold, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Calibrating Threshold: "
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -125,7 +153,7 @@
                     <RowDefinition Height="5" />
                     <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
-                <ListView ItemsSource="{Binding CalibratingItems}"
+                <ListView ItemsSource="{Binding Calibratings}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">

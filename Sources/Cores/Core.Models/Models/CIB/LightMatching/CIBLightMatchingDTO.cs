@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Collector;
@@ -14,7 +13,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Plottables;
-using Net.Utilities.ScottPlot.WPF.WPF;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
@@ -44,6 +42,9 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     [ObservableProperty]
     private ConcurrentBag<KeyValuePair<int, double>> _hazeTargetValues = [];
+
+    [ObservableProperty]
+    private double? _silicaSphereTargetValue;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -98,51 +99,96 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
         foreach (var (channelId, itemItems) in results)
         {
-            if (HazeTargetValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetValue) == false) continue;
-
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
 
             try
             {
-                scatterPlotControl.GetOrAddYLine(0, "Haze Target", hazeTargetValue.Value, color: Colors.Red);
-
-                var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
-                    2,
-                    "Result",
-                    [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGain))],
-                    color: Colors.Red,
-                    markerShape: MarkerShape.HorizontalBar);
-
-                SetScatterMarkersStyle(scatterMarkers);
-
-                var hazeCount = itemItems.Max(t => t.HazeItems.Count);
-                for (var i = 0; i < hazeCount; i++)
+                if (HazeTargetValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetValue))
                 {
-                    var hazes = itemItems.Where(t => i < t.HazeItems.Count)
-                        .Select(t => (t.CIBInformation.PMTId, Item: t.HazeItems[i]))
-                        .ToArray();
+                    scatterPlotControl.GetOrAddYLine(0, "Haze Target", hazeTargetValue.Value, color: Colors.Red);
 
-                    scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
-                        0,
-                        $"{i + 1}",
-                        [.. hazes.Select(t => new Point(t.PMTId, t.Item.Value))],
-                        i,
-                        new Range(0, hazeCount - 1),
+                    var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                        2,
+                        "Result",
+                        [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGain))],
+                        color: Colors.Red,
                         markerShape: MarkerShape.HorizontalBar);
 
                     SetScatterMarkersStyle(scatterMarkers);
-                    scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
 
-                    scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
-                        1,
-                        $"Error: {i + 1}",
-                        [.. hazes.Select(t => new Point(t.PMTId, t.Item.Error))],
-                        i,
-                        new Range(0, hazeCount - 1),
+                    var hazeCount = itemItems.Max(t => t.HazeItems.Count);
+                    for (var i = 0; i < hazeCount; i++)
+                    {
+                        var hazes = itemItems.Where(t => i < t.HazeItems.Count)
+                            .Select(t => (t.CIBInformation.PMTId, Item: t.HazeItems[i]))
+                            .ToArray();
+
+                        scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                            0,
+                            $"{i + 1}",
+                            [.. hazes.Select(t => new Point(t.PMTId, t.Item.Value))],
+                            i,
+                            new Range(0, hazeCount - 1),
+                            markerShape: MarkerShape.HorizontalBar);
+
+                        SetScatterMarkersStyle(scatterMarkers);
+                        scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
+
+                        scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                            1,
+                            $"Error: {i + 1}",
+                            [.. hazes.Select(t => new Point(t.PMTId, t.Item.Error))],
+                            i,
+                            new Range(0, hazeCount - 1),
+                            markerShape: MarkerShape.HorizontalBar);
+
+                        SetScatterMarkersStyle(scatterMarkers);
+                        scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
+                    }
+                }
+
+                if (SilicaSphereTargetValue is not null)
+                {
+                    scatterPlotControl.GetOrAddYLine(3, "Silica Sphere Target", SilicaSphereTargetValue.Value, color: Colors.Red);
+
+                    var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                        5,
+                        "Result",
+                        [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGainPlusMultiplicativeFactors))],
+                        color: Colors.Red,
                         markerShape: MarkerShape.HorizontalBar);
 
                     SetScatterMarkersStyle(scatterMarkers);
-                    scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
+
+                    var silicaSphereCount = itemItems.Max(t => t.SilicaSphereItems.Count);
+                    for (var i = 0; i < silicaSphereCount; i++)
+                    {
+                        var silicaSpheres = itemItems.Where(t => i < t.SilicaSphereItems.Count)
+                            .Select(t => (t.CIBInformation.PMTId, Item: t.SilicaSphereItems[i]))
+                            .ToArray();
+
+                        scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                            3,
+                            $"{i + 1}",
+                            [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Value))],
+                            i,
+                            new Range(0, silicaSphereCount - 1),
+                            markerShape: MarkerShape.HorizontalBar);
+
+                        SetScatterMarkersStyle(scatterMarkers);
+                        scatterMarkers.IsVisible = i == 0 || i == silicaSphereCount - 1;
+
+                        scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                            4,
+                            $"Error: {i + 1}",
+                            [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Error))],
+                            i,
+                            new Range(0, silicaSphereCount - 1),
+                            markerShape: MarkerShape.HorizontalBar);
+
+                        SetScatterMarkersStyle(scatterMarkers);
+                        scatterMarkers.IsVisible = i == 0 || i == silicaSphereCount - 1;
+                    }
                 }
             }
             finally

@@ -4,13 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
-             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserXPixelSizeCalibrationViewModel}"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:mmd="clr-namespace:Core.Models.Models.CIB.LightMatching;assembly=Core.Models"
+             xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBLightMatchingViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
              mc:Ignorable="d">
@@ -41,48 +41,93 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
+                        <StackPanel>
+                            <TextBlock Text="Haze"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Range Ratio: "
                                           hc:TitleElement.TitleWidth="160"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
+                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Threshold}" />
+                                          Value="{Binding Cache.ReviewThresholdRangeRatio}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Review Threshold: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="160"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.HazeThreshold}" />
+                        <TextBox Text="{Binding Cache.ReviewHazeThreshold, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="F Range: "
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <StackPanel>
+                            <TextBlock Text="Silica Sphere"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Range Ratio: "
+                                          hc:TitleElement.TitleWidth="160"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.ReviewThresholdRangeRatio}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="160"
+                                          Minimum="0"
+                                          Maximum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.SilicaSphereThreshold}" />
+                        <TextBox Text="{Binding Cache.ReviewSilicaSphereThreshold, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Review Threshold: "
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
                                     Command="{Binding VerifyActionCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}"
-                                    Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding VerifyActionCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}"
-                                    Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                    Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
                 </ScrollViewer>
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="Calibration Data">
+        <GroupBox Grid.Column="2" Header="History">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="10" />
-                    <RowDefinition Height="2.5*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
-                <ListView x:Name="Listview"
-                          d:SelectedIndex="0"
-                          ItemsSource="{Binding Reviews}"
+                <ListView ItemsSource="{Binding Reviews}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectionMode="Extended">
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <behaviors:MultiSelectorListViewSelectedItemsBehavior BindableSelectedItems="{Binding SelectedReviewItems}" />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBLightMatchingDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -92,10 +137,9 @@
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
-                                <DataTrigger Binding="{Binding IsVerified}" Value="True">
-                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsVerified}" Value="False">
+                                <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
+                                    <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
+                                    <Setter Property="FontWeight" Value="Bold" />
                                     <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -109,90 +153,57 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="ProductivityInformation" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="X Pixel Size(um/px)" DisplayMemberBinding="{Binding XPixelSize, StringFormat={}{0:f3}}" />
+                            <GridViewColumn Header="Optics Illumination Mode" DisplayMemberBinding="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="Optics Apodization Mode" DisplayMemberBinding="{Binding OpticsApodizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Header="Optics Polarization Mode" DisplayMemberBinding="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Header="Collector Polarization Mode" DisplayMemberBinding="{Binding CollectorPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
-                <Grid Grid.Row="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="5" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <TextBlock Text="Split Images"
-                                       HorizontalAlignment="Center"
-                                       Style="{StaticResource TextBlockSubTitleBold}"
-                                       Foreground="{StaticResource SuccessBrush}" />
-                            <ScrollViewer Grid.Row="1"
-                                          HorizontalScrollBarVisibility="Disabled"
-                                          VerticalScrollBarVisibility="Auto">
-                                <ListBox ItemsSource="{Binding SelectedItem.VerifyItems, ElementName=Listview}">
-                                    <ListBox.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ListBox.ItemsPanel>
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Width="300"
-                                                    Height="300"
-                                                    Style="{StaticResource BorderRegion}">
-                                                <hc:SimplePanel>
-                                                    <view:CanvasView AxisColor="Red"
-                                                                     BackgroundColor="#0A0A0A"
-                                                                     BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                     Interactive="True"
-                                                                     ShowAxes="True"
-                                                                     ShowCursor="False"
-                                                                     ShowGrid="False" />
-                                                    <TextBlock Text="{Binding MatchPoint, Converter={StaticResource PointToStringConverter}}"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Top"
-                                                               Foreground="Yellow" />
-                                                </hc:SimplePanel>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </ScrollViewer>
-                        </Grid>
-                    </Border>
-                    <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource BorderRegion}">
-                                <controls:ScatterMultiPlotControl Title="Match(Y: Score - X: px)"
-                                                                  ScatterLine0Title="Calibrate"
-                                                                  ScatterLine0Points="{Binding SelectedItem.SlideItemPoints, ElementName=Listview}"
-                                                                  ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"
-                                                                  ScatterLine1Title="Verify"
-                                                                  ScatterLine1Points="{Binding SelectedItem.VerifyItemPoints, ElementName=Listview}"
-                                                                  ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
-                            </Border>
-                            <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
-                                <controls:ScatterMultiPlotControl Title="Split Differences(Y: px - X: Die - Die)"
-                                                                  ScatterLine0Title="Slide"
-                                                                  ScatterLine0Points="{Binding SelectedItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}, ElementName=Listview}"
-                                                                  ScatterLine0Color="{x:Static scottPlot:Colors.Blue}"
-                                                                  ScatterLine1Title="Verify"
-                                                                  ScatterLine1Points="{Binding SelectedItem.VerifySplitDifferences, Converter={StaticResource DoublesToPointsConverter}, ElementName=Listview}"
-                                                                  ScatterLine1Color="{x:Static scottPlot:Colors.Red}" />
-                            </Border>
-                        </Grid>
-
-                    </Border>
-                </Grid>
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                    <TabControl ItemsSource="{Binding SelectedReviewItems}">
+                        <i:Interaction.Behaviors>
+                            <wpf:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
+                                <TextBlock>
+                                    <Run Text="{Binding OpticsApodizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <Run Text=", " />
+                                    <Run Text="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <Run Text=", " />
+                                    <Run Text="{Binding CollectorPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <TabControl SelectedIndex="0" ItemsSource="{Binding ScatterPlotControls}">
+                                        <i:Interaction.Behaviors>
+                                            <wpf:SelectorAutoSelectFirstBehavior />
+                                        </i:Interaction.Behaviors>
+                                        <TabControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
+                                                <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"
+                                                           Padding="5,2"
+                                                           Style="{StaticResource TextBlockDefaultBold}" />
+                                            </DataTemplate>
+                                        </TabControl.ItemTemplate>
+                                        <TabControl.ContentTemplate>
+                                            <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
+                                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                    <ContentControl Content="{Binding Value, Mode=OneWay}" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </TabControl.ContentTemplate>
+                                    </TabControl>
+                                </Border>
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
+                </Border>
             </Grid>
         </GroupBox>
     </Grid>

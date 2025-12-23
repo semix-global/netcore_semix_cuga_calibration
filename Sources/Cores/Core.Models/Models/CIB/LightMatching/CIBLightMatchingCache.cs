@@ -25,16 +25,26 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     private int _silicaSphereCalibratingRetryTimes = 5;
 
     [ObservableProperty]
-    private double _hazeCalibratingThreshold = 0.05d;
+    private double _hazeThreshold = 16;
 
     [ObservableProperty]
-    private double _silicaSphereCalibratingThreshold = 0.05d;
+    private double _silicaSphereThreshold = 16;
 
     [ObservableProperty]
-    private double _hazeThreshold = 0.1;
+    [NotifyPropertyChangedFor(nameof(CalibratingHazeThreshold), nameof(CalibratingSilicaSphereThreshold))]
+    private double _calibratingThresholdRangeRatio = 0.5;
+
+    public double CalibratingHazeThreshold => HazeThreshold * CalibratingThresholdRangeRatio;
+
+    public double CalibratingSilicaSphereThreshold => SilicaSphereThreshold * CalibratingThresholdRangeRatio;
 
     [ObservableProperty]
-    private double _silicaSphereThreshold = 0.1;
+    [NotifyPropertyChangedFor(nameof(ReviewHazeThreshold), nameof(ReviewSilicaSphereThreshold))]
+    private double _reviewThresholdRangeRatio = 0.8;
+
+    public double ReviewHazeThreshold => HazeThreshold * ReviewThresholdRangeRatio;
+
+    public double ReviewSilicaSphereThreshold => SilicaSphereThreshold * ReviewThresholdRangeRatio;
 
     public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), CIBLightMatchingCacheItem>> Items { get; init; } = [];
 

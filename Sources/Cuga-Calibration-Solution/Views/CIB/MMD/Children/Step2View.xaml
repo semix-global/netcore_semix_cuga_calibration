@@ -396,7 +396,7 @@
                     <RowDefinition Height="5" />
                     <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
-                <ListView ItemsSource="{Binding CalibratingItems}"
+                <ListView ItemsSource="{Binding Calibratings}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">

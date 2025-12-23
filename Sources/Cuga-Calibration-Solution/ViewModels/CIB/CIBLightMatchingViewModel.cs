@@ -53,7 +53,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLightMatchingDTO> _calibratingItems = [];
+    private IReadOnlyList<CIBLightMatchingDTO> _calibratings = [];
 
     [ObservableProperty]
     private IReadOnlyList<CIBLightMatchingDTO> _selectedCalibratingItems = [];
@@ -238,7 +238,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
-                CalibratingItems = [];
+                Calibratings = [];
 
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
@@ -395,7 +395,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     cibInformations
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                CalibratingItems = [];
+                Calibratings = [];
 
                 LaserViewModel.ToggleEnableAutoGainControl(true);
                 LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
@@ -403,16 +403,11 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                 await HazeAsync();
 
-                var silicaSphereBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition);
-                StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipDswDarkFieldAbsoluteStageXyByNotAutoFocus(silicaSphereBFPosition);
+                await SilicaSphereAsync();
 
-                Logger.LogHtmlInformation("Silica Sphere", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Guard.IsTrue(Save(Calibratings, cancellationToken));
 
-
-                Guard.IsTrue(Save(CalibratingItems, cancellationToken));
-
-                return CalibratingItems.All(t => t.IsCalibrated);
+                return Calibratings.All(t => t.IsCalibrated);
 
                 async Task HazeAsync()
                 {
@@ -443,7 +438,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                             Items = [.. cibInformations.Select(t => new CIBLightMatchingDTOItem { CIBInformation = t })]
                         };
 
-                        CalibratingItems = [.. CalibratingItems, item];
+                        Calibratings = [.. Calibratings, item];
                         SelectedCalibratingItems = [item];
 
                         Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.CollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -452,7 +447,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                         while (true)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            
+
                             var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
                                 Cache.OpticsIlluminationModeEnum,
                                 Cache.ProductivityInformation,
@@ -486,16 +481,16 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                             foreach (var (channelId, itemItems) in results)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
-                                
+
                                 var channelIdAverage = item.HazeTargetValues.GetOrAdd(channelId, itemItems.Average(t => t.HazeItems[times].Value));
-                                
+
                                 foreach (var itemItem in itemItems)
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
-                                    
+
                                     itemItem.HazeItems[times].Error = itemItem.HazeItems[times].Value - channelIdAverage;
 
-                                    var isSuccess = Math.Abs(itemItem.HazeItems[times].Error) <= Cache.HazeCalibratingThreshold;
+                                    var isSuccess = Math.Abs(itemItem.HazeItems[times].Error) <= Cache.CalibratingHazeThreshold;
                                     resultList.Add(isSuccess);
                                     if (isSuccess) continue;
 
@@ -525,6 +520,130 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                             }
 
                             if (++times > Cache.HazeCalibratingRetryTimes - 1)
+                            {
+                                Logger.LogHtmlError($"Error: {times + 1}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                                break;
+                            }
+
+                            Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        }
+                    }
+                }
+
+                async Task SilicaSphereAsync()
+                {
+                    var silicaSphereBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition);
+                    StageViewModel.SetAbsoluteStageTheta(0);
+                    StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(silicaSphereBFPosition);
+
+                    Logger.LogHtmlInformation("Silica Sphere", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                    foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
+                    foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
+                    foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
+                        OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
+                        CollectorViewModel.SetPolarizationMode(collectorPolarizationModeEnum);
+                        CIBViewModel.SetLightMatching(cibInformations, 0);
+
+                        var item = Calibratings.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum
+                                                            && t.ProductivityInformation == Cache.ProductivityInformation
+                                                            && t.OpticsApodizationModeEnum == opticsApodizationModeEnum
+                                                            && t.OpticsPolarizationModeEnum == opticsPolarizationModeEnum
+                                                            && t.CollectorPolarizationModeEnum == collectorPolarizationModeEnum);
+                        if (item.IsCalibrated == false) break;
+
+                        SelectedCalibratingItems = [item];
+
+                        Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.CollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                        var times = 0;
+                        while (true)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
+                                Cache.OpticsIlluminationModeEnum,
+                                Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Dark,
+                                silicaSphereBFPosition,
+                                cibInformations,
+                                Cache.Item.ImageWidth,
+                                true,
+                                cancellationToken);
+
+                            foreach (var (index, darkFieldImage) in cibPMTValues.Index())
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                using var _ = darkFieldImage;
+
+                                item.Items[index].SilicaSphereItems = [.. item.Items[index].SilicaSphereItems, new CIBLightMatchingDTOItem.Item { Value = HostEnvironment.IsProduction() ? /*todo:改为图片的灰度直方图最大值*/ darkFieldImage.Image.GetIntensity().Average : MersenneTwister.Default.NextDouble() * 1000 }];
+                            }
+
+                            var results = (
+                                from itemItem in item.Items
+                                group itemItem by itemItem.CIBInformation.ChannelId
+                                into g
+                                orderby g.Key
+                                select (
+                                    ChannelId: g.Key,
+                                    ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
+                                )).ToArray();
+
+                            var resultList = new List<bool>();
+
+                            item.SilicaSphereTargetValue ??= results
+                                .SelectMany(t => t.ItemItems)
+                                .Select(t => t.SilicaSphereItems[times].Value)
+                                .Average();
+
+                            foreach (var (_, itemItems) in results)
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                var channelIdAverage = itemItems.Average(t => t.SilicaSphereItems[times].Value);
+                                var error = channelIdAverage - item.SilicaSphereTargetValue.Value;
+
+                                foreach (var itemItem in itemItems)
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+
+                                    itemItem.SilicaSphereItems[times].Error = error;
+
+                                    var isSuccess = Math.Abs(itemItem.SilicaSphereItems[times].Error) <= Cache.CalibratingSilicaSphereThreshold;
+                                    resultList.Add(isSuccess);
+                                    if (isSuccess) continue;
+
+                                    itemItem.MultiplicativeFactors += -itemItem.SilicaSphereItems[times].Error;
+
+                                    CIBViewModel.SetLightMatching([itemItem.CIBInformation], itemItem.DigitalGainPlusMultiplicativeFactors);
+                                }
+                            }
+
+                            var htmlBullet = new HtmlBullet(new
+                            {
+                                times,
+                                item.OpticsIlluminationModeEnum,
+                                item.ProductivityInformation,
+                                item.OpticsApodizationModeEnum,
+                                item.OpticsPolarizationModeEnum,
+                                item.CollectorPolarizationModeEnum,
+                                Plot = new HtmlContainer([..item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                            });
+
+                            item.IsCalibrated = item.IsCalibrated && resultList.All(t => t);
+
+                            if (item.IsCalibrated)
+                            {
+                                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                                break;
+                            }
+
+                            if (++times > Cache.SilicaSphereCalibratingRetryTimes - 1)
                             {
                                 Logger.LogHtmlError($"Error: {times + 1}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                                 break;
