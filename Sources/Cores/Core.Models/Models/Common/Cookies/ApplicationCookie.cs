@@ -163,6 +163,27 @@ public sealed partial class ApplicationCookie : ObservableObject
     private IReadOnlyList<CIBInformation> _cIBInformations = [];
 
     /// <summary>
+    /// CIB的PMT列表
+    /// </summary>
+    public IReadOnlyList<int> CIBInformationPMTIds =>
+    [
+        .. CIBInformations
+            .GroupBy(t => t.PMTId)
+            .Select(t => t.Key)
+    ];
+
+    /// <summary>
+    /// CIB的通道列表
+    /// </summary>
+    public IReadOnlyList<int> CIBInformationChannelIds =>
+    [
+        ..CIBInformations
+            .GroupBy(t => t.PMTId)
+            .First()
+            .Select(c => c.ChannelId)
+    ];
+
+    /// <summary>
     /// 校准当前应用配方
     /// </summary>
     [ObservableProperty]

@@ -11,6 +11,7 @@ namespace Core.Models.Models.CIB.LightMatching;
 public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]

@@ -125,8 +125,7 @@
                     <RowDefinition Height="5" />
                     <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
-                <ListView x:Name="CalibratingItemsListView"
-                          ItemsSource="{Binding CalibratingItems}"
+                <ListView ItemsSource="{Binding CalibratingItems}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
@@ -167,7 +166,7 @@
                     </ListView.View>
                 </ListView>
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                    <TabControl ItemsSource="{Binding SelectedItems, ElementName=CalibratingItemsListView}" SelectedIndex="0">
+                    <TabControl ItemsSource="{Binding SelectedCalibratingItems}">
                         <i:Interaction.Behaviors>
                             <wpf:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
@@ -184,25 +183,27 @@
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
-                                <TabControl SelectedIndex="0" ItemsSource="{Binding ScatterPlotControls}">
-                                    <i:Interaction.Behaviors>
-                                        <wpf:SelectorAutoSelectFirstBehavior />
-                                    </i:Interaction.Behaviors>
-                                    <TabControl.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
-                                            <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"
-                                                       Padding="5,2"
-                                                       Style="{StaticResource TextBlockDefaultBold}" />
-                                        </DataTemplate>
-                                    </TabControl.ItemTemplate>
-                                    <TabControl.ContentTemplate>
-                                        <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
-                                            <Border Style="{StaticResource BorderRegion}">
-                                                <ContentControl Content="{Binding Value, Mode=OneWay}" />
-                                            </Border>
-                                        </DataTemplate>
-                                    </TabControl.ContentTemplate>
-                                </TabControl>
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <TabControl SelectedIndex="0" ItemsSource="{Binding ScatterPlotControls}">
+                                        <i:Interaction.Behaviors>
+                                            <wpf:SelectorAutoSelectFirstBehavior />
+                                        </i:Interaction.Behaviors>
+                                        <TabControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
+                                                <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"
+                                                           Padding="5,2"
+                                                           Style="{StaticResource TextBlockDefaultBold}" />
+                                            </DataTemplate>
+                                        </TabControl.ItemTemplate>
+                                        <TabControl.ContentTemplate>
+                                            <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
+                                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                    <ContentControl Content="{Binding Value, Mode=OneWay}" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </TabControl.ContentTemplate>
+                                    </TabControl>
+                                </Border>
                             </DataTemplate>
                         </TabControl.ContentTemplate>
                     </TabControl>

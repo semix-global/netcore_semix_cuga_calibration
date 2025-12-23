@@ -22,6 +22,8 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
+using MathNet.Numerics.Random;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 
@@ -431,7 +433,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                         CollectorViewModel.SetPolarizationMode(collectorPolarizationModeEnum);
                         CIBViewModel.SetLightMatching(cibInformations, 0);
 
-                        var item = new CIBLightMatchingDTO
+                        var item = new CIBLightMatchingDTO(ApplicationCookie.CIBInformationChannelIds)
                         {
                             OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum,
                             ProductivityInformation = Cache.ProductivityInformation,
@@ -449,6 +451,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                         var times = 0;
                         while (true)
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            
                             var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
                                 Cache.OpticsIlluminationModeEnum,
                                 Cache.ProductivityInformation,
@@ -465,7 +469,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 using var _ = darkFieldImage;
 
-                                item.Items[index].HazeItems = [.. item.Items[index].HazeItems, new CIBLightMatchingDTOItem.Item { Value = darkFieldImage.Image.GetIntensity().Average }];
+                                item.Items[index].HazeItems = [.. item.Items[index].HazeItems, new CIBLightMatchingDTOItem.Item { Value = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : MersenneTwister.Default.NextDouble() * 1000 }];
                             }
 
                             var results = (
@@ -475,24 +479,29 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 orderby g.Key
                                 select (
                                     ChannelId: g.Key,
-                                    Items: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
+                                    ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
                                 )).ToArray();
 
                             var resultList = new List<bool>();
-                            foreach (var (channelId, items) in results)
+                            foreach (var (channelId, itemItems) in results)
                             {
-                                var channelIdAverage = item.HazeTargetValues.GetOrAdd(channelId, items.Average(t => t.HazeItems[times].Value));
-                                foreach (var t in items)
+                                cancellationToken.ThrowIfCancellationRequested();
+                                
+                                var channelIdAverage = item.HazeTargetValues.GetOrAdd(channelId, itemItems.Average(t => t.HazeItems[times].Value));
+                                
+                                foreach (var itemItem in itemItems)
                                 {
-                                    t.HazeItems[times].Error = t.HazeItems[times].Value - channelIdAverage;
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    
+                                    itemItem.HazeItems[times].Error = itemItem.HazeItems[times].Value - channelIdAverage;
 
-                                    var isSuccess = Math.Abs(t.HazeItems[times].Error) <= Cache.HazeCalibratingThreshold;
+                                    var isSuccess = Math.Abs(itemItem.HazeItems[times].Error) <= Cache.HazeCalibratingThreshold;
                                     resultList.Add(isSuccess);
                                     if (isSuccess) continue;
 
-                                    t.DigitalGain += -t.HazeItems[times].Error;
+                                    itemItem.DigitalGain += -itemItem.HazeItems[times].Error;
 
-                                    CIBViewModel.SetLightMatching([t.CIBInformation], t.DigitalGain);
+                                    CIBViewModel.SetLightMatching([itemItem.CIBInformation], itemItem.DigitalGain);
                                 }
                             }
 

@@ -13,6 +13,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.ScottPlot.WPF.Plottables;
 using Net.Utilities.ScottPlot.WPF.WPF;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
@@ -74,56 +75,73 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
+    public CIBLightMatchingDTO()
+    {
+    }
+
+    public CIBLightMatchingDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
+    {
+        ScatterPlotControls = [..cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl()))];
+    }
+
     private void RefreshPlot()
     {
         var results = (
-            from item in Items
-            group item by item.CIBInformation.ChannelId
+            from itemItem in Items
+            group itemItem by itemItem.CIBInformation.ChannelId
             into g
             orderby g.Key
             select (
                 ChannelId: g.Key,
-                Items: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
+                ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
             )).ToArray();
 
-        foreach (var (channelId, items) in results)
+        foreach (var (channelId, itemItems) in results)
         {
             if (HazeTargetValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetValue) == false) continue;
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
 
-            scatterPlotControl.GetOrAddYLine(0, "Haze Target", hazeTargetValue.Value, color: Colors.Red);
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
 
             try
             {
-                var hazeCount = items.Max(t => t.HazeItems.Count);
+                scatterPlotControl.GetOrAddYLine(0, "Haze Target", hazeTargetValue.Value, color: Colors.Red);
+
+                var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                    2,
+                    "Result",
+                    [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGain))],
+                    color: Colors.Red,
+                    markerShape: MarkerShape.HorizontalBar);
+
+                SetScatterMarkersStyle(scatterMarkers);
+
+                var hazeCount = itemItems.Max(t => t.HazeItems.Count);
                 for (var i = 0; i < hazeCount; i++)
                 {
-                    var hazes = items.Where(t => i < t.HazeItems.Count)
-                        .Select(t => (t.CIBInformation.PMTId, t.DigitalGain, Item: t.HazeItems[i]))
+                    var hazes = itemItems.Where(t => i < t.HazeItems.Count)
+                        .Select(t => (t.CIBInformation.PMTId, Item: t.HazeItems[i]))
                         .ToArray();
 
-                    var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                    scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                         0,
-                        $"{i + 1} ({hazes.Maxima(t => Math.Abs(t.Item.Error)).First().Item.Error:0.###})",
+                        $"{i + 1}",
                         [.. hazes.Select(t => new Point(t.PMTId, t.Item.Value))],
                         i,
                         new Range(0, hazeCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
 
-                    scatterMarkers.MarkerSize = 30;
-                    scatterMarkers.MarkerStyle.LineWidth = 5;
+                    SetScatterMarkersStyle(scatterMarkers);
                     scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
 
                     scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                         1,
-                        $"{i + 1}",
-                        [.. hazes.Select(t => new Point(t.PMTId, t.DigitalGain))],
+                        $"Error: {i + 1}",
+                        [.. hazes.Select(t => new Point(t.PMTId, t.Item.Error))],
                         i,
                         new Range(0, hazeCount - 1),
                         markerShape: MarkerShape.HorizontalBar);
 
-                    scatterMarkers.MarkerSize = 30;
-                    scatterMarkers.MarkerStyle.LineWidth = 5;
+                    SetScatterMarkersStyle(scatterMarkers);
                     scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
                 }
             }
@@ -132,6 +150,44 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                 scatterPlotControl.AutoScaleRefresh();
             }
         }
+
+        return;
+
+        static void SetScatterMarkersStyle(ScatterMarkers scatterMarkers)
+        {
+            scatterMarkers.MarkerSize = 30;
+            scatterMarkers.MarkerStyle.LineWidth = 5;
+        }
+    }
+
+    private static IScatterPlotControl GetScatterPlotControl()
+    {
+        var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+        var customGrid = new CustomGrid();
+        scatterPlotControl.Configure(customGrid, 6,
+            plots =>
+            {
+                customGrid.Set(plots[0], new GridCell(0, 0, 3, 2));
+                customGrid.Set(plots[1], new GridCell(0, 1, 3, 2));
+                customGrid.Set(plots[2], new GridCell(1, 0, 3, 2));
+                customGrid.Set(plots[3], new GridCell(1, 1, 3, 2));
+                customGrid.Set(plots[4], new GridCell(2, 0, 3, 2));
+                customGrid.Set(plots[5], new GridCell(2, 1, 3, 2));
+            });
+
+        scatterPlotControl.SetTitle(0, "Haze(Y: PMTValue - X: PMT Id)");
+        scatterPlotControl.SetTitle(1, "Haze Error(Y: PMTValue - X: PMT Id)");
+        scatterPlotControl.SetTitle(2, "Haze Result(Y: Digital Gain - X: PMT Id)");
+        scatterPlotControl.SetTitle(3, "Silica Spheres(Y: Value - X: PMT Id)");
+        scatterPlotControl.SetTitle(4, "Silica Spheres Error(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
+        scatterPlotControl.SetTitle(5, "Silica Spheres Result(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
+        scatterPlotControl.ToggleLegend(0, false);
+        scatterPlotControl.ToggleLegend(1, false);
+        scatterPlotControl.ToggleLegend(3, false);
+        scatterPlotControl.ToggleLegend(4, false);
+
+        return scatterPlotControl;
     }
 
     #region Mapper
@@ -164,32 +220,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
     };
-
-    private IScatterPlotControl GetScatterPlotControl()
-    {
-        var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-        var customGrid = new CustomGrid();
-        scatterPlotControl.Configure(customGrid, 4,
-            plots =>
-            {
-                customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));
-                customGrid.Set(plots[1], new GridCell(0, 1, 2, 2));
-                customGrid.Set(plots[2], new GridCell(1, 0, 2, 2));
-                customGrid.Set(plots[3], new GridCell(1, 1, 2, 2));
-            });
-
-        scatterPlotControl.SetTitle(0, "Haze(Y: PMTValue - X: PMT Id)");
-        scatterPlotControl.SetTitle(1, "Haze(Y: Digital Gain - X: PMT Id)");
-        scatterPlotControl.SetTitle(2, "Silica Spheres(Y: Value - X: PMT Id)");
-        scatterPlotControl.SetTitle(3, "Silica Spheres(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
-        scatterPlotControl.ToggleLegend(0, false);
-        scatterPlotControl.ToggleLegend(1, false);
-        scatterPlotControl.ToggleLegend(2, false);
-        scatterPlotControl.ToggleLegend(3, false);
-
-        return scatterPlotControl;
-    }
 
     #endregion Mapper
 }
