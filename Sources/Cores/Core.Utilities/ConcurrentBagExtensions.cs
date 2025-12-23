@@ -9,8 +9,7 @@ public static class ConcurrentBagExtensions
         TKey key)
         where TKey : notnull
     {
-        KeyValuePair<TKey, TValue> keyValuePair;
-        return list.TryGetSingle<KeyValuePair<TKey, TValue>>((Func<KeyValuePair<TKey, TValue>, bool>)(t => object.Equals((object)t.Key, (object)(TKey)key)), out keyValuePair)
+        return list.TryGetSingle((Func<KeyValuePair<TKey, TValue>, bool>)(t => Equals(t.Key, key)), out var keyValuePair)
             ? keyValuePair.Value
             : default;
     }

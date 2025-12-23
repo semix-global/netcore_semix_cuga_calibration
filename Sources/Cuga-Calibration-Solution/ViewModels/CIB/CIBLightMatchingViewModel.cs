@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
-using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
@@ -21,9 +20,10 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -52,6 +52,9 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
     [ObservableProperty]
     private IReadOnlyList<CIBLightMatchingDTO> _calibratingItems = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<CIBLightMatchingDTO> _selectedCalibratingItems = [];
 
     [ObservableProperty]
     private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
@@ -396,13 +399,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetLightMatching(cibInformations, 0);
 
-                var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
-                StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
-
-                Logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-                await LightMatchingAsync(true, hazeBFPosition);
+                await HazeAsync();
 
                 var silicaSphereBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition);
                 StageViewModel.SetAbsoluteStageTheta(0);
@@ -410,161 +407,121 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                 Logger.LogHtmlInformation("Silica Sphere", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                await LightMatchingAsync(false, silicaSphereBFPosition);
 
                 Guard.IsTrue(Save(CalibratingItems, cancellationToken));
 
                 return CalibratingItems.All(t => t.IsCalibrated);
 
-                async Task LightMatchingAsync(bool isHaze, Point bfPosition)
+                async Task HazeAsync()
                 {
+                    var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
+                    StageViewModel.SetAbsoluteStageTheta(0);
+                    StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+
+                    Logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
                     foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
+                    foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
+                    foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
                     {
-                        foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
+                        OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
+                        CollectorViewModel.SetPolarizationMode(collectorPolarizationModeEnum);
+                        CIBViewModel.SetLightMatching(cibInformations, 0);
+
+                        var item = new CIBLightMatchingDTO
                         {
-                            foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
+                            OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum,
+                            ProductivityInformation = Cache.ProductivityInformation,
+                            OpticsApodizationModeEnum = opticsApodizationModeEnum,
+                            OpticsPolarizationModeEnum = opticsPolarizationModeEnum,
+                            CollectorPolarizationModeEnum = collectorPolarizationModeEnum,
+                            Items = [.. cibInformations.Select(t => new CIBLightMatchingDTOItem { CIBInformation = t })]
+                        };
+
+                        CalibratingItems = [.. CalibratingItems, item];
+                        SelectedCalibratingItems = [item];
+
+                        Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.CollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                        var times = 0;
+                        while (true)
+                        {
+                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
+                                Cache.OpticsIlluminationModeEnum,
+                                Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Dark,
+                                hazeBFPosition,
+                                cibInformations,
+                                Cache.Item.ImageWidth,
+                                true,
+                                cancellationToken);
+
+                            foreach (var (index, darkFieldImage) in cibPMTValues.Index())
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
-                                OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
-                                OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
-                                CollectorViewModel.SetPolarizationMode(collectorPolarizationModeEnum);
-                                CIBViewModel.SetLightMatching(cibInformations, 0);
 
-                                var item = isHaze
-                                    ? new CIBLightMatchingDTO
-                                    {
-                                        OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum,
-                                        ProductivityInformation = Cache.ProductivityInformation,
-                                        OpticsApodizationModeEnum = opticsApodizationModeEnum,
-                                        OpticsPolarizationModeEnum = opticsPolarizationModeEnum,
-                                        CollectorPolarizationModeEnum = collectorPolarizationModeEnum,
-                                        Items = [.. cibInformations.Select(t => new CIBLightMatchingDTOItem { CIBInformation = t })]
-                                    }
-                                    : CalibratingItems.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum
-                                                                   && t.ProductivityInformation == Cache.ProductivityInformation
-                                                                   && t.OpticsApodizationModeEnum == opticsApodizationModeEnum
-                                                                   && t.OpticsPolarizationModeEnum == opticsPolarizationModeEnum
-                                                                   && t.CollectorPolarizationModeEnum == collectorPolarizationModeEnum);
+                                using var _ = darkFieldImage;
 
-                                if (isHaze) CalibratingItems = [.. CalibratingItems, item];
-                                else
+                                item.Items[index].HazeItems = [.. item.Items[index].HazeItems, new CIBLightMatchingDTOItem.Item { Value = darkFieldImage.Image.GetIntensity().Average }];
+                            }
+
+                            var results = (
+                                from itemItem in item.Items
+                                group itemItem by itemItem.CIBInformation.ChannelId
+                                into g
+                                orderby g.Key
+                                select (
+                                    ChannelId: g.Key,
+                                    Items: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
+                                )).ToArray();
+
+                            var resultList = new List<bool>();
+                            foreach (var (channelId, items) in results)
+                            {
+                                var channelIdAverage = item.HazeTargetValues.GetOrAdd(channelId, items.Average(t => t.HazeItems[times].Value));
+                                foreach (var t in items)
                                 {
-                                    if (item.IsCalibrated == false) break;
-                                }
+                                    t.HazeItems[times].Error = t.HazeItems[times].Value - channelIdAverage;
 
-                                Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.CollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-                                {
-                                    cibInformations
-                                }), HtmlLogUniqueId.LoggingHtml());
+                                    var isSuccess = Math.Abs(t.HazeItems[times].Error) <= Cache.HazeCalibratingThreshold;
+                                    resultList.Add(isSuccess);
+                                    if (isSuccess) continue;
 
-                                var times = 0;
-                                while (true)
-                                {
-                                    var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
-                                        Cache.OpticsIlluminationModeEnum,
-                                        Cache.ProductivityInformation,
-                                        StageCoordinateSystemEnum.Dark,
-                                        bfPosition,
-                                        cibInformations,
-                                        Cache.Item.ImageWidth,
-                                        true,
-                                        cancellationToken);
+                                    t.DigitalGain += -t.HazeItems[times].Error;
 
-                                    foreach (var (index, darkFieldImage) in cibPMTValues.Index())
-                                    {
-                                        cancellationToken.ThrowIfCancellationRequested();
-
-                                        using var _ = darkFieldImage;
-
-                                        var pmtValue = darkFieldImage.Image.GetIntensity().Average;
-
-                                        var itemItem = item.Items[index];
-                                        if (isHaze) itemItem.HazeItems = [.. itemItem.HazeItems, new CIBLightMatchingDTOItem.Item { Value = pmtValue }];
-                                        else itemItem.SilicaSphereItems = [.. itemItem.SilicaSphereItems, new CIBLightMatchingDTOItem.Item { Value = pmtValue }];
-                                    }
-
-                                    var results = (
-                                        from itemItem in item.Items
-                                        group itemItem by itemItem.CIBInformation.ChannelId
-                                        into g
-                                        orderby g.Key
-                                        select (
-                                            ChannelId: g.Key,
-                                            Items: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
-                                        )).ToArray();
-
-                                    var resultList = new List<bool>();
-                                    if (isHaze)
-                                    {
-                                        foreach (var (_, items) in results)
-                                        {
-                                            var channelIdAverage = items.Average(t => t.HazeItems[times].Value);
-
-                                            foreach (var t in items)
-                                            {
-                                                t.HazeItems[times].Ratio = (t.HazeItems[times].Value - channelIdAverage) / channelIdAverage;
-                                                t.DigitalGain = channelIdAverage - t.HazeItems[times].Value;
-                                                CIBViewModel.SetLightMatching([t.CIBInformation], t.DigitalGainPlusMultiplicativeFactors);
-
-                                                resultList.Add(t.HazeItems[times].AbsRatio <= Cache.HazeCalibratingThreshold);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var average = results
-                                            .SelectMany(t => t.Items)
-                                            .Select(t => t.SilicaSphereItems[times].Value)
-                                            .Average();
-
-                                        foreach (var (_, items) in results)
-                                        {
-                                            var channelIdAverage = items.Average(t => t.SilicaSphereItems[times].Value);
-                                            var ratio = (channelIdAverage - average) / average;
-                                            var multiplicativeFactors = average - channelIdAverage;
-                                            foreach (var t in items)
-                                            {
-                                                t.SilicaSphereItems[times].Ratio = ratio;
-                                                t.MultiplicativeFactors = multiplicativeFactors;
-                                                CIBViewModel.SetLightMatching([t.CIBInformation], t.DigitalGainPlusMultiplicativeFactors);
-
-                                                resultList.Add(t.SilicaSphereItems[times].AbsRatio <= Cache.SilicaSphereCalibratingThreshold);
-                                            }
-                                        }
-                                    }
-
-                                    var htmlBullet = new HtmlBullet(new
-                                    {
-                                        times,
-                                        item.OpticsIlluminationModeEnum,
-                                        item.ProductivityInformation,
-                                        item.OpticsApodizationModeEnum,
-                                        item.OpticsPolarizationModeEnum,
-                                        item.CollectorPolarizationModeEnum,
-                                        SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
-                                    });
-
-                                    if (isHaze) item.IsCalibrated = resultList.All(t => t);
-                                    else item.IsCalibrated = item.IsCalibrated && resultList.All(t => t);
-
-                                    if (item.IsCalibrated)
-                                    {
-                                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                                        break;
-                                    }
-
-                                    if (isHaze
-                                            ? ++times > Cache.HazeCalibratingRetryTimes - 1
-                                            : ++times > Cache.SilicaSphereCalibratingRetryTimes - 1)
-                                    {
-                                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-
-                                        break;
-                                    }
-
-                                    Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                                    CIBViewModel.SetLightMatching([t.CIBInformation], t.DigitalGain);
                                 }
                             }
+
+                            var htmlBullet = new HtmlBullet(new
+                            {
+                                times,
+                                item.OpticsIlluminationModeEnum,
+                                item.ProductivityInformation,
+                                item.OpticsApodizationModeEnum,
+                                item.OpticsPolarizationModeEnum,
+                                item.CollectorPolarizationModeEnum,
+                                Plot = new HtmlContainer([..item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                            });
+
+                            item.IsCalibrated = resultList.All(t => t);
+
+                            if (item.IsCalibrated)
+                            {
+                                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                                break;
+                            }
+
+                            if (++times > Cache.HazeCalibratingRetryTimes - 1)
+                            {
+                                Logger.LogHtmlError($"Error: {times + 1}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                                break;
+                            }
+
+                            Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                         }
                     }
                 }
@@ -601,7 +558,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    selectedReviewItem.OpticsIlluminationModeEnum,
+                    selectedReviewItem.ProductivityInformation,
+                    selectedReviewItem.OpticsApodizationModeEnum,
+                    selectedReviewItem.OpticsPolarizationModeEnum,
+                    selectedReviewItem.CollectorPolarizationModeEnum,
+                    Plot = new HtmlContainer([..selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 
                 var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}, {selectedReviewItem.ProductivityInformation}, {selectedReviewItem.OpticsApodizationModeEnum.Humanize()}, {selectedReviewItem.OpticsPolarizationModeEnum.Humanize()}, {selectedReviewItem.CollectorPolarizationModeEnum.Humanize()}";
@@ -641,10 +603,10 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             [
                 .. Calibrations
                     .Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
-                             || t.ProductivityInformation != dto.ProductivityInformation
-                             || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
-                             || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
-                             || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
+                                || t.ProductivityInformation != dto.ProductivityInformation
+                                || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
+                                || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
+                                || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
                 dto.Clone()
             ];
         }
