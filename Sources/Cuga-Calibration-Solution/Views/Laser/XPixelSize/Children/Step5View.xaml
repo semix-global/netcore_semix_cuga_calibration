@@ -105,12 +105,13 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Border Style="{StaticResource BorderRegion}">
                     <controls:ScatterMultiPlotControl Title="Slide Match(Y: Score - X: px)" ScatterLine0Points="{Binding CalibratingItem.SlideItemPoints}" />
                 </Border>
+                <GridSplitter Grid.Row="1" Height="5" />
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <controls:ScatterMultiPlotControl Title="Slide Split Differences(Y: px - X: Die - Die)" ScatterLine0Points="{Binding CalibratingItem.SlideSplitDifferences, Converter={StaticResource DoublesToPointsConverter}}" />
                 </Border>

@@ -313,6 +313,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.CIBInformations,
                 Cache.FindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+            
             return true;
         });
     }

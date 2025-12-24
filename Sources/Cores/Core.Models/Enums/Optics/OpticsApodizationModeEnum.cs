@@ -14,5 +14,8 @@ public enum OpticsApodizationModeEnum
     SuperGaussian,
 
     [Description("Cosine")]
-    Cosine
+    Cosine,
+
+    [Description("None")]
+    None,
 }

@@ -368,7 +368,7 @@
                                                 <hc:NumericUpDown hc:TitleElement.Title="Interpolation Count: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="1"
+                                                                  Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.InterpolationCount}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "

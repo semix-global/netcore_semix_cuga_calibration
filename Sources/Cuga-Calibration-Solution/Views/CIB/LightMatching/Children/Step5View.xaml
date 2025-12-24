@@ -144,11 +144,12 @@
                 </ScrollViewer>
             </Border>
         </Grid>
+        <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
                 <ListView ItemsSource="{Binding Calibratings}"
@@ -191,6 +192,7 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+                <GridSplitter Grid.Row="1" Height="5" />
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl ItemsSource="{Binding SelectedCalibratingItems}">
                         <i:Interaction.Behaviors>

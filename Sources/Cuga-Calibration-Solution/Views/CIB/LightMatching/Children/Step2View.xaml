@@ -79,5 +79,6 @@
                 </ScrollViewer>
             </Border>
         </Grid>
+        <GridSplitter Grid.Column="1" Width="5" />
     </Grid>
 </UserControl>

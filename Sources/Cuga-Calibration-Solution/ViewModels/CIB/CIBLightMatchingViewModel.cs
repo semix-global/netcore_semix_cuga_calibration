@@ -22,7 +22,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
-using MathNet.Numerics.Random;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -186,7 +185,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 .ThenBy(t => t.ProductivityInformation)
         ];
 
-        return Reviews.Any(t => t.IsCalibrated);
+        return Reviews.Count > 0;
     }
 
 
@@ -288,6 +287,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             {
                 Cache.OpticsIlluminationModeEnum
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -464,7 +464,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 using var _ = darkFieldImage;
 
-                                item.Items[index].HazeItems = [.. item.Items[index].HazeItems, new CIBLightMatchingDTOItem.Item { Value = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : MersenneTwister.Default.NextDouble() * 1000 }];
+                                item.Items[index].HazeItems = [.. item.Items[index].HazeItems, new CIBLightMatchingDTOItem.Item { Value = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000) }];
                             }
 
                             var results = (
@@ -581,7 +581,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 using var _ = darkFieldImage;
 
-                                item.Items[index].SilicaSphereItems = [.. item.Items[index].SilicaSphereItems, new CIBLightMatchingDTOItem.Item { Value = HostEnvironment.IsProduction() ? /*todo:改为图片的灰度直方图最大值*/ darkFieldImage.Image.GetIntensity().Average : MersenneTwister.Default.NextDouble() * 1000 }];
+                                item.Items[index].SilicaSphereItems = [.. item.Items[index].SilicaSphereItems, new CIBLightMatchingDTOItem.Item { Value = HostEnvironment.IsProduction() ? /*todo:改为图片的灰度直方图最大值*/ darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000) }];
                             }
 
                             var results = (
@@ -601,11 +601,15 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 .Select(t => t.SilicaSphereItems[times].Value)
                                 .Average();
 
-                            foreach (var (_, itemItems) in results)
+                            item.SilicaSphereAverageValues = [];
+
+                            foreach (var (channelId, itemItems) in results)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
                                 var channelIdAverage = itemItems.Average(t => t.SilicaSphereItems[times].Value);
+                                item.SilicaSphereAverageValues = [.. item.SilicaSphereAverageValues, new KeyValuePair<int, double>(channelId, channelIdAverage)];
+
                                 var error = channelIdAverage - item.SilicaSphereTargetValue.Value;
 
                                 foreach (var itemItem in itemItems)

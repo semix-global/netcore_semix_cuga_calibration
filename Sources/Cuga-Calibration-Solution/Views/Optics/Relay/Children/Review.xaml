@@ -20,7 +20,6 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -65,9 +64,7 @@
                 </ScrollViewer>
             </Border>
         </Grid>
-        <!--#endregion-->
         <GridSplitter Grid.Column="1" Width="5" />
-        <!--#region Right-->
         <GroupBox Grid.Column="2" Header="History">
             <Grid>
                 <Grid.RowDefinitions>
@@ -166,6 +163,5 @@
                 </Border>
             </Grid>
         </GroupBox>
-        <!--#endregion-->
     </Grid>
 </UserControl>

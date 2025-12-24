@@ -25,13 +25,15 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     private int _silicaSphereCalibratingRetryTimes = 5;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CalibratingHazeThreshold), nameof(ReviewHazeThreshold))]
     private double _hazeThreshold = 16;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CalibratingSilicaSphereThreshold), nameof(CalibratingSilicaSphereThreshold))]
     private double _silicaSphereThreshold = 16;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CalibratingHazeThreshold), nameof(CalibratingSilicaSphereThreshold))]
+    [NotifyPropertyChangedFor(nameof(CalibratingHazeThreshold), nameof(ReviewSilicaSphereThreshold))]
     private double _calibratingThresholdRangeRatio = 0.5;
 
     public double CalibratingHazeThreshold => HazeThreshold * CalibratingThresholdRangeRatio;
