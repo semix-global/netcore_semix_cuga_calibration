@@ -144,7 +144,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// 光学切趾列表
     /// </summary>
-    public IReadOnlyList<OpticsApodizationModeEnum> OpticsApodizationModeEnums => [OpticsApodizationModeEnum.Gaussian];
+    public IReadOnlyList<OpticsApodizationModeEnum> OpticsApodizationModeEnums => [OpticsApodizationModeEnum.None];
 
     /// <summary>
     /// 光学偏振列表
