@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -20,7 +19,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDItemDto> _items = [];
+    private IReadOnlyList<CIBMMDDTOItem> _items = [];
 
     [ObservableProperty]
     private double _gainRSquared;
@@ -76,7 +75,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<CIBMMDItemDto>? oldValue, IReadOnlyList<CIBMMDItemDto> newValue)
+    partial void OnItemsChanged(IReadOnlyList<CIBMMDDTOItem>? oldValue, IReadOnlyList<CIBMMDDTOItem> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -145,71 +144,76 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 
     private void RefreshPlot()
     {
-        if (Items.Count > 0)
+        try
         {
-            ScatterPlotControl.GetOrAddScatterMarkers(
-                0,
-                "Attenuator",
-                [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
-
-            foreach (var item in Items)
+            if (Items.Count > 0)
             {
-                var itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray();
-                if (itemItems.Length > 0)
+                ScatterPlotControl.GetOrAddScatterMarkers(
+                    0,
+                    "Attenuator",
+                    [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
+
+                foreach (var item in Items)
+                {
+                    var itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray();
+                    if (itemItems.Length > 0)
+                        ScatterPlotControl.GetOrAddScatterLine(
+                            1,
+                            $"{item.Coefficient}",
+                            [.. itemItems.Select(t => new Point(t.Gain, t.PMTValue))]);
+                }
+            }
+
+            if (GainPoints.Count > 0)
+                ScatterPlotControl.GetOrAddScatterLine(
+                    2,
+                    $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                    GainPoints);
+
+            if (OriginLogGainPoints.Count > 0)
+            {
+                ScatterPlotControl.Clear(3);
+                ScatterPlotControl.GetOrAddScatterLine(
+                    3,
+                    $"Origin Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                    OriginLogGainPoints,
+                    Constants.Category10.GetColor(0));
+
+                if (FitLogGainPoints.Count > 0)
+                {
                     ScatterPlotControl.GetOrAddScatterLine(
-                        1,
-                        $"{item.Coefficient}",
-                        [.. itemItems.Select(t => new Point(t.Gain, t.PMTValue))]);
+                        3,
+                        $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
+                        FitLogGainPoints,
+                        Constants.Category10.GetColor(1));
+                }
+
+                if (ResultLogGainPoints.Count > 0)
+                {
+                    ScatterPlotControl.GetOrAddScatterLine(
+                        3,
+                        $"Result Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                        ResultLogGainPoints,
+                        Constants.Category10.GetColor(2));
+                }
             }
+
+            if (LogGainMul128U12BitPoints.Count > 0)
+                ScatterPlotControl.GetOrAddScatterLine(
+                    4,
+                    $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                    LogGainMul128U12BitPoints);
+
+            if (GainS16BitPoints.Count > 0)
+                ScatterPlotControl.GetOrAddScatterLine(
+                    5,
+                    $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                    GainS16BitPoints);
         }
-
-        if (GainPoints.Count > 0)
-            ScatterPlotControl.GetOrAddScatterLine(
-                2,
-                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                GainPoints);
-
-        if (OriginLogGainPoints.Count > 0)
+        finally
         {
-            ScatterPlotControl.Clear(3);
-            ScatterPlotControl.GetOrAddScatterLine(
-                3,
-                $"Origin Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                OriginLogGainPoints,
-                Constants.Category10.GetColor(0));
-
-            if (FitLogGainPoints.Count > 0)
-            {
-                ScatterPlotControl.GetOrAddScatterLine(
-                    3,
-                    $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
-                    FitLogGainPoints,
-                    Constants.Category10.GetColor(1));
-            }
-
-            if (ResultLogGainPoints.Count > 0)
-            {
-                ScatterPlotControl.GetOrAddScatterLine(
-                    3,
-                    $"Result Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                    ResultLogGainPoints,
-                    Constants.Category10.GetColor(2));
-            }
+            ScatterPlotControl.AutoScaleRefresh();
         }
-
-        if (LogGainMul128U12BitPoints.Count > 0)
-            ScatterPlotControl.GetOrAddScatterLine(
-                4,
-                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                LogGainMul128U12BitPoints);
-
-        if (GainS16BitPoints.Count > 0)
-            ScatterPlotControl.GetOrAddScatterLine(
-                5,
-                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                GainS16BitPoints);
-
-        ScatterPlotControl.AutoScaleRefresh();
     }
 
     #region Mapper
@@ -253,7 +257,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     #endregion Mapper
 }
 
-public sealed partial class CIBMMDItemDto : ObservableCacheBase, ICloneable<CIBMMDItemDto>
+public sealed partial class CIBMMDDTOItem : ObservableObject, ICloneable<CIBMMDDTOItem>
 {
     [ObservableProperty]
     private double _coefficient;
@@ -265,10 +269,6 @@ public sealed partial class CIBMMDItemDto : ObservableCacheBase, ICloneable<CIBM
     private IReadOnlyList<Item> _items = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private double _protectedOverflowProtectedPMTValueCount;
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
@@ -288,16 +288,14 @@ public sealed partial class CIBMMDItemDto : ObservableCacheBase, ICloneable<CIBM
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Items));
     }
 
-    public CIBMMDItemDto Clone() => new()
+    public CIBMMDDTOItem Clone() => new()
     {
         Coefficient = Coefficient,
         MeasurePower = MeasurePower,
-        Items = [.. Items.Select(t => t.Clone())],
-        Id = Id,
-        Expiration = Expiration
+        Items = [.. Items.Select(t => t.Clone())]
     };
 
-    public sealed partial class Item : ObservableCacheBase, ICloneable<Item>
+    public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
         private double _gain;

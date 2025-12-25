@@ -1,5 +1,8 @@
 namespace Core.Models.Enums.Optics;
 
+/// <summary>
+/// 照明模式
+/// </summary>
 public enum OpticsIlluminationModeEnum
 {
     /// <summary>

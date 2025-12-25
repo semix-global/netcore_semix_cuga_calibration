@@ -65,37 +65,42 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
 
     private void RefreshPlot()
     {
-        var isNeedRefreshes = new bool[Items.Count];
-        foreach (var (index, item) in Items.Index())
+        try
         {
-            if (item.FrequencyItems.Count <= 0) continue;
+            var isNeedRefreshes = new bool[Items.Count];
+            foreach (var (index, item) in Items.Index())
+            {
+                if (item.FrequencyItems.Count <= 0) continue;
 
-            ScatterPlotControl.GetOrAddScatterLine(
-                0,
-                $"{item.FrequencyItems[0].Frequency}(MHz)",
-                [.. item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
-                index,
-                new Range(0, Items.Count - 1));
+                ScatterPlotControl.GetOrAddScatterLine(
+                    0,
+                    $"{item.FrequencyItems[0].Frequency}(MHz)",
+                    [.. item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
+                    index,
+                    new Range(0, Items.Count - 1));
 
-            item.MaxItem = item.FrequencyItems.Maxima(t => t.MeasurePower).First();
+                item.MaxItem = item.FrequencyItems.Maxima(t => t.MeasurePower).First();
 
-            isNeedRefreshes[index] = true;
+                isNeedRefreshes[index] = true;
+            }
+
+            if (isNeedRefreshes.All(b => b))
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    "Amplitude",
+                    [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, GuardUtils.IsNotNullAndReturn(t.MaxItem).Amplitude))],
+                    Colors.Blue);
+                ScatterPlotControl.GetOrAddScatterLine(
+                    2,
+                    "Measure Power",
+                    [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, GuardUtils.IsNotNullAndReturn(t.MaxItem).MeasurePower))],
+                    Colors.Blue);
+            }
         }
-
-        if (isNeedRefreshes.All(b => b))
+        finally
         {
-            ScatterPlotControl.GetOrAddScatterLine(
-                1,
-                "Amplitude",
-                [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, GuardUtils.IsNotNullAndReturn(t.MaxItem).Amplitude))],
-                Colors.Blue);
-            ScatterPlotControl.GetOrAddScatterLine(
-                2,
-                "Measure Power",
-                [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, GuardUtils.IsNotNullAndReturn(t.MaxItem).MeasurePower))],
-                Colors.Blue);
+            ScatterPlotControl.AutoScaleRefresh();
         }
-
-        ScatterPlotControl.AutoScaleRefresh();
     }
 }

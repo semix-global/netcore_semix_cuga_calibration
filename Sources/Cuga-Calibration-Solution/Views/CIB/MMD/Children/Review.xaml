@@ -32,166 +32,168 @@
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="Algorithm Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <Expander Header="Algorithm"
-                              IsExpanded="False"
-                              ExpandDirection="Down">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                <hc:NumericUpDown hc:TitleElement.Title="Dark Current: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.DarkCurrent}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Denominator: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.Denominator}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Scale Factor: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.ScaleFactor}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Min Valid Fraction: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MinValidFraction}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Max Valid Fraction: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MaxValidFraction}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Min LogGain: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="190"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.MinLogGain}" />
-                                <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                        VerticalAlignment="Top"
-                                                        Spacing="10">
-                                    <Button Content="Import"
-                                            Command="{Binding ImportGainConfigurationCommand}"
-                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                            Style="{StaticResource ButtonInfo}" />
-                                    <ToggleButton x:Name="ToggleButtonGainConfigurations"
-                                                  Content="Gain Configurations"
-                                                  HorizontalAlignment="Left"
-                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                    <Popup Width="800"
-                                           Height="800"
-                                           StaysOpen="False"
-                                           PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
-                                           Placement="Right"
-                                           AllowsTransparency="True"
-                                           PopupAnimation="Slide"
-                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
-                                                      Style="{StaticResource DataGrid.Small}"
-                                                      HeadersVisibility="All"
-                                                      RowHeaderWidth="60"
-                                                      AutoGenerateColumns="False"
-                                                      ItemsSource="{Binding Cache.GainConfigurations}">
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
-                                                    <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
-                                                    <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
-                                                </DataGrid.Columns>
-                                            </DataGrid>
-                                        </Border>
-                                    </Popup>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="Algorithm Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <Expander Header="Algorithm"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:TitleElement.Title="Dark Current: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DarkCurrent}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Denominator: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.Denominator}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Scale Factor: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.ScaleFactor}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Min Valid Fraction: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MinValidFraction}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Max Valid Fraction: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MaxValidFraction}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Min LogGain: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MinLogGain}" />
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                            VerticalAlignment="Top"
+                                                            Spacing="10">
+                                        <Button Content="Import"
+                                                Command="{Binding ImportGainConfigurationCommand}"
+                                                hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                Style="{StaticResource ButtonInfo}" />
+                                        <ToggleButton x:Name="ToggleButtonGainConfigurations"
+                                                      Content="Gain Configurations"
+                                                      HorizontalAlignment="Left"
+                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                        <Popup Width="800"
+                                               Height="800"
+                                               StaysOpen="False"
+                                               PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
+                                               Placement="Right"
+                                               AllowsTransparency="True"
+                                               PopupAnimation="Slide"
+                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="All"
+                                                          RowHeaderWidth="60"
+                                                          AutoGenerateColumns="False"
+                                                          ItemsSource="{Binding Cache.GainConfigurations}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
+                                                        <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </Border>
+                                        </Popup>
+                                    </hc:UniformSpacingPanel>
                                 </hc:UniformSpacingPanel>
-                            </hc:UniformSpacingPanel>
-                        </Border>
-                    </Expander>
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Algorithm"
-                                Command="{Binding AlgorithmActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
-                                Style="{StaticResource ButtonInfo.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding AlgorithmActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+                            </Border>
+                        </Expander>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Algorithm"
+                                    Command="{Binding AlgorithmActionCommand}"
+                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                    Style="{StaticResource ButtonInfo.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding AlgorithmActionCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Verify"
+                                    Command="{Binding VerifyActionCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding VerifyActionCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                        <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                      Content="Prescan AOD Waveform Profiles"
+                                      HorizontalAlignment="Left"
+                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                        <Popup Width="800"
+                               Height="800"
+                               StaysOpen="False"
+                               PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                               Placement="Right"
+                               AllowsTransparency="True"
+                               PopupAnimation="Slide"
+                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
+                            </Border>
+                        </Popup>
+                        <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
+                                      Content="Chirp AOD Waveform Profiles"
+                                      HorizontalAlignment="Left"
+                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                        <Popup Width="800"
+                               Height="800"
+                               StaysOpen="False"
+                               PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
+                               Placement="Right"
+                               AllowsTransparency="True"
+                               PopupAnimation="Slide"
+                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
+                            </Border>
+                        </Popup>
+                        <ToggleButton x:Name="ToggleButtonODFilterResult"
+                                      Content="OD Filter Result"
+                                      HorizontalAlignment="Left"
+                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                        <Popup Width="800"
+                               Height="800"
+                               StaysOpen="False"
+                               PlacementTarget="{Binding ElementName=ToggleButtonODFilterResult}"
+                               Placement="Right"
+                               AllowsTransparency="True"
+                               PopupAnimation="Slide"
+                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonODFilterResult, Mode=TwoWay}">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
+                            </Border>
+                        </Popup>
                     </hc:UniformSpacingPanel>
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Verify"
-                                Command="{Binding VerifyActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding VerifyActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
-                    </hc:UniformSpacingPanel>
-                    <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
-                                  Content="Prescan AOD Waveform Profiles"
-                                  HorizontalAlignment="Left"
-                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                    <Popup Width="800"
-                           Height="800"
-                           StaysOpen="False"
-                           PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
-                           Placement="Right"
-                           AllowsTransparency="True"
-                           PopupAnimation="Slide"
-                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
-                        </Border>
-                    </Popup>
-                    <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
-                                  Content="Chirp AOD Waveform Profiles"
-                                  HorizontalAlignment="Left"
-                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                    <Popup Width="800"
-                           Height="800"
-                           StaysOpen="False"
-                           PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
-                           Placement="Right"
-                           AllowsTransparency="True"
-                           PopupAnimation="Slide"
-                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
-                        </Border>
-                    </Popup>
-                    <ToggleButton x:Name="ToggleButtonODFilterResult"
-                                  Content="OD Filter Result"
-                                  HorizontalAlignment="Left"
-                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                    <Popup Width="800"
-                           Height="800"
-                           StaysOpen="False"
-                           PlacementTarget="{Binding ElementName=ToggleButtonODFilterResult}"
-                           Placement="Right"
-                           AllowsTransparency="True"
-                           PopupAnimation="Slide"
-                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonODFilterResult, Mode=TwoWay}">
-                        <Border Style="{StaticResource BorderRegion}">
-                            <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
-                        </Border>
-                    </Popup>
-                </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
@@ -221,6 +223,7 @@
                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
                                     <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
                                     <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsVerified}" Value="True">
                                     <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />

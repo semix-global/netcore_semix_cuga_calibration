@@ -1,0 +1,893 @@
+using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.CIB;
+using Core.Models.Enums.Optics;
+using Core.Models.Enums.Stage;
+using Core.Models.Models;
+using Core.Models.Models.CIB.LightMatching;
+using Core.Models.Models.Common.Status;
+using Core.Models.Models.Laser.AutoFocus;
+using Core.Models.Models.Laser.BeamStabilizer;
+using Core.Models.Models.Microscope.CalChip;
+using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
+using Humanizer;
+using Local.NoSQL.DB.Providers.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Attributes;
+using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.WPF.Enums;
+using System.IO;
+using System.Text;
+
+namespace CugaCalibration.ViewModels.CIB;
+
+[IOCAppService(ServiceType = typeof(CIBLightMatchingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
+{
+    #region 属性
+
+    public override string CalibrateDirectoryName => $"{Cache.OpticsIlluminationModeEnum.Humanize()}_{Cache.ProductivityInformation}";
+
+    public override string CalibrateFileName => $"{Cache.OpticsIlluminationModeEnum.Humanize()}_{Cache.ProductivityInformation}";
+
+    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    [
+        new() { StepName = "Select Optics Illumination Mode" },
+        new() { StepName = "Select Productivity" },
+        new() { StepName = "Image Param" },
+        new() { StepName = "Find Haze Position" },
+        new() { StepName = "Find Silica Spheres Position" },
+        new() { StepName = "Light Matching" }
+    ];
+
+    #region 界面相关
+
+    #region Calibrate
+
+    [ObservableProperty]
+    private IReadOnlyList<CIBLightMatchingDTO> _calibratings = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<CIBLightMatchingDTO> _selectedCalibratingItems = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+
+    #endregion Calibrate
+
+    [ObservableProperty]
+    private IReadOnlyList<CIBLightMatchingDTO> _reviews = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<CIBLightMatchingDTO> _selectedReviewItems = [];
+
+    #endregion 界面相关
+
+    #region 缓存
+
+    [ObservableProperty]
+    private CIBLightMatchingCache _cache = new();
+
+    [ObservableProperty]
+    private CIBLightMatchingDTO[] _calibrations = [];
+
+    [ObservableProperty]
+    private MicroscopeCalChipDto _microscopeCalChip = new();
+
+    #endregion 缓存
+
+    #endregion 属性
+
+    #region 控制校准业务
+
+    protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
+        {
+            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        MicroscopeCalChip = microscopeCalChip;
+
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        if (CalibrationStatuses.Count == 0)
+            CalibrationStatuses =
+            [
+                ..ApplicationCookie.OpticsIlluminationModeEnums
+                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                    {
+                        SelectedItem = t,
+                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
+                    })
+            ];
+
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLightMatchingCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<CIBLightMatchingDTO>();
+
+        Calibrations =
+        [
+            .. Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                                       && t.OpticsIlluminationModeEnum switch
+                                       {
+                                           OpticsIlluminationModeEnum.OI => ApplicationCookie.OIProductivityInformations.Contains(t.ProductivityInformation),
+                                           OpticsIlluminationModeEnum.NI => ApplicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation),
+                                           _ => ThrowHelper.ThrowArgumentException<bool>(nameof(t.OpticsIlluminationModeEnum))
+                                       }
+                                       && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
+                                       && ApplicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
+                                       && ApplicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum))
+                .Select(t =>
+                {
+                    CalibrationStatuses
+                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum)
+                        .ProductivityInformationCalibrationStatusList
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+
+        return true;
+    }
+
+    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        return true;
+    }
+
+    protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        Reviews =
+        [
+            .. Calibrations
+                .Select(t => t.Clone())
+                .OrderBy(t => t.OpticsIlluminationModeEnum)
+                .ThenBy(t => t.ProductivityInformation)
+        ];
+
+        return Reviews.Count > 0;
+    }
+
+    protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                return true;
+
+            case 1:
+                return true;
+
+            case 2:
+                return true;
+
+            case 3:
+                return true;
+
+            case 4:
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
+
+                return true;
+
+            case 5:
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition));
+
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                return true;
+
+            case 1:
+                return true;
+
+            case 2:
+                Calibratings = [];
+
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.HazeFindBFMachinePosition
+                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+
+                return true;
+
+            case 3:
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.HazeFindBFMachinePosition
+                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+
+                return true;
+
+            case 4:
+                return true;
+
+            case 5:
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
+                    .ProductivityInformationCalibrationStatusList
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
+
+                DialogWindowProvider.ShowDialog($"Light Matching {CalibrateDirectoryName} Ok!");
+
+                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                if (IsCalibrated == false) CalibrationStepIndex = -1;
+
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    #endregion 控制校准业务
+
+    #region 校准
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.OpticsIlluminationModeEnum
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation);
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            StageViewModel.SetAbsoluteStageTheta(0);
+            Cache.Item.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation,
+                Cache.Item.HazeFindBFMachinePosition
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task AlignmentBlankWaferAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Task.Run(() => StageViewModel.AlignmentBlankWafer(), cancellationToken).ConfigureAwait(false);
+
+            DialogWindowProvider.ShowDialog($"{Name}: Alignment Blank Success");
+        }
+        catch (Exception ex)
+        {
+            DialogWindowProvider.ShowDialog($"""
+                                             {Name}: Alignment Blank Failed
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            Logger.LogError(ex, "{@Name}: Alignment Blank Failed", Name);
+        }
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step4CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            StageViewModel.SetAbsoluteStageTheta(0);
+            Cache.Item.SilicaSphereFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation,
+                Cache.Item.HazeFindBFMachinePosition,
+                Cache.Item.SilicaSphereFindBFMachinePosition
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step5CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(async () =>
+        {
+            var detectImageDirectory = ImageFileDirectory;
+
+            var currentOpticsApodizationModeEnum = OpticsViewModel.GetApodizationMode();
+            var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
+            var cibInformations = ApplicationCookie.CIBInformations;
+
+            try
+            {
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                {
+                    Cache.OpticsIlluminationModeEnum,
+                    Cache.ProductivityInformation,
+                    Cache.HazeCalibratingRetryTimes,
+                    Cache.SilicaSphereCalibratingRetryTimes,
+                    Cache.HazeThreshold,
+                    Cache.SilicaSphereThreshold,
+                    Cache.CalibratingHazeThreshold,
+                    Cache.CalibratingSilicaSphereThreshold,
+                    Cache.Item.MicroscopeLensInformation,
+                    Cache.Item.LaserLightInformation,
+                    Cache.Item.HazeFindBFMachinePosition,
+                    Cache.Item.SilicaSphereFindBFMachinePosition,
+                    currentOpticsApodizationModeEnum,
+                    currentOpticsPolarizationModeEnum,
+                    currentCollectorPolarizationModeEnum,
+                    cibInformations,
+                    detectImageDirectory
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                Calibratings = [];
+
+                LaserViewModel.ToggleEnableAutoGainControl(true);
+                LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetLightMatching(cibInformations, 0);
+
+                await HazeAsync();
+
+                await SilicaSphereAsync();
+
+                Guard.IsTrue(Save(Calibratings, cancellationToken));
+
+                return Calibratings.All(t => t.IsCalibrated);
+
+                async Task HazeAsync()
+                {
+                    var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
+                    StageViewModel.SetAbsoluteStageTheta(0);
+                    StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+
+                    Logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                    foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
+                    foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
+                    foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
+                        OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
+                        CollectorViewModel.SetPolarizationMode(collectorPolarizationModeEnum);
+                        CIBViewModel.SetLightMatching(cibInformations, 0);
+
+                        var item = new CIBLightMatchingDTO(ApplicationCookie.CIBInformationChannelIds)
+                        {
+                            OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum,
+                            ProductivityInformation = Cache.ProductivityInformation,
+                            OpticsApodizationModeEnum = opticsApodizationModeEnum,
+                            OpticsPolarizationModeEnum = opticsPolarizationModeEnum,
+                            CollectorPolarizationModeEnum = collectorPolarizationModeEnum,
+                            Items = [.. cibInformations.Select(t => new CIBLightMatchingDTOItem { CIBInformation = t })]
+                        };
+
+                        Calibratings = [.. Calibratings, item];
+                        SelectedCalibratingItems = [item];
+
+                        Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.CollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                        var times = 0;
+                        while (true)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
+                                Cache.OpticsIlluminationModeEnum,
+                                Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Dark,
+                                hazeBFPosition,
+                                cibInformations,
+                                Cache.Item.ImageWidth,
+                                true,
+                                cancellationToken);
+
+                            Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
+
+                            foreach (var (index, darkFieldImage) in cibPMTValues.Index())
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                using var _ = darkFieldImage;
+
+                                var itemItem = item.Items[index];
+
+                                var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                                darkFieldImage.Image.Save(imageFilePath);
+
+                                var itemItemData = new CIBLightMatchingDTOItem.Item
+                                {
+                                    Value = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000),
+                                    ImageFilePath = imageFilePath,
+                                    RawImageFilePath = darkFieldImage.RawImageFilePath
+                                };
+                                itemItem.HazeItems = [.. itemItem.HazeItems, itemItemData];
+
+                                Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                                {
+                                    itemItemData.Value,
+                                    itemItemData.RawImageFilePath,
+                                    itemItemData.ImageFilePath
+                                }), HtmlLogUniqueId.LoggingHtml());
+                            }
+
+                            var results = (
+                                from itemItem in item.Items
+                                group itemItem by itemItem.CIBInformation.ChannelId
+                                into g
+                                orderby g.Key
+                                select (
+                                    ChannelId: g.Key,
+                                    ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
+                                )).ToArray();
+
+                            var resultList = new List<bool>();
+                            foreach (var (channelId, itemItems) in results)
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                var channelIdAverage = item.HazeTargetValues.GetOrAdd(channelId, itemItems.Average(t => t.HazeItems[times].Value));
+
+                                foreach (var itemItem in itemItems)
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+
+                                    itemItem.HazeItems[times].Error = itemItem.HazeItems[times].Value - channelIdAverage;
+                                    if (itemItem.HazeItems.Any(t => t.IsOk))
+                                    {
+                                        itemItem.HazeItems[times].IsOk = true;
+                                        resultList.Add(itemItem.HazeItems[times].IsOk);
+
+                                        continue;
+                                    }
+
+                                    itemItem.HazeItems[times].IsOk = Math.Abs(itemItem.HazeItems[times].Error) <= Cache.CalibratingHazeThreshold;
+                                    resultList.Add(itemItem.HazeItems[times].IsOk);
+
+                                    if (itemItem.HazeItems[times].IsOk) continue;
+
+                                    itemItem.HazeItems[times].Result = -itemItem.HazeItems[times].Error;
+                                    itemItem.DigitalGain += itemItem.HazeItems[times].Result;
+
+                                    CIBViewModel.SetLightMatching([itemItem.CIBInformation], itemItem.DigitalGain);
+                                }
+                            }
+
+                            var htmlBullet = new HtmlBullet(new
+                            {
+                                times,
+                                item.OpticsIlluminationModeEnum,
+                                item.ProductivityInformation,
+                                item.OpticsApodizationModeEnum,
+                                item.OpticsPolarizationModeEnum,
+                                item.CollectorPolarizationModeEnum,
+                                Plot = new HtmlContainer([.. item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                            });
+
+                            item.IsCalibrated = resultList.All(t => t);
+
+                            if (item.IsCalibrated)
+                            {
+                                LogDetails();
+                                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                                break;
+                            }
+
+                            if (++times > Cache.HazeCalibratingRetryTimes - 1)
+                            {
+                                LogDetails();
+                                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                                break;
+                            }
+
+                            Logger.LogHtmlInformation("Plots", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        }
+
+                        continue;
+
+                        void LogDetails()
+                        {
+                            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                            foreach (var itemItem in item.Items)
+                            {
+                                var itemItemData = itemItem.HazeItems.First(t => t.IsOk);
+                                Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                                {
+                                    itemItemData.Value,
+                                    itemItemData.RawImageFilePath,
+                                    Image = new HtmlImage(itemItemData.ImageFilePath)
+                                }), HtmlLogUniqueId.LoggingHtml());
+                            }
+                        }
+                    }
+                }
+
+                async Task SilicaSphereAsync()
+                {
+                    var silicaSphereBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition);
+                    StageViewModel.SetAbsoluteStageTheta(0);
+                    StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(silicaSphereBFPosition);
+
+                    Logger.LogHtmlInformation("Silica Sphere", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                    foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
+                    foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
+                    foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
+                        OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
+                        CollectorViewModel.SetPolarizationMode(collectorPolarizationModeEnum);
+                        CIBViewModel.SetLightMatching(cibInformations, 0);
+
+                        var item = Calibratings.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum
+                                                            && t.ProductivityInformation == Cache.ProductivityInformation
+                                                            && t.OpticsApodizationModeEnum == opticsApodizationModeEnum
+                                                            && t.OpticsPolarizationModeEnum == opticsPolarizationModeEnum
+                                                            && t.CollectorPolarizationModeEnum == collectorPolarizationModeEnum);
+                        if (item.IsCalibrated == false) break;
+
+                        SelectedCalibratingItems = [item];
+
+                        Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.CollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                        var times = 0;
+                        while (true)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
+                                Cache.OpticsIlluminationModeEnum,
+                                Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Dark,
+                                silicaSphereBFPosition,
+                                cibInformations,
+                                Cache.Item.ImageWidth,
+                                true,
+                                cancellationToken);
+
+                            Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
+
+                            foreach (var (index, darkFieldImage) in cibPMTValues.Index())
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                using var _ = darkFieldImage;
+
+                                var itemItem = item.Items[index];
+
+                                var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                                darkFieldImage.Image.Save(imageFilePath);
+
+                                var histogram = CalibrationAlgorithmService.GetHistogram(darkFieldImage.Image, 0, 0b0000_1111_1111_1111);
+
+                                var itemItemData = new CIBLightMatchingDTOItem.Item
+                                {
+                                    Value = HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000),
+                                    ImageFilePath = imageFilePath,
+                                    RawImageFilePath = darkFieldImage.RawImageFilePath,
+                                    Histogram = histogram
+                                };
+
+                                itemItem.SilicaSphereItems = [.. itemItem.SilicaSphereItems, itemItemData];
+
+                                Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                                {
+                                    itemItemData.Value,
+                                    itemItemData.RawImageFilePath,
+                                    itemItemData.ImageFilePath,
+                                    Histogram = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.Histogram)], string.Empty)
+                                }), HtmlLogUniqueId.LoggingHtml());
+                            }
+
+                            var results = (
+                                from itemItem in item.Items
+                                group itemItem by itemItem.CIBInformation.ChannelId
+                                into g
+                                orderby g.Key
+                                select (
+                                    ChannelId: g.Key,
+                                    ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
+                                )).ToArray();
+
+                            var resultList = new List<bool>();
+
+                            item.SilicaSphereTargetValue ??= results
+                                .SelectMany(t => t.ItemItems)
+                                .Select(t => t.SilicaSphereItems[times].Value)
+                                .Average();
+
+                            item.SilicaSphereAverageValues = [];
+
+                            foreach (var (channelId, itemItems) in results)
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                var channelIdAverage = itemItems.Average(t => t.SilicaSphereItems[times].Value);
+                                item.SilicaSphereAverageValues = [.. item.SilicaSphereAverageValues, new KeyValuePair<int, double>(channelId, channelIdAverage)];
+
+                                var error = channelIdAverage - item.SilicaSphereTargetValue.Value;
+
+                                foreach (var itemItem in itemItems)
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+
+                                    itemItem.SilicaSphereItems[times].Error = error;
+
+                                    if (itemItem.SilicaSphereItems.Any(t => t.IsOk))
+                                    {
+                                        itemItem.SilicaSphereItems[times].IsOk = true;
+                                        resultList.Add(itemItem.SilicaSphereItems[times].IsOk);
+
+                                        continue;
+                                    }
+
+                                    itemItem.SilicaSphereItems[times].IsOk = Math.Abs(itemItem.SilicaSphereItems[times].Error) <= Cache.CalibratingSilicaSphereThreshold;
+                                    resultList.Add(itemItem.SilicaSphereItems[times].IsOk);
+
+                                    if (itemItem.SilicaSphereItems[times].IsOk) continue;
+
+                                    itemItem.SilicaSphereItems[times].Result = -itemItem.SilicaSphereItems[times].Error;
+                                    itemItem.MultiplicativeFactors += itemItem.SilicaSphereItems[times].Result;
+
+                                    CIBViewModel.SetLightMatching([itemItem.CIBInformation], itemItem.DigitalGainPlusMultiplicativeFactors);
+                                }
+                            }
+
+                            var htmlBullet = new HtmlBullet(new
+                            {
+                                times,
+                                item.OpticsIlluminationModeEnum,
+                                item.ProductivityInformation,
+                                item.OpticsApodizationModeEnum,
+                                item.OpticsPolarizationModeEnum,
+                                item.CollectorPolarizationModeEnum,
+                                Plot = new HtmlContainer([.. item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                            });
+
+                            item.IsCalibrated = resultList.All(t => t);
+
+                            if (item.IsCalibrated)
+                            {
+                                LogDetails();
+                                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                                break;
+                            }
+
+                            if (++times > Cache.SilicaSphereCalibratingRetryTimes - 1)
+                            {
+                                LogDetails();
+                                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                                break;
+                            }
+
+                            Logger.LogHtmlInformation("Plots", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        }
+
+                        continue;
+
+                        void LogDetails()
+                        {
+                            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                            foreach (var itemItem in item.Items)
+                            {
+                                var itemItemData = itemItem.SilicaSphereItems.First(t => t.IsOk);
+                                Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                                {
+                                    itemItemData.Value,
+                                    itemItemData.RawImageFilePath,
+                                    Image = new HtmlImage(itemItemData.ImageFilePath),
+                                    Histogram = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.Histogram)], string.Empty)
+                                }), HtmlLogUniqueId.LoggingHtml());
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                OpticsViewModel.SetApodizationMode(currentOpticsApodizationModeEnum);
+                OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
+                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
+                LaserViewModel.ToggleEnableAutoGainControl(true);
+                LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetLightMatching(cibInformations, 0);
+            }
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyActionAsync(CancellationToken cancellationToken)
+    {
+        if (SelectedReviewItems.Count == 0)
+        {
+            DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return;
+        }
+
+        await InvokeVerifyAsync(() =>
+        {
+            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            var errorMessageStringBuilder = new StringBuilder();
+
+            foreach (var selectedReviewItem in SelectedReviewItems)
+            {
+                if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
+
+                var htmlBullet = new HtmlBullet(new
+                {
+                    selectedReviewItem.OpticsIlluminationModeEnum,
+                    selectedReviewItem.ProductivityInformation,
+                    selectedReviewItem.OpticsApodizationModeEnum,
+                    selectedReviewItem.OpticsPolarizationModeEnum,
+                    selectedReviewItem.CollectorPolarizationModeEnum,
+                    Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                });
+
+                var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}, {selectedReviewItem.ProductivityInformation}, {selectedReviewItem.OpticsApodizationModeEnum.Humanize()}, {selectedReviewItem.OpticsPolarizationModeEnum.Humanize()}, {selectedReviewItem.CollectorPolarizationModeEnum.Humanize()}";
+
+                if (selectedReviewItem.IsVerified)
+                    Logger.LogHtmlInformation($"OK: {title}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                else
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    Logger.LogHtmlError($"Error: {title}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
+            }
+
+            Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
+
+            var result = SelectedReviewItems.All(t => t.IsOk);
+
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
+        }).ConfigureAwait(false);
+    }
+
+    private bool Save(IReadOnlyList<CIBLightMatchingDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    {
+        update(Cache);
+
+        foreach (var dto in dtos)
+        {
+            update(dto);
+            Calibrations =
+            [
+                .. Calibrations
+                    .Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
+                                || t.ProductivityInformation != dto.ProductivityInformation
+                                || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
+                                || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
+                                || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
+                dto.Clone()
+            ];
+        }
+
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+    });
+
+    #endregion 校准
+}

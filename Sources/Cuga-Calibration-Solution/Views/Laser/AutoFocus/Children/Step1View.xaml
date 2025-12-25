@@ -40,7 +40,7 @@
                                       Minimum="0"
                                       Maximum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.CalibrationThresholdRangeRation}" />
+                                      Value="{Binding Cache.CalibratingThresholdRangeRatio}" />
                     <hc:NumericUpDown Width="275"
                                       hc:InfoElement.Title="F Min: "
                                       hc:TitleElement.TitleWidth="100"
@@ -64,8 +64,8 @@
                              Style="{StaticResource TextBoxExtend}">
                         <TextBox.Text>
                             <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
-                                <Binding Path="Cache.CalibrationThresholdFMin" />
-                                <Binding Path="Cache.CalibrationThresholdFMax" />
+                                <Binding Path="Cache.CalibratingThresholdFMin" />
+                                <Binding Path="Cache.CalibratingThresholdFMax" />
                             </MultiBinding>
                         </TextBox.Text>
                     </TextBox>
@@ -92,8 +92,8 @@
                              Style="{StaticResource TextBoxExtend}">
                         <TextBox.Text>
                             <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
-                                <Binding Path="Cache.CalibrationThresholdNMin" />
-                                <Binding Path="Cache.CalibrationThresholdNMax" />
+                                <Binding Path="Cache.CalibratingThresholdNMin" />
+                                <Binding Path="Cache.CalibratingThresholdNMax" />
                             </MultiBinding>
                         </TextBox.Text>
                     </TextBox>

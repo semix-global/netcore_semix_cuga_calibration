@@ -250,11 +250,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 Cache.ThresholdIdealNMax,
                 Cache.ThresholdCurrentMin,
                 Cache.ThresholdCurrentMax,
-                Cache.CalibrationThresholdRangeRation,
-                Cache.CalibrationThresholdFMin,
-                Cache.CalibrationThresholdFMax,
-                Cache.CalibrationThresholdNMin,
-                Cache.CalibrationThresholdNMax,
+                Cache.CalibratingThresholdRangeRatio,
+                Cache.CalibratingThresholdFMin,
+                Cache.CalibratingThresholdFMax,
+                Cache.CalibratingThresholdNMin,
+                Cache.CalibratingThresholdNMax,
                 Cache.FindCurrentStep
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -303,7 +303,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         ABrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessNList)], string.Empty)
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    if (Cache.CalibrationThresholdNMin <= n && n <= Cache.CalibrationThresholdNMax && Cache.CalibrationThresholdFMin <= f && f <= Cache.CalibrationThresholdFMax)
+                    if (Cache.CalibratingThresholdNMin <= n && n <= Cache.CalibratingThresholdNMax && Cache.CalibratingThresholdFMin <= f && f <= Cache.CalibratingThresholdFMax)
                     {
                         ABrightnessSelected = item;
 
@@ -324,11 +324,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         break;
                     }
 
-                    var interval = (n > Cache.CalibrationThresholdNMax && f >= Cache.CalibrationThresholdFMin) ||
-                                   (f > Cache.CalibrationThresholdFMax && n >= Cache.CalibrationThresholdNMin)
+                    var interval = (n > Cache.CalibratingThresholdNMax && f >= Cache.CalibratingThresholdFMin) ||
+                                   (f > Cache.CalibratingThresholdFMax && n >= Cache.CalibratingThresholdNMin)
                         ? -Cache.FindCurrentStep
-                        : (n < Cache.CalibrationThresholdNMin && f <= Cache.CalibrationThresholdFMax) ||
-                          (f < Cache.CalibrationThresholdFMin && n <= Cache.CalibrationThresholdNMax)
+                        : (n < Cache.CalibratingThresholdNMin && f <= Cache.CalibratingThresholdFMax) ||
+                          (f < Cache.CalibratingThresholdFMin && n <= Cache.CalibratingThresholdNMax)
                             ? Cache.FindCurrentStep
                             : ThrowHelper.ThrowArgumentException<double>("f and n orientation discrepancy");
 
@@ -384,7 +384,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         BBrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessNList)], string.Empty)
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    if (Cache.CalibrationThresholdNMin <= n && n <= Cache.CalibrationThresholdNMax && Cache.CalibrationThresholdFMin <= f && f <= Cache.CalibrationThresholdFMax)
+                    if (Cache.CalibratingThresholdNMin <= n && n <= Cache.CalibratingThresholdNMax && Cache.CalibratingThresholdFMin <= f && f <= Cache.CalibratingThresholdFMax)
                     {
                         BBrightnessSelected = item;
 
@@ -404,11 +404,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         return true;
                     }
 
-                    var interval = (n > Cache.CalibrationThresholdNMax && f >= Cache.CalibrationThresholdFMin) ||
-                                   (f > Cache.CalibrationThresholdFMax && n >= Cache.CalibrationThresholdNMin)
+                    var interval = (n > Cache.CalibratingThresholdNMax && f >= Cache.CalibratingThresholdFMin) ||
+                                   (f > Cache.CalibratingThresholdFMax && n >= Cache.CalibratingThresholdNMin)
                         ? -Cache.FindCurrentStep
-                        : (n < Cache.CalibrationThresholdNMin && f <= Cache.CalibrationThresholdFMax) ||
-                          (f < Cache.CalibrationThresholdFMin && n <= Cache.CalibrationThresholdNMax)
+                        : (n < Cache.CalibratingThresholdNMin && f <= Cache.CalibratingThresholdFMax) ||
+                          (f < Cache.CalibratingThresholdFMin && n <= Cache.CalibratingThresholdNMax)
                             ? Cache.FindCurrentStep
                             : ThrowHelper.ThrowArgumentException<double>("f and n orientation discrepancy");
 
@@ -948,7 +948,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 Cache.ThresholdIdealNMax,
                 Cache.ThresholdCurrentMin,
                 Cache.ThresholdCurrentMax,
-                Cache.ReviewThresholdRangeRation,
+                Cache.ReviewThresholdRangeRatio,
                 Cache.ReviewThresholdFMin,
                 Cache.ReviewThresholdFMax,
                 Cache.ReviewThresholdNMin,

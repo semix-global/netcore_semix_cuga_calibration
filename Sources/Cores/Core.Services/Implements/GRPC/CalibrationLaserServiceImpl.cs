@@ -9,7 +9,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Agent.Facade.Service.MachineFacade;
-using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Interface.Calibration;
 using Cuga.Interface.Diagnosis;
@@ -134,20 +133,6 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
-    {
-        var sxExecuteRet = Invoke(() => Service2?.SetPolarization(new SxParamObj<CgPolarizationTypeEnum>(opticsPolarizationModeEnum.ToCgPolarizationTypeEnum())));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
-    {
-        throw new NotImplementedException();
-    }
-
     public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {
         throw new NotImplementedException();
@@ -263,19 +248,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<double>>> GetCIBPMTValuesAsync(
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
-        int catchCount,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
-        ProductivityInformation productivityInformation,
-        IReadOnlyList<CIBInformation> cibInformations,
-        bool isAutoFocus,
-        CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
     public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
     {
         var pmtRet = Invoke(() => Service?.GetPMTDataALL());
@@ -315,11 +287,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits, double maxLogGain)
     {
         throw new NotImplementedException();
     }

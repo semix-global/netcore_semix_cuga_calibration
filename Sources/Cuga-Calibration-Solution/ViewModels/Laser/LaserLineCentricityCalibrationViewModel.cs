@@ -32,7 +32,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -225,11 +224,11 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         CalibrationStatuses =
         [
-            ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
+            ..ApplicationCookie.OpticsIlluminationModeEnums
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI? ApplicationCookie.OIOpticsMagTypeProductivityInformations: ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
                 })
         ];
 
@@ -455,7 +454,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                         AlignmentCacheDarkField.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
                         AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                       opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
+                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
                     return true;
                 }
 

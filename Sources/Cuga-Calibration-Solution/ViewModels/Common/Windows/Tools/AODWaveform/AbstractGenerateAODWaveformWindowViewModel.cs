@@ -41,9 +41,11 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
 
     public abstract string Name { get; }
 
+    protected abstract void LoadedElectrodeOffsetResult(CancellationToken cancellationToken);
+
     protected abstract void GenerateAODWaveform(CancellationToken cancellationToken);
 
-    protected abstract void SetAODWaveformProfiles();
+    protected abstract void SetAODWaveformProfiles(CancellationToken cancellationToken);
 
     protected AbstractGenerateAODWaveformWindowViewModel()
     {
@@ -57,60 +59,13 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
     private void Loaded() => Cache = CacheProvider.GetOrDefault<GenerateAODWaveformCache<TParam, TProfile>>();
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task GenerateAODWaveformAsync(CancellationToken cancellationToken)
-    {
-        await Task.Run(() =>
-        {
-            try
-            {
-                GenerateAODWaveform(cancellationToken);
+    private async Task LoadedElectrodeOffsetResultAsync(CancellationToken cancellationToken) => await InvokeAsync(() => LoadedElectrodeOffsetResult(cancellationToken), "Load AOD Waveform Electrode Offset");
 
-                DialogWindowProvider.ShowDialog($"{Name}: Generate Success");
-            }
-            catch (Exception ex)
-            {
-                if (ex is OperationCanceledException)
-                {
-                    DialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task GenerateAODWaveformAsync(CancellationToken cancellationToken) => await InvokeAsync(() => GenerateAODWaveform(cancellationToken), "Generate AOD Waveform Profiles");
 
-                DialogWindowProvider.ShowDialog($"""
-                                                 {Name}: Generate Failed
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogError(ex, "Generate Failed");
-            }
-        }, cancellationToken).ConfigureAwait(false);
-    }
-
-    [RelayCommand]
-    private async Task SetAODWaveformAsync()
-    {
-        await Task.Run(() =>
-        {
-            try
-            {
-                SetAODWaveformProfiles();
-
-                DialogWindowProvider.ShowDialog($"{Name}: Set Success");
-            }
-            catch (Exception ex)
-            {
-                if (ex is OperationCanceledException)
-                {
-                    DialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
-
-                DialogWindowProvider.ShowDialog($"""
-                                                 {Name}: Set Failed
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogError(ex, "Set Failed");
-            }
-        }).ConfigureAwait(false);
-    }
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task SetAODWaveformAsync(CancellationToken cancellationToken) => await InvokeAsync(() => SetAODWaveformProfiles(cancellationToken), "Set AOD Waveform Profiles");
 
     [RelayCommand]
     private void Close()
@@ -127,5 +82,32 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
         }
 
         CloseView(true);
+    }
+
+    private async Task InvokeAsync(Action action, string actionName)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                action();
+
+                DialogWindowProvider.ShowDialog($"{Name}: {actionName} Success");
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    DialogWindowProvider.ShowDialog($"{Name}: {actionName} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
+
+                DialogWindowProvider.ShowDialog($"""
+                                                 {Name}: {actionName} Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogError(ex, "{@ActionName} Failed", actionName);
+            }
+        }).ConfigureAwait(false);
     }
 }

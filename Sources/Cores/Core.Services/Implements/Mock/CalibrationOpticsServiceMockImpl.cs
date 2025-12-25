@@ -11,6 +11,8 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 {
     private double _currentRelayMotorValue;
+    private OpticsApodizationModeEnum _currentOpticsApodizationModeEnum;
+    private OpticsPolarizationModeEnum _currentOpticsPolarizationModeEnum;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -31,6 +33,45 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         Thread.Sleep(100);
 
         _currentRelayMotorValue = value;
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleODFilter(bool isEnable)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<OpticsApodizationModeEnum> GetApodizationMode()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(_currentOpticsApodizationModeEnum);
+    }
+
+    public SxExecuteRet<bool> SetApodizationMode(OpticsApodizationModeEnum opticsApodizationModeEnum)
+    {
+        Thread.Sleep(100);
+
+        _currentOpticsApodizationModeEnum = opticsApodizationModeEnum;
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<OpticsPolarizationModeEnum> GetPolarizationMode()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(_currentOpticsPolarizationModeEnum);
+    }
+
+    public SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
+    {
+        Thread.Sleep(100);
+
+        _currentOpticsPolarizationModeEnum = opticsPolarizationModeEnum;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }

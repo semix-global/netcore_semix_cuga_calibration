@@ -372,6 +372,13 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         return SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto { Degrees = offsetAngle });
     }
 
+    public SxExecuteRet<bool> AlignmentBlankWafer()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetGantryOffset(double gantryOffset)
     {
         Thread.Sleep(100);

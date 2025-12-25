@@ -18,6 +18,7 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
@@ -51,6 +52,7 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using CugaCalibration.ViewModels.Laser;
 using CugaCalibration.ViewModels.Microscope;
+using CugaCalibration.ViewModels.Optics;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -619,11 +621,18 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserDOEAngleCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserDOEAngleDto>().IsOk(out _);
 
+                #region NEW
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBMMDViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBMMDDTO>().IsOk(out _);
 
-                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsRelayDTO>();
+                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBLightMatchingViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBLightMatchingDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsRelayViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsRelayDTO>().IsOk(out _);
+
+                #endregion
             }
             catch (Exception ex)
             {
