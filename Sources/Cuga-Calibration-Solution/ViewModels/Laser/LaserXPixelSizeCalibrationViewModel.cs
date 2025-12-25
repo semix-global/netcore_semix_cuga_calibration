@@ -82,9 +82,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
 
     [ObservableProperty]
-    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
-
-    [ObservableProperty]
     private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
 
     [ObservableProperty]
@@ -129,7 +126,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     })
             ];
 
-        AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
+        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
@@ -281,10 +278,6 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     {
         return InvokeCalibrateAsync(() =>
         {
-            AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
-                                          t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
-                                          t.ProductivityInformation == Cache.ProductivityInformation)
-                                      ?? new();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsIlluminationModeEnum,
@@ -334,21 +327,25 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             var alignmentResult = new AlignmentResultDto();
             if (Cache.Item.IsDarkFieldAlignment)
             {
-                if (AlignmentCacheDarkField.IsOk)
+                var alignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
+                                                  t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
+                                                  t.ProductivityInformation == Cache.ProductivityInformation)
+                                              ?? new AlignmentCacheDarkField();
+                if (alignmentCacheDarkField.IsOk)
                     alignmentResult = StageViewModel.AlignmentDarkField(
-                        AlignmentCacheDarkField.LowSite1,
-                        AlignmentCacheDarkField.LowSite2,
-                        AlignmentCacheDarkField.HighSite1,
-                        AlignmentCacheDarkField.HighSite2,
+                        alignmentCacheDarkField.LowSite1,
+                        alignmentCacheDarkField.LowSite2,
+                        alignmentCacheDarkField.HighSite1,
+                        alignmentCacheDarkField.HighSite2,
                         Cache.ProductivityInformation,
-                        AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                        alignmentCacheDarkField.LowMag,
+                        alignmentCacheDarkField.AlgorithmWaferTypeEnum,
                         opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
                 else
                 {
                     var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
                     Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
-                    AlignmentCacheDarkField = alignmentWindowDarkFieldViewModel.Cache;
+                    alignmentCacheDarkField = alignmentWindowDarkFieldViewModel.Cache;
                 }
             }
             else
