@@ -1,10 +1,10 @@
-﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status.Interfaces;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Helpers.Helpers.Structs;
+using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;
 
@@ -35,7 +35,7 @@ public partial class OpticsIlluminationModeAndProductivityInformationAndApodizat
             .Select(t => new OpticsIlluminationModeAndProductivityInformationAndApodizationCalibrationStatus()
             {
                 SelectedItem = t,
-                ProductivityInformationAndApodizationCalibrationStatusList = [..ProductivityInformationAndApodizationCalibrationStatus.CreateList(productivityInformations)]
+                ProductivityInformationAndApodizationCalibrationStatusList = [.. ProductivityInformationAndApodizationCalibrationStatus.CreateList(productivityInformations)]
             }).ToList();
 }
 
@@ -65,7 +65,7 @@ public partial class ProductivityInformationAndApodizationCalibrationStatus : Ob
         productivityInformations.Select(t => new ProductivityInformationAndApodizationCalibrationStatus
         {
             SelectedItem = t.Clone(),
-            OpticsApodizationModeCalibrationStatusList = [..EnumHelper.Enums<OpticsApodizationModeEnum>().Select(o => new OpticsApodizationModeCalibrationStatus { SelectedItem = o, IsCalibrated = false })]
+            OpticsApodizationModeCalibrationStatusList = [.. EnumHelper.Enums<OpticsApodizationModeEnum>().Select(o => new OpticsApodizationModeCalibrationStatus { SelectedItem = o, IsCalibrated = false })]
         }).ToList();
 }
 

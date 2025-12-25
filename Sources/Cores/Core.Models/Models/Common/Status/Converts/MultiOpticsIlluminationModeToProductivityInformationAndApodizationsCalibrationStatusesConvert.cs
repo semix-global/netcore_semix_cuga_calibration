@@ -1,10 +1,10 @@
-﻿using System.ComponentModel;
-using System.Globalization;
-using System.Windows;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.WPF.Converters.MultiValueConverters;
+using System.ComponentModel;
+using System.Globalization;
+using System.Windows;
 
 namespace Core.Models.Models.Common.Status.Converts;
 

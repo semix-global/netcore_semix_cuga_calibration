@@ -40,7 +40,7 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
-    
+
     public SxExecuteRet<bool> ToggleODFilter(bool isEnable)
     {
         var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.OD2_0 : CgODEnum.None));

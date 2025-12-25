@@ -24,6 +24,7 @@ using MiniExcelLibs;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -33,7 +34,6 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using Net.Utilities.Helpers.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -313,7 +313,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.CIBInformations,
                 Cache.FindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
-            
+
             return true;
         });
     }

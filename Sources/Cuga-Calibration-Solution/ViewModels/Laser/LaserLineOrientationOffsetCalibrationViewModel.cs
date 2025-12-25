@@ -452,7 +452,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                         AlignmentCacheDarkField.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
                         AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: OpticsIlluminationModeEnum.OI);
+                        opticsIlluminationModeEnum: OpticsIlluminationModeEnum.OI);
                     return true;
                 }
 

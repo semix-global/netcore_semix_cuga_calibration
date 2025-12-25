@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,20 +14,21 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.WPF.Enums;
-using System.Text;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon.Extensions;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.WPF.Enums;
+using System.IO;
+using System.Text;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -191,7 +191,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
         return Reviews.Count > 0;
     }
-
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
@@ -571,7 +570,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 item.OpticsApodizationModeEnum,
                                 item.OpticsPolarizationModeEnum,
                                 item.CollectorPolarizationModeEnum,
-                                Plot = new HtmlContainer([..item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                                Plot = new HtmlContainer([.. item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                             });
 
                             item.IsCalibrated = resultList.All(t => t);
@@ -757,7 +756,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 item.OpticsApodizationModeEnum,
                                 item.OpticsPolarizationModeEnum,
                                 item.CollectorPolarizationModeEnum,
-                                Plot = new HtmlContainer([..item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                                Plot = new HtmlContainer([.. item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                             });
 
                             item.IsCalibrated = resultList.All(t => t);
@@ -838,7 +837,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     selectedReviewItem.OpticsApodizationModeEnum,
                     selectedReviewItem.OpticsPolarizationModeEnum,
                     selectedReviewItem.CollectorPolarizationModeEnum,
-                    Plot = new HtmlContainer([..selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                    Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 
                 var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}, {selectedReviewItem.ProductivityInformation}, {selectedReviewItem.OpticsApodizationModeEnum.Humanize()}, {selectedReviewItem.OpticsPolarizationModeEnum.Humanize()}, {selectedReviewItem.CollectorPolarizationModeEnum.Humanize()}";

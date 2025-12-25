@@ -225,11 +225,11 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         CalibrationStatuses =
         [
             ..ApplicationCookie.OpticsIlluminationModeEnums
-                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
-                    {
-                        SelectedItem = t,
-                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
-                    })
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                {
+                    SelectedItem = t,
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
+                })
         ];
 
         foreach (var calibrationStatus in Calibrations)
@@ -454,7 +454,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                         AlignmentCacheDarkField.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
                         AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                       opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
+                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
                     return true;
                 }
 

@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
@@ -16,6 +14,8 @@ using Net.Utilities.ScottPlot.WPF.Plottables;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
+using System.Collections.Concurrent;
+using System.ComponentModel;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.LightMatching;
@@ -95,7 +95,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     public CIBLightMatchingDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
     {
-        ScatterPlotControls = [..cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl()))];
+        ScatterPlotControls = [.. cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl()))];
     }
 
     private void RefreshPlot()

@@ -1,5 +1,5 @@
-using System.Collections.Concurrent;
 using CommunityToolkit.Diagnostics;
+using System.Collections.Concurrent;
 
 namespace Core.Utilities;
 

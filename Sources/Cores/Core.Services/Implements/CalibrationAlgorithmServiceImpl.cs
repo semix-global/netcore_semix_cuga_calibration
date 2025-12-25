@@ -104,7 +104,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
             results[index] = new Point(value, histogramHTuple[index]);
         }
 
-        return [..results.Skip(min)];
+        return [.. results.Skip(min)];
     }
 
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)

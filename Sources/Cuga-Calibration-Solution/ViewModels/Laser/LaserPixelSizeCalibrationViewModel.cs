@@ -182,7 +182,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI? ApplicationCookie.OIOpticsMagTypeProductivityInformations: ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI ? ApplicationCookie.OIOpticsMagTypeProductivityInformations : ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
                 })
         ];
 

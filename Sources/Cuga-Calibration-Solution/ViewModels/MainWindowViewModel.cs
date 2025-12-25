@@ -18,6 +18,7 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
@@ -51,6 +52,7 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using CugaCalibration.ViewModels.Laser;
 using CugaCalibration.ViewModels.Microscope;
+using CugaCalibration.ViewModels.Optics;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,8 +68,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using Core.Models.Models.CIB.LightMatching;
-using CugaCalibration.ViewModels.Optics;
 
 namespace CugaCalibration.ViewModels;
 

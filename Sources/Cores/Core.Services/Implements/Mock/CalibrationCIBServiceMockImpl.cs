@@ -1,4 +1,3 @@
-﻿using System.IO;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
@@ -10,6 +9,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
+using System.IO;
 
 namespace Core.Services.Implements.Mock;
 

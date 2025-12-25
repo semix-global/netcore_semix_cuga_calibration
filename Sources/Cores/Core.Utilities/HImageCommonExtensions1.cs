@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;
@@ -14,7 +14,7 @@ public static class HImageCommonExtensions1
         /// 获取图片统计信息
         /// </summary>
         /// <returns>统计信息</returns>
-        public (double Average, double Deviation ) GetIntensity()
+        public (double Average, double Deviation) GetIntensity()
         {
             using var gray = @this.ToGray();
             using var region = gray.GetDomain();
