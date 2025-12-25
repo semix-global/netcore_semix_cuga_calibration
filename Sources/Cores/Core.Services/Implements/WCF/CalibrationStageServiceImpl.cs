@@ -1,4 +1,5 @@
 using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.EFEM;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
@@ -439,6 +440,22 @@ public sealed class CalibrationStageServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
             : SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto().AdaptIn(sxExecuteRet.Anything));
+    }
+
+    public SxExecuteRet<bool> AlignmentBlankWafer()
+    {
+        var sxExecuteRetFindWaferCenter = Invoke(() => Service!.FindWaferCenter(out _));
+        if (sxExecuteRetFindWaferCenter.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetFindWaferCenter.Msg, false);
+
+        var centerPoint = new Point(sxExecuteRetFindWaferCenter.Anything.X, sxExecuteRetFindWaferCenter.Anything.Y);
+
+        var sxExecuteRetBlankWaferAlignment = Invoke(() => Service!.BlankWaferAlignment(
+            centerPoint.ToSxPointD(),
+            Convert.ToUInt16(EFEMAngleEnum.Down.ToEfemAngleEnum())));
+
+        return sxExecuteRetBlankWaferAlignment.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBlankWaferAlignment.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     private (bool IsSuccess, string Message) CheckAlignment(AlgorithmWaferTypeEnum algorithmWaferTypeEnum)

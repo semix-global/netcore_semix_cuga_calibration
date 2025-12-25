@@ -57,7 +57,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     private readonly string _typeName;
 
-    private string? _name;
     private CancellationTokenSource? _cancellationTokenSource;
 
     #region 属性
@@ -90,6 +89,12 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     [ObservableProperty]
     private OpticsViewModel _opticsViewModel = HostApplication.GetRequiredService<OpticsViewModel>();
+
+    [ObservableProperty]
+    private CollectorViewModel _collectorViewModel = HostApplication.GetRequiredService<CollectorViewModel>();
+
+    [ObservableProperty]
+    private CIBViewModel _cIBViewModel = HostApplication.GetRequiredService<CIBViewModel>();
 
     [ObservableProperty]
     private ConfigViewModel _configureViewModel = HostApplication.GetRequiredService<ConfigViewModel>();
@@ -138,7 +143,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// <summary>
     /// 校准名称
     /// </summary>
-    public string Name => _name ??= _typeName.Humanize(LetterCasing.Title).Replace("CalibrationViewModel".Humanize(LetterCasing.Title), string.Empty);
+    public string Name => field ??= _typeName.Humanize(LetterCasing.Title).Replace("CalibrationViewModel".Humanize(LetterCasing.Title), string.Empty);
 
     /// <summary>
     /// 日志图片存储位置

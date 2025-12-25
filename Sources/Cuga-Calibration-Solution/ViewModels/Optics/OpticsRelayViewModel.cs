@@ -502,8 +502,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                selectedReviewItem.IsCalibrated = selectedReviewItem.RSquared >= Cache.Threshold;
-                selectedReviewItem.IsVerified = selectedReviewItem.IsCalibrated;
+                if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
                 var htmlBullet = new HtmlBullet(new
                 {
@@ -519,7 +518,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     Logger.LogHtmlInformation($"OK: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
                 {
-                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}: {selectedReviewItem.IsOk}");
+                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}: Error");
                     Logger.LogHtmlError($"Error: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
             }

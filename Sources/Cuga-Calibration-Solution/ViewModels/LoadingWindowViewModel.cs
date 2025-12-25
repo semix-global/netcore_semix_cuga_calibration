@@ -28,6 +28,8 @@ public sealed partial class LoadingWindowViewModel(
     EFEMViewModel efemViewModel,
     FourierViewModel fourierViewModel,
     OpticsViewModel opticsViewModel,
+    CollectorViewModel collectorViewModel,
+    CIBViewModel cibViewModel,
     ConfigViewModel configViewModel,
     MonitorViewModel monitorViewModel,
     ILogger<LoadingWindowViewModel> logger,
@@ -59,17 +61,19 @@ public sealed partial class LoadingWindowViewModel(
     {
         try
         {
-            if (await ConnectAsync(afViewModel.Connect, "Connecting Auto Focus Wcf Service", 1).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(microscopeViewModel.Connect, "Connecting Microscope Wcf Service", 2).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(reviewViewModel.Connect, "Connecting Review Wcf Service", 3).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(stageViewModel.Connect, "Connecting Stage Wcf Service", 4).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(adsViewModel.Connect, "Connecting Ads Wcf Service", 5).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(laserViewModel.Connect, "Connecting Laser Wcf Service", 6).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(efemViewModel.Connect, "Connecting EFEM Wcf Service", 7).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(fourierViewModel.Connect, "Connecting Fourier Wcf Service", 8).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(opticsViewModel.Connect, "Connecting Optics Wcf Service", 9).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(configViewModel.Connect, "Connecting Configure Wcf Service", 10).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Wcf Service", 11).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(afViewModel.Connect, "Connecting Auto Focus Service", 1).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(microscopeViewModel.Connect, "Connecting Microscope Service", 2).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(reviewViewModel.Connect, "Connecting Review Service", 3).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(stageViewModel.Connect, "Connecting Stage Service", 4).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(adsViewModel.Connect, "Connecting Ads Service", 5).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(laserViewModel.Connect, "Connecting Laser Service", 6).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(efemViewModel.Connect, "Connecting EFEM Service", 7).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(fourierViewModel.Connect, "Connecting Fourier Service", 8).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(opticsViewModel.Connect, "Connecting Optics Service", 9).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(collectorViewModel.Connect, "Connecting Collector Service", 10).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(cibViewModel.Connect, "Connecting CIB Service", 11).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(configViewModel.Connect, "Connecting Configure Service", 12).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Service", 13).ConfigureAwait(false) == false) return;
 
             CustomerAdaptToMapper.RegisterType<MicroscopeLensInformation, CgMicroscopeLens>(
                 microscopeLensInformation => microscopeLensInformation.AdaptTo().LensCode,

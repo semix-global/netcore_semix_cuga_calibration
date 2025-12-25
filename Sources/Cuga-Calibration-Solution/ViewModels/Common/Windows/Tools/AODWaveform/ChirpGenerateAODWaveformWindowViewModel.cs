@@ -1,10 +1,12 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
+using Net.Utilities.WPF.Enums;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -12,6 +14,19 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
 {
     public override string Name => "Generate Chirp AOD Waveform";
+
+    protected override void LoadedElectrodeOffsetResult(CancellationToken cancellationToken)
+    {
+        var chirpAODWaveformElectrodeInitializeCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeInitializeCache>();
+        if (chirpAODWaveformElectrodeInitializeCache.ElectrodeConfigurationResults.Count == 0)
+        {
+            DialogWindowProvider.ShowDialog("Please initialize the chirp electrode configuration as it is currently empty.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+            return;
+        }
+
+        Cache.Param.ElectrodeConfigurations = chirpAODWaveformElectrodeInitializeCache.ElectrodeConfigurationResults;
+    }
 
     protected override void GenerateAODWaveform(CancellationToken cancellationToken)
     {
@@ -25,5 +40,5 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
         Cache.AODWaveformResultFilePath = aodWaveformResult.FilePath;
     }
 
-    protected override void SetAODWaveformProfiles() => LaserViewModel.SetChirpAODWaveProfiles(Cache.Param.OpticsIlluminationModeEnum, Cache.Profiles);
+    protected override void SetAODWaveformProfiles(CancellationToken cancellationToken) => LaserViewModel.SetChirpAODWaveProfiles(Cache.Param.OpticsIlluminationModeEnum, Cache.Profiles);
 }

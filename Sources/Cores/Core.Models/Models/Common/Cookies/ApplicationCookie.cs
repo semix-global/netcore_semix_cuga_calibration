@@ -1,9 +1,11 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Net.Utilities.Helpers.Helpers.Structs;
 
 namespace Core.Models.Models.Common.Cookies;
 
@@ -140,10 +142,46 @@ public sealed partial class ApplicationCookie : ObservableObject
                     : ThrowHelper.ThrowArgumentException<IReadOnlyList<OpticsIlluminationModeEnum>>("OI NI Productivity Information Is Empty");
 
     /// <summary>
+    /// 光学切趾列表
+    /// </summary>
+    public IReadOnlyList<OpticsApodizationModeEnum> OpticsApodizationModeEnums => [OpticsApodizationModeEnum.None];
+
+    /// <summary>
+    /// 光学偏振列表
+    /// </summary>
+    public IReadOnlyList<OpticsPolarizationModeEnum> OpticsPolarizationModeEnums => EnumHelper.Enums<OpticsPolarizationModeEnum>();
+
+    /// <summary>
+    /// 采集偏振列表
+    /// </summary>
+    public IReadOnlyList<CollectorPolarizationModeEnum> CollectorPolarizationModeEnums => EnumHelper.Enums<CollectorPolarizationModeEnum>();
+
+    /// <summary>
     /// CIB列表
     /// </summary>
     [ObservableProperty]
     private IReadOnlyList<CIBInformation> _cIBInformations = [];
+
+    /// <summary>
+    /// CIB的PMT列表
+    /// </summary>
+    public IReadOnlyList<int> CIBInformationPMTIds =>
+    [
+        .. CIBInformations
+            .GroupBy(t => t.PMTId)
+            .Select(t => t.Key)
+    ];
+
+    /// <summary>
+    /// CIB的通道列表
+    /// </summary>
+    public IReadOnlyList<int> CIBInformationChannelIds =>
+    [
+        ..CIBInformations
+            .GroupBy(t => t.PMTId)
+            .First()
+            .Select(c => c.ChannelId)
+    ];
 
     /// <summary>
     /// 校准当前应用配方

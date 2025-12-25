@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.AODWaveform;
-using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -15,17 +14,6 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
     AbstractAODWaveformElectrodeOffsetWindowViewModel<ChirpAODWaveformElectrodeOffsetCache, ChirpAODWaveformElectrodeOffsetItem, ChirpAODWaveformElectrodeOffsetResult>
 {
     public override string Name => "Chirp AOD Waveform Electrode Offset";
-
-    protected override async Task LoadedAsync()
-    {
-        await Task.Run(() =>
-        {
-            Cache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
-            var chirpAODWaveformElectrodeOffsetCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
-
-            Cache.ElectrodeConfigurationResults = chirpAODWaveformElectrodeOffsetCache.ElectrodeConfigurationResults;
-        });
-    }
 
     protected override void GenerateFlatnessAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {

@@ -23,7 +23,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
-
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -364,13 +363,6 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     [Obsolete]
     public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double prescanAODDelay, double chirpAODDelay)
     {
@@ -573,22 +565,6 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(new List<List<double>> { Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950).ToList() });
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<double>>> GetCIBPMTValuesAsync(
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
-        int catchCount,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
-        ProductivityInformation productivityInformation,
-        IReadOnlyList<CIBInformation> cibInformations,
-        bool isAutoFocus,
-        CancellationToken cancellationToken)
-
-    {
-        Thread.Sleep(100);
-
-        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<double>>([.. cibInformations.Select(_ => Random.NextDouble() * 3950)]));
-    }
-
     public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
     {
         var result = new List<DarkFieldPmtDataDto>();
@@ -654,13 +630,6 @@ public sealed class CalibrationLaserServiceMockImpl(
     }
 
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits, double maxLogGain)
     {
         Thread.Sleep(100);
 

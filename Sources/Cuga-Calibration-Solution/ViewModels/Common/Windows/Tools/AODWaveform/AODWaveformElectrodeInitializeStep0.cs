@@ -52,19 +52,24 @@ public sealed partial class AODWaveformElectrodeInitializeStep0<TItem> : Observa
 
     private void RefreshPlot()
     {
-        ScatterPlotControl.Clear();
-
-        foreach (var (index, item) in Items.Index())
+        try
         {
-            if (item.Items.Count <= 0) continue;
+            ScatterPlotControl.Clear();
 
-            ScatterPlotControl.GetOrAddScatterLine(
-                item.Title,
-                [.. item.Items.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
-                index,
-                new Range(0, Items.Count - 1));
+            foreach (var (index, item) in Items.Index())
+            {
+                if (item.Items.Count <= 0) continue;
+
+                ScatterPlotControl.GetOrAddScatterLine(
+                    item.Title,
+                    [.. item.Items.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
+                    index,
+                    new Range(0, Items.Count - 1));
+            }
         }
-
-        ScatterPlotControl.AutoScaleRefresh();
+        finally
+        {
+            ScatterPlotControl.AutoScaleRefresh();
+        }
     }
 }

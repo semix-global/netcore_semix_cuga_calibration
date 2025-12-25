@@ -77,51 +77,56 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
 
     private void RefreshPlot()
     {
-        ScatterPlotControl.SetTitle($"Result: {(OffsetFrequencyPeriodCoefficient is null ? "-" : $"{OffsetFrequencyPeriodCoefficient:0.###}(2pi)")} (Y: mW - X: 2pi)");
-
-        foreach (var (index, item) in Items.Index())
+        try
         {
-            if (item.FrequencyItems.Count <= 0) continue;
+            ScatterPlotControl.SetTitle($"Result: {(OffsetFrequencyPeriodCoefficient is null ? "-" : $"{OffsetFrequencyPeriodCoefficient:0.###}(2pi)")} (Y: mW - X: 2pi)");
 
-            var scatterMarkersOrigin = ScatterPlotControl.GetOrAddScatterMarkers(
-                $"Origin {item.FrequencyItems[0].Frequency:0.###}(MHz)",
-                [.. item.FrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
-                index,
-                new Range(0, Items.Count - 1),
-                markerShape: MarkerShape.OpenCircle);
-            scatterMarkersOrigin.MarkerSize = 10;
+            foreach (var (index, item) in Items.Index())
+            {
+                if (item.FrequencyItems.Count <= 0) continue;
 
-            ScatterPlotControl.GetOrAddScatterLine(
-                $"Interpolation {item.FrequencyItems[0].Frequency:0.###}(MHz)",
-                item.FrequencyInterpolationPoints,
-                index,
-                new Range(0, Items.Count - 1));
+                var scatterMarkersOrigin = ScatterPlotControl.GetOrAddScatterMarkers(
+                    $"Origin {item.FrequencyItems[0].Frequency:0.###}(MHz)",
+                    [.. item.FrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
+                    index,
+                    new Range(0, Items.Count - 1),
+                    markerShape: MarkerShape.OpenCircle);
+                scatterMarkersOrigin.MarkerSize = 10;
 
-            var scatterMarkersMaxima = ScatterPlotControl.GetOrAddScatterMarkers(
-                $"Maxima {item.FrequencyItems[0].Frequency:0.###}(MHz)",
-                item.FrequencyMaximaPoints,
-                index,
-                new Range(0, Items.Count - 1),
-                markerShape: MarkerShape.Asterisk);
-            scatterMarkersMaxima.MarkerSize = 20;
+                ScatterPlotControl.GetOrAddScatterLine(
+                    $"Interpolation {item.FrequencyItems[0].Frequency:0.###}(MHz)",
+                    item.FrequencyInterpolationPoints,
+                    index,
+                    new Range(0, Items.Count - 1));
+
+                var scatterMarkersMaxima = ScatterPlotControl.GetOrAddScatterMarkers(
+                    $"Maxima {item.FrequencyItems[0].Frequency:0.###}(MHz)",
+                    item.FrequencyMaximaPoints,
+                    index,
+                    new Range(0, Items.Count - 1),
+                    markerShape: MarkerShape.Asterisk);
+                scatterMarkersMaxima.MarkerSize = 20;
+            }
+
+            if (ClosestMaximaPoints.Count > 0)
+            {
+                var scatterMarkersClosestMaxima = ScatterPlotControl.GetOrAddScatterMarkers(
+                    "Closest Maxima",
+                    ClosestMaximaPoints,
+                    Colors.Blue,
+                    markerShape: MarkerShape.FilledSquare);
+                scatterMarkersClosestMaxima.MarkerSize = 20;
+            }
+
+            if (OffsetFrequencyPeriodCoefficient is not null)
+            {
+                ScatterPlotControl.GetOrAddXLine("Result", OffsetFrequencyPeriodCoefficient.Value, Colors.DarkRed);
+            }
         }
-
-        if (ClosestMaximaPoints.Count > 0)
+        finally
         {
-            var scatterMarkersClosestMaxima = ScatterPlotControl.GetOrAddScatterMarkers(
-                "Closest Maxima",
-                ClosestMaximaPoints,
-                Colors.Blue,
-                markerShape: MarkerShape.FilledSquare);
-            scatterMarkersClosestMaxima.MarkerSize = 20;
+            ScatterPlotControl.AutoScaleRefresh();
         }
-
-        if (OffsetFrequencyPeriodCoefficient is not null)
-        {
-            ScatterPlotControl.GetOrAddXLine("Result", OffsetFrequencyPeriodCoefficient.Value, Colors.DarkRed);
-        }
-
-        ScatterPlotControl.AutoScaleRefresh();
     }
 
     public void InterpolationMaxima(int densityFactor)

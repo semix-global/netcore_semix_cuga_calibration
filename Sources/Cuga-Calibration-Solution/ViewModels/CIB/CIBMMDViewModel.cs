@@ -24,6 +24,7 @@ using MiniExcelLibs;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -32,6 +33,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -60,7 +62,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDTO> _calibratingItems = [];
+    private IReadOnlyList<CIBMMDDTO> _calibratings = [];
 
     [ObservableProperty]
     private IReadOnlyList<CIBMMDDTO> _selectedCalibratingItems = [];
@@ -195,7 +197,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
-                CalibratingItems = [];
+                Calibratings = [];
 
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
@@ -261,7 +263,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return;
             }
 
-            LaserViewModel.SetCIBMMD(
+            CIBViewModel.SetMMD(
                 cibMMDDto.CIBInformation,
                 [.. cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)],
                 [.. cibMMDDto.GainS16BitPoints.Select(t => t.Y)],
@@ -311,6 +313,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.CIBInformations,
                 Cache.FindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -328,7 +331,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
-            CalibratingItems = [];
+            Calibratings = [];
             Cache.PrescanAODWaveformResultFilePath = Cache.ChirpAODWaveformResultFilePath = string.Empty;
             Cache.PrescanAODWaveformProfiles = [];
             Cache.ChirpAODWaveformProfiles = [];
@@ -362,7 +365,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.StopGain,
                 Cache.ProtectedPMTValue,
                 Cache.ProtectedOverflowProtectedPMTValueCount,
-                Cache.CatchPMTValueCount,
+                Cache.ImageWidth,
                 Cache.DarkCurrent,
                 Cache.Denominator,
                 Cache.ScaleFactor,
@@ -410,7 +413,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MeasureMaxPowerPosition);
             try
             {
-                LaserViewModel.ToggleOpticsODFilter(false);
+                OpticsViewModel.ToggleODFilter(false);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
                 await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
                 var measurePowerNoises = (IReadOnlyList<double>)
@@ -448,7 +451,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 var maxMeasurePowerPoint = Cache.MeasurePowerPoints.MaxBy(t => t.Y);
                 try
                 {
-                    LaserViewModel.ToggleOpticsODFilter(true);
+                    OpticsViewModel.ToggleODFilter(true);
                     LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(maxMeasurePowerPoint.X))]);
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                     await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
@@ -457,7 +460,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 }
                 finally
                 {
-                    LaserViewModel.ToggleOpticsODFilter(false);
+                    OpticsViewModel.ToggleODFilter(false);
                 }
             }
             finally
@@ -516,7 +519,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             // 获取gain
             var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
-            CalibratingItems =
+            Calibratings =
             [
                 ..Cache.CIBInformations
                     .Select(t => new CIBMMDDTO
@@ -524,17 +527,17 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         CIBInformation = t,
                         Items =
                         [
-                            .. Cache.UseODFilterMeasurePowerPoints.Select(tt => new CIBMMDItemDto
+                            .. Cache.UseODFilterMeasurePowerPoints.Select(tt => new CIBMMDDTOItem
                             {
                                 Coefficient = tt.X,
                                 MeasurePower = tt.Y / Cache.ODFilterRatio,
-                                Items = [..gains.Select(ttt => new CIBMMDItemDto.Item { Gain = ttt, PMTValue = double.NaN })]
+                                Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
                             }),
-                            .. Cache.NotUseODFilterMeasurePowerPoints.Select(tt => new CIBMMDItemDto
+                            .. Cache.NotUseODFilterMeasurePowerPoints.Select(tt => new CIBMMDDTOItem
                             {
                                 Coefficient = tt.X,
                                 MeasurePower = tt.Y,
-                                Items = [..gains.Select(ttt => new CIBMMDItemDto.Item { Gain = ttt, PMTValue = double.NaN })]
+                                Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
                             })
                         ]
                     })
@@ -566,7 +569,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                     try
                     {
-                        LaserViewModel.ToggleOpticsODFilter(isUseODFilter);
+                        OpticsViewModel.ToggleODFilter(isUseODFilter);
                         LaserViewModel.SetGain(Cache.StartGain);
                         LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
                         LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
@@ -574,21 +577,21 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         foreach (var (gainIndex, gain) in gains.Index())
                         {
                             cancellationToken.ThrowIfCancellationRequested();
-                            SelectedCalibratingItems = CalibratingItems;
+                            SelectedCalibratingItems = Calibratings;
 
-                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDTO>)[.. CalibratingItems.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
+                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDTO>)[.. Calibratings.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
                             var cibInformations = (IReadOnlyList<CIBInformation>)[.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)];
                             LaserViewModel.SetGain(cibInformations, gain);
 
                             await Task.Delay(TimeSpan.FromSeconds(Cache.PMTValueWaitTime), cancellationToken).ConfigureAwait(false);
 
-                            var cibPMTValues = await LaserViewModel.GetCIBPMTValuesAsync(
-                                StageCoordinateSystemEnum.Dark,
-                                StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
-                                Cache.CatchPMTValueCount,
+                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
                                 Cache.OpticsIlluminationModeEnum,
                                 Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Dark,
+                                StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
                                 cibInformations,
+                                Cache.ImageWidth,
                                 Cache.IsAFEnable,
                                 cancellationToken);
 
@@ -596,7 +599,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
-                                var (index, pmtValue) = t;
+                                var (index, darkFieldImage) = t;
+                                using var _ = darkFieldImage;
+
+                                var shorts = darkFieldImage.Matrix.AsSpan();
+                                double sum = 0;
+                                foreach (var v in shorts) sum += v;
+                                var pmtValue = sum / shorts.Length;
 
                                 var cibMMDDto = noProtectedCIBMMDDtos[index];
 
@@ -620,21 +629,21 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             {
                 LaserViewModel.ToggleEnableAutoGainControl(true);
                 LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
-                LaserViewModel.ToggleOpticsODFilter(false);
+                OpticsViewModel.ToggleODFilter(false);
             }
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            await Task.WhenAll(CalibratingItems.Select(cibMMDDto => Task.Run(() =>
+            await Task.WhenAll(Calibratings.Select(cibMMDDto => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 Algorithm(cibMMDDto);
             }, cancellationToken)));
 
-            Guard.IsTrue(Save(CalibratingItems, cancellationToken));
+            Guard.IsTrue(Save(Calibratings, cancellationToken));
 
-            return CalibratingItems.All(t => t.IsCalibrated);
+            return Calibratings.All(t => t.IsCalibrated);
         });
     }
 
@@ -687,6 +696,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         await InvokeVerifyAsync(() =>
         {
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            var errorMessageStringBuilder = new StringBuilder();
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
@@ -700,14 +710,20 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 if (selectedReviewItem.IsVerified)
                     Logger.LogHtmlInformation($"OK: {selectedReviewItem.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
+                {
+                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.CIBInformation.ToString()}: Error");
                     Logger.LogHtmlError($"Error: {selectedReviewItem.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
             }
 
             Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
             var result = SelectedReviewItems.All(t => t.IsOk);
 
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}",
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 

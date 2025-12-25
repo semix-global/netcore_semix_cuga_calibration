@@ -12,7 +12,6 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-             xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignHeight="1920"
              d:DesignWidth="1920"
@@ -23,7 +22,6 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -34,15 +32,12 @@
                 <hc:Shield Subject="CIB MMD Step 3: "
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="BF Machine Position(um): "
+                <hc:Shield Subject="BF Machine Position(um): "
                            Status="{Binding Cache.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                 IsInertiaEnabled="True"
-                                 VerticalScrollBarVisibility="Auto">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
                             <TextBlock Text="Param"
@@ -241,12 +236,12 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.ProtectedOverflowProtectedPMTValueCount}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Catch PMT Value Count: "
+                                    <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.CatchPMTValueCount}" />
+                                                      Value="{Binding Cache.ImageWidth}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </Expander>
@@ -390,20 +385,18 @@
                             </Border>
                         </Popup>
                     </hc:UniformSpacingPanel>
-                </hc:ScrollViewer>
+                </ScrollViewer>
             </Border>
         </Grid>
-        <!--#endregion-->
         <GridSplitter Grid.Column="1" Width="5" />
-        <!--#region Right-->
         <GroupBox Grid.Column="2" Header="History">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
-                <ListView ItemsSource="{Binding CalibratingItems}"
+                <ListView ItemsSource="{Binding Calibratings}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
@@ -419,6 +412,11 @@
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
+                                <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
+                                    <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
@@ -437,8 +435,9 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+                <GridSplitter Grid.Row="1" Height="5" />
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                    <TabControl ItemsSource="{Binding SelectedCalibratingItems}" SelectedIndex="0">
+                    <TabControl ItemsSource="{Binding SelectedCalibratingItems}">
                         <i:Interaction.Behaviors>
                             <wpf:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
@@ -456,6 +455,5 @@
                 </Border>
             </Grid>
         </GroupBox>
-        <!--#endregion-->
     </Grid>
 </UserControl>

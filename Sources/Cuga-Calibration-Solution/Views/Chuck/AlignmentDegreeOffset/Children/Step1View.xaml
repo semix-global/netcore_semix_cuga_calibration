@@ -42,11 +42,11 @@
         </hc:UniformSpacingPanel>
         <GridSplitter Grid.Column="1" Width="5" />
         <ListBox Grid.Column="2"
-         HorizontalAlignment="Center"
-         VerticalAlignment="Center"
-         BorderThickness="0"
-         ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
-         SelectionMode="Single">
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 BorderThickness="0"
+                 ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                 SelectionMode="Single">
             <ListBox.ItemsSource>
                 <MultiBinding Converter="{StaticResource MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert}">
                     <Binding Path="CalibrationStatuses" />
@@ -59,8 +59,8 @@
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type status:ProductivityInformationCalibrationStatus}">
                     <TextBlock Text="{Binding SelectedItem}"
-                       Margin="100,5"
-                       FontSize="16">
+                               Margin="100,5"
+                               FontSize="16">
                         <TextBlock.Style>
                             <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
                                 <Style.Triggers>
