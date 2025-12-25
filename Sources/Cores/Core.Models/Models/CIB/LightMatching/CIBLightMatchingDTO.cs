@@ -219,8 +219,8 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                             scatterMarkers.IsVisible = i == 0 || i == silicaSphereCount - 1;
 
                             scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
-                                1,
-                                $"Digital Gain: {i + 1}",
+                                4,
+                                $"Multiplicative Factors: {i + 1}",
                                 [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Result))],
                                 i,
                                 new Range(0, silicaSphereCount - 1),
@@ -407,7 +407,16 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
         private bool _isOk;
 
         [ObservableProperty]
+        private string _rawImageFilePath = string.Empty;
+
+        [ObservableProperty]
         private string _imageFilePath = string.Empty;
+
+        [ObservableProperty]
+        [property: System.Text.Json.Serialization.JsonIgnore]
+        [property: System.Xml.Serialization.XmlIgnore]
+        [property: LiteDB.BsonIgnore]
+        private IReadOnlyList<Point> _histogram = [];
 
         public Item Clone() => new()
         {
@@ -415,6 +424,7 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
             Error = Error,
             Result = Result,
             IsOk = IsOk,
+            RawImageFilePath = RawImageFilePath,
             ImageFilePath = ImageFilePath
         };
     }
