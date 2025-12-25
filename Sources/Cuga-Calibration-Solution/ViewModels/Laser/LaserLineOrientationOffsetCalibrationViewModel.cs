@@ -452,7 +452,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                         AlignmentCacheDarkField.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
                         AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: OpticsIlluminationModeEnum.OI);
+                        opticsIlluminationModeEnum: OpticsIlluminationModeEnum.OI);
                     return true;
                 }
 
@@ -886,7 +886,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         bool GetMatchResult(LineOrientationOffsetItemDto lineOrientationOffsetDto, bool isForward)
         {
             var points = pegTriggerPoint.Select(t => t).ToArray();
-            if (isForward == false) points = [.. points.Reverse()];
+            if (isForward == false) points = [.. points.AsEnumerable().Reverse()];
             var machinePoints = points.Select(t => StageViewModel.DarkFieldToMachinePosition(t)).ToList();
 
             Logger.LogHtmlInformation($"{(isForward ? "Forward" : "Reverse")} Param", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new

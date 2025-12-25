@@ -6,7 +6,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsRelayViewModel}"
-             d:DesignHeight="500"
+             d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
@@ -27,53 +27,50 @@
                 <hc:Shield Subject="Optics Relay Step 3: "
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Optics Illumination Mode: "
+                <hc:Shield Subject="Optics Illumination Mode: "
                            Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Productivity Information: "
+                <hc:Shield Subject="Productivity Information: "
                            Status="{Binding Cache.Item.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Laser Light Information: "
+                <hc:Shield Subject="Laser Light Information: "
                            Status="{Binding Cache.Item.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="CIB Information: "
+                <hc:Shield Subject="CIB Information: "
                            Status="{Binding Cache.Item.CIBInformation}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Grid.Row="2"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:TitleElement.Title="Position(um): "
-                             hc:TitleElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step2CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding Step2CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                 Width="275"
+                                 hc:TitleElement.Title="Position(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step2CalibrateActionCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step2CalibrateActionCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
         </Grid>
+        <GridSplitter Grid.Column="1" Width="5" />
     </Grid>
 </UserControl>

@@ -505,7 +505,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 Cache.WidthPixel
             }), HtmlLogUniqueId.LoggingHtml());
 
-            LaserViewModel.ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum.P);
+            OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
 
             var (isSuccess, gain) = await AutoGainSettingDarkFieldGainViewModel.AutoPmtGainAsync(Cache.LaserLightInformation.Coefficient, Cache.FindPosition, CalChipSiteModelEnum.HazeModel, Cache.ProductivityInformation, HtmlLogUniqueId, cancellationToken, false, Cache.PmtId, Cache.ChannelId).ConfigureAwait(false);
             if ((isSuccess) == false)
@@ -1395,7 +1395,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             async Task<(bool IsSuccess, double Result)> GetPowerAsync(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
             {
-                LaserViewModel.ToggleOpticsPolarizationMode(opticsPolarizationModeEnum);
+                OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                 await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
@@ -1454,7 +1454,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             var temp = SelectReviewItemDto.Clone();
 
-            LaserViewModel.ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum.P);
+            OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
             LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             var prescanDto = AODWaveformProfileFactory.CreatePrescanList(SelectReviewItemDto.PrescanAODWaveformResultList);

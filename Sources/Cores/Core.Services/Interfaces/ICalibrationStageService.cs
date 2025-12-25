@@ -337,6 +337,12 @@ public interface ICalibrationStageService
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation);
 
+    /// <summary>
+    /// 裸硅片晶圆对准
+    /// </summary>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> AlignmentBlankWafer();
+
     #endregion 暗场晶圆对准P5
 
     #region 设置校准

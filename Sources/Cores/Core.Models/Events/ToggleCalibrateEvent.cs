@@ -193,5 +193,4 @@ public static class ToggleCalibrateEventFactory
     {
         return new ValueChangedMessage<ToggleCalibrateEvent>(toggleCalibrateEvent);
     }
-
 }

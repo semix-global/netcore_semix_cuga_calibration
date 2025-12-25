@@ -2,4 +2,4 @@ using Core.Models.Models.Common.Pattern;
 
 namespace Core.Models.Models.Common.Status.Behaviors;
 
-public class ProductivityInformationCalibrationStatusListBoxSelectedItemBehavior : CalibrationStatusListBoxSelectedItemBehavior<ProductivityInformationCalibrationStatus, ProductivityInformation>;
+public sealed class ProductivityInformationCalibrationStatusListBoxSelectedItemBehavior : CalibrationStatusListBoxSelectedItemBehavior<ProductivityInformationCalibrationStatus, ProductivityInformation>;

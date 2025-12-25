@@ -424,6 +424,11 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
             : SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto().AdaptIn(sxExecuteRet.Anything));
     }
 
+    public SxExecuteRet<bool> AlignmentBlankWafer()
+    {
+        throw new NotImplementedException();
+    }
+
     private (bool IsSuccess, string Message) CheckAlignment(AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
         var sxExecuteRetWaferSetting = Invoke(() => Service3?.ReadSystemWaferSetting());

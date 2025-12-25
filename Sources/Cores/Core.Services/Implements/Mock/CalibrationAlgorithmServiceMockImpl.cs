@@ -4,6 +4,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics.LinearAlgebra;
@@ -55,6 +56,11 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     public (double Width, double Height) GetLightQuality(HImage image, Rect roiRect)
     {
         return (Random.Next(100, 1000), Random.Next(100, 1000));
+    }
+
+    public IReadOnlyList<Point> GetHistogram(HImage image, int min, int max)
+    {
+        return image.GetHistogram(min, max);
     }
 
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)

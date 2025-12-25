@@ -25,7 +25,7 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
     public OpticsRelayCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new OpticsRelayCacheItem());
 }
 
-public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
+public sealed partial class OpticsRelayCacheItem : ObservableObject
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;

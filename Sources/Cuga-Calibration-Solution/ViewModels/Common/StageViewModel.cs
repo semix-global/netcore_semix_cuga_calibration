@@ -365,6 +365,13 @@ public sealed partial class StageViewModel(
         return result;
     }
 
+    public void AlignmentBlankWafer()
+    {
+        var ret = calibrationStageService.AlignmentBlankWafer();
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetGantryOffset(double gantryOffset)
     {
         var ret = calibrationStageService.SetGantryOffset(gantryOffset);

@@ -25,4 +25,37 @@ public interface ICalibrationOpticsService
     /// <param name="value">Relay电极位置mm</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
+
+    /// <summary>
+    /// 切换照明OD滤光片
+    /// </summary>
+    /// <param name="isEnable">是否开启</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleODFilter(bool isEnable);
+
+    /// <summary>
+    /// 切换照明切趾
+    /// </summary>
+    /// <returns>偏振</returns>
+    SxExecuteRet<OpticsApodizationModeEnum> GetApodizationMode();
+
+    /// <summary>
+    /// 切换照明切趾
+    /// </summary>
+    /// <param name="opticsApodizationModeEnum">偏振</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetApodizationMode(OpticsApodizationModeEnum opticsApodizationModeEnum);
+
+    /// <summary>
+    /// 切换照明偏振
+    /// </summary>
+    /// <returns>偏振</returns>
+    SxExecuteRet<OpticsPolarizationModeEnum> GetPolarizationMode();
+
+    /// <summary>
+    /// 切换照明偏振
+    /// </summary>
+    /// <param name="opticsPolarizationModeEnum">偏振</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
 }

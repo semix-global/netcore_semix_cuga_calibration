@@ -1,17 +1,17 @@
+using CommunityToolkit.Diagnostics;
 using System.Collections.Concurrent;
 
 namespace Core.Utilities;
 
 public static class ConcurrentBagExtensions
 {
-    public static TValue? Get<TKey, TValue>(
-        this ConcurrentBag<KeyValuePair<TKey, TValue>> list,
-        TKey key)
-        where TKey : notnull
+    extension<TKey, TValue>(ConcurrentBag<KeyValuePair<TKey, TValue>> @this) where TKey : notnull
     {
-        KeyValuePair<TKey, TValue> keyValuePair;
-        return list.TryGetSingle<KeyValuePair<TKey, TValue>>((Func<KeyValuePair<TKey, TValue>, bool>)(t => object.Equals((object)t.Key, (object)(TKey)key)), out keyValuePair)
-            ? keyValuePair.Value
-            : default;
+        public TValue Get(TKey key)
+        {
+            return @this.TryGetSingle((Func<KeyValuePair<TKey, TValue>, bool>)(t => Equals(t.Key, key)), out var keyValuePair)
+                ? keyValuePair.Value
+                : ThrowHelper.ThrowArgumentNullException<TValue>(nameof(key));
+        }
     }
 }

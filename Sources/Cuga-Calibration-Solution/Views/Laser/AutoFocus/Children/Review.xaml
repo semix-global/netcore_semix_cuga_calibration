@@ -42,7 +42,7 @@
                                       Minimum="0"
                                       Maximum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.ReviewThresholdRangeRation}" />
+                                      Value="{Binding Cache.ReviewThresholdRangeRatio}" />
                     <hc:NumericUpDown Width="310"
                                       hc:InfoElement.Title="F Min: "
                                       hc:TitleElement.TitleWidth="180"

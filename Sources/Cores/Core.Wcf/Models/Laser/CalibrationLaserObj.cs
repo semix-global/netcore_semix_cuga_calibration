@@ -87,6 +87,11 @@ public sealed class CalibrationLaserObj
     /// CIB MMD 校准对象列表
     /// </summary>
     public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = Array.Empty<CalibrationLaserCIBMMDItem>();
+
+    /// <summary>
+    /// CIB Light Matching 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBLightMatchingItem[] CalibrationLaserCIBLightMatchingItems { get; set; } = Array.Empty<CalibrationLaserCIBLightMatchingItem>();
 }
 
 /// <summary>
@@ -555,6 +560,69 @@ public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
     /// LogGain 最大值, **需要下发CIB硬件**
     /// </summary>
     public double MaxLogGain { get; set; }
+}
+
+/// <summary>
+/// CIB MMD 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 光学 Apodization
+    /// </summary>
+    public int OpticsApodizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 光学偏振
+    /// </summary>
+    public int OpticsPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 采集偏振
+    /// </summary>
+    public int CollectorPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 校准结果, **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<Item> Items { get; set; }
+
+    /// <summary>
+    /// 每个CIB的校准结果
+    /// </summary>
+    public sealed class Item
+    {
+        /// <summary>
+        /// CIB PMT ID
+        /// </summary>
+        public int PMTId { get; set; }
+
+        /// <summary>
+        /// CIB Channel ID
+        /// </summary>
+        public int ChannelId { get; set; }
+
+        /// <summary>
+        /// 数码增益
+        /// </summary>
+        public double DigitalGainPlusMultiplicativeFactors { get; set; }
+    }
 }
 
 /// <summary>

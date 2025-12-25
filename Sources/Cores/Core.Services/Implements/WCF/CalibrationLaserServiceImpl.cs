@@ -23,7 +23,6 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace Core.Services.Implements.WCF;
 
@@ -177,24 +176,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAODWorkingModeEnum)
     {
         var sxExecuteRet = Invoke(() => Service?.SetAOD_NO(opticsAODWorkingModeEnum.ToOpticsAodWorkingMode()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleOpticsPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetPolarization(opticsPolarizationModeEnum.ToCgPolarizationTypeEnum()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleOpticsODFilter(bool isEnable)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.OD2_0 : CgODEnum.None));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -470,73 +451,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(sxExecuteRet.Anything);
     }
 
-    public async Task<SxExecuteRet<IReadOnlyList<double>>> GetCIBPMTValuesAsync(
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
-        int catchCount,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
-        ProductivityInformation productivityInformation,
-        IReadOnlyList<CIBInformation> cibInformations,
-        bool isAutoFocus,
-        CancellationToken cancellationToken)
-    {
-        SxExecuteRet<List<M2CImgSysCollectImgDTO>> dfImgCalibrationRet;
-
-        try
-        {
-            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<double>>(setWaitTimeRet.ErrorMsg, []);
-
-            dfImgCalibrationRet = Invoke(() => Service?.GetDFImgCalibration(new SxCollectImgParam
-            {
-                Type = SxCollectImgType.Using,
-                Mag = productivityInformation.AdaptTo().Mag,
-                Speed = productivityInformation.AdaptTo().Speed,
-                NIOI = opticsIlluminationModeEnum.ToSxNIOIEnum(),
-                CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
-                CollectMode = SxCollectMode.PW,
-                PMTId = -1,
-                Width = catchCount,
-                StartPoint = [position.ToSxPointD()],
-                IsSingle = true,
-                AF = isAutoFocus ? 0 : 1,
-                IsForward = true,
-                IsCalibration = true, /*为true时不下发波形*/
-                ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
-            }));
-        }
-        finally
-        {
-            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
-            if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
-        }
-
-        if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<double>>(dfImgCalibrationRet.ErrorMsg, []);
-
-        var result = new double[cibInformations.Count];
-
-        await Task.WhenAll(cibInformations.Index().Select(t => Task.Run(() =>
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var (index, cibInformation) = t;
-
-            var m2CImgSysCollectImgDto = dfImgCalibrationRet.Anything.Single(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId);
-            var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
-            var (_, bodyBytesStartIndex, bodyBytesLength) = calibrationAlgorithmService.GetSize(rawBytes);
-            var bodySpan = rawBytes.AsSpan().Slice(Convert.ToInt32(bodyBytesStartIndex), Convert.ToInt32(bodyBytesLength));
-
-            var shorts = MemoryMarshal.Cast<byte, short>(bodySpan);
-
-            double sum = 0;
-            foreach (var v in shorts) sum += v;
-
-            result[index] = sum / shorts.Length;
-        }, cancellationToken)));
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<double>>(result);
-    }
-
     public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
     {
         var pmtRet = Invoke(() => Service?.GetPMTDataALL());
@@ -612,43 +526,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         var sxExecuteRet = Invoke(() => Service?.SendChirp(pmtData, senseData, pmtId, channelId));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetCIBMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits, double maxLogGain)
-    {
-        var logGainMul128Bytes = new List<byte>();
-        foreach (var compArray in logGainMul128U12Bits
-                     .Select(t => (int)t)
-                     .Select(BitConverter.GetBytes))
-        {
-            logGainMul128Bytes.Add(0);
-            logGainMul128Bytes.Add(0);
-            logGainMul128Bytes.Add(compArray[1]);
-            logGainMul128Bytes.Add(compArray[0]);
-        }
-
-        var gainS16BitBytes = new List<byte>();
-        foreach (var compArray in gainS16Bits
-                     .Select(t => (int)t)
-                     .Select(BitConverter.GetBytes))
-        {
-            gainS16BitBytes.Add(0);
-            gainS16BitBytes.Add(0);
-            gainS16BitBytes.Add(compArray[1]);
-            gainS16BitBytes.Add(compArray[0]);
-        }
-
-        var sxExecuteRet = Invoke(() => Service?.SendCIBWave(logGainMul128Bytes, CgCIBWaveType.Sense, cibInformation.PMTId, cibInformation.ChannelId));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
-
-        sxExecuteRet = Invoke(() => Service?.SendCIBWave(gainS16BitBytes, CgCIBWaveType.IG, cibInformation.PMTId, cibInformation.ChannelId));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
-
-        sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.MaxGain, [(Convert.ToInt32(maxLogGain), cibInformation.PMTId, cibInformation.ChannelId)]));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

@@ -98,44 +98,49 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
 
     private void RefreshPlot()
     {
-        ScatterPlotControl.Clear(0);
-        ScatterPlotControl.Clear(1);
-
-        var isNeedRefreshes = new bool[Items.Count];
-
-        foreach (var (index, item) in Items.Index())
+        try
         {
-            if (item.Qualitys.Count <= 0) continue;
+            ScatterPlotControl.Clear(0);
+            ScatterPlotControl.Clear(1);
 
-            ScatterPlotControl.GetOrAddScatterLine(
-                0,
-                $"{item.RelayMotorAbsoluteValue:0.###}mm",
-                [.. item.Qualitys.Select(t => new Point(t.ECS, t.Quality))],
-                index,
-                new Range(0, Items.Count - 1));
+            var isNeedRefreshes = new bool[Items.Count];
 
-            item.MaxItem = item.Qualitys.Maxima(t => t.Quality).First();
+            foreach (var (index, item) in Items.Index())
+            {
+                if (item.Qualitys.Count <= 0) continue;
 
-            isNeedRefreshes[index] = true;
+                ScatterPlotControl.GetOrAddScatterLine(
+                    0,
+                    $"{item.RelayMotorAbsoluteValue:0.###}mm",
+                    [.. item.Qualitys.Select(t => new Point(t.ECS, t.Quality))],
+                    index,
+                    new Range(0, Items.Count - 1));
+
+                item.MaxItem = item.Qualitys.Maxima(t => t.Quality).First();
+
+                isNeedRefreshes[index] = true;
+            }
+
+            if (isNeedRefreshes.All(b => b))
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    "Relay",
+                    [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS))],
+                    Constants.Category10.GetColor(0));
+            }
+
+            if (FitRelayPoints.Count > 0)
+                ScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######}), Ratio = {RelayMotorRatio:0.###}",
+                    FitRelayPoints,
+                    Constants.Category10.GetColor(1));
         }
-
-        if (isNeedRefreshes.All(b => b))
+        finally
         {
-            ScatterPlotControl.GetOrAddScatterLine(
-                1,
-                "Relay",
-                [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS))],
-                Constants.Category10.GetColor(0));
+            ScatterPlotControl.AutoScaleRefresh();
         }
-
-        if (FitRelayPoints.Count > 0)
-            ScatterPlotControl.GetOrAddScatterLine(
-                1,
-                $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######}), Ratio = {RelayMotorRatio:0.###}",
-                FitRelayPoints,
-                Constants.Category10.GetColor(1));
-
-        ScatterPlotControl.AutoScaleRefresh();
     }
 
     #region Mapper
@@ -172,7 +177,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
     #endregion Mapper
 }
 
-public sealed partial class OpticsRelayDTOItem : CalibrationCacheBase, ICloneable<OpticsRelayDTOItem>
+public sealed partial class OpticsRelayDTOItem : ObservableObject, ICloneable<OpticsRelayDTOItem>
 {
     [ObservableProperty]
     private double _relayMotorAbsoluteValue;
@@ -183,33 +188,14 @@ public sealed partial class OpticsRelayDTOItem : CalibrationCacheBase, ICloneabl
     [ObservableProperty]
     private Item? _maxItem;
 
-    partial void OnQualitysChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
-    {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
-
-        foreach (var item in newValue)
-        {
-            item.PropertyChanged -= ItemOnPropertyChanged;
-            item.PropertyChanged += ItemOnPropertyChanged;
-        }
-
-        OnPropertyChanged(nameof(Qualitys));
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Qualitys));
-    }
-
     public OpticsRelayDTOItem Clone() => new()
     {
         RelayMotorAbsoluteValue = RelayMotorAbsoluteValue,
         Qualitys = [.. Qualitys.Select(t => t.Clone())],
-        MaxItem = MaxItem?.Clone(),
-        Id = Id,
-        Expiration = Expiration
+        MaxItem = MaxItem?.Clone()
     };
 
-    public sealed partial class Item : CalibrationCacheBase, ICloneable<Item>
+    public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
         private double _eCS;
