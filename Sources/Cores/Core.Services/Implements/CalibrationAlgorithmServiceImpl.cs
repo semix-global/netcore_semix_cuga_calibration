@@ -85,6 +85,28 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (width.D, height.D);
     }
 
+    public IReadOnlyList<Point> GetHistogram(HImage image, int min, int max)
+    {
+        Guard.IsGreaterThanOrEqualTo(min, 0);
+
+        using var maxHTuple = new HTuple(max);
+        _algorithm.histo(image, maxHTuple, out var histogramHTuple);
+
+        using var _ = histogramHTuple;
+
+        var length = max - 0 + 1;
+        Guard.IsEqualTo(histogramHTuple.DArr.Length, length);
+
+        var results = new Point[length];
+
+        foreach (var (index, value) in Enumerable.Range(0, length).Index())
+        {
+            results[index] = new Point(value, histogramHTuple.DArr[index]);
+        }
+
+        return [..results.Skip(min)];
+    }
+
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)
     {
         _algorithm.CalculatePixSize(image, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);

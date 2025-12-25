@@ -14,6 +14,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using System.IO;
+using Core.Utilities;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements.Mock;
@@ -55,6 +56,11 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     public (double Width, double Height) GetLightQuality(HImage image, Rect roiRect)
     {
         return (Random.Next(100, 1000), Random.Next(100, 1000));
+    }
+
+    public IReadOnlyList<Point> GetHistogram(HImage image, int min, int max)
+    {
+        return image.GetHistogram(min, max);
     }
 
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)

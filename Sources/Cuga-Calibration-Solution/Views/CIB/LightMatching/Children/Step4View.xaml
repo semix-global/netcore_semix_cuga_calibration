@@ -58,6 +58,18 @@
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
+                            <Button Content="Alignment Blank Wafer"
+                                    Command="{Binding AlignmentBlankWaferCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonDefault.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding AlignmentBlankWaferCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
                             <Button Content="Action"
                                     Command="{Binding Step4CalibrateActionCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"

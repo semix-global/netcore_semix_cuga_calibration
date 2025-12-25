@@ -82,9 +82,9 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     }
 
     partial void OnHazeTargetValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
-    
+
     partial void OnSilicaSphereAverageValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
-    
+
     partial void OnSilicaSphereTargetValueChanged(double? value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
@@ -378,10 +378,14 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
         [ObservableProperty]
         private double _error;
 
+        [ObservableProperty]
+        private string _imageFilePath = string.Empty;
+
         public Item Clone() => new()
         {
             Value = Value,
-            Error = Error
+            Error = Error,
+            ImageFilePath = ImageFilePath
         };
     }
 }
