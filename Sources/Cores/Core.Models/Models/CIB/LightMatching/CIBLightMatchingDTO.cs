@@ -149,8 +149,19 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
                         scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                             1,
-                            $"{i + 1}",
+                            $"Error: {i + 1}",
                             [.. hazes.Select(t => new Point(t.PMTId, t.Item.Error))],
+                            i,
+                            new Range(0, hazeCount - 1),
+                            markerShape: MarkerShape.HorizontalBar);
+
+                        SetScatterMarkersStyle(scatterMarkers);
+                        scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
+
+                        scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                            1,
+                            $"Digital Gain: {i + 1}",
+                            [.. hazes.Select(t => new Point(t.PMTId, t.Item.Result))],
                             i,
                             new Range(0, hazeCount - 1),
                             markerShape: MarkerShape.HorizontalBar);
@@ -198,8 +209,19 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
                             scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                                 4,
-                                $"{i + 1}",
+                                $"Error: {i + 1}",
                                 [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Error))],
+                                i,
+                                new Range(0, silicaSphereCount - 1),
+                                markerShape: MarkerShape.HorizontalBar);
+
+                            SetScatterMarkersStyle(scatterMarkers);
+                            scatterMarkers.IsVisible = i == 0 || i == silicaSphereCount - 1;
+
+                            scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
+                                1,
+                                $"Digital Gain: {i + 1}",
+                                [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Result))],
                                 i,
                                 new Range(0, silicaSphereCount - 1),
                                 markerShape: MarkerShape.HorizontalBar);
@@ -242,10 +264,10 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
             });
 
         scatterPlotControl.SetTitle(0, "Haze(Y: Log - X: PMT Id)");
-        scatterPlotControl.SetTitle(1, "Haze Error(Y: Log - X: PMT Id)");
+        scatterPlotControl.SetTitle(1, "Haze Details(Y: Log - X: PMT Id)");
         scatterPlotControl.SetTitle(2, "Haze Result(Y: Digital Gain - X: PMT Id)");
         scatterPlotControl.SetTitle(3, "Silica Spheres(Y: Log - X: PMT Id)");
-        scatterPlotControl.SetTitle(4, "Silica Spheres Error(Y: Log - X: PMT Id)");
+        scatterPlotControl.SetTitle(4, "Silica Spheres Details(Y: Log - X: PMT Id)");
         scatterPlotControl.SetTitle(5, "Silica Spheres Result(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
         scatterPlotControl.ToggleInvisibleLegendItem(0, false);
         scatterPlotControl.ToggleInvisibleLegendItem(1, false);
@@ -379,12 +401,20 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
         private double _error;
 
         [ObservableProperty]
+        private double _result;
+
+        [ObservableProperty]
+        private bool _isOk;
+
+        [ObservableProperty]
         private string _imageFilePath = string.Empty;
 
         public Item Clone() => new()
         {
             Value = Value,
             Error = Error,
+            Result = Result,
+            IsOk = IsOk,
             ImageFilePath = ImageFilePath
         };
     }

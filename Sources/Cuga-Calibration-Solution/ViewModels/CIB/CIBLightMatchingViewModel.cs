@@ -358,7 +358,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
         try
         {
             await Task.Run(() => StageViewModel.AlignmentBlankWafer(), cancellationToken).ConfigureAwait(false);
-            
+
             DialogWindowProvider.ShowDialog($"{Name}: Alignment Blank Success");
         }
         catch (Exception ex)
@@ -410,6 +410,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 {
                     Cache.OpticsIlluminationModeEnum,
                     Cache.ProductivityInformation,
+                    Cache.HazeCalibratingRetryTimes,
+                    Cache.SilicaSphereCalibratingRetryTimes,
+                    Cache.HazeThreshold,
+                    Cache.SilicaSphereThreshold,
+                    Cache.CalibratingHazeThreshold,
+                    Cache.CalibratingSilicaSphereThreshold,
                     Cache.Item.MicroscopeLensInformation,
                     Cache.Item.LaserLightInformation,
                     Cache.Item.HazeFindBFMachinePosition,
@@ -501,19 +507,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 var value = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000);
 
-                                itemItem.HazeItems =
-                                [
-                                    .. itemItem.HazeItems, new CIBLightMatchingDTOItem.Item
-                                    {
-                                        Value = value,
-                                        ImageFilePath = imageFilePath
-                                    }
-                                ];
+                                itemItem.HazeItems = [.. itemItem.HazeItems, new CIBLightMatchingDTOItem.Item { Value = value, ImageFilePath = imageFilePath }];
 
                                 Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                                 {
                                     value,
-                                    Image = new HtmlImage(imageFilePath),
+                                    imageFilePath
                                 }), HtmlLogUniqueId.LoggingHtml());
                             }
 
@@ -539,12 +538,25 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                     cancellationToken.ThrowIfCancellationRequested();
 
                                     itemItem.HazeItems[times].Error = itemItem.HazeItems[times].Value - channelIdAverage;
+                                    if (itemItem.HazeItems[times].IsOk) continue;
 
-                                    var isSuccess = Math.Abs(itemItem.HazeItems[times].Error) <= Cache.CalibratingHazeThreshold;
-                                    resultList.Add(isSuccess);
-                                    if (isSuccess) continue;
+                                    itemItem.HazeItems[times].IsOk = Math.Abs(itemItem.HazeItems[times].Error) <= Cache.CalibratingHazeThreshold;
+                                    resultList.Add(itemItem.HazeItems[times].IsOk);
 
-                                    itemItem.DigitalGain += -itemItem.HazeItems[times].Error;
+                                    if (itemItem.HazeItems[times].IsOk)
+                                    {
+                                        Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                                        {
+                                            itemItem.HazeItems[times].Value,
+                                            itemItem.HazeItems[times].Error,
+                                            Image = new HtmlImage(itemItem.HazeItems[times].ImageFilePath)
+                                        }), HtmlLogUniqueId.LoggingHtml());
+
+                                        continue;
+                                    }
+
+                                    itemItem.HazeItems[times].Result = -itemItem.HazeItems[times].Error;
+                                    itemItem.DigitalGain += itemItem.HazeItems[times].Result;
 
                                     CIBViewModel.SetLightMatching([itemItem.CIBInformation], itemItem.DigitalGain);
                                 }
@@ -643,20 +655,13 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 var histogram = CalibrationAlgorithmService.GetHistogram(darkFieldImage.Image, 100, 0b0000_1111_1111_1111);
                                 var value = HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000);
 
-                                itemItem.SilicaSphereItems =
-                                [
-                                    .. itemItem.SilicaSphereItems, new CIBLightMatchingDTOItem.Item
-                                    {
-                                        Value = value,
-                                        ImageFilePath = imageFilePath
-                                    }
-                                ];
+                                itemItem.SilicaSphereItems = [.. itemItem.SilicaSphereItems, new CIBLightMatchingDTOItem.Item { Value = value, ImageFilePath = imageFilePath }];
 
                                 Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                                 {
                                     value,
-                                    Histogram = new HtmlPlot2DLinesChart([(string.Empty, histogram)], string.Empty),
-                                    Image = new HtmlImage(imageFilePath),
+                                    imageFilePath,
+                                    Histogram = new HtmlPlot2DLinesChart([(string.Empty, histogram)], string.Empty)
                                 }), HtmlLogUniqueId.LoggingHtml());
                             }
 
@@ -694,11 +699,25 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                     itemItem.SilicaSphereItems[times].Error = error;
 
-                                    var isSuccess = Math.Abs(itemItem.SilicaSphereItems[times].Error) <= Cache.CalibratingSilicaSphereThreshold;
-                                    resultList.Add(isSuccess);
-                                    if (isSuccess) continue;
+                                    if (itemItem.SilicaSphereItems[times].IsOk) continue;
 
-                                    itemItem.MultiplicativeFactors += -itemItem.SilicaSphereItems[times].Error;
+                                    itemItem.SilicaSphereItems[times].IsOk = Math.Abs(itemItem.SilicaSphereItems[times].Error) <= Cache.CalibratingSilicaSphereThreshold;
+                                    resultList.Add(itemItem.SilicaSphereItems[times].IsOk);
+
+                                    if (itemItem.SilicaSphereItems[times].IsOk)
+                                    {
+                                        Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                                        {
+                                            itemItem.SilicaSphereItems[times].Value,
+                                            itemItem.SilicaSphereItems[times].Error,
+                                            Image = new HtmlImage(itemItem.SilicaSphereItems[times].ImageFilePath)
+                                        }), HtmlLogUniqueId.LoggingHtml());
+
+                                        continue;
+                                    }
+
+                                    itemItem.SilicaSphereItems[times].Result = -itemItem.SilicaSphereItems[times].Error;
+                                    itemItem.MultiplicativeFactors += itemItem.SilicaSphereItems[times].Result;
 
                                     CIBViewModel.SetLightMatching([itemItem.CIBInformation], itemItem.DigitalGainPlusMultiplicativeFactors);
                                 }
