@@ -87,6 +87,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     private AlignmentCacheDarkField _alignmentCacheDarkField = new();
 
     [ObservableProperty]
+    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+
+    [ObservableProperty]
     private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
 
     [ObservableProperty]
@@ -117,7 +120,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             return false;
         }
 
-        AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
+        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
@@ -129,7 +132,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI? ApplicationCookie.OIOpticsMagTypeProductivityInformations: ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
                 })
         ];
 
@@ -276,6 +279,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     {
         return InvokeCalibrateAsync(() =>
         {
+            AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
+                                          t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
+                                          t.ProductivityInformation == Cache.ProductivityInformation)
+                                      ?? new();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsIlluminationModeEnum,
@@ -331,10 +338,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                         AlignmentCacheDarkField.LowSite2,
                         AlignmentCacheDarkField.HighSite1,
                         AlignmentCacheDarkField.HighSite2,
-                        AlignmentCacheDarkField.HighDarkFieldOpticsMagTypeEnum,
-                        AlignmentCacheDarkField.HighDarkFieldStageSpeedEnum,
+                        Cache.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum);
+                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
                 else
                 {
                     var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;

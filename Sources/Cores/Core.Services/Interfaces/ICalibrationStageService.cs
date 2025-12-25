@@ -286,15 +286,15 @@ public interface ICalibrationStageService
     /// <summary>
     /// 设置标记点1
     /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
+    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// <param name="productivityInformation">产率</param>
     /// <param name="algorithmTemplateSizeEnum">标记的模板尺寸大小</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <param name="laserLightInformation">光强值</param>
     /// <returns>暗场标记点1的坐标和模板</returns>
     SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation);
@@ -302,14 +302,14 @@ public interface ICalibrationStageService
     /// <summary>
     /// 设置标记点2
     /// </summary>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
+    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// <param name="productivityInformation">产率</param>
     /// <param name="site">MarkAlignSite1的返回值</param>
     /// <returns>暗场标记点2的坐标和模板</returns>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         AlignmentSiteDto site,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum);
 
@@ -320,8 +320,8 @@ public interface ICalibrationStageService
     /// <param name="brightFieldLowSite2">低倍镜下手动设置标记点2</param>
     /// <param name="darkFieldHighSite1">暗场标记点1的坐标和模板</param>
     /// <param name="darkFieldHighSite2">暗场标记点2的坐标和模板</param>
-    /// <param name="opticsMagTypeEnum">图片Y像素高度mag类型</param>
-    /// <param name="xStageSpeedEnum">X像素宽度方向线扫描速度</param>
+    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// <param name="productivityInformation">产率</param>
     /// <param name="lowMicroscopeLensInformation">对准使用的低倍镜</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <param name="laserLightInformation">光强值</param>
@@ -331,8 +331,8 @@ public interface ICalibrationStageService
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsMagTypeEnum opticsMagTypeEnum,
-        StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation);

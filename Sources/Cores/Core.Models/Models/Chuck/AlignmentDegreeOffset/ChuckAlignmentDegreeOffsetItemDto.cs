@@ -1,0 +1,57 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
+using Core.Models.Models.Common.Pattern;
+using Core.Wcf.Models.Chuck;
+using Net.Utilities.Mapper.Interfaces;
+
+namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
+
+public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDtoBase, ICloneable<ChuckAlignmentDegreeOffsetItemDto>, IAdaptTo<CalibrationChuckAlignmentDegreeOffsetItem>
+{
+    [ObservableProperty]
+    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
+
+    [ObservableProperty]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private double _brightFieldAlignmentDegree;
+
+    [ObservableProperty]
+    private double _darkFieldAlignmentDegree;
+
+    [ObservableProperty]
+    private double _darkFieldAlignmentVerifyResult;
+
+    public double DegreeOffset => DarkFieldAlignmentDegree - BrightFieldAlignmentDegree;
+
+    #region Mapper
+
+    public ChuckAlignmentDegreeOffsetItemDto Clone() => new()
+    {
+        OpticsIlluminationMode = OpticsIlluminationMode,
+        ProductivityInformation = ProductivityInformation.Clone(),
+        BrightFieldAlignmentDegree = BrightFieldAlignmentDegree,
+        DarkFieldAlignmentDegree = DarkFieldAlignmentDegree,
+        DarkFieldAlignmentVerifyResult = DarkFieldAlignmentVerifyResult,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
+    };
+
+    public CalibrationChuckAlignmentDegreeOffsetItem AdaptTo() => new()
+    {
+        CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
+        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+        DegreeOffset = DegreeOffset,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredCalibrate = IsRequiredSelfCheck
+    };
+
+    #endregion Mapper
+}

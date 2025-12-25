@@ -1,20 +1,40 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentCacheDarkField : AlignmentCacheBase
+public sealed partial class AlignmentCacheDarkField : AlignmentCacheBase, ICloneable<AlignmentCacheDarkField>
 {
     /// <summary>
-    /// 对准高倍率
+    /// HighSite产率
     /// </summary>
     [ObservableProperty]
-    private OpticsMagTypeEnum _highDarkFieldOpticsMagTypeEnum = OpticsMagTypeEnum.High;
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     /// <summary>
-    /// 对准高倍率模板尺寸
+    /// HighSite照明方式(todo:NI方案待定)
     /// </summary>
     [ObservableProperty]
-    private StageSpeedEnum _highDarkFieldStageSpeedEnum = StageSpeedEnum.Low;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;
+
+    public AlignmentCacheDarkField Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
+        LowMag = LowMag.Clone(),
+        LowSizeEnum = LowSizeEnum,
+        HighMag = HighMag.Clone(),
+        HighSizeEnum = HighSizeEnum,
+        LowSite1 = LowSite1.Clone(),
+        LowSite2 = LowSite2.Clone(),
+        HighSite1 = HighSite1.Clone(),
+        HighSite2 = HighSite2.Clone(),
+        Result = Result.Clone(),
+        IsVerified = IsVerified,
+        IsOk = IsOk
+    };
 }
