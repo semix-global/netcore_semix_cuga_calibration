@@ -95,13 +95,13 @@ public sealed class CalibrationAlgorithmServiceImpl(
         using var _ = histogramHTuple;
 
         var length = max - 0 + 1;
-        Guard.IsEqualTo(histogramHTuple.DArr.Length, length);
+        Guard.IsEqualTo(histogramHTuple.Length, length);
 
         var results = new Point[length];
 
         foreach (var (index, value) in Enumerable.Range(0, length).Index())
         {
-            results[index] = new Point(value, histogramHTuple.DArr[index]);
+            results[index] = new Point(value, histogramHTuple[index]);
         }
 
         return [..results.Skip(min)];
