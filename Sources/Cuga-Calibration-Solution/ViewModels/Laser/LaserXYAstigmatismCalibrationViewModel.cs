@@ -361,7 +361,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                 var laserAodDelayItem = LaserAodDelayItemList.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
                 if (laserAodDelayItem is not null && laserAodDelayItem.IsOk)
                 {
-                    var delayTime = Convert.ToInt32(laserAodDelayItem.RefinedChirpAODDelay);
+                    var delayTime = Convert.ToInt32(laserAodDelayItem.ChirpAODDelay);
                     chirpAodDefaultDto.ZeroSampleCount = delayTime;
 
                     IReadOnlyList<ChirpAODWaveformProfile> customZeroAodWaveProfileList = defaultChirpAodWaveProfileLst.Select(t => AODWaveformProfileFactory.CreateChirp(t.OpticsAODElectrodeEnum, t.FilePath, delayTime)).ToList();

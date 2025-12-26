@@ -374,8 +374,8 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                CalibratingItem.MaxItem.PrescanAODDelay,
-                CalibratingItem.MaxItem.ChirpAODDelay,
+                CalibratingItem.PrescanAODDelay,
+                CalibratingItem.ChirpAODDelay,
                 CalibratingItem.MaxItem.PMTValue,
                 CalibratingItem.MaxItem.RawImageFilePath,
                 Image = new HtmlImage(CalibratingItem.MaxItem.ImageFilePath),
@@ -475,8 +475,8 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    selectedReviewItem.MaxItem?.PrescanAODDelay,
-                    selectedReviewItem.MaxItem?.ChirpAODDelay,
+                    selectedReviewItem.PrescanAODDelay,
+                    selectedReviewItem.ChirpAODDelay,
                     selectedReviewItem.MaxItem?.PMTValue,
                     selectedReviewItem.MaxItem?.RawImageFilePath,
                     Image = string.IsNullOrWhiteSpace(selectedReviewItem.MaxItem?.ImageFilePath) ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.") : new HtmlImage(GuardUtils.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),

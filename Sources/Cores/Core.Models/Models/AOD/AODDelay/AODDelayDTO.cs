@@ -25,7 +25,20 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
     private IReadOnlyList<AODDelayDTOItem> _items = [];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PrescanAODDelay), nameof(ChirpAODDelay))]
     private AODDelayDTOItem? _maxItem;
+    
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double PrescanAODDelay => MaxItem is not null && MaxItem.AODDelay <= 0 ? Math.Abs(MaxItem.AODDelay) : 0d;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double ChirpAODDelay => MaxItem is not null && MaxItem.AODDelay >= 0 ? Math.Abs(MaxItem.AODDelay) : 0d;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -104,8 +117,8 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
     public CalibrationLaserAodDelayItem AdaptTo() => new()
     {
         CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        PrescanAodDelayTime = MaxItem?.PrescanAODDelay ?? 0d,
-        ChirpAodDelayTime = MaxItem?.ChirpAODDelay ?? 0d,
+        PrescanAodDelayTime = PrescanAODDelay,
+        ChirpAodDelayTime = ChirpAODDelay,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
