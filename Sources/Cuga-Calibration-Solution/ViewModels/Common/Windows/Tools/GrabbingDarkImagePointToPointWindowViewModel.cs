@@ -97,7 +97,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                         Height = darkFieldImageDto.Height,
                         FilePath = filePath,
                         RawImageFilePath = darkFieldImageDto.RawImageFilePath,
-                        DarkFieldImageList = [.. darkFieldImageDto.ProjectionYs]
+                        DarkFieldImageList = [.. darkFieldImageDto.Image.GetHorizontalProjects()]
                     }));
                 }
             }
@@ -148,7 +148,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                             Height = darkFieldImageDto.Height,
                             FilePath = filePath,
                             RawImageFilePath = darkFieldImageDto.RawImageFilePath,
-                            DarkFieldImageList = [.. darkFieldImageDto.ProjectionYs]
+                            DarkFieldImageList = [.. darkFieldImageDto.Image.GetHorizontalProjects()]
                         });
                     });
                 }

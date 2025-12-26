@@ -259,7 +259,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                         Height = darkFieldImageDto.Height,
                         FilePath = filePath,
                         RawImageFilePath = darkFieldImageDto.RawImageFilePath,
-                        DarkFieldImageList = [.. darkFieldImageDto.ProjectionYs]
+                        DarkFieldImageList = [.. darkFieldImageDto.Image.GetHorizontalProjects()]
                     });
                 }
 

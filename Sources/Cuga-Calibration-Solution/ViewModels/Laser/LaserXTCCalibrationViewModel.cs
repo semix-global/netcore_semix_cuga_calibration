@@ -34,6 +34,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
+using Core.Utilities;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -506,10 +507,10 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             using var _3 = channel3DarkFieldImageDto;
             if (isSuccess == false) return false;
 
-            var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.ProjectionYs));
+            var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.Image.GetHorizontalProjects()));
             item.MaxWindowDarkImageListMinIndex = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
             item.MaxWindowPrescanList = windowPrescanList;
-            item.MaxScatterDarkFieldImageList = [.. channel3DarkFieldImageDto.ProjectionYs];
+            item.MaxScatterDarkFieldImageList = [.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()];
             item.MaxSmoothDarkFieldImageList = [.. sgolayfiltList];
 
             #endregion Max窗口
@@ -526,11 +527,11 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             using var _6 = channel3DarkFieldImageDto;
             if (isSuccess == false) return false;
 
-            sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable([.. channel3DarkFieldImageDto.ProjectionYs]));
+            sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable([.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()]));
 
             item.MinWindowDarkImageListMinIndex = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
             item.MinWindowPrescanList = windowPrescanList;
-            item.MinScatterDarkFieldImageList = [.. channel3DarkFieldImageDto.ProjectionYs];
+            item.MinScatterDarkFieldImageList = [.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()];
             item.MinSmoothDarkFieldImageList = [.. sgolayfiltList];
 
             item.IsReviseDarkFieldImageToPrescan =
@@ -768,14 +769,14 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         laserXTCCalibrationItemDto.Channel3ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{dateTime2String}_Channel3).jpg";
         channel3DarkFieldImageDto.Image.Save(laserXTCCalibrationItemDto.Channel3ImageFilePath);
 
-        laserXTCCalibrationItemDto.Channel1DarkFieldImageProjectionYs = channel1DarkFieldImageDto.ProjectionYs;
-        laserXTCCalibrationItemDto.Channel2DarkFieldImageProjectionYs = channel2DarkFieldImageDto.ProjectionYs;
-        laserXTCCalibrationItemDto.Channel3DarkFieldImageProjectionYs = channel3DarkFieldImageDto.ProjectionYs;
-        var sgolayfiltList1 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel1DarkFieldImageDto.ProjectionYs));
+        laserXTCCalibrationItemDto.Channel1DarkFieldImageProjectionYs =[.. channel1DarkFieldImageDto.Image.GetHorizontalProjects()];
+        laserXTCCalibrationItemDto.Channel2DarkFieldImageProjectionYs =[.. channel2DarkFieldImageDto.Image.GetHorizontalProjects()];
+        laserXTCCalibrationItemDto.Channel3DarkFieldImageProjectionYs =[.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()];
+        var sgolayfiltList1 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel1DarkFieldImageDto.Image.GetHorizontalProjects()));
         var darkChannel1DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList1.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
-        var sgolayfiltList2 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel2DarkFieldImageDto.ProjectionYs));
+        var sgolayfiltList2 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel2DarkFieldImageDto.Image.GetHorizontalProjects()));
         var darkChannel2DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList2.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
-        var sgolayfiltList3 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.ProjectionYs));
+        var sgolayfiltList3 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.Image.GetHorizontalProjects()));
         var darkChannel3DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList3.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
 
         Logger.LogHtmlInformation($"{laserXTCCalibrationItemDto.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new

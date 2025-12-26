@@ -18,6 +18,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using System.IO;
+using Core.Utilities;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements;
@@ -98,7 +99,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public double GetYPixelSize(DarkFieldImageDto image, double standardMaskSquareYSize)
     {
-        var y = image.ProjectionYs;
+        var y = image.Image.GetHorizontalProjects();
 
         // 使用AMPD算法找出波峰
         var signal = Vector<double>.Build.DenseOfEnumerable(y.Select(t => -t));

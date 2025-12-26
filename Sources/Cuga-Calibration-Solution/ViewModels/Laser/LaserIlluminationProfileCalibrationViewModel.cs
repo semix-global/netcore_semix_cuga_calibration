@@ -41,6 +41,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+using Core.Utilities;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -633,7 +634,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             if (item.IsReviseDarkFieldImageToPrescan)
             {
-                var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.ProjectionYs.AsEnumerable().Reverse()));
+                var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.Image.GetHorizontalProjects().AsEnumerable().Reverse()));
                 item.T1 = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
             }
             else
@@ -672,19 +673,19 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             void GetMaxWindowScanImage(LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem item, DarkFieldImageDto darkFieldImageDto)
             {
-                var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(darkFieldImageDto.ProjectionYs));
+                var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(darkFieldImageDto.Image.GetHorizontalProjects()));
                 item.MaxWindowDarkImageListMinIndex = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
                 item.MaxWindowPrescanList = windowPrescanList;
-                item.MaxScatterDarkFieldImageList = [.. darkFieldImageDto.ProjectionYs];
+                item.MaxScatterDarkFieldImageList = [.. darkFieldImageDto.Image.GetHorizontalProjects()];
                 item.MaxSmoothDarkFieldImageList = [.. sgolayfiltList];
             }
 
             void GetMinWindowScanImage(LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem item, DarkFieldImageDto darkFieldImageDto)
             {
-                var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(darkFieldImageDto.ProjectionYs));
+                var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(darkFieldImageDto.Image.GetHorizontalProjects()));
                 item.MinWindowDarkImageListMinIndex = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
                 item.MinWindowPrescanList = windowPrescanList;
-                item.MinScatterDarkFieldImageList = [.. darkFieldImageDto.ProjectionYs];
+                item.MinScatterDarkFieldImageList = [.. darkFieldImageDto.Image.GetHorizontalProjects()];
                 item.MinSmoothDarkFieldImageList = [.. sgolayfiltList];
             }
 
@@ -823,7 +824,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<DarkFieldImageDto>(nameof(Cache.ChannelId))
             };
             //是否需要进行反转
-            var projectionYs = itemCache.IsReviseDarkFieldImageToPrescan ? darkFieldImageDto.ProjectionYs.AsEnumerable().Reverse() : darkFieldImageDto.ProjectionYs;
+            var projectionYs = itemCache.IsReviseDarkFieldImageToPrescan ? darkFieldImageDto.Image.GetHorizontalProjects().AsEnumerable().Reverse() : darkFieldImageDto.Image.GetHorizontalProjects();
             var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(projectionYs));
             itemCache.WaveFormVDarkFieldImageList = [.. projectionYs];
             itemCache.WaveFormVSmoothDarkFieldImageList = [.. sgolayfiltList];
@@ -1078,9 +1079,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
                 if (isSuccess == false) return false;
                 var darkFieldImageList = new List<double>();
-                if (Cache.ChannelId == 1) darkFieldImageList = Cache.GetDarkFieldImageList([.. channel1DarkFieldImageDto.ProjectionYs]);
-                if (Cache.ChannelId == 2) darkFieldImageList = Cache.GetDarkFieldImageList([.. channel2DarkFieldImageDto.ProjectionYs]);
-                if (Cache.ChannelId == 3) darkFieldImageList = Cache.GetDarkFieldImageList([.. channel3DarkFieldImageDto.ProjectionYs]);
+                if (Cache.ChannelId == 1) darkFieldImageList = Cache.GetDarkFieldImageList([.. channel1DarkFieldImageDto.Image.GetHorizontalProjects()]);
+                if (Cache.ChannelId == 2) darkFieldImageList = Cache.GetDarkFieldImageList([.. channel2DarkFieldImageDto.Image.GetHorizontalProjects()]);
+                if (Cache.ChannelId == 3) darkFieldImageList = Cache.GetDarkFieldImageList([.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()]);
 
                 var servingToDarkFieldImageListAverages = darkFieldImageListToPrescanListCacheItem.ServingToDarkFieldImageListIndicesList
                     .Select(t => t.Average(tt => darkFieldImageList[tt]))
@@ -1519,10 +1520,10 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         if (isSuccess == false) return false;
 
         var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-        laserIlluminationProfileItemDto.Channel1DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel1DarkFieldImageDto.ProjectionYs]);
+        laserIlluminationProfileItemDto.Channel1DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel1DarkFieldImageDto.Image.GetHorizontalProjects()]);
         laserIlluminationProfileItemDto.Channel1ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel1_{laserIlluminationProfileItemDto.Index}).jpg";
         channel1DarkFieldImageDto.Image.Save(laserIlluminationProfileItemDto.Channel1ImageFilePath);
-        laserIlluminationProfileItemDto.Channel2DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel2DarkFieldImageDto.ProjectionYs]);
+        laserIlluminationProfileItemDto.Channel2DarkFieldImageList = Cache.GetDarkFieldImageList([.. channel2DarkFieldImageDto.Image.GetHorizontalProjects()]);
         laserIlluminationProfileItemDto.Channel2ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel2_{laserIlluminationProfileItemDto.Index}).jpg";
         channel2DarkFieldImageDto.Image.Save(laserIlluminationProfileItemDto.Channel2ImageFilePath);
         laserIlluminationProfileItemDto.Channel3ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{middleFileDateTimeFormat}_PmtId_{pmtCacheItem.PmtId}_Channel3_{laserIlluminationProfileItemDto.Index}).jpg";
@@ -1530,9 +1531,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         //是否需要进行反转
         if (Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan)
         {
-            channel1DarkFieldImageDto.ProjectionYs.Reverse();
-            channel2DarkFieldImageDto.ProjectionYs.Reverse();
-            channel3DarkFieldImageDto.ProjectionYs.Reverse();
+            channel1DarkFieldImageDto.Image.GetHorizontalProjects().Reverse();
+            channel2DarkFieldImageDto.Image.GetHorizontalProjects().Reverse();
+            channel3DarkFieldImageDto.Image.GetHorizontalProjects().Reverse();
         }
 
         Logger.LogHtmlInformation($"PmtId: {pmtCacheItem.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
@@ -1545,9 +1546,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             pmtCacheItem.PmtIdPosition,
             pmtCacheItem.Gain,
             DarkFieldImageList = new HtmlPlot2DLinesChart([
-                ("ch1", channel1DarkFieldImageDto.ProjectionYs.ToPoints()),
-                ("ch2", channel2DarkFieldImageDto.ProjectionYs.ToPoints()),
-                ("ch3", channel3DarkFieldImageDto.ProjectionYs.ToPoints())
+                ("ch1", channel1DarkFieldImageDto.Image.GetHorizontalProjects().ToPoints()),
+                ("ch2", channel2DarkFieldImageDto.Image.GetHorizontalProjects().ToPoints()),
+                ("ch3", channel3DarkFieldImageDto.Image.GetHorizontalProjects().ToPoints())
             ], "DarkFieldImageList"),
             HtmlTab = new HtmlTab(new
             {
@@ -1567,9 +1568,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
         List<double> channelProjectionYsList = Cache.ChannelId switch
         {
-            1 => [.. channel1DarkFieldImageDto.ProjectionYs],
-            2 => [.. channel2DarkFieldImageDto.ProjectionYs],
-            3 => [.. channel3DarkFieldImageDto.ProjectionYs],
+            1 => [.. channel1DarkFieldImageDto.Image.GetHorizontalProjects()],
+            2 => [.. channel2DarkFieldImageDto.Image.GetHorizontalProjects()],
+            3 => [.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()],
             _ => throw new ArgumentOutOfRangeException()
         };
 
