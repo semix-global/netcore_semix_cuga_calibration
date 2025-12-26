@@ -9,7 +9,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             xmlns:aodDelay="clr-namespace:Core.Models.Models.AOD.AODDelay;assembly=Core.Models"
+             xmlns:aodDelay="clr-namespace:Core.Models.Models.AOD.Delay;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"

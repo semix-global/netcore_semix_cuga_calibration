@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;

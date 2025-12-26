@@ -1,14 +1,14 @@
+using System.Collections.Concurrent;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Models.Geometries;
-using System.Collections.Concurrent;
-using Core.Models.Enums.Optics;
 using Net.Utilities.Models.Enums.Maths;
+using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.AOD.AODAlignment;
+namespace Core.Models.Models.AOD.Alignment;
 
 public sealed partial class AODAlignmentCache : CalibrationCacheBase
 {

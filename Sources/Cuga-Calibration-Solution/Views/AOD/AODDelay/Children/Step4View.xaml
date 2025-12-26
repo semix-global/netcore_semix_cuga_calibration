@@ -8,7 +8,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             xmlns:aodDelay="clr-namespace:Core.Models.Models.AOD.AODDelay;assembly=Core.Models"
+             xmlns:aodDelay="clr-namespace:Core.Models.Models.AOD.Delay;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"

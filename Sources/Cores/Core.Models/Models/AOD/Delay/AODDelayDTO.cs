@@ -11,7 +11,7 @@ using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 
-namespace Core.Models.Models.AOD.AODDelay;
+namespace Core.Models.Models.AOD.Delay;
 
 public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
@@ -27,7 +27,7 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PrescanAODDelay), nameof(ChirpAODDelay))]
     private AODDelayDTOItem? _maxItem;
-    
+
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]

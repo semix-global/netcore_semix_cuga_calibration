@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.AOD.AODAlignment;
+using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;

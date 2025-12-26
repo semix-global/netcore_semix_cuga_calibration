@@ -3,7 +3,7 @@ using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.AOD.AODAlignment;
+using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;

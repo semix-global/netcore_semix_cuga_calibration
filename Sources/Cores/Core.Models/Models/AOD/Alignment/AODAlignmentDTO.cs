@@ -15,7 +15,7 @@ using ScottPlot.MultiplotLayouts;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 
-namespace Core.Models.Models.AOD.AODAlignment;
+namespace Core.Models.Models.AOD.Alignment;
 
 public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AODAlignmentDTO>
 {

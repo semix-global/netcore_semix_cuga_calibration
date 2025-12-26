@@ -1,12 +1,12 @@
+using System.Collections.Concurrent;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using System.Collections.Concurrent;
 
-namespace Core.Models.Models.AOD.AODDelay;
+namespace Core.Models.Models.AOD.Delay;
 
 public sealed partial class AODDelayCache : CalibrationCacheBase
 {
