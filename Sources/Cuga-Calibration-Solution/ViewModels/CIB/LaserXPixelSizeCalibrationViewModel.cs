@@ -32,8 +32,8 @@ using Core.Models.Models.CIB.XPixelSize;
 
 namespace CugaCalibration.ViewModels.CIB;
 
-[IOCAppService(ServiceType = typeof(CIBXPixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(CIBXPixelSizeViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -56,7 +56,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
     #region Calibrate
 
     [ObservableProperty]
-    private CIBXPixelSizeItemDTO _calibratingItem = new();
+    private CIBXPixelSizeDTO _calibratingItem = new();
 
     [ObservableProperty]
     private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
@@ -66,10 +66,10 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXPixelSizeItemDTO> _reviews = [];
+    private IReadOnlyList<CIBXPixelSizeDTO> _reviews = [];
 
     [ObservableProperty]
-    private List<CIBXPixelSizeItemDTO> _selectedReviewItems = [];
+    private List<CIBXPixelSizeDTO> _selectedReviewItems = [];
 
     #endregion Review
 
@@ -99,7 +99,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
     private CIBXPixelSizeCache _cache = new();
 
     [ObservableProperty]
-    private CIBXPixelSizeItemDTO[] _calibrations = [];
+    private CIBXPixelSizeDTO[] _calibrations = [];
 
     #endregion 缓存
 
@@ -132,7 +132,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBXPixelSizeCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBXPixelSizeItemDTO>();
+        Calibrations = CacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>();
 
         Calibrations =
         [
@@ -218,7 +218,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
                 return true;
 
             case 1:
-                CalibratingItem = new CIBXPixelSizeItemDTO();
+                CalibratingItem = new CIBXPixelSizeDTO();
 
                 return true;
 
@@ -548,12 +548,12 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
                 totalCount
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var items = new CIBXPixelSizeItemDTOSlideItem[totalCount];
+            var itemItems = new CIBXPixelSizeItem[totalCount];
 
             #region Channel
 
             using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
-            var channel = Channel.CreateBounded<CIBXPixelSizeItemDTOSlideItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
+            var channel = Channel.CreateBounded<CIBXPixelSizeItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
 
             #region Reader
 
@@ -563,14 +563,14 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
             var channelReaderTask = Task.Run(async () =>
             {
                 var index = 0;
-                await foreach (var item in channel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
+                await foreach (var itemItem in channel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
                 {
                     try
                     {
                         await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
                         tasks[index] = ResolveCIBXPixelSizeSlideItemAsync(
-                            item,
+                            itemItem,
                             templateId,
                             templateImageSize,
                             detectImageDirectory,
@@ -596,7 +596,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
                          .Range(0, totalCount)
                          .Select(t => (long)t * windowStepAllPixelByteLength).Index())
             {
-                items[index] = GetCIBXPixelSizeSlideItem(
+                itemItems[index] = GetCIBXPixelSizeSlideItem(
                     pointer,
                     windowImageAllPixelByteLength,
                     fileSteam,
@@ -606,7 +606,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
                     heightPixel,
                     heightPixelByteLength);
 
-                await channel.Writer.WriteAsync(items[index], cancellationToken).ConfigureAwait(false);
+                await channel.Writer.WriteAsync(itemItems[index], cancellationToken).ConfigureAwait(false);
             }
 
             channel.Writer.Complete();
@@ -618,7 +618,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
             await channelReaderTask.ConfigureAwait(false);
             await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            CalibratingItem.SlideItems = [.. items];
+            CalibratingItem.SlideItems = [.. itemItems];
 
             var matchPoints = CalibratingItem.SlideItems.Where(t => t.IsMatchOk).Select(t => t.MatchPoint).ToArray();
 
@@ -776,7 +776,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
 
                 Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
 
-                var verifyItems = new CIBXPixelSizeItemDTOSlideItem[imageCount];
+                var verifyItemItems = new CIBXPixelSizeItem[imageCount];
                 foreach (var (index, pointer) in Enumerable
                              .Range(0, imageCount)
                              .Select(t => t * verifyStepAllPixelByteLength)
@@ -784,7 +784,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
                              .Select(pointer => pointer - pointer % heightPixelByteLength) // verifyStepAllPixelByteLength是double, 不是整数倍, 需要对齐
                              .Index())
                 {
-                    verifyItems[index] = GetCIBXPixelSizeSlideItem(
+                    verifyItemItems[index] = GetCIBXPixelSizeSlideItem(
                         pointer,
                         imageAllPixelByteLength,
                         fileSteam,
@@ -795,7 +795,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
                         heightPixelByteLength);
 
                     await ResolveCIBXPixelSizeSlideItemAsync(
-                        verifyItems[index],
+                        verifyItemItems[index],
                         templateId,
                         templateImageSize,
                         detectImageDirectory,
@@ -803,10 +803,10 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
                         cancellationToken,
                         false).ConfigureAwait(false);
 
-                    if (verifyItems[index].IsMatchOk == false) return false;
+                    if (verifyItemItems[index].IsMatchOk == false) return false;
                 }
 
-                selectedReviewItem.VerifyItems = [.. verifyItems];
+                selectedReviewItem.VerifyItems = [.. verifyItemItems];
 
                 var verifyXDifferences = selectedReviewItem.VerifyItems
                     .Zip(selectedReviewItem.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
@@ -858,7 +858,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
         }).ConfigureAwait(false);
     }
 
-    private bool Save(IReadOnlyList<CIBXPixelSizeItemDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<CIBXPixelSizeDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
 
@@ -882,7 +882,7 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
 
     #region Item
 
-    private CIBXPixelSizeItemDTOSlideItem GetCIBXPixelSizeSlideItem(
+    private CIBXPixelSizeItem GetCIBXPixelSizeSlideItem(
         long pointer,
         int allPixelByteLength,
         FileStream fileSteam,
@@ -907,13 +907,11 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
         fileSteam.Seek(bodyBytesStartIndex + pointer, SeekOrigin.Begin);
         Guard.IsEqualTo(binaryReader.Read(buffer, 0, currentImageAllPixelByteLength), currentImageAllPixelByteLength);
 
-        var item = new CIBXPixelSizeItemDTOSlideItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
-
-        return item;
+        return new CIBXPixelSizeItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
     }
 
     private async Task ResolveCIBXPixelSizeSlideItemAsync(
-        CIBXPixelSizeItemDTOSlideItem item,
+        CIBXPixelSizeItem itemItem,
         HTuple templateId,
         Size templateImageSize,
         string detectImageDirectory,
@@ -921,9 +919,9 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
         CancellationToken cancellationToken,
         bool isOkLog = true)
     {
-        var startPixel = item.StartPixel;
-        var buffer = item.Buffer;
-        var sizeI = item.SizeI;
+        var startPixel = itemItem.StartPixel;
+        var buffer = itemItem.Buffer;
+        var sizeI = itemItem.SizeI;
 
         try
         {
@@ -933,33 +931,33 @@ public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewM
 
             var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, image, templateId, out var matchPoint, out _, out var score, out _);
 
-            item.IsMatchOk = isMathOk;
-            item.MatchPoint = new Point(item.IsMatchOk ? startPixel + matchPoint.X : startPixel, matchPoint.Y);
-            item.Score = score;
+            itemItem.IsMatchOk = isMathOk;
+            itemItem.MatchPoint = new Point(itemItem.IsMatchOk ? startPixel + matchPoint.X : startPixel, matchPoint.Y);
+            itemItem.Score = score;
 
-            if (isOkLog == false || item.IsMatchOk)
+            if (isOkLog == false || itemItem.IsMatchOk)
             {
-                var title = item.IsMatchOk ? $"{item.MatchPoint.X:0.###}px" : $"{startPixel}px";
+                var title = itemItem.IsMatchOk ? $"{itemItem.MatchPoint.X:0.###}px" : $"{startPixel}px";
 
-                item.ImageFilePath = Path.Combine(detectImageDirectory, Path.GetFileNameWithoutExtension(Cache.Item.TemplateImageFilePath), $"{startPixel}_{Guid.NewGuid():N}.jpg");
-                image.Save(item.ImageFilePath);
+                itemItem.ImageFilePath = Path.Combine(detectImageDirectory, Path.GetFileNameWithoutExtension(Cache.Item.TemplateImageFilePath), $"{startPixel}_{Guid.NewGuid():N}.jpg");
+                image.Save(itemItem.ImageFilePath);
 
                 var bullet = new HtmlBullet(new
                 {
                     currentMatchPoint = matchPoint,
-                    item.StartPixel,
-                    item.SizeI,
-                    item.MatchPoint,
-                    item.Score,
-                    DeltaOfCenter = (item.StartPixel + item.SizeI.Width / 2d) - item.MatchPoint.X,
+                    itemItem.StartPixel,
+                    itemItem.SizeI,
+                    itemItem.MatchPoint,
+                    itemItem.Score,
+                    DeltaOfCenter = (itemItem.StartPixel + itemItem.SizeI.Width / 2d) - itemItem.MatchPoint.X,
                     HtmlTab = new HtmlTab(new
                     {
-                        OriginImage = new HtmlImage(item.ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint, templateImageSize), new HtmlImageRectangleOverlay(matchPoint, templateImageSize)]),
+                        OriginImage = new HtmlImage(itemItem.ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint, templateImageSize), new HtmlImageRectangleOverlay(matchPoint, templateImageSize)]),
                         TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 });
 
-                if (item.IsMatchOk)
+                if (itemItem.IsMatchOk)
                     Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header6, bullet, HtmlLogUniqueId.LoggingHtml());
                 else
                     Logger.LogHtmlError(title, HtmlHeaderLevelEnum.Header6, bullet, HtmlLogUniqueId.LoggingHtml());

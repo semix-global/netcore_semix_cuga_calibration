@@ -9,7 +9,7 @@
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">

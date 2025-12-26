@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.CIB.XPixelSize.CIBXPixelSizeCalibrationUserControl"
+﻿<UserControl x:Class="CugaCalibration.Views.CIB.XPixelSize.CIBXPixelSizeUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,7 +9,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:children="clr-namespace:CugaCalibration.Views.CIB.XPixelSize.Children"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
-             d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeViewModel}"
              d:DesignHeight="900"
              d:DesignWidth="1920"
              mc:Ignorable="d">

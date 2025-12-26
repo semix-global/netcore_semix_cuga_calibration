@@ -115,7 +115,7 @@
             </hc:UniformSpacingPanel>
         </Border>
         <Border Grid.Column="2">
-            <xPixelSize:CIBXPixelSizeCalibrationUserControl />
+            <xPixelSize:CIBXPixelSizeUserControl />
         </Border>
     </Grid>
 </hc:Window>

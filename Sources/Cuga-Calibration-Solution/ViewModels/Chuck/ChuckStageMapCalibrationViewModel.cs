@@ -130,7 +130,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private LaserLineCentricityItemDto[] _laserLineCentricityItems = [];
 
     [ObservableProperty]
-    private CIBXPixelSizeItemDTO[] _cIBXPixelSizeItems = [];
+    private CIBXPixelSizeDTO[] _cIBXPixelSizeItems = [];
 
     #endregion 缓存
 
@@ -242,7 +242,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBXPixelSizeItemDTO>(out var laserXPixelSizeItems, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBXPixelSizeDTO>(out var laserXPixelSizeItems, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

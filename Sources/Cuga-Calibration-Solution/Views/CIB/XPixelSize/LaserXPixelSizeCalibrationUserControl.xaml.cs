@@ -4,11 +4,11 @@ using Net.Utilities.Enums;
 
 namespace CugaCalibration.Views.CIB.XPixelSize;
 
-[IOCAppService(ServiceType = typeof(CIBXPixelSizeCalibrationUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBXPixelSizeCalibrationUserControl
+[IOCAppService(ServiceType = typeof(CIBXPixelSizeUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CIBXPixelSizeUserControl
 {
     [Permission]
-    public CIBXPixelSizeCalibrationUserControl()
+    public CIBXPixelSizeUserControl()
     {
         InitializeComponent();
     }

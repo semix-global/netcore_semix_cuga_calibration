@@ -1042,7 +1042,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         bool isAutoFocus = true)
     {
-        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeItemDTO>()
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
             .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
                                   && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum);
         if (xSize is null || xSize.IsOk == false) ThrowHelper.ThrowArgumentException("Invalid Laser X Pixel Size Item");
@@ -1108,7 +1108,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         bool isAutoFocus = true)
     {
-        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeItemDTO>()
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
             .SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize is null || xSize.IsOk == false) ThrowHelper.ThrowArgumentException("Invalid Laser X Pixel Size Item");
 
@@ -1315,7 +1315,7 @@ public sealed class LaserViewModel(
             return false;
         }
 
-        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeItemDTO>()
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
             .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
                                   && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum);
         if (xSize is null || xSize.IsOk == false)
@@ -1476,7 +1476,7 @@ public sealed class LaserViewModel(
             return false;
         }
 
-        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeItemDTO>().SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize is null || xSize.IsOk == false)
         {
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser X Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());

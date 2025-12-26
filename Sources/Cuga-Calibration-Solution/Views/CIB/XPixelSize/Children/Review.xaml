@@ -10,7 +10,7 @@
              xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
              mc:Ignorable="d">

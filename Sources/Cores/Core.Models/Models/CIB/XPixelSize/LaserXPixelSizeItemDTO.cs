@@ -8,7 +8,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.CIB.XPixelSize;
 
-public sealed partial class CIBXPixelSizeItemDTO : CalibrationDtoBase, ICloneable<CIBXPixelSizeItemDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
+public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
@@ -30,14 +30,14 @@ public sealed partial class CIBXPixelSizeItemDTO : CalibrationDtoBase, ICloneabl
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SlideItemPoints))]
-    private IReadOnlyList<CIBXPixelSizeItemDTOSlideItem> _slideItems = [];
+    private IReadOnlyList<CIBXPixelSizeItem> _slideItems = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _slideSplitDifferences = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
-    private IReadOnlyList<CIBXPixelSizeItemDTOSlideItem> _verifyItems = [];
+    private IReadOnlyList<CIBXPixelSizeItem> _verifyItems = [];
 
     [ObservableProperty]
     private string _verifyRawImageFilePath = string.Empty;
@@ -59,7 +59,7 @@ public sealed partial class CIBXPixelSizeItemDTO : CalibrationDtoBase, ICloneabl
 
     #region Mapper
 
-    public CIBXPixelSizeItemDTO Clone() => new()
+    public CIBXPixelSizeDTO Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
@@ -91,7 +91,7 @@ public sealed partial class CIBXPixelSizeItemDTO : CalibrationDtoBase, ICloneabl
     #endregion Mapper
 }
 
-public sealed class CIBXPixelSizeItemDTOSlideItem
+public sealed class CIBXPixelSizeItem
 {
     public long StartPixel { get; init; }
 

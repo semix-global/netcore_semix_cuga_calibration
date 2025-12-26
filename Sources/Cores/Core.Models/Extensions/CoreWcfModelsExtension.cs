@@ -485,7 +485,7 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this CIBXPixelSizeItemDTO[] result, out string errorMessage)
+    public static bool IsOk(this CIBXPixelSizeDTO[] result, out string errorMessage)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
