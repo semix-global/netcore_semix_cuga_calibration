@@ -10,8 +10,8 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeViewModel}"
-             d:DesignHeight="800"
-             d:DesignWidth="800"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>

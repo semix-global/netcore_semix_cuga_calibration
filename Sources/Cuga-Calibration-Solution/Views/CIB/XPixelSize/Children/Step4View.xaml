@@ -9,8 +9,8 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeViewModel}"
-             d:DesignHeight="800"
-             d:DesignWidth="800"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>

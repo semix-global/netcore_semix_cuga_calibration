@@ -10,8 +10,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
              d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
-             d:DesignHeight="900"
              d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
