@@ -146,6 +146,11 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     {
         try
         {
+            ScatterPlotControl.Clear(2);
+            ScatterPlotControl.Clear(3);
+            ScatterPlotControl.Clear(4);
+            ScatterPlotControl.Clear(5);
+
             if (Items.Count > 0)
             {
                 ScatterPlotControl.GetOrAddScatterMarkers(
@@ -172,30 +177,29 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 
             if (OriginLogGainPoints.Count > 0)
             {
-                ScatterPlotControl.Clear(3);
                 ScatterPlotControl.GetOrAddScatterLine(
                     3,
                     $"Origin Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                     OriginLogGainPoints,
                     Constants.Category10.GetColor(0));
+            }
 
-                if (FitLogGainPoints.Count > 0)
-                {
-                    ScatterPlotControl.GetOrAddScatterLine(
-                        3,
-                        $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
-                        FitLogGainPoints,
-                        Constants.Category10.GetColor(1));
-                }
+            if (FitLogGainPoints.Count > 0)
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    3,
+                    $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
+                    FitLogGainPoints,
+                    Constants.Category10.GetColor(1));
+            }
 
-                if (ResultLogGainPoints.Count > 0)
-                {
-                    ScatterPlotControl.GetOrAddScatterLine(
-                        3,
-                        $"Result Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                        ResultLogGainPoints,
-                        Constants.Category10.GetColor(2));
-                }
+            if (ResultLogGainPoints.Count > 0)
+            {
+                ScatterPlotControl.GetOrAddScatterLine(
+                    3,
+                    $"Result Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                    ResultLogGainPoints,
+                    Constants.Category10.GetColor(2));
             }
 
             if (LogGainMul128U12BitPoints.Count > 0)

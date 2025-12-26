@@ -372,7 +372,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
                 Cache.MinLogGain,
-                Table = new HtmlTable([.. Cache.GainConfigurations])
+                Table = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations]))
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
@@ -662,7 +662,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
                 Cache.MinLogGain,
-                Table = new HtmlTable([.. Cache.GainConfigurations])
+                Table = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations]))
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -739,6 +739,20 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         try
         {
+            cibMMDDto.GainRSquared = 0d;
+            cibMMDDto.GainResidual = 0d;
+            cibMMDDto.GainPoints = [];
+            cibMMDDto.OriginLogGainPoints = [];
+            cibMMDDto.LogGainA1 = 0d;
+            cibMMDDto.LogGainA2 = 0d;
+            cibMMDDto.LogGainX0 = 0d;
+            cibMMDDto.LogGainDx = 0d;
+            cibMMDDto.LogGainRSquared = 0d;
+            cibMMDDto.FitLogGainPoints = [];
+            cibMMDDto.ResultLogGainPoints = [];
+            cibMMDDto.LogGainMul128U12BitPoints = [];
+            cibMMDDto.GainS16BitPoints = [];
+
             var gains = (IReadOnlyList<double>)[.. cibMMDDto.Items[0].Items.Select(t => t.Gain)];
             var gainConfigurations = (IReadOnlyList<CIBMMDCache.GainConfiguration>)
             [
@@ -863,7 +877,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             isSuccess = cibMMDDto.ResultLogGainPoints.All(t => t.Y is >= 0 and <= 14) && cibMMDDto.ResultLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
             if (isSuccess == false)
             {
-                htmlList.Add(new HtmlComment("LogGain out of range[0, 14]"));
+                ThrowHelper.ThrowArgumentException("LogGain out of range[0, 14]", nameof(cibMMDDto));
 
                 return;
             }
