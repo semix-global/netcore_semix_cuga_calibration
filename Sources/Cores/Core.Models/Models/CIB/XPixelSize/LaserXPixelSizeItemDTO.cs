@@ -6,9 +6,9 @@ using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Laser.XPixelSize;
+namespace Core.Models.Models.CIB.XPixelSize;
 
-public sealed partial class LaserXPixelSizeItemDTO : CalibrationDtoBase, ICloneable<LaserXPixelSizeItemDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
+public sealed partial class CIBXPixelSizeItemDTO : CalibrationDtoBase, ICloneable<CIBXPixelSizeItemDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
@@ -30,14 +30,14 @@ public sealed partial class LaserXPixelSizeItemDTO : CalibrationDtoBase, IClonea
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SlideItemPoints))]
-    private IReadOnlyList<LaserXPixelSizeItemDTOSlideItem> _slideItems = [];
+    private IReadOnlyList<CIBXPixelSizeItemDTOSlideItem> _slideItems = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _slideSplitDifferences = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
-    private IReadOnlyList<LaserXPixelSizeItemDTOSlideItem> _verifyItems = [];
+    private IReadOnlyList<CIBXPixelSizeItemDTOSlideItem> _verifyItems = [];
 
     [ObservableProperty]
     private string _verifyRawImageFilePath = string.Empty;
@@ -59,7 +59,7 @@ public sealed partial class LaserXPixelSizeItemDTO : CalibrationDtoBase, IClonea
 
     #region Mapper
 
-    public LaserXPixelSizeItemDTO Clone() => new()
+    public CIBXPixelSizeItemDTO Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
@@ -91,7 +91,7 @@ public sealed partial class LaserXPixelSizeItemDTO : CalibrationDtoBase, IClonea
     #endregion Mapper
 }
 
-public sealed class LaserXPixelSizeItemDTOSlideItem
+public sealed class CIBXPixelSizeItemDTOSlideItem
 {
     public long StartPixel { get; init; }
 

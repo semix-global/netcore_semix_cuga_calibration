@@ -8,7 +8,6 @@ using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.XPixelSize;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -29,11 +28,12 @@ using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Threading.Channels;
+using Core.Models.Models.CIB.XPixelSize;
 
-namespace CugaCalibration.ViewModels.Laser;
+namespace CugaCalibration.ViewModels.CIB;
 
-[IOCAppService(ServiceType = typeof(LaserXPixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(CIBXPixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CIBXPixelSizeCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -56,7 +56,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     #region Calibrate
 
     [ObservableProperty]
-    private LaserXPixelSizeItemDTO _calibratingItem = new();
+    private CIBXPixelSizeItemDTO _calibratingItem = new();
 
     [ObservableProperty]
     private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
@@ -66,10 +66,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<LaserXPixelSizeItemDTO> _reviews = [];
+    private IReadOnlyList<CIBXPixelSizeItemDTO> _reviews = [];
 
     [ObservableProperty]
-    private List<LaserXPixelSizeItemDTO> _selectedReviewItems = [];
+    private List<CIBXPixelSizeItemDTO> _selectedReviewItems = [];
 
     #endregion Review
 
@@ -96,10 +96,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
 
     [ObservableProperty]
-    private LaserXPixelSizeCache _cache = new();
+    private CIBXPixelSizeCache _cache = new();
 
     [ObservableProperty]
-    private LaserXPixelSizeItemDTO[] _calibrations = [];
+    private CIBXPixelSizeItemDTO[] _calibrations = [];
 
     #endregion 缓存
 
@@ -131,8 +131,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDTO>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBXPixelSizeCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<CIBXPixelSizeItemDTO>();
 
         Calibrations =
         [
@@ -218,7 +218,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 return true;
 
             case 1:
-                CalibratingItem = new LaserXPixelSizeItemDTO();
+                CalibratingItem = new CIBXPixelSizeItemDTO();
 
                 return true;
 
@@ -548,12 +548,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 totalCount
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var items = new LaserXPixelSizeItemDTOSlideItem[totalCount];
+            var items = new CIBXPixelSizeItemDTOSlideItem[totalCount];
 
             #region Channel
 
             using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
-            var channel = Channel.CreateBounded<LaserXPixelSizeItemDTOSlideItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
+            var channel = Channel.CreateBounded<CIBXPixelSizeItemDTOSlideItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
 
             #region Reader
 
@@ -569,7 +569,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     {
                         await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                        tasks[index] = ResolveLaserXPixelSizeSlideItemAsync(
+                        tasks[index] = ResolveCIBXPixelSizeSlideItemAsync(
                             item,
                             templateId,
                             templateImageSize,
@@ -596,7 +596,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                          .Range(0, totalCount)
                          .Select(t => (long)t * windowStepAllPixelByteLength).Index())
             {
-                items[index] = GetLaserXPixelSizeSlideItem(
+                items[index] = GetCIBXPixelSizeSlideItem(
                     pointer,
                     windowImageAllPixelByteLength,
                     fileSteam,
@@ -776,7 +776,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
                 Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
 
-                var verifyItems = new LaserXPixelSizeItemDTOSlideItem[imageCount];
+                var verifyItems = new CIBXPixelSizeItemDTOSlideItem[imageCount];
                 foreach (var (index, pointer) in Enumerable
                              .Range(0, imageCount)
                              .Select(t => t * verifyStepAllPixelByteLength)
@@ -784,7 +784,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                              .Select(pointer => pointer - pointer % heightPixelByteLength) // verifyStepAllPixelByteLength是double, 不是整数倍, 需要对齐
                              .Index())
                 {
-                    verifyItems[index] = GetLaserXPixelSizeSlideItem(
+                    verifyItems[index] = GetCIBXPixelSizeSlideItem(
                         pointer,
                         imageAllPixelByteLength,
                         fileSteam,
@@ -794,7 +794,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                         heightPixel,
                         heightPixelByteLength);
 
-                    await ResolveLaserXPixelSizeSlideItemAsync(
+                    await ResolveCIBXPixelSizeSlideItemAsync(
                         verifyItems[index],
                         templateId,
                         templateImageSize,
@@ -858,7 +858,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         }).ConfigureAwait(false);
     }
 
-    private bool Save(IReadOnlyList<LaserXPixelSizeItemDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<CIBXPixelSizeItemDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
 
@@ -882,7 +882,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
     #region Item
 
-    private LaserXPixelSizeItemDTOSlideItem GetLaserXPixelSizeSlideItem(
+    private CIBXPixelSizeItemDTOSlideItem GetCIBXPixelSizeSlideItem(
         long pointer,
         int allPixelByteLength,
         FileStream fileSteam,
@@ -907,13 +907,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         fileSteam.Seek(bodyBytesStartIndex + pointer, SeekOrigin.Begin);
         Guard.IsEqualTo(binaryReader.Read(buffer, 0, currentImageAllPixelByteLength), currentImageAllPixelByteLength);
 
-        var item = new LaserXPixelSizeItemDTOSlideItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
+        var item = new CIBXPixelSizeItemDTOSlideItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
 
         return item;
     }
 
-    private async Task ResolveLaserXPixelSizeSlideItemAsync(
-        LaserXPixelSizeItemDTOSlideItem item,
+    private async Task ResolveCIBXPixelSizeSlideItemAsync(
+        CIBXPixelSizeItemDTOSlideItem item,
         HTuple templateId,
         Size templateImageSize,
         string detectImageDirectory,

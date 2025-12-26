@@ -2,13 +2,13 @@ using CugaCalibration.Core.Attribute;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 
-namespace CugaCalibration.Views.Laser.XPixelSize;
+namespace CugaCalibration.Views.CIB.XPixelSize;
 
-[IOCAppService(ServiceType = typeof(LaserXPixelSizeCalibrationUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserXPixelSizeCalibrationUserControl
+[IOCAppService(ServiceType = typeof(CIBXPixelSizeCalibrationUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CIBXPixelSizeCalibrationUserControl
 {
     [Permission]
-    public LaserXPixelSizeCalibrationUserControl()
+    public CIBXPixelSizeCalibrationUserControl()
     {
         InitializeComponent();
     }

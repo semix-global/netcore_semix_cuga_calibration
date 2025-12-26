@@ -1,8 +1,6 @@
-using System.Windows.Controls;
+namespace CugaCalibration.Views.CIB.XPixelSize.Children;
 
-namespace CugaCalibration.Views.Laser.XPixelSize.Children;
-
-public partial class Step0View : UserControl
+public partial class Step0View
 {
     public Step0View()
     {

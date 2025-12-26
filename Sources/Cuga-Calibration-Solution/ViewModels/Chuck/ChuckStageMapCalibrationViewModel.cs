@@ -12,6 +12,7 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
@@ -23,7 +24,6 @@ using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
@@ -130,7 +130,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private LaserLineCentricityItemDto[] _laserLineCentricityItems = [];
 
     [ObservableProperty]
-    private LaserXPixelSizeItemDTO[] _laserXPixelSizeItems = [];
+    private CIBXPixelSizeItemDTO[] _cIBXPixelSizeItems = [];
 
     #endregion 缓存
 
@@ -242,13 +242,13 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserXPixelSizeItemDTO>(out var laserXPixelSizeItems, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBXPixelSizeItemDTO>(out var laserXPixelSizeItems, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        LaserXPixelSizeItems = laserXPixelSizeItems;
+        CIBXPixelSizeItems = laserXPixelSizeItems;
 
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPixelSizeItemDto>(out var laserPixelSizeItems, out errorMessage) == false)
         {
@@ -1378,7 +1378,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                             using var darkFieldImageDto = rowDarkFieldImageDtoList.ElementAt(column - isInWaferRowList[0].Index);
                             var ySizePerPixel = LaserPixelSizeItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId && t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).YPixelSize;
-                            var xSizePerPixel = LaserXPixelSizeItems.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).XPixelSize;
+                            var xSizePerPixel = CIBXPixelSizeItems.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).XPixelSize;
 
                             var originImageFilePath = $"{detectImageDirectory}\\row({row})_col({column})_index({index})_Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
                             darkFieldImageDto.Image.Save(originImageFilePath);

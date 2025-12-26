@@ -1,4 +1,4 @@
-namespace CugaCalibration.Views.Laser.XPixelSize.Children;
+namespace CugaCalibration.Views.CIB.XPixelSize.Children;
 
 public sealed partial class Step3View
 {

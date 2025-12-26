@@ -5,7 +5,7 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibrationTest.ViewModels"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:xPixelSize="clr-namespace:CugaCalibration.Views.Laser.XPixelSize;assembly=Cuga-Calibration-Solution"
+           xmlns:xPixelSize="clr-namespace:CugaCalibration.Views.CIB.XPixelSize;assembly=Cuga-Calibration-Solution"
            Title="Split Image"
            Width="1800"
            Height="1000"
@@ -115,7 +115,7 @@
             </hc:UniformSpacingPanel>
         </Border>
         <Border Grid.Column="2">
-            <xPixelSize:LaserXPixelSizeCalibrationUserControl />
+            <xPixelSize:CIBXPixelSizeCalibrationUserControl />
         </Border>
     </Grid>
 </hc:Window>

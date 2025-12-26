@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using CugaCalibration.ViewModels.Laser;
+using CugaCalibration.ViewModels.CIB;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,7 +18,7 @@ namespace CugaCalibrationTest.ViewModels;
 
 [IOCAppService(ServiceType = typeof(SplitImageWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class SplitImageWindowViewModel(
-    LaserXPixelSizeCalibrationViewModel laserXPixelSizeCalibrationViewModel,
+    CIBXPixelSizeCalibrationViewModel cibxPixelSizeCalibrationViewModel,
     CalibrationSetting calibrationSetting,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheDatabaseProvider recipeLiteDataBaseProvider,
@@ -29,7 +29,7 @@ public sealed partial class SplitImageWindowViewModel(
 {
     private readonly AsyncAutoResetEvent _asyncAutoResetEvent = new(false);
 
-    public LaserXPixelSizeCalibrationViewModel LaserXPixelSizeCalibrationViewModel => laserXPixelSizeCalibrationViewModel;
+    public CIBXPixelSizeCalibrationViewModel CIBXPixelSizeCalibrationViewModel => cibxPixelSizeCalibrationViewModel;
 
     [ObservableProperty]
     private string _templateFilePath = @"\\10.10.5.19\d\Nano\Cuga-Calibration\Template\LaserXPixelSizeCalibrationViewModel\S90(H-L)\20251117\5X\5563747b5bb240149f8f78eda98c838f.jpg_Template";
@@ -45,8 +45,8 @@ public sealed partial class SplitImageWindowViewModel(
 
     public double Threshold
     {
-        get => LaserXPixelSizeCalibrationViewModel.Cache.Threshold;
-        set => SetProperty(LaserXPixelSizeCalibrationViewModel.Cache.Threshold, value, LaserXPixelSizeCalibrationViewModel.Cache, (m, v) => m.Threshold = v);
+        get => CIBXPixelSizeCalibrationViewModel.Cache.Threshold;
+        set => SetProperty(CIBXPixelSizeCalibrationViewModel.Cache.Threshold, value, CIBXPixelSizeCalibrationViewModel.Cache, (m, v) => m.Threshold = v);
     }
 
     public double NccTypeTemplateMatchScoreThreshold
@@ -63,8 +63,8 @@ public sealed partial class SplitImageWindowViewModel(
 
     public double XPixelSize
     {
-        get => LaserXPixelSizeCalibrationViewModel.CalibratingItem.XPixelSize;
-        set => SetProperty(LaserXPixelSizeCalibrationViewModel.CalibratingItem.XPixelSize, value, LaserXPixelSizeCalibrationViewModel.CalibratingItem, (m, v) => m.XPixelSize = v);
+        get => CIBXPixelSizeCalibrationViewModel.CalibratingItem.XPixelSize;
+        set => SetProperty(CIBXPixelSizeCalibrationViewModel.CalibratingItem.XPixelSize, value, CIBXPixelSizeCalibrationViewModel.CalibratingItem, (m, v) => m.XPixelSize = v);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -74,31 +74,31 @@ public sealed partial class SplitImageWindowViewModel(
         {
             recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\0823\\cache.db", cancellationToken);
 
-            await LaserXPixelSizeCalibrationViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
-            await LaserXPixelSizeCalibrationViewModel.CalibrateCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.CalibrateCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
             // await _asyncAutoResetEvent.WaitAsync(cancellationToken);
             // await LaserXPixelSizeCalibrationViewModel.Step0CalibrateActionCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
-            await LaserXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
             // await _asyncAutoResetEvent.WaitAsync(cancellationToken);
             // await LaserXPixelSizeCalibrationViewModel.Step1CalibrateActionCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
-            await LaserXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
             // await _asyncAutoResetEvent.WaitAsync(cancellationToken);
             // await LaserXPixelSizeCalibrationViewModel.Step2CalibrateActionCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
-            await LaserXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
             // await _asyncAutoResetEvent.WaitAsync(cancellationToken);
             // await LaserXPixelSizeCalibrationViewModel.Step3CalibrateActionCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
-            await LaserXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
-            LaserXPixelSizeCalibrationViewModel.Cache.Item.TemplateFilePath = TemplateFilePath;
-            LaserXPixelSizeCalibrationViewModel.Cache.Item.TemplateImageFilePath = TemplateImageFilePath;
+            CIBXPixelSizeCalibrationViewModel.Cache.Item.TemplateFilePath = TemplateFilePath;
+            CIBXPixelSizeCalibrationViewModel.Cache.Item.TemplateImageFilePath = TemplateImageFilePath;
 
             ObjectHelper.SetFieldValue(calibrationLaserService, "_mockImageFilePath", SlideRawImageFilePath);
             ObjectHelper.SetFieldValue(calibrationAlgorithmService, "_isUseMock", false);
@@ -106,9 +106,9 @@ public sealed partial class SplitImageWindowViewModel(
             // await _asyncAutoResetEvent.WaitAsync(cancellationToken);
             // await LaserXPixelSizeCalibrationViewModel.Step4CalibrateActionCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
-            await LaserXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
-            await LaserXPixelSizeCalibrationViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             ObjectHelper.SetFieldValue(calibrationLaserService, "_mockImageFilePath", VerifyRawImageFilePath);
         }
         catch (Exception ex)
@@ -131,8 +131,8 @@ public sealed partial class SplitImageWindowViewModel(
         {
             recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\0823\\cache.db", cancellationToken);
 
-            await LaserXPixelSizeCalibrationViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
-            await LaserXPixelSizeCalibrationViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
+            await CIBXPixelSizeCalibrationViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             ObjectHelper.SetFieldValue(calibrationLaserService, "_mockImageFilePath", VerifyRawImageFilePath);
         }
         catch (Exception ex)
@@ -151,7 +151,7 @@ public sealed partial class SplitImageWindowViewModel(
     [RelayCommand]
     private void Continue()
     {
-        if (LaserXPixelSizeCalibrationViewModel.CalibrationStepList[LaserXPixelSizeCalibrationViewModel.CalibrationStepIndex].StepIsNextEnable == false)
+        if (CIBXPixelSizeCalibrationViewModel.CalibrationStepList[CIBXPixelSizeCalibrationViewModel.CalibrationStepIndex].StepIsNextEnable == false)
         {
             dialogWindowProvider.ShowDialog("No More Step");
 

@@ -1,8 +1,6 @@
-using System.Windows.Controls;
-
 namespace CugaCalibration.Views.Laser.AutoFocus.Children;
 
-public partial class Step4View : UserControl
+public partial class Step4View
 {
     public Step4View()
     {

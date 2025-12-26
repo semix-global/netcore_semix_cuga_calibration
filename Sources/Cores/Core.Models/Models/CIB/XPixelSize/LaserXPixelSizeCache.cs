@@ -9,9 +9,9 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
-namespace Core.Models.Models.Laser.XPixelSize;
+namespace Core.Models.Models.CIB.XPixelSize;
 
-public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
+public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -27,16 +27,16 @@ public sealed partial class LaserXPixelSizeCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 15;
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserXPixelSizeCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), CIBXPixelSizeCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public LaserXPixelSizeCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new LaserXPixelSizeCacheItem());
+    public CIBXPixelSizeCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new CIBXPixelSizeCacheItem());
 }
 
-public sealed partial class LaserXPixelSizeCacheItem : CalibrationCacheBase
+public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
