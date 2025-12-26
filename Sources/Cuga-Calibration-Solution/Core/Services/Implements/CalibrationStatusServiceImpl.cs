@@ -66,7 +66,7 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibration<ChuckGlobalScaleErrorDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
@@ -75,7 +75,7 @@ public class CalibrationStatusServiceImpl(
     {
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
@@ -100,14 +100,14 @@ public class CalibrationStatusServiceImpl(
     public bool EnableDependBrightStageMapCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
 
     public bool EnableDependDarkStageMapCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }

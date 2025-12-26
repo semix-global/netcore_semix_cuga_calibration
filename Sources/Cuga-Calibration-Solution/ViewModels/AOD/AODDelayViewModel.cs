@@ -136,8 +136,9 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                       && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
+            .. Calibrations
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                            && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses
@@ -320,6 +321,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Cache.Item.CIBInformation,
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+            
             return true;
         });
     }

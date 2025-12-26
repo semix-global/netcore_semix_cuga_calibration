@@ -132,9 +132,9 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="Find Center Position(um)" DisplayMemberBinding="{Binding FindCenterPosition, Converter={StaticResource PointToStringConverter}}" />
-                            <GridViewColumn Header="Max Power Position(um)" DisplayMemberBinding="{Binding MeasureMaxPowerPosition, Converter={StaticResource PointToStringConverter}}" />
-                            <GridViewColumn Header="Max Power(mW)" DisplayMemberBinding="{Binding MeasureMaxPower, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Find Center Position(um)" DisplayMemberBinding="{Binding FindMachinePosition, Converter={StaticResource PointToStringConverter}}" />
+                            <GridViewColumn Header="Max Power Position(um)" DisplayMemberBinding="{Binding MaxMeasurePowerPosition, Converter={StaticResource PointToStringConverter}}" />
+                            <GridViewColumn Header="Max Power(mW)" DisplayMemberBinding="{Binding MaxMeasurePower, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

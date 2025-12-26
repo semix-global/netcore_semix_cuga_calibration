@@ -143,7 +143,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     private MicroscopeCalChipDto _microscopeCalChip = new();
 
     [ObservableProperty]
-    private LaserOpticalPowerMeterDto[] _laserOpticalPowers = [];
+    private LaserOpticalPowerMeterDTO[] _laserOpticalPowers = [];
 
     #endregion 缓存
 
@@ -187,7 +187,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDto>(out var laserOpticalPowers, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDTO>(out var laserOpticalPowers, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -1360,7 +1360,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
                 LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, prescanAODWaveProfiles);
 
-                // StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MeasureMaxPowerPosition);
+                // StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowers.Single(t => t.OpticsMagTypeEnum == Cache.OpticsMagTypeEnum).MaxMeasurePowerPosition);
                 //
                 // (var isSuccess, SelectCalibrateItemDto.PolarizationPPower) = await GetPowerAsync(OpticsPolarizationModeEnum.P).ConfigureAwait(false);
                 // if (isSuccess == false) return false;

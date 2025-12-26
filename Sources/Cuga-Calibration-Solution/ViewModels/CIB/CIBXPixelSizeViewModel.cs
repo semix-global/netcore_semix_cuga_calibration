@@ -136,8 +136,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                       && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
+            .. Calibrations
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                            && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses
@@ -548,12 +549,12 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 totalCount
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var itemItems = new CIBXPixelSizeItem[totalCount];
+            var itemItems = new CIBXPixelSizeDTOItem[totalCount];
 
             #region Channel
 
             using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
-            var channel = Channel.CreateBounded<CIBXPixelSizeItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
+            var channel = Channel.CreateBounded<CIBXPixelSizeDTOItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
 
             #region Reader
 
@@ -776,7 +777,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
                 Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
 
-                var verifyItemItems = new CIBXPixelSizeItem[imageCount];
+                var verifyItemItems = new CIBXPixelSizeDTOItem[imageCount];
                 foreach (var (index, pointer) in Enumerable
                              .Range(0, imageCount)
                              .Select(t => t * verifyStepAllPixelByteLength)
@@ -860,7 +861,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
     #region Item
 
-    private CIBXPixelSizeItem GetCIBXPixelSizeSlideItem(
+    private CIBXPixelSizeDTOItem GetCIBXPixelSizeSlideItem(
         long pointer,
         int allPixelByteLength,
         FileStream fileSteam,
@@ -885,11 +886,11 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         fileSteam.Seek(bodyBytesStartIndex + pointer, SeekOrigin.Begin);
         Guard.IsEqualTo(binaryReader.Read(buffer, 0, currentImageAllPixelByteLength), currentImageAllPixelByteLength);
 
-        return new CIBXPixelSizeItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
+        return new CIBXPixelSizeDTOItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
     }
 
     private async Task ResolveCIBXPixelSizeSlideItemAsync(
-        CIBXPixelSizeItem itemItem,
+        CIBXPixelSizeDTOItem itemItem,
         HTuple templateId,
         Size templateImageSize,
         string detectImageDirectory,

@@ -90,7 +90,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     private MicroscopeCalChipDto _microscopeCalChip = new();
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDto> _laserOpticalPowerMeters = [];
+    private IReadOnlyList<LaserOpticalPowerMeterDTO> _laserOpticalPowerMeters = [];
 
     #endregion 缓存
 
@@ -134,7 +134,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDto>(out var laserOpticalPowerItems, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDTO>(out var laserOpticalPowerItems, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -153,7 +153,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
+            ..Calibrations
+                .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
@@ -376,7 +377,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                laserOpticalPowerMeter.MeasureMaxPowerPosition,
+                MeasureMaxPowerPosition = laserOpticalPowerMeter.MaxMeasurePowerPosition,
                 Cache.CIBInformations,
                 Cache.HazeFindBFMachinePosition,
                 Cache.OpticsIlluminationModeEnum,
@@ -445,7 +446,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             // 获取功率
             var coefficients = Generate.LinearRange(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MeasureMaxPowerPosition);
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
             try
             {
                 OpticsViewModel.ToggleODFilter(false);

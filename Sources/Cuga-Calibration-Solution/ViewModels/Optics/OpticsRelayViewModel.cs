@@ -131,7 +131,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
+            ..Calibrations
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;

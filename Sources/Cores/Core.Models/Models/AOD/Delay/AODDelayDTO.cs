@@ -104,6 +104,7 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
 
     public AODDelayDTO Clone() => new()
     {
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         MaxItem = MaxItem?.Clone(),
@@ -116,6 +117,7 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
 
     public CalibrationLaserAodDelayItem AdaptTo() => new()
     {
+        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
         CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         PrescanAodDelayTime = PrescanAODDelay,
         ChirpAodDelayTime = ChirpAODDelay,

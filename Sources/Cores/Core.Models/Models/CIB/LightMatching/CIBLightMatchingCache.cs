@@ -57,7 +57,7 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     public CIBLightMatchingCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new CIBLightMatchingCacheItem());
 }
 
-public sealed partial class CIBLightMatchingCacheItem : ObservableObject
+public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;

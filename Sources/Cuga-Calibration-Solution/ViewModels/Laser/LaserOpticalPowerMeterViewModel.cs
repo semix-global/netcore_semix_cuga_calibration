@@ -4,10 +4,10 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
+using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
@@ -20,16 +20,19 @@ using Net.Utilities.WPF.Enums;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserOpticalPowerMeterViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie applicationCookie) : CalibrationViewModelBase
+public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
+    public override string CalibrateDirectoryName => $"{Cache.OpticsIlluminationModeEnum.Humanize()}_{Cache.ProductivityInformation}";
+
+    public override string CalibrateFileName => $"{Cache.OpticsIlluminationModeEnum.Humanize()}_{Cache.ProductivityInformation}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Optics Mag" },
-        new() { StepName = "Find Position" },
+        new() { StepName = "Select Optics Illumination Mode" },
+        new() { StepName = "Select Productivity" },
+        new() { StepName = "Find Machine Position" },
         new() { StepName = "Optical Power Meter" }
     ];
 
@@ -38,23 +41,23 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDto> _calibratings = [];
+    private IReadOnlyList<LaserOpticalPowerMeterDTO> _calibratings = [];
 
     [ObservableProperty]
-    private LaserOpticalPowerMeterDto? _selectedCalibratingItem;
+    private LaserOpticalPowerMeterDTO? _selectedCalibratingItem;
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDto> _reviews = [];
+    private IReadOnlyList<LaserOpticalPowerMeterDTO> _reviews = [];
 
     [ObservableProperty]
-    private LaserOpticalPowerMeterDto? _selectedReviewItem;
+    private IReadOnlyList<LaserOpticalPowerMeterDTO> _selectedReviewItems = [];
 
     #endregion Review
 
@@ -66,7 +69,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     private LaserOpticalPowerMeterCache _cache = new();
 
     [ObservableProperty]
-    private LaserOpticalPowerMeterDto[] _calibrations = [];
+    private LaserOpticalPowerMeterDTO[] _calibrations = [];
 
     #endregion 缓存
 
@@ -105,24 +108,35 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false })
+                ..ApplicationCookie.OpticsIlluminationModeEnums
+                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
+                    {
+                        SelectedItem = t,
+                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
+                    })
             ];
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDto>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDTO>();
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.NIOpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+            .. Calibrations
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                            && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+                    CalibrationStatuses
+                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum)
+                        .ProductivityInformationCalibrationStatusList
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .IsCalibrated = t.IsCalibrated;
 
                     return t;
                 })
         ];
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -135,13 +149,14 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.ProductivityInformation)
+                .OrderBy(t => t.OpticsIlluminationModeEnum)
+                .ThenBy(t => t.ProductivityInformation)
         ];
 
-        return Reviews.Any(t => t.IsCalibrated);
+        return Reviews.Count > 0;
     }
 
-    protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
+    protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
@@ -154,8 +169,44 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 return true;
 
             case 2:
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
-                DialogWindowProvider.ShowDialog($"Optical Power Meter {Cache.ProductivityInformation} Ok!");
+                return true;
+
+            case 3:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.FindMachinePosition);
+
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+
+                return true;
+
+            case 1:
+                Calibratings = [];
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.FindMachinePosition);
+
+                return true;
+
+            case 2:
+
+                return true;
+
+            case 3:
+                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
+                    .ProductivityInformationCalibrationStatusList
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
+
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -178,10 +229,10 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.ProductivityInformation
+                Cache.OpticsIlluminationModeEnum
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return true;
+            return ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum);
         });
     }
 
@@ -190,12 +241,28 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     {
         return InvokeCalibrateAsync(() =>
         {
-            Cache.Item.FindPosition = StageViewModel.GetMachineStagePosition();
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation);
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Cache.Item.FindMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
-                Cache.Item.FindPosition
+                Cache.Item.FindMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -203,7 +270,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private async Task Step3CalibrateActionAsync(CancellationToken cancellationToken)
     {
         await InvokeCalibrateAsync(async () =>
         {
@@ -230,17 +297,17 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             var centerX = (Cache.Item.ColumnNumber - 1) / 2d;
             var centerY = (Cache.Item.RowNumber - 1) / 2d;
 
-            var laserOpticalPowerObjDto = new LaserOpticalPowerMeterDto
+            var laserOpticalPowerObjDto = new LaserOpticalPowerMeterDTO
             {
                 Coefficient = coefficient,
                 ProductivityInformation = Cache.ProductivityInformation,
-                FindCenterPosition = Cache.Item.FindPosition,
+                FindMachinePosition = Cache.Item.FindPosition,
                 RowNumber = Cache.Item.RowNumber,
                 ColumnNumber = Cache.Item.ColumnNumber,
                 Map = []
             };
 
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindCenterPosition);
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerObjDto.FindMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
             LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, coefficient);
             LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
@@ -258,8 +325,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 {
                     for (var column = 0; column < Cache.Item.ColumnNumber; column++)
                     {
-                        var position = laserOpticalPowerObjDto.FindCenterPosition + (Vector)new Point((column - centerX) * Cache.Item.ColumnCellWidth, (row - centerY) * Cache.Item.RowCellHeight);
-                        laserOpticalPowerObjDto.Map.Add(new LaserOpticalPowerItemDto
+                        var position = laserOpticalPowerObjDto.FindMachinePosition + (Vector)new Point((column - centerX) * Cache.Item.ColumnCellWidth, (row - centerY) * Cache.Item.RowCellHeight);
+                        laserOpticalPowerObjDto.Map.Add(new LaserOpticalPowerMeterDTOItem
                         {
                             MeasurePosition = position,
                             MeasurePower = temp.SingleOrDefault(t => t.MeasurePosition == position)?.MeasurePower ?? 0,
@@ -301,8 +368,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 // maximumIndex转换为二维数组的索引
                 var maximumIndexRow = maximumIndex / Cache.Item.ColumnNumber;
                 var maximumIndexCol = maximumIndex % Cache.Item.ColumnNumber;
-                laserOpticalPowerObjDto.MeasureMaxPower = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePower;
-                laserOpticalPowerObjDto.MeasureMaxPowerPosition = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePosition;
+                laserOpticalPowerObjDto.MaxMeasurePower = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePower;
+                laserOpticalPowerObjDto.MaxMeasurePowerPosition = laserOpticalPowerObjDto.Map[maximumIndex].MeasurePosition;
 
                 var resultLaserOpticalPowerDto = laserOpticalPowerObjDto.Clone();
                 Calibratings = [.. Calibratings, resultLaserOpticalPowerDto];
@@ -311,9 +378,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
 
                 var htmlBulletList = new HtmlBullet(new
                 {
-                    laserOpticalPowerObjDto.FindCenterPosition,
-                    laserOpticalPowerObjDto.MeasureMaxPower,
-                    laserOpticalPowerObjDto.MeasureMaxPowerPosition,
+                    FindCenterPosition = laserOpticalPowerObjDto.FindMachinePosition,
+                    MeasureMaxPower = laserOpticalPowerObjDto.MaxMeasurePower,
+                    MeasureMaxPowerPosition = laserOpticalPowerObjDto.MaxMeasurePowerPosition,
                     MaxRow = maximumIndexRow,
                     MaxColumn = maximumIndexCol,
                     IsInEdge = isInEdge,
@@ -335,7 +402,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 if (isInEdge)
                 {
                     Logger.LogHtmlInformation($"{repeatCout}", HtmlHeaderLevelEnum.Header3, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
-                    laserOpticalPowerObjDto.FindCenterPosition = laserOpticalPowerObjDto.MeasureMaxPowerPosition;
+                    laserOpticalPowerObjDto.FindMachinePosition = laserOpticalPowerObjDto.MaxMeasurePowerPosition;
 
                     continue;
                 }
@@ -379,13 +446,13 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
                 Cache.Item.WaitTime,
                 Cache.Threshold,
                 SelectedReviewItem.Coefficient,
-                SelectedReviewItem.MeasureMaxPowerPosition,
-                SelectedReviewItem.MeasureMaxPower
+                MeasureMaxPowerPosition = SelectedReviewItem.MaxMeasurePowerPosition,
+                MeasureMaxPower = SelectedReviewItem.MaxMeasurePower
             }), HtmlLogUniqueId.LoggingHtml());
 
             SelectedReviewItem.IsVerified = false;
 
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(SelectedReviewItem.MeasureMaxPowerPosition);
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(SelectedReviewItem.MaxMeasurePowerPosition);
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
             LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, SelectedReviewItem.Coefficient);
             LaserViewModel.SetChirpAODWaveProfile(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
@@ -410,7 +477,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             }
 
             var average = resultList.Average();
-            var errorRate = Math.Abs((average - SelectedReviewItem.MeasureMaxPower) / SelectedReviewItem.MeasureMaxPower);
+            var errorRate = Math.Abs((average - SelectedReviewItem.MaxMeasurePower) / SelectedReviewItem.MaxMeasurePower);
             var result = errorRate < Cache.Threshold;
 
             Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -431,7 +498,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
             DialogWindowProvider.ShowDialog($"""
                                              Verify {(result ? "OK" : "Failed")}
                                              New Measure Max Power: ({average:0.###})
-                                             Old Measure Max Power:({SelectedReviewItem.MeasureMaxPower:0.###})
+                                             Old Measure Max Power:({SelectedReviewItem.MaxMeasurePower:0.###})
                                              Error:({errorRate:0.###})
                                              """,
                 DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
@@ -440,19 +507,23 @@ public sealed partial class LaserOpticalPowerMeterViewModel(ApplicationCookie ap
         }).ConfigureAwait(false);
     }
 
-    private bool Save(LaserOpticalPowerMeterDto item, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<LaserOpticalPowerMeterDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
-        update(item);
         update(Cache);
 
-        Calibrations =
-        [
-            .. Calibrations.Where(t => t.ProductivityInformation != item.ProductivityInformation),
-            item.Clone()
-        ];
+        foreach (var dto in dtos)
+        {
+            update(dto);
+            Calibrations =
+            [
+                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
+                                           || t.ProductivityInformation != dto.ProductivityInformation),
+                dto.Clone()
+            ];
+        }
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

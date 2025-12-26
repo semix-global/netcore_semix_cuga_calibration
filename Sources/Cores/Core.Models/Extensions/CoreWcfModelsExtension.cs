@@ -337,16 +337,6 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserOpticalPowerMeterDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Laser Optical Power is Empty";
-
-        return isOk;
-    }
-
     public static bool IsOk(this LaserPixelSizeItemDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -513,6 +503,20 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Delay is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this LaserOpticalPowerMeterDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "Laser Optical Power Meter is Empty";
 
         return isOk;
     }

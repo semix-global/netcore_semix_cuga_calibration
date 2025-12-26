@@ -142,11 +142,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                       && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
-                                       && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
-                                       && ApplicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
-                                       && ApplicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum))
+            .. Calibrations
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                            && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                            && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
+                            && ApplicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
+                            && ApplicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum))
                 .Select(t =>
                 {
                     CalibrationStatuses
@@ -181,6 +182,9 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsIlluminationModeEnum)
                 .ThenBy(t => t.ProductivityInformation)
+                .ThenBy(t => t.OpticsApodizationModeEnum)
+                .ThenBy(t => t.OpticsPolarizationModeEnum)
+                .ThenBy(t => t.CollectorPolarizationModeEnum)
         ];
 
         return Reviews.Count > 0;

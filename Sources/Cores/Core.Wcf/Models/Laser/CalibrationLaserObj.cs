@@ -133,6 +133,11 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
 public sealed class CalibrationLaserOpticalPower : CalibrationBase
 {
     /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
@@ -220,6 +225,11 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
 /// </summary>
 public sealed class CalibrationLaserAodDelayItem : CalibrationBase
 {
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
     /// <summary>
     /// 暗场Mag类型
     /// </summary>

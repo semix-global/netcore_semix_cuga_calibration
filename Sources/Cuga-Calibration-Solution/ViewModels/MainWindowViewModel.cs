@@ -607,8 +607,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserIlluminationProfileCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserIlluminationProfileItemDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserOpticalPowerMeterViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserXYAstigmatismCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserXYAstigmatismCalibrationItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserPmtAgcDelayCalibrationViewModel>();
@@ -626,15 +624,18 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsRelayViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsRelayDTO>().IsOk(out _);
-                
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBXPixelSizeViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>().IsOk(out _);
-                
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AODAlignmentViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODAlignmentDTO>().IsOk(out _);
-                
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AODDelayViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODDelayDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserOpticalPowerMeterViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDTO>().IsOk(out _);
 
                 #endregion
             }

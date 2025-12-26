@@ -97,7 +97,7 @@ public sealed partial class MapView
                 {
                     try
                     {
-                        var selected = (LaserOpticalPowerMeterDto)viewModel.GetType().GetProperty(e.PropertyName)!.GetValue(viewModel);
+                        var selected = (LaserOpticalPowerMeterDTO)viewModel.GetType().GetProperty(e.PropertyName)!.GetValue(viewModel);
 
                         WpfPlot.Plot.PlottableList.RemoveAll(t => t is Crosshair or Annotation == false);
                         if (selected is null || selected.Map.Count <= 0) return;

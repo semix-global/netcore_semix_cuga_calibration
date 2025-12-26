@@ -30,14 +30,14 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SlideItemPoints))]
-    private IReadOnlyList<CIBXPixelSizeItem> _slideItems = [];
+    private IReadOnlyList<CIBXPixelSizeDTOItem> _slideItems = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _slideSplitDifferences = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
-    private IReadOnlyList<CIBXPixelSizeItem> _verifyItems = [];
+    private IReadOnlyList<CIBXPixelSizeDTOItem> _verifyItems = [];
 
     [ObservableProperty]
     private string _verifyRawImageFilePath = string.Empty;
@@ -91,7 +91,7 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
     #endregion Mapper
 }
 
-public sealed class CIBXPixelSizeItem
+public sealed class CIBXPixelSizeDTOItem
 {
     public long StartPixel { get; init; }
 

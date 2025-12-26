@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
@@ -154,7 +153,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AOD
     };
 }
 
-public sealed partial class AODAlignmentDTOItem : ObservableCacheBase, ICloneable<AODAlignmentDTOItem>
+public sealed partial class AODAlignmentDTOItem : ObservableObject, ICloneable<AODAlignmentDTOItem>
 {
     [ObservableProperty]
     private double _prescanFrequency;
