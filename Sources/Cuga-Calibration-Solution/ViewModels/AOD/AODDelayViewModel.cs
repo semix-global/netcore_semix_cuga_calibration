@@ -251,6 +251,20 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.OpticsIlluminationModeEnum
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum);
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>

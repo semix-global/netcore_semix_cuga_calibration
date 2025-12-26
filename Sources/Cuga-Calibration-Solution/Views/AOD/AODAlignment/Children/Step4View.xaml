@@ -12,8 +12,8 @@
              xmlns:aodAlignment="clr-namespace:Core.Models.Models.AOD.AODAlignment;assembly=Core.Models"
              xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:AODAlignmentViewModel}"
-             d:DesignHeight="1080"
-             d:DesignWidth="1080"
+             d:DesignHeight="800"
+             d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -210,13 +210,19 @@
                                         <Border Width="300"
                                                 Height="300"
                                                 Style="{StaticResource BorderRegion}">
-                                            <view:CanvasView AxisColor="Red"
-                                                             BackgroundColor="#0A0A0A"
-                                                             BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                             Interactive="True"
-                                                             ShowAxes="True"
-                                                             ShowCursor="False"
-                                                             ShowGrid="False" />
+                                            <hc:SimplePanel>
+                                                <view:CanvasView AxisColor="Red"
+                                                                 BackgroundColor="#0A0A0A"
+                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 Interactive="True"
+                                                                 ShowAxes="True"
+                                                                 ShowCursor="False"
+                                                                 ShowGrid="False" />
+                                                <TextBlock Text="{Binding PrescanFrequency, StringFormat='0.###'}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           Foreground="Yellow" />
+                                            </hc:SimplePanel>
                                         </Border>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>

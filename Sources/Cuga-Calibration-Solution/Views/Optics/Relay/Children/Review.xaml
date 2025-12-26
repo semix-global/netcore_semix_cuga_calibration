@@ -11,8 +11,8 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsRelayViewModel}"
-             d:DesignHeight="700"
-             d:DesignWidth="1500"
+             d:DesignHeight="800"
+             d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -144,13 +144,19 @@
                                                     <Border Width="300"
                                                             Height="300"
                                                             Style="{StaticResource BorderRegion}">
-                                                        <view:CanvasView AxisColor="Red"
-                                                                         BackgroundColor="#0A0A0A"
-                                                                         BackgroundImage="{Binding MaxItem.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                         Interactive="True"
-                                                                         ShowAxes="True"
-                                                                         ShowCursor="False"
-                                                                         ShowGrid="False" />
+                                                        <hc:SimplePanel>
+                                                            <view:CanvasView AxisColor="Red"
+                                                                             BackgroundColor="#0A0A0A"
+                                                                             BackgroundImage="{Binding MaxItem.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                             Interactive="True"
+                                                                             ShowAxes="True"
+                                                                             ShowCursor="False"
+                                                                             ShowGrid="False" />
+                                                            <TextBlock Text="{Binding MaxItem.ECS, StringFormat='0.###'}"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Top"
+                                                                       Foreground="Yellow" />
+                                                        </hc:SimplePanel>
                                                     </Border>
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
