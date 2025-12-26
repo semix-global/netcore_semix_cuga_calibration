@@ -24,7 +24,6 @@ using MiniExcelLibs;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -34,6 +33,8 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -252,11 +253,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand]
-    private void SetCIBMMD(CIBMMDDTO cibMMDDto)
+    private void SetCIBMMD(CIBMMDDTO item)
     {
         try
         {
-            if (cibMMDDto.IsOk == false)
+            if (item.IsOk == false)
             {
                 DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is OK Failed!");
 
@@ -264,12 +265,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             CIBViewModel.SetMMD(
-                cibMMDDto.CIBInformation,
-                [.. cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)],
-                [.. cibMMDDto.GainS16BitPoints.Select(t => t.Y)],
-                cibMMDDto.ResultLogGainPoints.Maxima(t => t.Y).Single().Y);
+                item.CIBInformation,
+                [.. item.LogGainMul128U12BitPoints.Select(t => t.Y)],
+                [.. item.GainS16BitPoints.Select(t => t.Y)],
+                item.ResultLogGainPoints.Maxima(t => t.Y).Single().Y);
 
-            DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} {cibMMDDto.CIBInformation} OK!");
+            DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} {item.CIBInformation} OK!");
         }
         catch (Exception ex)
         {
@@ -323,6 +324,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(async () =>
         {
+            var detectImageDirectory = ImageFileDirectory;
+
             Guard.IsNotEmpty(Cache.CIBInformations);
             Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, CalibrationSetting.SettingCommonParam.MeasurePowerMeasurementMinValue);
             Guard.IsGreaterThan(Cache.MeasurePowerSequenceCommonRatio, 0);
@@ -372,7 +375,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
                 Cache.MinLogGain,
-                Table = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations]))
+                Table = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations])),
+                detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
@@ -567,6 +571,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
+                    Logger.LogHtmlInformation($"{coefficient:0.###}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
                     try
                     {
                         OpticsViewModel.ToggleODFilter(isUseODFilter);
@@ -577,6 +583,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         foreach (var (gainIndex, gain) in gains.Index())
                         {
                             cancellationToken.ThrowIfCancellationRequested();
+
+                            Logger.LogHtmlInformation($"{gain:0.###}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
                             SelectedCalibratingItems = Calibratings;
 
                             var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDTO>)[.. Calibratings.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
@@ -595,6 +604,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 Cache.IsAFEnable,
                                 cancellationToken);
 
+                            Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
                             await Task.WhenAll(cibPMTValues.Index().Select(t => Task.Run(() =>
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
@@ -602,20 +612,40 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 var (index, darkFieldImage) = t;
                                 using var _ = darkFieldImage;
 
-                                var shorts = darkFieldImage.Matrix.AsSpan();
-                                double sum = 0;
-                                foreach (var v in shorts) sum += v;
-                                var pmtValue = sum / shorts.Length;
+                                var pmtValue = darkFieldImage.Image.GetIntensity().Average;
 
-                                var cibMMDDto = noProtectedCIBMMDDtos[index];
+                                var item = noProtectedCIBMMDDtos[index];
+                                var itemItem = item.Items[coefficientIndex];
+                                var itemItemData = itemItem.Items[gainIndex];
+                                itemItemData.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
-                                var item = cibMMDDto.Items[coefficientIndex];
-                                var itemItem = item.Items[gainIndex];
+                                if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) itemItem.ProtectedOverflowProtectedPMTValueCount++;
+                                itemItemData.PMTValue = pmtValue;
 
-                                if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedOverflowProtectedPMTValueCount++;
-                                itemItem.PMTValue = pmtValue;
+                                if (gainIndex == gains.Length - 1) /* 最后一次 */ SaveImage();
 
-                                if (item.ProtectedOverflowProtectedPMTValueCount >= Cache.ProtectedOverflowProtectedPMTValueCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
+                                if (itemItem.ProtectedOverflowProtectedPMTValueCount >= Cache.ProtectedOverflowProtectedPMTValueCount /* 超过保护次数 */)
+                                {
+                                    SaveImage();
+                                    LaserViewModel.SetGain([item.CIBInformation], Cache.StartGain);
+                                }
+
+                                Logger.LogHtmlInformation(item.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                                {
+                                    itemItemData.Gain,
+                                    itemItemData.PMTValue,
+                                    itemItemData.RawImageFilePath,
+                                    Image = string.IsNullOrWhiteSpace(itemItemData.ImageFilePath) ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.") : new HtmlImage(itemItemData.ImageFilePath)
+                                }), HtmlLogUniqueId.LoggingHtml());
+
+                                return;
+
+                                void SaveImage()
+                                {
+                                    var imageFilePath = Path.Combine(detectImageDirectory, item.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                                    darkFieldImage.Image.Save(imageFilePath);
+                                    itemItemData.ImageFilePath = imageFilePath;
+                                }
                             }, cancellationToken)));
                         }
                     }
@@ -634,11 +664,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            await Task.WhenAll(Calibratings.Select(cibMMDDto => Task.Run(() =>
+            await Task.WhenAll(Calibratings.Select(t => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                Algorithm(cibMMDDto);
+                Algorithm(t);
             }, cancellationToken)));
 
             Guard.IsTrue(Save(Calibratings, cancellationToken));
@@ -667,11 +697,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            await Task.WhenAll(SelectedReviewItems.Select(cibMMDDto => Task.Run(() =>
+            await Task.WhenAll(SelectedReviewItems.Select(t => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                Algorithm(cibMMDDto);
+                Algorithm(t);
             }, cancellationToken)));
 
             var result = SelectedReviewItems.All(t => t.IsCalibrated);
@@ -731,7 +761,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
-    private void Algorithm(CIBMMDDTO cibMMDDto)
+    private void Algorithm(CIBMMDDTO item)
     {
         var htmlList = new List<BaseHtmlElement>();
         var htmlContainer = new HtmlContainer(htmlList);
@@ -739,27 +769,27 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         try
         {
-            cibMMDDto.GainRSquared = 0d;
-            cibMMDDto.GainResidual = 0d;
-            cibMMDDto.GainPoints = [];
-            cibMMDDto.OriginLogGainPoints = [];
-            cibMMDDto.LogGainA1 = 0d;
-            cibMMDDto.LogGainA2 = 0d;
-            cibMMDDto.LogGainX0 = 0d;
-            cibMMDDto.LogGainDx = 0d;
-            cibMMDDto.LogGainRSquared = 0d;
-            cibMMDDto.FitLogGainPoints = [];
-            cibMMDDto.ResultLogGainPoints = [];
-            cibMMDDto.LogGainMul128U12BitPoints = [];
-            cibMMDDto.GainS16BitPoints = [];
+            item.GainRSquared = 0d;
+            item.GainResidual = 0d;
+            item.GainPoints = [];
+            item.OriginLogGainPoints = [];
+            item.LogGainA1 = 0d;
+            item.LogGainA2 = 0d;
+            item.LogGainX0 = 0d;
+            item.LogGainDx = 0d;
+            item.LogGainRSquared = 0d;
+            item.FitLogGainPoints = [];
+            item.ResultLogGainPoints = [];
+            item.LogGainMul128U12BitPoints = [];
+            item.GainS16BitPoints = [];
 
-            var gains = (IReadOnlyList<double>)[.. cibMMDDto.Items[0].Items.Select(t => t.Gain)];
+            var gains = (IReadOnlyList<double>)[.. item.Items[0].Items.Select(t => t.Gain)];
             var gainConfigurations = (IReadOnlyList<CIBMMDCache.GainConfiguration>)
             [
                 ..gains.Select(t => Cache.GainConfigurations.Single(tt => Math.Abs(tt.Gain - t) < 1e-3))
             ];
 
-            var coefficientCount = cibMMDDto.Items.Count;
+            var coefficientCount = item.Items.Count;
             var gainCount = gains.Count;
 
             // Log(Light) + Log(Gain) = Log(Current)
@@ -783,7 +813,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 }
             }
 
-            var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(cibMMDDto.Items.Select(t => t.MeasurePower));
+            var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(item.Items.Select(t => t.MeasurePower));
             var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log(t, 2));
 
             var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
@@ -791,7 +821,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             {
                 for (var col = 0; col < coefficientCount; col++)
                 {
-                    currentMatrix[row, col] = cibMMDDto.Items[col].Items[row].PMTValue;
+                    currentMatrix[row, col] = item.Items[col].Items[row].PMTValue;
                 }
             }
 
@@ -836,10 +866,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var gainRSquared = Boltzmann.RSquared(aValidGainSubMatrix * xValidLogGainVector, bValidVector);
             var gainResidual = (aValidMatrix * xLogVector - bValidLogCurrentVector).L2Norm();
 
-            cibMMDDto.GainRSquared = gainRSquared;
-            cibMMDDto.GainResidual = gainResidual;
+            item.GainRSquared = gainRSquared;
+            item.GainResidual = gainResidual;
 
-            cibMMDDto.GainPoints =
+            item.GainPoints =
             [
                 ..xValidLogGainVector
                     .Map(t => Math.Pow(2, t))
@@ -847,7 +877,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Index()
                     .Select(t => new Point(gains[t.Index], t.Item))
             ];
-            cibMMDDto.OriginLogGainPoints =
+            item.OriginLogGainPoints =
             [
                 ..xValidLogGainVector
                     .Enumerate()
@@ -855,15 +885,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Select(t => new Point(gains[t.Index], t.Item))
             ];
 
-            var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.Y)));
-            cibMMDDto.LogGainA1 = a1;
-            cibMMDDto.LogGainA2 = a2;
-            cibMMDDto.LogGainX0 = x0;
-            cibMMDDto.LogGainDx = dx;
-            cibMMDDto.LogGainRSquared = rSquared;
-            cibMMDDto.FitLogGainPoints = [.. cibMMDDto.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
-            var distance = Math.Abs(cibMMDDto.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
-            cibMMDDto.ResultLogGainPoints = [.. cibMMDDto.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, cibMMDDto.FitLogGainPoints[t.Index].Y - distance))];
+            var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(item.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(item.OriginLogGainPoints.Select(t => t.Y)));
+            item.LogGainA1 = a1;
+            item.LogGainA2 = a2;
+            item.LogGainX0 = x0;
+            item.LogGainDx = dx;
+            item.LogGainRSquared = rSquared;
+            item.FitLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
+            var distance = Math.Abs(item.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
+            item.ResultLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - distance))];
 
             htmlList.Add(new HtmlBullet(new
             {
@@ -874,15 +904,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 gainResidual
             }));
 
-            isSuccess = cibMMDDto.ResultLogGainPoints.All(t => t.Y is >= 0 and <= 14) && cibMMDDto.ResultLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
+            isSuccess = item.ResultLogGainPoints.All(t => t.Y is >= 0 and <= 14) && item.ResultLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
             if (isSuccess == false)
             {
-                ThrowHelper.ThrowArgumentException("LogGain out of range[0, 14]", nameof(cibMMDDto));
+                ThrowHelper.ThrowArgumentException("LogGain out of range[0, 14]", nameof(item));
 
                 return;
             }
 
-            var results = cibMMDDto.ResultLogGainPoints
+            var results = item.ResultLogGainPoints
                 .Index()
                 .Select(t => (
                     Gain: t.Item.X,
@@ -928,12 +958,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 for (var j = startIndex; j <= endIndex; j++) gainS16BitPoints[j] = new Point(j, yValue);
             }
 
-            cibMMDDto.LogGainMul128U12BitPoints = logGainMul128U12BitPoints;
-            cibMMDDto.GainS16BitPoints = gainS16BitPoints;
+            item.LogGainMul128U12BitPoints = logGainMul128U12BitPoints;
+            item.GainS16BitPoints = gainS16BitPoints;
 
             htmlList.Add(new HtmlBullet(new
             {
-                SuccessPlot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
             isSuccess = true;
@@ -944,18 +974,18 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             htmlList.Add(new HtmlQuote(new
             {
-                SuccessPlot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                 Exception = ex
             }));
         }
         finally
         {
-            cibMMDDto.IsCalibrated = isSuccess;
-            cibMMDDto.IsVerified = false;
+            item.IsCalibrated = isSuccess;
+            item.IsVerified = false;
             if (isSuccess)
-                Logger.LogHtmlInformation($"OK: {cibMMDDto.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"OK: {item.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
             else
-                Logger.LogHtmlError($"Error: {cibMMDDto.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError($"Error: {item.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
         }
     }
 

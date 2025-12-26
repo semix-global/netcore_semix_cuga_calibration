@@ -214,7 +214,7 @@ public sealed partial class OpticsRelayDTOItem : ObservableObject, ICloneable<Op
             ECS = ECS,
             Quality = Quality,
             ImageFilePath = ImageFilePath,
-            RawImageFilePath = RawImageFilePath,
+            RawImageFilePath = RawImageFilePath
         };
     }
 }

@@ -498,7 +498,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 cancellationToken.ThrowIfCancellationRequested();
 
                                 using var _ = darkFieldImage;
-
                                 var itemItem = item.Items[index];
 
                                 var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
@@ -577,7 +576,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                             if (item.IsCalibrated)
                             {
-                                LogDetails();
+                                LogDetails(true);
                                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                                 break;
@@ -585,7 +584,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                             if (++times > Cache.HazeCalibratingRetryTimes - 1)
                             {
-                                LogDetails();
+                                LogDetails(false);
                                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                                 break;
@@ -596,18 +595,21 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                         continue;
 
-                        void LogDetails()
+                        void LogDetails(bool isSuccess)
                         {
                             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                             foreach (var itemItem in item.Items)
                             {
-                                var itemItemData = itemItem.HazeItems.First(t => t.IsOk);
-                                Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                                var itemItemData = itemItem.HazeItems[^1];
+                                var htmlBullet = new HtmlBullet(new
                                 {
                                     itemItemData.Value,
                                     itemItemData.RawImageFilePath,
                                     Image = new HtmlImage(itemItemData.ImageFilePath)
-                                }), HtmlLogUniqueId.LoggingHtml());
+                                });
+
+                                if (isSuccess) Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                                else Logger.LogHtmlError(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                             }
                         }
                     }
@@ -638,6 +640,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                                             && t.OpticsPolarizationModeEnum == opticsPolarizationModeEnum
                                                             && t.CollectorPolarizationModeEnum == collectorPolarizationModeEnum);
                         if (item.IsCalibrated == false) break;
+                        item.IsCalibrated = false;
 
                         SelectedCalibratingItems = [item];
 
@@ -667,7 +670,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 cancellationToken.ThrowIfCancellationRequested();
 
                                 using var _ = darkFieldImage;
-
                                 var itemItem = item.Items[index];
 
                                 var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
@@ -763,7 +765,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                             if (item.IsCalibrated)
                             {
-                                LogDetails();
+                                LogDetails(true);
                                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                                 break;
@@ -771,7 +773,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                             if (++times > Cache.SilicaSphereCalibratingRetryTimes - 1)
                             {
-                                LogDetails();
+                                LogDetails(false);
                                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                                 break;
@@ -782,19 +784,23 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                         continue;
 
-                        void LogDetails()
+                        void LogDetails(bool isSuccess)
                         {
-                            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                            if (isSuccess) Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                            else Logger.LogHtmlError("Details", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                             foreach (var itemItem in item.Items)
                             {
-                                var itemItemData = itemItem.SilicaSphereItems.First(t => t.IsOk);
-                                Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                                var itemItemData = itemItem.SilicaSphereItems[^1];
+                                var htmlBullet = new HtmlBullet(new
                                 {
                                     itemItemData.Value,
                                     itemItemData.RawImageFilePath,
                                     Image = new HtmlImage(itemItemData.ImageFilePath),
                                     Histogram = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.Histogram)], string.Empty)
-                                }), HtmlLogUniqueId.LoggingHtml());
+                                });
+
+                                if (isSuccess) Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                                else Logger.LogHtmlError(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                             }
                         }
                     }

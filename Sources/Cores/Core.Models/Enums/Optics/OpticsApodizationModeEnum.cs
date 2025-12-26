@@ -17,5 +17,5 @@ public enum OpticsApodizationModeEnum
     Cosine,
 
     [Description("None")]
-    None,
+    None
 }

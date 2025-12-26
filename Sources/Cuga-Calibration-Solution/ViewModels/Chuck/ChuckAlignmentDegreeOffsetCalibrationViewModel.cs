@@ -359,7 +359,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
                 HtmlTab = new HtmlTab(new
                 {
                     LowSiteTemplate = new HtmlImage(lowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    HighSiteTemplate = new HtmlImage(highSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    HighSiteTemplate = new HtmlImage(highSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -420,7 +420,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
                     HtmlTab = new HtmlTab(new
                     {
                         LowSiteTemplate = new HtmlImage(lowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        HighSiteTemplate = new HtmlImage(highSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        HighSiteTemplate = new HtmlImage(highSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 

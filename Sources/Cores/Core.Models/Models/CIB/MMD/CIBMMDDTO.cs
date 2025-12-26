@@ -307,10 +307,18 @@ public sealed partial class CIBMMDDTOItem : ObservableObject, ICloneable<CIBMMDD
         [ObservableProperty]
         private double _pMTValue;
 
+        [ObservableProperty]
+        private string _rawImageFilePath = string.Empty;
+
+        [ObservableProperty]
+        private string _imageFilePath = string.Empty;
+
         public Item Clone() => new()
         {
             Gain = Gain,
-            PMTValue = PMTValue
+            PMTValue = PMTValue,
+            RawImageFilePath = RawImageFilePath,
+            ImageFilePath = ImageFilePath
         };
     }
 }

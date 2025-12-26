@@ -141,6 +141,12 @@
                                     <Setter Property="FontWeight" Value="Bold" />
                                     <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsVerified}" Value="False">
+                                    <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>

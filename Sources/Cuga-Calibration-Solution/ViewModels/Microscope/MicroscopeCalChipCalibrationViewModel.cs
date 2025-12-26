@@ -419,7 +419,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
                 Direction = name,
                 Cache.CalChipSiteModelEnum,
                 MachinePosition = resultMachine,
-                darkFieldPosition,
+                darkFieldPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
