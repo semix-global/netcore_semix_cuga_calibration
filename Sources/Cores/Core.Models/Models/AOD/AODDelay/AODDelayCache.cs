@@ -11,6 +11,7 @@ namespace Core.Models.Models.AOD.AODDelay;
 public sealed partial class AODDelayCache : CalibrationCacheBase
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
@@ -20,13 +21,13 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, AODDelayCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), AODDelayCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public AODDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, new AODDelayCacheItem());
+    public AODDelayCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new AODDelayCacheItem());
 }
 
 public sealed partial class AODDelayCacheItem : CalibrationCacheBase

@@ -38,7 +38,7 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
     public MicroscopeFocusCacheItem CurrentCalibrationCacheItem =>
-        MicroscopeFocusCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeFocusCacheItem() { LensInformation = MicroscopeLensInformation.Clone() });
+        MicroscopeFocusCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeFocusCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
 
     public void SetFindFocusPosition(Point position)
     {

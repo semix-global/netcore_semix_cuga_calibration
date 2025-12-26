@@ -537,7 +537,7 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.SetArray<LaserOpticalPowerMeterDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserAttenuatorDto>([], CancellationToken.None);
         cacheProvider.SetArray<AODDelayDto>([], CancellationToken.None);
-        cacheProvider.SetArray<AODAlignmentDto>([], CancellationToken.None);
+        cacheProvider.SetArray<AODAlignmentDTO>([], CancellationToken.None);
         cacheProvider.SetArray<LaserXYAstigmatismCalibrationItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserIlluminationProfileItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserXTCCalibrationItemDto>([], CancellationToken.None);

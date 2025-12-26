@@ -95,9 +95,7 @@
                                 StepIndex="{Binding CalibrationStepIndex}"
                                 ItemsSource="{Binding CalibrationStepList}">
                         <hc:StepBar.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding StepName}" />
-                            </DataTemplate>
+                            <DataTemplate />
                         </hc:StepBar.ItemTemplate>
                     </hc:StepBar>
                     <ProgressBar Grid.Row="3"

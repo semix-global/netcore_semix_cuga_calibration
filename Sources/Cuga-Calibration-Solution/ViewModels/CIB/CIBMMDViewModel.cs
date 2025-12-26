@@ -24,7 +24,6 @@ using MiniExcelLibs;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -49,12 +48,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => string.Join("_", Cache.CIBInformations).Truncate(50);
 
-    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select CIB Information" },
-        new() { StepName = "Find Position" },
+        new() { StepName = "Find Haze Position" },
         new() { StepName = "MMD" }
     ];
 
@@ -191,6 +188,29 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         return Reviews.Count > 0;
     }
 
+    protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                return true;
+
+            case 1:
+                return true;
+
+            case 2:
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition));
+
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -201,8 +221,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Calibratings = [];
 
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
-                    ? Cache.FindBFMachinePosition
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition != Point.Origin
+                    ? Cache.HazeFindBFMachinePosition
                     : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
@@ -213,7 +233,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             case 2:
                 foreach (var cacheCIBInformation in Cache.CIBInformations) CalibrationStatuses.Single(t => t.SelectedItem == cacheCIBInformation).IsCalibrated = true;
 
-                DialogWindowProvider.ShowDialog($"AOD Alignment {CalibrateDirectoryName} Ok!");
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -295,7 +315,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.CIBInformations
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return true;
+            return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t));
         });
     }
 
@@ -307,12 +327,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Guard.IsNotEmpty(Cache.CIBInformations);
 
             StageViewModel.SetAbsoluteStageTheta(0);
-            Cache.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+            Cache.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.CIBInformations,
-                Cache.FindBFMachinePosition
+                Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -327,6 +347,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var detectImageDirectory = ImageFileDirectory;
 
             Guard.IsNotEmpty(Cache.CIBInformations);
+            Guard.IsTrue(ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum));
+            Guard.IsTrue(ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation));
             Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, CalibrationSetting.SettingCommonParam.MeasurePowerMeasurementMinValue);
             Guard.IsGreaterThan(Cache.MeasurePowerSequenceCommonRatio, 0);
             Guard.IsLessThan(Cache.MeasurePowerSequenceCommonRatio, 1);
@@ -335,11 +357,20 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
             Calibratings = [];
-            Cache.PrescanAODWaveformResultFilePath = Cache.ChirpAODWaveformResultFilePath = string.Empty;
+            Cache.PrescanAODWaveformResultFilePath = string.Empty;
+            Cache.ChirpAODWaveformResultFilePath = string.Empty;
             Cache.PrescanAODWaveformProfiles = [];
             Cache.ChirpAODWaveformProfiles = [];
-            Cache.MeasurePowerPoints = Cache.FitMeasurePowerPoints = Cache.NotUseODFilterMeasurePowerPoints = Cache.UseODFilterMeasurePowerPoints = [];
-            Cache.P0 = Cache.P1 = Cache.P2 = Cache.P3 = Cache.RSquared = Cache.ODFilterRatio = 0;
+            Cache.MeasurePowerPoints = [];
+            Cache.FitMeasurePowerPoints = [];
+            Cache.NotUseODFilterMeasurePowerPoints = [];
+            Cache.UseODFilterMeasurePowerPoints = [];
+            Cache.P0 = 0d;
+            Cache.P1 = 0d;
+            Cache.P2 = 0d;
+            Cache.P3 = 0d;
+            Cache.RSquared = 0d;
+            Cache.ODFilterRatio = 0d;
 
             var laserOpticalPowerMeter = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType && t.IsOk);
 
@@ -347,7 +378,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             {
                 laserOpticalPowerMeter.MeasureMaxPowerPosition,
                 Cache.CIBInformations,
-                Cache.FindBFMachinePosition,
+                Cache.HazeFindBFMachinePosition,
                 Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.AFOffsetMotor,
@@ -548,8 +579,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .OrderBy(t => t.CIBInformation)
             ];
 
+            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
-            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition));
+            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+
             if (Cache.IsAFEnable)
             {
                 AfViewModel.SetDarkField(CalChipSiteModelEnum.HazeModel, Cache.AFECS, Cache.AFOffsetMotor);
@@ -598,7 +631,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 Cache.OpticsIlluminationModeEnum,
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
-                                StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
+                                hazeBFPosition,
                                 cibInformations,
                                 Cache.ImageWidth,
                                 Cache.IsAFEnable,
@@ -660,6 +693,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 LaserViewModel.ToggleEnableAutoGainControl(true);
                 LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
                 OpticsViewModel.ToggleODFilter(false);
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
             }
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -725,11 +760,22 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             var errorMessageStringBuilder = new StringBuilder();
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
+                var title = selectedReviewItem.CIBInformation.ToString();
+
+                /*if (selectedReviewItem.IsCalibrated == false)
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    continue;
+                }*/
+
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
                 var htmlBullet = new HtmlBullet(new
@@ -738,11 +784,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 });
 
                 if (selectedReviewItem.IsVerified)
-                    Logger.LogHtmlInformation($"OK: {selectedReviewItem.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
                 {
-                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.CIBInformation.ToString()}: Error");
-                    Logger.LogHtmlError($"Error: {selectedReviewItem.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
             }
 

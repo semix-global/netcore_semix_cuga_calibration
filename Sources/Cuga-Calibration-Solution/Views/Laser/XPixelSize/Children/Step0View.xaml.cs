@@ -1,15 +1,11 @@
 using System.Windows.Controls;
 
-namespace CugaCalibration.Views.Laser.XPixelSize.Children
+namespace CugaCalibration.Views.Laser.XPixelSize.Children;
+
+public partial class Step0View : UserControl
 {
-    /// <summary>
-    /// Step0View.xaml 的交互逻辑
-    /// </summary>
-    public partial class Step0View : UserControl
+    public Step0View()
     {
-        public Step0View()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

@@ -146,7 +146,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -179,7 +179,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         CalibrationStatuses =
         [
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
                 {
                     SelectedItem = t,
                     ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI ? ApplicationCookie.OIOpticsMagTypeProductivityInformations : ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
@@ -771,7 +771,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             new() { StepName = "loading" },
             ..CalibrationStatuses.SelectMany(
                 calibrationStatus => calibrationStatus.ProductivityInformationCalibrationStatusList,
-                (calibrationStatus, productivityInformations) => new CalibrationItemStep()
+                (calibrationStatus, productivityInformations) => new CalibrationItemStep
                 {
                     StepName = $"{calibrationStatus.SelectedItem.ToDescriptionOrString()} {productivityInformations.SelectedItem}"
                 }),

@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.CIB.LightMatching;
@@ -131,7 +130,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             CalibrationStatuses =
             [
                 ..ApplicationCookie.OpticsIlluminationModeEnums
-                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
                     {
                         SelectedItem = t,
                         ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
@@ -144,12 +143,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
         Calibrations =
         [
             .. Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                       && t.OpticsIlluminationModeEnum switch
-                                       {
-                                           OpticsIlluminationModeEnum.OI => ApplicationCookie.OIProductivityInformations.Contains(t.ProductivityInformation),
-                                           OpticsIlluminationModeEnum.NI => ApplicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation),
-                                           _ => ThrowHelper.ThrowArgumentException<bool>(nameof(t.OpticsIlluminationModeEnum))
-                                       }
+                                       && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
                                        && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
                                        && ApplicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
                                        && ApplicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum))
@@ -265,7 +259,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     .ProductivityInformationCalibrationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
-                DialogWindowProvider.ShowDialog($"Light Matching {CalibrateDirectoryName} Ok!");
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -291,7 +285,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 Cache.OpticsIlluminationModeEnum
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return true;
+            return ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum);
         });
     }
 
@@ -514,8 +508,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                                 {
                                     itemItemData.Value,
-                                    itemItemData.RawImageFilePath,
-                                    itemItemData.ImageFilePath
+                                    itemItemData.ImageFilePath,
+                                    itemItemData.RawImageFilePath
                                 }), HtmlLogUniqueId.LoggingHtml());
                             }
 
@@ -675,7 +669,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                                 darkFieldImage.Image.Save(imageFilePath);
 
-                                var histogram = CalibrationAlgorithmService.GetHistogram(darkFieldImage.Image, 0, 0b0000_1111_1111_1111);
+                                var histogram = darkFieldImage.Image.GetHistogram(0, 0b0000_1111_1111_1111);
 
                                 var itemItemData = new CIBLightMatchingDTOItem.Item
                                 {
@@ -690,8 +684,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                                 {
                                     itemItemData.Value,
-                                    itemItemData.RawImageFilePath,
                                     itemItemData.ImageFilePath,
+                                    itemItemData.RawImageFilePath,
                                     Histogram = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.Histogram)], string.Empty)
                                 }), HtmlLogUniqueId.LoggingHtml());
                             }
@@ -814,6 +808,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 LaserViewModel.ToggleEnableAutoGainControl(true);
                 LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetLightMatching(cibInformations, 0);
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition));
             }
         });
     }
@@ -829,11 +825,29 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             var errorMessageStringBuilder = new StringBuilder();
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
+                var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}, {selectedReviewItem.ProductivityInformation}, {selectedReviewItem.OpticsApodizationModeEnum.Humanize()}, {selectedReviewItem.OpticsPolarizationModeEnum.Humanize()}, {selectedReviewItem.CollectorPolarizationModeEnum.Humanize()}";
+
+                /*if (selectedReviewItem.IsCalibrated == false)
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    continue;
+                }*/
+
+                Cache.OpticsIlluminationModeEnum = selectedReviewItem.OpticsIlluminationModeEnum;
+                Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
+
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                {
+                    Cache.OpticsIlluminationModeEnum,
+                    Cache.ProductivityInformation
+                }), HtmlLogUniqueId.LoggingHtml());
+
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
                 var htmlBullet = new HtmlBullet(new
@@ -846,14 +860,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 
-                var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}, {selectedReviewItem.ProductivityInformation}, {selectedReviewItem.OpticsApodizationModeEnum.Humanize()}, {selectedReviewItem.OpticsPolarizationModeEnum.Humanize()}, {selectedReviewItem.CollectorPolarizationModeEnum.Humanize()}";
-
                 if (selectedReviewItem.IsVerified)
-                    Logger.LogHtmlInformation($"OK: {title}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
                 {
                     errorMessageStringBuilder.AppendLine($"{title}: Error");
-                    Logger.LogHtmlError($"Error: {title}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
             }
 

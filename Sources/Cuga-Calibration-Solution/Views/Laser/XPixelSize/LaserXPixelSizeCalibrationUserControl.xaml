@@ -118,11 +118,7 @@
                                 ItemsSource="{Binding AutoCalibrationStepList, Mode=TwoWay}"
                                 Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
                         <hc:StepBar.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding StepName}"
-                                           TextWrapping="Wrap"
-                                           TextAlignment="Center" />
-                            </DataTemplate>
+                            <DataTemplate />
                         </hc:StepBar.ItemTemplate>
                     </hc:StepBar>
                     <ProgressBar Grid.Row="3"

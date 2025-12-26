@@ -8,10 +8,10 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.XPixelSize;
 
-public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, ICloneable<LaserXPixelSizeItemDto>, IAdaptTo<CalibrationLaserXPixelSizeItem>
+public sealed partial class LaserXPixelSizeItemDTO : CalibrationDtoBase, ICloneable<LaserXPixelSizeItemDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -30,14 +30,17 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SlideItemPoints))]
-    private IReadOnlyList<LaserXPixelSizeSlideItem> _slideItems = [];
+    private IReadOnlyList<LaserXPixelSizeItemDTOSlideItem> _slideItems = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _slideSplitDifferences = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
-    private IReadOnlyList<LaserXPixelSizeSlideItem> _verifyItems = [];
+    private IReadOnlyList<LaserXPixelSizeItemDTOSlideItem> _verifyItems = [];
+
+    [ObservableProperty]
+    private string _verifyRawImageFilePath = string.Empty;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -56,9 +59,9 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
 
     #region Mapper
 
-    public LaserXPixelSizeItemDto Clone() => new()
+    public LaserXPixelSizeItemDTO Clone() => new()
     {
-        OpticsIlluminationMode = OpticsIlluminationMode,
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         CIBInformation = CIBInformation.Clone(),
@@ -77,7 +80,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
 
     public CalibrationLaserXPixelSizeItem AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
         CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
         XPixelSize = XPixelSize,
@@ -88,7 +91,7 @@ public sealed partial class LaserXPixelSizeItemDto : CalibrationDtoBase, IClonea
     #endregion Mapper
 }
 
-public sealed class LaserXPixelSizeSlideItem
+public sealed class LaserXPixelSizeItemDTOSlideItem
 {
     public long StartPixel { get; init; }
 

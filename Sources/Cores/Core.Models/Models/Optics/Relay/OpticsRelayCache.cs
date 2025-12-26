@@ -43,7 +43,7 @@ public sealed partial class OpticsRelayCacheItem : ObservableObject
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
+    private Point _dSWFindBFMachinePosition;
 
     [ObservableProperty]
     private int _imageWidth = 1000;

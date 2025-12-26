@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Optics.Relay.Children.Step2View"
+﻿<UserControl x:Class="CugaCalibration.Views.AOD.AODAlignment.Children.Step3View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
-             d:DataContext="{d:DesignInstance Type=viewModels:OpticsRelayViewModel}"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODAlignmentViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -21,17 +21,18 @@
                 <RowDefinition Height="5" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <hc:UniformSpacingPanel Orientation="Vertical"
-                                    Spacing="2"
-                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <hc:Shield Subject="Step 3: "
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Step 4: "
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Optics Illumination Mode: "
                            Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Productivity Information: "
-                           Status="{Binding Cache.Item.ProductivityInformation}"
+                <hc:Shield Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Microscope: "
+                           Status="{Binding Cache.Item.MicroscopeLensInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Laser Light Information: "
                            Status="{Binding Cache.Item.LaserLightInformation}"
@@ -50,8 +51,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <TextBox Text="{Binding Cache.Item.DSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                 Width="275"
+                        <TextBox Text="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                                  hc:TitleElement.Title="Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />
@@ -59,11 +59,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step2CalibrateActionCommand}"
+                                    Command="{Binding Step3CalibrateActionCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step2CalibrateActionCancelCommand}"
+                                    Command="{Binding Step3CalibrateActionCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>

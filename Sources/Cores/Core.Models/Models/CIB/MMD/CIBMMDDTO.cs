@@ -164,7 +164,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
                     if (itemItems.Length > 0)
                         ScatterPlotControl.GetOrAddScatterLine(
                             1,
-                            $"{item.Coefficient}",
+                            $"{item.Coefficient:0.###}",
                             [.. itemItems.Select(t => new Point(t.Gain, t.PMTValue))]);
                 }
             }

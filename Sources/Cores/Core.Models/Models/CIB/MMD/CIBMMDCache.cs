@@ -19,7 +19,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private IReadOnlyList<CIBInformation> _cIBInformations = [];
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
+    private Point _hazeFindBFMachinePosition;
 
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;

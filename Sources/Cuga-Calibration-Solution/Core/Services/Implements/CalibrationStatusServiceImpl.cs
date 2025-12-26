@@ -118,7 +118,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependLaserAodDelayCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibrationItems<AODAlignmentDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<AODAlignmentDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXYAstigmatismCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;

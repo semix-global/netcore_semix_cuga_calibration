@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
@@ -62,18 +61,6 @@ public sealed partial class DarkFieldImageDto :
     /// 图片
     /// </summary>
     public required HImage Image { get; init; }
-
-    /// <summary>
-    /// 向Y轴投影后的点均值列表
-    /// </summary>
-    public double[] ProjectionYs
-    {
-        get
-        {
-            var convertToDoubleMatrix = MathNet.Numerics.LinearAlgebra.Matrix<double>.Build.DenseOfArray(Matrix);
-            return [.. convertToDoubleMatrix.RowSums().Divide(convertToDoubleMatrix.ColumnCount)];
-        }
-    }
 
     #region Mapper
 

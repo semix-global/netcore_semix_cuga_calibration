@@ -52,15 +52,6 @@ public interface ICalibrationAlgorithmService
     /// <returns>光斑大小</returns>
     (double Width, double Height) GetLightQuality(HImage image, Rect roiRect);
 
-    /// <summary>
-    /// 获取图片的直方图
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="min">直方图的范围最小值</param>
-    /// <param name="max">直方图的范围最大值</param>
-    /// <returns>直方图</returns>
-    IReadOnlyList<Point> GetHistogram(HImage image, int min, int max);
-
     #endregion 清晰度
 
     #region 尺寸

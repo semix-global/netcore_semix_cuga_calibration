@@ -32,7 +32,7 @@ public partial class OpticsIlluminationModeAndProductivityInformationAndApodizat
 
     public static List<OpticsIlluminationModeAndProductivityInformationAndApodizationCalibrationStatus> CreateList(IReadOnlyList<ProductivityInformation> productivityInformations) =>
         EnumHelper.Enums<OpticsIlluminationModeEnum>()
-            .Select(t => new OpticsIlluminationModeAndProductivityInformationAndApodizationCalibrationStatus()
+            .Select(t => new OpticsIlluminationModeAndProductivityInformationAndApodizationCalibrationStatus
             {
                 SelectedItem = t,
                 ProductivityInformationAndApodizationCalibrationStatusList = [.. ProductivityInformationAndApodizationCalibrationStatus.CreateList(productivityInformations)]

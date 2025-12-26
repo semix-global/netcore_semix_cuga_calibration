@@ -43,7 +43,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     [
         new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Image Param" },
-        new() { StepName = "Find Position" },
+        new() { StepName = "Find DSW Position" },
         new() { StepName = "Relay" }
     ];
 
@@ -183,7 +183,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
             case 3:
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition));
 
                 return true;
 
@@ -205,8 +205,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
             case 1:
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition != Point.Origin
-                    ? Cache.Item.FindBFMachinePosition
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.DSWFindBFMachinePosition
                     : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.DswItem).BrightFieldMachinePosition));
 
                 return true;
@@ -216,7 +216,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
             case 3:
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum).IsCalibrated = true;
-                DialogWindowProvider.ShowDialog($"AOD Delay Offset {Cache.OpticsIlluminationModeEnum.Humanize()} Ok!");
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -278,11 +278,11 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(() =>
         {
             StageViewModel.SetAbsoluteStageTheta(0);
-            Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+            Cache.Item.DSWFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.Item.FindBFMachinePosition
+                Cache.Item.DSWFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -311,7 +311,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.CIBInformation,
-                Cache.Item.FindBFMachinePosition,
+                Cache.Item.DSWFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.OpticsIlluminationDegreeAngle,
                 Cache.Item.DefaultRelayMotorRatio,
@@ -330,10 +330,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 defaultSlope
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
-
             CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
             CalibratingItem.Items = [];
             CalibratingItem.Slope = 0d;
@@ -344,6 +340,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             CalibratingItem.MinRelayMotorAbsoluteValue = 0d;
             CalibratingItem.MaxRelayMotorAbsoluteValue = 0d;
             CalibratingItem.IsCalibrated = false;
+
+            var dswBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition);
+            StageViewModel.SetAbsoluteStageTheta(0d);
+            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
 
             try
             {
@@ -424,7 +424,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                                 Cache.Item.ProductivityInformation,
                                 CalChipSiteModelEnum.DswModel,
                                 StageCoordinateSystemEnum.Dark,
-                                brightFieldPosition,
+                                dswBFPosition,
                                 (false, Cache.Item.LaserLightInformation),
                                 false,
                                 Cache.Item.CIBInformation,
@@ -476,7 +476,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             finally
             {
                 OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, currentMotorAbsoluteValue);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
             }
         });
     }
@@ -492,16 +493,28 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.Threshold
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             var errorMessageStringBuilder = new StringBuilder();
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
+                var title = selectedReviewItem.OpticsIlluminationModeEnum.Humanize();
+
+                /*if (selectedReviewItem.IsCalibrated == false)
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    continue;
+                }*/
+
+                Cache.OpticsIlluminationModeEnum = selectedReviewItem.OpticsIlluminationModeEnum;
+
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                {
+                    Cache.OpticsIlluminationModeEnum,
+                    Cache.Threshold
+                }), HtmlLogUniqueId.LoggingHtml());
+
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
                 var htmlBullet = new HtmlBullet(new
@@ -515,11 +528,11 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 });
 
                 if (selectedReviewItem.IsOk)
-                    Logger.LogHtmlInformation($"OK: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
                 {
                     errorMessageStringBuilder.AppendLine($"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}: Error");
-                    Logger.LogHtmlError($"Error: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
             }
 

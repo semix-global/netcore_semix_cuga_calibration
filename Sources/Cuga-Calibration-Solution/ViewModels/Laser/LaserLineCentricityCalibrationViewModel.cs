@@ -183,7 +183,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -225,7 +225,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         CalibrationStatuses =
         [
             ..ApplicationCookie.OpticsIlluminationModeEnums
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
                 {
                     SelectedItem = t,
                     ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
@@ -1055,7 +1055,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             new() { StepName = "loading" },
             ..CalibrationStatuses.SelectMany(
                 calibrationStatus => calibrationStatus.ProductivityInformationCalibrationStatusList,
-                (calibrationStatus, productivityInformations) => new CalibrationItemStep()
+                (calibrationStatus, productivityInformations) => new CalibrationItemStep
                 {
                     StepName = $"{calibrationStatus.SelectedItem.ToDescriptionOrString()} {productivityInformations.SelectedItem}"
                 }),

@@ -112,7 +112,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
 
                     foreach (var calibrationCategoryItem in calibrationCategory.Items)
                     {
-                        var calibrationCategoryItemObj = new CalibrationCategoryItem()
+                        var calibrationCategoryItemObj = new CalibrationCategoryItem
                         {
                             Description = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last(),
                             IsAnyOk = false,

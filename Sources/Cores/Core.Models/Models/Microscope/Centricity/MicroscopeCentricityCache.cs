@@ -18,7 +18,7 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
     public MicroscopeCentricityCacheItem CurrentCalibrationCacheItem =>
-        MicroscopeCentricityCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeCentricityCacheItem() { LensInformation = MicroscopeLensInformation.Clone() });
+        MicroscopeCentricityCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeCentricityCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
 
     [ObservableProperty]
     private Point _verifyResultPosition;

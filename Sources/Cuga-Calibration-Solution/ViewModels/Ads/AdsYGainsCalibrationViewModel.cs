@@ -365,7 +365,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     IsY5Stop = false;
                     IsY6Stop = false;
                     {
-                        var adsYGainsDichotomySpeedCacheItem = new AdsYGainsDichotomySpeedCacheItem()
+                        var adsYGainsDichotomySpeedCacheItem = new AdsYGainsDichotomySpeedCacheItem
                         {
                             IsPositive = Cache.IsPositive,
                             SpeedYValue = speedvalue
@@ -414,7 +414,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         }
                     }
                     {
-                        var adsYGainsDichotomySpeedCacheItem = new AdsYGainsDichotomySpeedCacheItem()
+                        var adsYGainsDichotomySpeedCacheItem = new AdsYGainsDichotomySpeedCacheItem
                         {
                             IsPositive = !Cache.IsPositive,
                             SpeedYValue = speedvalue
@@ -1007,7 +1007,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 {
-                    var adsYGainsItemDto = new AdsYGainsItemDto()
+                    var adsYGainsItemDto = new AdsYGainsItemDto
                     {
                         IsPositive = Cache.IsPositive
                     };
@@ -1076,7 +1076,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 }
 
                 {
-                    var adsYGainsItemDto = new AdsYGainsItemDto()
+                    var adsYGainsItemDto = new AdsYGainsItemDto
                     {
                         IsPositive = !Cache.IsPositive
                     };

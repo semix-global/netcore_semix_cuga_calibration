@@ -5,6 +5,8 @@ using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Core.Models.Enums.Optics;
+using Net.Utilities.Models.Enums.Maths;
 
 namespace Core.Models.Models.AOD.AODAlignment;
 
@@ -12,42 +14,46 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private double _threshold;
+    private double _threshold = 0.999;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, AODAlignmentCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), AODAlignmentCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public AODAlignmentCacheItem Item => Items.GetOrAdd(ProductivityInformation, new AODAlignmentCacheItem());
+    public AODAlignmentCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new AODAlignmentCacheItem());
 }
 
 public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
-    private Point _findBFMachinePosition;
-
-    [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private int _pMTId = CalibrationConstantsHelper.MainPmtId;
+    private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private int _channelId = CalibrationConstantsHelper.MainChannelId;
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
+    private Point _hazeFindBFMachinePosition;
 
     [ObservableProperty]
     private int _imageWidth = 1000;
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
+    private GeneratePrescanAODWaveformParam _flatnessGeneratePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
     private double _startPrescanFrequency;
@@ -57,4 +63,7 @@ public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stopPrescanFrequency;
+
+    [ObservableProperty]
+    private int _rangeSkipFitCount = 1;
 }

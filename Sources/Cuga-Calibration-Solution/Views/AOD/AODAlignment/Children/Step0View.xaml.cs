@@ -1,6 +1,8 @@
-﻿namespace CugaCalibration.Views.AOD.AODAlignment.Children;
+using System.Windows.Controls;
 
-public sealed partial class Step0View
+namespace CugaCalibration.Views.AOD.AODAlignment.Children;
+
+public partial class Step0View : UserControl
 {
     public Step0View()
     {

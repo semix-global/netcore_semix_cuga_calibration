@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -38,9 +37,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
+    public override string CalibrateDirectoryName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation}";
 
-    public override string CalibrateFileName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation.ToString()}";
+    public override string CalibrateFileName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -57,7 +56,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     #region Calibrate
 
     [ObservableProperty]
-    private LaserXPixelSizeItemDto _calibratingItem = new();
+    private LaserXPixelSizeItemDTO _calibratingItem = new();
 
     [ObservableProperty]
     private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
@@ -67,10 +66,10 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<LaserXPixelSizeItemDto> _reviews = [];
+    private IReadOnlyList<LaserXPixelSizeItemDTO> _reviews = [];
 
     [ObservableProperty]
-    private List<LaserXPixelSizeItemDto> _selectedReviewItems = [];
+    private List<LaserXPixelSizeItemDTO> _selectedReviewItems = [];
 
     #endregion Review
 
@@ -80,6 +79,9 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
     [ObservableProperty]
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
+
+    [ObservableProperty]
+    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
 
     [ObservableProperty]
     private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
@@ -97,7 +99,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
     private LaserXPixelSizeCache _cache = new();
 
     [ObservableProperty]
-    private LaserXPixelSizeItemDto[] _calibrations = [];
+    private LaserXPixelSizeItemDTO[] _calibrations = [];
 
     #endregion 缓存
 
@@ -119,7 +121,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             CalibrationStatuses =
             [
                 ..ApplicationCookie.OpticsIlluminationModeEnums
-                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
                     {
                         SelectedItem = t,
                         ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
@@ -130,21 +132,16 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserXPixelSizeCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>();
+        Calibrations = CacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDTO>();
 
         Calibrations =
         [
-            .. Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationMode)
-                                       && t.OpticsIlluminationMode switch
-                                       {
-                                           OpticsIlluminationModeEnum.OI => ApplicationCookie.OIProductivityInformations.Contains(t.ProductivityInformation),
-                                           OpticsIlluminationModeEnum.NI => ApplicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation),
-                                           _ => ThrowHelper.ThrowArgumentException<bool>(nameof(t.OpticsIlluminationMode))
-                                       })
+            .. Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                                       && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses
-                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationMode)
+                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum)
                         .ProductivityInformationCalibrationStatusList
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
@@ -173,11 +170,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsIlluminationMode)
+                .OrderBy(t => t.OpticsIlluminationModeEnum)
                 .ThenBy(t => t.ProductivityInformation)
         ];
 
-        return Reviews.Any(t => t.IsCalibrated);
+        return Reviews.Count > 0;
     }
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
@@ -221,7 +218,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 return true;
 
             case 1:
-                CalibratingItem = new LaserXPixelSizeItemDto();
+                CalibratingItem = new LaserXPixelSizeItemDTO();
 
                 return true;
 
@@ -244,7 +241,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     .ProductivityInformationCalibrationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
-                DialogWindowProvider.ShowDialog($"X Pixel Size {CalibrateDirectoryName} Ok!");
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -269,7 +266,8 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             {
                 Cache.OpticsIlluminationModeEnum
             }), HtmlLogUniqueId.LoggingHtml());
-            return true;
+
+            return ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum);
         });
     }
 
@@ -327,25 +325,23 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             var alignmentResult = new AlignmentResultDto();
             if (Cache.Item.IsDarkFieldAlignment)
             {
-                var alignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
-                                                  t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
-                                                  t.ProductivityInformation == Cache.ProductivityInformation)
-                                              ?? new AlignmentCacheDarkField();
-                if (alignmentCacheDarkField.IsOk)
+                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum
+                                                                                        && t.ProductivityInformation == Cache.ProductivityInformation, new AlignmentCacheDarkField());
+                if (AlignmentCacheDarkField.IsOk)
                     alignmentResult = StageViewModel.AlignmentDarkField(
-                        alignmentCacheDarkField.LowSite1,
-                        alignmentCacheDarkField.LowSite2,
-                        alignmentCacheDarkField.HighSite1,
-                        alignmentCacheDarkField.HighSite2,
+                        AlignmentCacheDarkField.LowSite1,
+                        AlignmentCacheDarkField.LowSite2,
+                        AlignmentCacheDarkField.HighSite1,
+                        AlignmentCacheDarkField.HighSite2,
                         Cache.ProductivityInformation,
-                        alignmentCacheDarkField.LowMag,
-                        alignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                        AlignmentCacheDarkField.LowMag,
+                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
                         opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
                 else
                 {
                     var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
                     Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
-                    alignmentCacheDarkField = alignmentWindowDarkFieldViewModel.Cache;
+                    AlignmentCacheDarkFields = [..AlignmentCacheDarkFields, alignmentWindowDarkFieldViewModel.Cache];
                 }
             }
             else
@@ -474,15 +470,22 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
+            CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
+            CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
+            CalibratingItem.MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation;
+            CalibratingItem.CIBInformation = Cache.Item.CIBInformation;
+            CalibratingItem.XPixelSize = 0d;
+            CalibratingItem.RawImageFilePath = string.Empty;
+            CalibratingItem.VerifyRawImageFilePath = string.Empty;
+            CalibratingItem.SlideItems = [];
+            CalibratingItem.SlideSplitDifferences = [];
+            CalibratingItem.VerifyItems = [];
+            CalibratingItem.VerifySplitDifferences = [];
+
             Guard.IsTrue(CalibrationAlgorithmService.TryReadTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.Item.TemplateFilePath, out var templateId), nameof(CalibrationAlgorithmService.TryReadTemplate));
             using var _ = templateId;
 
             var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
-
-            CalibratingItem.OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum;
-            CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
-            CalibratingItem.MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation;
-            CalibratingItem.CIBInformation = Cache.Item.CIBInformation;
 
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
@@ -515,14 +518,14 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
             StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 
-            var rawImageFilePath = darkFieldLineScanImage.RawImageFilePath;
+            CalibratingItem.RawImageFilePath = darkFieldLineScanImage.RawImageFilePath;
 
-            Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { rawImageFilePath }), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { CalibratingItem.RawImageFilePath }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
             await
 #endif
-            using var fileSteam = File.OpenRead(rawImageFilePath);
+            using var fileSteam = File.OpenRead(CalibratingItem.RawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
             var (size, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
@@ -545,12 +548,12 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 totalCount
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var items = new LaserXPixelSizeSlideItem[totalCount];
+            var items = new LaserXPixelSizeItemDTOSlideItem[totalCount];
 
             #region Channel
 
             using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
-            var channel = Channel.CreateBounded<LaserXPixelSizeSlideItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
+            var channel = Channel.CreateBounded<LaserXPixelSizeItemDTOSlideItem>(new BoundedChannelOptions(totalCount) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
 
             #region Reader
 
@@ -653,7 +656,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
             #endregion
 
             CalibratingItem.IsCalibrated = true;
-            Guard.IsTrue(Save(CalibratingItem, cancellationToken));
+            Guard.IsTrue(Save([CalibratingItem], cancellationToken));
 
             return true;
         });
@@ -670,13 +673,22 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 return false;
             }
 
-            var verifyResultList = new List<bool>();
+            var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var item in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                Cache.ProductivityInformation = item.ProductivityInformation;
+                var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{selectedReviewItem.ProductivityInformation}";
 
-                Logger.LogHtmlInformation(item.ProductivityInformation.ToString(), HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                if (selectedReviewItem.IsCalibrated == false)
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    continue;
+                }
+
+                Cache.OpticsIlluminationModeEnum = selectedReviewItem.OpticsIlluminationModeEnum;
+                Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
+
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var detectImageDirectory = ImageFileDirectory;
 
@@ -722,7 +734,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 var imageCount = currentRowDies.Length;
                 Guard.IsGreaterThan(imageCount, 2);
 
-                var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * item.XPixelSize / 2d, 0);
+                var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * selectedReviewItem.XPixelSize / 2d, 0);
                 var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
                 var verifyDarkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
@@ -736,20 +748,21 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     false,
                     Cache.Item.CIBInformation,
                     Cache.Item.CIBConfiguration);
-                var verifyRawImageFilePath = verifyDarkFieldLineScanImage.RawImageFilePath;
+
+                selectedReviewItem.VerifyRawImageFilePath = verifyDarkFieldLineScanImage.RawImageFilePath;
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 
                 Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    verifyRawImageFilePath,
+                    selectedReviewItem.VerifyRawImageFilePath,
                     imageCount
                 }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
                 await
 #endif
-                using var fileSteam = File.OpenRead(verifyRawImageFilePath);
+                using var fileSteam = File.OpenRead(selectedReviewItem.VerifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
@@ -759,11 +772,11 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
 
                 var imageAllPixelByteLength = Cache.Item.ImageWidth * heightPixelByteLength;
-                var verifyStepAllPixelByteLength = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / item.XPixelSize * heightPixelByteLength;
+                var verifyStepAllPixelByteLength = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.XPixelSize * heightPixelByteLength;
 
                 Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
 
-                var verifyItems = new LaserXPixelSizeSlideItem[imageCount];
+                var verifyItems = new LaserXPixelSizeItemDTOSlideItem[imageCount];
                 foreach (var (index, pointer) in Enumerable
                              .Range(0, imageCount)
                              .Select(t => t * verifyStepAllPixelByteLength)
@@ -793,27 +806,26 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                     if (verifyItems[index].IsMatchOk == false) return false;
                 }
 
-                item.VerifyItems = [.. verifyItems];
+                selectedReviewItem.VerifyItems = [.. verifyItems];
 
-                var verifyXDifferences = item.VerifyItems
-                    .Zip(item.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
+                var verifyXDifferences = selectedReviewItem.VerifyItems
+                    .Zip(selectedReviewItem.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
-                item.VerifySplitDifferences = verifyXDifferences;
+                selectedReviewItem.VerifySplitDifferences = verifyXDifferences;
 
                 var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / verifyXDifferences.Average();
 
                 var waferDiameter = Cache.Item.WaferRadius * 2d;
-                var errorPixel = Math.Abs(waferDiameter / verifyRealUmPerPixel - waferDiameter / item.XPixelSize);
+                var errorPixel = Math.Abs(waferDiameter / verifyRealUmPerPixel - waferDiameter / selectedReviewItem.XPixelSize);
                 var isOk = Math.Abs(verifyXDifferences.Max() - verifyXDifferences.Min()) <= Cache.Threshold
                            && errorPixel <= Cache.Threshold;
-                verifyResultList.Add(isOk);
 
                 var htmlQuote = new HtmlQuote(new
                 {
                     Cache.Threshold,
-                    verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. item.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
+                    verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. selectedReviewItem.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
                     verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. verifyXDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
-                    CalibratedXPixelSize = item.XPixelSize,
+                    CalibratedXPixelSize = selectedReviewItem.XPixelSize,
                     verifyRealUmPerPixel,
                     errorPixel = $"({errorPixel:0.###}px)/({waferDiameter:0.###}um)"
                 });
@@ -821,18 +833,24 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
                 if (isOk)
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                 else
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                }
 
-                if (isOk == false) continue;
 
-                item.XPixelSize = verifyRealUmPerPixel;
-                item.IsVerified = true;
-                Guard.IsTrue(Save(item, cancellationToken));
+                if (isOk) selectedReviewItem.XPixelSize = verifyRealUmPerPixel;
+                selectedReviewItem.IsVerified = isOk;
             }
 
-            var result = verifyResultList.All(t => t);
+            Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}",
+            var result = SelectedReviewItems.All(t => t.IsOk);
+
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
@@ -840,18 +858,21 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         }).ConfigureAwait(false);
     }
 
-    private bool Save(LaserXPixelSizeItemDto item, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<LaserXPixelSizeItemDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
-        update(item);
         update(Cache);
 
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => t.OpticsIlluminationMode != Cache.OpticsIlluminationModeEnum
-                            || t.ProductivityInformation != Cache.ProductivityInformation),
-            item.Clone()
-        ];
+        foreach (var dto in dtos)
+        {
+            update(dto);
+            Calibrations =
+            [
+                .. Calibrations
+                    .Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
+                                || t.ProductivityInformation != dto.ProductivityInformation),
+                dto.Clone()
+            ];
+        }
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
@@ -861,7 +882,7 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
 
     #region Item
 
-    private LaserXPixelSizeSlideItem GetLaserXPixelSizeSlideItem(
+    private LaserXPixelSizeItemDTOSlideItem GetLaserXPixelSizeSlideItem(
         long pointer,
         int allPixelByteLength,
         FileStream fileSteam,
@@ -886,13 +907,13 @@ public sealed partial class LaserXPixelSizeCalibrationViewModel : CalibrationVie
         fileSteam.Seek(bodyBytesStartIndex + pointer, SeekOrigin.Begin);
         Guard.IsEqualTo(binaryReader.Read(buffer, 0, currentImageAllPixelByteLength), currentImageAllPixelByteLength);
 
-        var item = new LaserXPixelSizeSlideItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
+        var item = new LaserXPixelSizeItemDTOSlideItem { StartPixel = pointer / heightPixelByteLength, Buffer = buffer, SizeI = new SizeI(currentImageAllPixelByteLength / heightPixelByteLength, heightPixel) };
 
         return item;
     }
 
     private async Task ResolveLaserXPixelSizeSlideItemAsync(
-        LaserXPixelSizeSlideItem item,
+        LaserXPixelSizeItemDTOSlideItem item,
         HTuple templateId,
         Size templateImageSize,
         string detectImageDirectory,

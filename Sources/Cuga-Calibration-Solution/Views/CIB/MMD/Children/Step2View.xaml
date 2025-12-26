@@ -29,11 +29,11 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="CIB MMD Step 3: "
+                <hc:Shield Subject="Step 3: "
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="BF Machine Position(um): "
-                           Status="{Binding Cache.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                <hc:Shield Subject="Haze BF Machine Position(um): "
+                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
