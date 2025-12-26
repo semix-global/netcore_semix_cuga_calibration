@@ -858,28 +858,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
-    private bool Save(IReadOnlyList<CIBXPixelSizeDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
-    {
-        update(Cache);
-
-        foreach (var dto in dtos)
-        {
-            update(dto);
-            Calibrations =
-            [
-                .. Calibrations
-                    .Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
-                                || t.ProductivityInformation != dto.ProductivityInformation),
-                dto.Clone()
-            ];
-        }
-
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    });
-
-    #endregion 校准
-
     #region Item
 
     private CIBXPixelSizeItem GetCIBXPixelSizeSlideItem(
@@ -971,4 +949,25 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     }
 
     #endregion
+
+    private bool Save(IReadOnlyList<CIBXPixelSizeDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    {
+        update(Cache);
+
+        foreach (var dto in dtos)
+        {
+            update(dto);
+            Calibrations =
+            [
+                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
+                                           || t.ProductivityInformation != dto.ProductivityInformation),
+                dto.Clone()
+            ];
+        }
+
+        CacheProvider.SetArray(Calibrations, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
+    });
+
+    #endregion 校准
 }

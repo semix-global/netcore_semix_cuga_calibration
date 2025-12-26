@@ -333,6 +333,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(() =>
         {
             var detectImageDirectory = ImageFileDirectory;
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.OpticsIlluminationModeEnum,
@@ -375,14 +376,14 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 var (aodWaveformResultItem, exceptionItem) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationToken);
                 if (aodWaveformResultItem.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exceptionItem);
 
-                var item = new AODAlignmentDTOItem
+                var itemItem = new AODAlignmentDTOItem
                 {
                     PrescanFrequency = prescanFrequency,
                     PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResultItem),
                     PrescanAODWaveformResultFilePath = aodWaveformResultItem.FilePath
                 };
 
-                LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
+                LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, itemItem.PrescanAODWaveformProfiles);
 
                 using var darkFieldImage = LaserViewModel.GetDarkFieldLineScanImage(
                     Cache.OpticsIlluminationModeEnum,
@@ -396,22 +397,22 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     Cache.Item.CIBConfiguration,
                     Cache.Item.ImageWidth);
 
-                var imageFilePath = Path.Combine(detectImageDirectory, $"{item.PrescanFrequency:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.PrescanFrequency:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 darkFieldImage.Image.Save(imageFilePath);
 
-                item.ImageFilePath = imageFilePath;
-                item.RawImageFilePath = darkFieldImage.RawImageFilePath;
-                item.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+                itemItem.ImageFilePath = imageFilePath;
+                itemItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
+                itemItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
 
-                CalibratingItem.Items = [.. CalibratingItem.Items, item];
+                CalibratingItem.Items = [.. CalibratingItem.Items, itemItem];
 
-                Logger.LogHtmlInformation($"{item.PrescanFrequency:0.###}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                Logger.LogHtmlInformation($"{itemItem.PrescanFrequency:0.###}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
-                    item.PrescanAODWaveformResultFilePath,
-                    PrescanAODWaveformProfiles = new HtmlTable([.. item.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
-                    item.RawImageFilePath,
-                    HtmlImage = new HtmlImage(item.ImageFilePath)
+                    itemItem.PrescanAODWaveformResultFilePath,
+                    PrescanAODWaveformProfiles = new HtmlTable([.. itemItem.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
+                    itemItem.RawImageFilePath,
+                    HtmlImage = new HtmlImage(itemItem.ImageFilePath)
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 
@@ -523,9 +524,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations
-                    .Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
-                                || t.ProductivityInformation != dto.ProductivityInformation),
+                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
+                                           || t.ProductivityInformation != dto.ProductivityInformation),
                 dto.Clone()
             ];
         }

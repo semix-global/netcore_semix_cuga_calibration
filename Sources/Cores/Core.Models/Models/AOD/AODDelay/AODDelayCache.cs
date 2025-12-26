@@ -18,9 +18,6 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    [ObservableProperty]
-    private double _threshold;
-
     public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), AODDelayCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
@@ -33,25 +30,25 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
 public sealed partial class AODDelayCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
-
-    [ObservableProperty]
-    private double _waitTime = 5;
-
-    [ObservableProperty]
-    private int _pMTDataCount = 100;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private int _pMTId = CalibrationConstantsHelper.MainPmtId;
+    private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private int _channelId = CalibrationConstantsHelper.MainChannelId;
+    private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
+    private Point _hazeFindBFMachinePosition;
+
+    [ObservableProperty]
+    private int _imageWidth = 1000;
+
+    [ObservableProperty]
+    private double _waitTime = 5;
 
     [ObservableProperty]
     private double _startRoughAODDelay = -1500;

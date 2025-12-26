@@ -135,7 +135,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
             });
 
         ScatterPlotControl.SetTitle(0, "Origin(Y: mW - X: Coefficient)");
-        ScatterPlotControl.SetTitle(1, "Origin(Y: PMTValue - X: V)");
+        ScatterPlotControl.SetTitle(1, "Origin(Y: PMT Value(DC) - X: V)");
         ScatterPlotControl.SetTitle(2, "Gain(Y: Gain - X: V)");
         ScatterPlotControl.SetTitle(3, "LogGain(Y: LogGain - X: V)");
         ScatterPlotControl.SetTitle(4, "LogGain * 128 U12Bit(Y: LogGain * 128 U12Bit - X: Sense U14Bit)");

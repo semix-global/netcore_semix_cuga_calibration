@@ -499,7 +499,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 var itemItemData = new CIBLightMatchingDTOItem.Item
                                 {
-                                    Value = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000),
+                                    PMTValue = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000),
                                     ImageFilePath = imageFilePath,
                                     RawImageFilePath = darkFieldImage.RawImageFilePath
                                 };
@@ -507,7 +507,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                                 {
-                                    itemItemData.Value,
+                                    itemItemData.PMTValue,
                                     itemItemData.ImageFilePath,
                                     itemItemData.RawImageFilePath
                                 }), HtmlLogUniqueId.LoggingHtml());
@@ -528,13 +528,13 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
-                                var channelIdAverage = item.HazeTargetValues.GetOrAdd(channelId, itemItems.Average(t => t.HazeItems[times].Value));
+                                var channelIdTargetPMTValue = item.HazeTargetPMTValues.GetOrAdd(channelId, itemItems.Average(t => t.HazeItems[times].PMTValue));
 
                                 foreach (var itemItem in itemItems)
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
 
-                                    itemItem.HazeItems[times].Error = itemItem.HazeItems[times].Value - channelIdAverage;
+                                    itemItem.HazeItems[times].Error = itemItem.HazeItems[times].PMTValue - channelIdTargetPMTValue;
                                     if (itemItem.HazeItems.Any(t => t.IsOk))
                                     {
                                         itemItem.HazeItems[times].IsOk = true;
@@ -597,7 +597,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 var itemItemData = itemItem.HazeItems[^1];
                                 var htmlBullet = new HtmlBullet(new
                                 {
-                                    itemItemData.Value,
+                                    itemItemData.PMTValue,
                                     itemItemData.RawImageFilePath,
                                     Image = new HtmlImage(itemItemData.ImageFilePath)
                                 });
@@ -673,7 +673,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 var itemItemData = new CIBLightMatchingDTOItem.Item
                                 {
-                                    Value = HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000),
+                                    PMTValue = HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000),
                                     ImageFilePath = imageFilePath,
                                     RawImageFilePath = darkFieldImage.RawImageFilePath,
                                     Histogram = histogram
@@ -683,7 +683,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                                 {
-                                    itemItemData.Value,
+                                    itemItemData.PMTValue,
                                     itemItemData.ImageFilePath,
                                     itemItemData.RawImageFilePath,
                                     Histogram = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.Histogram)], string.Empty)
@@ -702,21 +702,21 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                             var resultList = new List<bool>();
 
-                            item.SilicaSphereTargetValue ??= results
+                            item.SilicaSphereTargetPMTValue ??= results
                                 .SelectMany(t => t.ItemItems)
-                                .Select(t => t.SilicaSphereItems[times].Value)
+                                .Select(t => t.SilicaSphereItems[times].PMTValue)
                                 .Average();
 
-                            item.SilicaSphereAverageValues = [];
+                            item.SilicaSphereAveragePMTValues = [];
 
                             foreach (var (channelId, itemItems) in results)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
-                                var channelIdAverage = itemItems.Average(t => t.SilicaSphereItems[times].Value);
-                                item.SilicaSphereAverageValues = [.. item.SilicaSphereAverageValues, new KeyValuePair<int, double>(channelId, channelIdAverage)];
+                                var channelIdAveragePMTValue = itemItems.Average(t => t.SilicaSphereItems[times].PMTValue);
+                                item.SilicaSphereAveragePMTValues = [.. item.SilicaSphereAveragePMTValues, new KeyValuePair<int, double>(channelId, channelIdAveragePMTValue)];
 
-                                var error = channelIdAverage - item.SilicaSphereTargetValue.Value;
+                                var error = channelIdAveragePMTValue - item.SilicaSphereTargetPMTValue.Value;
 
                                 foreach (var itemItem in itemItems)
                                 {
@@ -787,7 +787,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 var itemItemData = itemItem.SilicaSphereItems[^1];
                                 var htmlBullet = new HtmlBullet(new
                                 {
-                                    itemItemData.Value,
+                                    itemItemData.PMTValue,
                                     itemItemData.RawImageFilePath,
                                     Image = new HtmlImage(itemItemData.ImageFilePath),
                                     Histogram = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.Histogram)], string.Empty)
@@ -893,12 +893,11 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations
-                    .Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
-                                || t.ProductivityInformation != dto.ProductivityInformation
-                                || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
-                                || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
-                                || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
+                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
+                                           || t.ProductivityInformation != dto.ProductivityInformation
+                                           || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
+                                           || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
+                                           || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
                 dto.Clone()
             ];
         }

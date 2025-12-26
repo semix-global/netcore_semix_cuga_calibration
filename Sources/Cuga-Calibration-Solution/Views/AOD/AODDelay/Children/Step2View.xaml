@@ -165,7 +165,7 @@
                             <GridViewColumn Header="Average PMT Data" DisplayMemberBinding="{Binding AveragePmtData, StringFormat='0.###'}" />
                             <GridViewColumn Header="PMT Data">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type aodDelay:AODDelayDto}">
+                                    <DataTemplate DataType="{x:Type aodDelay:AODDelayDTO}">
                                         <Grid>
                                             <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
                                                           Margin="0,2"

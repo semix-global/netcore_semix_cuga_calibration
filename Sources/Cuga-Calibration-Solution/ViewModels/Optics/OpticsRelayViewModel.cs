@@ -359,8 +359,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, relayMotorAbsoluteValue);
 
-                    var opticsRelayDTOItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
-                    CalibratingItem.Items = [.. CalibratingItem.Items, opticsRelayDTOItem];
+                    var itemItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
+                    CalibratingItem.Items = [.. CalibratingItem.Items, itemItem];
 
                     var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
 
@@ -368,13 +368,13 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         Cache.Item.StartRoughECS + deltaECS,
                         Cache.Item.StepRoughECS,
                         Cache.Item.StopRoughECS + deltaECS));
-                    GuardUtils.IsNotNullAndReturn(opticsRelayDTOItem.MaxItem);
+                    GuardUtils.IsNotNullAndReturn(itemItem.MaxItem);
 
                     CatchImage(Generate.LinearRange(
-                        opticsRelayDTOItem.MaxItem.ECS - Cache.Item.RangeRefinedECS,
+                        itemItem.MaxItem.ECS - Cache.Item.RangeRefinedECS,
                         Cache.Item.StepRefinedECS,
-                        opticsRelayDTOItem.MaxItem.ECS + Cache.Item.RangeRefinedECS));
-                    GuardUtils.IsNotNullAndReturn(opticsRelayDTOItem.MaxItem);
+                        itemItem.MaxItem.ECS + Cache.Item.RangeRefinedECS));
+                    GuardUtils.IsNotNullAndReturn(itemItem.MaxItem);
 
                     if (CalibratingItem.Items.Count > 1)
                     {
@@ -398,10 +398,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
                         defalutSlope = defaultSlope,
-                        opticsRelayDTOItem.MaxItem.ECS,
-                        opticsRelayDTOItem.MaxItem.Quality,
-                        opticsRelayDTOItem.MaxItem.RawImageFilePath,
-                        Image = new HtmlImage(opticsRelayDTOItem.MaxItem.ImageFilePath)
+                        itemItem.MaxItem.ECS,
+                        itemItem.MaxItem.Quality,
+                        itemItem.MaxItem.RawImageFilePath,
+                        Image = new HtmlImage(itemItem.MaxItem.ImageFilePath)
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     continue;
@@ -415,9 +415,12 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         foreach (var ecs in ecses)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
+
                             Logger.LogHtmlInformation($"{ecs:0.###}ECS", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
                             AfViewModel.SetSensorEcsValue(ecs);
+
+                            var itemItemData = new OpticsRelayDTOItem.Item { ECS = ecs };
 
                             using var darkFieldImage = LaserViewModel.GetDarkFieldLineScanImage(
                                 Cache.OpticsIlluminationModeEnum,
@@ -437,15 +440,18 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                             var filePath = Path.Combine(currentDetectImageDirectory, $"{ecs:0.###}ECS_{quality:0.###}Quality_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                             darkFieldImage.Image.Save(filePath);
 
-                            var item = new OpticsRelayDTOItem.Item { ECS = ecs, Quality = quality, ImageFilePath = filePath, RawImageFilePath = darkFieldImage.RawImageFilePath };
-                            opticsRelayDTOItem.Qualitys = [.. ((IReadOnlyList<OpticsRelayDTOItem.Item>)[.. opticsRelayDTOItem.Qualitys, item]).OrderBy(t => t.ECS)];
+                            itemItemData.Quality = quality;
+                            itemItemData.ImageFilePath = filePath;
+                            itemItemData.RawImageFilePath = darkFieldImage.RawImageFilePath;
+
+                            itemItem.Qualitys = [.. ((IReadOnlyList<OpticsRelayDTOItem.Item>)[.. itemItem.Qualitys, itemItemData]).OrderBy(t => t.ECS)];
 
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                             {
-                                item.ECS,
-                                item.Quality,
-                                item.ImageFilePath,
-                                item.RawImageFilePath
+                                itemItemData.ECS,
+                                itemItemData.Quality,
+                                itemItemData.ImageFilePath,
+                                itemItemData.RawImageFilePath
                             }), HtmlLogUniqueId.LoggingHtml());
                         }
                     }

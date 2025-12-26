@@ -266,16 +266,6 @@ public static class CoreWcfModelsExtension
 
     #region Laser
 
-    public static bool IsOk(this AODDelayDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Laser Aod Delay is Empty";
-
-        return isOk;
-    }
-
     public static bool IsOk(this LaserAttenuatorDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -468,7 +458,7 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == (applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count)
             * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count;
 
-        errorMessage = isOk ? string.Empty : "CIB MMD is Empty";
+        errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";
 
         return isOk;
     }
@@ -480,7 +470,7 @@ public static class CoreWcfModelsExtension
         var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum) && t.IsOk);
         var isOk = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
 
-        errorMessage = isOk ? string.Empty : "CIB MMD is Empty";
+        errorMessage = isOk ? string.Empty : "Optics Relay is Empty";
 
         return isOk;
     }
@@ -509,6 +499,20 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Alignment is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this AODDelayDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "AOD Delay is Empty";
 
         return isOk;
     }
