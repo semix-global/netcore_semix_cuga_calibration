@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Laser.OpticalPowerMeter.Children.Step3View"
+﻿<UserControl x:Class="CugaCalibration.Views.Laser.Attenuator.Children.Step2View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserOpticalPowerMeterViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:LaserAttenuatorViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -33,9 +33,6 @@
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Machine Position(um): "
-                           Status="{Binding Cache.Item.FindMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -47,51 +44,49 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Times: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Minimum="1"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.CalibratingRetryTimes}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.WaitTime}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Row Count: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Start Coefficient: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Minimum="1"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.RowCount}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Row Height(um): "
+                                          Value="{Binding Cache.Item.StartCoefficient}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step Coefficient: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Minimum="1"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.RowHeight}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Column Count: "
+                                          Value="{Binding Cache.Item.StepCoefficient}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Stop Coefficient: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Minimum="1"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.ColumnCount}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Column Width(um): "
+                                          Value="{Binding Cache.Item.StopCoefficient}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(RSquared): "
+                                          hc:TitleElement.TitleWidth="190"
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Minimum="1"
+                                          Minimum="0"
+                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.ColumnWidth}" />
+                                          Value="{Binding Cache.Threshold}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step3CalibrateActionCommand}"
+                                    Command="{Binding Step2CalibrateActionCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step3CalibrateActionCancelCommand}"
+                                    Command="{Binding Step2CalibrateActionCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
