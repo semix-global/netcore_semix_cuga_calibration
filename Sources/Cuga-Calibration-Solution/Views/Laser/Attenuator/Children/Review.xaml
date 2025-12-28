@@ -92,7 +92,7 @@
                                             DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Width="380" Header="Polynomial">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type attenuator:LaserAttenuatorDto}">
+                                    <DataTemplate DataType="{x:Type attenuator:LaserAttenuatorDTO}">
                                         <TextBlock>
                                             <Run Text="y = " />
                                             <Run Text="{Binding P3, StringFormat=0.###}" />

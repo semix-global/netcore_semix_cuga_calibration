@@ -165,6 +165,11 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
 public sealed class CalibrationAttenuatorObj : CalibrationBase
 {
     /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }

@@ -592,8 +592,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAutoFocusCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserAutoFocusDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAttenuatorViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAttenuatorDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserBeamStabilizerCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserXTCCalibrationViewModel>();
@@ -636,6 +634,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserOpticalPowerMeterViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAttenuatorViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAttenuatorDTO>().IsOk(out _);
 
                 #endregion
             }
