@@ -274,7 +274,9 @@
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
-                                <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                </Border>
                             </DataTemplate>
                         </TabControl.ContentTemplate>
                     </TabControl>

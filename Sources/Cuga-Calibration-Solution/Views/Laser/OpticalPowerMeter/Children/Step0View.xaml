@@ -5,25 +5,32 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+             xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserOpticalPowerMeterViewModel}"
-             d:DesignHeight="500"
-             d:DesignWidth="800"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="430" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-            <hc:Shield Subject="Laser Optical Power Meter 1: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
-                       Color="{StaticResource InfoBrush}" />
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Step 1: "
+                           Status="{Binding CalibrationStepList[0].StepName}"
+                           Color="{StaticResource InfoBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
@@ -36,46 +43,37 @@
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
-        </hc:UniformSpacingPanel>
-        <!--#endregion-->
+        </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <!--#region Right-->
-        <Border Grid.Column="2"
-                Style="{StaticResource BorderRegion}"
-                Effect="{StaticResource EffectShadow1}">
-            <ItemsControl HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          ItemsSource="{Binding CalibrationStatuses}">
-                <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding Cache.ProductivityInformation, Mode=TwoWay}" />
-                </i:Interaction.Behaviors>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton Content="{Binding SelectedItem}"
-                                     FontSize="35"
-                                     Tag="{Binding SelectedItem}"
-                                     GroupName="14ba2040-52a2-48b5-b52d-6b4d3e0ccf5c">
-                            <RadioButton.Style>
-                                <Style BasedOn="{StaticResource {x:Type RadioButton}}" TargetType="RadioButton">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                            <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
-                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </RadioButton.Style>
-                        </RadioButton>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
+        <ListBox Grid.Column="2"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 BorderThickness="0"
+                 ItemsSource="{Binding CalibrationStatuses}"
+                 ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                 SelectionMode="Single">
+            <i:Interaction.Behaviors>
+                <behaviors:OpticsIlluminationModeAndProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
+            </i:Interaction.Behaviors>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding SelectedItem, Converter={StaticResource EnumDescriptionConverter}}"
+                               Margin="100,5"
+                               FontSize="16">
+                        <TextBlock.Style>
+                            <Style BasedOn="{StaticResource TextBlockSubTitleBold}" TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static models:Constants.False}">
+                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 </UserControl>

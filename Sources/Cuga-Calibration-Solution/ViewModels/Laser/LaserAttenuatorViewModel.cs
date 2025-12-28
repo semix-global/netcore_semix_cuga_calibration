@@ -198,7 +198,7 @@ public sealed partial class LaserAttenuatorViewModel(ApplicationCookie applicati
                 {
                     ProductivityInformation = Cache.ProductivityInformation,
                     WaitTime = Cache.Item.WaitTime,
-                    OpticalPowerMeterCoefficient = laserOpticalPower.Coefficient,
+                    OpticalPowerMeterCoefficient = laserOpticalPower.MaxCoefficient,
                     OpticalPowerMeterMaxMeasurePower = laserOpticalPower.MaxMeasurePower,
                     OpticalPowerMeterMaxMeasurePowerPosition = laserOpticalPower.MaxMeasurePowerPosition
                 };

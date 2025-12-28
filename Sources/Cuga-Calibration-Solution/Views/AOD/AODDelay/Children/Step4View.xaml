@@ -160,7 +160,9 @@
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl>
                         <TabItem Header="Plots">
-                            <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                            <Border Style="{StaticResource BorderRegion}">
+                                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                            </Border>
                         </TabItem>
                         <TabItem Header="Images">
                             <ListBox ItemsSource="{Binding SelectedItems, ElementName=ListView}">

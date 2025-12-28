@@ -130,7 +130,9 @@
                             <DataTemplate DataType="{x:Type optics:OpticsRelayDTO}">
                                 <TabControl>
                                     <TabItem Header="Plots">
-                                        <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                        </Border>
                                     </TabItem>
                                     <TabItem Header="Images">
                                         <ListBox ItemsSource="{Binding Items}">

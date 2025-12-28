@@ -124,14 +124,20 @@
                         </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                <TextBlock>
+                                    <Run Text="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <Run Text=", " />
+                                    <Run Text="{Binding ProductivityInformation}" />
+                                </TextBlock>
                             </DataTemplate>
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentDTO}">
                                 <TabControl>
                                     <TabItem Header="Plots">
-                                        <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                        </Border>
                                     </TabItem>
                                     <TabItem Header="Images">
                                         <ListBox ItemsSource="{Binding Items}">

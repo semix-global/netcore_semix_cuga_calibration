@@ -283,11 +283,11 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                 Cache.ProductivityInformation,
                 Cache.Item.FindMachinePosition,
                 Cache.CalibratingRetryTimes,
-                Cache.Item.RowNumber,
-                Cache.Item.ColumnNumber,
-                Cache.Item.ColumnCellWidth,
-                Cache.Item.RowCellHeight,
-                Cache.Item.WaitTime
+                Cache.Item.WaitTime,
+                Cache.Item.RowCount,
+                Cache.Item.ColumnCount,
+                Cache.Item.ColumnWidth,
+                Cache.Item.RowHeight
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
@@ -298,8 +298,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
             CalibratingItem.MaxMeasurePowerPosition = Point.Origin;
 
             // 中心点的索引
-            var centerX = (Cache.Item.ColumnNumber - 1) / 2d;
-            var centerY = (Cache.Item.RowNumber - 1) / 2d;
+            var centerX = (Cache.Item.ColumnCount - 1) / 2d;
+            var centerY = (Cache.Item.RowCount - 1) / 2d;
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.FindMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
@@ -316,13 +316,13 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
                 var extents = new Extents();
 
-                for (var row = 0; row < Cache.Item.RowNumber; row++)
+                for (var row = 0; row < Cache.Item.RowCount; row++)
                 {
-                    for (var column = 0; column < Cache.Item.ColumnNumber; column++)
+                    for (var column = 0; column < Cache.Item.ColumnCount; column++)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var machinePosition = Cache.Item.FindMachinePosition + (Vector)new Point((column - centerX) * Cache.Item.ColumnCellWidth, (row - centerY) * Cache.Item.RowCellHeight);
+                        var machinePosition = Cache.Item.FindMachinePosition + (Vector)new Point((column - centerX) * Cache.Item.ColumnWidth, (row - centerY) * Cache.Item.RowHeight);
 
                         extents.Add(machinePosition);
 
@@ -425,7 +425,6 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                 {
                     Cache.OpticsIlluminationModeEnum,
                     Cache.ProductivityInformation,
-                    Cache.Item.FindMachinePosition,
                     Cache.CalibratingRetryTimes,
                     Cache.Threshold,
                     Cache.Item.WaitTime

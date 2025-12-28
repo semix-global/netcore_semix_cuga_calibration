@@ -37,19 +37,19 @@ public sealed partial class LaserOpticalPowerMeterCacheItem : CalibrationCacheBa
 {
     [ObservableProperty]
     private Point _findMachinePosition;
-
-    [ObservableProperty]
-    private int _rowNumber = 11;
-
-    [ObservableProperty]
-    private int _columnNumber = 11;
-
-    [ObservableProperty]
-    private double _columnCellWidth = 100;
-
-    [ObservableProperty]
-    private double _rowCellHeight = 100;
-
+    
     [ObservableProperty]
     private double _waitTime = 5;
+
+    [ObservableProperty]
+    private int _rowCount = 11;
+
+    [ObservableProperty]
+    private int _columnCount = 11;
+
+    [ObservableProperty]
+    private double _columnWidth = 100;
+
+    [ObservableProperty]
+    private double _rowHeight = 100;
 }

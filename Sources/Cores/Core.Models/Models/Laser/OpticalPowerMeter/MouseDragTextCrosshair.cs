@@ -1,6 +1,5 @@
 ﻿using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
 using ScottPlot;
 using ScottPlot.DataSources;
 using ScottPlot.Interactivity;
