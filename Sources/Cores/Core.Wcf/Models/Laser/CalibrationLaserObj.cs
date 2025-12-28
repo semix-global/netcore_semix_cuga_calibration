@@ -578,7 +578,7 @@ public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
 }
 
 /// <summary>
-/// CIB MMD 校准
+/// CIB Light Matching 校准
 /// </summary>
 [Serializable]
 public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
@@ -637,6 +637,69 @@ public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
         /// 数码增益
         /// </summary>
         public double DigitalGainPlusMultiplicativeFactors { get; set; }
+    }
+}
+
+/// <summary>
+/// CIB Illumination Profile 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 光学 Apodization
+    /// </summary>
+    public int OpticsApodizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 光学偏振
+    /// </summary>
+    public int OpticsPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 采集偏振
+    /// </summary>
+    public int CollectorPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 校准结果, **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<Item> Items { get; set; }
+
+    /// <summary>
+    /// 每个CIB的校准结果
+    /// </summary>
+    public sealed class Item
+    {
+        /// <summary>
+        /// CIB PMT ID
+        /// </summary>
+        public int PMTId { get; set; }
+
+        /// <summary>
+        /// CIB Channel ID
+        /// </summary>
+        public int ChannelId { get; set; }
+
+        /// <summary>
+        /// 均匀性校准结果
+        /// </summary>
+        public IReadOnlyList<double> IlluminationProfiles { get; set; }
     }
 }
 

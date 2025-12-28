@@ -36,6 +36,11 @@ public sealed class CIBViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public void SetIlluminationProfile(IReadOnlyList<CIBInformation> cibInformations, IReadOnlyList<double> illuminationProfiles)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<IReadOnlyList<DarkFieldImageDto>> GetPMTValuesAsync(
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,

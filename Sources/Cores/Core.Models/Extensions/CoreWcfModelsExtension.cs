@@ -12,6 +12,7 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.CIB.XPixelSize;
@@ -521,6 +522,27 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Laser Attenuator is Empty";
+
+        return isOk;
+    }
+    
+    public static bool IsOk(this CIBIlluminationProfileDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                                          && applicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
+                                          && applicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
+                                          && applicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum)
+                                          && t.IsOk)
+            .SelectMany(t => t.Items)
+            .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
+
+        var isOk = isOkCount == (applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count)
+            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";
 
         return isOk;
     }

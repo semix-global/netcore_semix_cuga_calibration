@@ -29,7 +29,7 @@ public sealed class ProductivityInformation :
     private int _stageSpeedType = -1;
     private double _xPixelSize = -1;
     private double _yPixelSize = -1;
-    private double _yPixel = -1;
+    private int _yPixel = -1;
     private double _originYPixel = -1;
     private double _sampleRate = -1;
 
@@ -63,7 +63,7 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref _yPixelSize, value);
     }
 
-    public double YPixel
+    public int YPixel
     {
         get => _yPixel;
         private set => SetProperty(ref _yPixel, value);
@@ -137,7 +137,7 @@ public sealed class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out double yPixel, out double originYPixel, out double sampleRate)
+    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double sampleRate)
         => (name, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate) = (Name, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate);
 
     #endregion Deconstruct
@@ -174,7 +174,7 @@ public sealed class ProductivityInformation :
             .XPixelSize;
 #endif
         YPixelSize = swathSpeedInfo.YPixelSize;
-        YPixel = swathSpeedInfo.YPixel;
+        YPixel = Convert.ToInt32(swathSpeedInfo.YPixel);
         OriginYPixel = originYPixel;
         SampleRate = swathSpeedInfo.Hz;
 

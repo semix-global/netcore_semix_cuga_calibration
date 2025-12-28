@@ -249,8 +249,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
             case 3:
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
-                    ? Cache.Item.HazeFindBFMachinePosition
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.SilicaSphereFindBFMachinePosition
                     : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
@@ -407,16 +407,16 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 {
                     Cache.OpticsIlluminationModeEnum,
                     Cache.ProductivityInformation,
+                    Cache.Item.MicroscopeLensInformation,
+                    Cache.Item.LaserLightInformation,
+                    Cache.Item.HazeFindBFMachinePosition,
+                    Cache.Item.SilicaSphereFindBFMachinePosition,
                     Cache.HazeCalibratingRetryTimes,
                     Cache.SilicaSphereCalibratingRetryTimes,
                     Cache.HazeThreshold,
                     Cache.SilicaSphereThreshold,
                     Cache.CalibratingHazeThreshold,
                     Cache.CalibratingSilicaSphereThreshold,
-                    Cache.Item.MicroscopeLensInformation,
-                    Cache.Item.LaserLightInformation,
-                    Cache.Item.HazeFindBFMachinePosition,
-                    Cache.Item.SilicaSphereFindBFMachinePosition,
                     currentOpticsApodizationModeEnum,
                     currentOpticsPolarizationModeEnum,
                     currentCollectorPolarizationModeEnum,
