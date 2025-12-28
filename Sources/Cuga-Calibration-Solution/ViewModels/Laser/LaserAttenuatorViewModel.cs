@@ -136,6 +136,13 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         return true;
     }
 
+    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        return true;
+    }
+
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -247,6 +254,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
             CalibratingItem.P3 = 0d;
             CalibratingItem.RSquared = 0d;
             CalibratingItem.FitAttenuatorPoints = [];
+            CalibratingItem.IsCalibrated = false;
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPower.MaxMeasurePowerPosition);
             LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, CalibratingItem.ProductivityInformation);

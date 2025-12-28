@@ -295,9 +295,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
+            var detectImageDirectory = ImageFileDirectory;
+
             var currentMotorAbsoluteValue = OpticsViewModel.GetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum);
             var nmPerEcs = AfViewModel.GetNmPerEcs();
-            var detectImageDirectory = ImageFileDirectory;
             // ECS/mm relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大 mm
             var defaultSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* mm */
                                * 1e6d /* mm 转为 nm */
@@ -327,8 +328,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Threshold,
                 currentMotorAbsoluteValue,
                 nmPerEcs,
-                detectImageDirectory,
-                defaultSlope
+                defaultSlope,
+                detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;

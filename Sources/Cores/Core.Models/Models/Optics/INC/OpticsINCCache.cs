@@ -1,14 +1,13 @@
-using System.Collections.Concurrent;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
+using System.Collections.Concurrent;
 
-namespace Core.Models.Models.AOD.Delay;
+namespace Core.Models.Models.Optics.INC;
 
-public sealed partial class AODDelayCache : CalibrationCacheBase
+public sealed partial class OpticsINCCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -18,16 +17,16 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), AODDelayCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<OpticsIlluminationModeEnum, OpticsINCCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public AODDelayCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new AODDelayCacheItem());
+    public OpticsINCCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new OpticsINCCacheItem());
 }
 
-public sealed partial class AODDelayCacheItem : CalibrationCacheBase
+public sealed partial class OpticsINCCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -48,20 +47,11 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase
     private int _imageWidth = 1000;
 
     [ObservableProperty]
-    private double _waitTime = 5;
+    private double _startINCMotorAbsoluteValue;
 
     [ObservableProperty]
-    private double _startRoughAODDelay = -1500;
+    private double _stepINCMotorAbsoluteValue;
 
     [ObservableProperty]
-    private double _stepRoughAODDelay = 100;
-
-    [ObservableProperty]
-    private double _stopRoughAODDelay = 3000;
-
-    [ObservableProperty]
-    private double _rangeRefinedAODDelay = 200;
-
-    [ObservableProperty]
-    private double _stepRefinedAODDelay = 10;
+    private double _stopINCMotorAbsoluteValue;
 }

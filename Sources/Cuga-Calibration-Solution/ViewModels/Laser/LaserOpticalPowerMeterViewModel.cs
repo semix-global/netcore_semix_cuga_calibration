@@ -141,6 +141,13 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
         return true;
     }
 
+    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        return true;
+    }
+
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -296,7 +303,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
             CalibratingItem.Items = [];
             CalibratingItem.MaxMeasurePower = 0d;
             CalibratingItem.MaxMeasurePowerPosition = Point.Origin;
-
+            CalibratingItem.IsCalibrated = false;
+            
             // 中心点的索引
             var centerX = (Cache.Item.ColumnCount - 1) / 2d;
             var centerY = (Cache.Item.RowCount - 1) / 2d;

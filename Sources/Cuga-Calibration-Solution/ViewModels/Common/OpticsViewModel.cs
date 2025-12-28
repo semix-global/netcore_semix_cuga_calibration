@@ -31,6 +31,16 @@ public sealed class OpticsViewModel(
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
+    
+    public double GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum cacheOpticsIlluminationModeEnum)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public void SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        throw new NotImplementedException();
+    }
 
     public void ToggleODFilter(bool isEnable)
     {

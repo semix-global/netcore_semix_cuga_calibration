@@ -482,6 +482,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             CalibratingItem.SlideSplitDifferences = [];
             CalibratingItem.VerifyItems = [];
             CalibratingItem.VerifySplitDifferences = [];
+            CalibratingItem.IsCalibrated = false;
 
             Guard.IsTrue(CalibrationAlgorithmService.TryReadTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.Item.TemplateFilePath, out var templateId), nameof(CalibrationAlgorithmService.TryReadTemplate));
             using var _ = templateId;

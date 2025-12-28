@@ -33,6 +33,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -511,7 +512,7 @@ public static class CoreWcfModelsExtension
 
         return isOk;
     }
-    
+
     public static bool IsOk(this LaserAttenuatorDTO[] result, out string errorMessage)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
@@ -525,7 +526,7 @@ public static class CoreWcfModelsExtension
 
         return isOk;
     }
-    
+
     public static bool IsOk(this CIBIlluminationProfileDTO[] result, out string errorMessage)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
@@ -543,6 +544,20 @@ public static class CoreWcfModelsExtension
             * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count;
 
         errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this OpticsINCDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
+                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "Optics INC is Empty";
 
         return isOk;
     }

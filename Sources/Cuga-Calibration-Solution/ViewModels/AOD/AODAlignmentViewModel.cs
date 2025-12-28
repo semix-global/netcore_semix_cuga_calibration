@@ -362,6 +362,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             CalibratingItem.Intercept = 0d;
             CalibratingItem.RSquared = 0d;
             CalibratingItem.FitAlignmentPoints = [];
+            CalibratingItem.IsCalibrated = false;
 
             Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
 
@@ -398,7 +399,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     Cache.Item.CIBConfiguration,
                     Cache.Item.ImageWidth);
 
-                var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.PrescanFrequency:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.PrescanFrequency:0.###}MHz", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 darkFieldImage.Image.Save(imageFilePath);
 
                 itemItem.ImageFilePath = imageFilePath;

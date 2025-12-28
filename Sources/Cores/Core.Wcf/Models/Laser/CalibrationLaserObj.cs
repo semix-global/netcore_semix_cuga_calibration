@@ -92,6 +92,21 @@ public sealed class CalibrationLaserObj
     /// CIB Light Matching 校准对象列表
     /// </summary>
     public CalibrationLaserCIBLightMatchingItem[] CalibrationLaserCIBLightMatchingItems { get; set; } = Array.Empty<CalibrationLaserCIBLightMatchingItem>();
+
+    /// <summary>
+    /// CIB Illumination Profile 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBIlluminationProfileItem[] CalibrationLaserCIBIlluminationProfileItems { get; set; } = Array.Empty<CalibrationLaserCIBIlluminationProfileItem>();
+
+    /// <summary>
+    /// Optics Relay 校准对象列表
+    /// </summary>
+    public CalibrationOpticsRelay[] CalibrationOpticsRelays { get; set; } = Array.Empty<CalibrationOpticsRelay>();
+
+    /// <summary>
+    /// Optics INC 校准对象列表
+    /// </summary>
+    public CalibrationOpticsINC[] CalibrationOpticsINCs { get; set; } = Array.Empty<CalibrationOpticsINC>();
 }
 
 /// <summary>
@@ -728,4 +743,31 @@ public sealed class CalibrationOpticsRelay : CalibrationBase
     /// Relay 工作范围 最大值, **Cuga内部使用**
     /// </summary>
     public double MaxRelayMotorAbsoluteValue { get; set; }
+}
+
+/// <summary>
+/// Optics INC 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationOpticsINC : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// INC电机位置, **需要下发Optics Motor硬件**
+    /// </summary>
+    public double? INCMotorAbsoluteValue { get; set; }
 }
