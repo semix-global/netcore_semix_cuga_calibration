@@ -496,7 +496,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
                 {
-                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}: Error");
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
             }

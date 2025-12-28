@@ -19,6 +19,9 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
+    private int _calibratingRetryTimes = 5;
+
+    [ObservableProperty]
     private double _threshold = 0.05;
 
     public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserOpticalPowerMeterCacheItem>> Items { get; init; } = [];
@@ -49,7 +52,4 @@ public sealed partial class LaserOpticalPowerMeterCacheItem : CalibrationCacheBa
 
     [ObservableProperty]
     private double _waitTime = 5;
-
-    [ObservableProperty]
-    private int _repeatCount = 5;
 }

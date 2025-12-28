@@ -1,8 +1,8 @@
 namespace CugaCalibration.Views.Laser.OpticalPowerMeter.Children;
 
-public sealed partial class Step2View
+public sealed partial class Step3View
 {
-    public Step2View()
+    public Step3View()
     {
         InitializeComponent();
     }
