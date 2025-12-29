@@ -983,7 +983,6 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             var chirpAodWaveProfileDto = ChirpAodFindEcsYDto.Clone();
             chirpAodWaveProfileDto.BandWidth = bandWidth;
             chirpAodWaveProfileDto.DirectoryPath = ChirpFileDirectory;
-            chirpAodWaveProfileDto.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
             chirpAodWaveProfileDto.ProductivityInformation = Cache.ProductivityInformation;
 
             var ret = calibrationLaserService.GenerateChirpAodWaves(chirpAodWaveProfileDto);

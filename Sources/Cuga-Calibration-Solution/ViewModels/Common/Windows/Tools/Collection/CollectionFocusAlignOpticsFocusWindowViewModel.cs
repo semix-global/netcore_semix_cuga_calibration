@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
@@ -43,9 +42,6 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
 public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCacheBase
 {
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -158,7 +154,6 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
 
     public object ToHtmlAnonymous() => new
     {
-        OpticsIlluminationModeEnum,
         ProductivityInformation,
         PmtId,
         ImageWidth = ImageWidthPixel,
@@ -265,6 +260,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
     LaserViewModel laserViewModel,
+    CIBViewModel cibViewModel,
     IOptions<ApplicationSetting> options,
     CreateRoiWindowViewModel createRoiWindowViewModel,
     ApplicationCookie applicationCookie,
@@ -299,11 +295,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
             if (ScatterPlotControls.Count > 0) return;
 
-            ScatterPlotControls = laserViewModel.GetCIBInformations()
-                .GroupBy(t => t.PMTId)
-                .Select(t => t.Select(tt => tt.ChannelId).ToImmutableArray())
-                .First()
-                .ToDictionary(channelId => channelId, _ => GetScatterPlotControl());
+            ScatterPlotControls = ApplicationCookie.CIBInformationChannelIds.ToDictionary(channelId => channelId, _ => GetScatterPlotControl());
         }
         finally
         {
@@ -346,6 +338,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     darkFieldImageDto.RawImageFilePath,
                     Result = new HtmlQuote(hazeResultItem.ToHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
+                
+                return Task.CompletedTask;
             },
             () =>
             {
@@ -375,6 +369,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([.. scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(0)]), HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, scatterPlotControl.GetHtmlPlot2DLinesChart(2), HtmlLogUniqueId.LoggingHtml());
                 }
+                
+                return Task.CompletedTask;
             }, cancellationToken);
     }
 
@@ -393,7 +389,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     false,
                     Cache.DSWCIBConfiguration,
                     Cache.ProductivityInformation,
-                    opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum,
+                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum,
                     xWidthPixel: Cache.ImageWidthPixel,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
                     pmtId: Cache.PmtId,
@@ -435,6 +431,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     yFitLine = new HtmlPlot2DLinesChart([(nameof(yFitLine), yFitLine.ToPoints()), (nameof(yLine), yLine.ToPoints())], string.Empty),
                     Result = new HtmlQuote(dswResultItem.ToHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
+                
+                return Task.CompletedTask;
             },
             () =>
             {
@@ -463,6 +461,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     ]), HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, scatterPlotControl.GetHtmlPlot2DLinesChart(2), HtmlLogUniqueId.LoggingHtml());
                 }
+                
+                return Task.CompletedTask;
             }, cancellationToken);
     }
 
@@ -487,8 +487,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         string stepName,
         CalChipSiteModelEnum calChipSiteModelEnum,
         Action beforeAction,
-        Action<object, DarkFieldImageDTO> resultItemAction,
-        Action finallyAction,
+        Func<object, DarkFieldImageDTO, Task> resultItemAction,
+        Func<Task> finallyAction,
         CancellationToken cancellationToken)
     {
         await Task.Run(async () =>
@@ -559,7 +559,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         brightFieldPosition,
                         Cache.ImageWidthPixel,
                         Cache.ProductivityInformation,
-                        Cache.OpticsIlluminationModeEnum,
+                        Cache.ProductivityInformation.OpticsIlluminationModeEnum,
                         Cache.PmtId,
                         StageCoordinateSystemEnum.Dark,
                         cibConfiguration,
@@ -587,7 +587,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
                         ObjectHelper.SetPropertyValue(resultItem, resultItemImageChannelIdPropertyName, darkFieldImageDto.ChannelId);
                         ObjectHelper.SetPropertyValue(resultItem, resultItemImageFilePathPropertyName, filePath);
-                        resultItemAction.Invoke(resultItem, darkFieldImageDto);
+                        await resultItemAction.Invoke(resultItem, darkFieldImageDto);
 
                         GuardUtils.IsNotNullAndReturn(resultItemList.GetType().GetMethod(nameof(List<string>.Add))).Invoke(resultItemList, [resultItem]);
                     }
@@ -598,7 +598,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     RefreshPlot();
                 }
 
-                finallyAction.Invoke();
+                await finallyAction.Invoke();
 
                 RefreshPlot();
 

@@ -640,7 +640,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
 
             var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
 
-            LaserViewModel.ToggleCIBControlModeAndProfileType(Cache.CIBConfiguration, -1, -1);
+            CIBViewModel.SetCIBConfiguration(ApplicationCookie.CIBInformations, Cache.CIBConfiguration);
 
             // 前8倒叙计算
             for (var i = 8; i >= 1; i--)

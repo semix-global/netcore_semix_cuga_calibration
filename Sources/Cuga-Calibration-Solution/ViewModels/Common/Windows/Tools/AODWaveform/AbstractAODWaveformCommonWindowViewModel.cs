@@ -85,7 +85,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         if (CacheProvider.TryGetOrDefaultArray<LaserOpticalPowerMeterDTO>(out var laserOpticalPowerDtos))
         {
             // todo: 改了之后记得这儿也得改
-            var laserOpticalPowerDto = laserOpticalPowerDtos.SingleOrDefault(t =>t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum && t.ProductivityInformation == Cache.ProductivityInformation);
+            var laserOpticalPowerDto = laserOpticalPowerDtos.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
             if (laserOpticalPowerDto is not null && laserOpticalPowerDto.IsOk)
             {
                 Cache.MeasureMaxPowerMachinePosition = laserOpticalPowerDto.MaxMeasurePowerPosition;

@@ -515,7 +515,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 return false;
             }
 
-            LaserViewModel.SetGain(gain);
+            CIBViewModel.SetGain(ApplicationCookie.CIBInformations, gain);
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
@@ -592,7 +592,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 return false;
             }
 
-            LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
+            CIBViewModel.SetGain(ApplicationCookie.CIBInformations, Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             #region Max窗口
 
@@ -665,7 +665,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             #endregion DarkFieldImage <=> Prescan 对应关系
 
-            LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
+            CIBViewModel.SetGain(ApplicationCookie.CIBInformations, Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
@@ -1053,7 +1053,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 servings
             }), HtmlLogUniqueId.LoggingHtml());
 
-            LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
+            CIBViewModel.SetGain(ApplicationCookie.CIBInformations, Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
@@ -1456,7 +1456,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             var temp = SelectReviewItemDto.Clone();
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
-            LaserViewModel.SetGain(Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
+            CIBViewModel.SetGain(ApplicationCookie.CIBInformations, Cache.CurrentCalibrationCacheItem.LaserIlluminationProfileCalibrationPmt.Gain);
 
             var prescanDto = AODWaveformProfileFactory.CreatePrescanList(SelectReviewItemDto.PrescanAODWaveformResultList);
 
@@ -1510,7 +1510,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             foreach (var prescanAODWaveformProfile in prescanDto) prescanAODWaveformProfile.ApplyCoefficientWindowList(laserIlluminationProfileItemDto.PrescanRateList);
         }
 
-        LaserViewModel.SetGain(pmtCacheItem.Gain);
+        CIBViewModel.SetGain(ApplicationCookie.CIBInformations, pmtCacheItem.Gain);
 
         Thread.Sleep(1000);
         var (isSuccess, channel1DarkFieldImageDto, channel2DarkFieldImageDto, channel3DarkFieldImageDto) = GetDarkFieldLineScanImage(prescanDto, pmtCacheItem.PmtId, pmtCacheItem.PmtIdPosition);

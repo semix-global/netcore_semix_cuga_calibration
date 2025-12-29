@@ -337,6 +337,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
                 var generatePrescanAODWaveformParam = Cache.Item.FlatnessGeneratePrescanAODWaveformParam.Clone();
 
+                generatePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                 generatePrescanAODWaveformParam.WithFrequencyFlatness(prescanFrequency);
                 generatePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
                 var (aodWaveformResultItem, exceptionItem) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationToken);

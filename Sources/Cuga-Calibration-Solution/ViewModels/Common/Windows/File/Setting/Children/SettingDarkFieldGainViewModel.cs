@@ -30,6 +30,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 public sealed partial class SettingDarkFieldGainViewModel(
     ILogger<SettingDarkFieldGainViewModel> logger,
     LaserViewModel laserViewModel,
+    CIBViewModel cibViewModel,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
     ApplicationCookie applicationCookie,
@@ -172,15 +173,15 @@ public sealed partial class SettingDarkFieldGainViewModel(
                     SettingDarkFieldGainParam.GainOfCoefficientList.Add(gainCoefficientsParam);
                 }
 
-                laserViewModel.SetGain(-10);
+                cibViewModel.SetGain(applicationCookie.CIBInformations, -10);
                 stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
 
                 afViewModel.ToggleDarkFieldEnable(true);
                 laserViewModel.ToggleOpticsMagType(productivityInformation);
                 laserViewModel.SetPrescanAODWaveProfileByCoefficient(productivityInformation, coefficient);
                 laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
-                laserViewModel.ToggleEnableAutoGainControl(false);
-                laserViewModel.ToggleEnableL0K(false);
+                cibViewModel.ToggleEnableAGC(applicationCookie.CIBInformations, false);
+                cibViewModel.ToggleEnableL0K(applicationCookie.CIBInformations, false);
 
                 PlotList = [];
                 var targetGain = SettingDarkFieldGainParam.GainMin;
@@ -194,7 +195,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    laserViewModel.SetGain(gain);
+                    cibViewModel.SetGain(applicationCookie.CIBInformations, gain);
                     await Task.Delay(300, cancellationToken).ConfigureAwait(false);
 
                     var pmtDataList = laserViewModel.GetCIBOfPMTDataList(CatchCount, pmtId, channelId);
@@ -215,7 +216,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
 
                     if (gainAverage > 4000)
                     {
-                        laserViewModel.SetGain(-10);
+                        cibViewModel.SetGain(applicationCookie.CIBInformations, -10);
                         throw new CalibrationException("Pmt Value is too high");
                     }
 
@@ -235,7 +236,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
                     break;
                 }
 
-                laserViewModel.SetGain(targetGain);
+                cibViewModel.SetGain(applicationCookie.CIBInformations, targetGain);
                 await Task.Delay(100, cancellationToken).ConfigureAwait(false);
 
                 gainCoefficientsParam.Gain = targetGain;

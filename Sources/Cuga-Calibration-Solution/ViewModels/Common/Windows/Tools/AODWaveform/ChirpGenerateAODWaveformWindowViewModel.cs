@@ -40,5 +40,5 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
         Cache.AODWaveformResultFilePath = aodWaveformResult.FilePath;
     }
 
-    protected override void SetAODWaveformProfiles(CancellationToken cancellationToken) => LaserViewModel.SetChirpAODWaveProfiles(Cache.Param.OpticsIlluminationModeEnum, Cache.Profiles);
+    protected override void SetAODWaveformProfiles(CancellationToken cancellationToken) => LaserViewModel.SetChirpAODWaveProfiles(Cache.Param.ProductivityInformation.OpticsIlluminationModeEnum, Cache.Profiles);
 }

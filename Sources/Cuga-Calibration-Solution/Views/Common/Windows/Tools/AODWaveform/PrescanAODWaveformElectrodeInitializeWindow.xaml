@@ -187,25 +187,14 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                                  Style="{StaticResource ComboBoxExtend}"
-                                                  ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
                                         <ComboBox hc:TitleElement.Title="Productivity Information: "
                                                   hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="200"
+                                                  ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
                                                   Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
                                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
-                                            <ComboBox.ItemsSource>
-                                                <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
-                                                    <Binding Path="ApplicationCookie" />
-                                                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
-                                                </MultiBinding>
-                                            </ComboBox.ItemsSource>
                                         </ComboBox>
                                         <hc:NumericUpDown hc:TitleElement.Title="Default Amplitude(AMP): "
                                                           hc:TitleElement.TitlePlacement="Left"
@@ -221,8 +210,7 @@
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
-                                                                                                    IsVisibleProductivityInformation="False"
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                     IsVisibleFrequency="False"
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"
@@ -250,8 +238,7 @@
                                                                       Style="{StaticResource NumericUpDownExtend}"
                                                                       Value="{Binding Cache.ChirpFrequency}" />
                                                 </hc:UniformSpacingPanel>
-                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
-                                                                                                  IsVisibleProductivityInformation="False"
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                   IsVisibleFrequency="False"
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
@@ -268,8 +255,7 @@
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
-                                                                                                    IsVisibleProductivityInformation="False"
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"
                                                                                                     IsVisibleElectrodeConfiguration="False"
@@ -284,8 +270,7 @@
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
-                                                                                                  IsVisibleProductivityInformation="False"
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
                                                                                                   DataContext="{Binding Cache.ScanGenerateChirpAODWaveformParam}" />
@@ -433,16 +418,10 @@
                                                                             <RowDefinition Height="5" />
                                                                             <RowDefinition Height="*" />
                                                                         </Grid.RowDefinitions>
-                                                                        <TextBlock HorizontalAlignment="Center"
+                                                                        <TextBlock Text="{Binding GeneratePrescanAODWaveformParam.ProductivityInformation}"
+                                                                                   HorizontalAlignment="Center"
                                                                                    Style="{StaticResource TextBlockSubTitleBold}"
-                                                                                   Foreground="{StaticResource InfoBrush}">
-                                                                            <TextBlock.Text>
-                                                                                <MultiBinding StringFormat="{}{0}-{1}">
-                                                                                    <Binding Path="GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum" />
-                                                                                    <Binding Path="GeneratePrescanAODWaveformParam.ProductivityInformation" />
-                                                                                </MultiBinding>
-                                                                            </TextBlock.Text>
-                                                                        </TextBlock>
+                                                                                   Foreground="{StaticResource InfoBrush}" />
                                                                         <paramUI:GeneratePrescanAODWaveformParamUserControl Grid.Row="2"
                                                                                                                             IsVisibleDirectoryPath="False"
                                                                                                                             IsVisibleElectrodeConfiguration="False"
@@ -742,16 +721,10 @@
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="*" />
                                                 </Grid.RowDefinitions>
-                                                <TextBlock HorizontalAlignment="Center"
+                                                <TextBlock Text="{Binding GeneratePrescanAODWaveformParam.ProductivityInformation}"
+                                                           HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}">
-                                                    <TextBlock.Text>
-                                                        <MultiBinding StringFormat="{}{0}-{1}">
-                                                            <Binding Path="GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum" />
-                                                            <Binding Path="GeneratePrescanAODWaveformParam.ProductivityInformation" />
-                                                        </MultiBinding>
-                                                    </TextBlock.Text>
-                                                </TextBlock>
+                                                           Foreground="{StaticResource SuccessBrush}" />
                                                 <UniformGrid Grid.Row="1"
                                                              Margin="0,2"
                                                              HorizontalAlignment="Center"

@@ -14,9 +14,6 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     where TResult : AODWaveformCommonResult, new()
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -63,7 +60,6 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
 
     public virtual object ToHtmlAnonymous() => new
     {
-        OpticsIlluminationModeEnum,
         ProductivityInformation,
         DefaultAmplitude,
         MeasureMaxPowerMachinePosition,

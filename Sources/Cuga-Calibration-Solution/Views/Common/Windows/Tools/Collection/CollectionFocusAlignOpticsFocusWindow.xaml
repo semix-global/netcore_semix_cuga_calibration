@@ -93,25 +93,14 @@
                                     <hc:UniformSpacingPanel Margin="11,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                                  Style="{StaticResource ComboBoxExtend}"
-                                                  ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
                                         <ComboBox hc:TitleElement.Title="Productivity Information: "
                                                   hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="200"
+                                                  ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
                                                   Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
                                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
-                                            <ComboBox.ItemsSource>
-                                                <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
-                                                    <Binding Path="ApplicationCookie" />
-                                                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
-                                                </MultiBinding>
-                                            </ComboBox.ItemsSource>
                                         </ComboBox>
                                         <ComboBox hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="200"
