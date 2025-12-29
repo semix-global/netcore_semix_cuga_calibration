@@ -130,7 +130,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
                     {
                         SelectedItem = t,
-                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
+                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetOpticsMagTypeProductivityInformations(t))]
                     })
             ];
 
@@ -141,7 +141,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         [
             .. Calibrations
                 .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                            && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
+                            && ApplicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses
@@ -279,7 +279,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation);
+            return ApplicationCookie.GetOpticsMagTypeProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation);
         });
     }
 

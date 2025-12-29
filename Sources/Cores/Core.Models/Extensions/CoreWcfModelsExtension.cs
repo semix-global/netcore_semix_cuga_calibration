@@ -476,9 +476,9 @@ public static class CoreWcfModelsExtension
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
         var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                                          && applicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Alignment is Empty";
 
@@ -490,9 +490,9 @@ public static class CoreWcfModelsExtension
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
         var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                                          && applicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Delay is Empty";
 
@@ -504,9 +504,9 @@ public static class CoreWcfModelsExtension
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
         var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                                          && applicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Laser Optical Power Meter is Empty";
 
@@ -518,9 +518,9 @@ public static class CoreWcfModelsExtension
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
         var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+                                          && applicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Laser Attenuator is Empty";
 
