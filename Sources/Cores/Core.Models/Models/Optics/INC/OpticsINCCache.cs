@@ -11,19 +11,15 @@ public sealed partial class OpticsINCCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    public ConcurrentBag<KeyValuePair<OpticsIlluminationModeEnum, OpticsINCCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<ProductivityInformation, OpticsINCCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public OpticsINCCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new OpticsINCCacheItem());
+    public OpticsINCCacheItem Item => Items.GetOrAdd(ProductivityInformation, new OpticsINCCacheItem());
 }
 
 public sealed partial class OpticsINCCacheItem : CalibrationCacheBase

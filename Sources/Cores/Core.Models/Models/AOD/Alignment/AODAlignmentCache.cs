@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
@@ -13,22 +12,18 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
     private double _threshold = 0.999;
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), AODAlignmentCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<ProductivityInformation, AODAlignmentCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public AODAlignmentCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new AODAlignmentCacheItem());
+    public AODAlignmentCacheItem Item => Items.GetOrAdd(ProductivityInformation, new AODAlignmentCacheItem());
 }
 
 public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase

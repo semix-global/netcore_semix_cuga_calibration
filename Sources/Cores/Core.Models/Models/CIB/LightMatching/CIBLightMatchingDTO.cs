@@ -24,9 +24,6 @@ namespace Core.Models.Models.CIB.LightMatching;
 public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable<CIBLightMatchingDTO>, IAdaptTo<CalibrationLaserCIBLightMatchingItem>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -282,7 +279,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     public CIBLightMatchingDTO Clone() => new()
     {
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         OpticsApodizationModeEnum = OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
@@ -300,7 +296,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     public CalibrationLaserCIBLightMatchingItem AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum =  ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,

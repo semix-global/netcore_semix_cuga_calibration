@@ -25,9 +25,6 @@ namespace Core.Models.Models.Laser.OpticalPowerMeter;
 public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, ICloneable<LaserOpticalPowerMeterDTO>, IAdaptTo<CalibrationLaserOpticalPower>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -134,7 +131,6 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
 
     public LaserOpticalPowerMeterDTO Clone() => new()
     {
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         MaxCoefficient = MaxCoefficient,
         Items = [.. Items.Select(x => x.Clone())],
@@ -149,7 +145,7 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
 
     public CalibrationLaserOpticalPower AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum =  ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Coefficient = MaxCoefficient,
         MeasureMaxPower = MaxMeasurePower,

@@ -13,9 +13,6 @@ namespace Core.Models.Models.CIB.XPixelSize;
 public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -63,7 +60,6 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
 
     public CIBXPixelSizeDTO Clone() => new()
     {
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         CIBInformation = CIBInformation.Clone(),
@@ -82,7 +78,7 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
 
     public CalibrationLaserXPixelSizeItem AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         XPixelSize = XPixelSize,

@@ -14,10 +14,6 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -26,13 +22,13 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 15;
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), CIBXPixelSizeCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBXPixelSizeCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public CIBXPixelSizeCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new CIBXPixelSizeCacheItem());
+    public CIBXPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBXPixelSizeCacheItem());
 }
 
 public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase

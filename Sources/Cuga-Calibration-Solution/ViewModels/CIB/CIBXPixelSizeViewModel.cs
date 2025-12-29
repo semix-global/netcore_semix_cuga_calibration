@@ -37,13 +37,12 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation}";
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
 
-    public override string CalibrateFileName => $"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{Cache.ProductivityInformation}";
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity" },
         new() { StepName = "Image Param" },
         new() { StepName = "Alignment" },
@@ -59,7 +58,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     private CIBXPixelSizeDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
@@ -118,15 +117,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         }
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses =
-            [
-                ..ApplicationCookie.OpticsIlluminationModeEnums
-                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
-                    {
-                        SelectedItem = t,
-                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
-                    })
-            ];
+            CalibrationStatuses = [..ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
@@ -137,13 +128,10 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         Calibrations =
         [
             .. Calibrations
-                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                            && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses
-                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum)
-                        .ProductivityInformationCalibrationStatusList
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -171,8 +159,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsIlluminationModeEnum)
-                .ThenBy(t => t.ProductivityInformation)
+                .OrderBy(t => t.ProductivityInformation)
         ];
 
         return Reviews.Count > 0;
@@ -197,9 +184,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 return true;
 
             case 4:
-                return true;
-
-            case 5:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 
                 return true;
@@ -216,31 +200,28 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
-                return true;
-
-            case 1:
                 CalibratingItem = new CIBXPixelSizeDTO();
 
                 return true;
 
-            case 2:
+            case 1:
                 return true;
 
-            case 3:
+            case 2:
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindBFMachinePosition != Point.Origin
                     ? StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
                     : Point.Origin);
 
                 return true;
 
-            case 4:
+            case 3:
 
                 return true;
 
-            case 5:
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationCalibrationStatusList
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
+            case 4:
+                CalibrationStatuses
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
+                    .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
@@ -259,37 +240,22 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum);
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(() =>
-        {
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.CalChipSiteModelEnum
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation);
+            return ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -298,7 +264,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
@@ -312,7 +277,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task<bool> Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -326,7 +291,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             var alignmentResult = new AlignmentResultDto();
             if (Cache.Item.IsDarkFieldAlignment)
             {
-                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum
+                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t => t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                                         && t.ProductivityInformation == Cache.ProductivityInformation, new AlignmentCacheDarkField());
                 if (AlignmentCacheDarkField.IsOk)
                     alignmentResult = StageViewModel.AlignmentDarkField(
@@ -337,7 +302,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                         Cache.ProductivityInformation,
                         AlignmentCacheDarkField.LowMag,
                         AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
+                        opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
                 else
                 {
                     var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
@@ -377,13 +342,12 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
@@ -396,17 +360,17 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
-            var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
-                Cache.OpticsIlluminationModeEnum,
+            var darkFieldImageDto = await CIBViewModel.GetPMTImagesAsync(
                 Cache.ProductivityInformation,
-                CalChipSiteModelEnum.ChuckModel,
                 StageCoordinateSystemEnum.Bright,
+                CalChipSiteModelEnum.ChuckModel,
                 StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
+                Cache.Item.CIBInformation,
+                Cache.Item.ImageWidth,
+                (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 false,
-                Cache.Item.CIBInformation,
-                Cache.Item.CIBConfiguration,
-                Cache.Item.ImageWidth);
+                cancellationToken);
 
             using var _ = darkFieldImageDto;
 
@@ -443,7 +407,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step5CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task<bool> Step4Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
@@ -451,7 +415,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
@@ -471,7 +434,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation;
             CalibratingItem.CIBInformation = Cache.Item.CIBInformation;
@@ -506,21 +468,21 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             var startPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
             var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
-            var darkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
-                Cache.OpticsIlluminationModeEnum,
+            var darkFieldRawScanImage = await CIBViewModel.GetPMTImagesAsync(
                 Cache.ProductivityInformation,
-                CalChipSiteModelEnum.ChuckModel,
                 StageCoordinateSystemEnum.Bright,
+                CalChipSiteModelEnum.ChuckModel,
                 startPosition,
                 endPosition,
+                Cache.Item.CIBInformation,
+                (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 false,
-                Cache.Item.CIBInformation,
-                Cache.Item.CIBConfiguration);
+                cancellationToken);
 
             StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 
-            CalibratingItem.RawImageFilePath = darkFieldLineScanImage.RawImageFilePath;
+            CalibratingItem.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
 
             Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { CalibratingItem.RawImageFilePath }), HtmlLogUniqueId.LoggingHtml());
 
@@ -665,7 +627,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyActionAsync(CancellationToken cancellationToken)
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         await InvokeVerifyAsync(async () =>
         {
@@ -679,7 +641,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{selectedReviewItem.ProductivityInformation}";
+                var title = selectedReviewItem.ProductivityInformation.ToString();
 
                 if (selectedReviewItem.IsCalibrated == false)
                 {
@@ -687,7 +649,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                     continue;
                 }
 
-                Cache.OpticsIlluminationModeEnum = selectedReviewItem.OpticsIlluminationModeEnum;
                 Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
 
                 Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -696,7 +657,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    Cache.OpticsIlluminationModeEnum,
                     Cache.ProductivityInformation,
                     Cache.Item.MicroscopeLensInformation,
                     Cache.Item.LaserLightInformation,
@@ -739,17 +699,17 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * selectedReviewItem.XPixelSize / 2d, 0);
                 var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
-                var verifyDarkFieldLineScanImage = LaserViewModel.GetDarkFieldLineScanImage(
-                    Cache.OpticsIlluminationModeEnum,
+                var verifyDarkFieldLineScanImage = await CIBViewModel.GetPMTImagesAsync(
                     Cache.ProductivityInformation,
-                    CalChipSiteModelEnum.ChuckModel,
                     StageCoordinateSystemEnum.Bright,
+                    CalChipSiteModelEnum.ChuckModel,
                     verifyStartPosition,
                     verifyEndPosition,
+                    Cache.Item.CIBInformation,
+                    (false, Cache.Item.CIBConfiguration),
                     (false, Cache.Item.LaserLightInformation),
                     false,
-                    Cache.Item.CIBInformation,
-                    Cache.Item.CIBConfiguration);
+                    cancellationToken);
 
                 selectedReviewItem.VerifyRawImageFilePath = verifyDarkFieldLineScanImage.RawImageFilePath;
 
@@ -961,8 +921,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
-                                           || t.ProductivityInformation != dto.ProductivityInformation),
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
                 dto.Clone()
             ];
         }

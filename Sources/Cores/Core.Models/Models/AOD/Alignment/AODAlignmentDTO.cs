@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using MathNet.Numerics.LinearAlgebra;
@@ -18,9 +17,6 @@ namespace Core.Models.Models.AOD.Alignment;
 
 public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AODAlignmentDTO>
 {
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -138,7 +134,6 @@ public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AOD
 
     public AODAlignmentDTO Clone() => new()
     {
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(x => x.Clone())],
         Slope = Slope,

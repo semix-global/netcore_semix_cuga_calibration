@@ -26,7 +26,6 @@ using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.PmtAgcDelay;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
@@ -369,16 +368,6 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserPmtAgcDelayItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t.OpticsMagTypeEnum == OpticsMagTypeEnum.High)?.IsOk == true;
-        if (isOk == false) errorMessage = "Laser XTC is Empty";
-
-        return isOk;
-    }
-
     public static bool IsOk(this LaserDOEAngleDto result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -428,8 +417,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+        var isOkCount = result.Where(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && applicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
                                           && applicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
                                           && applicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum)
@@ -461,8 +449,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
         var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
 
@@ -475,8 +462,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
         var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
 
@@ -489,8 +475,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
         var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
 
@@ -503,8 +488,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
         var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
 
@@ -517,8 +501,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
         var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
 
@@ -531,8 +514,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+        var isOkCount = result.Where(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && applicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
                                           && applicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
                                           && applicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum)
@@ -552,8 +534,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && applicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation)
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
         var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
 

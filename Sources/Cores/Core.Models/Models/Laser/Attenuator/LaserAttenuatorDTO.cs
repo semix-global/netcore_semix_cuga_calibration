@@ -3,6 +3,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -14,9 +15,6 @@ namespace Core.Models.Models.Laser.Attenuator;
 
 public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<CalibrationAttenuatorObj>, ICloneable<LaserAttenuatorDTO>
 {
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
     
@@ -134,7 +132,6 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
 
     public LaserAttenuatorDTO Clone() => new()
     {
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         WaitTime = WaitTime,
         MeasurePowerPoints = [.. MeasurePowerPoints],
@@ -155,7 +152,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
 
     public CalibrationAttenuatorObj AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum =  ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         MaxCoefficientAverageMeasurePower = MaxMeasurePower,
         CoefficientMeasurePowerPoints = [.. MeasurePowerPoints.Select(t => t.ToCgPoint())],

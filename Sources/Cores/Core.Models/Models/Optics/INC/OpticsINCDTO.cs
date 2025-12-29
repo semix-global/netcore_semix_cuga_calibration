@@ -18,9 +18,6 @@ namespace Core.Models.Models.Optics.INC;
 public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<OpticsINCDTO>, IAdaptTo<CalibrationOpticsINC>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -90,7 +87,6 @@ public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<Optics
 
     public OpticsINCDTO Clone() => new()
     {
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         MaxItem = MaxItem?.Clone(),
@@ -103,7 +99,7 @@ public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<Optics
 
     public CalibrationOpticsINC AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         INCMotorAbsoluteValue = MaxItem?.INCMotorAbsoluteValue,

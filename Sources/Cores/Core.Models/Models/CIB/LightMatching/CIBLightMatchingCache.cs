@@ -11,10 +11,6 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -47,13 +43,13 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
 
     public double ReviewSilicaSphereThreshold => SilicaSphereThreshold * ReviewThresholdRangeRatio;
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), CIBLightMatchingCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBLightMatchingCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public CIBLightMatchingCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new CIBLightMatchingCacheItem());
+    public CIBLightMatchingCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBLightMatchingCacheItem());
 }
 
 public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase

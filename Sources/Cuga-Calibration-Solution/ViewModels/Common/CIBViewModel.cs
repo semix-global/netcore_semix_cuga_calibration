@@ -349,7 +349,6 @@ public sealed class CIBViewModel(
         Point startPosition,
         Point endPosition,
         CIBInformation cibInformation,
-        int imageWidth,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,

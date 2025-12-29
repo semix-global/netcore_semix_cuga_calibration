@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -16,9 +15,6 @@ namespace Core.Models.Models.AOD.Delay;
 
 public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -105,7 +101,6 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
 
     public AODDelayDTO Clone() => new()
     {
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         MaxItem = MaxItem?.Clone(),
@@ -118,8 +113,8 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
 
     public CalibrationLaserAodDelayItem AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         PrescanAodDelayTime = PrescanAODDelay,
         ChirpAodDelayTime = ChirpAODDelay,
         IsCalibrated = IsCalibrated,

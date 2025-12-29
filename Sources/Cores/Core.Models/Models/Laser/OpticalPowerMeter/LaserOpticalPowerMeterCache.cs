@@ -12,10 +12,6 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -24,20 +20,20 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 0.05;
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserOpticalPowerMeterCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserOpticalPowerMeterCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public LaserOpticalPowerMeterCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new LaserOpticalPowerMeterCacheItem());
+    public LaserOpticalPowerMeterCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserOpticalPowerMeterCacheItem());
 }
 
 public sealed partial class LaserOpticalPowerMeterCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private Point _findMachinePosition;
-    
+
     [ObservableProperty]
     private double _waitTime = 5;
 

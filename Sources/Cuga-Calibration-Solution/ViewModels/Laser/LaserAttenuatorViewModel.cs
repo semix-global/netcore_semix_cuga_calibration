@@ -28,13 +28,12 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => $"{Cache.OpticsIlluminationModeEnum.Humanize()}_{Cache.ProductivityInformation}";
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
 
-    public override string CalibrateFileName => $"{Cache.OpticsIlluminationModeEnum.Humanize()}_{Cache.ProductivityInformation}";
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity" },
         new() { StepName = "Attenuator" }
     ];
@@ -45,7 +44,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
     private LaserAttenuatorDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     #endregion Calibration
 
@@ -101,15 +100,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         LaserOpticalPowerMeters = laserOpticalPowerMeters;
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses =
-            [
-                ..ApplicationCookie.OpticsIlluminationModeEnums
-                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
-                    {
-                        SelectedItem = t,
-                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetOpticsMagTypeProductivityInformations(t))]
-                    })
-            ];
+            CalibrationStatuses = [..ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDTO>();
@@ -117,13 +108,10 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         Calibrations =
         [
             .. Calibrations
-                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                            && ApplicationCookie.GetOpticsMagTypeProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses
-                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum)
-                        .ProductivityInformationCalibrationStatusList
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -151,8 +139,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsIlluminationModeEnum)
-                .ThenBy(t => t.ProductivityInformation)
+                .OrderBy(t => t.ProductivityInformation)
         ];
 
         return Reviews.Count > 0;
@@ -165,17 +152,14 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
-                return true;
-
-            case 1:
                 CalibratingItem = new LaserAttenuatorDTO();
 
                 return true;
 
-            case 2:
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationCalibrationStatusList
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
+            case 1:
+                CalibrationStatuses
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
+                    .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
@@ -194,44 +178,28 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum);
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(() =>
-        {
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.GetOpticsMagTypeProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation);
+            return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private async Task Step1Async(CancellationToken cancellationToken)
     {
         await InvokeCalibrateAsync(async () =>
         {
-            var laserOpticalPower = LaserOpticalPowerMeters.Single(t => t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum && t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);
+            var laserOpticalPower = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.Item.WaitTime,
                 Cache.Item.StartCoefficient,
@@ -242,7 +210,6 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
                 laserOpticalPower.MaxMeasurePowerPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.WaitTime = Cache.Item.WaitTime;
             CalibratingItem.MeasurePowerPoints = [];
@@ -324,7 +291,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyActionAsync(CancellationToken cancellationToken)
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         if (SelectedReviewItems.Count == 0)
         {
@@ -338,7 +305,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{selectedReviewItem.ProductivityInformation}";
+                var title = selectedReviewItem.ProductivityInformation.ToString();
 
                 /*if (selectedReviewItem.IsCalibrated == false)
                 {
@@ -346,14 +313,12 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
                     continue;
                 }*/
 
-                Cache.OpticsIlluminationModeEnum = selectedReviewItem.OpticsIlluminationModeEnum;
                 Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
 
                 Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    Cache.OpticsIlluminationModeEnum,
                     Cache.ProductivityInformation,
                     Cache.Threshold
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -404,8 +369,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum
-                                           || t.ProductivityInformation != dto.ProductivityInformation),
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
                 dto.Clone()
             ];
         }

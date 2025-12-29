@@ -8,7 +8,6 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Optics.INC;
-using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -34,13 +33,12 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => Cache.OpticsIlluminationModeEnum.Humanize();
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
 
-    public override string CalibrateFileName => Cache.OpticsIlluminationModeEnum.Humanize();
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity" },
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
@@ -55,7 +53,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     private OpticsINCDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
@@ -121,15 +119,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
         }
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses =
-            [
-                ..ApplicationCookie.OpticsIlluminationModeEnums
-                    .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
-                    {
-                        SelectedItem = t,
-                        ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
-                    })
-            ];
+            CalibrationStatuses = [..ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<OpticsINCCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<OpticsINCDTO>();
@@ -137,13 +127,10 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
         Calibrations =
         [
             .. Calibrations
-                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                            && ApplicationCookie.GetProductivityInformations(t.OpticsIlluminationModeEnum).Contains(t.ProductivityInformation))
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses
-                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum)
-                        .ProductivityInformationCalibrationStatusList
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -171,7 +158,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsIlluminationModeEnum)
+                .OrderBy(t => t.ProductivityInformation)
         ];
 
         return Reviews.Count > 0;
@@ -193,9 +180,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
-                return true;
-
-            case 4:
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
@@ -213,15 +197,11 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
-
-                return true;
-
-            case 1:
                 CalibratingItem = new OpticsINCDTO();
 
                 return true;
 
-            case 2:
+            case 1:
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
@@ -229,10 +209,13 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
                 return true;
 
+            case 2:
+                return true;
+
             case 3:
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationCalibrationStatusList
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
+                CalibrationStatuses
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
+                    .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
@@ -251,36 +234,21 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return ApplicationCookie.OpticsIlluminationModeEnums.Contains(Cache.OpticsIlluminationModeEnum);
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(() =>
-        {
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum).Contains(Cache.ProductivityInformation);
+            return ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -289,7 +257,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
@@ -303,7 +270,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step3Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -312,7 +279,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
@@ -325,17 +291,16 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step4Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             var detectImageDirectory = ImageFileDirectory;
 
-            var currentMotorAbsoluteValue = OpticsViewModel.GetINCMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum);
+            var currentMotorAbsoluteValue = OpticsViewModel.GetINCMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.OpticsIlluminationModeEnum,
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
@@ -350,7 +315,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.Items = [];
             CalibratingItem.MaxItem = null;
@@ -371,20 +335,19 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    OpticsViewModel.SetINCMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, relayMotorAbsoluteValue);
+                    OpticsViewModel.SetINCMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum, relayMotorAbsoluteValue);
 
-                    using var darkFieldImage = LaserViewModel.GetDarkFieldLineScanImage(
-                        Cache.OpticsIlluminationModeEnum,
+                    using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
-                        CalChipSiteModelEnum.HazeModel,
                         StageCoordinateSystemEnum.Dark,
+                        CalChipSiteModelEnum.HazeModel,
                         hazeBFPosition,
+                        Cache.Item.CIBInformation,
+                        Cache.Item.ImageWidth,
+                        (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,
-                        Cache.Item.CIBInformation,
-                        Cache.Item.CIBConfiguration,
-                        Cache.Item.ImageWidth,
-                        isAutoFocus: false);
+                        cancellationToken);
 
                     var imageFilePath = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);
@@ -430,7 +393,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
             }
             finally
             {
-                OpticsViewModel.SetINCMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, currentMotorAbsoluteValue);
+                OpticsViewModel.SetINCMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum, currentMotorAbsoluteValue);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
@@ -438,7 +401,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyActionAsync(CancellationToken cancellationToken)
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         if (SelectedReviewItems.Count == 0)
         {
@@ -452,7 +415,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
             foreach (var selectedReviewItem in SelectedReviewItems)
             {
-                var title = $"{selectedReviewItem.OpticsIlluminationModeEnum.ToDescriptionOrString()}_{selectedReviewItem.ProductivityInformation}";
+                var title = selectedReviewItem.ProductivityInformation.ToString();
 
                 /*if (selectedReviewItem.IsCalibrated == false)
                 {
@@ -460,14 +423,12 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                     continue;
                 }*/
 
-                Cache.OpticsIlluminationModeEnum = selectedReviewItem.OpticsIlluminationModeEnum;
                 Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
 
                 Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    Cache.OpticsIlluminationModeEnum,
                     Cache.ProductivityInformation
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -515,7 +476,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum),
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
                 dto.Clone()
             ];
         }
