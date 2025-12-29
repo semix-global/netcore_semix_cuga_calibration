@@ -5,6 +5,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:aodDelay="clr-namespace:Core.Models.Models.AOD.Delay;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -21,13 +25,12 @@
                 <RowDefinition Height="5" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+            <hc:UniformSpacingPanel Orientation="Vertical"
+                                    Spacing="2"
+                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
                 <hc:Shield Subject="Step 4: "
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Optics Illumination Mode: "
-                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
@@ -40,6 +43,9 @@
                 <hc:Shield Subject="CIB Information: "
                            Status="{Binding Cache.Item.CIBInformation}"
                            Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Haze BF Machine Position(um): "
+                           Status="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -51,19 +57,55 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <TextBox Text="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                 hc:TitleElement.Title="Position(um): "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ImageWidth}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.WaitTime}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Start AOD Delay(sa): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StartRoughAODDelay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step AOD Delay(sa): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StepRoughAODDelay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Stop AOD Delay(sa): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StopRoughAODDelay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Refined AOD Delay ±Range(sa): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.RangeRefinedAODDelay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step AOD Delay Refined(sa): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StepRefinedAODDelay}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step3CalibrateActionCommand}"
+                                    Command="{Binding Step3Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step3CalibrateActionCancelCommand}"
+                                    Command="{Binding Step3CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
@@ -72,5 +114,86 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
+        <GroupBox Grid.Column="2" Header="History">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="2*" />
+                </Grid.RowDefinitions>
+                <ListView x:Name="ListView"
+                          ItemsSource="{Binding CalibratingItem.Items}"
+                          Style="{StaticResource ListView.Small}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <behaviors:ListBoxScrollToCurrentBehavior />
+                    </i:Interaction.Behaviors>
+                    <ListView.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.View>
+                        <GridView>
+                            <GridView.ColumnHeaderContainerStyle>
+                                <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                </Style>
+                            </GridView.ColumnHeaderContainerStyle>
+                            <GridViewColumn Header="AOD Delay(sa)" DisplayMemberBinding="{Binding AODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="PMT Value" DisplayMemberBinding="{Binding PMTValue, StringFormat='0.###'}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <GridSplitter Grid.Row="1" Height="5" />
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                    <TabControl>
+                        <TabItem Header="Plots">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Images">
+                            <ListBox ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type aodDelay:AODDelayDTOItem}">
+                                        <Border Width="300"
+                                                Height="300"
+                                                Style="{StaticResource BorderRegion}">
+                                            <hc:SimplePanel>
+                                                <view:CanvasView AxisColor="Red"
+                                                                 BackgroundColor="#0A0A0A"
+                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 Interactive="True"
+                                                                 ShowAxes="True"
+                                                                 ShowCursor="False"
+                                                                 ShowGrid="False" />
+                                                <TextBlock Text="{Binding AODDelay, StringFormat='0.###'}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           Foreground="Yellow" />
+                                            </hc:SimplePanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </TabItem>
+                    </TabControl>
+                </Border>
+            </Grid>
+        </GroupBox>
     </Grid>
 </UserControl>

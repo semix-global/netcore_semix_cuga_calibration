@@ -3,12 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              d:DataContext="{d:DesignInstance Type=viewModels:AODDelayViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -27,13 +23,19 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 3: "
-                           Status="{Binding CalibrationStepList[2].StepName}"
+                           Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Optics Illumination Mode: "
-                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Microscope: "
+                           Status="{Binding Cache.Item.MicroscopeLensInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Laser Light Information: "
+                           Status="{Binding Cache.Item.LaserLightInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="CIB Information: "
+                           Status="{Binding Cache.Item.CIBInformation}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -46,43 +48,19 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <ComboBox hc:TitleElement.Title="Microscope Lens: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                            <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
-                        <ComboBox hc:TitleElement.Title="Laser Light Information: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                            <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
-                        <ComboBox hc:TitleElement.Title="CIB Information: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}">
-                            <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
-                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                        <TextBox Text="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="Position(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step2CalibrateActionCommand}"
+                                    Command="{Binding Step2Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step2CalibrateActionCancelCommand}"
+                                    Command="{Binding Step2CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
