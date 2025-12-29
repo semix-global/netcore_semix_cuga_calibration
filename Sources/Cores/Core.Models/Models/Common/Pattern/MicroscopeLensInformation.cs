@@ -23,6 +23,10 @@ public sealed class MicroscopeLensInformation :
     private int _lensCode = -1;
     private double _objectiveMagnification = -1;
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public string LensName
     {
         get => _lensName;
@@ -35,6 +39,10 @@ public sealed class MicroscopeLensInformation :
         private set => SetProperty(ref _lensCode, value);
     }
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double ObjectiveMagnification
     {
         get => _objectiveMagnification;
@@ -72,7 +80,7 @@ public sealed class MicroscopeLensInformation :
 
     public override bool Equals(object? obj) => obj is MicroscopeLensInformation other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(LensName, LensCode, ObjectiveMagnification);
+    public override int GetHashCode() => HashCode.Combine(LensCode);
 
     public override string ToString() => ToString(null);
 

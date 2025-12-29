@@ -3,6 +3,8 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -81,8 +83,8 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
     public CalibrationLaserXPixelSizeItem AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.Default,
         XPixelSize = XPixelSize,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified

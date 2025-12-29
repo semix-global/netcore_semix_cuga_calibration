@@ -15,6 +15,8 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.LightMatching;
@@ -299,8 +301,8 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     public CalibrationLaserCIBLightMatchingItem AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.Default,
         OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = (int)OpticsPolarizationModeEnum,
         CollectorPolarizationModeEnum = (int)CollectorPolarizationModeEnum,

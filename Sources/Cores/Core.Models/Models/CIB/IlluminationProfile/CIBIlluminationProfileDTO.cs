@@ -14,6 +14,8 @@ using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.IlluminationProfile;
@@ -173,8 +175,8 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     public CalibrationLaserCIBIlluminationProfileItem AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.Default,
         OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = (int)OpticsPolarizationModeEnum,
         CollectorPolarizationModeEnum = (int)CollectorPolarizationModeEnum,

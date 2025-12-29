@@ -3,7 +3,9 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -76,8 +78,8 @@ public sealed partial class LaserLineCentricityItemDto : CalibrationDtoBase, ICl
         {
             CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
             CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
-            CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-            Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+            CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+            Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.Default,
             PmtId = PmtId,
             DarkMachineCenterPosition = DarkMachineCenterPosition.ToCgPoint(),
             IsCalibrated = IsCalibrated,

@@ -30,9 +30,13 @@ public sealed class ProductivityInformation :
     private double _xPixelSize = -1;
     private double _yPixelSize = -1;
     private int _yPixel = -1;
-    private double _originYPixel = -1;
+    private int _originYPixel = -1;
     private double _sampleRate = -1;
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public string Name
     {
         get => _name;
@@ -51,25 +55,41 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref _stageSpeedType, value);
     }
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double XPixelSize
     {
         get => _xPixelSize;
         set => SetProperty(ref _xPixelSize, value);
     }
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double YPixelSize
     {
         get => _yPixelSize;
         private set => SetProperty(ref _yPixelSize, value);
     }
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public int YPixel
     {
         get => _yPixel;
         private set => SetProperty(ref _yPixel, value);
     }
 
-    public double OriginYPixel
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public int OriginYPixel
     {
         get => _originYPixel;
         private set => SetProperty(ref _originYPixel, value);
@@ -78,6 +98,10 @@ public sealed class ProductivityInformation :
     /// <summary>
     /// KHz
     /// </summary>
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double SampleRate
     {
         get => _sampleRate;
@@ -144,23 +168,16 @@ public sealed class ProductivityInformation :
 
     #region Mapper
 
-    public C2MProductivityInfo AdaptTo() => this != Default
-        ? new C2MProductivityInfo
-        {
-            Name = Name,
-            Mag = Enum.IsDefined(typeof(SxMAGEnum), OpticsMagType)
-                ? (SxMAGEnum)OpticsMagType
-                : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
-            Speed = Enum.IsDefined(typeof(SxSpeedEnum), StageSpeedType)
-                ? (SxSpeedEnum)StageSpeedType
-                : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
-        }
-        : new C2MProductivityInfo
-        {
-            Name = Name,
-            Mag = (SxMAGEnum)OpticsMagType,
-            Speed = (SxSpeedEnum)StageSpeedType
-        };
+    public C2MProductivityInfo AdaptTo() => new()
+    {
+        Name = Name,
+        Mag = Enum.IsDefined(typeof(SxMAGEnum), OpticsMagType)
+            ? (SxMAGEnum)OpticsMagType
+            : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
+        Speed = Enum.IsDefined(typeof(SxSpeedEnum), StageSpeedType)
+            ? (SxSpeedEnum)StageSpeedType
+            : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
+    };
 
     public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo, double originYPixel)
     {
@@ -175,7 +192,7 @@ public sealed class ProductivityInformation :
 #endif
         YPixelSize = swathSpeedInfo.YPixelSize;
         YPixel = Convert.ToInt32(swathSpeedInfo.YPixel);
-        OriginYPixel = originYPixel;
+        OriginYPixel = Convert.ToInt32(originYPixel);
         SampleRate = swathSpeedInfo.Hz;
 
         return this;

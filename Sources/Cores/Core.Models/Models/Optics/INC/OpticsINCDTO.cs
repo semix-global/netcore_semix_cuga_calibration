@@ -9,6 +9,8 @@ using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using System.ComponentModel;
 using Core.Models.Models.Common.Pattern;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace Core.Models.Models.Optics.INC;
@@ -102,8 +104,8 @@ public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<Optics
     public CalibrationOpticsINC AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.Default,
         INCMotorAbsoluteValue = MaxItem?.INCMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -120,7 +122,7 @@ public sealed partial class OpticsINCDTOItem : ObservableObject, ICloneable<Opti
 
     [ObservableProperty]
     private double _pMTValue;
-    
+
     [ObservableProperty]
     private string _rawImageFilePath = string.Empty;
 

@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.Optics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
@@ -149,7 +150,7 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
     public CalibrationLaserOpticalPower AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
         Coefficient = MaxCoefficient,
         MeasureMaxPower = MaxMeasurePower,
         MeasureMaxPowerPosition = MaxMeasurePowerPosition.ToCgPoint(),

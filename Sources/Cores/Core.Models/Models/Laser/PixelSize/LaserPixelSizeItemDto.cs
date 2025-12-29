@@ -3,6 +3,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -56,7 +57,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
     public CalibrationLaserPixelSizeItem AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
         PmtId = PmtId,
         YPixelSize = YPixelSize,
         IsCalibrated = IsCalibrated,
