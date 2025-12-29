@@ -144,7 +144,7 @@ public sealed class ProductivityInformation :
 
     public override string ToString() => ToString(null);
 
-    public string ToString(string? format, IFormatProvider? formatProvider = null) => $"{OpticsIlluminationModeEnum.ToString()}-{Name}({((SxMAGEnum)OpticsMagType).ToString()[0]}-{((SxSpeedEnum)StageSpeedType).ToString()[0]})";
+    public string ToString(string? format, IFormatProvider? formatProvider = null) => $"{OpticsIlluminationModeEnum.ToString()}_{Name}({((SxMAGEnum)OpticsMagType).ToString()[0]}-{((SxSpeedEnum)StageSpeedType).ToString()[0]})";
 
     #endregion IEquatable、IFormattable
 
