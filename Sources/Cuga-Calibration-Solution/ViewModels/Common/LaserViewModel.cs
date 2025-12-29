@@ -187,67 +187,46 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleCIBControlModeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId = CalibrationConstantsHelper.MainPmtId, int channelId = CalibrationConstantsHelper.MainChannelId)
+    private void ToggleCIBControlModeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId = CalibrationConstantsHelper.MainPmtId, int channelId = CalibrationConstantsHelper.MainChannelId)
     {
         var ret = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cIbConfiguration, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableAutoGainControl(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void ToggleEnableAutoGainControl(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleEnableAutoGainControl(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleProfileMode(CIBProfileModeEnum cibProfileModeEnum, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void ToggleProfileMode(CIBProfileModeEnum cibProfileModeEnum, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleProfileMode(cibProfileModeEnum, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableMarkMode(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void ToggleEnableMarkMode(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleEnableMarkMode(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableL0K(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void ToggleEnableL0K(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleEnableL0K(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
-    {
-        var ret = calibrationLaserService.SetGain(cibInformations, gain);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetGain(double gain, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void SetGain(double gain, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.SetGain(gain, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetSaturation(double saturation)
-    {
-        var ret = calibrationLaserService.SetSaturation(saturation);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public IReadOnlyList<CIBInformation> GetCIBInformations()
-    {
-        var ret = calibrationLaserService.GetCIBInformations();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public IReadOnlyList<(int PmtId, IReadOnlyList<int> ChannelIdList)> GetIsUsedCIBConfigList()
@@ -265,13 +244,6 @@ public sealed class LaserViewModel(
     public IReadOnlyList<IReadOnlyList<double>> GetCIBOfPMTDataList(int count, int pmtId, int channel)
     {
         var ret = calibrationLaserService.GetCIBOfPMTDataList(count, pmtId, channel);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public IReadOnlyList<DarkFieldPmtDataDto> GetCIBOfPMTDataList()
-    {
-        var ret = calibrationLaserService.GetCIBOfPMTDataList();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -381,69 +353,6 @@ public sealed class LaserViewModel(
                     })
                 }), logGuid.Value.LoggingHtml());
             resultImageFilePath = rtfcResultImagePath;
-        }
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(
-        CIBConfiguration cibConfiguration,
-        Point position,
-        LaserLightInformation laserLightInformation,
-        ProductivityInformation productivityInformation,
-        out string resultImageFilePath,
-        bool isAppliedDefaultRtfcParam = true,
-        int pmtId = CalibrationConstantsHelper.MainPmtId,
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
-        string? saveImageFileDirectory = null,
-        Guid? logGuid = null,
-        string? logName = null
-    )
-    {
-        resultImageFilePath = string.Empty;
-        var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
-        Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
-
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
-        using var darkFieldImageDto = GetDarkFieldLineScanImage(
-            calChipSiteModelEnum,
-            position,
-            (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
-            false,
-            cibConfiguration,
-            productivityInformation,
-            opticsIlluminationModeEnum,
-            800,
-            pmtId,
-            stageCoordinateSystemEnum: stageCoordinateSystemEnum); // 模板匹配只能通道3(1, 2特征不明显)
-
-        if (saveImageFileDirectory is not null)
-        {
-            var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
-            darkFieldImageDto.Image.Save(rtfcResultImagePath);
-
-            resultImageFilePath = rtfcResultImagePath;
-
-            if (logGuid is not null && logName is not null)
-                logger.LogHtmlInformation($"{logName} RTFC", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                {
-                    point,
-                    calChipSiteModelEnum,
-                    pmtId,
-                    laserLightInformation,
-                    ret.Anything.Ecs,
-                    ret.Anything.AfMotor,
-                    darkFieldImageDto.RawImageFilePath,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        RTFCResultImage = new HtmlImage(rtfcResultImagePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
-                    })
-                }), logGuid.Value.LoggingHtml());
         }
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);

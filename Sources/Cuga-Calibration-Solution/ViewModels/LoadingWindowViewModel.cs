@@ -84,7 +84,7 @@ public sealed partial class LoadingWindowViewModel(
             var productivityInformations = opticsViewModel.GetProductivityInformations();
             var oiProductivityInformations = productivityInformations.Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI).ToArray();
             var niProductivityInformations = productivityInformations.Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI).ToArray();
-            var cibInformations = laserViewModel.GetCIBInformations();
+            var cibInformations = cibViewModel.GetCIBInformations();
 
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];

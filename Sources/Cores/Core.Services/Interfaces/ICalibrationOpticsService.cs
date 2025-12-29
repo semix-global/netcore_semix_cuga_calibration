@@ -13,6 +13,12 @@ public interface ICalibrationOpticsService
     SxExecuteRet<bool> Connect();
 
     /// <summary>
+    /// 获取cuga配置的产率列表
+    /// </summary>
+    /// <returns>cuga配置的产率列表</returns>
+    SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations();
+
+    /// <summary>
     /// 获取Relay电极位置
     /// </summary>
     /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
@@ -59,10 +65,4 @@ public interface ICalibrationOpticsService
     /// <param name="opticsPolarizationModeEnum">偏振</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
-    
-    /// <summary>
-    /// 获取cuga配置的产率列表
-    /// </summary>
-    /// <returns>cuga配置的产率列表</returns>
-    SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations();
 }

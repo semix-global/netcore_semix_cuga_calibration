@@ -479,7 +479,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                             Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
+                            var cibPMTValues = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.OpticsIlluminationModeEnum,
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
@@ -651,7 +651,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                             Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
+                            var cibPMTValues = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.OpticsIlluminationModeEnum,
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,

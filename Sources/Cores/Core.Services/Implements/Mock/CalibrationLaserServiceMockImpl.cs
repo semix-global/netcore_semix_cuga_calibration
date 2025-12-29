@@ -23,6 +23,7 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
+
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -544,39 +545,11 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetSaturation(double saturation)
-    {
-        Thread.Sleep(100);
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
-    {
-        var cibInformations =
-            (
-                from pmtId in Enumerable.Range(1, 15)
-                from channelId in Enumerable.Range(1, 3)
-                select CIBInformation.Default.Clone().AdaptIn((pmtId, channelId, true))
-            )
-            .ToArray();
-
-        Guard.IsTrue(cibInformations.DistinctBy(t => t).Count() == cibInformations.Length, "CIB Information is not unique");
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([.. cibInformations.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
@@ -591,28 +564,6 @@ public sealed class CalibrationLaserServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(new List<List<double>> { Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950).ToList() });
-    }
-
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
-    {
-        var result = new List<DarkFieldPmtDataDto>();
-
-        for (var i = 1; i < 16; i++)
-        {
-            for (var j = 1; j < 4; j++)
-            {
-                var pmtDataDto = new DarkFieldPmtDataDto
-                {
-                    PmtId = i,
-                    Channel = j,
-                    LineCount = 800,
-                    Data = [.. Enumerable.Range(1, 800).Select(_ => Random.NextDouble())]
-                };
-                result.Add(pmtDataDto);
-            }
-        }
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDataDto>>(result);
     }
 
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfSenseDataList(int count, int pmtId, int channelId)

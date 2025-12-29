@@ -229,14 +229,6 @@ public interface ICalibrationLaserService
     SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId);
 
     /// <summary>
-    /// 设置增益
-    /// </summary>
-    /// <param name="cibInformations">CIB信息列表</param>
-    /// <param name="gain">增益</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain);
-
-    /// <summary>
     /// 设置增益<br/>
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
@@ -248,22 +240,9 @@ public interface ICalibrationLaserService
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId);
 
-    /// <summary>
-    /// 设置饱和值
-    /// </summary>
-    /// <param name="saturation">饱和值</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetSaturation(double saturation);
-
     #endregion Control
 
     #region CIB 数据
-
-    /// <summary>
-    /// 获取CIB信息列表
-    /// </summary>
-    /// <returns>CIB信息列表</returns>
-    SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations();
 
     /// <summary>
     /// 获取CIB ID列表
@@ -279,12 +258,6 @@ public interface ICalibrationLaserService
     /// <param name="channelId">Channel ID</param>
     /// <returns>PMT Channel 数据</returns>
     SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfPMTDataList(int count, int pmtId, int channelId);
-
-    /// <summary>
-    /// 获取PMT数值, 不支持群发
-    /// </summary>
-    /// <returns>获取PMT数值</returns>
-    SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList();
 
     /// <summary>
     /// 读取任意PMT Sense Channel 数据, 不支持群发

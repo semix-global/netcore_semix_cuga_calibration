@@ -27,6 +27,11 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         });
     }
 
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<double> GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         throw new NotImplementedException();
@@ -64,10 +69,5 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
-    {
-        throw new NotImplementedException();
     }
 }

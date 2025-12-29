@@ -1,4 +1,4 @@
-﻿using Core.Models.Enums.Optics;
+﻿using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
@@ -14,6 +14,64 @@ public interface ICalibrationCIBService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> Connect();
+
+    /// <summary>
+    /// 获取CIB信息列表
+    /// </summary>
+    /// <returns>CIB信息列表</returns>
+    SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations();
+
+    /// <summary>
+    /// 切换自动增益<br/>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="enable">是否自动增益</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableAutoGainControl(IReadOnlyList<CIBInformation> cibInformations, bool enable);
+
+    /// <summary>
+    /// 切换Log反差模式<br/>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="cibProfileModeEnum">数据显示模式</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum);
+
+    /// <summary>
+    /// 切换所有PMT L0K<br/>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="enable">是否自动L0k</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable);
+
+    /// <summary>
+    /// 设置增益
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="gain">增益</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain);
+
+    /// <summary>
+    /// 切换Mark模式<br/>
+    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
+    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
+    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="enable">是否Mark模式</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleEnableMarkMode(IReadOnlyList<CIBInformation> cibInformations, bool enable);
 
     /// <summary>
     /// 设置MMD
@@ -34,24 +92,46 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactors);
 
     /// <summary>
-    /// 读取所有CIB的PMT数据
+    /// 读取所有CIB的图片
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
-    /// <param name="position">什么位置</param>
+    /// <param name="position">中心位置</param>
     /// <param name="cibInformations">CIB列表</param>
     /// <param name="imageWidth">图片宽度</param>
+    /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
     /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>CIB对应的PMT数据</returns>
-    Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDto>>> GetPMTValuesAsync(
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+    /// <returns>CIB对应的图片</returns>
+    Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDto>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point position,
         IReadOnlyList<CIBInformation> cibInformations,
         int imageWidth,
+        bool isForward,
+        bool isAutoFocus,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 读取所有CIB的图片
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
+    /// <param name="startPosition">起点位置</param>
+    /// <param name="endPosition">终点位置</param>
+    /// <param name="cibInformations">CIB列表</param>
+    /// <param name="isForward">是否是正向扫图还是反向扫图</param>
+    /// <param name="isAutoFocus">是否自动聚焦</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>CIB对应的图片</returns>
+    Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDto>>> GetPMTImagesAsync(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point startPosition,
+        Point endPosition,
+        IReadOnlyList<CIBInformation> cibInformations,
+        bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken);
 }

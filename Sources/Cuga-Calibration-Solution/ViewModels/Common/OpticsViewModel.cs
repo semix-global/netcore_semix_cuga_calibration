@@ -19,6 +19,13 @@ public sealed class OpticsViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
+    public IReadOnlyList<ProductivityInformation> GetProductivityInformations()
+    {
+        var ret = calibrationOpticsService.GetProductivityInformations();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public double GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         var ret = calibrationOpticsService.GetRelayMotorAbsoluteValue(opticsIlluminationModeEnum);
@@ -32,12 +39,12 @@ public sealed class OpticsViewModel(
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
-    
+
     public double GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum cacheOpticsIlluminationModeEnum)
     {
         throw new NotImplementedException();
     }
-    
+
     public void SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
     {
         throw new NotImplementedException();
@@ -76,12 +83,5 @@ public sealed class OpticsViewModel(
         var ret = calibrationOpticsService.SetPolarizationMode(opticsPolarizationModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-    
-    public IReadOnlyList<ProductivityInformation> GetProductivityInformations()
-    {
-        var ret = calibrationOpticsService.GetProductivityInformations();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 }

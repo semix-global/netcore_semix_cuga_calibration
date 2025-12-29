@@ -224,15 +224,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetSaturation(double saturation)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetDCSaturation(new SxParamObj<double>(saturation)));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
     {
         throw new NotImplementedException();
@@ -246,17 +237,6 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfPMTDataList(int count, int pmtId, int channelId)
     {
         throw new NotImplementedException();
-    }
-
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
-    {
-        var pmtRet = Invoke(() => Service?.GetPMTDataALL());
-        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldPmtDataDto>>(pmtRet.ErrorMsg, []);
-
-        var result = new List<DarkFieldPmtDataDto>(pmtRet.Anything.Count);
-        result.AddRange(pmtRet.Anything.Select(pmtDataModel => new DarkFieldPmtDataDto().AdaptIn(pmtDataModel)));
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDataDto>>(result);
     }
 
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfSenseDataList(int count, int pmtId, int channelId)

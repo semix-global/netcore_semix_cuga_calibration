@@ -628,7 +628,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                             await Task.Delay(TimeSpan.FromSeconds(Cache.PMTValueWaitTime), cancellationToken).ConfigureAwait(false);
 
-                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
+                            var cibPMTValues = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.OpticsIlluminationModeEnum,
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,

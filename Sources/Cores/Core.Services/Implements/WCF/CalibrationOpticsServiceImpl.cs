@@ -29,6 +29,30 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         }, false);
     }
 
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetProductivityInfos());
+
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(sxExecuteRet.ErrorMsg, []);
+
+        var productivityInformationList = new List<ProductivityInformation>();
+
+        foreach (var c2MProductivityInfo in sxExecuteRet.Anything)
+        {
+            var speedInfoSxExecuteRet = Invoke(() => Service?.GetSpeedInfo(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
+            if (speedInfoSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
+
+            var pmtDataLineHeightSxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
+            if (pmtDataLineHeightSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
+
+            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
+        }
+
+        Guard.IsTrue(productivityInformationList.DistinctBy(t => t).Count() == productivityInformationList.Count, "Productivity Information is not unique");
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
+    }
+
     public SxExecuteRet<double> GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(opticsIlluminationModeEnum switch
@@ -90,29 +114,5 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
-    {
-        var sxExecuteRet = Invoke(() => Service?.GetProductivityInfos());
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(sxExecuteRet.ErrorMsg, []);
-
-        var productivityInformationList = new List<ProductivityInformation>();
-
-        foreach (var c2MProductivityInfo in sxExecuteRet.Anything)
-        {
-            var speedInfoSxExecuteRet = Invoke(() => Service?.GetSpeedInfo(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
-            if (speedInfoSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
-
-            var pmtDataLineHeightSxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
-            if (pmtDataLineHeightSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
-
-            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
-        }
-
-        Guard.IsTrue(productivityInformationList.DistinctBy(t => t).Count() == productivityInformationList.Count, "Productivity Information is not unique");
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
     }
 }

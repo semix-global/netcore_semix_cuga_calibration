@@ -342,26 +342,8 @@ public sealed partial class CalibrationLaserServiceImpl(
     public SxExecuteRet<bool> ToggleEnableMarkMode(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.MarkMode, sendDataList)));
 
     public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.L0k, sendDataList)));
-
-    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SendDc([.. cibInformations.Select(t => (gain, t.PMTId, t.ChannelId))]));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
+    
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId) => SetCIBControlValue(gain, pmtId, channelId, sendDataList => Invoke(() => /* direct current */Service?.SendDc(sendDataList)));
-
-    public SxExecuteRet<bool> SetSaturation(double saturation)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetDCSaturation(saturation));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
 
     private SxExecuteRet<bool> SetCIBControlValue<T>(T value, int pmtId, int channelId, Func<List<(T Data, int PMTId, int ChannelId)>, SxExecuteRet> func)
     {
@@ -399,20 +381,6 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
-    {
-        var pmtConfigListSxExecuteRet = GetCIBConfigList();
-        if (pmtConfigListSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<CIBInformation>>(pmtConfigListSxExecuteRet.Msg, []);
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>(
-        [
-            .. pmtConfigListSxExecuteRet.Anything
-                .Where(t => t.IsUsed)
-                .SelectMany(t => t.ChannelIdList.Select(tt => CIBInformation.Default.Clone().AdaptIn((t.PmtId, tt, true))))
-                .OrderBy(t => t)
-        ]);
-    }
-
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
     {
         var sxExecuteRet = Invoke(() => Service?.GetPmtState());
@@ -448,18 +416,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (sxExecuteRet.Anything.Count == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<double>>>("Pmt Value List is empty", []);
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(sxExecuteRet.Anything);
-    }
-
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
-    {
-        var pmtRet = Invoke(() => Service?.GetPMTDataALL());
-
-        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldPmtDataDto>>(pmtRet.ErrorMsg, []);
-
-        var result = new List<DarkFieldPmtDataDto>(pmtRet.Anything.Count);
-        result.AddRange(pmtRet.Anything.Select(pmtDataModel => new DarkFieldPmtDataDto().AdaptIn(pmtDataModel)));
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDataDto>>(result);
     }
 
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfSenseDataList(int count, int pmtId, int channelId)
