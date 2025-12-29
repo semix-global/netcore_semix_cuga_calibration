@@ -52,11 +52,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Verify"
-                                    Command="{Binding VerifyActionCommand}"
+                                    Command="{Binding VerifyCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding VerifyActionCancelCommand}"
+                                    Command="{Binding VerifyCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
@@ -110,7 +110,6 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="Optics Illumination Mode" DisplayMemberBinding="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Header="Slope(px/MHz)" DisplayMemberBinding="{Binding Slope, StringFormat='0.###'}" />
                             <GridViewColumn Header="RSquared" DisplayMemberBinding="{Binding RSquared, StringFormat='0.###'}" />
@@ -124,11 +123,7 @@
                         </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock>
-                                    <Run Text="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <Run Text=", " />
-                                    <Run Text="{Binding ProductivityInformation}" />
-                                </TextBlock>
+                                <TextBlock Text="{Binding ProductivityInformation}" />
                             </DataTemplate>
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>

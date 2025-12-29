@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.AOD.AODAlignment.Children;
+namespace CugaCalibration.Views.AOD.AODAlignment.Children;
 
 public sealed partial class Step1View
 {
