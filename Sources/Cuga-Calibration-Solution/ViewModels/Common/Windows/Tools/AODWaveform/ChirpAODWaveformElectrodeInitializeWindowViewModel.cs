@@ -145,7 +145,7 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
 
     protected override void SetResultAODWaveformConfiguration(ChirpAODWaveformElectrodeInitializeResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
-        ConfigViewModel.SetChirpAODWaveformConfiguration(Cache.OpticsIlluminationModeEnum, result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
+        ConfigViewModel.SetChirpAODWaveformConfiguration(result.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum, result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
 
         if (htmlLogUniqueId == Guid.Empty) return;
 
