@@ -367,7 +367,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                 var maximumIndex = Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.MeasurePower)).MaximumIndex();
                 CalibratingItem.MaxMeasurePower = CalibratingItem.Items[maximumIndex].MeasurePower;
                 CalibratingItem.MaxMeasurePowerPosition = CalibratingItem.Items[maximumIndex].MeasurePosition;
-                CalibratingItem.IsCalibrated = extents.IsOnEdge(CalibratingItem.MaxMeasurePowerPosition);
+                CalibratingItem.IsCalibrated = extents.OnEdge(CalibratingItem.MaxMeasurePowerPosition);
 
                 var htmlBullet = new HtmlBullet(new
                 {
