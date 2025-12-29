@@ -1,6 +1,6 @@
-namespace CugaCalibration.Views.Optics.OpticsINC.Children;
+﻿namespace CugaCalibration.Views.Optics.OpticsINC.Children;
 
-public partial class Step0View
+public sealed partial class Step0View
 {
     public Step0View()
     {

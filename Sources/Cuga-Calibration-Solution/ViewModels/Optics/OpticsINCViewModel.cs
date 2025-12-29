@@ -248,7 +248,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2Async(CancellationToken cancellationToken)
+    private Task Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -270,7 +270,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3Async(CancellationToken cancellationToken)
+    private Task Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -291,7 +291,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4Async(CancellationToken cancellationToken)
+    private Task Step3Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {

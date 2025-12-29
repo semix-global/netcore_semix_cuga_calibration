@@ -5,6 +5,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
+             xmlns:relay="clr-namespace:Core.Models.Models.Optics.INC;assembly=Core.Models"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsINCViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -21,13 +23,12 @@
                 <RowDefinition Height="5" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Step 4: "
+            <hc:UniformSpacingPanel Orientation="Vertical"
+                                    Spacing="2"
+                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+                <hc:Shield Subject="Step 3: "
                            Status="{Binding CalibrationStepList[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Optics Illumination Mode: "
-                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
@@ -40,6 +41,9 @@
                 <hc:Shield Subject="CIB Information: "
                            Status="{Binding Cache.Item.CIBInformation}"
                            Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Haze BF Machine Position(um): "
+                           Status="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -51,19 +55,37 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <TextBox Text="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                 hc:TitleElement.Title="Position(um): "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ImageWidth}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Start INC(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StartINCMotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step INC(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StepINCMotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Stop INC(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StopINCMotorAbsoluteValue}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step3CalibrateActionCommand}"
+                                    Command="{Binding Step3Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step3CalibrateActionCancelCommand}"
+                                    Command="{Binding Step3CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
@@ -72,5 +94,46 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
+        <GroupBox Grid.Column="2" Header="History">
+            <Border Style="{StaticResource BorderRegion}">
+                <TabControl>
+                    <TabItem Header="Plots">
+                        <Border Style="{StaticResource BorderRegion}">
+                            <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                        </Border>
+                    </TabItem>
+                    <TabItem Header="Images">
+                        <ListBox ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type relay:OpticsINCDTOItem}">
+                                    <Border Width="300"
+                                            Height="300"
+                                            Style="{StaticResource BorderRegion}">
+                                        <hc:SimplePanel>
+                                            <view:CanvasView AxisColor="Red"
+                                                             BackgroundColor="#0A0A0A"
+                                                             BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                             Interactive="True"
+                                                             ShowAxes="True"
+                                                             ShowCursor="False"
+                                                             ShowGrid="False" />
+                                            <TextBlock Text="{Binding INCMotorAbsoluteValue, StringFormat='0.###'}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Top"
+                                                       Foreground="Yellow" />
+                                        </hc:SimplePanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </GroupBox>
     </Grid>
 </UserControl>
