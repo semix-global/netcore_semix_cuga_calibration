@@ -124,11 +124,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Algorithm"
-                                    Command="{Binding AlgorithmActionCommand}"
+                                    Command="{Binding AlgorithmCommand}"
                                     hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
                                     Style="{StaticResource ButtonInfo.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding AlgorithmActionCancelCommand}"
+                                    Command="{Binding AlgorithmCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
@@ -136,11 +136,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Verify"
-                                    Command="{Binding VerifyActionCommand}"
+                                    Command="{Binding VerifyCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding VerifyActionCancelCommand}"
+                                    Command="{Binding VerifyCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>

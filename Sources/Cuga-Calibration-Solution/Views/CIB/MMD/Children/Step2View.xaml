@@ -46,25 +46,14 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="200"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                  ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
                         <ComboBox hc:TitleElement.Title="Productivity Information: "
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="200"
+                                  ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
                                   Style="{StaticResource ComboBoxExtend}">
                             <i:Interaction.Behaviors>
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                             </i:Interaction.Behaviors>
-                            <ComboBox.ItemsSource>
-                                <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
-                                    <Binding Path="ApplicationCookie" />
-                                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
-                                </MultiBinding>
-                            </ComboBox.ItemsSource>
                         </ComboBox>
                         <Expander Header="AF"
                                   IsExpanded="False"
@@ -110,8 +99,7 @@
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.PrescanFrequency}" />
                                     </hc:UniformSpacingPanel>
-                                    <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
-                                                                                          IsVisibleProductivityInformation="False"
+                                    <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                           IsVisibleFrequency="False"
                                                                                           IsVisibleDirectoryPath="False"
                                                                                           IsVisibleUniformityConfiguration="False"
@@ -136,8 +124,7 @@
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.ChirpFrequency}" />
                                     </hc:UniformSpacingPanel>
-                                    <generates:GenerateChirpAODWaveformParamUserControl IsVisibleOpticsIlluminationModeEnum="False"
-                                                                                        IsVisibleProductivityInformation="False"
+                                    <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                         IsVisibleFrequency="False"
                                                                                         IsVisibleDirectoryPath="False"
                                                                                         IsVisibleUniformityConfiguration="False"
@@ -328,11 +315,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step2CalibrateActionCommand}"
+                                    Command="{Binding Step2Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step2CalibrateActionCancelCommand}"
+                                    Command="{Binding Step2CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
