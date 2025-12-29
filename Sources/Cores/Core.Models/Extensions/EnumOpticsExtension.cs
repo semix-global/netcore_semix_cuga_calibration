@@ -35,7 +35,7 @@ public static class EnumOpticsExtension
 
     extension(CgMagTypeEnum)
     {
-        public static CgMagTypeEnum Default =>
+        public static CgMagTypeEnum ErrorCgMagTypeEnum =>
 #if NET
             CgMagTypeEnum.Null;
 #else
@@ -146,6 +146,11 @@ public static class EnumOpticsExtension
 
     #region OpticsIlluminationMode
 
+    extension(CgNIOIType)
+    {
+        public static CgNIOIType ErrorCgNIOIType => (CgNIOIType)(int.MaxValue);
+    }
+
     extension(CgNIOIType @this)
     {
         public OpticsIlluminationModeEnum ToOpticsIlluminationModeEnum() => @this switch
@@ -180,6 +185,13 @@ public static class EnumOpticsExtension
             SxNIOIEnum.OI => OpticsIlluminationModeEnum.OI,
             SxNIOIEnum.NI => OpticsIlluminationModeEnum.NI,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsIlluminationModeEnum>(nameof(@this))
+        };
+
+        public CgNIOIType ToCgNIOIType() => @this switch
+        {
+            SxNIOIEnum.OI => CgNIOIType.OI,
+            SxNIOIEnum.NI => CgNIOIType.NI,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgNIOIType>(nameof(@this))
         };
     }
 

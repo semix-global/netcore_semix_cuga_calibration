@@ -82,7 +82,7 @@ public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICl
 
     public CalibrationLaserXTCCalibrationItem AdaptTo() => new()
     {
-        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         PmtId = PmtId,
         CH1Delay = Convert.ToInt32(CH1Delay),
         CH2Delay = Convert.ToInt32(CH2Delay),

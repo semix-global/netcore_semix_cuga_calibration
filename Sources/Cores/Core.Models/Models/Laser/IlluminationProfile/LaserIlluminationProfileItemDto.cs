@@ -163,7 +163,7 @@ public sealed partial class LaserIlluminationProfileItemDto : CalibrationDtoBase
     public CalibrationLaserIlluminationProfileItem AdaptTo() => new()
     {
         Coefficient = LaserLightInformation.Coefficient,
-        OpticsMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        OpticsMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         CalibrationPrescanAODWaveformResults =
         [
             .. PrescanAODWaveformResultList

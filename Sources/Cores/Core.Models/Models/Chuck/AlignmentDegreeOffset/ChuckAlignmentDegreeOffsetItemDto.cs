@@ -47,8 +47,8 @@ public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDtoBa
     public CalibrationChuckAlignmentDegreeOffsetItem AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
-        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.Default,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         DegreeOffset = DegreeOffset,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

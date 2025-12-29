@@ -57,7 +57,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
     public CalibrationLaserPixelSizeItem AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         PmtId = PmtId,
         YPixelSize = YPixelSize,
         IsCalibrated = IsCalibrated,

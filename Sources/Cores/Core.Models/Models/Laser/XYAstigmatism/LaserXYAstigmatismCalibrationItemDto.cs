@@ -49,7 +49,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
 
     public CalibrationLaserXYAstigmatismItem AdaptTo() => new()
     {
-        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         ChirpAODWaveformResultList =
         [
             .. ChirpAodWaveResultList

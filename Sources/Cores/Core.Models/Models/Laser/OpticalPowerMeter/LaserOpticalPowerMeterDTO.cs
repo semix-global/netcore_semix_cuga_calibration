@@ -150,7 +150,7 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
     public CalibrationLaserOpticalPower AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.Default,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Coefficient = MaxCoefficient,
         MeasureMaxPower = MaxMeasurePower,
         MeasureMaxPowerPosition = MaxMeasurePowerPosition.ToCgPoint(),

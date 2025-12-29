@@ -138,7 +138,7 @@ public static class EnumStageExtension
 
     extension(CgSpeedLevelType)
     {
-        public static CgSpeedLevelType Default =>
+        public static CgSpeedLevelType ErrorCgSpeedLevelType =>
 #if NET
             (CgSpeedLevelType)(ushort.MaxValue);
 #else
