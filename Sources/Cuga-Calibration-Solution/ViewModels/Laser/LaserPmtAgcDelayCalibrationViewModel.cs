@@ -350,9 +350,9 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
 
     private async Task<bool> GetPmtAgcDelayAsync(
         LaserPmtAgcDelayItemDto item,
-        DarkFieldPmtDelayDto ch1Delay,
-        DarkFieldPmtDelayDto ch2Delay,
-        DarkFieldPmtDelayDto ch3Delay,
+        CIBDelayDTO ch1Delay,
+        CIBDelayDTO ch2Delay,
+        CIBDelayDTO ch3Delay,
         CancellationToken cancellationToken,
         bool isReview = false)
     {
@@ -382,9 +382,9 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    ch1Delay.AgcDelay = item.Channel1AgcDelay;
-                    ch2Delay.AgcDelay = item.Channel2AgcDelay;
-                    ch3Delay.AgcDelay = item.Channel3AgcDelay;
+                    ch1Delay.AGCDelay = item.Channel1AgcDelay;
+                    ch2Delay.AGCDelay = item.Channel2AgcDelay;
+                    ch3Delay.AGCDelay = item.Channel3AgcDelay;
 
                     LaserViewModel.ToggleEnableAutoGainControl(false, item.PmtId);
                     LaserViewModel.ToggleEnableMarkMode(false, item.PmtId);
@@ -424,17 +424,17 @@ public sealed partial class LaserPmtAgcDelayCalibrationViewModel : CalibrationVi
                             {
                                 item.OpticsMagTypeEnum,
                                 item.PmtId,
-                                ch1DelayCurrentPmtDelay = ch1DelayClone.PmtDelay,
+                                ch1DelayCurrentPmtDelay = ch1DelayClone.PMTDelay,
                                 ch1DelayCurrentSenseDelay = ch1DelayClone.SenseDelay,
-                                ch1DelayOldAgcDelay = ch1DelayClone.AgcDelay,
+                                ch1DelayOldAgcDelay = ch1DelayClone.AGCDelay,
                                 ch1DelayCurrentAgcDelay = item.Channel1AgcDelay,
-                                ch2DelayCurrentPmtDelay = ch2DelayClone.PmtDelay,
+                                ch2DelayCurrentPmtDelay = ch2DelayClone.PMTDelay,
                                 ch2DelayCurrentSenseDelay = ch2DelayClone.SenseDelay,
-                                ch2DelayOldAgcDelay = ch2DelayClone.AgcDelay,
+                                ch2DelayOldAgcDelay = ch2DelayClone.AGCDelay,
                                 ch2DelayCurrentAgcDelay = item.Channel2AgcDelay,
-                                ch3DelayCurrentPmtDelay = ch3DelayClone.PmtDelay,
+                                ch3DelayCurrentPmtDelay = ch3DelayClone.PMTDelay,
                                 ch3DelayCurrentSenseDelay = ch3DelayClone.SenseDelay,
-                                ch3DelayOldAgcDelay = ch3DelayClone.AgcDelay,
+                                ch3DelayOldAgcDelay = ch3DelayClone.AGCDelay,
                                 ch3DelayCurrentAgcDelay = item.Channel3AgcDelay,
                                 baseIndex,
                                 channel1Index,

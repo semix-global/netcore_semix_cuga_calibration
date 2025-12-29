@@ -15,11 +15,11 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.DarkField;
 
-public sealed partial class DarkFieldImageDto :
+public sealed partial class DarkFieldImageDTO :
     ObservableCacheBase,
-    ICloneable<DarkFieldImageDto>,
-    IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldImageDto>,
-    IAdaptIn<DarkFieldRawScanImageDto, DarkFieldImageDto>,
+    ICloneable<DarkFieldImageDTO>,
+    IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldImageDTO>,
+    IAdaptIn<DarkFieldRawScanImageDTO, DarkFieldImageDTO>,
     IDisposable
 {
     /// <summary>
@@ -64,7 +64,7 @@ public sealed partial class DarkFieldImageDto :
 
     #region Mapper
 
-    public DarkFieldImageDto Clone() => new()
+    public DarkFieldImageDTO Clone() => new()
     {
         PmtId = PmtId,
         ChannelId = ChannelId,
@@ -77,7 +77,7 @@ public sealed partial class DarkFieldImageDto :
         Expiration = Expiration
     };
 
-    public DarkFieldImageDto AdaptIn(M2CImgSysCollectImgDTO obj)
+    public DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj)
     {
         Guard.IsNotNull(obj);
 
@@ -90,7 +90,7 @@ public sealed partial class DarkFieldImageDto :
         return this;
     }
 
-    public DarkFieldImageDto AdaptIn(DarkFieldRawScanImageDto obj)
+    public DarkFieldImageDTO AdaptIn(DarkFieldRawScanImageDTO obj)
     {
         Guard.IsNotNull(obj);
 
@@ -111,10 +111,10 @@ public sealed partial class DarkFieldImageDto :
     }
 }
 
-public sealed partial class DarkFieldRawScanImageDto :
+public sealed partial class DarkFieldRawScanImageDTO :
     ObservableCacheBase,
-    ICloneable<DarkFieldRawScanImageDto>,
-    IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldRawScanImageDto>
+    ICloneable<DarkFieldRawScanImageDTO>,
+    IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldRawScanImageDTO>
 {
     /// <summary>
     /// PMT Id
@@ -148,7 +148,7 @@ public sealed partial class DarkFieldRawScanImageDto :
 
     #region Mapper
 
-    public DarkFieldRawScanImageDto Clone() => new()
+    public DarkFieldRawScanImageDTO Clone() => new()
     {
         PmtId = PmtId,
         ChannelId = ChannelId,
@@ -159,7 +159,7 @@ public sealed partial class DarkFieldRawScanImageDto :
         Expiration = Expiration
     };
 
-    public DarkFieldRawScanImageDto AdaptIn(M2CImgSysCollectImgDTO obj)
+    public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj)
     {
         Guard.IsNotNull(obj);
 

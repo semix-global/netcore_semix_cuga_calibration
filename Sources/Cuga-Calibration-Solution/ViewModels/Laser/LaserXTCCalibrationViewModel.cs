@@ -103,7 +103,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
     private LaserXTCCalibrationItemDto[] _calibrations = [];
 
     [ObservableProperty]
-    private IReadOnlyList<DarkFieldPmtDelayDto> _sampleValueList = [];
+    private IReadOnlyList<CIBDelayDTO> _sampleValueList = [];
 
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
@@ -616,18 +616,18 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                laserXTCCalibrationItemDto.CH1Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 1).PmtDelay;
-                laserXTCCalibrationItemDto.CH2Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 2).PmtDelay;
-                laserXTCCalibrationItemDto.CH3Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 3).PmtDelay;
+                laserXTCCalibrationItemDto.CH1Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 1).PMTDelay;
+                laserXTCCalibrationItemDto.CH2Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 2).PMTDelay;
+                laserXTCCalibrationItemDto.CH3Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 3).PMTDelay;
 
                 var (isSuccessPmtDelay, ch1PmtDelay, ch2PmtDelay) = GetXTCCalibration(laserXTCCalibrationItemDto);
                 if (!isSuccessPmtDelay) return false;
 
                 laserXTCCalibrationItemDto.CH1Delay = Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan ? laserXTCCalibrationItemDto.CH1Delay + ch1PmtDelay : laserXTCCalibrationItemDto.CH1Delay - ch1PmtDelay;
-                SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 1).PmtDelay = Convert.ToInt32(laserXTCCalibrationItemDto.CH1Delay);
+                SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 1).PMTDelay = Convert.ToInt32(laserXTCCalibrationItemDto.CH1Delay);
 
                 laserXTCCalibrationItemDto.CH2Delay = Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan ? laserXTCCalibrationItemDto.CH2Delay + ch2PmtDelay : laserXTCCalibrationItemDto.CH2Delay - ch2PmtDelay;
-                SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 2).PmtDelay = Convert.ToInt32(laserXTCCalibrationItemDto.CH2Delay);
+                SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 2).PMTDelay = Convert.ToInt32(laserXTCCalibrationItemDto.CH2Delay);
 
                 SynchronizationContextProvider.Send(() => ResultLaserXTCCalibrationItemDtoList.Add(laserXTCCalibrationItemDto));
 
@@ -804,9 +804,9 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
     }
 
     private (bool IsSuccess,
-        DarkFieldImageDto Channel1DarkFieldImageDto,
-        DarkFieldImageDto Channel2DarkFieldImageDto,
-        DarkFieldImageDto Channel3DarkFieldImageDto)
+        DarkFieldImageDTO Channel1DarkFieldImageDto,
+        DarkFieldImageDTO Channel2DarkFieldImageDto,
+        DarkFieldImageDTO Channel3DarkFieldImageDto)
         GetDarkFieldLineScanImage(IReadOnlyList<PrescanAODWaveformProfile> darkFieldPrescanDto, LaserXTCCalibrationItemDto laserXTCCalibrationItem)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, darkFieldPrescanDto);

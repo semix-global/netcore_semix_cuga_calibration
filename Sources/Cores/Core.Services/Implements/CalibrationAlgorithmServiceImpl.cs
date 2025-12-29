@@ -97,7 +97,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return new Size(xTuple.D, yTuple.D);
     }
 
-    public double GetYPixelSize(DarkFieldImageDto image, double standardMaskSquareYSize)
+    public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize)
     {
         var y = image.Image.GetHorizontalProjects();
 

@@ -580,42 +580,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDelayDto>> GetCIBDelayList()
-    {
-        var result = new List<DarkFieldPmtDelayDto>();
-
-        for (var i = 1; i < 16; i++)
-        {
-            for (var j = 1; j < 4; j++)
-            {
-                var pMtDelayDto = new DarkFieldPmtDelayDto
-                {
-                    PmtId = i,
-                    ChannelId = j,
-                    PmtDelay = Random.Next(240, 300)
-                };
-                result.Add(pMtDelayDto);
-            }
-        }
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDelayDto>>(result);
-    }
-
-    public SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
@@ -634,7 +599,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     }
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
@@ -646,19 +611,19 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new List<DarkFieldImageDto>(3);
+        var result = new List<DarkFieldImageDTO>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
             var size = (SizeI)image.GetSize();
-            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
@@ -669,13 +634,13 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new List<DarkFieldImageDto>(3);
+        var result = new List<DarkFieldImageDTO>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
             var size = (SizeI)image.GetSize();
-            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -683,7 +648,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -696,7 +661,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var uri = _mockImageFilePath;
 
-        var result = new List<DarkFieldRawScanImageDto>(3);
+        var result = new List<DarkFieldRawScanImageDTO>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
@@ -704,13 +669,13 @@ public sealed class CalibrationLaserServiceMockImpl(
             using var binaryReader = new BinaryReader(fileSteam);
             var (size, _, _) = RawImageFactory.GetSize(binaryReader);
             var sizeI = (SizeI)size;
-            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
+            result.Add(new DarkFieldRawScanImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
@@ -722,7 +687,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var uri = _mockImageFilePath;
 
-        var result = new List<DarkFieldRawScanImageDto>(3);
+        var result = new List<DarkFieldRawScanImageDTO>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
@@ -731,14 +696,14 @@ public sealed class CalibrationLaserServiceMockImpl(
             var (size, _, _) = RawImageFactory.GetSize(binaryReader);
             var sizeI = (SizeI)size;
 
-            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
+            result.Add(new DarkFieldRawScanImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
     [Obsolete]
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -751,15 +716,15 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new List<List<DarkFieldImageDto>>(machinePositionList.Count);
+        var result = new List<List<DarkFieldImageDTO>>(machinePositionList.Count);
 
-        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDto>(3)))
+        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDTO>(3)))
         {
             foreach (var i in Enumerable.Range(0, 3))
             {
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
                 var size = (SizeI)image.GetSize();
-                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
             }
 
             result.Add(temp);
@@ -768,7 +733,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -780,15 +745,15 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new List<List<DarkFieldImageDto>>(machinePositionList.Count);
+        var result = new List<List<DarkFieldImageDTO>>(machinePositionList.Count);
 
-        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDto>(3)))
+        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDTO>(3)))
         {
             foreach (var i in Enumerable.Range(0, 3))
             {
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
                 var size = (SizeI)image.GetSize();
-                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
             }
 
             result.Add(temp);

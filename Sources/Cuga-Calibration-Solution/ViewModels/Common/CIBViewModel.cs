@@ -32,9 +32,9 @@ public sealed class CIBViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableAutoGainControl(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    public void ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
-        var ret = calibrationCIBService.ToggleEnableAutoGainControl(cibInformations, enable);
+        var ret = calibrationCIBService.ToggleEnableAGC(cibInformations, enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -69,7 +69,7 @@ public sealed class CIBViewModel(
 
     public void SetCIBConfiguration(IReadOnlyList<CIBInformation> cibInformations, CIBConfiguration cIbConfiguration)
     {
-        ToggleEnableAutoGainControl(cibInformations, cIbConfiguration.IsAutoGainControl);
+        ToggleEnableAGC(cibInformations, cIbConfiguration.IsAutoGainControl);
 
         if (cIbConfiguration.IsAutoGainControl == false) SetGain(cibInformations, cIbConfiguration.Gain);
 
@@ -97,7 +97,21 @@ public sealed class CIBViewModel(
         throw new NotImplementedException();
     }
 
-    public async Task<IReadOnlyList<DarkFieldImageDto>> GetPMTImagesAsync(
+    public IReadOnlyList<CIBDelayDTO> GetDelays(IReadOnlyList<CIBInformation> cibInformations)
+    {
+        var ret = calibrationCIBService.GetDelays(cibInformations);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetDelays(IReadOnlyList<CIBDelayDTO> delays)
+    {
+        var ret = calibrationCIBService.SetDelays(delays);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CalChipSiteModelEnum calChipSiteModelEnum,
@@ -197,7 +211,7 @@ public sealed class CIBViewModel(
         }
     }
 
-    public async Task<DarkFieldImageDto> GetPMTImagesAsync(
+    public async Task<DarkFieldImageDTO> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CalChipSiteModelEnum calChipSiteModelEnum,
@@ -228,7 +242,7 @@ public sealed class CIBViewModel(
         return darkFieldImages.Single();
     }
 
-    public async Task<IReadOnlyList<DarkFieldRawScanImageDto>> GetPMTImagesAsync(
+    public async Task<IReadOnlyList<DarkFieldRawScanImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CalChipSiteModelEnum calChipSiteModelEnum,
@@ -328,7 +342,7 @@ public sealed class CIBViewModel(
         }
     }
 
-    public async Task<DarkFieldRawScanImageDto> GetPMTImagesAsync(
+    public async Task<DarkFieldRawScanImageDTO> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CalChipSiteModelEnum calChipSiteModelEnum,

@@ -487,7 +487,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         string stepName,
         CalChipSiteModelEnum calChipSiteModelEnum,
         Action beforeAction,
-        Action<object, DarkFieldImageDto> resultItemAction,
+        Action<object, DarkFieldImageDTO> resultItemAction,
         Action finallyAction,
         CancellationToken cancellationToken)
     {

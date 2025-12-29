@@ -265,34 +265,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<DarkFieldPmtDelayDto> GetCIBDelayList()
-    {
-        var ret = calibrationLaserService.GetCIBDelayList();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
-    {
-        var ret = calibrationLaserService.SetCIBDelayList(darkFieldPmtDelayDtoList);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
-    {
-        var ret = calibrationLaserService.SetCIBChirp(gainList, pmtId, channelId);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
-    {
-        var ret = calibrationLaserService.SendPMTGain(pmtData, igData, pmtId, channelId);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
     [Obsolete]
     public (double Ecs, double AfMotor) RuntimeAfCalibration(
         CIBConfiguration cibConfiguration,
@@ -429,7 +401,7 @@ public sealed class LaserViewModel(
     #endregion DOE
 
     [Obsolete]
-    public List<DarkFieldImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldImageDTO> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         int xWidthPixel,
@@ -497,7 +469,7 @@ public sealed class LaserViewModel(
         }
     }
 
-    public List<DarkFieldImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldImageDTO> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         int xWidthPixel,
@@ -567,7 +539,7 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public DarkFieldImageDto GetDarkFieldLineScanImage(
+    public DarkFieldImageDTO GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
@@ -609,7 +581,7 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public DarkFieldImageDto GetDarkFieldLineScanImage(
+    public DarkFieldImageDTO GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
@@ -648,7 +620,7 @@ public sealed class LaserViewModel(
         return darkFieldImageDto;
     }
 
-    public DarkFieldImageDto GetDarkFieldLineScanImage(
+    public DarkFieldImageDTO GetDarkFieldLineScanImage(
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         CalChipSiteModelEnum calChipSiteModelEnum,
@@ -704,7 +676,7 @@ public sealed class LaserViewModel(
     /// <returns></returns>
     /// <exception cref="CugaException"></exception>
     [Obsolete]
-    public List<DarkFieldRawScanImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldRawScanImageDTO> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -773,7 +745,7 @@ public sealed class LaserViewModel(
     /// <param name="isAutoFocus"></param>
     /// <returns></returns>
     /// <exception cref="CugaException"></exception>
-    public List<DarkFieldRawScanImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldRawScanImageDTO> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point startPosition,
         Point endPosition,
@@ -850,7 +822,7 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public DarkFieldRawScanImageDto GetDarkFieldLineScanImage(
+    public DarkFieldRawScanImageDTO GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point startPosition,
         Point endPosition,
@@ -882,7 +854,7 @@ public sealed class LaserViewModel(
         return result.Single(t => t.ChannelId == channelId);
     }
 
-    public DarkFieldRawScanImageDto GetDarkFieldLineScanImage(
+    public DarkFieldRawScanImageDTO GetDarkFieldLineScanImage(
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         CalChipSiteModelEnum calChipSiteModelEnum,
@@ -931,7 +903,7 @@ public sealed class LaserViewModel(
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <exception cref="CugaException"></exception>
     [Obsolete]
-    public List<List<DarkFieldImageDto>> GetChuckDarkFieldRowLineScanImageList(
+    public List<List<DarkFieldImageDTO>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> positionList,
         int xWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -998,7 +970,7 @@ public sealed class LaserViewModel(
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <exception cref="CugaException"></exception>
-    public List<List<DarkFieldImageDto>> GetChuckDarkFieldRowLineScanImageList(
+    public List<List<DarkFieldImageDTO>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> positionList,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
@@ -1064,7 +1036,7 @@ public sealed class LaserViewModel(
     /// <returns>指定通道的分割结果集合</returns>
     /// <exception cref="CugaException"></exception>
     [Obsolete]
-    public List<DarkFieldImageDto> GetChuckDarkFieldRowLineScanImage(
+    public List<DarkFieldImageDTO> GetChuckDarkFieldRowLineScanImage(
         List<Point> positionList,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
@@ -1117,7 +1089,7 @@ public sealed class LaserViewModel(
     /// <param name="isAutoFocus"></param>
     /// <returns>指定通道的分割结果集合</returns>
     /// <exception cref="CugaException"></exception>
-    public List<DarkFieldImageDto> GetChuckDarkFieldRowLineScanImage(
+    public List<DarkFieldImageDTO> GetChuckDarkFieldRowLineScanImage(
         List<Point> positionList,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
@@ -1181,7 +1153,7 @@ public sealed class LaserViewModel(
     [Obsolete]
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        DarkFieldImageDto darkFieldImageDto,
+        DarkFieldImageDTO darkFieldImageDto,
         int pmtId,
         Point position,
         string templateFilePath,
@@ -1344,7 +1316,7 @@ public sealed class LaserViewModel(
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        DarkFieldImageDto darkFieldImageDto,
+        DarkFieldImageDTO darkFieldImageDto,
         int pmtId,
         Point position,
         string templateFilePath,

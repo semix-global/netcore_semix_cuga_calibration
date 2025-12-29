@@ -428,28 +428,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(sxExecuteRet.Anything.Data);
     }
 
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDelayDto>> GetCIBDelayList()
-    {
-        var pmtRet = Invoke(() => Service?.GetPMTDelay());
-        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldPmtDelayDto>>(pmtRet.ErrorMsg, []);
-
-        var result = new List<DarkFieldPmtDelayDto>(pmtRet.Anything.Count);
-        result.AddRange(pmtRet.Anything.Select(pmtDelayModel => new DarkFieldPmtDelayDto().AdaptIn(pmtDelayModel)));
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDelayDto>>(result);
-    }
-
-    public SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
-    {
-        var pmtDelayModel = darkFieldPmtDelayDtoList.Select(item => item.AdaptTo()).ToList();
-
-        var pmtRet = Invoke(() => Service?.SetPMTDelay(pmtDelayModel));
-
-        return pmtRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(pmtRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
     {
         // pmt增益电压范围 [-14, 14]
@@ -487,15 +465,6 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SendPMTGain(pmtData, igData, pmtId, channelId));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
         int pmtId,
@@ -523,7 +492,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -553,22 +522,22 @@ public sealed partial class CalibrationLaserServiceImpl(
                 ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
             }));
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDTO>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldImageDTO>(darkFieldImagesRet.Anything.Count);
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
             var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
@@ -597,23 +566,23 @@ public sealed partial class CalibrationLaserServiceImpl(
                 ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
             }));
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDTO>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldImageDTO>(darkFieldImagesRet.Anything.Count);
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
             var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -628,7 +597,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         try
         {
             var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(setWaitTimeRet.ErrorMsg, []);
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(setWaitTimeRet.ErrorMsg, []);
 
             darkFieldImagesRet = stageCoordinateSystemEnum switch
             {
@@ -659,20 +628,20 @@ public sealed partial class CalibrationLaserServiceImpl(
             if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
         }
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldRawScanImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldRawScanImageDTO>(darkFieldImagesRet.Anything.Count);
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            result.Add(new DarkFieldRawScanImageDto().AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
@@ -686,7 +655,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         try
         {
             var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(setWaitTimeRet.ErrorMsg, []);
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(setWaitTimeRet.ErrorMsg, []);
 
             darkFieldImagesRet = stageCoordinateSystemEnum switch
             {
@@ -717,14 +686,14 @@ public sealed partial class CalibrationLaserServiceImpl(
             if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
         }
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldRawScanImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldRawScanImageDTO>(darkFieldImagesRet.Anything.Count);
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            result.Add(new DarkFieldRawScanImageDto().AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -732,7 +701,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
 
     [Obsolete]
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -751,7 +720,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             throw new ArgumentOutOfRangeException(nameof(machinePositionList), machinePositionList, null);
 
         var directionRet = calibrationStageService.GetMachineDirection();
-        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
+        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>(directionRet.ErrorMsg, []);
         var directionX = directionRet.Anything.XDirection;
 
         var extendWidth = xWidthPixel * xPixelSize / 2.0;
@@ -792,15 +761,15 @@ public sealed partial class CalibrationLaserServiceImpl(
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
         };
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is empty", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>("Dark Images Count is empty", []);
 
-        var splitImagesAllChannels = new List<List<DarkFieldImageDto>>();
+        var splitImagesAllChannels = new List<List<DarkFieldImageDTO>>();
         for (var i = 0; i < machinePositionList.Count; i++)
         {
             var results = darkFieldImagesRet.Anything.Where(t => t.Position == i).ToList();
 
-            var splitImages = new List<DarkFieldImageDto>();
+            var splitImages = new List<DarkFieldImageDTO>();
             foreach (var item in results.OrderBy(t => t.Channel))
             {
                 var bytes = File.ReadAllBytes(item.Url);
@@ -814,7 +783,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDTO { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -826,7 +795,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         static (HImage Image, short[,] Matrix) DropLast((HImage Image, short[,] Matrix, byte[] RawBytes) tuple) => (tuple.Image, tuple.Matrix);
     }
 
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -844,7 +813,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             throw new ArgumentOutOfRangeException(nameof(machinePositionList), machinePositionList, null);
 
         var directionRet = calibrationStageService.GetMachineDirection();
-        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
+        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>(directionRet.ErrorMsg, []);
         var directionX = directionRet.Anything.XDirection;
 
         var scanLineXPixelSize = xPixelSize;
@@ -886,15 +855,15 @@ public sealed partial class CalibrationLaserServiceImpl(
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
         };
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is empty", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>("Dark Images Count is empty", []);
 
-        var splitImagesAllChannels = new List<List<DarkFieldImageDto>>();
+        var splitImagesAllChannels = new List<List<DarkFieldImageDTO>>();
         for (var i = 0; i < machinePositionList.Count; i++)
         {
             var results = darkFieldImagesRet.Anything.Where(t => t.Position == i).ToList();
 
-            var splitImages = new List<DarkFieldImageDto>();
+            var splitImages = new List<DarkFieldImageDTO>();
             foreach (var item in results.OrderBy(t => t.Channel))
             {
                 var bytes = File.ReadAllBytes(item.Url);
@@ -908,7 +877,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDTO { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 

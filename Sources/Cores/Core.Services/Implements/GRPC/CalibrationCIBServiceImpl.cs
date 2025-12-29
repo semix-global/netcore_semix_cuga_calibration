@@ -33,7 +33,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> ToggleEnableAutoGainControl(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    public SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
         throw new NotImplementedException();
     }
@@ -68,12 +68,22 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDto>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point position, IReadOnlyList<CIBInformation> cibInformations, int imageWidth, bool isForward, bool isAutoFocus, CancellationToken cancellationToken)
+    public SxExecuteRet<IReadOnlyList<CIBDelayDTO>> GetDelays(IReadOnlyList<CIBInformation> cibInformations)
     {
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDto>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point startPosition, Point endPosition, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, CancellationToken cancellationToken)
+    public SxExecuteRet<bool> SetDelays(IReadOnlyList<CIBDelayDTO> delays)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point position, IReadOnlyList<CIBInformation> cibInformations, int imageWidth, bool isForward, bool isAutoFocus, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point startPosition, Point endPosition, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

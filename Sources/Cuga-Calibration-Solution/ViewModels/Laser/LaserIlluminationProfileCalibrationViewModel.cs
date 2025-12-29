@@ -671,7 +671,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             return true;
 
-            void GetMaxWindowScanImage(LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem item, DarkFieldImageDto darkFieldImageDto)
+            void GetMaxWindowScanImage(LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem item, DarkFieldImageDTO darkFieldImageDto)
             {
                 var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(darkFieldImageDto.Image.GetHorizontalProjects()));
                 item.MaxWindowDarkImageListMinIndex = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
@@ -680,7 +680,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 item.MaxSmoothDarkFieldImageList = [.. sgolayfiltList];
             }
 
-            void GetMinWindowScanImage(LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem item, DarkFieldImageDto darkFieldImageDto)
+            void GetMinWindowScanImage(LaserIlluminationProfileDarkFieldImageListToPrescanListCacheItem item, DarkFieldImageDTO darkFieldImageDto)
             {
                 var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(darkFieldImageDto.Image.GetHorizontalProjects()));
                 item.MinWindowDarkImageListMinIndex = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
@@ -821,7 +821,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 1 => channel1DarkFieldImageDto,
                 2 => channel2DarkFieldImageDto,
                 3 => channel3DarkFieldImageDto,
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<DarkFieldImageDto>(nameof(Cache.ChannelId))
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<DarkFieldImageDTO>(nameof(Cache.ChannelId))
             };
             //是否需要进行反转
             var projectionYs = itemCache.IsReviseDarkFieldImageToPrescan ? darkFieldImageDto.Image.GetHorizontalProjects().AsEnumerable().Reverse() : darkFieldImageDto.Image.GetHorizontalProjects();
@@ -1610,9 +1610,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     }
 
     private (bool IsSuccess,
-        DarkFieldImageDto Channel1DarkFieldImageDto,
-        DarkFieldImageDto Channel2DarkFieldImageDto,
-        DarkFieldImageDto Channel3DarkFieldImageDto)
+        DarkFieldImageDTO Channel1DarkFieldImageDto,
+        DarkFieldImageDTO Channel2DarkFieldImageDto,
+        DarkFieldImageDTO Channel3DarkFieldImageDto)
         GetDarkFieldLineScanImage(IReadOnlyList<PrescanAODWaveformProfile> darkFieldPrescanDto, int pmtId = 8, Point position = default)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, darkFieldPrescanDto);

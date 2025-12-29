@@ -244,18 +244,18 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDelayDto>> GetCIBDelayList()
+    public SxExecuteRet<IReadOnlyList<CIBDelayDTO>> GetCIBDelayList()
     {
         var pmtRet = Invoke(() => Service?.GetPMTDelay());
-        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldPmtDelayDto>>(pmtRet.ErrorMsg, []);
+        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<CIBDelayDTO>>(pmtRet.ErrorMsg, []);
 
-        var result = new List<DarkFieldPmtDelayDto>(pmtRet.Anything.Count);
-        result.AddRange(pmtRet.Anything.Select(pmtDelayModel => new DarkFieldPmtDelayDto().AdaptIn(pmtDelayModel)));
+        var result = new List<CIBDelayDTO>(pmtRet.Anything.Count);
+        result.AddRange(pmtRet.Anything.Select(pmtDelayModel => new CIBDelayDTO().AdaptIn(pmtDelayModel)));
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDelayDto>>(result);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBDelayDTO>>(result);
     }
 
-    public SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
+    public SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<CIBDelayDTO> darkFieldPmtDelayDtoList)
     {
         var pmtDelayModel = darkFieldPmtDelayDtoList.Select(item => item.AdaptTo()).ToList();
 
@@ -271,15 +271,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SendPMTGain(new SxParamObj<(List<string> pmtData, List<string> igData, int pmtId, int channel)>((pmtData, igData, pmtId, channelId))));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
         int pmtId,
@@ -290,7 +281,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
@@ -303,7 +294,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
@@ -316,7 +307,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -330,7 +321,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
@@ -343,13 +334,13 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(List<Point> machinePositionList, int xWidthPixel, double xPixelSize, OpticsMagTypeEnum opticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum, OpticsIlluminationModeEnum opticsIlluminationModeEnum, int pmtId, StageCoordinateSystemEnum stageCoordinateSystemEnum, bool isAutoFocus)
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(List<Point> machinePositionList, int xWidthPixel, double xPixelSize, OpticsMagTypeEnum opticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum, OpticsIlluminationModeEnum opticsIlluminationModeEnum, int pmtId, StageCoordinateSystemEnum stageCoordinateSystemEnum, bool isAutoFocus)
     {
         throw new NotImplementedException();
     }
 
 
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,

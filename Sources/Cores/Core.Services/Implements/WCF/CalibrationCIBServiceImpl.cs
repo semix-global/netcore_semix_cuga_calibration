@@ -53,7 +53,7 @@ public sealed class CalibrationCIBServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>(cibInformations);
     }
 
-    public SxExecuteRet<bool> ToggleEnableAutoGainControl(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    public SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
         var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, [.. cibInformations.Select(t => (enable ? 0x00_01_00_00 : 0x00_00_00_00, t.PMTId, t.ChannelId))]));
 
@@ -144,7 +144,29 @@ public sealed class CalibrationCIBServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDto>>> GetPMTImagesAsync(
+    public SxExecuteRet<IReadOnlyList<CIBDelayDTO>> GetDelays(IReadOnlyList<CIBInformation> cibInformations)
+    {
+        var pmtRet = Invoke(() => Service?.GetPMTDelay());
+        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<CIBDelayDTO>>(pmtRet.ErrorMsg, []);
+
+        var results = pmtRet.Anything
+            .Select(t => new CIBDelayDTO().AdaptIn(t))
+            .Where(t => cibInformations.Contains(t.CIBInformation))
+            .ToArray();
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBDelayDTO>>(results);
+    }
+
+    public SxExecuteRet<bool> SetDelays(IReadOnlyList<CIBDelayDTO> delays)
+    {
+        var pmtRet = Invoke(() => Service?.SetPMTDelay(delays.Select(item => item.AdaptTo()).ToList()));
+
+        return pmtRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(pmtRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point position,
@@ -159,7 +181,7 @@ public sealed class CalibrationCIBServiceImpl(
         try
         {
             var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDto>>(setWaitTimeRet.ErrorMsg, []);
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(setWaitTimeRet.ErrorMsg, []);
 
             var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
@@ -187,10 +209,10 @@ public sealed class CalibrationCIBServiceImpl(
             if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
         }
 
-        if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDto>>(dfImgCalibrationRet.ErrorMsg, []);
-        if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDto>>($"Dark Images Count is not {cibInformations.Count}", []);
+        if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(dfImgCalibrationRet.ErrorMsg, []);
+        if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>($"Dark Images Count is not {cibInformations.Count}", []);
 
-        var result = new DarkFieldImageDto[cibInformations.Count];
+        var result = new DarkFieldImageDTO[cibInformations.Count];
 
         await Task.WhenAll(cibInformations.Index().Select(t => Task.Run(() =>
         {
@@ -203,13 +225,13 @@ public sealed class CalibrationCIBServiceImpl(
             var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
 
-            result[index] = new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto);
+            result[index] = new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto);
         }, cancellationToken)));
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDto>>(result);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(result);
     }
 
-    public async Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDto>>> GetPMTImagesAsync(
+    public async Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
@@ -224,7 +246,7 @@ public sealed class CalibrationCIBServiceImpl(
         try
         {
             var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDto>>(setWaitTimeRet.ErrorMsg, []);
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>(setWaitTimeRet.ErrorMsg, []);
 
             var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
@@ -252,10 +274,10 @@ public sealed class CalibrationCIBServiceImpl(
             if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
         }
 
-        if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDto>>(dfImgCalibrationRet.ErrorMsg, []);
-        if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDto>>($"Dark Images Count is not {cibInformations.Count}", []);
+        if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>(dfImgCalibrationRet.ErrorMsg, []);
+        if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>($"Dark Images Count is not {cibInformations.Count}", []);
 
-        var result = new DarkFieldRawScanImageDto[cibInformations.Count];
+        var result = new DarkFieldRawScanImageDTO[cibInformations.Count];
 
         await Task.WhenAll(cibInformations.Index().Select(t => Task.Run(() =>
         {
@@ -265,9 +287,9 @@ public sealed class CalibrationCIBServiceImpl(
 
             var m2CImgSysCollectImgDto = dfImgCalibrationRet.Anything.Single(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId);
 
-            result[index] = new DarkFieldRawScanImageDto().AdaptIn(m2CImgSysCollectImgDto);
+            result[index] = new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto);
         }, cancellationToken)));
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDto>>(result);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(result);
     }
 }

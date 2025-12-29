@@ -323,12 +323,12 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             return;
 
-            DarkFieldImageDto ToDarkFieldImageDto(DarkFieldRawScanImageDto origin)
+            DarkFieldImageDTO ToDarkFieldImageDto(DarkFieldRawScanImageDTO origin)
             {
                 var rawBytes = System.IO.File.ReadAllBytes(origin.RawImageFilePath);
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
 
-                return new DarkFieldImageDto
+                return new DarkFieldImageDTO
                 {
                     Image = image,
                     Matrix = matrix

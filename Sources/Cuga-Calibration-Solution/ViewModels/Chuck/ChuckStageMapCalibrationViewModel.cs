@@ -1325,7 +1325,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, strings) + Environment.NewLine + string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
                 }
 
-                var darkImageRepeatList = new List<List<DarkFieldImageDto>>();
+                var darkImageRepeatList = new List<List<DarkFieldImageDTO>>();
                 foreach (var _ in Enumerable.Range(1, Cache.RepeatCount))
                 {
                     cancellationToken.ThrowIfCancellationRequested();

@@ -65,7 +65,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return pixelSize;
     }
 
-    public double GetYPixelSize(DarkFieldImageDto image, double standardMaskSquareYSize)
+    public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize)
     {
         return Random.NextDouble();
     }

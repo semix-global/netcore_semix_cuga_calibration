@@ -271,19 +271,6 @@ public interface ICalibrationLaserService
     #endregion CIB 数据
 
     /// <summary>
-    /// 获取第1到15号光斑的CH1,CH2,CH3的CIB采样值
-    /// </summary>
-    /// <returns>返回第1到15号(PMT id, 光斑的CH1,CH2,CH3的CIB采样值集合)</returns>
-    SxExecuteRet<IReadOnlyList<DarkFieldPmtDelayDto>> GetCIBDelayList();
-
-    /// <summary>
-    /// 将第1到15号光斑的CH1,CH2,CH3的CIB采样值重新写入
-    /// </summary>
-    /// <param name="darkFieldPmtDelayDtoList">返回第1到15号光斑缺陷坐标集合</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList);
-
-    /// <summary>
     /// 下发CIB增益波形给cuga
     /// </summary>
     /// <param name="gainList">PMT增益电压值</param>
@@ -291,16 +278,6 @@ public interface ICalibrationLaserService
     /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId);
-
-    /// <summary>
-    /// 将45个光斑的PMTGain数据下发给CIB
-    /// </summary>
-    /// <param name="pmtData">数据1</param>
-    /// <param name="igData">数据2</param>
-    /// <param name="pmtId">PMT ID</param>
-    /// <param name="channelId">Channel ID</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId);
 
     #endregion 暗场相机CIB
 
@@ -321,7 +298,7 @@ public interface ICalibrationLaserService
         Point? point = null);
 
     [Obsolete]
-    SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -344,7 +321,7 @@ public interface ICalibrationLaserService
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <returns>暗场图片列表</returns>
-    SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
@@ -368,7 +345,7 @@ public interface ICalibrationLaserService
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <returns>暗场图片列表</returns>
     [Obsolete]
-    SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -391,7 +368,7 @@ public interface ICalibrationLaserService
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <returns>暗场图片列表</returns>
-    SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
@@ -415,7 +392,7 @@ public interface ICalibrationLaserService
     ///  <param name="isAutoFocus">是否开启自动聚焦</param>
     ///  <returns>明场位置，切割后三个通道图片</returns>
     [Obsolete]
-    SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -438,7 +415,7 @@ public interface ICalibrationLaserService
     ///  <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     ///  <param name="isAutoFocus">是否开启自动聚焦</param>
     ///  <returns>明场位置，切割后三个通道图片</returns>
-    SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,

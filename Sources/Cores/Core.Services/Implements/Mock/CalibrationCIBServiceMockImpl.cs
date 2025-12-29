@@ -43,7 +43,7 @@ public sealed class CalibrationCIBServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([.. cibInformations.OrderBy(t => t)]);
     }
 
-    public SxExecuteRet<bool> ToggleEnableAutoGainControl(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    public SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
         Thread.Sleep(100);
 
@@ -92,7 +92,28 @@ public sealed class CalibrationCIBServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDto>>> GetPMTImagesAsync(
+    public SxExecuteRet<IReadOnlyList<CIBDelayDTO>> GetDelays(IReadOnlyList<CIBInformation> cibInformations)
+    {
+        var results = new CIBDelayDTO[cibInformations.Count];
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            var cibInformation = cibInformations[i];
+
+            results[i] = new CIBDelayDTO { CIBInformation = cibInformation, PMTDelay = Random.Shared.Next(240, 300), SenseDelay = Random.Shared.Next(240, 300), AGCDelay = Random.Shared.Next(240, 300) };
+        }
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBDelayDTO>>(results);
+    }
+
+    public SxExecuteRet<bool> SetDelays(IReadOnlyList<CIBDelayDTO> delays)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point position,
@@ -104,21 +125,21 @@ public sealed class CalibrationCIBServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new DarkFieldImageDto[cibInformations.Count];
+        var results = new DarkFieldImageDTO[cibInformations.Count];
 
-        for (var i = 0; i < result.Length; i++)
+        for (var i = 0; i < results.Length; i++)
         {
             var cibInformation = cibInformations[i];
 
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
             var size = (SizeI)image.GetSize();
-            result[i] = new DarkFieldImageDto { PmtId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix };
+            results[i] = new DarkFieldImageDTO { PmtId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix };
         }
 
-        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDto>>(result));
+        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDto>>> GetPMTImagesAsync(
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
@@ -131,9 +152,9 @@ public sealed class CalibrationCIBServiceMockImpl(
         using var fileSteam = File.OpenRead(_mockImageFilePath);
         using var binaryReader = new BinaryReader(fileSteam);
 
-        var result = new DarkFieldRawScanImageDto[cibInformations.Count];
+        var results = new DarkFieldRawScanImageDTO[cibInformations.Count];
 
-        for (var i = 0; i < result.Length; i++)
+        for (var i = 0; i < results.Length; i++)
         {
             var cibInformation = cibInformations[i];
 
@@ -141,9 +162,9 @@ public sealed class CalibrationCIBServiceMockImpl(
             var (size, _, _) = RawImageFactory.GetSize(binaryReader);
             var sizeI = (SizeI)size;
 
-            result[i] = new DarkFieldRawScanImageDto { PmtId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = _mockImageFilePath };
+            results[i] = new DarkFieldRawScanImageDTO { PmtId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = _mockImageFilePath };
         }
 
-        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDto>>(result));
+        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results));
     }
 }

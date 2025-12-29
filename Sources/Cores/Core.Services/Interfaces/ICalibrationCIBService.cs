@@ -22,21 +22,15 @@ public interface ICalibrationCIBService
     SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations();
 
     /// <summary>
-    /// 切换自动增益<br/>
-    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
-    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
-    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// 切换自动增益 Auto Gain Control
     /// </summary>
     /// <param name="cibInformations">CIB信息列表</param>
     /// <param name="enable">是否自动增益</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableAutoGainControl(IReadOnlyList<CIBInformation> cibInformations, bool enable);
+    SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable);
 
     /// <summary>
-    /// 切换Log反差模式<br/>
-    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
-    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
-    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// 切换Log反差模式
     /// </summary>
     /// <param name="cibInformations">CIB信息列表</param>
     /// <param name="cibProfileModeEnum">数据显示模式</param>
@@ -44,10 +38,7 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum);
 
     /// <summary>
-    /// 切换所有PMT L0K<br/>
-    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
-    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
-    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// 切换所有PMT L0K
     /// </summary>
     /// <param name="cibInformations">CIB信息列表</param>
     /// <param name="enable">是否自动L0k</param>
@@ -63,10 +54,7 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain);
 
     /// <summary>
-    /// 切换Mark模式<br/>
-    /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
-    /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
-    /// 当前PMT Id, 当前Channel Id: (PMT Id: > 0, channelId : > 0)
+    /// 切换Mark模式
     /// </summary>
     /// <param name="cibInformations">CIB信息列表</param>
     /// <param name="enable">是否Mark模式</param>
@@ -92,6 +80,20 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactors);
 
     /// <summary>
+    /// 获取延迟
+    /// </summary>
+    /// <param name="cibInformations">CIB列表</param>
+    /// <returns>返回延迟</returns>
+    SxExecuteRet<IReadOnlyList<CIBDelayDTO>> GetDelays(IReadOnlyList<CIBInformation> cibInformations);
+
+    /// <summary>
+    /// 设置延迟
+    /// </summary>
+    /// <param name="delays">延迟</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetDelays(IReadOnlyList<CIBDelayDTO> delays);
+
+    /// <summary>
     /// 读取所有CIB的图片
     /// </summary>
     /// <param name="productivityInformation">产率</param>
@@ -103,7 +105,7 @@ public interface ICalibrationCIBService
     /// <param name="isAutoFocus">是否自动聚焦</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>CIB对应的图片</returns>
-    Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDto>>> GetPMTImagesAsync(
+    Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point position,
@@ -125,7 +127,7 @@ public interface ICalibrationCIBService
     /// <param name="isAutoFocus">是否自动聚焦</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>CIB对应的图片</returns>
-    Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDto>>> GetPMTImagesAsync(
+    Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
