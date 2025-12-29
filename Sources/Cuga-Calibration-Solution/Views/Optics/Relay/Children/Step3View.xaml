@@ -131,11 +131,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step3CalibrateActionCommand}"
+                                    Command="{Binding Step3Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step3CalibrateActionCancelCommand}"
+                                    Command="{Binding Step3CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
