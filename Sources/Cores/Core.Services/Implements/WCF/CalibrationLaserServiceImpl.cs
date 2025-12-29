@@ -98,12 +98,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>(sxExecuteRet.ErrorMsg, []);
         if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Information is empty", []);
 
-        var laserLightInformations = (IReadOnlyList<LaserLightInformation>)[.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)];
+        var laserLightInformations = sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t).ToArray();
 
-        Guard.IsTrue(laserLightInformations.Select(t => t.Coefficient).Distinct().Count() == laserLightInformations.Count, "Laser Light Information Coefficient is not unique");
-        Guard.IsTrue(laserLightInformations.Select(t => t.Level).Distinct().Count() == laserLightInformations.Count, "Laser Light Information Level is not unique");
+        Guard.IsTrue(laserLightInformations.DistinctBy(t => t).Count() == laserLightInformations.Length, "Laser Light Information is not unique");
 
-        return SxExecuteRetHelper.CreateSuccess(laserLightInformations);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>(laserLightInformations);
     }
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
@@ -128,28 +127,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         return result is null
             ? SxExecuteRetHelper.CreateError("Laser Light Information is not single", LaserLightInformation.Default)
             : SxExecuteRetHelper.CreateSuccess(result);
-    }
-
-    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
-    {
-        var sxExecuteRet = Invoke(() => Service?.GetProductivityInfos());
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(sxExecuteRet.ErrorMsg, []);
-
-        var productivityInformationList = new List<ProductivityInformation>();
-
-        foreach (var c2MProductivityInfo in sxExecuteRet.Anything)
-        {
-            var speedInfoSxExecuteRet = Invoke(() => Service?.GetSpeedInfo(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
-            if (speedInfoSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
-
-            var pmtDataLineHeightSxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
-            if (pmtDataLineHeightSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
-
-            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
-        }
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)

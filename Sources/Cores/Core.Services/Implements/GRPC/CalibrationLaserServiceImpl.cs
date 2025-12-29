@@ -109,11 +109,6 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
-    {
-        throw new NotImplementedException();
-    }
-
     public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         throw new NotImplementedException();

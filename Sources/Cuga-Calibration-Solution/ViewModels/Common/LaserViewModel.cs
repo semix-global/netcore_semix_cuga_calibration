@@ -92,20 +92,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
-    {
-        var ret = calibrationLaserService.GetProductivityInformations(opticsIlluminationModeEnum);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-    
-    public IReadOnlyList<ProductivityInformation> GetProductivityInformations()
-    {
-        var ret = calibrationLaserService.GetProductivityInformations();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     [Obsolete]
     public void ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {

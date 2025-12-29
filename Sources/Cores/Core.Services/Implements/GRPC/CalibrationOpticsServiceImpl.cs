@@ -1,6 +1,7 @@
 ﻿using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
@@ -63,5 +64,10 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    {
+        throw new NotImplementedException();
     }
 }

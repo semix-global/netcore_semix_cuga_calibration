@@ -81,17 +81,17 @@ public sealed partial class LoadingWindowViewModel(
             var deviceCode = configViewModel.GetDeviceCode();
             var microscopeLensInformations = microscopeViewModel.GetMicroscopeLensInformations();
             var laserLightInformations = laserViewModel.GetLaserLightInformations();
-            var productivityInformations = laserViewModel.GetProductivityInformations();
-            var niProductivityInformations = laserViewModel.GetProductivityInformations(OpticsIlluminationModeEnum.NI);
-            var oiProductivityInformations = laserViewModel.GetProductivityInformations(OpticsIlluminationModeEnum.OI);
+            var productivityInformations = opticsViewModel.GetProductivityInformations();
+            var oiProductivityInformations = productivityInformations.Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI).ToArray();
+            var niProductivityInformations = productivityInformations.Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI).ToArray();
             var cibInformations = laserViewModel.GetCIBInformations();
 
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
-            applicationCookie.NIProductivityInformations = [.. niProductivityInformations.Select(t => t.Clone())];
             applicationCookie.OIProductivityInformations = [.. oiProductivityInformations.Select(t => t.Clone())];
+            applicationCookie.NIProductivityInformations = [.. niProductivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
 
             Guard.IsNotEmpty(applicationCookie.OpticsIlluminationModeEnums);
@@ -111,11 +111,15 @@ public sealed partial class LoadingWindowViewModel(
                 {
                     if (t is null || t.IsNull) return ProductivityInformation.Default;
 
-                    int opticsIlluminationModeEnum = t[nameof(ProductivityInformation.OpticsIlluminationModeEnum)];
-                    int opticsMagType = t[nameof(ProductivityInformation.OpticsMagType)];
-                    int stageSpeedType = t[nameof(ProductivityInformation.StageSpeedType)];
+                    var opticsIlluminationMode = t[nameof(ProductivityInformation.OpticsIlluminationModeEnum)];
+                    var opticsIlluminationModeEnum = opticsIlluminationMode.IsNull
+                        ? OpticsIlluminationModeEnum.OI
+                        : (OpticsIlluminationModeEnum)(int)opticsIlluminationMode;
 
-                    return applicationCookie.ProductivityInformations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == (OpticsIlluminationModeEnum)opticsIlluminationModeEnum
+                    var opticsMagType = t[nameof(ProductivityInformation.OpticsMagType)];
+                    var stageSpeedType = t[nameof(ProductivityInformation.StageSpeedType)];
+
+                    return applicationCookie.ProductivityInformations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
                                                                                             && tt.OpticsMagType == opticsMagType
                                                                                             && tt.StageSpeedType == stageSpeedType, ProductivityInformation.Default);
                 });

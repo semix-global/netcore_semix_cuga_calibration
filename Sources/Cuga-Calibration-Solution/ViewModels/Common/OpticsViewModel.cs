@@ -1,5 +1,6 @@
 ﻿using Core.Models.Enums.Optics;
 using Core.Models.Exceptions;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -75,5 +76,12 @@ public sealed class OpticsViewModel(
         var ret = calibrationOpticsService.SetPolarizationMode(opticsPolarizationModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+    
+    public IReadOnlyList<ProductivityInformation> GetProductivityInformations()
+    {
+        var ret = calibrationOpticsService.GetProductivityInformations();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 }

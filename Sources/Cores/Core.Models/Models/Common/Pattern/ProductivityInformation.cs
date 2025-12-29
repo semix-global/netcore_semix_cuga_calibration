@@ -8,7 +8,6 @@ using Net.Utilities.Mapper.Interfaces;
 using Semix.GRPC.DTO;
 #else
 using Semix.WcfTransfer.DTO;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 
 #endif

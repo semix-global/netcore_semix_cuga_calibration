@@ -23,6 +23,7 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
+
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -114,6 +115,8 @@ public sealed class CalibrationLaserServiceMockImpl(
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 1, LightCoeff = 0.005 })
         };
 
+        Guard.IsTrue(laserLightInformations.DistinctBy(t => t).Count() == laserLightInformations.Length, "Laser Light Information is not unique");
+
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>([.. laserLightInformations.OrderBy(t => t)]);
     }
 
@@ -141,193 +144,6 @@ public sealed class CalibrationLaserServiceMockImpl(
             : SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
-    {
-        Thread.Sleep(100);
-
-        var productivityInformations = new[]
-        {
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S5",
-                    Mag = SxMAGEnum.Low,
-                    Speed = SxSpeedEnum.High,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.327,
-                    YPixel = 508,
-                    Hz = 408
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 445, XPixelSize = 1.091 } }
-                    }
-#endif
-                },
-                508),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S10",
-                    Mag = SxMAGEnum.Low,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.327,
-                    YPixel = 508,
-                    Hz = 408
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 222.5, XPixelSize = 0.546 } }
-                    }
-#endif
-                },
-                508),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S25",
-                    Mag = SxMAGEnum.Mid,
-                    Speed = SxSpeedEnum.High,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.1635,
-                    YPixel = 1008,
-                    Hz = 290
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 175.9, XPixelSize = 0.61 } }
-                    }
-#endif
-                },
-                1008),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S40",
-                    Mag = SxMAGEnum.Mid,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.1635,
-                    YPixel = 1008,
-                    Hz = 290
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 88.06, XPixelSize = 0.304 } }
-                    }
-#endif
-                },
-                1008),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S55",
-                    Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.High,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.11286,
-                    YPixel = 1500,
-                    Hz = 210
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 87.24, XPixelSize = 0.416 } }
-                    }
-#endif
-                },
-                1500),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S90",
-                    Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.11286,
-                    YPixel = 1500,
-                    Hz = 210
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 43.6, XPixelSize = 0.208 } }
-                    }
-#endif
-                },
-                1500),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S90",
-                    Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.096,
-                    YPixel = 1720,
-                    Hz = 200
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 26.88, XPixelSize = 0.135 } }
-                    }
-#endif
-                },
-                1720),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S40",
-                    Mag = SxMAGEnum.Mid,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.144,
-                    YPixel = 1160,
-                    Hz = 200
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 40, XPixelSize = 0.2 } }
-                    }
-#endif
-                },
-                1160)
-        };
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformations.OrderBy(t => t)]);
-    }
-
     public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         Thread.Sleep(100);
@@ -338,6 +154,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S5",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.Low,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
@@ -360,6 +179,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S10",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.Low,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -382,6 +204,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S25",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
@@ -404,6 +229,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S40",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -426,6 +254,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S55",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
@@ -448,6 +279,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S90",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -474,6 +308,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S90",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.NI,
+#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -496,6 +333,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S40",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.NI,
+#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -727,15 +567,17 @@ public sealed class CalibrationLaserServiceMockImpl(
 
     public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
     {
-        var cibInformationList =
+        var cibInformations =
             (
                 from pmtId in Enumerable.Range(1, 15)
                 from channelId in Enumerable.Range(1, 3)
                 select CIBInformation.Default.Clone().AdaptIn((pmtId, channelId, true))
             )
-            .ToList();
+            .ToArray();
+        
+        Guard.IsTrue(cibInformations.DistinctBy(t => t).Count() == cibInformations.Length, "CIB Information is not unique");
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([.. cibInformationList.OrderBy(t => t)]);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([.. cibInformations.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()

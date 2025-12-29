@@ -163,7 +163,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                                                     && t is { IsOk: true, IsVerified: true })
                         ?? Cache;
 
-                var productivityInformations = LaserViewModel.GetProductivityInformations(Cache.OpticsIlluminationModeEnum);
+                var productivityInformations = _applicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum);
 
                 if (_applicationCookie.MicroscopeLensInformations.Contains(Cache.LowMag) == false ||
                     _applicationCookie.MicroscopeLensInformations.Contains(Cache.HighMag) == false)
