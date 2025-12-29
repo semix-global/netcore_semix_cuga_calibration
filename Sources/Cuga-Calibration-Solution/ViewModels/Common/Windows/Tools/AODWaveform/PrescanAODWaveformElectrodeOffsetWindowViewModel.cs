@@ -93,7 +93,7 @@ public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
 
     protected override void SetResultAODWaveformConfiguration(PrescanAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
-        ConfigViewModel.SetPrescanAODWaveformConfiguration(result.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum, result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
+        ConfigViewModel.SetPrescanAODWaveformConfiguration(result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
 
         if (htmlLogUniqueId == Guid.Empty) return;
 

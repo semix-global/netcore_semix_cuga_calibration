@@ -244,7 +244,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             SetAODWaveformProfiles(item, htmlLogUniqueId);
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);

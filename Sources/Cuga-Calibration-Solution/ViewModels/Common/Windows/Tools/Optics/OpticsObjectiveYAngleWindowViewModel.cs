@@ -267,15 +267,15 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-                laserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+                laserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
                 laserViewModel.ToggleEnableAutoGainControl(true);
 
                 try
                 {
                     stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.HazeBFMachinePosition));
                     afViewModel.ToggleDarkFieldEnable(true);
-                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Coefficient);
-                    laserViewModel.SetChirpAODWaveProfile(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Coefficient);
+                    laserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);

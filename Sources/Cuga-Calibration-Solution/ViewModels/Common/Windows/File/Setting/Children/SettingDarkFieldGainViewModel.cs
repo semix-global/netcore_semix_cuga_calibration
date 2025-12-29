@@ -176,8 +176,8 @@ public sealed partial class SettingDarkFieldGainViewModel(
                 stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
 
                 afViewModel.ToggleDarkFieldEnable(true);
-                laserViewModel.ToggleOpticsMagType(opticsIlluminationModeEnum, productivityInformation);
-                laserViewModel.SetPrescanAODWaveProfileByCoefficient(opticsIlluminationModeEnum, productivityInformation, coefficient);
+                laserViewModel.ToggleOpticsMagType(productivityInformation);
+                laserViewModel.SetPrescanAODWaveProfileByCoefficient(productivityInformation, coefficient);
                 laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                 laserViewModel.ToggleEnableAutoGainControl(false);
                 laserViewModel.ToggleEnableL0K(false);

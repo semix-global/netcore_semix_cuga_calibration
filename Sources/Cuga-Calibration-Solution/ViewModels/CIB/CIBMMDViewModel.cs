@@ -411,7 +411,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
 
             Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;

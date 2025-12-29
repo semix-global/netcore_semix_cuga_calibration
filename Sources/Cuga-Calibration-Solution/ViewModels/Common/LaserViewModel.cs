@@ -100,9 +100,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public void ToggleOpticsMagType(ProductivityInformation productivityInformation)
     {
-        var ret = calibrationLaserService.ToggleOpticsMagType(opticsIlluminationModeEnum, productivityInformation);
+        var ret = calibrationLaserService.ToggleOpticsMagType(productivityInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -122,9 +122,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
+    public void SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
     {
-        var ret = calibrationLaserService.SetAODDelayValue(opticsIlluminationModeEnum, productivityInformation, prescanAODDelay, chirpAODDelay);
+        var ret = calibrationLaserService.SetAODDelayValue(productivityInformation, prescanAODDelay, chirpAODDelay);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -137,9 +137,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient)
+    public void SetPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
     {
-        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(opticsIlluminationModeEnum, productivityInformation, coefficient);
+        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(productivityInformation, coefficient);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -159,9 +159,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public void SetChirpAODWaveProfile(ProductivityInformation productivityInformation)
     {
-        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(opticsIlluminationModeEnum, productivityInformation);
+        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(productivityInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -489,14 +489,14 @@ public sealed class LaserViewModel(
         {
             Guard.IsNotNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
-            SetPrescanAODWaveProfileByCoefficient(opticsIlluminationModeEnum, productivityInformation, customPrescanAod.LaserLightInformation.Coefficient);
+            SetPrescanAODWaveProfileByCoefficient(productivityInformation, customPrescanAod.LaserLightInformation.Coefficient);
         }
         else
             Guard.IsNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
         if (isCustomChirpAod == false)
         {
-            SetChirpAODWaveProfile(opticsIlluminationModeEnum, productivityInformation);
+            SetChirpAODWaveProfile(productivityInformation);
         }
 
         return true;

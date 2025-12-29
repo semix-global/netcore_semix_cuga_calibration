@@ -455,7 +455,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             var judgeWindowStartIndex = item.JudgeWindowStartIndex;
             var judgeWindowEndIndex = item.JudgeWindowEndIndex;
             var servings = item.Servings;
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -721,7 +721,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         LaserViewModel.SetGain(laserXTCCalibrationItemDto.Gain);
 
         Thread.Sleep(1000);
-        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
         var k = 1d / Cache.Item.PrescanInterval;
         var resultWindow = new List<double>();
         var startIndex = Cache.Item.PrescanStartIndex;

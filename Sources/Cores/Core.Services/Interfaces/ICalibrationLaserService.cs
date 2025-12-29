@@ -84,10 +84,9 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 设置照明mag
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
+    SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 切换照明扫描模式
@@ -102,12 +101,11 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 设置AOD延迟的值, 并切换Mag
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="prescanAODDelay">Prescan AOD延迟</param>
     /// <param name="chirpAODDelay">Chirp AOD延迟</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay);
+    SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay);
 
     [Obsolete]
     SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double coefficient);
@@ -115,11 +113,10 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 下发PrescanAOD波形
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient);
+    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient);
 
     /// <summary>
     /// 下发PrescanAOD波形
@@ -135,10 +132,9 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 下发ChirpAOD波形
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
+    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 下发ChirpAOD波形

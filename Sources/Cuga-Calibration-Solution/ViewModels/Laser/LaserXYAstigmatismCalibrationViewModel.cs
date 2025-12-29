@@ -355,7 +355,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                     return false;
                 }
 
-                var defaultChirpAodWaveProfileLst = ConfigureViewModel.GetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+                var defaultChirpAodWaveProfileLst = ConfigureViewModel.GetChirpAODWaveProfiles(Cache.ProductivityInformation);
                 chirpAodDefaultDto.ZeroSampleCount = defaultChirpAodWaveProfileLst[0].ZeroSampleCount;
                 // 有AOD Delay结果时，默认chirp波形使用该delay值
                 var laserAodDelayItem = LaserAodDelayItemList.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);

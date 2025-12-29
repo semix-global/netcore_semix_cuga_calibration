@@ -93,7 +93,7 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
 
     protected override void SetResultAODWaveformConfiguration(ChirpAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
-        ConfigViewModel.SetChirpAODWaveformConfiguration(result.GenerateChirpAODWaveformParam.OpticsIlluminationModeEnum, result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
+        ConfigViewModel.SetChirpAODWaveformConfiguration(result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
 
         if (htmlLogUniqueId == Guid.Empty) return;
 

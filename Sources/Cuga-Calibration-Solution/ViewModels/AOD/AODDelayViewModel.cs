@@ -321,7 +321,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Cache.Item.CIBInformation,
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
-            
+
             return true;
         });
     }
@@ -356,7 +356,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             CalibratingItem.Items = [];
             CalibratingItem.MaxItem = null;
             CalibratingItem.IsCalibrated = false;
-            
+
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
 
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -401,8 +401,8 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
                     var itemItem = new AODDelayDTOItem { AODDelay = aodDelay };
 
-                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Coefficient);
-                    LaserViewModel.SetAODDelayValue(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation, itemItem.PrescanAODDelay, itemItem.ChirpAODDelay);
+                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Coefficient);
+                    LaserViewModel.SetAODDelayValue(Cache.ProductivityInformation, itemItem.PrescanAODDelay, itemItem.ChirpAODDelay);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
