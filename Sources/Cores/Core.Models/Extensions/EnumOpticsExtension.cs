@@ -173,6 +173,16 @@ public static class EnumOpticsExtension
         };
     }
 
+    extension(SxNIOIEnum @this)
+    {
+        public OpticsIlluminationModeEnum ToOpticsIlluminationModeEnum() => @this switch
+        {
+            SxNIOIEnum.OI => OpticsIlluminationModeEnum.OI,
+            SxNIOIEnum.NI => OpticsIlluminationModeEnum.NI,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsIlluminationModeEnum>(nameof(@this))
+        };
+    }
+
     #endregion
 
 #if NETFRAMEWORK

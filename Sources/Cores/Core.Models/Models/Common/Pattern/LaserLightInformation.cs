@@ -18,20 +18,17 @@ public sealed class LaserLightInformation :
 {
     public static readonly LaserLightInformation Default = new();
 
-    private double _level = -1;
-    private double _coefficient = -1;
-
     public double Level
     {
-        get => _level;
-        private set => SetProperty(ref _level, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
     public double Coefficient
     {
-        get => _coefficient;
-        private set => SetProperty(ref _coefficient, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
     private LaserLightInformation()
     {
@@ -61,7 +58,9 @@ public sealed class LaserLightInformation :
 
     public override bool Equals(object? obj) => obj is LaserLightInformation other && Equals(other);
 
+    // ReSharper disable NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => HashCode.Combine(Level, Coefficient);
+    // ReSharper restore NonReadonlyMemberInGetHashCode
 
     public override string ToString() => ToString(null);
 

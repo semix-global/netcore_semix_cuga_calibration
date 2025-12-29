@@ -77,6 +77,12 @@ public interface ICalibrationLaserService
     #endregion 激光功率
 
     #region 任意波形发生器Arbitrary Waveform Generator
+    
+    /// <summary>
+    /// 获取cuga配置的产率列表
+    /// </summary>
+    /// <returns>cuga配置的产率列表</returns>
+    SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations();
 
     /// <summary>
     /// 获取cuga配置的产率列表
