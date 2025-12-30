@@ -336,7 +336,10 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             {
                 Logger.LogHtmlInformation("Alignment", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                foreach (var prescanFrequency in Generate.LinearRange(Cache.Item.StartPrescanFrequency, Cache.Item.StepPrescanFrequency, Cache.Item.StopPrescanFrequency))
+                var prescanFrequencies = Generate.LinearRange(Cache.Item.StartPrescanFrequency, Cache.Item.StepPrescanFrequency, Cache.Item.StopPrescanFrequency);
+                Guard.IsNotEmpty(prescanFrequencies);
+
+                foreach (var prescanFrequency in prescanFrequencies)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
