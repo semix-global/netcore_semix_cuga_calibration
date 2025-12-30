@@ -629,10 +629,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                             var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
-                                CalChipSiteModelEnum.HazeModel,
                                 hazeBFPosition,
                                 cibInformations,
                                 Cache.ImageWidth,
+                                (true, null),
                                 (true, null),
                                 (true, null),
                                 true,

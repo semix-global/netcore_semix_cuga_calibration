@@ -426,7 +426,8 @@ public static class CoreWcfModelsExtension
             .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
 
         var isOk = isOkCount == (applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count)
-            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count;
+            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count
+            * applicationCookie.CIBInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";
 
@@ -523,7 +524,8 @@ public static class CoreWcfModelsExtension
             .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
 
         var isOk = isOkCount == (applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count)
-            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count;
+            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count
+            * applicationCookie.CIBInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";
 

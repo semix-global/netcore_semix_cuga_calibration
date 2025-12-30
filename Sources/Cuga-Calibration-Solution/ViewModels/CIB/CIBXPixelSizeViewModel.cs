@@ -363,10 +363,10 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             var darkFieldImageDto = await CIBViewModel.GetPMTImagesAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Bright,
-                CalChipSiteModelEnum.ChuckModel,
                 StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
                 Cache.Item.CIBInformation,
                 Cache.Item.ImageWidth,
+                (false, CalChipSiteModelEnum.ChuckModel),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 false,
@@ -471,10 +471,10 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             var darkFieldRawScanImage = await CIBViewModel.GetPMTImagesAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Bright,
-                CalChipSiteModelEnum.ChuckModel,
                 startPosition,
                 endPosition,
                 Cache.Item.CIBInformation,
+                (false, CalChipSiteModelEnum.ChuckModel),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 false,
@@ -699,19 +699,19 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * selectedReviewItem.XPixelSize / 2d, 0);
                 var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
-                var verifyDarkFieldLineScanImage = await CIBViewModel.GetPMTImagesAsync(
+                var verifyDarkFieldRawScanImage = await CIBViewModel.GetPMTImagesAsync(
                     Cache.ProductivityInformation,
                     StageCoordinateSystemEnum.Bright,
-                    CalChipSiteModelEnum.ChuckModel,
                     verifyStartPosition,
                     verifyEndPosition,
                     Cache.Item.CIBInformation,
+                    (false, CalChipSiteModelEnum.ChuckModel),
                     (false, Cache.Item.CIBConfiguration),
                     (false, Cache.Item.LaserLightInformation),
                     false,
                     cancellationToken);
 
-                selectedReviewItem.VerifyRawImageFilePath = verifyDarkFieldLineScanImage.RawImageFilePath;
+                selectedReviewItem.VerifyRawImageFilePath = verifyDarkFieldRawScanImage.RawImageFilePath;
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 

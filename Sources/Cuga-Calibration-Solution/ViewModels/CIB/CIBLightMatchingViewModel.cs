@@ -140,6 +140,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                             && ApplicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum))
                 .Select(t =>
                 {
+                    t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
+
                     CalibrationStatuses
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
@@ -443,10 +445,10 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                             var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
-                                CalChipSiteModelEnum.HazeModel,
                                 hazeBFPosition,
                                 cibInformations,
                                 Cache.Item.ImageWidth,
+                                (true, null),
                                 (true, null),
                                 (false, Cache.Item.LaserLightInformation),
                                 false,
@@ -615,10 +617,10 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                             var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
-                                CalChipSiteModelEnum.ChuckModel,
                                 silicaSphereBFPosition,
                                 cibInformations,
                                 Cache.Item.ImageWidth,
+                                (true, null),
                                 (true, null),
                                 (false, Cache.Item.LaserLightInformation),
                                 false,

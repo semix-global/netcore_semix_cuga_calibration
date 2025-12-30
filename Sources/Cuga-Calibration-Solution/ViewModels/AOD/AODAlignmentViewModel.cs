@@ -360,10 +360,10 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
-                        CalChipSiteModelEnum.HazeModel,
                         hazeBFPosition,
                         Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
+                        (false, CalChipSiteModelEnum.HazeModel),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
                         false,
