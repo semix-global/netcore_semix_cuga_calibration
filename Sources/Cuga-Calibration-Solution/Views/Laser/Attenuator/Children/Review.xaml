@@ -26,7 +26,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Review : "
+                <hc:Shield Subject="Review: "
                            Status="Verify"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
