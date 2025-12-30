@@ -114,41 +114,48 @@ public sealed class CIBViewModel(
     public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         IReadOnlyList<CIBInformation> cibInformations,
         int imageWidth,
+        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true,
-        bool isMoveStage = true)
+        bool isAutoFocus = true)
     {
         try
         {
-            if (isMoveStage)
+            if (customCalChip.IsCustom == false)
             {
+                Guard.IsNotNull(customCalChip.calChipSiteModelEnum);
+
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     default:
                         ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+
                         break;
                 }
             }
+            else
+                Guard.IsNull(customCalChip.calChipSiteModelEnum);
 
             if (customCIBConfiguration.IsCustom == false)
             {
@@ -187,37 +194,45 @@ public sealed class CIBViewModel(
         }
         finally
         {
-            if (isMoveStage)
+            if (customCalChip.IsCustom == false)
             {
+                Guard.IsNotNull(customCalChip.calChipSiteModelEnum);
+
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     default:
                         ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+
                         break;
                 }
             }
+            else
+                Guard.IsNull(customCalChip.calChipSiteModelEnum);
         }
     }
 
     public async Task<DarkFieldImageDTO> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         CIBInformation cibInformation,
         int imageWidth,
+        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -228,10 +243,10 @@ public sealed class CIBViewModel(
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
-            calChipSiteModelEnum,
             position,
             [cibInformation],
             imageWidth,
+            customCalChip,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
@@ -245,41 +260,48 @@ public sealed class CIBViewModel(
     public async Task<IReadOnlyList<DarkFieldRawScanImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        CalChipSiteModelEnum calChipSiteModelEnum,
         Point startPosition,
         Point endPosition,
         IReadOnlyList<CIBInformation> cibInformations,
+        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true,
-        bool isMoveStage = true)
+        bool isAutoFocus = true)
     {
         try
         {
-            if (isMoveStage)
+            if (customCalChip.IsCustom == false)
             {
+                Guard.IsNotNull(customCalChip.calChipSiteModelEnum);
+
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, calChipSiteModelEnum);
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum);
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     default:
                         ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+
                         break;
                 }
             }
+            else
+                Guard.IsNull(customCalChip.calChipSiteModelEnum);
 
             if (customCIBConfiguration.IsCustom == false)
             {
@@ -318,37 +340,45 @@ public sealed class CIBViewModel(
         }
         finally
         {
-            if (isMoveStage)
+            if (customCalChip.IsCustom == false)
             {
+                Guard.IsNotNull(customCalChip.calChipSiteModelEnum);
+
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, calChipSiteModelEnum);
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum);
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, customCalChip.calChipSiteModelEnum.Value);
+
                         break;
 
                     default:
                         ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+
                         break;
                 }
             }
+            else
+                Guard.IsNull(customCalChip.calChipSiteModelEnum);
         }
     }
 
     public async Task<DarkFieldRawScanImageDTO> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        CalChipSiteModelEnum calChipSiteModelEnum,
         Point startPosition,
         Point endPosition,
         CIBInformation cibInformation,
+        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -359,10 +389,10 @@ public sealed class CIBViewModel(
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
-            calChipSiteModelEnum,
             startPosition,
             endPosition,
             [cibInformation],
+            customCalChip,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
