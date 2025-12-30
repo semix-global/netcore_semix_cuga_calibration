@@ -816,6 +816,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         try
         {
+            foreach (var itemItem in item.Items)
+            {
+                itemItem.Items = itemItem.Items.Where(t => t.Gain >= -5).ToArray();
+            }
+
             item.GainRSquared = 0d;
             item.GainResidual = 0d;
             item.GainPoints = [];
