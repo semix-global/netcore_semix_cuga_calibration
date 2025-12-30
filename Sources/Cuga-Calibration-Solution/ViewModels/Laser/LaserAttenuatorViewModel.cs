@@ -1,4 +1,3 @@
-using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -8,7 +7,6 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules;
@@ -20,6 +18,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Text;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -100,7 +99,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         LaserOpticalPowerMeters = laserOpticalPowerMeters;
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [..ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDTO>();
@@ -254,7 +253,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
             }
 
             CalibratingItem.MaxMeasurePower = CalibratingItem.MeasurePowerPoints.Max(t => t.Y);
-            CalibratingItem.AttenuatorPoints = [..CalibratingItem.MeasurePowerPoints.Select(t => new Point(t.X, t.Y / CalibratingItem.MaxMeasurePower))];
+            CalibratingItem.AttenuatorPoints = [.. CalibratingItem.MeasurePowerPoints.Select(t => new Point(t.X, t.Y / CalibratingItem.MaxMeasurePower))];
 
             var (p0, p1, p2, p3, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial3Fit(
                 Vector<double>.Build.DenseOfEnumerable(CalibratingItem.AttenuatorPoints.Select(t => t.X)),

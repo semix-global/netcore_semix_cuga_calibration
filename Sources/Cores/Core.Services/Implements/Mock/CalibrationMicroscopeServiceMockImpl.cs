@@ -66,7 +66,7 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
                 LensName = "10X-IR"
             })
         };
-        
+
         Guard.IsTrue(microscopeLensInformations.DistinctBy(t => t).Count() == microscopeLensInformations.Length, "Microscope Information is not unique");
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<MicroscopeLensInformation>>([.. microscopeLensInformations.OrderBy(t => t)]);

@@ -338,7 +338,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     darkFieldImageDto.RawImageFilePath,
                     Result = new HtmlQuote(hazeResultItem.ToHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
-                
+
                 return Task.CompletedTask;
             },
             () =>
@@ -369,7 +369,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([.. scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(0)]), HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, scatterPlotControl.GetHtmlPlot2DLinesChart(2), HtmlLogUniqueId.LoggingHtml());
                 }
-                
+
                 return Task.CompletedTask;
             }, cancellationToken);
     }
@@ -431,7 +431,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     yFitLine = new HtmlPlot2DLinesChart([(nameof(yFitLine), yFitLine.ToPoints()), (nameof(yLine), yLine.ToPoints())], string.Empty),
                     Result = new HtmlQuote(dswResultItem.ToHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
-                
+
                 return Task.CompletedTask;
             },
             () =>
@@ -461,7 +461,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     ]), HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, scatterPlotControl.GetHtmlPlot2DLinesChart(2), HtmlLogUniqueId.LoggingHtml());
                 }
-                
+
                 return Task.CompletedTask;
             }, cancellationToken);
     }

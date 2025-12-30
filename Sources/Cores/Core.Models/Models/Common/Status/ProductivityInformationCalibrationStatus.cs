@@ -12,7 +12,7 @@ public partial class ProductivityInformationCalibrationStatus : ObservableCacheB
 
     [ObservableProperty]
     private bool _isCalibrated;
-    
+
     public static List<ProductivityInformationCalibrationStatus> CreateList(IReadOnlyList<ProductivityInformation> productivityInformations) =>
         productivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false }).ToList();
 }

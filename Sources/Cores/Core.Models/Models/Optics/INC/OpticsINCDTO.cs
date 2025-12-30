@@ -1,16 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using System.ComponentModel;
-using Core.Models.Models.Common.Pattern;
-using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace Core.Models.Models.Optics.INC;

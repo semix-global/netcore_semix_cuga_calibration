@@ -126,7 +126,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
         }
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [..ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+            CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLightMatchingCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<CIBLightMatchingDTO>();

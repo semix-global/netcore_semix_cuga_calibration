@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using System.Collections.Concurrent;
@@ -11,7 +10,7 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
-    
+
     [ObservableProperty]
     private double _threshold = 0.999;
 
@@ -28,7 +27,7 @@ public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private double _waitTime = 5;
-    
+
     [ObservableProperty]
     private double _startCoefficient = 0.01;
 

@@ -265,7 +265,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                 logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
                 laserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-                cibViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations,true);
+                cibViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
 
                 try
                 {

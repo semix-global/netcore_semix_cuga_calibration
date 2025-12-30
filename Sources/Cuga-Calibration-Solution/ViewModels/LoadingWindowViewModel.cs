@@ -102,11 +102,11 @@ public sealed partial class LoadingWindowViewModel(
             );
 
             BsonMapper.Global.RegisterType<ProductivityInformation>(t => new BsonDocument
-                {
-                    [nameof(ProductivityInformation.OpticsIlluminationModeEnum)] = (int)t.OpticsIlluminationModeEnum,
-                    [nameof(ProductivityInformation.OpticsMagType)] = t.OpticsMagType,
-                    [nameof(ProductivityInformation.StageSpeedType)] = t.StageSpeedType
-                },
+            {
+                [nameof(ProductivityInformation.OpticsIlluminationModeEnum)] = (int)t.OpticsIlluminationModeEnum,
+                [nameof(ProductivityInformation.OpticsMagType)] = t.OpticsMagType,
+                [nameof(ProductivityInformation.StageSpeedType)] = t.StageSpeedType
+            },
                 t =>
                 {
                     if (t is null || t.IsNull) return ProductivityInformation.Default;
@@ -125,9 +125,9 @@ public sealed partial class LoadingWindowViewModel(
                 });
 
             BsonMapper.Global.RegisterType<MicroscopeLensInformation>(t => new BsonDocument
-                {
-                    [nameof(MicroscopeLensInformation.LensCode)] = t.LensCode
-                },
+            {
+                [nameof(MicroscopeLensInformation.LensCode)] = t.LensCode
+            },
                 t =>
                 {
                     if (t is null || t.IsNull) return MicroscopeLensInformation.Default;

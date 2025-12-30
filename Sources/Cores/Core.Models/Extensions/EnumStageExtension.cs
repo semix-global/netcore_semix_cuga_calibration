@@ -29,7 +29,7 @@ public static class EnumStageExtension
             CalChipSiteModelEnum.DswModel => CgCalChipEnum.DSW,
             CalChipSiteModelEnum.ShinyWaferModel => CgCalChipEnum.SHINY,
             CalChipSiteModelEnum.HazeModel => CgCalChipEnum.HAZE,
-           _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCalChipEnum>(nameof(@this))
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCalChipEnum>(nameof(@this))
         };
 #else
         public CgCalChipType ToCgCalChipType() => @this switch

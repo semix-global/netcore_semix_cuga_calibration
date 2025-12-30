@@ -1,6 +1,4 @@
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -17,6 +15,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.Interactivity;
 using ScottPlot.Plottables;
+using System.ComponentModel;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 
@@ -145,7 +144,7 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
 
     public CalibrationLaserOpticalPower AdaptTo() => new()
     {
-        CgNIOITypeEnum =  ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Coefficient = MaxCoefficient,
         MeasureMaxPower = MaxMeasurePower,

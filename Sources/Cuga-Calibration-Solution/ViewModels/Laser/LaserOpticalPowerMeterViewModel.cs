@@ -1,4 +1,3 @@
-using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,6 +17,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Text;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -104,7 +104,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
         }
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [..ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDTO>();
@@ -297,7 +297,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
                         if (CalibratingItem.Items.Any(t => t.MeasurePosition == machinePosition)) continue;
 
-                        CalibratingItem.Items = [..CalibratingItem.Items, new LaserOpticalPowerMeterDTOItem { MeasurePosition = machinePosition, MeasurePower = double.NaN }];
+                        CalibratingItem.Items = [.. CalibratingItem.Items, new LaserOpticalPowerMeterDTOItem { MeasurePosition = machinePosition, MeasurePower = double.NaN }];
                     }
                 }
 

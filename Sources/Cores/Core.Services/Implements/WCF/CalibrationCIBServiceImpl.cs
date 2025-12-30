@@ -1,3 +1,5 @@
+using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
@@ -14,8 +16,6 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
-using CommunityToolkit.Diagnostics;
-using Core.Models.Enums.CIB;
 
 namespace Core.Services.Implements.WCF;
 

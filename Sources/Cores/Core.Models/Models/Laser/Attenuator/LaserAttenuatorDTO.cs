@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -17,7 +16,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
-    
+
     [ObservableProperty]
     private double _waitTime;
 
@@ -152,7 +151,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
 
     public CalibrationAttenuatorObj AdaptTo() => new()
     {
-        CgNIOITypeEnum =  ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
         MaxCoefficientAverageMeasurePower = MaxMeasurePower,
         CoefficientMeasurePowerPoints = [.. MeasurePowerPoints.Select(t => t.ToCgPoint())],

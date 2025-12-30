@@ -1,4 +1,3 @@
-﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
@@ -10,6 +9,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot.MultiplotLayouts;
+using System.ComponentModel;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 

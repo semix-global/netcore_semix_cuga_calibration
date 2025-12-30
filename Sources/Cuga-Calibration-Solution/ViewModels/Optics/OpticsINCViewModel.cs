@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
@@ -8,6 +9,7 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Optics.INC;
+using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -22,8 +24,6 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using CommunityToolkit.Mvvm.Input;
-using Core.Utilities;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -119,7 +119,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
         }
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [..ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+            CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<OpticsINCCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<OpticsINCDTO>();

@@ -23,7 +23,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
-
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;

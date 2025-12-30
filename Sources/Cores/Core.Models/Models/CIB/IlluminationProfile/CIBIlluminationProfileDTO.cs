@@ -3,6 +3,9 @@ using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
+using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -13,9 +16,6 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using Core.Wcf.Models.Laser;
-using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.IlluminationProfile;
@@ -170,7 +170,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 
     public CalibrationLaserCIBIlluminationProfileItem AdaptTo() => new()
     {
-        CgNIOITypeEnum =  ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,
@@ -219,14 +219,14 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        IlluminationProfiles = [..IlluminationProfiles]
+        IlluminationProfiles = [.. IlluminationProfiles]
     };
 
     public CalibrationLaserCIBIlluminationProfileItem.Item AdaptTo() => new()
     {
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
-        IlluminationProfiles = [..IlluminationProfiles]
+        IlluminationProfiles = [.. IlluminationProfiles]
     };
 
     #endregion Mapper

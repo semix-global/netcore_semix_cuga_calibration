@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
+using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Utilities;
@@ -28,7 +29,6 @@ using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Threading.Channels;
-using Core.Models.Models.CIB.XPixelSize;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -117,7 +117,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         }
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [..ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+            CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
@@ -307,7 +307,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 {
                     var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
                     Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
-                    AlignmentCacheDarkFields = [..AlignmentCacheDarkFields, alignmentWindowDarkFieldViewModel.Cache];
+                    AlignmentCacheDarkFields = [.. AlignmentCacheDarkFields, alignmentWindowDarkFieldViewModel.Cache];
                 }
             }
             else
