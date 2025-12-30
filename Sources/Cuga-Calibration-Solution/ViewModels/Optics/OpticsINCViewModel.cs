@@ -328,8 +328,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
             {
                 Logger.LogHtmlInformation("INC", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                AfViewModel.ToggleBrightFieldEnable(false);
-
                 var relayMotorAbsoluteValues = Generate.LinearRange(Cache.Item.StartINCMotorAbsoluteValue, Cache.Item.StepINCMotorAbsoluteValue, Cache.Item.StopINCMotorAbsoluteValue);
                 foreach (var relayMotorAbsoluteValue in relayMotorAbsoluteValues)
                 {
