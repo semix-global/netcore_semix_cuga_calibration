@@ -9,7 +9,7 @@ namespace Core.Models.Models.Chuck.AutoFocus;
 public sealed partial class ChuckAutoFocusDto : CalibrationDtoBase, ICloneable<ChuckAutoFocusDto>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     private int _rowNumber;

@@ -69,7 +69,7 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
     }
 
 
-    private void OnItemsSourceChanged(object sender, EventArgs e)
+    private void OnItemsSourceChanged(object? sender, EventArgs e)
     {
         _isUpdatingSelection = true;
         try
