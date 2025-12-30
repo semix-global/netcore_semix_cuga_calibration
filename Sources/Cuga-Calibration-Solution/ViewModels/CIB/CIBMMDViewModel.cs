@@ -866,7 +866,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(item.Items.Select(t => t.MeasurePower));
-            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log((t * 0.0016 / 0.34) * 1000_000, 2));
+            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log((t * 0.002 / 0.34) * 1000_000, 2));
 
             var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
             for (var row = 0; row < gainCount; row++)
