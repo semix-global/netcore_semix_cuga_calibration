@@ -87,14 +87,14 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
     {
         try
         {
-            PlotControl.Plot.PlottableList.RemoveAll(t => t is Text);
+            lock (PlotControl.Plot.Sync) PlotControl.Plot.PlottableList.RemoveAll(t => t is Text);
 
             if (Items.Count <= 0) return;
 
-            var maximumIndex = Vector<double>.Build.DenseOfEnumerable(Items.Select(t => t.MeasurePower)).MaximumIndex();
-
-            var measureMinPower = Items.Min(t => t.MeasurePower);
-            var measureMaxPower = Items.Max(t => t.MeasurePower);
+            var items = Items.Where(t => double.IsNaN(t.MeasurePower) == false).ToArray();
+            var maximumIndex = items.Length > 0 ? Vector<double>.Build.DenseOfEnumerable(items.Select(t => t.MeasurePower)).MaximumIndex() : 0;
+            var measureMinPower = items.Length > 0 ? items.Min(t => t.MeasurePower) : 0;
+            var measureMaxPower = items.Length > 0 ? items.Max(t => t.MeasurePower) : 0;
 
             foreach (var (index, laserOpticalPowerItemDto) in Items.Index())
             {

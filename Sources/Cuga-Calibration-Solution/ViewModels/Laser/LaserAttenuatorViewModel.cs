@@ -302,8 +302,10 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         {
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var title = selectedReviewItem.ProductivityInformation.ToString();
 
                 /*if (selectedReviewItem.IsCalibrated == false)

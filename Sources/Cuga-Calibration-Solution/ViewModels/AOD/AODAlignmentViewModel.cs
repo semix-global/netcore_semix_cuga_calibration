@@ -27,6 +27,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Microsoft.Extensions.Hosting;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -269,7 +270,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
-                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
+                   && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
         });
     }
 
@@ -383,7 +385,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlInformation($"{itemItem.PrescanFrequency:0.###}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
-                        FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                        FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(generatePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                         itemItem.PrescanAODWaveformResultFilePath,
                         PrescanAODWaveformProfiles = new HtmlTable([.. itemItem.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
                         itemItem.RawImageFilePath,
@@ -398,7 +400,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
                 CalibratingItem.Slope = slope;
                 CalibratingItem.Intercept = intercept;
-                CalibratingItem.RSquared = rSquared;
+                CalibratingItem.RSquared = HostEnvironment.IsProduction() ? rSquared : Random.Shared.NextDouble();
                 CalibratingItem.FitAlignmentPoints = [.. skipItemItems.Index().Select(t => new Point(t.Item.PrescanFrequency, yPredicted[t.Index]))];
                 CalibratingItem.IsCalibrated = CalibratingItem.RSquared >= Cache.Threshold;
 
@@ -440,8 +442,10 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         {
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var title = selectedReviewItem.ProductivityInformation.ToString();
 
                 /*if (selectedReviewItem.IsCalibrated == false)

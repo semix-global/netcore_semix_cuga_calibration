@@ -25,7 +25,7 @@
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
                 <hc:Shield Subject="Step 2: "
-                           Status="{Binding CalibrationStepList[0].StepName}"
+                           Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
@@ -49,21 +49,21 @@
                                           Value="{Binding Cache.Item.WaitTime}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Start Coefficient: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="200"
+                                          hc:TitleElement.TitleWidth="190"
                                           Minimum="0"
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StartCoefficient}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step Coefficient: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="200"
+                                          hc:TitleElement.TitleWidth="190"
                                           Minimum="0"
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StepCoefficient}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Stop Coefficient: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="200"
+                                          hc:TitleElement.TitleWidth="190"
                                           Minimum="0"
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"

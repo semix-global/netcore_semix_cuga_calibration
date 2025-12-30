@@ -68,7 +68,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     private IReadOnlyList<CIBXPixelSizeDTO> _reviews = [];
 
     [ObservableProperty]
-    private List<CIBXPixelSizeDTO> _selectedReviewItems = [];
+    private IReadOnlyList<CIBXPixelSizeDTO> _selectedReviewItems = [];
 
     #endregion Review
 
@@ -272,7 +272,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
-                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
+                   && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
         });
     }
 
@@ -552,7 +553,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             // ReSharper restore AccessToDisposedClosure
 
-            #endregion
+            #endregion Reader
 
             #region Writer
 
@@ -575,9 +576,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             channel.Writer.Complete();
 
-            #endregion
+            #endregion Writer
 
-            #endregion
+            #endregion Channel
 
             await channelReaderTask.ConfigureAwait(false);
             await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -617,7 +618,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 Plot = new HtmlQuote(htmlAnonymous)
             }), HtmlLogUniqueId.LoggingHtml());
 
-            #endregion
+            #endregion RealUmPerPixel
 
             CalibratingItem.IsCalibrated = true;
             Guard.IsTrue(Save([CalibratingItem], cancellationToken));
@@ -639,8 +640,10 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var title = selectedReviewItem.ProductivityInformation.ToString();
 
                 if (selectedReviewItem.IsCalibrated == false)
@@ -800,7 +803,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                 }
 
-
                 if (isOk) selectedReviewItem.XPixelSize = verifyRealUmPerPixel;
                 selectedReviewItem.IsVerified = isOk;
             }
@@ -910,7 +912,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         }
     }
 
-    #endregion
+    #endregion Item
 
     private bool Save(IReadOnlyList<CIBXPixelSizeDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {

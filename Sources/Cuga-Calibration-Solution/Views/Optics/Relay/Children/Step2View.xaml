@@ -25,7 +25,7 @@
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
                 <hc:Shield Subject="Step 3: "
-                           Status="{Binding CalibrationStepList[0].StepName}"
+                           Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Optics Illumination Mode: "
                            Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
@@ -51,7 +51,6 @@
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
                         <TextBox Text="{Binding Cache.Item.DSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                 Width="275"
                                  hc:TitleElement.Title="Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />

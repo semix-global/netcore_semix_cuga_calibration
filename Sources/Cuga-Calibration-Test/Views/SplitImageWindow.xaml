@@ -26,6 +26,11 @@
                 Style="{StaticResource BorderRegion}"
                 Effect="{StaticResource EffectShadow1}">
             <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical">
+                <TextBox Text="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                         hc:TitleElement.Title="FindBFMachinePosition: "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="150"
+                         Style="{StaticResource TextBoxExtend}" />
                 <TextBox Text="{Binding TemplateFilePath}"
                          Height="100"
                          TextWrapping="Wrap"

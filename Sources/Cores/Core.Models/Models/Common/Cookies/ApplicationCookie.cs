@@ -80,13 +80,13 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// OI按照MagType分类的产率列表
     /// </summary>
-    public IReadOnlyList<ProductivityInformation> OpticsMagTypeProductivityInformations => OIProductivityInformations
-        .GroupBy(p => p.OpticsIlluminationModeEnum)
+    public IReadOnlyList<ProductivityInformation> OpticsMagTypeProductivityInformations => ProductivityInformations
+        .GroupBy(t => t.OpticsIlluminationModeEnum)
         .SelectMany(g => g
             .GroupBy(t => t.OpticsMagType)
-            .Select(gg => gg.OrderByDescending(p => p).First()))
+            .Select(gg => gg.OrderByDescending(t => t).First()))
         .OrderBy(t => t)
-        .ToList();
+        .ToArray();
 
     /// <summary>
     /// OI产率列表
@@ -98,10 +98,10 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// OI按照MagType分类的产率列表
     /// </summary>
     public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations => OIProductivityInformations
-        .GroupBy(p => p.OpticsMagType)
-        .Select(g => g.OrderByDescending(p => p).First())
+        .GroupBy(t => t.OpticsMagType)
+        .Select(g => g.OrderByDescending(t => t).First())
         .OrderBy(t => t)
-        .ToList();
+        .ToArray();
 
     /// <summary>
     /// OI最低产率
@@ -127,10 +127,10 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// NI按照MagType分类的产率列表
     /// </summary>
     public IReadOnlyList<ProductivityInformation> NIOpticsMagTypeProductivityInformations => NIProductivityInformations
-        .GroupBy(p => p.OpticsMagType)
-        .Select(g => g.OrderByDescending(p => p).First())
+        .GroupBy(t => t.OpticsMagType)
+        .Select(g => g.OrderByDescending(t => t).First())
         .OrderBy(t => t)
-        .ToList();
+        .ToArray();
 
     /// <summary>
     /// NI最低产率

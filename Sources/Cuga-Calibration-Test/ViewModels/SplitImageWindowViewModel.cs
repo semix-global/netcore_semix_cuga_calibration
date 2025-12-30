@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.Threading;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
@@ -23,7 +24,7 @@ public sealed partial class SplitImageWindowViewModel(
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheDatabaseProvider recipeLiteDataBaseProvider,
     IDialogWindowProvider dialogWindowProvider,
-    ICalibrationLaserService calibrationLaserService,
+    ICalibrationCIBService calibrationCIBService,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ILogger<SplitImageWindowViewModel> logger) : ViewModelBase
 {
@@ -32,16 +33,19 @@ public sealed partial class SplitImageWindowViewModel(
     public CIBXPixelSizeViewModel CIBXPixelSizeViewModel => cibxPixelSizeViewModel;
 
     [ObservableProperty]
-    private string _templateFilePath = @"\\10.10.5.19\d\Nano\Cuga-Calibration\Template\LaserXPixelSizeCalibrationViewModel\S90(H-L)\20251117\5X\5563747b5bb240149f8f78eda98c838f.jpg_Template";
+    private Point _findBFMachinePosition = new(97031.429, 7.89);
 
     [ObservableProperty]
-    private string _templateImageFilePath = @"\\10.10.5.19\d\Nano\Cuga-Calibration\Template\LaserXPixelSizeCalibrationViewModel\S90(H-L)\20251117\5X\5563747b5bb240149f8f78eda98c838f.jpg_Template.jpg";
+    private string _templateFilePath = @"\\10.10.5.19\d\Nano\Cuga-Calibration\Template\LaserXPixelSizeCalibrationViewModel\S40(M-L)\20251120\50X\6ba78bddde3340c08a44f653db7f9cbf.jpg_Template";
 
     [ObservableProperty]
-    private string _slideRawImageFilePath = @"C:\Users\DELL\Pictures\20251117_22327_0_0_1_short_1250481_PMT08-CH3_8.raw";
+    private string _templateImageFilePath = @"\\10.10.5.19\d\Nano\Cuga-Calibration\Template\LaserXPixelSizeCalibrationViewModel\S40(M-L)\20251120\50X\6ba78bddde3340c08a44f653db7f9cbf.jpg_Template.jpg";
 
     [ObservableProperty]
-    private string _verifyRawImageFilePath = @"C:\Users\DELL\Pictures\20251117_22330_0_0_1_short_1214201_PMT08-CH3_8.raw";
+    private string _slideRawImageFilePath = @"C:\Users\DELL\Pictures\20251120_95_0_0_1_short_855592_PMT08-CH3_8.raw";
+
+    [ObservableProperty]
+    private string _verifyRawImageFilePath = @"C:\Users\DELL\Pictures\20251120_98_0_0_1_short_830927_PMT08-CH3_8.raw";
 
     public double Threshold
     {
@@ -72,7 +76,7 @@ public sealed partial class SplitImageWindowViewModel(
     {
         try
         {
-            recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\0823\\cache.db", cancellationToken);
+            recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\CZFP03-Slot25\\cache.db", cancellationToken);
 
             await CIBXPixelSizeViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await CIBXPixelSizeViewModel.CalibrateCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
@@ -97,10 +101,11 @@ public sealed partial class SplitImageWindowViewModel(
             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
             await CIBXPixelSizeViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
+            CIBXPixelSizeViewModel.Cache.Item.FindBFMachinePosition = FindBFMachinePosition;
             CIBXPixelSizeViewModel.Cache.Item.TemplateFilePath = TemplateFilePath;
             CIBXPixelSizeViewModel.Cache.Item.TemplateImageFilePath = TemplateImageFilePath;
 
-            ObjectHelper.SetFieldValue(calibrationLaserService, "_mockImageFilePath", SlideRawImageFilePath);
+            ObjectHelper.SetFieldValue(calibrationCIBService, "_mockImageFilePath", SlideRawImageFilePath);
             ObjectHelper.SetFieldValue(calibrationAlgorithmService, "_isUseMock", false);
 
             // await _asyncAutoResetEvent.WaitAsync(cancellationToken);
@@ -109,7 +114,7 @@ public sealed partial class SplitImageWindowViewModel(
             await CIBXPixelSizeViewModel.NextCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
 
             await CIBXPixelSizeViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
-            ObjectHelper.SetFieldValue(calibrationLaserService, "_mockImageFilePath", VerifyRawImageFilePath);
+            ObjectHelper.SetFieldValue(calibrationCIBService, "_mockImageFilePath", VerifyRawImageFilePath);
         }
         catch (Exception ex)
         {
@@ -129,11 +134,11 @@ public sealed partial class SplitImageWindowViewModel(
     {
         try
         {
-            recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\0823\\cache.db", cancellationToken);
+            recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\CZFP03-Slot25\\cache.db", cancellationToken);
 
             await CIBXPixelSizeViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await CIBXPixelSizeViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
-            ObjectHelper.SetFieldValue(calibrationLaserService, "_mockImageFilePath", VerifyRawImageFilePath);
+            ObjectHelper.SetFieldValue(calibrationCIBService, "_mockImageFilePath", VerifyRawImageFilePath);
         }
         catch (Exception ex)
         {

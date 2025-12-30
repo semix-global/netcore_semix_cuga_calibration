@@ -244,6 +244,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
     {
         await InvokeCalibrateAsync(async () =>
         {
+            Guard.IsTrue((Cache.Item.RowCount & 1) == 1, "It must be odd");
+            Guard.IsTrue((Cache.Item.ColumnCount & 1) == 1, "It must be odd");
+
             var maxCoefficient = ApplicationCookie.LaserLightInformations.Max(t => t.Coefficient);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -328,7 +331,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                 var maximumIndex = Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.MeasurePower)).MaximumIndex();
                 CalibratingItem.MaxMeasurePower = CalibratingItem.Items[maximumIndex].MeasurePower;
                 CalibratingItem.MaxMeasurePowerPosition = CalibratingItem.Items[maximumIndex].MeasurePosition;
-                CalibratingItem.IsCalibrated = extents.OnEdge(CalibratingItem.MaxMeasurePowerPosition);
+                CalibratingItem.IsCalibrated = extents.OnEdge(CalibratingItem.MaxMeasurePowerPosition) == false;
+                Cache.Item.FindMachinePosition = CalibratingItem.MaxMeasurePowerPosition;
 
                 var htmlBullet = new HtmlBullet(new
                 {
@@ -375,8 +379,10 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
         {
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var title = selectedReviewItem.ProductivityInformation.ToString();
 
                 if (selectedReviewItem.IsCalibrated == false)
@@ -397,13 +403,12 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                     Cache.Item.WaitTime
                 }), HtmlLogUniqueId.LoggingHtml());
 
-
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(selectedReviewItem.MaxMeasurePowerPosition);
                 LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, selectedReviewItem.MaxCoefficient);
                 LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 
-                var resultList = new List<double>();
+                var verifyResultList = new List<double>();
 
                 try
                 {
@@ -416,7 +421,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
                         var measurePower = LaserViewModel.GetOpticalMeasurePower();
 
-                        resultList.Add(measurePower);
+                        verifyResultList.Add(measurePower);
                     }
                 }
                 finally
@@ -424,16 +429,19 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                 }
 
-                var average = resultList.Average();
-                var errorRate = Math.Abs((average - selectedReviewItem.MaxMeasurePower) / selectedReviewItem.MaxMeasurePower);
-                selectedReviewItem.IsVerified = errorRate < Cache.Threshold;
+                var verifyAverage = verifyResultList.Average();
+                var verifyErrorRate = Math.Abs((verifyAverage - selectedReviewItem.MaxMeasurePower) / selectedReviewItem.MaxMeasurePower);
+                selectedReviewItem.IsVerified = verifyErrorRate < Cache.Threshold;
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    CalibratingItem.MaxMeasurePower,
-                    CalibratingItem.MaxMeasurePowerPosition,
-                    CalibratingItem.IsCalibrated,
-                    Plot = CalibratingItem.GetHtmlPlot3DChart(HtmlPlot3DType.Bar3D)
+                    verifyResultList,
+                    verifyAverage,
+                    verifyErrorRate,
+                    selectedReviewItem.MaxMeasurePower,
+                    selectedReviewItem.MaxMeasurePowerPosition,
+                    selectedReviewItem.IsVerified,
+                    Plot = selectedReviewItem.GetHtmlPlot3DChart(HtmlPlot3DType.Bar3D)
                 });
 
                 if (selectedReviewItem.IsOk)

@@ -503,8 +503,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         {
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.OpticsIlluminationModeEnum))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var title = selectedReviewItem.OpticsIlluminationModeEnum.Humanize();
 
                 /*if (selectedReviewItem.IsCalibrated == false)

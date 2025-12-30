@@ -8,7 +8,9 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.ScottPlot.WPF.WPF;
 using Net.Utilities.WPF.MVVM;
+using ScottPlot.MultiplotLayouts;
 
 namespace Core.Models.Models.Laser.Attenuator;
 
@@ -84,6 +86,8 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
 
     public LaserAttenuatorDTO()
     {
+        ScatterPlotControl.Configure(new Columns(), 2);
+
         ScatterPlotControl.SetTitle(0, "Measure Power(Y: mW - X: Coefficient)");
         ScatterPlotControl.SetTitle(1, "Laser Attenuator(Y: Rate - X: Coefficient)");
     }
@@ -107,7 +111,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
             {
                 ScatterPlotControl.GetOrAddScatterLine(
                     1,
-                    "Attenuator",
+                    $"Max Measure Power = {MaxMeasurePower:0.######}(mW)",
                     AttenuatorPoints,
                     Constants.Category10.GetColor(0));
             }
