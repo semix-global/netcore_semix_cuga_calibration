@@ -795,8 +795,14 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
         {
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems
+                         .OrderBy(t => t.ProductivityInformation)
+                         .ThenBy(t => t.OpticsApodizationModeEnum)
+                         .ThenBy(t => t.OpticsPolarizationModeEnum)
+                         .ThenBy(t => t.CollectorPolarizationModeEnum))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var title = $"{selectedReviewItem.ProductivityInformation}, {selectedReviewItem.OpticsApodizationModeEnum.Humanize()}, {selectedReviewItem.OpticsPolarizationModeEnum.Humanize()}, {selectedReviewItem.CollectorPolarizationModeEnum.Humanize()}";
 
                 /*if (selectedReviewItem.IsCalibrated == false)

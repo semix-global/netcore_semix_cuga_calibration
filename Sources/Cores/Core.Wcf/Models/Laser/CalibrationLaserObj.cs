@@ -621,12 +621,12 @@ public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
     /// <summary>
     /// 光学偏振
     /// </summary>
-    public int OpticsPolarizationModeEnum { get; set; }
+    public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
 
     /// <summary>
     /// 采集偏振
     /// </summary>
-    public int CollectorPolarizationModeEnum { get; set; }
+    public CgNDFTypeEnum CollectorPolarizationModeEnum { get; set; }
 
     /// <summary>
     /// 校准结果, **需要下发CIB硬件**
@@ -684,12 +684,12 @@ public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
     /// <summary>
     /// 光学偏振
     /// </summary>
-    public int OpticsPolarizationModeEnum { get; set; }
+    public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
 
     /// <summary>
     /// 采集偏振
     /// </summary>
-    public int CollectorPolarizationModeEnum { get; set; }
+    public CgNDFTypeEnum CollectorPolarizationModeEnum { get; set; }
 
     /// <summary>
     /// 校准结果, **需要下发CIB硬件**
