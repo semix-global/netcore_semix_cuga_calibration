@@ -368,7 +368,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                         hazeBFPosition,
                         Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
-                        (false, CalChipSiteModelEnum.HazeModel),
+                        (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
                         false,

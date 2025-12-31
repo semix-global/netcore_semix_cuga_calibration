@@ -377,7 +377,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                             hazeBFPosition,
                             Cache.Item.CIBInformation,
                             Cache.Item.ImageWidth,
-                            (false, CalChipSiteModelEnum.HazeModel),
+                            (true, null),
                             (false, Cache.Item.CIBConfiguration),
                             (true, null),
                             true,
