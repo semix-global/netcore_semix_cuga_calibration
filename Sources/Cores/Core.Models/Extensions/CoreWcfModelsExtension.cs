@@ -425,7 +425,7 @@ public static class CoreWcfModelsExtension
             .SelectMany(t => t.Items)
             .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
 
-        var isOk = isOkCount == (applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count)
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count
             * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count
             * applicationCookie.CIBInformations.Count;
 
@@ -452,7 +452,7 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB X Pixel Size is Empty";
 
@@ -465,7 +465,7 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Alignment is Empty";
 
@@ -478,7 +478,7 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Delay is Empty";
 
@@ -491,7 +491,7 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Laser Optical Power Meter is Empty";
 
@@ -504,7 +504,7 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIOpticsMagTypeProductivityInformations.Count + applicationCookie.NIOpticsMagTypeProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Laser Attenuator is Empty";
 
@@ -523,7 +523,7 @@ public static class CoreWcfModelsExtension
             .SelectMany(t => t.Items)
             .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
 
-        var isOk = isOkCount == (applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count)
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count
             * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count
             * applicationCookie.CIBInformations.Count;
 
@@ -538,7 +538,7 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Optics INC is Empty";
 

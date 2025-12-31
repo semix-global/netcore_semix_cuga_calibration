@@ -293,7 +293,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             var detectImageDirectory = ImageFileDirectory;
 
@@ -366,13 +366,13 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
 
-                    CatchImage(Generate.LinearRange(
+                    await CatchImageAsync(Generate.LinearRange(
                         Cache.Item.StartRoughECS + deltaECS,
                         Cache.Item.StepRoughECS,
                         Cache.Item.StopRoughECS + deltaECS));
                     GuardUtils.IsNotNullAndReturn(itemItem.MaxItem);
 
-                    CatchImage(Generate.LinearRange(
+                    await CatchImageAsync(Generate.LinearRange(
                         itemItem.MaxItem.ECS - Cache.Item.RangeRefinedECS,
                         Cache.Item.StepRefinedECS,
                         itemItem.MaxItem.ECS + Cache.Item.RangeRefinedECS));
@@ -408,7 +408,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     continue;
 
-                    void CatchImage(IReadOnlyList<double> ecses)
+                    async Task CatchImageAsync(IReadOnlyList<double> ecses)
                     {
                         Guard.IsNotEmpty(ecses);
 
@@ -424,17 +424,17 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                             var itemItemData = new OpticsRelayDTOItem.Item { ECS = ecs };
 
-                            using var darkFieldImage = LaserViewModel.GetDarkFieldLineScanImage(
-                                Cache.OpticsIlluminationModeEnum,
+                            using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.Item.ProductivityInformation,
-                                CalChipSiteModelEnum.DswModel,
                                 StageCoordinateSystemEnum.Dark,
                                 dswBFPosition,
+                                Cache.Item.CIBInformation,
+                                Cache.Item.ImageWidth,
+                                (false, CalChipSiteModelEnum.DswModel),
+                                (false, Cache.Item.CIBConfiguration),
                                 (false, Cache.Item.LaserLightInformation),
                                 false,
-                                Cache.Item.CIBInformation,
-                                Cache.Item.CIBConfiguration,
-                                Cache.Item.ImageWidth,
+                                cancellationToken,
                                 isAutoFocus: false);
 
                             var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);

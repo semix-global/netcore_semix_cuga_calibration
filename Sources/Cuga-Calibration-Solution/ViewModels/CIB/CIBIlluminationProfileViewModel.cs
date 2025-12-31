@@ -420,8 +420,6 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                             var imageHorizontalProjectsVector = Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].ImageHorizontalProjects);
                             var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
 
-                            cancellationToken.ThrowIfCancellationRequested();
-
                             var errorVector = imageHorizontalProjectsVector - targetPMTValue;
                             itemItem.Items[times].Errors = [.. errorVector];
                             if (itemItem.Items.Any(t => t.IsOk))

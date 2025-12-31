@@ -265,7 +265,8 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
-                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
+                   && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
         });
     }
 
@@ -322,7 +323,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(hazeBFPosition);
+            StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
 
             try
             {
@@ -393,7 +394,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
             {
                 OpticsViewModel.SetINCMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum, currentMotorAbsoluteValue);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(hazeBFPosition);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
         });
     }
@@ -411,8 +412,10 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
         {
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var title = selectedReviewItem.ProductivityInformation.ToString();
 
                 /*if (selectedReviewItem.IsCalibrated == false)

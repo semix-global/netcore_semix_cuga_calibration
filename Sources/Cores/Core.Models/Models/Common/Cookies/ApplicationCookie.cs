@@ -91,16 +91,15 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// OI产率列表
     /// </summary>
-    [ObservableProperty]
-    private IReadOnlyList<ProductivityInformation> _oIProductivityInformations = [];
+    public IReadOnlyList<ProductivityInformation> OIProductivityInformations => ProductivityInformations
+        .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
+        .ToArray();
 
     /// <summary>
     /// OI按照MagType分类的产率列表
     /// </summary>
-    public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations => OIProductivityInformations
-        .GroupBy(t => t.OpticsMagType)
-        .Select(g => g.OrderByDescending(t => t).First())
-        .OrderBy(t => t)
+    public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations => OpticsMagTypeProductivityInformations
+        .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
         .ToArray();
 
     /// <summary>
@@ -120,16 +119,15 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// NI产率列表
     /// </summary>
-    [ObservableProperty]
-    private IReadOnlyList<ProductivityInformation> _nIProductivityInformations = [];
+    public IReadOnlyList<ProductivityInformation> NIProductivityInformations => ProductivityInformations
+        .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
+        .ToArray();
 
     /// <summary>
     /// NI按照MagType分类的产率列表
     /// </summary>
-    public IReadOnlyList<ProductivityInformation> NIOpticsMagTypeProductivityInformations => NIProductivityInformations
-        .GroupBy(t => t.OpticsMagType)
-        .Select(g => g.OrderByDescending(t => t).First())
-        .OrderBy(t => t)
+    public IReadOnlyList<ProductivityInformation> NIOpticsMagTypeProductivityInformations => OpticsMagTypeProductivityInformations
+        .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
         .ToArray();
 
     /// <summary>

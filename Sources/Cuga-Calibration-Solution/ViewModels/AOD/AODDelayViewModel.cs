@@ -323,7 +323,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(hazeBFPosition);
+            StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
 
             try
             {
@@ -377,7 +377,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                             hazeBFPosition,
                             Cache.Item.CIBInformation,
                             Cache.Item.ImageWidth,
-                            (true, null),
+                            (false, CalChipSiteModelEnum.HazeModel),
                             (false, Cache.Item.CIBConfiguration),
                             (true, null),
                             true,
@@ -406,7 +406,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             finally
             {
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(hazeBFPosition);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
         });
     }

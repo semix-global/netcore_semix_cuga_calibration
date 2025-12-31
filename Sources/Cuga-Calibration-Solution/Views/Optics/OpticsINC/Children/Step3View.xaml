@@ -26,8 +26,8 @@
             <hc:UniformSpacingPanel Orientation="Vertical"
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <hc:Shield Subject="Step 3: "
-                           Status="{Binding CalibrationStepList[0].StepName}"
+                <hc:Shield Subject="Step 4: "
+                           Status="{Binding CalibrationStepList[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
@@ -98,12 +98,12 @@
             <Border Style="{StaticResource BorderRegion}">
                 <TabControl>
                     <TabItem Header="Plots">
-                        <Border Style="{StaticResource BorderRegion}">
+                        <Border Margin="5" Style="{StaticResource BorderRegion}">
                             <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
                         </Border>
                     </TabItem>
                     <TabItem Header="Images">
-                        <ListBox ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                        <ListBox Margin="5" ItemsSource="{Binding SelectedItems, ElementName=ListView}">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Horizontal" />

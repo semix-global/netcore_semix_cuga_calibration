@@ -332,7 +332,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(hazeBFPosition);
+            StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
 
             try
             {
@@ -368,7 +368,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                         hazeBFPosition,
                         Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
-                        (true, null),
+                        (false, CalChipSiteModelEnum.HazeModel),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
                         false,
@@ -424,7 +424,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             finally
             {
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(hazeBFPosition);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
         });
     }

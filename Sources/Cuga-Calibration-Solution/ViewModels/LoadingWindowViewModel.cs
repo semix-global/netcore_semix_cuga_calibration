@@ -82,16 +82,13 @@ public sealed partial class LoadingWindowViewModel(
             var microscopeLensInformations = microscopeViewModel.GetMicroscopeLensInformations();
             var laserLightInformations = laserViewModel.GetLaserLightInformations();
             var productivityInformations = opticsViewModel.GetProductivityInformations();
-            var oiProductivityInformations = productivityInformations.Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI).ToArray();
-            var niProductivityInformations = productivityInformations.Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI).ToArray();
+
             var cibInformations = cibViewModel.GetCIBInformations();
 
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
-            applicationCookie.OIProductivityInformations = [.. oiProductivityInformations.Select(t => t.Clone())];
-            applicationCookie.NIProductivityInformations = [.. niProductivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
 
             Guard.IsNotEmpty(applicationCookie.OpticsIlluminationModeEnums);

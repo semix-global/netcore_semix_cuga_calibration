@@ -530,6 +530,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var index = 0;
                 await foreach (var itemItem in channel.Reader.ReadAllAsync(cancellationToken).ConfigureAwait(false))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     try
                     {
                         await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -561,6 +563,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                          .Range(0, totalCount)
                          .Select(t => (long)t * windowStepAllPixelByteLength).Index())
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 itemItems[index] = GetCIBXPixelSizeSlideItem(
                     pointer,
                     windowImageAllPixelByteLength,
@@ -749,6 +753,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                              .Select(pointer => pointer - pointer % heightPixelByteLength) // verifyStepAllPixelByteLength是double, 不是整数倍, 需要对齐
                              .Index())
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     verifyItemItems[index] = GetCIBXPixelSizeSlideItem(
                         pointer,
                         imageAllPixelByteLength,

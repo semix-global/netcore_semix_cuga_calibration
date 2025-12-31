@@ -232,6 +232,8 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
             foreach (var coefficient in coefficients)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
