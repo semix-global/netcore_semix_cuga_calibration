@@ -201,7 +201,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="5" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
                 <ListView ItemsSource="{Binding Reviews}"
@@ -262,6 +262,7 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+                <GridSplitter Grid.Row="1" Height="5" />
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl ItemsSource="{Binding SelectedReviewItems}" SelectedIndex="0">
                         <i:Interaction.Behaviors>
@@ -274,7 +275,7 @@
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
-                                <Border Style="{StaticResource BorderRegion}">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
                                     <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
                                 </Border>
                             </DataTemplate>

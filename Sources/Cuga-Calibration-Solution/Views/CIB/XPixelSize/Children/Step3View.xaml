@@ -82,7 +82,7 @@
                                  Height="100"
                                  TextWrapping="Wrap"
                                  hc:TitleElement.Title="Template: "
-                                 hc:TitleElement.TitleWidth="90"
+                                 hc:TitleElement.TitleWidth="160"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"

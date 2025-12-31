@@ -763,8 +763,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.CIBInformation))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var title = selectedReviewItem.CIBInformation.ToString();
 
                 /*if (selectedReviewItem.IsCalibrated == false)

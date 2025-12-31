@@ -30,7 +30,7 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 3: "
-                           Status="{Binding CalibrationStepList[1].StepName}"
+                           Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Haze BF Machine Position(um): "
                            Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
@@ -435,7 +435,7 @@
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
-                                <Border Style="{StaticResource BorderRegion}">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
                                     <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
                                 </Border>
                             </DataTemplate>
