@@ -40,14 +40,18 @@ public sealed class OpticsViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public double GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum cacheOpticsIlluminationModeEnum)
+    public double GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
-        throw new NotImplementedException();
+        var ret = calibrationOpticsService.GetINCMotorAbsoluteValue(opticsIlluminationModeEnum);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public void SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
     {
-        throw new NotImplementedException();
+        var ret = calibrationOpticsService.SetINCMotorAbsoluteValue(opticsIlluminationModeEnum, value);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public void ToggleODFilter(bool isEnable)

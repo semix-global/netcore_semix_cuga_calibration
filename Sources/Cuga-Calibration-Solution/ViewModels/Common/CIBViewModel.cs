@@ -94,7 +94,9 @@ public sealed class CIBViewModel(
 
     public void SetIlluminationProfile(IReadOnlyList<CIBInformation> cibInformations, IReadOnlyList<double> illuminationProfiles)
     {
-        throw new NotImplementedException();
+        var ret = calibrationCIBService.SetIlluminationProfile(cibInformations, illuminationProfiles);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public IReadOnlyList<CIBDelayDTO> GetDelays(IReadOnlyList<CIBInformation> cibInformations)

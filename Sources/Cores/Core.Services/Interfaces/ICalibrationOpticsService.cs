@@ -34,6 +34,21 @@ public interface ICalibrationOpticsService
     SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
 
     /// <summary>
+    /// 获取INC电极位置
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <returns>INC电极位置mm</returns>
+    SxExecuteRet<double> GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
+
+    /// <summary>
+    /// 设置INC电极位置
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="value">INC电极位置mm</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
+
+    /// <summary>
     /// 切换照明OD滤光片
     /// </summary>
     /// <param name="isEnable">是否开启</param>

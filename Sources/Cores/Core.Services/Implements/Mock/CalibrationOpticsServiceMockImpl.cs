@@ -23,6 +23,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 {
     private double _currentRelayMotorValue;
 
+    private double _currentINCMotorValue;
+
     private OpticsApodizationModeEnum _currentOpticsApodizationModeEnum;
 
     private OpticsPolarizationModeEnum _currentOpticsPolarizationModeEnum;
@@ -259,6 +261,22 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         Thread.Sleep(100);
 
         _currentRelayMotorValue = value;
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<double> GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(_currentINCMotorValue);
+    }
+
+    public SxExecuteRet<bool> SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        Thread.Sleep(100);
+
+        _currentINCMotorValue = value;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }

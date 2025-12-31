@@ -80,6 +80,14 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactors);
 
     /// <summary>
+    /// 设置照明文件
+    /// </summary>
+    /// <param name="cibInformations">CIB列表</param>
+    /// <param name="illuminationProfiles">照明文件</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetIlluminationProfile(IReadOnlyList<CIBInformation> cibInformations, IReadOnlyList<double> illuminationProfiles);
+
+    /// <summary>
     /// 获取延迟
     /// </summary>
     /// <param name="cibInformations">CIB列表</param>
