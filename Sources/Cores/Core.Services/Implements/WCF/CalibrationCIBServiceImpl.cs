@@ -187,13 +187,13 @@ public sealed class CalibrationCIBServiceImpl(
 
             dfImgCalibrationRet = Invoke(() => Service?.GetDFImgCalibration(new SxCollectImgParam
             {
-                Type = pmtIds.Length > 0 ? SxCollectImgType.Using : SxCollectImgType.Normal,
+                Type = pmtIds.Length > 1 ? SxCollectImgType.Using : SxCollectImgType.Normal,
                 Mag = productivityInformation.AdaptTo().Mag,
                 Speed = productivityInformation.AdaptTo().Speed,
                 NIOI = productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(),
                 CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
                 CollectMode = SxCollectMode.PW,
-                PMTId = pmtIds.Length > 0 ? -1 : pmtIds[0],
+                PMTId = pmtIds.Length > 1 ? -1 : pmtIds[0],
                 Width = imageWidth,
                 StartPoint = [position.ToSxPointD()],
                 IsSingle = true,
@@ -210,7 +210,7 @@ public sealed class CalibrationCIBServiceImpl(
         }
 
         if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(dfImgCalibrationRet.ErrorMsg, []);
-        if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>($"Dark Images Count is not {cibInformations.Count}", []);
+        // if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>($"Dark Images Count is not {cibInformations.Count}", []);
 
         var result = new DarkFieldImageDTO[cibInformations.Count];
 
@@ -252,13 +252,13 @@ public sealed class CalibrationCIBServiceImpl(
 
             dfImgCalibrationRet = Invoke(() => Service?.GetDFImgCalibration(new SxCollectImgParam
             {
-                Type = pmtIds.Length > 0 ? SxCollectImgType.Using : SxCollectImgType.Normal,
+                Type = pmtIds.Length > 1 ? SxCollectImgType.Using : SxCollectImgType.Normal,
                 Mag = productivityInformation.AdaptTo().Mag,
                 Speed = productivityInformation.AdaptTo().Speed,
                 NIOI = productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(),
                 CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
-                CollectMode = SxCollectMode.PW,
-                PMTId = pmtIds.Length > 0 ? -1 : pmtIds[0],
+                CollectMode = SxCollectMode.PTP,
+                PMTId = pmtIds.Length > 1 ? -1 : pmtIds[0],
                 StartPoint = [startPosition.ToSxPointD()],
                 EndPoint = [endPosition.ToSxPointD()],
                 IsSingle = true,
@@ -275,7 +275,7 @@ public sealed class CalibrationCIBServiceImpl(
         }
 
         if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>(dfImgCalibrationRet.ErrorMsg, []);
-        if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>($"Dark Images Count is not {cibInformations.Count}", []);
+        // if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>($"Dark Images Count is not {cibInformations.Count}", []);
 
         var result = new DarkFieldRawScanImageDTO[cibInformations.Count];
 

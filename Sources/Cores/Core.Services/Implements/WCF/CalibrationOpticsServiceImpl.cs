@@ -37,7 +37,7 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
         var productivityInformationList = new List<ProductivityInformation>();
 
-        foreach (var c2MProductivityInfo in sxExecuteRet.Anything)
+        foreach (var c2MProductivityInfo in sxExecuteRet.Anything.Where(t => t.IsUsed))
         {
             var speedInfoSxExecuteRet = Invoke(() => Service?.GetSpeedInfo(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
             if (speedInfoSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
