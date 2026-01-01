@@ -202,6 +202,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition));
 
@@ -221,6 +222,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             case 0:
                 Calibratings = [];
 
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.HazeFindBFMachinePosition
@@ -313,10 +315,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.MicroscopeLensInformation,
                 Cache.CIBInformations
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t));
+            return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t))
+                   && ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
         });
     }
 
@@ -325,7 +329,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
-            Guard.IsNotEmpty(Cache.CIBInformations);
+            Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
             StageViewModel.SetAbsoluteStageTheta(0);
             Cache.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
@@ -347,7 +351,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             var detectImageDirectory = ImageFileDirectory;
 
-            Guard.IsNotEmpty(Cache.CIBInformations);
             Guard.IsTrue(ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation));
             Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, CalibrationSetting.SettingCommonParam.MeasurePowerMeasurementMinValue);
             Guard.IsGreaterThan(Cache.MeasurePowerSequenceCommonRatio, 0);

@@ -193,6 +193,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 return true;
 
             case 3:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
@@ -215,6 +216,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 return true;
 
             case 1:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
@@ -265,9 +267,6 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
     {
         return InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
@@ -285,6 +284,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
     {
         return InvokeCalibrateAsync(() =>
         {
+            Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+
             StageViewModel.SetAbsoluteStageTheta(0);
             Cache.Item.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
@@ -295,6 +296,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 Cache.Item.LaserLightInformation,
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -436,6 +438,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                             if (itemItem.Items[times].IsOk) continue;
 
                             itemItem.Items[times].IlluminationProfiles = [.. targetPMTValue / imageHorizontalProjectsVector];
+                            if (itemItem.IlluminationProfiles.Count <= 0) itemItem.IlluminationProfiles = [..Enumerable.Repeat(1d, imageHorizontalProjectsVector.Count)];
                             itemItem.IlluminationProfiles = [.. Vector<double>.Build.DenseOfEnumerable(itemItem.IlluminationProfiles).PointwiseMultiply(Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].IlluminationProfiles))];
 
                             CIBViewModel.SetIlluminationProfile([itemItem.CIBInformation], itemItem.IlluminationProfiles);

@@ -184,6 +184,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 return true;
 
             case 4:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
 
                 return true;
@@ -208,6 +209,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindBFMachinePosition != Point.Origin
                     ? StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
                     : Point.Origin);
@@ -259,9 +261,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
@@ -347,6 +346,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(async () =>
         {
+            Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,

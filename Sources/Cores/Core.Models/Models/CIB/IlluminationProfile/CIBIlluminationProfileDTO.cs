@@ -122,7 +122,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 
                     scatterLine = scatterPlotControl.GetOrAddScatterLine(
                         1,
-                        $"Digital Gain: {i + 1}",
+                        $"Illumination Profile: {i + 1}",
                         [.. itemItemData.IlluminationProfiles.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, itemItem.Items.Count - 1));

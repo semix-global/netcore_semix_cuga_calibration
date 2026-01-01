@@ -32,6 +32,9 @@
                 <hc:Shield Subject="Step 3: "
                            Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Microscope: "
+                           Status="{Binding Cache.MicroscopeLensInformation}"
+                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Haze BF Machine Position(um): "
                            Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />

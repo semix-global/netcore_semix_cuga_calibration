@@ -156,7 +156,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
     public CalibrationAttenuatorObj AdaptTo() => new()
     {
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(): CgMagTypeEnum.ErrorCgMagTypeEnum,
         MaxCoefficientAverageMeasurePower = MaxMeasurePower,
         CoefficientMeasurePowerPoints = [.. MeasurePowerPoints.Select(t => t.ToCgPoint())],
         CoefficientMeasurePowerRatePoints = [.. AttenuatorPoints.Select(t => t.ToCgPoint())],

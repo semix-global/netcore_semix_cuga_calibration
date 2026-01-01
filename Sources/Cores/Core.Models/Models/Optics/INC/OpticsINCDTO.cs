@@ -57,6 +57,8 @@ public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<Optics
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
+    partial void OnMaxItemChanged(OpticsINCDTOItem? value) => RefreshPlot();
+
     // ReSharper restore UnusedParameterInPartialMethod
 
     public OpticsINCDTO()

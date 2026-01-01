@@ -709,7 +709,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
         catch (Exception ex)
         {
-            result = false;
+            result = CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
 
             if (ex is OperationCanceledException)
             {

@@ -195,12 +195,14 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
                 return true;
 
             case 4:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition));
 
@@ -223,6 +225,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 return true;
 
             case 1:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
@@ -231,6 +234,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition != Point.Origin
                     ? Cache.Item.SilicaSphereFindBFMachinePosition
@@ -281,9 +285,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
@@ -301,6 +302,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
+            Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+
             StageViewModel.SetAbsoluteStageTheta(0);
             Cache.Item.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
@@ -311,6 +314,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 Cache.Item.LaserLightInformation,
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -339,6 +343,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
+            Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+
             StageViewModel.SetAbsoluteStageTheta(0);
             Cache.Item.SilicaSphereFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
@@ -350,6 +356,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.SilicaSphereFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }

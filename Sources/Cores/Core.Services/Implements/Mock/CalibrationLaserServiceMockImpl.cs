@@ -83,14 +83,14 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(30, 60) * _coefficient));
     }
 
     public SxExecuteRet<double> GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(30, 60) * _coefficient));
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()

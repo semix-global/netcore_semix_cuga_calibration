@@ -31,7 +31,7 @@ public class CalibrationBase
     /// <summary>
     /// Cuga初始化是否需要自检此项校准结果是否Ok
     /// </summary>
-    public bool IsRequiredSelfCheck { get; set; } = false;
+    public bool IsRequiredCalibrate { get; set; } = false;
 
     /// <summary>
     /// 是否Ok
@@ -882,6 +882,26 @@ public sealed class CalibrationLaserObj
     /// CIB MMD 校准对象列表
     /// </summary>
     public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = Array.Empty<CalibrationLaserCIBMMDItem>();
+
+    /// <summary>
+    /// CIB Light Matching 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBLightMatchingItem[] CalibrationLaserCIBLightMatchingItems { get; set; } = Array.Empty<CalibrationLaserCIBLightMatchingItem>();
+
+    /// <summary>
+    /// CIB Illumination Profile 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBIlluminationProfileItem[] CalibrationLaserCIBIlluminationProfileItems { get; set; } = Array.Empty<CalibrationLaserCIBIlluminationProfileItem>();
+
+    /// <summary>
+    /// Optics Relay 校准对象列表
+    /// </summary>
+    public CalibrationOpticsRelay[] CalibrationOpticsRelays { get; set; } = Array.Empty<CalibrationOpticsRelay>();
+
+    /// <summary>
+    /// Optics INC 校准对象列表
+    /// </summary>
+    public CalibrationOpticsINC[] CalibrationOpticsINCs { get; set; } = Array.Empty<CalibrationOpticsINC>();
 }
 ```
 
@@ -911,11 +931,11 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
 }
 ```
 
-## 4.2. 台面功率计校准：`CalibrationLaserOpticalPower`
+## ==4.2.== Laser 台面功率计校准：`CalibrationLaserOpticalPower`
 
-> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 > 
-> 个数： 3
+> 个数：  OI 3 NI 2
 
 ```c#
 /// <summary>
@@ -925,14 +945,19 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
 public sealed class CalibrationLaserOpticalPower : CalibrationBase
 {
     /// <summary>
-    /// 测试的功率系数
+    /// 入射方式
     /// </summary>
-    public double Coefficient { get; set; }
+    public CgNIOIType CgNIOITypeEnum { get; set; }
 
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 测试的功率系数
+    /// </summary>
+    public double Coefficient { get; set; }
 
     /// <summary>
     /// 当前暗场Mag的测量的最大功率, **Cuga内部使用**
@@ -946,11 +971,11 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
 }
 ```
 
-## 4.3. 台面功率曲线校准：`CalibrationAttenuatorObj`
+## ==4.3.== Laser 台面功率曲线校准：`CalibrationAttenuatorObj`
 
-> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 >
-> 个数： 3
+> 个数：   OI 3 NI 2
 
 ```c#
 /// <summary>
@@ -959,6 +984,11 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
 [Serializable]
 public sealed class CalibrationAttenuatorObj : CalibrationBase
 {
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
     /// <summary>
     /// Mag类型
     /// </summary>
@@ -1016,11 +1046,11 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
 }
 ```
 
-## 4.4.  Aod延迟校准: `CalibrationLaserAodDelayItem`
+## ==4.4.==  AOD 延迟校准: `CalibrationLaserAodDelayItem`
 
-> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 > 
-> 个数：3
+> 个数： OI 3 NI 2
 
 ```csharp
 /// <summary>
@@ -1028,6 +1058,11 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
 /// </summary>
 public sealed class CalibrationLaserAodDelayItem : CalibrationBase
 {
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
     /// <summary>
     /// 暗场Mag类型
     /// </summary>
@@ -1180,11 +1215,11 @@ public sealed class CalibrationLaserXTCCalibrationItem : CalibrationBase
 }
 ```
 
-## 4.8. 暗场相机Y像素尺寸校准: `CalibrationLaserPixelSizeItem`
+## ==4.8.== CIB 暗场相机Y像素尺寸校准: `CalibrationLaserPixelSizeItem`
 
-> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId)` 判断`is not null`后使用
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId)` 判断`is not null`后使用
 > 
-> 个数： 3 * 15 = 45
+> 个数： OI 3 * 15 = 45 NI 2 * 15 =30
 
 ```csharp
 /// <summary>
@@ -1193,6 +1228,11 @@ public sealed class CalibrationLaserXTCCalibrationItem : CalibrationBase
 [Serializable]
 public sealed class CalibrationLaserPixelSizeItem : CalibrationBase
 {
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
     /// <summary>
     /// 暗场Mag类型
     /// </summary>
@@ -1210,11 +1250,11 @@ public sealed class CalibrationLaserPixelSizeItem : CalibrationBase
 }
 ```
 
-## 4.9. 暗场相机X像素尺寸校准: `CalibrationLaserXPixelSizeItem`
+## ==4.9.== CIB 暗场相机X像素尺寸校准: `CalibrationLaserXPixelSizeItem`
 
-> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
 > 
-> 个数： 3 * 3  = 9
+> 个数：OI 3 * 3  = 9 NI 2 * 1 = 1
 
 ```csharp
 /// <summary>
@@ -1224,6 +1264,11 @@ public sealed class CalibrationLaserPixelSizeItem : CalibrationBase
 public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
 {
     /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
@@ -1231,7 +1276,7 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
     /// <summary>
     /// 速度
     /// </summary>
-    public ADSSpeedEnum Speed { get; set; }
+    public CgSpeedLevelType Speed { get; set; }
 
     /// <summary>
     /// 当前暗场Mag和速度下的X方向1像素转尺寸, 单位um/pixel, **Cuga内部使用**
@@ -1240,11 +1285,11 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
 }
 ```
 
-## 4.10. 明暗场中心的offset校准: `CalibrationLaserLineCentricityItem`
+## ==4.10.== CIB 明暗场中心的offset校准: `CalibrationLaserLineCentricityItem`
 
-> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId && t.Speed == 速度)` 判断`is not null`后使用
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.PmtId == PmtId)` 判断`is not null`后使用
 > 
-> 个数： 3 * 3 * 15 = 135
+> 个数： OI 3 * 3 * 15 = 135 NI 2 * 1 * 15 = 30
 
 ```cs
 /// <summary>
@@ -1253,6 +1298,11 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
 [Serializable]
 public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 {
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
     /// <summary>
     /// 此显微镜镜头下做的校准
     /// </summary>
@@ -1266,7 +1316,7 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// <summary>
     /// 速度
     /// </summary>
-    public ADSSpeedEnum Speed { get; set; }
+    public CgSpeedLevelType Speed { get; set; }
 
     /// <summary>
     /// 暗场相机ID
@@ -1277,17 +1327,12 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// 当前暗场Mag和速度PmtId下的基于<see cref="CgMicroscopeLens"/>倍镜下, 正向暗场中心坐标, **Cuga内部使用, 8号光斑需要下发到AF硬件**
     /// </summary>
     public CgPoint DarkMachineCenterPosition { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和速度PmtId下的基于<see cref="CgMicroscopeLens"/>倍镜下, 反向暗场中心坐标, **Cuga内部使用**
-    /// </summary>
-    public CgPoint ReverseDarkMachineCenterPosition { get; set; }
 }
 ```
 
-## 4.11 MMD校准 `CalibrationLaserCIBMMDItem`
+## ==4.11.== CIB MMD校准: `CalibrationLaserCIBMMDItem`
 
-根据不同 `列表.SingleOrDefault(t => t.PMTId== PMTId&& t.ChannelId== ChannelId)` 判断`is not null`后使用
+根据不同 `列表.SingleOrDefault(t => t.PMTId== PMTId && t.ChannelId== ChannelId)` 判断`is not null`后使用
 
 个数：15 * 3 = 45
 
@@ -1325,45 +1370,7 @@ public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
 }
 ```
 
-## 4.12. PMT AGC Delay
-
-> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId)` 判断`is not null`后使用
->
-> 个数： 3 * 15 = 45
-
-```cs
-/// <summary>
-/// Pmt Agc Delay
-/// </summary>
-[Serializable]
-public sealed class CalibrationLaserPmtAgcDelayItem : CalibrationBase
-{
-    /// <summary>
-    /// Mag类型
-    /// </summary>
-    public CgMagTypeEnum CgMagTypeEnum { get; set; }
-
-    /// <summary>
-    /// 暗场相机ID
-    /// </summary>
-    public int PmtId { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和PmtId下的通道1 AGC延迟时间, **需要下发Laser硬件**
-    /// </summary>
-    public double Channel1AgcDelay { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和PmtId下的通道2 AGC延迟时间, **需要下发Laser硬件**
-    /// </summary>
-    public double Channel2AgcDelay { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和PmtId下的通道3 AGC延迟时间, **需要下发Laser硬件**
-    /// </summary>
-    public double Channel3AgcDelay { get; set; }
-}
-```
+## ==4.12.== ~~PMT AGC Delay~~
 
 ## 4.13. DOE Angle
 
@@ -1375,6 +1382,226 @@ public sealed class CalibrationLaserPmtAgcDelayItem : CalibrationBase
 public sealed class CalibrationLaserDOEAngle : CalibrationBase
 {
     public double DOEAngle { get; set; }
+}
+```
+
+## ==4.14.== CIB Light Matching校准: `CalibrationLaserCIBLightMatchingItem`
+
+根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.OpticsApodizationModeEnum == 切趾 && t.OpticsPolarizationModeEnum == 光学偏振 && t.CollectorPolarizationModeEnum == 采集偏振)` 判断`is not null`后使用
+
+`Items`属性按照`列表.SingleOrDefault(t.PMTId== PMTId && t.ChannelId== ChannelId)`判断`is not null`后使用
+
+个数：OI 3 * 3 * 1(切趾待定) * 3 * 3  = 81 NI 2 * 1 * 1(切趾待定) * 3 * 3 = 18
+
+Items个数：15 * 3 = 45
+
+```csharp
+/// <summary>
+/// CIB Light Matching 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 光学 Apodization
+    /// </summary>
+    public int OpticsApodizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 光学偏振
+    /// </summary>
+    public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 采集偏振
+    /// </summary>
+    public CgNDFTypeEnum CollectorPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 校准结果, **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<Item> Items { get; set; }
+
+    /// <summary>
+    /// 每个CIB的校准结果
+    /// </summary>
+    public sealed class Item
+    {
+        /// <summary>
+        /// CIB PMT ID
+        /// </summary>
+        public int PMTId { get; set; }
+
+        /// <summary>
+        /// CIB Channel ID
+        /// </summary>
+        public int ChannelId { get; set; }
+
+        /// <summary>
+        /// 数码增益, **需要下发CIB硬件**
+        /// </summary>
+        public double DigitalGainPlusMultiplicativeFactors { get; set; }
+    }
+}
+```
+
+## ==4.15.== CIB Illumination Profile 校准: `CalibrationLaserCIBIlluminationProfileItem`
+
+根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.OpticsApodizationModeEnum == 切趾 && t.OpticsPolarizationModeEnum == 光学偏振 && t.CollectorPolarizationModeEnum == 采集偏振)` 判断`is not null`后使用
+
+`Items`属性按照`列表.SingleOrDefault(t.PMTId== PMTId && t.ChannelId== ChannelId)`判断`is not null`后使用
+
+个数：OI 3 * 3 * 1(切趾待定) * 3 * 3  = 81 NI 2 * 1 * 1(切趾待定) * 3 * 3 = 18
+
+Items个数：15 * 3 = 45
+
+```csharp
+/// <summary>
+/// CIB Illumination Profile 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 光学 Apodization
+    /// </summary>
+    public int OpticsApodizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 光学偏振
+    /// </summary>
+    public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 采集偏振
+    /// </summary>
+    public CgNDFTypeEnum CollectorPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// 校准结果, **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<Item> Items { get; set; }
+
+    /// <summary>
+    /// 每个CIB的校准结果
+    /// </summary>
+    public sealed class Item
+    {
+        /// <summary>
+        /// CIB PMT ID
+        /// </summary>
+        public int PMTId { get; set; }
+
+        /// <summary>
+        /// CIB Channel ID
+        /// </summary>
+        public int ChannelId { get; set; }
+
+        /// <summary>
+        /// 均匀性校准结果, **需要下发CIB硬件**
+        /// </summary>
+        public IReadOnlyList<double> IlluminationProfiles { get; set; }
+    }
+}
+```
+
+## ==4.16.== Optics Relay校准: `CalibrationOpticsRelay`
+
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI)` 判断`is not null`后使用
+>
+> 个数： 2
+
+```cs
+/// <summary>
+/// Optics Relay 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationOpticsRelay : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// 斜率(ECS/mm), **Cuga内部使用**
+    /// </summary>
+    public double Slope { get; set; }
+
+    /// <summary>
+    /// Relay 工作范围 最小值, **Cuga内部使用**
+    /// </summary>
+    public double MinRelayMotorAbsoluteValue { get; set; }
+
+    /// <summary>
+    /// Relay 工作范围 最大值, **Cuga内部使用**
+    /// </summary>
+    public double MaxRelayMotorAbsoluteValue { get; set; }
+}
+```
+
+## ==4.17.== Optics INC校准: `CalibrationOpticsRelay`
+
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
+>
+> 个数： OI 3 * 3 = 9 NI 2 * 1 = 2
+
+```CS
+/// <summary>
+/// Optics INC 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationOpticsINC : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// INC电机位置, **需要下发Optics Motor硬件**
+    /// </summary>
+    public double? INCMotorAbsoluteValue { get; set; }
 }
 ```
 
