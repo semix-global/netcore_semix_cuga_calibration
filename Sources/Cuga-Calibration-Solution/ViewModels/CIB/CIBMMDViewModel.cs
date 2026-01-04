@@ -290,8 +290,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             CIBViewModel.SetMMD(
                 item.CIBInformation,
                 [.. item.LogGainMul128U12BitPoints.Select(t => t.Y)],
-                [.. item.GainS16BitPoints.Select(t => t.Y)],
-                item.ResultLogGainPoints.Maxima(t => t.Y).Single().Y);
+                [.. item.GainS16BitPoints.Select(t => t.Y)]);
 
             DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} {item.CIBInformation} OK!");
         }

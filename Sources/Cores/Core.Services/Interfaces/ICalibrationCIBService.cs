@@ -67,9 +67,8 @@ public interface ICalibrationCIBService
     /// <param name="cibInformation">CIB信息</param>
     /// <param name="logGainMul128U12Bits">LogGain * 128 [0, 4095]</param>
     /// <param name="gainS16Bits">GainS16Bit [-2^15, 2^15-1]</param>
-    /// <param name="maxLogGain">LogGain 最大值</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits, double maxLogGain);
+    SxExecuteRet<bool> SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits);
 
     /// <summary>
     /// 设置LightMatching

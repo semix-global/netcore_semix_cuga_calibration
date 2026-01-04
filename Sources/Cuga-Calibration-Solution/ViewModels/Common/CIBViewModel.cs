@@ -78,9 +78,9 @@ public sealed class CIBViewModel(
         ToggleProfileMode(cibInformations, cIbConfiguration.CIBProfileMode);
     }
 
-    public void SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits, double maxLogGain)
+    public void SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
     {
-        var ret = calibrationCIBService.SetMMD(cibInformation, logGainMul128U12Bits, gainS16Bits, maxLogGain);
+        var ret = calibrationCIBService.SetMMD(cibInformation, logGainMul128U12Bits, gainS16Bits);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
