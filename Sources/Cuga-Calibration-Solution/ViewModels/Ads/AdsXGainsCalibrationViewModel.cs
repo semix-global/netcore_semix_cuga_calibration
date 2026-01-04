@@ -384,10 +384,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     IsX3Stop = false;
                     IsX4Stop = false;
                     {
-                        var adsXGainsDichotomySpeedCacheItem = new AdsXGainsDichotomySpeedCacheItem()
+                        var adsXGainsDichotomySpeedCacheItem = new AdsXGainsDichotomySpeedCacheItem
                         {
                             IsPositive = Cache.IsPositive,
-                            SpeedXValue = speedvalue,
+                            SpeedXValue = speedvalue
                         };
                         SynchronizationContextProvider.Send(() => AdsXGainsDichotomySpeedCacheItemList.Add(adsXGainsDichotomySpeedCacheItem));
 
@@ -427,10 +427,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     }
 
                     {
-                        var adsXGainsDichotomySpeedCacheConverseItem = new AdsXGainsDichotomySpeedCacheItem()
+                        var adsXGainsDichotomySpeedCacheConverseItem = new AdsXGainsDichotomySpeedCacheItem
                         {
                             IsPositive = !Cache.IsPositive,
-                            SpeedXValue = speedvalue,
+                            SpeedXValue = speedvalue
                         };
                         SynchronizationContextProvider.Send(() => AdsXGainsDichotomySpeedCacheConverseItemList.Add(adsXGainsDichotomySpeedCacheConverseItem));
 

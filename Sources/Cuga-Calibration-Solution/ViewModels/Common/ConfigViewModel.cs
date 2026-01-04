@@ -1,4 +1,3 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
@@ -33,30 +32,30 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<PrescanAODWaveformProfile> GetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public IReadOnlyList<PrescanAODWaveformProfile> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
     {
-        var ret = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
+        var ret = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<ChirpAODWaveformProfile> GetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public IReadOnlyList<ChirpAODWaveformProfile> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation)
     {
-        var ret = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
+        var ret = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetPrescanAODWaveformConfiguration(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
+    public void SetPrescanAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
     {
-        var ret = calibrationConfigService.SetPrescanAODWaveformConfiguration(opticsIlluminationModeEnum, productivityInformation, filePath);
+        var ret = calibrationConfigService.SetPrescanAODWaveformConfiguration(productivityInformation, filePath);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetChirpAODWaveformConfiguration(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
+    public void SetChirpAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
     {
-        var ret = calibrationConfigService.SetChirpAODWaveformConfiguration(opticsIlluminationModeEnum, productivityInformation, filePath);
+        var ret = calibrationConfigService.SetChirpAODWaveformConfiguration(productivityInformation, filePath);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

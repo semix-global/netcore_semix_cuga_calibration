@@ -45,7 +45,16 @@ public class AODWaveformUnitTest
         AbstractGenerateAODWaveformParam param = new GeneratePrescanAODWaveformParam
         {
             ProductivityInformation = ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo { Name = string.Empty, Mag = SxMAGEnum.Mid, Speed = SxSpeedEnum.Low, IsUsed = true },
+                new C2MProductivityInfo
+                {
+                    Name = string.Empty,
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
+                    Mag = SxMAGEnum.Mid,
+                    Speed = SxSpeedEnum.Low,
+                    IsUsed = true
+                },
 #if NET
                 new CgSwathSpeedInfo(),
 #else
@@ -122,14 +131,14 @@ public class AODWaveformUnitTest
 
         var resultFilePath = isChirp
             ? $"chirp_" +
-              $"{((GenerateChirpAODWaveformParam)param).OpticsIlluminationModeEnum}_" +
+              $"{((GenerateChirpAODWaveformParam)param).ProductivityInformation.OpticsIlluminationModeEnum}_" +
               $"{((GenerateChirpAODWaveformParam)param).ProductivityInformation.AdaptTo().Mag}_" +
               $"{((GenerateChirpAODWaveformParam)param).SoundPacketLength:0.###}mm_" +
               $"{((GenerateChirpAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz_" +
               $"{((GenerateChirpAODWaveformParam)param).AdaptTo().HighFrequency:0.###}Mhz" +
               $"{AODWaveformGenerator.ChirpAODWaveformFileExtension}"
             : $"prescan_" +
-              $"{((GeneratePrescanAODWaveformParam)param).OpticsIlluminationModeEnum}_" +
+              $"{((GeneratePrescanAODWaveformParam)param).ProductivityInformation.OpticsIlluminationModeEnum}_" +
               $"{((GeneratePrescanAODWaveformParam)param).ProductivityInformation.AdaptTo().Mag}_" +
               $"{((GeneratePrescanAODWaveformParam)param).FlatnessTime:0.###}ns_" +
               $"{((GeneratePrescanAODWaveformParam)param).AdaptTo().LowFrequency:0.###}Mhz_" +
@@ -175,7 +184,7 @@ public class AODWaveformUnitTest
 
             var profileFilePath = isChirp
                 ? $"chirp_" +
-                  $"{((GenerateChirpAODWaveformParam)param).OpticsIlluminationModeEnum}_" +
+                  $"{((GenerateChirpAODWaveformParam)param).ProductivityInformation.OpticsIlluminationModeEnum}_" +
                   $"{param.ProductivityInformation.AdaptTo().Mag.ToString()}" +
                   $"${((GenerateChirpAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
                   $"${param.ZeroSampleCount:0.###}" +
@@ -183,7 +192,7 @@ public class AODWaveformUnitTest
                   $"${configuration.OffsetFrequency:0.###}" +
                   $"${configuration.OffsetFrequencyPeriodCoefficient:0.###}$.txt"
                 : $"prescan_" +
-                  $"{((GeneratePrescanAODWaveformParam)param).OpticsIlluminationModeEnum}_" +
+                  $"{((GeneratePrescanAODWaveformParam)param).ProductivityInformation.OpticsIlluminationModeEnum}_" +
                   $"{param.ProductivityInformation.AdaptTo().Mag.ToString()}" +
                   $"${((GeneratePrescanAODWaveformParam)param).AdaptTo().NumberOfSamples + param.ZeroSampleCount}" +
                   $"${param.ZeroSampleCount:0.###}" +

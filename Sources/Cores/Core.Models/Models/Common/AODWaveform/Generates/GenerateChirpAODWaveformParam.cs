@@ -33,7 +33,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
         FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum,
         SampleRate = SampleRate,
         DirectoryPath = DirectoryPath,
-        FileNameSuffix = $"{OpticsIlluminationModeEnum}_{ProductivityInformation.AdaptTo().Mag}",
+        FileNameSuffix = $"{ProductivityInformation.OpticsIlluminationModeEnum}_{ProductivityInformation.AdaptTo().Mag}",
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         GenerateRetryTimes = GenerateRetryTimes,

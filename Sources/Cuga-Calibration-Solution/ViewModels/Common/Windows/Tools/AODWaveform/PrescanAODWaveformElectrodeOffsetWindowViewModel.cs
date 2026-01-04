@@ -20,7 +20,6 @@ public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
         item.PrescanAODWaveformProfiles = [];
         item.PrescanAODWaveformResultFilePath = string.Empty;
 
-        Cache.FlatnessGeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
         Cache.FlatnessGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.FlatnessGeneratePrescanAODWaveformParam.WithFrequencyFlatness(item.Frequency);
         Cache.FlatnessGeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -35,7 +34,6 @@ public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
         item.ChirpAODWaveformProfiles = [];
         item.ChirpAODWaveformResultFilePath = string.Empty;
 
-        Cache.FlatnessGenerateChirpAODWaveformParam.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
         Cache.FlatnessGenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.FlatnessGenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
         Cache.FlatnessGenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -63,8 +61,8 @@ public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
 
     protected override void SetAODWaveformProfiles(PrescanAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId)
     {
-        LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
-        LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, item.ChirpAODWaveformProfiles);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
+        LaserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, item.ChirpAODWaveformProfiles);
     }
 
     protected override void GenerateResultAODWaveform(PrescanAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
@@ -83,7 +81,7 @@ public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
 
         if (htmlLogUniqueId == Guid.Empty) return;
 
-        Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum}-{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        Logger.LogHtmlInformation(result.GeneratePrescanAODWaveformParam.ProductivityInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
             result.PrescanAODWaveformResultFilePath,
@@ -93,11 +91,11 @@ public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
 
     protected override void SetResultAODWaveformConfiguration(PrescanAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
-        ConfigViewModel.SetPrescanAODWaveformConfiguration(Cache.OpticsIlluminationModeEnum, result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
+        ConfigViewModel.SetPrescanAODWaveformConfiguration(result.GeneratePrescanAODWaveformParam.ProductivityInformation, result.PrescanAODWaveformResultFilePath);
 
         if (htmlLogUniqueId == Guid.Empty) return;
 
-        Logger.LogHtmlInformation($"{result.GeneratePrescanAODWaveformParam.OpticsIlluminationModeEnum}-{result.GeneratePrescanAODWaveformParam.ProductivityInformation}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        Logger.LogHtmlInformation(result.GeneratePrescanAODWaveformParam.ProductivityInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GeneratePrescanAODWaveformParam = new HtmlQuote(result.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
             result.PrescanAODWaveformResultFilePath,

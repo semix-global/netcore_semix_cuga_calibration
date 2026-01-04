@@ -3,6 +3,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Laser.XYAstigmatism;
@@ -48,7 +49,7 @@ public sealed partial class LaserXYAstigmatismCalibrationItemDto : CalibrationDt
 
     public CalibrationLaserXYAstigmatismItem AdaptTo() => new()
     {
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         ChirpAODWaveformResultList =
         [
             .. ChirpAodWaveResultList

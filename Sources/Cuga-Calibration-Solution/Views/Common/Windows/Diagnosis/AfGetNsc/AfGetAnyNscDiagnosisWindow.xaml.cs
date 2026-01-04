@@ -6,9 +6,6 @@ using System.Windows.Controls;
 namespace CugaCalibration.Views.Common.Windows.Diagnosis.AfGetNsc;
 
 [IOCAppService(ServiceType = typeof(AfGetAnyNscDiagnosisWindow), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
-/// <summary>
-/// AfGetAnyNscDiagnosisWindow.xaml 的交互逻辑
-/// </summary>
 public partial class AfGetAnyNscDiagnosisWindow
 {
     public AfGetAnyNscDiagnosisWindow()

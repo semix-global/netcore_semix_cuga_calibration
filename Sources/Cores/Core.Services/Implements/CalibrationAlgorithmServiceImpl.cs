@@ -6,6 +6,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics.LinearAlgebra;
@@ -85,28 +86,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (width.D, height.D);
     }
 
-    public IReadOnlyList<Point> GetHistogram(HImage image, int min, int max)
-    {
-        Guard.IsGreaterThanOrEqualTo(min, 0);
-
-        using var maxHTuple = new HTuple(max);
-        _algorithm.histo(image, maxHTuple, out var histogramHTuple);
-
-        using var _ = histogramHTuple;
-
-        var length = max - 0 + 1;
-        Guard.IsEqualTo(histogramHTuple.Length, length);
-
-        var results = new Point[length];
-
-        foreach (var (index, value) in Enumerable.Range(0, length).Index())
-        {
-            results[index] = new Point(value, histogramHTuple[index]);
-        }
-
-        return [.. results.Skip(min)];
-    }
-
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)
     {
         _algorithm.CalculatePixSize(image, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
@@ -118,9 +97,9 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return new Size(xTuple.D, yTuple.D);
     }
 
-    public double GetYPixelSize(DarkFieldImageDto image, double standardMaskSquareYSize)
+    public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize)
     {
-        var y = image.ProjectionYs;
+        var y = image.Image.GetHorizontalProjects();
 
         // 使用AMPD算法找出波峰
         var signal = Vector<double>.Build.DenseOfEnumerable(y.Select(t => -t));

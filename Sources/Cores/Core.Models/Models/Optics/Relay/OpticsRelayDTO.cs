@@ -111,7 +111,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
 
                 ScatterPlotControl.GetOrAddScatterLine(
                     0,
-                    $"{item.RelayMotorAbsoluteValue:0.###}mm",
+                    $"{item.RelayMotorAbsoluteValue:0.###}(mm)",
                     [.. item.Qualitys.Select(t => new Point(t.ECS, t.Quality))],
                     index,
                     new Range(0, Items.Count - 1));
@@ -214,7 +214,7 @@ public sealed partial class OpticsRelayDTOItem : ObservableObject, ICloneable<Op
             ECS = ECS,
             Quality = Quality,
             ImageFilePath = ImageFilePath,
-            RawImageFilePath = RawImageFilePath,
+            RawImageFilePath = RawImageFilePath
         };
     }
 }

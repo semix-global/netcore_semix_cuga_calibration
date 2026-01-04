@@ -66,7 +66,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
 
                     foreach (var calibrationCategoryItem in calibrationCategory.Items)
                     {
-                        var categoryItem = new SettingRequiredCalibrationCategoryItem()
+                        var categoryItem = new SettingRequiredCalibrationCategoryItem
                         {
                             AssemblyQualifiedName = calibrationCategoryItem.CalibrationDtoType.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false),
                             Description = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last()

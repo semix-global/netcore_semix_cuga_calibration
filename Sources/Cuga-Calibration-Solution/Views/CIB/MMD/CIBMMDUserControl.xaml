@@ -10,8 +10,8 @@
              xmlns:children="clr-namespace:CugaCalibration.Views.CIB.MMD.Children"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
-             d:DesignHeight="900"
              d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -94,9 +94,7 @@
                                 StepIndex="{Binding CalibrationStepIndex}"
                                 ItemsSource="{Binding CalibrationStepList}">
                         <hc:StepBar.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding StepName}" />
-                            </DataTemplate>
+                            <DataTemplate />
                         </hc:StepBar.ItemTemplate>
                     </hc:StepBar>
                     <ProgressBar Grid.Row="3"

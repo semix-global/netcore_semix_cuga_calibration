@@ -210,7 +210,7 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(
                     PList = pitchList;
                     XSpeedList = xspeedList;
                     YSpeedList = yspeedList;
-                    XYMoveData xYMoveData = new XYMoveData()
+                    XYMoveData xYMoveData = new XYMoveData
                     {
                         z1List = z1List,
                         z2List = z2List,

@@ -48,9 +48,50 @@ public static class HImageCommonExtensions1
 
             var results = new Point[length];
 
-            foreach (var (index, value) in Enumerable.Range(min, length).Index())
+            foreach (var (index, value) in Enumerable.Range(min, length).Index()) results[index] = new Point(value, histogramHTuple[index]);
+
+            return results;
+        }
+
+        /// <summary>
+        /// 获取图片的水平方向投影
+        /// </summary>
+        /// <returns>投影</returns>
+        public IReadOnlyList<double> GetHorizontalProjects()
+        {
+            using var gray = @this.ToGray();
+            using var region = gray.GetDomain();
+
+            using var horizontalProjections = @this.GrayProjections(region, "simple", out var verticalProjections);
+            using var _ = verticalProjections;
+
+            var results = new double[horizontalProjections.Length];
+
+            for (var i = 0; i < horizontalProjections.Length; i++)
             {
-                results[index] = new Point(value, histogramHTuple[index]);
+                results[i] = horizontalProjections[i];
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// 获取图片的垂直方向投影
+        /// </summary>
+        /// <returns>投影</returns>
+        public IReadOnlyList<double> GetVerticalProjects()
+        {
+            using var gray = @this.ToGray();
+            using var region = gray.GetDomain();
+
+            using var horizontalProjections = @this.GrayProjections(region, "simple", out var verticalProjections);
+            using var _ = verticalProjections;
+
+            var results = new double[verticalProjections.Length];
+
+            for (var i = 0; i < verticalProjections.Length; i++)
+            {
+                results[i] = verticalProjections[i];
             }
 
             return results;

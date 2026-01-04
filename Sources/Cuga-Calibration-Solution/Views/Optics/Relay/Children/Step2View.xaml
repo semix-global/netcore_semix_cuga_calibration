@@ -6,12 +6,12 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsRelayViewModel}"
-             d:DesignHeight="800"
-             d:DesignWidth="800"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="430" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -24,8 +24,8 @@
             <hc:UniformSpacingPanel Orientation="Vertical"
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <hc:Shield Subject="Optics Relay Step 3: "
-                           Status="{Binding CalibrationStepList[0].StepName}"
+                <hc:Shield Subject="Step 3: "
+                           Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Optics Illumination Mode: "
                            Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
@@ -50,8 +50,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <TextBox Text="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                 Width="275"
+                        <TextBox Text="{Binding Cache.Item.DSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                                  hc:TitleElement.Title="Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />
@@ -59,11 +58,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step2CalibrateActionCommand}"
+                                    Command="{Binding Step2Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step2CalibrateActionCancelCommand}"
+                                    Command="{Binding Step2CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>

@@ -1,5 +1,6 @@
 ﻿using Core.Models.Enums.Optics;
 using Core.Models.Exceptions;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -18,6 +19,13 @@ public sealed class OpticsViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
+    public IReadOnlyList<ProductivityInformation> GetProductivityInformations()
+    {
+        var ret = calibrationOpticsService.GetProductivityInformations();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public double GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         var ret = calibrationOpticsService.GetRelayMotorAbsoluteValue(opticsIlluminationModeEnum);
@@ -28,6 +36,20 @@ public sealed class OpticsViewModel(
     public void SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
     {
         var ret = calibrationOpticsService.SetRelayMotorAbsoluteValue(opticsIlluminationModeEnum, value);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public double GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        var ret = calibrationOpticsService.GetINCMotorAbsoluteValue(opticsIlluminationModeEnum);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        var ret = calibrationOpticsService.SetINCMotorAbsoluteValue(opticsIlluminationModeEnum, value);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

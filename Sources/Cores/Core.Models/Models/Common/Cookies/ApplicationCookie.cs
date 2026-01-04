@@ -72,19 +72,41 @@ public sealed partial class ApplicationCookie : ObservableObject
     private IReadOnlyList<LaserLightInformation> _laserLightInformations = [];
 
     /// <summary>
-    /// OI产率列表
+    /// 产率列表
     /// </summary>
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformation> _oIProductivityInformations = [];
+    private IReadOnlyList<ProductivityInformation> _productivityInformations = [];
+
+    /// <summary>
+    /// 按照MagType分类的产率列表
+    /// </summary>
+    public IReadOnlyList<ProductivityInformation> OpticsMagTypeProductivityInformations =>
+    [
+        ..ProductivityInformations
+            .GroupBy(t => t.OpticsIlluminationModeEnum)
+            .SelectMany(g => g
+                .GroupBy(t => t.OpticsMagType)
+                .Select(gg => gg.OrderByDescending(t => t).First()))
+            .OrderBy(t => t)
+    ];
+
+    /// <summary>
+    /// OI产率列表
+    /// </summary>
+    public IReadOnlyList<ProductivityInformation> OIProductivityInformations =>
+    [
+        ..ProductivityInformations
+            .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
+    ];
 
     /// <summary>
     /// OI按照MagType分类的产率列表
     /// </summary>
-    public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations => OIProductivityInformations
-        .GroupBy(p => p.OpticsMagType)
-        .Select(g => g.OrderByDescending(p => p).First())
-        .OrderBy(t => t)
-        .ToList();
+    public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations =>
+    [
+        ..OpticsMagTypeProductivityInformations
+            .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
+    ];
 
     /// <summary>
     /// OI最低产率
@@ -103,17 +125,20 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// NI产率列表
     /// </summary>
-    [ObservableProperty]
-    private IReadOnlyList<ProductivityInformation> _nIProductivityInformations = [];
+    public IReadOnlyList<ProductivityInformation> NIProductivityInformations =>
+    [
+        ..ProductivityInformations
+            .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
+    ];
 
     /// <summary>
     /// NI按照MagType分类的产率列表
     /// </summary>
-    public IReadOnlyList<ProductivityInformation> NIOpticsMagTypeProductivityInformations => NIProductivityInformations
-        .GroupBy(p => p.OpticsMagType)
-        .Select(g => g.OrderByDescending(p => p).First())
-        .OrderBy(t => t)
-        .ToList();
+    public IReadOnlyList<ProductivityInformation> NIOpticsMagTypeProductivityInformations =>
+    [
+        ..OpticsMagTypeProductivityInformations
+            .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
+    ];
 
     /// <summary>
     /// NI最低产率
@@ -133,13 +158,11 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 照明方式列表
     /// </summary>
     public IReadOnlyList<OpticsIlluminationModeEnum> OpticsIlluminationModeEnums =>
-        OIProductivityInformations.Count > 0 && NIProductivityInformations.Count > 0
-            ? [OpticsIlluminationModeEnum.OI, OpticsIlluminationModeEnum.NI]
-            : OIProductivityInformations.Count > 0
-                ? [OpticsIlluminationModeEnum.OI]
-                : NIProductivityInformations.Count > 0
-                    ? [OpticsIlluminationModeEnum.NI]
-                    : ThrowHelper.ThrowArgumentException<IReadOnlyList<OpticsIlluminationModeEnum>>("OI NI Productivity Information Is Empty");
+    [
+        ..ProductivityInformations
+            .GroupBy(t => t.OpticsIlluminationModeEnum)
+            .Select(t => t.Key)
+    ];
 
     /// <summary>
     /// 光学切趾列表
@@ -201,6 +224,13 @@ public sealed partial class ApplicationCookie : ObservableObject
     {
         OpticsIlluminationModeEnum.OI => OIProductivityInformations,
         OpticsIlluminationModeEnum.NI => NIProductivityInformations,
+        _ => ThrowHelper.ThrowNotSupportedException<IReadOnlyList<ProductivityInformation>>(nameof(opticsIlluminationModeEnum))
+    };
+
+    public IReadOnlyList<ProductivityInformation> GetOpticsMagTypeProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
+    {
+        OpticsIlluminationModeEnum.OI => OIOpticsMagTypeProductivityInformations,
+        OpticsIlluminationModeEnum.NI => NIOpticsMagTypeProductivityInformations,
         _ => ThrowHelper.ThrowNotSupportedException<IReadOnlyList<ProductivityInformation>>(nameof(opticsIlluminationModeEnum))
     };
 }

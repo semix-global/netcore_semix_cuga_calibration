@@ -21,11 +21,11 @@ using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MiniExcelLibs;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -48,12 +48,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => string.Join("_", Cache.CIBInformations).Truncate(50);
 
-    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select CIB Information" },
-        new() { StepName = "Find Position" },
+        new() { StepName = "Find Haze Position" },
         new() { StepName = "MMD" }
     ];
 
@@ -92,7 +90,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     private MicroscopeCalChipDto _microscopeCalChip = new();
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDto> _laserOpticalPowerMeters = [];
+    private IReadOnlyList<LaserOpticalPowerMeterDTO> _laserOpticalPowerMeters = [];
 
     #endregion 缓存
 
@@ -136,7 +134,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDto>(out var laserOpticalPowerItems, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDTO>(out var laserOpticalPowerItems, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -155,7 +153,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
+            ..Calibrations
+                .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
@@ -190,6 +189,30 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         return Reviews.Count > 0;
     }
 
+    protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                return true;
+
+            case 1:
+                return true;
+
+            case 2:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition));
+
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -199,9 +222,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             case 0:
                 Calibratings = [];
 
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
-                    ? Cache.FindBFMachinePosition
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition != Point.Origin
+                    ? Cache.HazeFindBFMachinePosition
                     : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
@@ -212,7 +236,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             case 2:
                 foreach (var cacheCIBInformation in Cache.CIBInformations) CalibrationStatuses.Single(t => t.SelectedItem == cacheCIBInformation).IsCalibrated = true;
 
-                DialogWindowProvider.ShowDialog($"AOD Alignment {CalibrateDirectoryName} Ok!");
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -252,11 +276,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand]
-    private void SetCIBMMD(CIBMMDDTO cibMMDDto)
+    private void SetCIBMMD(CIBMMDDTO item)
     {
         try
         {
-            if (cibMMDDto.IsOk == false)
+            if (item.IsOk == false)
             {
                 DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is OK Failed!");
 
@@ -264,12 +288,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             CIBViewModel.SetMMD(
-                cibMMDDto.CIBInformation,
-                [.. cibMMDDto.LogGainMul128U12BitPoints.Select(t => t.Y)],
-                [.. cibMMDDto.GainS16BitPoints.Select(t => t.Y)],
-                cibMMDDto.ResultLogGainPoints.Maxima(t => t.Y).Single().Y);
+                item.CIBInformation,
+                [.. item.LogGainMul128U12BitPoints.Select(t => t.Y)],
+                [.. item.GainS16BitPoints.Select(t => t.Y)]);
 
-            DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} {cibMMDDto.CIBInformation} OK!");
+            DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} {item.CIBInformation} OK!");
         }
         catch (Exception ex)
         {
@@ -283,7 +306,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -291,27 +314,29 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.MicroscopeLensInformation,
                 Cache.CIBInformations
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return true;
+            return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t))
+                   && ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
-            Guard.IsNotEmpty(Cache.CIBInformations);
+            Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
             StageViewModel.SetAbsoluteStageTheta(0);
-            Cache.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+            Cache.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.CIBInformations,
-                Cache.FindBFMachinePosition
+                Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -319,11 +344,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
-            Guard.IsNotEmpty(Cache.CIBInformations);
+            var detectImageDirectory = ImageFileDirectory;
+
+            Guard.IsTrue(ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation));
             Guard.IsGreaterThan(Cache.MeasurePowerNotUseODFilterMinValue, CalibrationSetting.SettingCommonParam.MeasurePowerMeasurementMinValue);
             Guard.IsGreaterThan(Cache.MeasurePowerSequenceCommonRatio, 0);
             Guard.IsLessThan(Cache.MeasurePowerSequenceCommonRatio, 1);
@@ -332,20 +359,28 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
             Calibratings = [];
-            Cache.PrescanAODWaveformResultFilePath = Cache.ChirpAODWaveformResultFilePath = string.Empty;
+            Cache.PrescanAODWaveformResultFilePath = string.Empty;
+            Cache.ChirpAODWaveformResultFilePath = string.Empty;
             Cache.PrescanAODWaveformProfiles = [];
             Cache.ChirpAODWaveformProfiles = [];
-            Cache.MeasurePowerPoints = Cache.FitMeasurePowerPoints = Cache.NotUseODFilterMeasurePowerPoints = Cache.UseODFilterMeasurePowerPoints = [];
-            Cache.P0 = Cache.P1 = Cache.P2 = Cache.P3 = Cache.RSquared = Cache.ODFilterRatio = 0;
+            Cache.MeasurePowerPoints = [];
+            Cache.FitMeasurePowerPoints = [];
+            Cache.NotUseODFilterMeasurePowerPoints = [];
+            Cache.UseODFilterMeasurePowerPoints = [];
+            Cache.P0 = 0d;
+            Cache.P1 = 0d;
+            Cache.P2 = 0d;
+            Cache.P3 = 0d;
+            Cache.RSquared = 0d;
+            Cache.ODFilterRatio = 0d;
 
             var laserOpticalPowerMeter = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType && t.IsOk);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                laserOpticalPowerMeter.MeasureMaxPowerPosition,
+                MeasureMaxPowerPosition = laserOpticalPowerMeter.MaxMeasurePowerPosition,
                 Cache.CIBInformations,
-                Cache.FindBFMachinePosition,
-                Cache.OpticsIlluminationModeEnum,
+                Cache.HazeFindBFMachinePosition,
                 Cache.ProductivityInformation,
                 Cache.AFOffsetMotor,
                 Cache.AFECS,
@@ -372,10 +407,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
                 Cache.MinLogGain,
-                Table = new HtmlTable([.. Cache.GainConfigurations])
+                Table = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations])),
+                detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            LaserViewModel.ToggleOpticsMagType(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
 
             Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -391,11 +427,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
             Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
-            LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.StartCoefficient))]);
-            LaserViewModel.SetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
+            LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.StartCoefficient))]);
+            LaserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
 
-            LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTVoltage);
-            LaserViewModel.SetGain(Cache.StartGain);
+            CIBViewModel.ToggleProfileMode(Cache.CIBInformations, CIBProfileModeEnum.PMTVoltage);
+            CIBViewModel.SetGain(Cache.CIBInformations, Cache.StartGain);
 
             Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -410,7 +446,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             // 获取功率
             var coefficients = Generate.LinearRange(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MeasureMaxPowerPosition);
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
             try
             {
                 OpticsViewModel.ToggleODFilter(false);
@@ -434,7 +470,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                     try
                     {
-                        LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
+                        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
                         LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                         await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -452,7 +488,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 try
                 {
                     OpticsViewModel.ToggleODFilter(true);
-                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(maxMeasurePowerPoint.X))]);
+                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(maxMeasurePowerPoint.X))]);
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                     await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -544,8 +580,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .OrderBy(t => t.CIBInformation)
             ];
 
+            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
-            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition));
+            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+
             if (Cache.IsAFEnable)
             {
                 AfViewModel.SetDarkField(CalChipSiteModelEnum.HazeModel, Cache.AFECS, Cache.AFOffsetMotor);
@@ -567,55 +605,83 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
+                    Logger.LogHtmlInformation($"{coefficient:0.###}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
                     try
                     {
                         OpticsViewModel.ToggleODFilter(isUseODFilter);
-                        LaserViewModel.SetGain(Cache.StartGain);
-                        LaserViewModel.SetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
+                        CIBViewModel.SetGain(Cache.CIBInformations, Cache.StartGain);
+                        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(coefficient))]);
                         LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                         foreach (var (gainIndex, gain) in gains.Index())
                         {
                             cancellationToken.ThrowIfCancellationRequested();
+
+                            Logger.LogHtmlInformation($"{gain:0.###}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
                             SelectedCalibratingItems = Calibratings;
 
                             var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDTO>)[.. Calibratings.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
                             var cibInformations = (IReadOnlyList<CIBInformation>)[.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)];
-                            LaserViewModel.SetGain(cibInformations, gain);
+                            CIBViewModel.SetGain(cibInformations, gain);
 
                             await Task.Delay(TimeSpan.FromSeconds(Cache.PMTValueWaitTime), cancellationToken).ConfigureAwait(false);
 
-                            var cibPMTValues = await CIBViewModel.GetPMTValuesAsync(
-                                Cache.OpticsIlluminationModeEnum,
+                            var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
-                                StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
+                                hazeBFPosition,
                                 cibInformations,
                                 Cache.ImageWidth,
-                                Cache.IsAFEnable,
+                                (true, null),
+                                (true, null),
+                                (true, null),
+                                true,
                                 cancellationToken);
 
-                            await Task.WhenAll(cibPMTValues.Index().Select(t => Task.Run(() =>
+                            Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
+                            await Task.WhenAll(cibPMTImages.Index().Select(t => Task.Run(() =>
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
                                 var (index, darkFieldImage) = t;
                                 using var _ = darkFieldImage;
 
-                                var shorts = darkFieldImage.Matrix.AsSpan();
-                                double sum = 0;
-                                foreach (var v in shorts) sum += v;
-                                var pmtValue = sum / shorts.Length;
+                                var pmtValue = darkFieldImage.Image.GetIntensity().Average;
 
-                                var cibMMDDto = noProtectedCIBMMDDtos[index];
+                                var item = noProtectedCIBMMDDtos[index];
+                                var itemItem = item.Items[coefficientIndex];
+                                var itemItemData = itemItem.Items[gainIndex];
+                                itemItemData.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
-                                var item = cibMMDDto.Items[coefficientIndex];
-                                var itemItem = item.Items[gainIndex];
+                                if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) itemItem.ProtectedOverflowProtectedPMTValueCount++;
+                                itemItemData.PMTValue = pmtValue;
 
-                                if (pmtValue >= Cache.ProtectedPMTValue /* 超过保护值 */) item.ProtectedOverflowProtectedPMTValueCount++;
-                                itemItem.PMTValue = pmtValue;
+                                if (gainIndex == gains.Length - 1) /* 最后一次 */ SaveImage();
 
-                                if (item.ProtectedOverflowProtectedPMTValueCount >= Cache.ProtectedOverflowProtectedPMTValueCount /* 超过保护次数 */) LaserViewModel.SetGain([cibMMDDto.CIBInformation], Cache.StartGain);
+                                if (itemItem.ProtectedOverflowProtectedPMTValueCount >= Cache.ProtectedOverflowProtectedPMTValueCount /* 超过保护次数 */)
+                                {
+                                    SaveImage();
+                                    CIBViewModel.SetGain([item.CIBInformation], Cache.StartGain);
+                                }
+
+                                Logger.LogHtmlInformation(item.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                                {
+                                    itemItemData.Gain,
+                                    itemItemData.PMTValue,
+                                    itemItemData.RawImageFilePath,
+                                    Image = string.IsNullOrWhiteSpace(itemItemData.ImageFilePath) ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.") : new HtmlImage(itemItemData.ImageFilePath)
+                                }), HtmlLogUniqueId.LoggingHtml());
+
+                                return;
+
+                                void SaveImage()
+                                {
+                                    var imageFilePath = Path.Combine(detectImageDirectory, item.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                                    darkFieldImage.Image.Save(imageFilePath);
+                                    itemItemData.ImageFilePath = imageFilePath;
+                                }
                             }, cancellationToken)));
                         }
                     }
@@ -627,18 +693,20 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
             finally
             {
-                LaserViewModel.ToggleEnableAutoGainControl(true);
-                LaserViewModel.ToggleProfileMode(CIBProfileModeEnum.PMTLog);
+                CIBViewModel.ToggleEnableAGC(Cache.CIBInformations, true);
+                CIBViewModel.ToggleProfileMode(Cache.CIBInformations, CIBProfileModeEnum.PMTLog);
                 OpticsViewModel.ToggleODFilter(false);
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
             }
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            await Task.WhenAll(Calibratings.Select(cibMMDDto => Task.Run(() =>
+            await Task.WhenAll(Calibratings.Select(t => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                Algorithm(cibMMDDto);
+                Algorithm(t);
             }, cancellationToken)));
 
             Guard.IsTrue(Save(Calibratings, cancellationToken));
@@ -648,7 +716,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task AlgorithmActionAsync(CancellationToken cancellationToken)
+    private async Task AlgorithmAsync(CancellationToken cancellationToken)
     {
         if (SelectedReviewItems.Count == 0) return;
 
@@ -662,16 +730,16 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
                 Cache.MinLogGain,
-                Table = new HtmlTable([.. Cache.GainConfigurations])
+                Table = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations]))
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            await Task.WhenAll(SelectedReviewItems.Select(cibMMDDto => Task.Run(() =>
+            await Task.WhenAll(SelectedReviewItems.Select(t => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                Algorithm(cibMMDDto);
+                Algorithm(t);
             }, cancellationToken)));
 
             var result = SelectedReviewItems.All(t => t.IsCalibrated);
@@ -685,7 +753,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyActionAsync(CancellationToken cancellationToken)
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         if (SelectedReviewItems.Count == 0)
         {
@@ -695,11 +763,24 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.CIBInformation))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var title = selectedReviewItem.CIBInformation.ToString();
+
+                /*if (selectedReviewItem.IsCalibrated == false)
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    continue;
+                }*/
+
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
                 var htmlBullet = new HtmlBullet(new
@@ -708,11 +789,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 });
 
                 if (selectedReviewItem.IsVerified)
-                    Logger.LogHtmlInformation($"OK: {selectedReviewItem.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
                 {
-                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.CIBInformation.ToString()}: Error");
-                    Logger.LogHtmlError($"Error: {selectedReviewItem.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
             }
 
@@ -731,7 +812,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
-    private void Algorithm(CIBMMDDTO cibMMDDto)
+    private void Algorithm(CIBMMDDTO item)
     {
         var htmlList = new List<BaseHtmlElement>();
         var htmlContainer = new HtmlContainer(htmlList);
@@ -739,13 +820,32 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         try
         {
-            var gains = (IReadOnlyList<double>)[.. cibMMDDto.Items[0].Items.Select(t => t.Gain)];
+            foreach (var itemItem in item.Items)
+            {
+                itemItem.Items = itemItem.Items.Where(t => t.Gain >= -5).ToArray();
+            }
+
+            item.GainRSquared = 0d;
+            item.GainResidual = 0d;
+            item.GainPoints = [];
+            item.OriginLogGainPoints = [];
+            item.LogGainA1 = 0d;
+            item.LogGainA2 = 0d;
+            item.LogGainX0 = 0d;
+            item.LogGainDx = 0d;
+            item.LogGainRSquared = 0d;
+            item.FitLogGainPoints = [];
+            item.ResultLogGainPoints = [];
+            item.LogGainMul128U12BitPoints = [];
+            item.GainS16BitPoints = [];
+
+            var gains = (IReadOnlyList<double>)[.. item.Items[0].Items.Select(t => t.Gain)];
             var gainConfigurations = (IReadOnlyList<CIBMMDCache.GainConfiguration>)
             [
                 ..gains.Select(t => Cache.GainConfigurations.Single(tt => Math.Abs(tt.Gain - t) < 1e-3))
             ];
 
-            var coefficientCount = cibMMDDto.Items.Count;
+            var coefficientCount = item.Items.Count;
             var gainCount = gains.Count;
 
             // Log(Light) + Log(Gain) = Log(Current)
@@ -769,15 +869,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 }
             }
 
-            var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(cibMMDDto.Items.Select(t => t.MeasurePower));
-            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log(t, 2));
+            var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(item.Items.Select(t => t.MeasurePower));
+            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log((t * 0.002 / 0.34) * 1000_000, 2));
 
             var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
             for (var row = 0; row < gainCount; row++)
             {
                 for (var col = 0; col < coefficientCount; col++)
                 {
-                    currentMatrix[row, col] = cibMMDDto.Items[col].Items[row].PMTValue;
+                    currentMatrix[row, col] = item.Items[col].Items[row].PMTValue;
                 }
             }
 
@@ -822,10 +922,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var gainRSquared = Boltzmann.RSquared(aValidGainSubMatrix * xValidLogGainVector, bValidVector);
             var gainResidual = (aValidMatrix * xLogVector - bValidLogCurrentVector).L2Norm();
 
-            cibMMDDto.GainRSquared = gainRSquared;
-            cibMMDDto.GainResidual = gainResidual;
+            item.GainRSquared = gainRSquared;
+            item.GainResidual = gainResidual;
 
-            cibMMDDto.GainPoints =
+            item.GainPoints =
             [
                 ..xValidLogGainVector
                     .Map(t => Math.Pow(2, t))
@@ -833,7 +933,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Index()
                     .Select(t => new Point(gains[t.Index], t.Item))
             ];
-            cibMMDDto.OriginLogGainPoints =
+            item.OriginLogGainPoints =
             [
                 ..xValidLogGainVector
                     .Enumerate()
@@ -841,15 +941,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Select(t => new Point(gains[t.Index], t.Item))
             ];
 
-            var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(cibMMDDto.OriginLogGainPoints.Select(t => t.Y)));
-            cibMMDDto.LogGainA1 = a1;
-            cibMMDDto.LogGainA2 = a2;
-            cibMMDDto.LogGainX0 = x0;
-            cibMMDDto.LogGainDx = dx;
-            cibMMDDto.LogGainRSquared = rSquared;
-            cibMMDDto.FitLogGainPoints = [.. cibMMDDto.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
-            var distance = Math.Abs(cibMMDDto.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
-            cibMMDDto.ResultLogGainPoints = [.. cibMMDDto.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, cibMMDDto.FitLogGainPoints[t.Index].Y - distance))];
+            var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(item.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(item.OriginLogGainPoints.Select(t => t.Y)));
+            item.LogGainA1 = a1;
+            item.LogGainA2 = a2;
+            item.LogGainX0 = x0;
+            item.LogGainDx = dx;
+            item.LogGainRSquared = rSquared;
+            item.FitLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
+            var distance = Math.Abs(item.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
+            item.ResultLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - 0))];
 
             htmlList.Add(new HtmlBullet(new
             {
@@ -860,15 +960,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 gainResidual
             }));
 
-            isSuccess = cibMMDDto.ResultLogGainPoints.All(t => t.Y is >= 0 and <= 14) && cibMMDDto.ResultLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
+            isSuccess = item.ResultLogGainPoints.All(t => t.Y is >= 0 and <= 14) && item.ResultLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
             if (isSuccess == false)
             {
-                htmlList.Add(new HtmlComment("LogGain out of range[0, 14]"));
+                ThrowHelper.ThrowArgumentException("LogGain out of range[0, 14]", nameof(item));
 
                 return;
             }
 
-            var results = cibMMDDto.ResultLogGainPoints
+            var results = item.ResultLogGainPoints
                 .Index()
                 .Select(t => (
                     Gain: t.Item.X,
@@ -914,12 +1014,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 for (var j = startIndex; j <= endIndex; j++) gainS16BitPoints[j] = new Point(j, yValue);
             }
 
-            cibMMDDto.LogGainMul128U12BitPoints = logGainMul128U12BitPoints;
-            cibMMDDto.GainS16BitPoints = gainS16BitPoints;
+            item.LogGainMul128U12BitPoints = logGainMul128U12BitPoints;
+            item.GainS16BitPoints = gainS16BitPoints;
 
             htmlList.Add(new HtmlBullet(new
             {
-                SuccessPlot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
             isSuccess = true;
@@ -930,18 +1030,18 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             htmlList.Add(new HtmlQuote(new
             {
-                SuccessPlot = new HtmlContainer([.. cibMMDDto.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                 Exception = ex
             }));
         }
         finally
         {
-            cibMMDDto.IsCalibrated = isSuccess;
-            cibMMDDto.IsVerified = false;
+            item.IsCalibrated = isSuccess;
+            item.IsVerified = false;
             if (isSuccess)
-                Logger.LogHtmlInformation($"OK: {cibMMDDto.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"OK: {item.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
             else
-                Logger.LogHtmlError($"Error: {cibMMDDto.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError($"Error: {item.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
         }
     }
 

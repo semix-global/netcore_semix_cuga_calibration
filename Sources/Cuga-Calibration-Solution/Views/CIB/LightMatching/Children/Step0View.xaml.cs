@@ -1,15 +1,9 @@
-using System.Windows.Controls;
+namespace CugaCalibration.Views.CIB.LightMatching.Children;
 
-namespace CugaCalibration.Views.CIB.LightMatching.Children
+public sealed partial class Step0View
 {
-    /// <summary>
-    /// Step0View.xaml 的交互逻辑
-    /// </summary>
-    public partial class Step0View : UserControl
+    public Step0View()
     {
-        public Step0View()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

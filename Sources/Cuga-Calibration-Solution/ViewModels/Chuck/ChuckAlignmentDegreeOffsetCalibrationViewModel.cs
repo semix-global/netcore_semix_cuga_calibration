@@ -159,10 +159,10 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
         CalibrationStatuses =
         [
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI ? ApplicationCookie.OIOpticsMagTypeProductivityInformations : ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
                 })
         ];
 
@@ -359,7 +359,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
                 HtmlTab = new HtmlTab(new
                 {
                     LowSiteTemplate = new HtmlImage(lowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    HighSiteTemplate = new HtmlImage(highSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    HighSiteTemplate = new HtmlImage(highSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -420,7 +420,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
                     HtmlTab = new HtmlTab(new
                     {
                         LowSiteTemplate = new HtmlImage(lowSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        HighSiteTemplate = new HtmlImage(highSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        HighSiteTemplate = new HtmlImage(highSiteTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 

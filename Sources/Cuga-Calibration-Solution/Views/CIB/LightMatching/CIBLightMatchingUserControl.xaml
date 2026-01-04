@@ -10,8 +10,8 @@
              xmlns:children="clr-namespace:CugaCalibration.Views.CIB.LightMatching.Children"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBLightMatchingViewModel}"
-             d:DesignHeight="900"
              d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -47,7 +47,6 @@
                         <children:Step2View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
                         <children:Step3View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
                         <children:Step4View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
-                        <children:Step5View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs5ToVisibilityConverter}}" />
                     </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
                         <children:Review />
@@ -118,11 +117,7 @@
                                 ItemsSource="{Binding AutoCalibrationStepList, Mode=TwoWay}"
                                 Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
                         <hc:StepBar.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding StepName}"
-                                           TextWrapping="Wrap"
-                                           TextAlignment="Center" />
-                            </DataTemplate>
+                            <DataTemplate />
                         </hc:StepBar.ItemTemplate>
                     </hc:StepBar>
                     <ProgressBar Grid.Row="3"

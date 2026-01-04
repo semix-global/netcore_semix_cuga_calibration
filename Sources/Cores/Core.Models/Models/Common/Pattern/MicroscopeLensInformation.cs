@@ -19,27 +19,31 @@ public sealed class MicroscopeLensInformation :
 {
     public static readonly MicroscopeLensInformation Default = new();
 
-    private string _lensName = "N/A";
-    private int _lensCode = -1;
-    private double _objectiveMagnification = -1;
-
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public string LensName
     {
-        get => _lensName;
-        private set => SetProperty(ref _lensName, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = "N/A";
 
     public int LensCode
     {
-        get => _lensCode;
-        private set => SetProperty(ref _lensCode, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double ObjectiveMagnification
     {
-        get => _objectiveMagnification;
-        private set => SetProperty(ref _objectiveMagnification, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
     private MicroscopeLensInformation()
     {
@@ -72,7 +76,9 @@ public sealed class MicroscopeLensInformation :
 
     public override bool Equals(object? obj) => obj is MicroscopeLensInformation other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(LensName, LensCode, ObjectiveMagnification);
+    // ReSharper disable NonReadonlyMemberInGetHashCode
+    public override int GetHashCode() => HashCode.Combine(LensCode);
+    // ReSharper restore NonReadonlyMemberInGetHashCode
 
     public override string ToString() => ToString(null);
 

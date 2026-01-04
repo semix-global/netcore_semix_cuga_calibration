@@ -54,7 +54,7 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
                 ApplicationInfo.RuntimeVersion = version.ToString();
 
             ApplicationInfo.OutPutPath = AppDomain.CurrentDomain.BaseDirectory;
-            ApplicationInfo.VersionInfo.Metadata = new Metadata()
+            ApplicationInfo.VersionInfo.Metadata = new Metadata
             {
                 ProjectName = CugaCalibrationSolutionAssemblyMetadata.Product,
                 Configuration = CugaCalibrationSolutionAssemblyMetadata.Configuration,
@@ -75,11 +75,11 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
 
             SystemInfoList =
             [
-                new SystemInfo() { SystemName = nameof(OperatingSystemInfo.DeviceName), SystemInformation = OperatingSystemInfo.DeviceName },
-                new SystemInfo() { SystemName = nameof(OperatingSystemInfo.OperatingSystem), SystemInformation = OperatingSystemInfo.OperatingSystem },
-                new SystemInfo() { SystemName = nameof(OperatingSystemInfo.OperatingSystemVersion), SystemInformation = OperatingSystemInfo.OperatingSystemVersion },
-                new SystemInfo() { SystemName = nameof(OperatingSystemInfo.ProcessorCount), SystemInformation = OperatingSystemInfo.ProcessorCount.ToString() },
-                new SystemInfo() { SystemName = nameof(ApplicationInfo.RuntimeVersion), SystemInformation = ApplicationInfo.RuntimeVersion }
+                new SystemInfo { SystemName = nameof(OperatingSystemInfo.DeviceName), SystemInformation = OperatingSystemInfo.DeviceName },
+                new SystemInfo { SystemName = nameof(OperatingSystemInfo.OperatingSystem), SystemInformation = OperatingSystemInfo.OperatingSystem },
+                new SystemInfo { SystemName = nameof(OperatingSystemInfo.OperatingSystemVersion), SystemInformation = OperatingSystemInfo.OperatingSystemVersion },
+                new SystemInfo { SystemName = nameof(OperatingSystemInfo.ProcessorCount), SystemInformation = OperatingSystemInfo.ProcessorCount.ToString() },
+                new SystemInfo { SystemName = nameof(ApplicationInfo.RuntimeVersion), SystemInformation = ApplicationInfo.RuntimeVersion }
             ];
 
             #endregion system info

@@ -98,12 +98,11 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>(sxExecuteRet.ErrorMsg, []);
         if (sxExecuteRet.Anything.Length == 0) return SxExecuteRetHelper.CreateError<IReadOnlyList<LaserLightInformation>>("Laser Light Information is empty", []);
 
-        var laserLightInformations = (IReadOnlyList<LaserLightInformation>)[.. sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)];
+        var laserLightInformations = sxExecuteRet.Anything.Select(t => LaserLightInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t).ToArray();
 
-        Guard.IsTrue(laserLightInformations.Select(t => t.Coefficient).Distinct().Count() == laserLightInformations.Count, "Laser Light Information Coefficient is not unique");
-        Guard.IsTrue(laserLightInformations.Select(t => t.Level).Distinct().Count() == laserLightInformations.Count, "Laser Light Information Level is not unique");
+        Guard.IsTrue(laserLightInformations.DistinctBy(t => t).Count() == laserLightInformations.Length, "Laser Light Information is not unique");
 
-        return SxExecuteRetHelper.CreateSuccess(laserLightInformations);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>(laserLightInformations);
     }
 
     public SxExecuteRet<LaserLightInformation> LevelToLaserLightInformation(double level)
@@ -163,10 +162,10 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
     {
         var c2MProductivityInfo = productivityInformation.AdaptTo();
-        var sxExecuteRet = Invoke(() => Service?.SetMag(c2MProductivityInfo.Mag, c2MProductivityInfo.Speed, opticsIlluminationModeEnum.ToSxNIOIEnum()));
+        var sxExecuteRet = Invoke(() => Service?.SetMag(c2MProductivityInfo.Mag, c2MProductivityInfo.Speed, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -192,10 +191,10 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
+    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
     {
         var c2MProductivityInfo = productivityInformation.AdaptTo();
-        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(c2MProductivityInfo.Mag, opticsIlluminationModeEnum.ToSxNIOIEnum(), c2MProductivityInfo.Speed, Convert.ToInt32(chirpAODDelay), Convert.ToInt32(prescanAODDelay)));
+        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(c2MProductivityInfo.Mag, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), c2MProductivityInfo.Speed, Convert.ToInt32(chirpAODDelay), Convert.ToInt32(prescanAODDelay)));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -208,7 +207,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         var sxExecuteRet = GetProductivityInformations(opticsIlluminationModeEnum);
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(sxExecuteRet.Anything.First(t => t.OpticsIlluminationModeEnum == opticsIlluminationModeEnum && t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
@@ -222,16 +221,16 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient)
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(opticsIlluminationModeEnum, prescanAODWaveProfiles);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, prescanAODWaveProfiles);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
@@ -269,7 +268,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         var sxExecuteRet = GetProductivityInformations(opticsIlluminationModeEnum);
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(sxExecuteRet.Anything.First(t => t.OpticsIlluminationModeEnum == opticsIlluminationModeEnum && t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
         var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
@@ -279,12 +278,12 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
@@ -344,25 +343,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId) => SetCIBControlValue(enable ? 1 : 0, pmtId, channelId, sendDataList => Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.L0k, sendDataList)));
 
-    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SendDc([.. cibInformations.Select(t => (gain, t.PMTId, t.ChannelId))]));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId) => SetCIBControlValue(gain, pmtId, channelId, sendDataList => Invoke(() => /* direct current */Service?.SendDc(sendDataList)));
-
-    public SxExecuteRet<bool> SetSaturation(double saturation)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetDCSaturation(saturation));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
 
     private SxExecuteRet<bool> SetCIBControlValue<T>(T value, int pmtId, int channelId, Func<List<(T Data, int PMTId, int ChannelId)>, SxExecuteRet> func)
     {
@@ -398,20 +379,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         return sxExecuteRetAll.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetAll.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
-    {
-        var pmtConfigListSxExecuteRet = GetCIBConfigList();
-        if (pmtConfigListSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<CIBInformation>>(pmtConfigListSxExecuteRet.Msg, []);
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>(
-        [
-            .. pmtConfigListSxExecuteRet.Anything
-                .Where(t => t.IsUsed)
-                .SelectMany(t => t.ChannelIdList.Select(tt => CIBInformation.Default.Clone().AdaptIn((t.PmtId, tt, true))))
-                .OrderBy(t => t)
-        ]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
@@ -451,18 +418,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(sxExecuteRet.Anything);
     }
 
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
-    {
-        var pmtRet = Invoke(() => Service?.GetPMTDataALL());
-
-        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldPmtDataDto>>(pmtRet.ErrorMsg, []);
-
-        var result = new List<DarkFieldPmtDataDto>(pmtRet.Anything.Count);
-        result.AddRange(pmtRet.Anything.Select(pmtDataModel => new DarkFieldPmtDataDto().AdaptIn(pmtDataModel)));
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDataDto>>(result);
-    }
-
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfSenseDataList(int count, int pmtId, int channelId)
     {
         var sxExecuteRet = Invoke(() => Service?.GetSenseData(count, pmtId, channelId));
@@ -471,28 +426,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         if (sxExecuteRet.Anything.Data.Count != count) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<double>>>("Pmt Sense Value List is empty", []);
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(sxExecuteRet.Anything.Data);
-    }
-
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDelayDto>> GetCIBDelayList()
-    {
-        var pmtRet = Invoke(() => Service?.GetPMTDelay());
-        if (pmtRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldPmtDelayDto>>(pmtRet.ErrorMsg, []);
-
-        var result = new List<DarkFieldPmtDelayDto>(pmtRet.Anything.Count);
-        result.AddRange(pmtRet.Anything.Select(pmtDelayModel => new DarkFieldPmtDelayDto().AdaptIn(pmtDelayModel)));
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDelayDto>>(result);
-    }
-
-    public SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
-    {
-        var pmtDelayModel = darkFieldPmtDelayDtoList.Select(item => item.AdaptTo()).ToList();
-
-        var pmtRet = Invoke(() => Service?.SetPMTDelay(pmtDelayModel));
-
-        return pmtRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(pmtRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
@@ -532,15 +465,6 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SendPMTGain(pmtData, igData, pmtId, channelId));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
         int pmtId,
@@ -568,7 +492,7 @@ public sealed partial class CalibrationLaserServiceImpl(
     }
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -598,22 +522,22 @@ public sealed partial class CalibrationLaserServiceImpl(
                 ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
             }));
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDTO>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldImageDTO>(darkFieldImagesRet.Anything.Count);
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
             var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
@@ -642,23 +566,23 @@ public sealed partial class CalibrationLaserServiceImpl(
                 ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
             }));
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldImageDTO>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldImageDTO>(darkFieldImagesRet.Anything.Count);
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
             var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDto { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -673,7 +597,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         try
         {
             var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(setWaitTimeRet.ErrorMsg, []);
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(setWaitTimeRet.ErrorMsg, []);
 
             darkFieldImagesRet = stageCoordinateSystemEnum switch
             {
@@ -704,20 +628,20 @@ public sealed partial class CalibrationLaserServiceImpl(
             if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
         }
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldRawScanImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldRawScanImageDTO>(darkFieldImagesRet.Anything.Count);
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            result.Add(new DarkFieldRawScanImageDto().AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
@@ -731,7 +655,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         try
         {
             var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(setWaitTimeRet.ErrorMsg, []);
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(setWaitTimeRet.ErrorMsg, []);
 
             darkFieldImagesRet = stageCoordinateSystemEnum switch
             {
@@ -762,14 +686,14 @@ public sealed partial class CalibrationLaserServiceImpl(
             if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
         }
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDto>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>("Dark Images Count is not 3", []);
 
-        var result = new List<DarkFieldRawScanImageDto>(darkFieldImagesRet.Anything.Count);
+        var result = new List<DarkFieldRawScanImageDTO>(darkFieldImagesRet.Anything.Count);
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            result.Add(new DarkFieldRawScanImageDto().AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -777,7 +701,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
 
     [Obsolete]
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -796,7 +720,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             throw new ArgumentOutOfRangeException(nameof(machinePositionList), machinePositionList, null);
 
         var directionRet = calibrationStageService.GetMachineDirection();
-        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
+        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>(directionRet.ErrorMsg, []);
         var directionX = directionRet.Anything.XDirection;
 
         var extendWidth = xWidthPixel * xPixelSize / 2.0;
@@ -837,15 +761,15 @@ public sealed partial class CalibrationLaserServiceImpl(
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
         };
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is empty", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>("Dark Images Count is empty", []);
 
-        var splitImagesAllChannels = new List<List<DarkFieldImageDto>>();
+        var splitImagesAllChannels = new List<List<DarkFieldImageDTO>>();
         for (var i = 0; i < machinePositionList.Count; i++)
         {
             var results = darkFieldImagesRet.Anything.Where(t => t.Position == i).ToList();
 
-            var splitImages = new List<DarkFieldImageDto>();
+            var splitImages = new List<DarkFieldImageDTO>();
             foreach (var item in results.OrderBy(t => t.Channel))
             {
                 var bytes = File.ReadAllBytes(item.Url);
@@ -859,7 +783,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDTO { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -871,7 +795,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         static (HImage Image, short[,] Matrix) DropLast((HImage Image, short[,] Matrix, byte[] RawBytes) tuple) => (tuple.Image, tuple.Matrix);
     }
 
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -889,7 +813,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             throw new ArgumentOutOfRangeException(nameof(machinePositionList), machinePositionList, null);
 
         var directionRet = calibrationStageService.GetMachineDirection();
-        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(directionRet.ErrorMsg, []);
+        if (directionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>(directionRet.ErrorMsg, []);
         var directionX = directionRet.Anything.XDirection;
 
         var scanLineXPixelSize = xPixelSize;
@@ -931,15 +855,15 @@ public sealed partial class CalibrationLaserServiceImpl(
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
         };
 
-        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDto>>>("Dark Images Count is empty", []);
+        if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>(darkFieldImagesRet.ErrorMsg, []);
+        if (darkFieldImagesRet.Anything.Count != machinePositionList.Count * 3) return SxExecuteRetHelper.CreateError<List<List<DarkFieldImageDTO>>>("Dark Images Count is empty", []);
 
-        var splitImagesAllChannels = new List<List<DarkFieldImageDto>>();
+        var splitImagesAllChannels = new List<List<DarkFieldImageDTO>>();
         for (var i = 0; i < machinePositionList.Count; i++)
         {
             var results = darkFieldImagesRet.Anything.Where(t => t.Position == i).ToList();
 
-            var splitImages = new List<DarkFieldImageDto>();
+            var splitImages = new List<DarkFieldImageDTO>();
             foreach (var item in results.OrderBy(t => t.Channel))
             {
                 var bytes = File.ReadAllBytes(item.Url);
@@ -953,7 +877,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDto { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDTO { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 

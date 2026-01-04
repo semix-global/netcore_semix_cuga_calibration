@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
@@ -16,13 +15,13 @@ namespace Core.Models.Models.CIB.MMD;
 public sealed partial class CIBMMDCache : CalibrationCacheBase
 {
     [ObservableProperty]
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
     private IReadOnlyList<CIBInformation> _cIBInformations = [];
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
-
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
+    private Point _hazeFindBFMachinePosition;
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

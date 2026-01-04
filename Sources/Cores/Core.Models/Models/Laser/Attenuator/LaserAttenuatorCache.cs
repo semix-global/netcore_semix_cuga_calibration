@@ -1,6 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using System.Collections.Concurrent;
@@ -10,11 +8,11 @@ namespace Core.Models.Models.Laser.Attenuator;
 public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private double _threshold = 0.999;
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserAttenuatorCacheItem>> Items { get; init; } = [];
 
@@ -28,8 +26,14 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
 public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
-    private double _coefficientStep = 0.02;
+    private double _waitTime = 5;
 
     [ObservableProperty]
-    private double _waitTime = 5;
+    private double _startCoefficient = 0.01;
+
+    [ObservableProperty]
+    private double _stepCoefficient = 0.1;
+
+    [ObservableProperty]
+    private double _stopCoefficient = 1;
 }

@@ -259,7 +259,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                         Height = darkFieldImageDto.Height,
                         FilePath = filePath,
                         RawImageFilePath = darkFieldImageDto.RawImageFilePath,
-                        DarkFieldImageList = [.. darkFieldImageDto.ProjectionYs]
+                        DarkFieldImageList = [.. darkFieldImageDto.Image.GetHorizontalProjects()]
                     });
                 }
 
@@ -323,12 +323,12 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             return;
 
-            DarkFieldImageDto ToDarkFieldImageDto(DarkFieldRawScanImageDto origin)
+            DarkFieldImageDTO ToDarkFieldImageDto(DarkFieldRawScanImageDTO origin)
             {
                 var rawBytes = System.IO.File.ReadAllBytes(origin.RawImageFilePath);
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
 
-                return new DarkFieldImageDto
+                return new DarkFieldImageDTO
                 {
                     Image = image,
                     Matrix = matrix

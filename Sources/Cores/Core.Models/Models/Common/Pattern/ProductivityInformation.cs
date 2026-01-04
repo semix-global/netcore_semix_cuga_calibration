@@ -1,5 +1,5 @@
 using CommunityToolkit.Diagnostics;
-using Core.Models.Extensions;
+using Core.Models.Enums.Optics;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -8,6 +8,8 @@ using Net.Utilities.Mapper.Interfaces;
 using Semix.GRPC.DTO;
 #else
 using Semix.WcfTransfer.DTO;
+using Core.Models.Extensions;
+
 #endif
 
 namespace Core.Models.Models.Common.Pattern;
@@ -24,65 +26,86 @@ public sealed class ProductivityInformation :
 {
     public static readonly ProductivityInformation Default = new();
 
-    private string _name = "N/A";
-    private int _opticsMagType = -1;
-    private int _stageSpeedType = -1;
-    private double _xPixelSize = -1;
-    private double _yPixelSize = -1;
-    private double _yPixel = -1;
-    private double _originYPixel = -1;
-    private double _sampleRate = -1;
-
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public string Name
     {
-        get => _name;
-        private set => SetProperty(ref _name, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = "N/A";
+
+    public OpticsIlluminationModeEnum OpticsIlluminationModeEnum
+    {
+        get;
+        private set => SetProperty(ref field, value);
+    } = OpticsIlluminationModeEnum.OI;
 
     public int OpticsMagType
     {
-        get => _opticsMagType;
-        private set => SetProperty(ref _opticsMagType, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
     public int StageSpeedType
     {
-        get => _stageSpeedType;
-        private set => SetProperty(ref _stageSpeedType, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double XPixelSize
     {
-        get => _xPixelSize;
-        set => SetProperty(ref _xPixelSize, value);
-    }
+        get;
+        set => SetProperty(ref field, value);
+    } = -1;
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double YPixelSize
     {
-        get => _yPixelSize;
-        private set => SetProperty(ref _yPixelSize, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
-    public double YPixel
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public int YPixel
     {
-        get => _yPixel;
-        private set => SetProperty(ref _yPixel, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
-    public double OriginYPixel
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public int OriginYPixel
     {
-        get => _originYPixel;
-        private set => SetProperty(ref _originYPixel, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
     /// <summary>
     /// KHz
     /// </summary>
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double SampleRate
     {
-        get => _sampleRate;
-        private set => SetProperty(ref _sampleRate, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
     private ProductivityInformation()
     {
@@ -94,6 +117,9 @@ public sealed class ProductivityInformation :
     {
         if (ReferenceEquals(this, other)) return 0;
         if (other is null) return 1;
+
+        var opticsIlluminationModeEnumComparison = OpticsIlluminationModeEnum.CompareTo(other.OpticsIlluminationModeEnum);
+        if (opticsIlluminationModeEnumComparison != 0) return opticsIlluminationModeEnumComparison;
 
         var opticsMagTypeComparison = OpticsMagType.CompareTo(other.OpticsMagType);
         if (opticsMagTypeComparison != 0) return -opticsMagTypeComparison;
@@ -112,11 +138,13 @@ public sealed class ProductivityInformation :
 
     public override bool Equals(object? obj) => obj is ProductivityInformation other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(OpticsMagType, StageSpeedType);
+    // ReSharper disable NonReadonlyMemberInGetHashCode
+    public override int GetHashCode() => HashCode.Combine(OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType);
+    // ReSharper restore NonReadonlyMemberInGetHashCode
 
     public override string ToString() => ToString(null);
 
-    public string ToString(string? format, IFormatProvider? formatProvider = null) => $"{Name}({((SxMAGEnum)OpticsMagType).ToString()[0]}-{((SxSpeedEnum)StageSpeedType).ToString()[0]})";
+    public string ToString(string? format, IFormatProvider? formatProvider = null) => $"{OpticsIlluminationModeEnum.ToString()}_{Name}({((SxMAGEnum)OpticsMagType).ToString()[0]}-{((SxSpeedEnum)StageSpeedType).ToString()[0]})";
 
     #endregion IEquatable、IFormattable
 
@@ -127,7 +155,8 @@ public sealed class ProductivityInformation :
         (null, null) => true,
         (null, _) => false,
         (_, null) => false,
-        (_, _) => ReferenceEquals(left, right) || (Equals(left.OpticsMagType, right.OpticsMagType) &&
+        (_, _) => ReferenceEquals(left, right) || (Equals(left.OpticsIlluminationModeEnum, right.OpticsIlluminationModeEnum) &&
+                                                   Equals(left.OpticsMagType, right.OpticsMagType) &&
                                                    Equals(left.StageSpeedType, right.StageSpeedType))
     };
 
@@ -137,33 +166,32 @@ public sealed class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out double yPixel, out double originYPixel, out double sampleRate)
-        => (name, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate) = (Name, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate);
+    public void Deconstruct(out string name, out OpticsIlluminationModeEnum opticsIlluminationModeEnum, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double sampleRate)
+        => (name, opticsIlluminationModeEnum, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate) = (Name, OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate);
 
     #endregion Deconstruct
 
     #region Mapper
 
-    public C2MProductivityInfo AdaptTo() => this != Default
-        ? new C2MProductivityInfo
-        {
-            Name = Name,
-            Mag = Enum.IsDefined(typeof(SxMAGEnum), OpticsMagType)
-                ? (SxMAGEnum)OpticsMagType
-                : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
-            Speed = Enum.IsDefined(typeof(SxSpeedEnum), StageSpeedType)
-                ? (SxSpeedEnum)StageSpeedType
-                : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
-        }
-        : new C2MProductivityInfo
-        {
-            Name = Name,
-            Mag = (SxMAGEnum)OpticsMagType,
-            Speed = (SxSpeedEnum)StageSpeedType
-        };
+    public C2MProductivityInfo AdaptTo() => new()
+    {
+        Name = Name,
+#if NETFRAMEWORK
+        NIOI = OpticsIlluminationModeEnum.ToSxNIOIEnum(),
+#endif
+        Mag = Enum.IsDefined(typeof(SxMAGEnum), OpticsMagType)
+            ? (SxMAGEnum)OpticsMagType
+            : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
+        Speed = Enum.IsDefined(typeof(SxSpeedEnum), StageSpeedType)
+            ? (SxSpeedEnum)StageSpeedType
+            : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
+    };
 
     public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo, double originYPixel)
     {
+#if NETFRAMEWORK
+        OpticsIlluminationModeEnum = obj.NIOI.ToOpticsIlluminationModeEnum();
+#endif
         Name = obj.Name;
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
@@ -174,8 +202,8 @@ public sealed class ProductivityInformation :
             .XPixelSize;
 #endif
         YPixelSize = swathSpeedInfo.YPixelSize;
-        YPixel = swathSpeedInfo.YPixel;
-        OriginYPixel = originYPixel;
+        YPixel = Convert.ToInt32(swathSpeedInfo.YPixel);
+        OriginYPixel = Convert.ToInt32(originYPixel);
         SampleRate = swathSpeedInfo.Hz;
 
         return this;
@@ -184,6 +212,7 @@ public sealed class ProductivityInformation :
     public ProductivityInformation Clone() => new()
     {
         Name = Name,
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         OpticsMagType = OpticsMagType,
         StageSpeedType = StageSpeedType,
         XPixelSize = XPixelSize,

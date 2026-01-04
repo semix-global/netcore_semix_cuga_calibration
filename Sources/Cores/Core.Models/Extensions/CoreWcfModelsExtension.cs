@@ -1,19 +1,21 @@
-using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.AOD.AODAlignment;
-using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.AOD.Alignment;
+using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.AutoFocus;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.MMD;
+using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
@@ -24,20 +26,18 @@ using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.PmtAgcDelay;
-using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.WPF.MVVM;
-using ChuckCenterAndThetaItemDto = Core.Models.Models.Chuck.CenterAndTheta.ChuckCenterAndThetaItemDto;
 
 namespace Core.Models.Extensions;
 
@@ -267,26 +267,6 @@ public static class CoreWcfModelsExtension
 
     #region Laser
 
-    public static bool IsOk(this AODDelayDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Laser Aod Delay is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this LaserAttenuatorDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Laser Attenuator is Empty";
-
-        return isOk;
-    }
-
     public static bool IsOk(this LaserAutoFocusDto result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -348,16 +328,6 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserOpticalPowerMeterDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "Laser Optical Power is Empty";
-
-        return isOk;
-    }
-
     public static bool IsOk(this LaserPixelSizeItemDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -369,19 +339,6 @@ public static class CoreWcfModelsExtension
 
         if (isOk == false)
             errorMessage = "Laser Pixel Size is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this LaserXPixelSizeItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
-
-        if (isOk == false)
-            errorMessage = "Laser X Pixel Size is Empty";
 
         return isOk;
     }
@@ -407,26 +364,6 @@ public static class CoreWcfModelsExtension
 
         if (isOk == false)
             errorMessage = "Laser XY Astigmatism is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this AODAlignmentDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length && result.All(t => t.IsOk);
-        if (isOk == false) errorMessage = "AOD Alignment is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this LaserPmtAgcDelayItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.SingleOrDefault(t => t.PmtId == 8 && t.OpticsMagTypeEnum == OpticsMagTypeEnum.High)?.IsOk == true;
-        if (isOk == false) errorMessage = "Laser XTC is Empty";
 
         return isOk;
     }
@@ -480,13 +417,7 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum)
-                                          && t.OpticsIlluminationModeEnum switch
-                                          {
-                                              OpticsIlluminationModeEnum.OI => applicationCookie.OIProductivityInformations.Contains(t.ProductivityInformation),
-                                              OpticsIlluminationModeEnum.NI => applicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation),
-                                              _ => ThrowHelper.ThrowArgumentException<bool>(nameof(t.OpticsIlluminationModeEnum))
-                                          }
+        var isOkCount = result.Where(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && applicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
                                           && applicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
                                           && applicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum)
@@ -494,10 +425,11 @@ public static class CoreWcfModelsExtension
             .SelectMany(t => t.Items)
             .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
 
-        var isOk = isOkCount == (applicationCookie.OIProductivityInformations.Count + applicationCookie.NIProductivityInformations.Count)
-            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count;
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count
+            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count
+            * applicationCookie.CIBInformations.Count;
 
-        errorMessage = isOk ? string.Empty : "CIB MMD is Empty";
+        errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";
 
         return isOk;
     }
@@ -509,7 +441,106 @@ public static class CoreWcfModelsExtension
         var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum) && t.IsOk);
         var isOk = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
 
-        errorMessage = isOk ? string.Empty : "CIB MMD is Empty";
+        errorMessage = isOk ? string.Empty : "Optics Relay is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this CIBXPixelSizeDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB X Pixel Size is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this AODAlignmentDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "AOD Alignment is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this AODDelayDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "AOD Delay is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this LaserOpticalPowerMeterDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "Laser Optical Power Meter is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this LaserAttenuatorDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "Laser Attenuator is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this CIBIlluminationProfileDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Where(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                                          && applicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
+                                          && applicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
+                                          && applicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum)
+                                          && t.IsOk)
+            .SelectMany(t => t.Items)
+            .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
+
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count
+            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count
+            * applicationCookie.CIBInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this OpticsINCDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "Optics INC is Empty";
 
         return isOk;
     }

@@ -269,7 +269,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
                     }
                 }
 
-                AfGetAnyNscData afAnyPositionData = new AfGetAnyNscData()
+                AfGetAnyNscData afAnyPositionData = new AfGetAnyNscData
                 {
                     CurrentEcs = ecs?.ToList() ?? [],
                     CurrentNsc = nsc?.ToList() ?? [],

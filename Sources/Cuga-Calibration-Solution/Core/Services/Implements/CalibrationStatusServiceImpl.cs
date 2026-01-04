@@ -3,7 +3,7 @@ using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.AOD.AODAlignment;
+using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
@@ -66,7 +66,7 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibration<ChuckGlobalScaleErrorDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
@@ -75,7 +75,7 @@ public class CalibrationStatusServiceImpl(
     {
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
@@ -100,14 +100,14 @@ public class CalibrationStatusServiceImpl(
     public bool EnableDependBrightStageMapCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
 
     public bool EnableDependDarkStageMapCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibrationItems<LaserOpticalPowerMeterDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<LaserOpticalPowerMeterDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
     }
@@ -118,7 +118,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependLaserAodDelayCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibrationItems<AODAlignmentDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibrationItems<AODAlignmentDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXYAstigmatismCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
