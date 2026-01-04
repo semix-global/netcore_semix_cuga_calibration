@@ -11,7 +11,6 @@ using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
@@ -540,7 +539,6 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.SetArray<AODAlignmentDTO>([], CancellationToken.None);
         cacheProvider.SetArray<LaserXYAstigmatismCalibrationItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<LaserIlluminationProfileItemDto>([], CancellationToken.None);
-        cacheProvider.SetArray<LaserXTCCalibrationItemDto>([], CancellationToken.None);
     }
 
     [RelayCommand]

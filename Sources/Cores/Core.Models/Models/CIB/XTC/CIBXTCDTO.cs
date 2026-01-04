@@ -1,10 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Collector;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
-using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
@@ -18,27 +15,18 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using Range = ScottPlot.Range;
 
-namespace Core.Models.Models.CIB.IlluminationProfile;
+namespace Core.Models.Models.CIB.XTC;
 
-public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, ICloneable<CIBIlluminationProfileDTO>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem>
+public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO>, IAdaptTo<CalibrationLaserCIBXTCItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsApodizationModeEnum _opticsApodizationModeEnum;
+    private IReadOnlyList<CIBXTCDTOItem> _items = [];
 
     [ObservableProperty]
-    private OpticsPolarizationModeEnum _opticsPolarizationModeEnum;
-
-    [ObservableProperty]
-    private CollectorPolarizationModeEnum _collectorPolarizationModeEnum;
-
-    [ObservableProperty]
-    private IReadOnlyList<CIBIlluminationProfileDTOItem> _items = [];
-
-    [ObservableProperty]
-    private ConcurrentBag<KeyValuePair<CIBInformation, double>> _targetPMTValues = [];
+    private ConcurrentBag<KeyValuePair<int, double>> _targetPMTValues = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -48,14 +36,14 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
-    private ConcurrentBag<KeyValuePair<CIBInformation, IScatterPlotControl>> _scatterPlotControls = [];
+    private ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> _scatterPlotControls = [];
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<CIBIlluminationProfileDTOItem>? oldValue, IReadOnlyList<CIBIlluminationProfileDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<CIBXTCDTOItem>? oldValue, IReadOnlyList<CIBXTCDTOItem> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -72,61 +60,79 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnTargetPMTValuesChanged(ConcurrentBag<KeyValuePair<CIBInformation, double>> value) => RefreshPlot();
+    partial void OnTargetPMTValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
-    public CIBIlluminationProfileDTO()
+    public CIBXTCDTO()
     {
     }
 
-    public CIBIlluminationProfileDTO(IReadOnlyList<CIBInformation> cibInformations) : this()
+    public CIBXTCDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
     {
-        ScatterPlotControls = [.. cibInformations.Select(t => new KeyValuePair<CIBInformation, IScatterPlotControl>(t, GetScatterPlotControl()))];
+        ScatterPlotControls = [.. cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl()))];
     }
 
     private void RefreshPlot()
     {
-        foreach (var itemItem in Items)
+        var results = (
+            from itemItem in Items
+            group itemItem by itemItem.CIBInformation.ChannelId
+            into g
+            orderby g.Key
+            select (
+                ChannelId: g.Key,
+                ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
+            )).ToArray();
+
+        foreach (var (channelId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(itemItem.CIBInformation, GetScatterPlotControl());
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
 
             try
             {
-                if (TargetPMTValues.TryGetSingle(t => t.Key == itemItem.CIBInformation, out var targetPMTValueKvp) == false) return;
-                scatterPlotControl.GetOrAddYLine(0, "Target", targetPMTValueKvp.Value, color: Colors.Red);
+                if (TargetPMTValues.TryGetSingle(t => t.Key == channelId, out var targetPMTValueKvp) == false) return;
+                scatterPlotControl.GetOrAddXLine(0, "Target", targetPMTValueKvp.Value, color: Colors.Red);
 
                 scatterPlotControl.GetOrAddScatterLine(
                     2,
                     "Result",
-                    [.. itemItem.IlluminationProfiles.Index().Select(t => new Point(t.Index, t.Item))],
+                    [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.Delay))],
                     Colors.Red);
 
-                foreach (var (i, itemItemData) in itemItem.Items.Index())
+                var count = itemItems.Max(t => t.Items.Count);
+                for (var i = 0; i < count; i++)
                 {
-                    var scatterLine = scatterPlotControl.GetOrAddScatterLine(
-                        0,
-                        $"{i + 1}",
-                        [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                        i,
-                        new Range(0, itemItem.Items.Count - 1));
-                    scatterLine.IsVisible = i == 0 || i == itemItem.Items.Count - 1;
+                    var itemItemsData = itemItems.Where(t => i < t.Items.Count)
+                        .Select(t => (t.CIBInformation.PMTId, Item: t.Items[i]))
+                        .ToArray();
 
-                    scatterLine = scatterPlotControl.GetOrAddScatterLine(
+                    foreach (var (pmtId, itemItemData) in itemItemsData)
+                    {
+                        var scatterLineImageHorizontalProjects = scatterPlotControl.GetOrAddScatterLine(
+                            0,
+                            $"{i + 1}: {pmtId}",
+                            [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                            i,
+                            new Range(0, count - 1));
+                        scatterLineImageHorizontalProjects.IsVisible = i == count - 1;
+                    }
+
+                    var scatterLine = scatterPlotControl.GetOrAddScatterLine(
                         1,
                         $"Error: {i + 1}",
-                        [.. itemItemData.Errors.Index().Select(t => new Point(t.Index, t.Item))],
+                        [.. itemItemsData.Select(t => new Point(t.PMTId, t.Item.Error))],
                         i,
-                        new Range(0, itemItem.Items.Count - 1));
-                    scatterLine.IsVisible = i == 0 || i == itemItem.Items.Count - 1;
+                        new Range(0, count - 1));
+                    scatterLine.IsVisible = i == 0 || i == count - 1;
 
                     scatterLine = scatterPlotControl.GetOrAddScatterLine(
                         1,
-                        $"Illumination Profile: {i + 1}",
-                        [.. itemItemData.IlluminationProfiles.Index().Select(t => new Point(t.Index, t.Item))],
+                        $"Delay: {i + 1}",
+                        [.. itemItemsData.Select(t => new Point(t.PMTId, t.Item.Delay))],
                         i,
-                        new Range(0, itemItem.Items.Count - 1));
-                    scatterLine.IsVisible = i == 0 || i == itemItem.Items.Count - 1;
+                        new Range(0, count - 1));
+                    scatterLine.IsVisible = i == 0 || i == count - 1;
                 }
             }
             finally
@@ -153,12 +159,9 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 
     #region Mapper
 
-    public CIBIlluminationProfileDTO Clone() => new()
+    public CIBXTCDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        OpticsApodizationModeEnum = OpticsApodizationModeEnum,
-        OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
-        CollectorPolarizationModeEnum = CollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
         TargetPMTValues = [.. TargetPMTValues],
         IsCalibrated = IsCalibrated,
@@ -168,14 +171,10 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
         Expiration = Expiration
     };
 
-    public CalibrationLaserCIBIlluminationProfileItem AdaptTo() => new()
+    public CalibrationLaserCIBXTCItem AdaptTo() => new()
     {
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
-        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
-        OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,
-        OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.ToCgPolarizationTypeEnum(),
-        CollectorPolarizationModeEnum = CollectorPolarizationModeEnum.ToCgNDFTypeEnum(),
         Items = [.. Items.Select(t => t.AdaptTo())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -185,7 +184,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     #endregion Mapper
 }
 
-public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, ICloneable<CIBIlluminationProfileDTOItem>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem.Item>
+public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCDTOItem>, IAdaptTo<CalibrationLaserCIBXTCItem.Item>
 {
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
@@ -194,7 +193,7 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
     private IReadOnlyList<Item> _items = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _illuminationProfiles = [];
+    private double _delay;
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -215,18 +214,18 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
 
     #region Mapper
 
-    public CIBIlluminationProfileDTOItem Clone() => new()
+    public CIBXTCDTOItem Clone() => new()
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        IlluminationProfiles = [.. IlluminationProfiles]
+        Delay = Delay
     };
 
-    public CalibrationLaserCIBIlluminationProfileItem.Item AdaptTo() => new()
+    public CalibrationLaserCIBXTCItem.Item AdaptTo() => new()
     {
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
-        IlluminationProfiles = [.. IlluminationProfiles]
+        Delay = Delay
     };
 
     #endregion Mapper
@@ -237,10 +236,10 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
         private IReadOnlyList<double> _imageHorizontalProjects = [];
 
         [ObservableProperty]
-        private IReadOnlyList<double> _errors = [];
+        private double _error;
 
         [ObservableProperty]
-        private IReadOnlyList<double> _illuminationProfiles = [];
+        private double _delay;
 
         [ObservableProperty]
         private bool _isOk;
@@ -254,8 +253,8 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
         public Item Clone() => new()
         {
             ImageHorizontalProjects = [.. ImageHorizontalProjects],
-            Errors = [.. Errors],
-            IlluminationProfiles = [.. IlluminationProfiles],
+            Error = Error,
+            Delay = Delay,
             IsOk = IsOk,
             RawImageFilePath = RawImageFilePath,
             ImageFilePath = ImageFilePath

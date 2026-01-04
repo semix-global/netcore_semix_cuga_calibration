@@ -44,7 +44,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
         new() { StepName = "Select Productivity" },
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
-        new() { StepName = "Light Matching" }
+        new() { StepName = "Illumination Profile" }
     ];
 
     #region 界面相关
@@ -341,7 +341,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
-                Logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Illumination Profile", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
                     foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)

@@ -388,7 +388,6 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
 
     #endregion Mapper
 
-
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
