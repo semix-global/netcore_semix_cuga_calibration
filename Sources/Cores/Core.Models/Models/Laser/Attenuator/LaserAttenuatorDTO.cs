@@ -8,7 +8,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.ScottPlot.WPF.WPF;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot.MultiplotLayouts;
 
@@ -156,7 +155,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
     public CalibrationAttenuatorObj AdaptTo() => new()
     {
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
-        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(): CgMagTypeEnum.ErrorCgMagTypeEnum,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         MaxCoefficientAverageMeasurePower = MaxMeasurePower,
         CoefficientMeasurePowerPoints = [.. MeasurePowerPoints.Select(t => t.ToCgPoint())],
         CoefficientMeasurePowerRatePoints = [.. AttenuatorPoints.Select(t => t.ToCgPoint())],
