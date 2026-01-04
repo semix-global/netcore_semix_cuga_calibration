@@ -18,7 +18,7 @@ public sealed partial class CalibrationLaserServiceImpl
 {
     public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GeneratePrescanAodWaves(GeneratePrescanAODWaveformParam generatePrescanAODWaveformParam)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(generatePrescanAODWaveformParam.OpticsIlluminationModeEnum, generatePrescanAODWaveformParam.ProductivityInformation);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(generatePrescanAODWaveformParam.ProductivityInformation);
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, []);
 
         generatePrescanAODWaveformParam.ElectrodeConfigurations =
@@ -38,7 +38,7 @@ public sealed partial class CalibrationLaserServiceImpl
 
     public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(generateChirpAODWaveformParam.OpticsIlluminationModeEnum, generateChirpAODWaveformParam.ProductivityInformation);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(generateChirpAODWaveformParam.ProductivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRetByGetChirpAODWaveProfiles.Msg, []);
 
         generateChirpAODWaveformParam.ElectrodeConfigurations =

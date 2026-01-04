@@ -78,23 +78,15 @@ public interface ICalibrationLaserService
 
     #region 任意波形发生器Arbitrary Waveform Generator
 
-    /// <summary>
-    /// 获取cuga配置的产率列表
-    /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
-    /// <returns>cuga配置的产率列表</returns>
-    SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
-
     [Obsolete]
     SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum);
 
     /// <summary>
     /// 设置照明mag
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
+    SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 切换照明扫描模式
@@ -109,12 +101,11 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 设置AOD延迟的值, 并切换Mag
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="prescanAODDelay">Prescan AOD延迟</param>
     /// <param name="chirpAODDelay">Chirp AOD延迟</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay);
+    SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay);
 
     [Obsolete]
     SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum, double coefficient);
@@ -122,11 +113,10 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 下发PrescanAOD波形
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%)</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient);
+    SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient);
 
     /// <summary>
     /// 下发PrescanAOD波形
@@ -142,10 +132,9 @@ public interface ICalibrationLaserService
     /// <summary>
     /// 下发ChirpAOD波形
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
+    SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 下发ChirpAOD波形
@@ -240,14 +229,6 @@ public interface ICalibrationLaserService
     SxExecuteRet<bool> ToggleEnableL0K(bool enable, int pmtId, int channelId);
 
     /// <summary>
-    /// 设置增益
-    /// </summary>
-    /// <param name="cibInformations">CIB信息列表</param>
-    /// <param name="gain">增益</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain);
-
-    /// <summary>
     /// 设置增益<br/>
     /// 所有PMT Id, 所有Channel Id: (PMT Id: -1, channelId : -1)<br />
     /// 当前PMT Id, 所有Channel Id: (PMT Id: > 0, channelId : -1)<br />
@@ -259,22 +240,9 @@ public interface ICalibrationLaserService
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId);
 
-    /// <summary>
-    /// 设置饱和值
-    /// </summary>
-    /// <param name="saturation">饱和值</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetSaturation(double saturation);
-
     #endregion Control
 
     #region CIB 数据
-
-    /// <summary>
-    /// 获取CIB信息列表
-    /// </summary>
-    /// <returns>CIB信息列表</returns>
-    SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations();
 
     /// <summary>
     /// 获取CIB ID列表
@@ -292,12 +260,6 @@ public interface ICalibrationLaserService
     SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfPMTDataList(int count, int pmtId, int channelId);
 
     /// <summary>
-    /// 获取PMT数值, 不支持群发
-    /// </summary>
-    /// <returns>获取PMT数值</returns>
-    SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList();
-
-    /// <summary>
     /// 读取任意PMT Sense Channel 数据, 不支持群发
     /// </summary>
     /// <param name="count">同一个PMT Sense Channel数据的数量</param>
@@ -309,19 +271,6 @@ public interface ICalibrationLaserService
     #endregion CIB 数据
 
     /// <summary>
-    /// 获取第1到15号光斑的CH1,CH2,CH3的CIB采样值
-    /// </summary>
-    /// <returns>返回第1到15号(PMT id, 光斑的CH1,CH2,CH3的CIB采样值集合)</returns>
-    SxExecuteRet<IReadOnlyList<DarkFieldPmtDelayDto>> GetCIBDelayList();
-
-    /// <summary>
-    /// 将第1到15号光斑的CH1,CH2,CH3的CIB采样值重新写入
-    /// </summary>
-    /// <param name="darkFieldPmtDelayDtoList">返回第1到15号光斑缺陷坐标集合</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList);
-
-    /// <summary>
     /// 下发CIB增益波形给cuga
     /// </summary>
     /// <param name="gainList">PMT增益电压值</param>
@@ -329,16 +278,6 @@ public interface ICalibrationLaserService
     /// <param name="channelId">Channel ID</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId);
-
-    /// <summary>
-    /// 将45个光斑的PMTGain数据下发给CIB
-    /// </summary>
-    /// <param name="pmtData">数据1</param>
-    /// <param name="igData">数据2</param>
-    /// <param name="pmtId">PMT ID</param>
-    /// <param name="channelId">Channel ID</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId);
 
     #endregion 暗场相机CIB
 
@@ -359,7 +298,7 @@ public interface ICalibrationLaserService
         Point? point = null);
 
     [Obsolete]
-    SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -382,7 +321,7 @@ public interface ICalibrationLaserService
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <returns>暗场图片列表</returns>
-    SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(
         Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
@@ -406,7 +345,7 @@ public interface ICalibrationLaserService
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <returns>暗场图片列表</returns>
     [Obsolete]
-    SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -429,7 +368,7 @@ public interface ICalibrationLaserService
     /// <param name="isAutoFocus">是否开启自动聚焦</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <returns>暗场图片列表</returns>
-    SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
@@ -453,7 +392,7 @@ public interface ICalibrationLaserService
     ///  <param name="isAutoFocus">是否开启自动聚焦</param>
     ///  <returns>明场位置，切割后三个通道图片</returns>
     [Obsolete]
-    SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -476,7 +415,7 @@ public interface ICalibrationLaserService
     ///  <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
     ///  <param name="isAutoFocus">是否开启自动聚焦</param>
     ///  <returns>明场位置，切割后三个通道图片</returns>
-    SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,

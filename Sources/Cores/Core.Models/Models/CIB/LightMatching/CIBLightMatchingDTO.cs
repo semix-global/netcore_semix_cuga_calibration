@@ -2,9 +2,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -23,9 +24,6 @@ namespace Core.Models.Models.CIB.LightMatching;
 public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable<CIBLightMatchingDTO>, IAdaptTo<CalibrationLaserCIBLightMatchingItem>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
-
-    [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -41,13 +39,13 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     private IReadOnlyList<CIBLightMatchingDTOItem> _items = [];
 
     [ObservableProperty]
-    private ConcurrentBag<KeyValuePair<int, double>> _hazeTargetValues = [];
+    private ConcurrentBag<KeyValuePair<int, double>> _hazeTargetPMTValues = [];
 
     [ObservableProperty]
-    private ConcurrentBag<KeyValuePair<int, double>> _silicaSphereAverageValues = [];
+    private ConcurrentBag<KeyValuePair<int, double>> _silicaSphereAveragePMTValues = [];
 
     [ObservableProperty]
-    private double? _silicaSphereTargetValue;
+    private double? _silicaSphereTargetPMTValue;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -81,11 +79,11 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnHazeTargetValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
+    partial void OnHazeTargetPMTValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
 
-    partial void OnSilicaSphereAverageValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
+    partial void OnSilicaSphereAveragePMTValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
 
-    partial void OnSilicaSphereTargetValueChanged(double? value) => RefreshPlot();
+    partial void OnSilicaSphereTargetPMTValueChanged(double? value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
@@ -116,9 +114,9 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
             try
             {
-                if (HazeTargetValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetValueKvp))
+                if (HazeTargetPMTValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetPMTValueKvp))
                 {
-                    scatterPlotControl.GetOrAddYLine(0, "Target", hazeTargetValueKvp.Value, color: Colors.Red);
+                    scatterPlotControl.GetOrAddYLine(0, "Target", hazeTargetPMTValueKvp.Value, color: Colors.Red);
 
                     var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                         2,
@@ -139,7 +137,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                         scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                             0,
                             $"{i + 1}",
-                            [.. hazes.Select(t => new Point(t.PMTId, t.Item.Value))],
+                            [.. hazes.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
                             i,
                             new Range(0, hazeCount - 1),
                             markerShape: MarkerShape.HorizontalBar);
@@ -171,13 +169,13 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                     }
                 }
 
-                if (SilicaSphereTargetValue is not null)
+                if (SilicaSphereTargetPMTValue is not null)
                 {
-                    scatterPlotControl.GetOrAddYLine(3, "Target", SilicaSphereTargetValue.Value, color: Colors.Red);
+                    scatterPlotControl.GetOrAddYLine(3, "Target", SilicaSphereTargetPMTValue.Value, color: Colors.Red);
 
-                    if (SilicaSphereAverageValues.TryGetSingle(t => t.Key == channelId, out var silicaSphereAverageValueKvp))
+                    if (SilicaSphereAveragePMTValues.TryGetSingle(t => t.Key == channelId, out var silicaSphereAveragePMTValueKvp))
                     {
-                        var yLine = scatterPlotControl.GetOrAddYLine(3, "Average", silicaSphereAverageValueKvp.Value, color: Colors.Yellow);
+                        var yLine = scatterPlotControl.GetOrAddYLine(3, "Average", silicaSphereAveragePMTValueKvp.Value, color: Colors.Yellow);
                         yLine.LinePattern = LinePattern.Solid;
 
                         var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
@@ -199,7 +197,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                             scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                                 3,
                                 $"{i + 1}",
-                                [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Value))],
+                                [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
                                 i,
                                 new Range(0, silicaSphereCount - 1),
                                 markerShape: MarkerShape.HorizontalBar);
@@ -264,10 +262,10 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
             });
 
         scatterPlotControl.SetTitle(0, "Haze(Y: Log - X: PMT Id)");
-        scatterPlotControl.SetTitle(1, "Haze Details(Y: Log - X: PMT Id)");
+        scatterPlotControl.SetTitle(1, "Haze Details(Y: PMT Value(Log) - X: PMT Id)");
         scatterPlotControl.SetTitle(2, "Haze Result(Y: Digital Gain - X: PMT Id)");
-        scatterPlotControl.SetTitle(3, "Silica Spheres(Y: Log - X: PMT Id)");
-        scatterPlotControl.SetTitle(4, "Silica Spheres Details(Y: Log - X: PMT Id)");
+        scatterPlotControl.SetTitle(3, "Silica Spheres(Y: PMT Value(Log) - X: PMT Id)");
+        scatterPlotControl.SetTitle(4, "Silica Spheres Details(Y: PMT Value(Log) - X: PMT Id)");
         scatterPlotControl.SetTitle(5, "Silica Spheres Result(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
         scatterPlotControl.ToggleInvisibleLegendItem(0, false);
         scatterPlotControl.ToggleInvisibleLegendItem(1, false);
@@ -281,15 +279,14 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     public CIBLightMatchingDTO Clone() => new()
     {
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         OpticsApodizationModeEnum = OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         CollectorPolarizationModeEnum = CollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
-        HazeTargetValues = [.. HazeTargetValues],
-        SilicaSphereAverageValues = [.. SilicaSphereAverageValues],
-        SilicaSphereTargetValue = SilicaSphereTargetValue,
+        HazeTargetPMTValues = [.. HazeTargetPMTValues],
+        SilicaSphereAveragePMTValues = [.. SilicaSphereAveragePMTValues],
+        SilicaSphereTargetPMTValue = SilicaSphereTargetPMTValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -299,12 +296,12 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     public CalibrationLaserCIBLightMatchingItem AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,
-        OpticsPolarizationModeEnum = (int)OpticsPolarizationModeEnum,
-        CollectorPolarizationModeEnum = (int)CollectorPolarizationModeEnum,
+        OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.ToCgPolarizationTypeEnum(),
+        CollectorPolarizationModeEnum = CollectorPolarizationModeEnum.ToCgNDFTypeEnum(),
         Items = [.. Items.Select(t => t.AdaptTo())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -395,7 +392,7 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _value;
+        private double _pMTValue;
 
         [ObservableProperty]
         private double _error;
@@ -420,7 +417,7 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
 
         public Item Clone() => new()
         {
-            Value = Value,
+            PMTValue = PMTValue,
             Error = Error,
             Result = Result,
             IsOk = IsOk,

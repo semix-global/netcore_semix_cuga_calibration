@@ -37,27 +37,15 @@
                 <hc:UniformSpacingPanel Margin="11,0"
                                         Orientation="Vertical"
                                         Spacing="2">
-                    <ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
-                              hc:TitleElement.TitlePlacement="Left"
-                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                              SelectedItem="{Binding OpticsIlluminationModeEnum}"
-                              Style="{StaticResource ComboBoxExtend}"
-                              ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              Visibility="{Binding IsVisibleOpticsIlluminationModeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <ComboBox hc:TitleElement.Title="Productivity Information: "
                               hc:TitleElement.TitlePlacement="Left"
                               hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
+                              ItemsSource="{Binding ApplicationCookie.ProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
                               Style="{StaticResource ComboBoxExtend}"
                               Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                         <i:Interaction.Behaviors>
                             <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                         </i:Interaction.Behaviors>
-                        <ComboBox.ItemsSource>
-                            <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
-                                <Binding Path="ApplicationCookie" RelativeSource="{RelativeSource AncestorType=UserControl}" />
-                                <Binding Path="OpticsIlluminationModeEnum" />
-                            </MultiBinding>
-                        </ComboBox.ItemsSource>
                     </ComboBox>
                     <ContentControl Content="{Binding HeaderContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </hc:UniformSpacingPanel>

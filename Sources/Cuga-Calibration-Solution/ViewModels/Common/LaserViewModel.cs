@@ -6,12 +6,12 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -92,13 +92,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
-    {
-        var ret = calibrationLaserService.GetProductivityInformations(opticsIlluminationModeEnum);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     [Obsolete]
     public void ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, OpticsMagTypeEnum opticsMagTypeEnum)
     {
@@ -107,9 +100,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public void ToggleOpticsMagType(ProductivityInformation productivityInformation)
     {
-        var ret = calibrationLaserService.ToggleOpticsMagType(opticsIlluminationModeEnum, productivityInformation);
+        var ret = calibrationLaserService.ToggleOpticsMagType(productivityInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -129,9 +122,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
+    public void SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
     {
-        var ret = calibrationLaserService.SetAODDelayValue(opticsIlluminationModeEnum, productivityInformation, prescanAODDelay, chirpAODDelay);
+        var ret = calibrationLaserService.SetAODDelayValue(productivityInformation, prescanAODDelay, chirpAODDelay);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -144,9 +137,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient)
+    public void SetPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
     {
-        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(opticsIlluminationModeEnum, productivityInformation, coefficient);
+        var ret = calibrationLaserService.SetDefaultPrescanAODWaveProfileByCoefficient(productivityInformation, coefficient);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -166,9 +159,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public void SetChirpAODWaveProfile(ProductivityInformation productivityInformation)
     {
-        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(opticsIlluminationModeEnum, productivityInformation);
+        var ret = calibrationLaserService.SetDefaultChirpAODWaveProfile(productivityInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -194,67 +187,46 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleCIBControlModeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId = CalibrationConstantsHelper.MainPmtId, int channelId = CalibrationConstantsHelper.MainChannelId)
+    private void ToggleCIBControlModeAndProfileType(CIBConfiguration cIbConfiguration, int pmtId = CalibrationConstantsHelper.MainPmtId, int channelId = CalibrationConstantsHelper.MainChannelId)
     {
         var ret = calibrationLaserService.ToggleCIBControlTypeAndProfileType(cIbConfiguration, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableAutoGainControl(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void ToggleEnableAutoGainControl(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleEnableAutoGainControl(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleProfileMode(CIBProfileModeEnum cibProfileModeEnum, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void ToggleProfileMode(CIBProfileModeEnum cibProfileModeEnum, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleProfileMode(cibProfileModeEnum, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableMarkMode(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void ToggleEnableMarkMode(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleEnableMarkMode(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableL0K(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void ToggleEnableL0K(bool enable, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.ToggleEnableL0K(enable, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
-    {
-        var ret = calibrationLaserService.SetGain(cibInformations, gain);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetGain(double gain, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
+    private void SetGain(double gain, int pmtId = Constants.NegInt32Value, int channelId = Constants.NegInt32Value)
     {
         var ret = calibrationLaserService.SetGain(gain, pmtId, channelId);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetSaturation(double saturation)
-    {
-        var ret = calibrationLaserService.SetSaturation(saturation);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public IReadOnlyList<CIBInformation> GetCIBInformations()
-    {
-        var ret = calibrationLaserService.GetCIBInformations();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public IReadOnlyList<(int PmtId, IReadOnlyList<int> ChannelIdList)> GetIsUsedCIBConfigList()
@@ -276,13 +248,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<DarkFieldPmtDataDto> GetCIBOfPMTDataList()
-    {
-        var ret = calibrationLaserService.GetCIBOfPMTDataList();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     public async Task<IReadOnlyList<IReadOnlyList<IReadOnlyList<double>>>> GetCIBOfSenseDataListAsync(int count, int pmtId)
     {
         var channelIdList = GetIsUsedCIBConfigList().Single(t => t.PmtId == pmtId).ChannelIdList;
@@ -298,34 +263,6 @@ public sealed class LaserViewModel(
         var ret = calibrationLaserService.GetCIBOfSenseDataList(count, pmtId, channelId);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public IReadOnlyList<DarkFieldPmtDelayDto> GetCIBDelayList()
-    {
-        var ret = calibrationLaserService.GetCIBDelayList();
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
-    {
-        var ret = calibrationLaserService.SetCIBDelayList(darkFieldPmtDelayDtoList);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
-    {
-        var ret = calibrationLaserService.SetCIBChirp(gainList, pmtId, channelId);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SendPmtGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
-    {
-        var ret = calibrationLaserService.SendPMTGain(pmtData, igData, pmtId, channelId);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     [Obsolete]
@@ -393,69 +330,6 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(
-        CIBConfiguration cibConfiguration,
-        Point position,
-        LaserLightInformation laserLightInformation,
-        ProductivityInformation productivityInformation,
-        out string resultImageFilePath,
-        bool isAppliedDefaultRtfcParam = true,
-        int pmtId = CalibrationConstantsHelper.MainPmtId,
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
-        string? saveImageFileDirectory = null,
-        Guid? logGuid = null,
-        string? logName = null
-    )
-    {
-        resultImageFilePath = string.Empty;
-        var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
-        Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
-
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
-        using var darkFieldImageDto = GetDarkFieldLineScanImage(
-            calChipSiteModelEnum,
-            position,
-            (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
-            false,
-            cibConfiguration,
-            productivityInformation,
-            opticsIlluminationModeEnum,
-            800,
-            pmtId,
-            stageCoordinateSystemEnum: stageCoordinateSystemEnum); // 模板匹配只能通道3(1, 2特征不明显)
-
-        if (saveImageFileDirectory is not null)
-        {
-            var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
-            darkFieldImageDto.Image.Save(rtfcResultImagePath);
-
-            resultImageFilePath = rtfcResultImagePath;
-
-            if (logGuid is not null && logName is not null)
-                logger.LogHtmlInformation($"{logName} RTFC", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                {
-                    point,
-                    calChipSiteModelEnum,
-                    pmtId,
-                    laserLightInformation,
-                    ret.Anything.Ecs,
-                    ret.Anything.AfMotor,
-                    darkFieldImageDto.RawImageFilePath,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        RTFCResultImage = new HtmlImage(rtfcResultImagePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
-                    })
-                }), logGuid.Value.LoggingHtml());
-        }
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     [Obsolete]
     public bool TrySendAodFile(
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -496,14 +370,14 @@ public sealed class LaserViewModel(
         {
             Guard.IsNotNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
-            SetPrescanAODWaveProfileByCoefficient(opticsIlluminationModeEnum, productivityInformation, customPrescanAod.LaserLightInformation.Coefficient);
+            SetPrescanAODWaveProfileByCoefficient(productivityInformation, customPrescanAod.LaserLightInformation.Coefficient);
         }
         else
             Guard.IsNull(customPrescanAod.LaserLightInformation, nameof(customPrescanAod.LaserLightInformation));
 
         if (isCustomChirpAod == false)
         {
-            SetChirpAODWaveProfile(opticsIlluminationModeEnum, productivityInformation);
+            SetChirpAODWaveProfile(productivityInformation);
         }
 
         return true;
@@ -527,7 +401,7 @@ public sealed class LaserViewModel(
     #endregion DOE
 
     [Obsolete]
-    public List<DarkFieldImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldImageDTO> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         int xWidthPixel,
@@ -595,7 +469,7 @@ public sealed class LaserViewModel(
         }
     }
 
-    public List<DarkFieldImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldImageDTO> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         int xWidthPixel,
@@ -665,7 +539,7 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public DarkFieldImageDto GetDarkFieldLineScanImage(
+    public DarkFieldImageDTO GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
@@ -707,7 +581,7 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public DarkFieldImageDto GetDarkFieldLineScanImage(
+    public DarkFieldImageDTO GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point position,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
@@ -746,7 +620,7 @@ public sealed class LaserViewModel(
         return darkFieldImageDto;
     }
 
-    public DarkFieldImageDto GetDarkFieldLineScanImage(
+    public DarkFieldImageDTO GetDarkFieldLineScanImage(
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         CalChipSiteModelEnum calChipSiteModelEnum,
@@ -802,7 +676,7 @@ public sealed class LaserViewModel(
     /// <returns></returns>
     /// <exception cref="CugaException"></exception>
     [Obsolete]
-    public List<DarkFieldRawScanImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldRawScanImageDTO> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -871,7 +745,7 @@ public sealed class LaserViewModel(
     /// <param name="isAutoFocus"></param>
     /// <returns></returns>
     /// <exception cref="CugaException"></exception>
-    public List<DarkFieldRawScanImageDto> GetDarkFieldLineScanImageList(
+    public List<DarkFieldRawScanImageDTO> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point startPosition,
         Point endPosition,
@@ -948,7 +822,7 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public DarkFieldRawScanImageDto GetDarkFieldLineScanImage(
+    public DarkFieldRawScanImageDTO GetDarkFieldLineScanImage(
         CalChipSiteModelEnum calChipSiteModelEnum,
         Point startPosition,
         Point endPosition,
@@ -980,7 +854,7 @@ public sealed class LaserViewModel(
         return result.Single(t => t.ChannelId == channelId);
     }
 
-    public DarkFieldRawScanImageDto GetDarkFieldLineScanImage(
+    public DarkFieldRawScanImageDTO GetDarkFieldLineScanImage(
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         CalChipSiteModelEnum calChipSiteModelEnum,
@@ -1029,7 +903,7 @@ public sealed class LaserViewModel(
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <exception cref="CugaException"></exception>
     [Obsolete]
-    public List<List<DarkFieldImageDto>> GetChuckDarkFieldRowLineScanImageList(
+    public List<List<DarkFieldImageDTO>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> positionList,
         int xWidthPixel,
         OpticsMagTypeEnum yOpticsMagTypeEnum,
@@ -1042,7 +916,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         bool isAutoFocus = true)
     {
-        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>()
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
             .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
                                   && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum);
         if (xSize is null || xSize.IsOk == false) ThrowHelper.ThrowArgumentException("Invalid Laser X Pixel Size Item");
@@ -1096,7 +970,7 @@ public sealed class LaserViewModel(
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <exception cref="CugaException"></exception>
-    public List<List<DarkFieldImageDto>> GetChuckDarkFieldRowLineScanImageList(
+    public List<List<DarkFieldImageDTO>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> positionList,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
@@ -1108,7 +982,7 @@ public sealed class LaserViewModel(
         bool isCustomChirpAod,
         bool isAutoFocus = true)
     {
-        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>()
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
             .SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize is null || xSize.IsOk == false) ThrowHelper.ThrowArgumentException("Invalid Laser X Pixel Size Item");
 
@@ -1162,7 +1036,7 @@ public sealed class LaserViewModel(
     /// <returns>指定通道的分割结果集合</returns>
     /// <exception cref="CugaException"></exception>
     [Obsolete]
-    public List<DarkFieldImageDto> GetChuckDarkFieldRowLineScanImage(
+    public List<DarkFieldImageDTO> GetChuckDarkFieldRowLineScanImage(
         List<Point> positionList,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
@@ -1215,7 +1089,7 @@ public sealed class LaserViewModel(
     /// <param name="isAutoFocus"></param>
     /// <returns>指定通道的分割结果集合</returns>
     /// <exception cref="CugaException"></exception>
-    public List<DarkFieldImageDto> GetChuckDarkFieldRowLineScanImage(
+    public List<DarkFieldImageDTO> GetChuckDarkFieldRowLineScanImage(
         List<Point> positionList,
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
@@ -1279,7 +1153,7 @@ public sealed class LaserViewModel(
     [Obsolete]
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        DarkFieldImageDto darkFieldImageDto,
+        DarkFieldImageDTO darkFieldImageDto,
         int pmtId,
         Point position,
         string templateFilePath,
@@ -1315,7 +1189,7 @@ public sealed class LaserViewModel(
             return false;
         }
 
-        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>()
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
             .SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
                                   && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum);
         if (xSize is null || xSize.IsOk == false)
@@ -1442,7 +1316,7 @@ public sealed class LaserViewModel(
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        DarkFieldImageDto darkFieldImageDto,
+        DarkFieldImageDTO darkFieldImageDto,
         int pmtId,
         Point position,
         string templateFilePath,
@@ -1476,7 +1350,7 @@ public sealed class LaserViewModel(
             return false;
         }
 
-        var xSize = cacheProvider.GetOrDefaultArray<LaserXPixelSizeItemDto>().SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize is null || xSize.IsOk == false)
         {
             if (logGuid is not null && logName is not null) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"{logName} Error: Laser X Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());

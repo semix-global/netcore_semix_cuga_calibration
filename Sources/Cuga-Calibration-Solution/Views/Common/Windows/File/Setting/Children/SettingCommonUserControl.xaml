@@ -9,6 +9,8 @@
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting.Children"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:SettingCommonViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -83,18 +85,27 @@
                             <hc:ComboBox hc:TitleElement.TitleWidth="200"
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.Title="Low Microscope: "
-                                         SelectedItem="{Binding SettingCommonParam.LowMicroscopeLensInformation}"
-                                         ItemsSource="{Binding MicroscopeLensInformationList}" />
+                                         ItemsSource="{Binding MicroscopeLensInformationList}">
+                                <i:Interaction.Behaviors>
+                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding SettingCommonParam.LowMicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                </i:Interaction.Behaviors>
+                            </hc:ComboBox>
                             <hc:ComboBox hc:TitleElement.TitleWidth="200"
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.Title="High Microscope: "
-                                         SelectedItem="{Binding SettingCommonParam.HighMicroscopeLensInformation}"
-                                         ItemsSource="{Binding MicroscopeLensInformationList}" />
+                                         ItemsSource="{Binding MicroscopeLensInformationList}">
+                                <i:Interaction.Behaviors>
+                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding SettingCommonParam.HighMicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                </i:Interaction.Behaviors>
+                            </hc:ComboBox>
                             <hc:ComboBox hc:TitleElement.TitleWidth="200"
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.Title="Light Information: "
-                                         SelectedItem="{Binding SettingCommonParam.MainLaserLightInformation}"
-                                         ItemsSource="{Binding LaserLightInformationList}" />
+                                         ItemsSource="{Binding LaserLightInformationList}">
+                                <i:Interaction.Behaviors>
+                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding SettingCommonParam.MainLaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                </i:Interaction.Behaviors>
+                            </hc:ComboBox>
                             <hc:NumericUpDown hc:TitleElement.Title="PMT Interval(um): "
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"

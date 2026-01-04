@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using CugaCalibration.ViewModels.Common;
+using LiteDB;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -75,28 +76,63 @@ public sealed partial class LoadingWindowViewModel(
             if (await ConnectAsync(configViewModel.Connect, "Connecting Configure Service", 12).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Service", 13).ConfigureAwait(false) == false) return;
 
-            CustomerAdaptToMapper.RegisterType<MicroscopeLensInformation, CgMicroscopeLens>(
-                microscopeLensInformation => microscopeLensInformation.AdaptTo().LensCode,
-                microscopeViewModel.CgMicroscopeLensToMicroscopeLensInfo
-            );
-
             Message = "Connected OK!!!";
 
             var deviceCode = configViewModel.GetDeviceCode();
             var microscopeLensInformations = microscopeViewModel.GetMicroscopeLensInformations();
             var laserLightInformations = laserViewModel.GetLaserLightInformations();
-            var niProductivityInformations = laserViewModel.GetProductivityInformations(OpticsIlluminationModeEnum.NI);
-            var oiProductivityInformations = laserViewModel.GetProductivityInformations(OpticsIlluminationModeEnum.OI);
-            var cibInformations = laserViewModel.GetCIBInformations();
+            var productivityInformations = opticsViewModel.GetProductivityInformations();
+
+            var cibInformations = cibViewModel.GetCIBInformations();
 
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
-            applicationCookie.NIProductivityInformations = [.. niProductivityInformations.Select(t => t.Clone())];
-            applicationCookie.OIProductivityInformations = [.. oiProductivityInformations.Select(t => t.Clone())];
+            applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
 
             Guard.IsNotEmpty(applicationCookie.OpticsIlluminationModeEnums);
+
+            CustomerAdaptToMapper.RegisterType<MicroscopeLensInformation, CgMicroscopeLens>(
+                microscopeLensInformation => microscopeLensInformation.AdaptTo().LensCode,
+                microscopeViewModel.CgMicroscopeLensToMicroscopeLensInfo
+            );
+
+            BsonMapper.Global.RegisterType<ProductivityInformation>(t => new BsonDocument
+            {
+                [nameof(ProductivityInformation.OpticsIlluminationModeEnum)] = (int)t.OpticsIlluminationModeEnum,
+                [nameof(ProductivityInformation.OpticsMagType)] = t.OpticsMagType,
+                [nameof(ProductivityInformation.StageSpeedType)] = t.StageSpeedType
+            },
+                t =>
+                {
+                    if (t is null || t.IsNull) return ProductivityInformation.Default;
+
+                    var opticsIlluminationMode = t[nameof(ProductivityInformation.OpticsIlluminationModeEnum)];
+                    var opticsIlluminationModeEnum = opticsIlluminationMode.IsNull
+                        ? OpticsIlluminationModeEnum.OI
+                        : (OpticsIlluminationModeEnum)(int)opticsIlluminationMode;
+
+                    var opticsMagType = t[nameof(ProductivityInformation.OpticsMagType)];
+                    var stageSpeedType = t[nameof(ProductivityInformation.StageSpeedType)];
+
+                    return applicationCookie.ProductivityInformations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
+                                                                                            && tt.OpticsMagType == opticsMagType
+                                                                                            && tt.StageSpeedType == stageSpeedType, ProductivityInformation.Default);
+                });
+
+            BsonMapper.Global.RegisterType<MicroscopeLensInformation>(t => new BsonDocument
+            {
+                [nameof(MicroscopeLensInformation.LensCode)] = t.LensCode
+            },
+                t =>
+                {
+                    if (t is null || t.IsNull) return MicroscopeLensInformation.Default;
+
+                    int lensCode = t[nameof(MicroscopeLensInformation.LensCode)];
+
+                    return applicationCookie.MicroscopeLensInformations.SingleOrDefault(tt => tt.LensCode == lensCode, MicroscopeLensInformation.Default);
+                });
 
             contextProvider.Send(() => CloseView(true));
 

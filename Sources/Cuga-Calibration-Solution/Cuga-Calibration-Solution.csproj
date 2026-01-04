@@ -24,7 +24,6 @@
         <PackageReference Include="NLog.Extensions.Hosting" />
         <PackageReference Include="System.Data.SQLite.Core" />
         <PackageReference Include="FreeSql.Provider.Sqlite" />
-        <PackageReference Include="MrAdvice" />
         <PackageReference Include="SourceGenerator.InjectHostDI">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

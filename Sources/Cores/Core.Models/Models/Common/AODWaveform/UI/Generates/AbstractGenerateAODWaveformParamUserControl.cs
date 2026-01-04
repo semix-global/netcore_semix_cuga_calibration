@@ -18,12 +18,6 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         typeof(GenerateAODWaveformParamUserControl),
         new PropertyMetadata(null, OnHeaderContentChanged));
 
-    public static readonly DependencyProperty IsVisibleOpticsIlluminationModeEnumProperty = DependencyProperty.Register(
-        nameof(IsVisibleOpticsIlluminationModeEnum),
-        typeof(bool),
-        typeof(AbstractGenerateAODWaveformParamUserControl),
-        new PropertyMetadata(true, OnIsVisibleOpticsIlluminationModeEnumChanged));
-
     public static readonly DependencyProperty IsVisibleProductivityInformationProperty = DependencyProperty.Register(
         nameof(IsVisibleProductivityInformation),
         typeof(bool),
@@ -82,11 +76,6 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         if (d is AbstractGenerateAODWaveformParamUserControl control) control.InnerControl.HeaderContent = e.NewValue;
     }
 
-    private static void OnIsVisibleOpticsIlluminationModeEnumChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleOpticsIlluminationModeEnum = value;
-    }
-
     private static void OnIsVisibleProductivityInformationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleProductivityInformation = value;
@@ -137,12 +126,6 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
     {
         get => GetValue(HeaderContentProperty);
         set => SetValue(HeaderContentProperty, value);
-    }
-
-    public bool IsVisibleOpticsIlluminationModeEnum
-    {
-        get => (bool)GetValue(IsVisibleOpticsIlluminationModeEnumProperty);
-        set => SetValue(IsVisibleOpticsIlluminationModeEnumProperty, value);
     }
 
     public bool IsVisibleProductivityInformation

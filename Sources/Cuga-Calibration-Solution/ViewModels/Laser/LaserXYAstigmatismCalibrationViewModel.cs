@@ -5,8 +5,8 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.AOD.AODAlignment;
-using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.AOD.Alignment;
+using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
@@ -119,7 +119,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
     [ObservableProperty]
     private LaserXYAstigmatismCalibrationItemDto[] _calibrations = [];
 
-    public AODDelayDto[] LaserAodDelayItemList { get; set; } = [];
+    public AODDelayDTO[] LaserAodDelayItemList { get; set; } = [];
 
     #endregion 缓存
 
@@ -161,7 +161,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out var laserAodDelayItemDtos, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out var laserAodDelayItemDtos, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -169,7 +169,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
 
         LaserAodDelayItemList = laserAodDelayItemDtos;
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -355,13 +355,13 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
                     return false;
                 }
 
-                var defaultChirpAodWaveProfileLst = ConfigureViewModel.GetChirpAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+                var defaultChirpAodWaveProfileLst = ConfigureViewModel.GetChirpAODWaveProfiles(Cache.ProductivityInformation);
                 chirpAodDefaultDto.ZeroSampleCount = defaultChirpAodWaveProfileLst[0].ZeroSampleCount;
                 // 有AOD Delay结果时，默认chirp波形使用该delay值
                 var laserAodDelayItem = LaserAodDelayItemList.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
                 if (laserAodDelayItem is not null && laserAodDelayItem.IsOk)
                 {
-                    var delayTime = Convert.ToInt32(laserAodDelayItem.RefinedChirpAODDelay);
+                    var delayTime = Convert.ToInt32(laserAodDelayItem.ChirpAODDelay);
                     chirpAodDefaultDto.ZeroSampleCount = delayTime;
 
                     IReadOnlyList<ChirpAODWaveformProfile> customZeroAodWaveProfileList = defaultChirpAodWaveProfileLst.Select(t => AODWaveformProfileFactory.CreateChirp(t.OpticsAODElectrodeEnum, t.FilePath, delayTime)).ToList();
@@ -983,7 +983,6 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
             var chirpAodWaveProfileDto = ChirpAodFindEcsYDto.Clone();
             chirpAodWaveProfileDto.BandWidth = bandWidth;
             chirpAodWaveProfileDto.DirectoryPath = ChirpFileDirectory;
-            chirpAodWaveProfileDto.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
             chirpAodWaveProfileDto.ProductivityInformation = Cache.ProductivityInformation;
 
             var ret = calibrationLaserService.GenerateChirpAodWaves(chirpAodWaveProfileDto);

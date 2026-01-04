@@ -16,20 +16,17 @@ public sealed class CIBInformation :
 {
     public static readonly CIBInformation Default = new();
 
-    private int _pMTId = -1;
-    private int _channelId = -1;
-
     public int PMTId
     {
-        get => _pMTId;
-        private set => SetProperty(ref _pMTId, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
     public int ChannelId
     {
-        get => _channelId;
-        private set => SetProperty(ref _channelId, value);
-    }
+        get;
+        private set => SetProperty(ref field, value);
+    } = -1;
 
     private CIBInformation()
     {
@@ -59,7 +56,9 @@ public sealed class CIBInformation :
 
     public override bool Equals(object? obj) => obj is CIBInformation other && Equals(other);
 
+    // ReSharper disable NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => HashCode.Combine(PMTId, ChannelId);
+    // ReSharper restore NonReadonlyMemberInGetHashCode
 
     public override string ToString() => ToString(null);
 

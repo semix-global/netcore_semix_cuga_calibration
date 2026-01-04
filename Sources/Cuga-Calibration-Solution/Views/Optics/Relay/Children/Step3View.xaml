@@ -10,12 +10,12 @@
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:relay="clr-namespace:Core.Models.Models.Optics.Relay;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsRelayViewModel}"
+             d:DesignWidth="1920"
              d:DesignHeight="1080"
-             d:DesignWidth="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="430" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -28,8 +28,8 @@
             <hc:UniformSpacingPanel Orientation="Vertical"
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <hc:Shield Subject="Optics Relay Step 3: "
-                           Status="{Binding CalibrationStepList[0].StepName}"
+                <hc:Shield Subject="Step 4: "
+                           Status="{Binding CalibrationStepList[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Optics Illumination Mode: "
                            Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
@@ -43,8 +43,8 @@
                 <hc:Shield Subject="CIB Information: "
                            Status="{Binding Cache.Item.CIBInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="BF Machine Position(um): "
-                           Status="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                <hc:Shield Subject="DSW BF Machine Position(um): "
+                           Status="{Binding Cache.Item.DSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -131,11 +131,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step3CalibrateActionCommand}"
+                                    Command="{Binding Step3Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step3CalibrateActionCancelCommand}"
+                                    Command="{Binding Step3CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
@@ -188,10 +188,12 @@
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl>
                         <TabItem Header="Plots">
-                            <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                            </Border>
                         </TabItem>
                         <TabItem Header="Images">
-                            <ListBox ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                            <ListBox Margin="5" ItemsSource="{Binding SelectedItems, ElementName=ListView}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel Orientation="Horizontal" />
@@ -202,13 +204,19 @@
                                         <Border Width="300"
                                                 Height="300"
                                                 Style="{StaticResource BorderRegion}">
-                                            <view:CanvasView AxisColor="Red"
-                                                             BackgroundColor="#0A0A0A"
-                                                             BackgroundImage="{Binding MaxItem.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                             Interactive="True"
-                                                             ShowAxes="True"
-                                                             ShowCursor="False"
-                                                             ShowGrid="False" />
+                                            <hc:SimplePanel>
+                                                <view:CanvasView AxisColor="Red"
+                                                                 BackgroundColor="#0A0A0A"
+                                                                 BackgroundImage="{Binding MaxItem.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 Interactive="True"
+                                                                 ShowAxes="True"
+                                                                 ShowCursor="False"
+                                                                 ShowGrid="False" />
+                                                <TextBlock Text="{Binding MaxItem.ECS, StringFormat='0.###'}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           Foreground="Yellow" />
+                                            </hc:SimplePanel>
                                         </Border>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>

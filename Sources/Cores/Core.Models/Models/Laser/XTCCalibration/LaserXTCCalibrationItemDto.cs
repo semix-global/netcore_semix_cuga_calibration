@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -81,7 +82,7 @@ public sealed partial class LaserXTCCalibrationItemDto : CalibrationDtoBase, ICl
 
     public CalibrationLaserXTCCalibrationItem AdaptTo() => new()
     {
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         PmtId = PmtId,
         CH1Delay = Convert.ToInt32(CH1Delay),
         CH2Delay = Convert.ToInt32(CH2Delay),

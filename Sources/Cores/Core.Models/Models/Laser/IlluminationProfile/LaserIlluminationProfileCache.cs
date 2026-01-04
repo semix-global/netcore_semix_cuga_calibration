@@ -11,7 +11,7 @@ namespace Core.Models.Models.Laser.IlluminationProfile;
 public sealed partial class LaserIlluminationProfileCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
