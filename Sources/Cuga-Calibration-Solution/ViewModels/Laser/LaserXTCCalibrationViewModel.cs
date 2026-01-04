@@ -4,8 +4,8 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.AOD.AODAlignment;
-using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.AOD.Alignment;
+using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
@@ -17,6 +17,7 @@ using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
@@ -102,7 +103,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
     private LaserXTCCalibrationItemDto[] _calibrations = [];
 
     [ObservableProperty]
-    private IReadOnlyList<DarkFieldPmtDelayDto> _sampleValueList = [];
+    private IReadOnlyList<CIBDelayDTO> _sampleValueList = [];
 
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
@@ -149,13 +150,13 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -424,7 +425,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                     return false;
                 }
 
-                LaserViewModel.SetGain(gain);
+                CIBViewModel.SetGain(ApplicationCookie.CIBInformations, gain);
 
                 await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
@@ -454,7 +455,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             var judgeWindowStartIndex = item.JudgeWindowStartIndex;
             var judgeWindowEndIndex = item.JudgeWindowEndIndex;
             var servings = item.Servings;
-            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+            var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -492,7 +493,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
                 return false;
             }
 
-            LaserViewModel.SetGain(LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8).Gain);
+            CIBViewModel.SetGain(ApplicationCookie.CIBInformations, LaserXTCCalibrationItemDtoList.SingleOrDefault(t => t.PmtId == 8).Gain);
 
             #region Max窗口
 
@@ -506,10 +507,10 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             using var _3 = channel3DarkFieldImageDto;
             if (isSuccess == false) return false;
 
-            var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.ProjectionYs));
+            var sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.Image.GetHorizontalProjects()));
             item.MaxWindowDarkImageListMinIndex = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
             item.MaxWindowPrescanList = windowPrescanList;
-            item.MaxScatterDarkFieldImageList = [.. channel3DarkFieldImageDto.ProjectionYs];
+            item.MaxScatterDarkFieldImageList = [.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()];
             item.MaxSmoothDarkFieldImageList = [.. sgolayfiltList];
 
             #endregion Max窗口
@@ -526,11 +527,11 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             using var _6 = channel3DarkFieldImageDto;
             if (isSuccess == false) return false;
 
-            sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable([.. channel3DarkFieldImageDto.ProjectionYs]));
+            sgolayfiltList = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable([.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()]));
 
             item.MinWindowDarkImageListMinIndex = judgeWindowStartIndex + sgolayfiltList.SubVector(judgeWindowStartIndex, judgeWindowEndIndex - judgeWindowStartIndex + 1).MinimumIndex();
             item.MinWindowPrescanList = windowPrescanList;
-            item.MinScatterDarkFieldImageList = [.. channel3DarkFieldImageDto.ProjectionYs];
+            item.MinScatterDarkFieldImageList = [.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()];
             item.MinSmoothDarkFieldImageList = [.. sgolayfiltList];
 
             item.IsReviseDarkFieldImageToPrescan =
@@ -608,25 +609,25 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         {
             ClearCalibrationTemp();
             //获取CH1,CH2,CH3的值
-            var sampleValueCH = LaserViewModel.GetCIBDelayList();
+            var sampleValueCH = CIBViewModel.GetDelays(ApplicationCookie.CIBInformations);
             SampleValueList = sampleValueCH;
 
             foreach (var laserXTCCalibrationItemDto in LaserXTCCalibrationItemDtoList)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                laserXTCCalibrationItemDto.CH1Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 1).PmtDelay;
-                laserXTCCalibrationItemDto.CH2Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 2).PmtDelay;
-                laserXTCCalibrationItemDto.CH3Delay = SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 3).PmtDelay;
+                laserXTCCalibrationItemDto.CH1Delay = SampleValueList.FirstOrDefault(t => t.CIBInformation.PMTId == laserXTCCalibrationItemDto.PmtId && t.CIBInformation.ChannelId == 1).PMTDelay;
+                laserXTCCalibrationItemDto.CH2Delay = SampleValueList.FirstOrDefault(t => t.CIBInformation.PMTId == laserXTCCalibrationItemDto.PmtId && t.CIBInformation.ChannelId == 2).PMTDelay;
+                laserXTCCalibrationItemDto.CH3Delay = SampleValueList.FirstOrDefault(t => t.CIBInformation.PMTId == laserXTCCalibrationItemDto.PmtId && t.CIBInformation.ChannelId == 3).PMTDelay;
 
                 var (isSuccessPmtDelay, ch1PmtDelay, ch2PmtDelay) = GetXTCCalibration(laserXTCCalibrationItemDto);
                 if (!isSuccessPmtDelay) return false;
 
                 laserXTCCalibrationItemDto.CH1Delay = Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan ? laserXTCCalibrationItemDto.CH1Delay + ch1PmtDelay : laserXTCCalibrationItemDto.CH1Delay - ch1PmtDelay;
-                SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 1).PmtDelay = Convert.ToInt32(laserXTCCalibrationItemDto.CH1Delay);
+                SampleValueList.FirstOrDefault(t => t.CIBInformation.PMTId == laserXTCCalibrationItemDto.PmtId && t.CIBInformation.ChannelId == 1).PMTDelay = Convert.ToInt32(laserXTCCalibrationItemDto.CH1Delay);
 
                 laserXTCCalibrationItemDto.CH2Delay = Cache.CurrentDarkFieldImageListToPrescanListCacheItem.IsReviseDarkFieldImageToPrescan ? laserXTCCalibrationItemDto.CH2Delay + ch2PmtDelay : laserXTCCalibrationItemDto.CH2Delay - ch2PmtDelay;
-                SampleValueList.FirstOrDefault(t => t.PmtId == laserXTCCalibrationItemDto.PmtId && t.ChannelId == 2).PmtDelay = Convert.ToInt32(laserXTCCalibrationItemDto.CH2Delay);
+                SampleValueList.FirstOrDefault(t => t.CIBInformation.PMTId == laserXTCCalibrationItemDto.PmtId && t.CIBInformation.ChannelId == 2).PMTDelay = Convert.ToInt32(laserXTCCalibrationItemDto.CH2Delay);
 
                 SynchronizationContextProvider.Send(() => ResultLaserXTCCalibrationItemDtoList.Add(laserXTCCalibrationItemDto));
 
@@ -642,7 +643,7 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             }
 
             //把更新后的值返回给 cuga 接口
-            LaserViewModel.SetCIBDelayList(SampleValueList);
+            CIBViewModel.SetDelays(SampleValueList);
             return true;
         }).ConfigureAwait(false);
     }
@@ -717,10 +718,10 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        LaserViewModel.SetGain(laserXTCCalibrationItemDto.Gain);
+        CIBViewModel.SetGain(ApplicationCookie.CIBInformations, laserXTCCalibrationItemDto.Gain);
 
         Thread.Sleep(1000);
-        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.OpticsIlluminationModeEnum, Cache.ProductivityInformation);
+        var prescanAODWaveProfileList = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
         var k = 1d / Cache.Item.PrescanInterval;
         var resultWindow = new List<double>();
         var startIndex = Cache.Item.PrescanStartIndex;
@@ -768,14 +769,14 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
         laserXTCCalibrationItemDto.Channel3ImageFilePath = $"{detectImageDirectory}\\({HtmlLogUniqueId}_{dateTime2String}_Channel3).jpg";
         channel3DarkFieldImageDto.Image.Save(laserXTCCalibrationItemDto.Channel3ImageFilePath);
 
-        laserXTCCalibrationItemDto.Channel1DarkFieldImageProjectionYs = channel1DarkFieldImageDto.ProjectionYs;
-        laserXTCCalibrationItemDto.Channel2DarkFieldImageProjectionYs = channel2DarkFieldImageDto.ProjectionYs;
-        laserXTCCalibrationItemDto.Channel3DarkFieldImageProjectionYs = channel3DarkFieldImageDto.ProjectionYs;
-        var sgolayfiltList1 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel1DarkFieldImageDto.ProjectionYs));
+        laserXTCCalibrationItemDto.Channel1DarkFieldImageProjectionYs = [.. channel1DarkFieldImageDto.Image.GetHorizontalProjects()];
+        laserXTCCalibrationItemDto.Channel2DarkFieldImageProjectionYs = [.. channel2DarkFieldImageDto.Image.GetHorizontalProjects()];
+        laserXTCCalibrationItemDto.Channel3DarkFieldImageProjectionYs = [.. channel3DarkFieldImageDto.Image.GetHorizontalProjects()];
+        var sgolayfiltList1 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel1DarkFieldImageDto.Image.GetHorizontalProjects()));
         var darkChannel1DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList1.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
-        var sgolayfiltList2 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel2DarkFieldImageDto.ProjectionYs));
+        var sgolayfiltList2 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel2DarkFieldImageDto.Image.GetHorizontalProjects()));
         var darkChannel2DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList2.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
-        var sgolayfiltList3 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.ProjectionYs));
+        var sgolayfiltList3 = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(channel3DarkFieldImageDto.Image.GetHorizontalProjects()));
         var darkChannel3DarkFieldImageYsMaxPixel = Cache.Item.PrescanSkipCount + Vector<double>.Build.DenseOfEnumerable([.. sgolayfiltList3.Skip(Cache.Item.PrescanSkipCount).SkipLast(Cache.Item.PrescanSkipCount)]).MinimumIndex();
 
         Logger.LogHtmlInformation($"{laserXTCCalibrationItemDto.PmtId}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -803,9 +804,9 @@ public sealed partial class LaserXTCCalibrationViewModel : CalibrationViewModelB
     }
 
     private (bool IsSuccess,
-        DarkFieldImageDto Channel1DarkFieldImageDto,
-        DarkFieldImageDto Channel2DarkFieldImageDto,
-        DarkFieldImageDto Channel3DarkFieldImageDto)
+        DarkFieldImageDTO Channel1DarkFieldImageDto,
+        DarkFieldImageDTO Channel2DarkFieldImageDto,
+        DarkFieldImageDTO Channel3DarkFieldImageDto)
         GetDarkFieldLineScanImage(IReadOnlyList<PrescanAODWaveformProfile> darkFieldPrescanDto, LaserXTCCalibrationItemDto laserXTCCalibrationItem)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, darkFieldPrescanDto);

@@ -5,8 +5,8 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.AODAlignment;
-using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.AOD.Alignment;
+using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -164,13 +164,13 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -214,7 +214,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         CalibrationStatuses =
         [
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus()
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
                 {
                     SelectedItem = t,
                     ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]

@@ -161,6 +161,16 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     public string CsvFileDirectory => Path.Combine(AppHomeDirectory, "Csv", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     /// <summary>
+    /// 波形文件路劲
+    /// </summary>
+    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+
+    /// <summary>
+    /// 结果波形文件路劲
+    /// </summary>
+    public string ResultAODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+
+    /// <summary>
     /// 校准文件名称
     /// </summary>
     public string CalibrateHtmlLogFileName => string.IsNullOrWhiteSpace(CalibrateFileName) ? "Calibrate" : $"Calibrate-{FileHelper.RemoveInvalidFileName(CalibrateFileName)}";
@@ -699,7 +709,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
         catch (Exception ex)
         {
-            result = false;
+            result = CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
 
             if (ex is OperationCanceledException)
             {

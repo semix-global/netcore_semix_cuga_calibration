@@ -11,13 +11,13 @@ public sealed partial class CIBConfiguration : ObservableCacheBase, ICloneable<C
     private int _gain = -2;
 
     [ObservableProperty]
-    private bool _isAutoGainControl;
+    private bool _isAutoGainControl = true;
 
     [ObservableProperty]
     private bool _isL0K;
 
     [ObservableProperty]
-    private CIBProfileModeEnum _cIBProfileMode = CIBProfileModeEnum.PMTVoltage;
+    private CIBProfileModeEnum _cIBProfileMode = CIBProfileModeEnum.PMTLog;
 
     public CIBConfiguration Clone() => new()
     {

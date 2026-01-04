@@ -83,14 +83,14 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(30, 60) * _coefficient));
     }
 
     public SxExecuteRet<double> GetOpticalMeasurePower(ProductivityInformation productivityInformation, double flatnessTime)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(1, 30) * _coefficient));
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(30, 60) * _coefficient));
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
@@ -113,6 +113,8 @@ public sealed class CalibrationLaserServiceMockImpl(
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 7, LightCoeff = 0.035 }),
             LaserLightInformation.Default.Clone().AdaptIn(new CgLightConfig { LightProp = 1, LightCoeff = 0.005 })
         };
+
+        Guard.IsTrue(laserLightInformations.DistinctBy(t => t).Count() == laserLightInformations.Length, "Laser Light Information is not unique");
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>([.. laserLightInformations.OrderBy(t => t)]);
     }
@@ -151,6 +153,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S5",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.Low,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
@@ -173,6 +178,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S10",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.Low,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -195,6 +203,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S25",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
@@ -217,6 +228,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S40",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -239,6 +253,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S55",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
@@ -261,6 +278,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S90",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.OI,
+#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -287,6 +307,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S90",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.NI,
+#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -309,6 +332,9 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new C2MProductivityInfo
                 {
                     Name = "S40",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.NI,
+#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
@@ -342,7 +368,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleOpticsMagType(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
     {
         Thread.Sleep(100);
 
@@ -371,7 +397,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
+    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
     {
         Thread.Sleep(100);
 
@@ -384,7 +410,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         var sxExecuteRet = GetProductivityInformations(opticsIlluminationModeEnum);
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(sxExecuteRet.Anything.First(t => t.OpticsIlluminationModeEnum == opticsIlluminationModeEnum && t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
@@ -398,16 +424,16 @@ public sealed class CalibrationLaserServiceMockImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, double coefficient)
+    public SxExecuteRet<bool> SetDefaultPrescanAODWaveProfileByCoefficient(ProductivityInformation productivityInformation, double coefficient)
     {
-        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
         var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles) aodWaveProfile.ApplyCoefficient(coefficient);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(opticsIlluminationModeEnum, prescanAODWaveProfiles);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, prescanAODWaveProfiles);
 
         var isSuccess = sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess;
         if (isSuccess) _coefficient = coefficient;
@@ -437,7 +463,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         var sxExecuteRet = GetProductivityInformations(opticsIlluminationModeEnum);
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRet.Anything.First(t => t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(sxExecuteRet.Anything.First(t => t.OpticsIlluminationModeEnum == opticsIlluminationModeEnum && t.AdaptTo().Mag == opticsMagTypeEnum.ToSxMagEnum()));
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
         var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
@@ -447,12 +473,12 @@ public sealed class CalibrationLaserServiceMockImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
     {
-        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(opticsIlluminationModeEnum, productivityInformation);
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(opticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
 
         return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
@@ -518,37 +544,11 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SetGain(double gain, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetSaturation(double saturation)
-    {
-        Thread.Sleep(100);
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
-    {
-        var cibInformationList =
-            (
-                from pmtId in Enumerable.Range(1, 15)
-                from channelId in Enumerable.Range(1, 3)
-                select CIBInformation.Default.Clone().AdaptIn((pmtId, channelId, true))
-            )
-            .ToList();
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([.. cibInformationList.OrderBy(t => t)]);
     }
 
     public SxExecuteRet<IReadOnlyList<(int PmtId, bool IsUsed, IReadOnlyList<int> ChannelIdList)>> GetCIBConfigList()
@@ -565,28 +565,6 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(new List<List<double>> { Enumerable.Range(1, 800).Select(_ => Random.NextDouble() * 3950).ToList() });
     }
 
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDataDto>> GetCIBOfPMTDataList()
-    {
-        var result = new List<DarkFieldPmtDataDto>();
-
-        for (var i = 1; i < 16; i++)
-        {
-            for (var j = 1; j < 4; j++)
-            {
-                var pmtDataDto = new DarkFieldPmtDataDto
-                {
-                    PmtId = i,
-                    Channel = j,
-                    LineCount = 800,
-                    Data = [.. Enumerable.Range(1, 800).Select(_ => Random.NextDouble())]
-                };
-                result.Add(pmtDataDto);
-            }
-        }
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDataDto>>(result);
-    }
-
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<double>>> GetCIBOfSenseDataList(int count, int pmtId, int channelId)
     {
         Thread.Sleep(2000);
@@ -601,42 +579,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<double>>>(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<DarkFieldPmtDelayDto>> GetCIBDelayList()
-    {
-        var result = new List<DarkFieldPmtDelayDto>();
-
-        for (var i = 1; i < 16; i++)
-        {
-            for (var j = 1; j < 4; j++)
-            {
-                var pMtDelayDto = new DarkFieldPmtDelayDto
-                {
-                    PmtId = i,
-                    ChannelId = j,
-                    PmtDelay = Random.Next(240, 300)
-                };
-                result.Add(pMtDelayDto);
-            }
-        }
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldPmtDelayDto>>(result);
-    }
-
-    public SxExecuteRet<bool> SetCIBDelayList(IReadOnlyList<DarkFieldPmtDelayDto> darkFieldPmtDelayDtoList)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SetCIBChirp(IReadOnlyList<double> gainList, int pmtId, int channelId)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SendPMTGain(List<string> pmtData, List<string> igData, int pmtId, int channelId)
     {
         Thread.Sleep(100);
 
@@ -655,7 +598,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     }
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         OpticsMagTypeEnum opticsMagTypeEnum,
         StageSpeedEnum xStageSpeedEnum,
@@ -667,19 +610,19 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new List<DarkFieldImageDto>(3);
+        var result = new List<DarkFieldImageDTO>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
             var size = (SizeI)image.GetSize();
-            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldImageDto>> GetDarkFieldLineScanImageList(Point position,
+    public SxExecuteRet<List<DarkFieldImageDTO>> GetDarkFieldLineScanImageList(Point position,
         int xWidthPixel,
         ProductivityInformation productivityInformation,
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
@@ -690,13 +633,13 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new List<DarkFieldImageDto>(3);
+        var result = new List<DarkFieldImageDTO>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
             var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
             var size = (SizeI)image.GetSize();
-            result.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -704,7 +647,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
 
     [Obsolete]
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         OpticsMagTypeEnum opticsMagTypeEnum,
@@ -717,7 +660,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var uri = _mockImageFilePath;
 
-        var result = new List<DarkFieldRawScanImageDto>(3);
+        var result = new List<DarkFieldRawScanImageDTO>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
@@ -725,13 +668,13 @@ public sealed class CalibrationLaserServiceMockImpl(
             using var binaryReader = new BinaryReader(fileSteam);
             var (size, _, _) = RawImageFactory.GetSize(binaryReader);
             var sizeI = (SizeI)size;
-            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
+            result.Add(new DarkFieldRawScanImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<DarkFieldRawScanImageDto>> GetDarkFieldLineScanImageList(
+    public SxExecuteRet<List<DarkFieldRawScanImageDTO>> GetDarkFieldLineScanImageList(
         Point startPosition,
         Point endPosition,
         ProductivityInformation productivityInformation,
@@ -743,7 +686,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var uri = _mockImageFilePath;
 
-        var result = new List<DarkFieldRawScanImageDto>(3);
+        var result = new List<DarkFieldRawScanImageDTO>(3);
 
         foreach (var i in Enumerable.Range(0, 3))
         {
@@ -752,14 +695,14 @@ public sealed class CalibrationLaserServiceMockImpl(
             var (size, _, _) = RawImageFactory.GetSize(binaryReader);
             var sizeI = (SizeI)size;
 
-            result.Add(new DarkFieldRawScanImageDto { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
+            result.Add(new DarkFieldRawScanImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
     [Obsolete]
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -772,15 +715,15 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new List<List<DarkFieldImageDto>>(machinePositionList.Count);
+        var result = new List<List<DarkFieldImageDTO>>(machinePositionList.Count);
 
-        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDto>(3)))
+        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDTO>(3)))
         {
             foreach (var i in Enumerable.Range(0, 3))
             {
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
                 var size = (SizeI)image.GetSize();
-                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
             }
 
             result.Add(temp);
@@ -789,7 +732,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(result);
     }
 
-    public SxExecuteRet<List<List<DarkFieldImageDto>>> GetChuckDarkFieldRowLineScanImageList(
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
         List<Point> machinePositionList,
         int xWidthPixel,
         double xPixelSize,
@@ -801,15 +744,15 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
 
-        var result = new List<List<DarkFieldImageDto>>(machinePositionList.Count);
+        var result = new List<List<DarkFieldImageDTO>>(machinePositionList.Count);
 
-        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDto>(3)))
+        foreach (var temp in machinePositionList.Select(_ => new List<DarkFieldImageDTO>(3)))
         {
             foreach (var i in Enumerable.Range(0, 3))
             {
                 var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
                 var size = (SizeI)image.GetSize();
-                temp.Add(new DarkFieldImageDto { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
             }
 
             result.Add(temp);

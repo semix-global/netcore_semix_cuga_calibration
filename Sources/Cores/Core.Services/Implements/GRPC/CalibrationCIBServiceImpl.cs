@@ -1,4 +1,4 @@
-﻿using Core.Models.Enums.Optics;
+﻿using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
@@ -28,7 +28,37 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         });
     }
 
-    public SxExecuteRet<bool> SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits, double maxLogGain)
+    public SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> ToggleEnableMarkMode(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
     {
         throw new NotImplementedException();
     }
@@ -38,15 +68,27 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDto>>> GetPMTValuesAsync(
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
-        ProductivityInformation productivityInformation,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
-        IReadOnlyList<CIBInformation> cibInformations,
-        int imageWidth,
-        bool isAutoFocus,
-        CancellationToken cancellationToken)
+    public SxExecuteRet<bool> SetIlluminationProfile(IReadOnlyList<CIBInformation> cibInformations, IReadOnlyList<double> illuminationProfiles)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<IReadOnlyList<CIBDelayDTO>> GetDelays(IReadOnlyList<CIBInformation> cibInformations)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetDelays(IReadOnlyList<CIBDelayDTO> delays)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point position, IReadOnlyList<CIBInformation> cibInformations, int imageWidth, bool isForward, bool isAutoFocus, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point startPosition, Point endPosition, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

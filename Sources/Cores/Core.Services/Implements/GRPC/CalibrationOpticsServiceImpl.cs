@@ -1,6 +1,7 @@
 ﻿using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
@@ -26,12 +27,27 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         });
     }
 
+    public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<double> GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<double> GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
     {
         throw new NotImplementedException();
     }

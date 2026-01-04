@@ -1,4 +1,5 @@
 ﻿using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Pattern;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
@@ -10,6 +11,12 @@ public interface ICalibrationOpticsService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> Connect();
+
+    /// <summary>
+    /// 获取cuga配置的产率列表
+    /// </summary>
+    /// <returns>cuga配置的产率列表</returns>
+    SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations();
 
     /// <summary>
     /// 获取Relay电极位置
@@ -25,6 +32,21 @@ public interface ICalibrationOpticsService
     /// <param name="value">Relay电极位置mm</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
+
+    /// <summary>
+    /// 获取INC电极位置
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <returns>INC电极位置mm</returns>
+    SxExecuteRet<double> GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
+
+    /// <summary>
+    /// 设置INC电极位置
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="value">INC电极位置mm</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
 
     /// <summary>
     /// 切换照明OD滤光片

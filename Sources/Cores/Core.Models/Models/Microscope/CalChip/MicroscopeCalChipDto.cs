@@ -35,90 +35,86 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public MicroscopeCalChipDtoItem? ChuckItem => Items.Get(CalChipSiteModelEnum.ChuckModel);
+    public MicroscopeCalChipDtoItem ChuckItem => Items.Get(CalChipSiteModelEnum.ChuckModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public MicroscopeCalChipDtoItem? DswItem => Items.Get(CalChipSiteModelEnum.DswModel);
+    public MicroscopeCalChipDtoItem DswItem => Items.Get(CalChipSiteModelEnum.DswModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public MicroscopeCalChipDtoItem? HazeItem => Items.Get(CalChipSiteModelEnum.HazeModel);
+    public MicroscopeCalChipDtoItem HazeItem => Items.Get(CalChipSiteModelEnum.HazeModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public MicroscopeCalChipDtoItem? ShinyWaferItem => Items.Get(CalChipSiteModelEnum.ShinyWaferModel);
+    public MicroscopeCalChipDtoItem ShinyWaferItem => Items.Get(CalChipSiteModelEnum.ShinyWaferModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public MicroscopeCalChipDtoItem? UndefineWaferItem => Items.Get(CalChipSiteModelEnum.UndefinedModel);
-
-    private double _dswToChuckAfEcsValue;
+    public MicroscopeCalChipDtoItem UndefineWaferItem => Items.Get(CalChipSiteModelEnum.UndefinedModel);
 
     public double DswToChuckAfEcsValue
     {
         get
         {
-            var chuckItem = Items.Get(CalChipSiteModelEnum.ChuckModel);
-            var dswItem = Items.Get(CalChipSiteModelEnum.DswModel);
-            if (chuckItem == null || dswItem == null)
-                return 0d;
-            return dswItem.AfEcsValue - chuckItem.AfEcsValue;
-        }
-        set => _dswToChuckAfEcsValue = value;
-    }
+            if (Items.TryGet(CalChipSiteModelEnum.ChuckModel, out var chuckItem) &&
+                Items.TryGet(CalChipSiteModelEnum.DswModel, out var dswItem))
+            {
+                return dswItem.AfEcsValue - chuckItem.AfEcsValue;
+            }
 
-    private double _dswToChuckAfMotorValue;
+            return 0d;
+        }
+    }
 
     public double DswToChuckAfMotorValue
     {
         get
         {
-            var chuckItem = Items.Get(CalChipSiteModelEnum.ChuckModel);
-            var dswItem = Items.Get(CalChipSiteModelEnum.DswModel);
-            if (chuckItem == null || dswItem == null)
-                return 0d;
-            return dswItem.AfMotorValue - chuckItem.AfMotorValue;
-        }
-        set => _dswToChuckAfMotorValue = value;
-    }
+            if (Items.TryGet(CalChipSiteModelEnum.ChuckModel, out var chuckItem) &&
+                Items.TryGet(CalChipSiteModelEnum.DswModel, out var dswItem))
+            {
+                return dswItem.AfMotorValue - chuckItem.AfMotorValue;
+            }
 
-    private double _hazeToChuckAfEcsValue;
+            return 0d;
+        }
+    }
 
     public double HazeToChuckAfEcsValue
     {
         get
         {
-            var chuckItem = Items.Get(CalChipSiteModelEnum.ChuckModel);
-            var hazeItem = Items.Get(CalChipSiteModelEnum.HazeModel);
-            if (chuckItem == null || hazeItem == null)
-                return 0d;
-            return hazeItem.AfEcsValue - chuckItem.AfEcsValue;
-        }
-        set => _hazeToChuckAfEcsValue = value;
-    }
+            if (Items.TryGet(CalChipSiteModelEnum.ChuckModel, out var chuckItem) &&
+                Items.TryGet(CalChipSiteModelEnum.HazeModel, out var hazeItem))
+            {
+                return hazeItem.AfEcsValue - chuckItem.AfEcsValue;
+            }
 
-    private double _hazeToChuckAfMotorValue;
+            return 0d;
+        }
+    }
 
     public double HazeToChuckAfMotorValue
     {
         get
         {
-            var chuckItem = Items.Get(CalChipSiteModelEnum.ChuckModel);
-            var hazeItem = Items.Get(CalChipSiteModelEnum.HazeModel);
-            if (chuckItem == null || hazeItem == null)
-                return 0d;
-            return hazeItem.AfMotorValue - chuckItem.AfMotorValue;
+            if (Items.TryGet(CalChipSiteModelEnum.ChuckModel, out var chuckItem) &&
+                Items.TryGet(CalChipSiteModelEnum.HazeModel, out var hazeItem))
+            {
+                return hazeItem.AfMotorValue - chuckItem.AfEcsValue;
+            }
+
+            return 0d;
         }
-        set => _hazeToChuckAfMotorValue = value;
     }
 
     #region Mapper
@@ -146,32 +142,33 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
 
     public CalibrationMicroscopeCalChip AdaptTo()
     {
-        var chuck = ChuckItem;
-        var dsw = DswItem;
-        var haze = HazeItem;
-        var shiny = ShinyWaferItem;
-        var undefine = UndefineWaferItem;
+        var chuckItemTemp = Items.TryGet(CalChipSiteModelEnum.ChuckModel, out var chuckItem) ? chuckItem : null;
+        var dswItemTemp = Items.TryGet(CalChipSiteModelEnum.DswModel, out var dswItem) ? dswItem : null;
+        var hazeItemTemp = Items.TryGet(CalChipSiteModelEnum.HazeModel, out var hazeItem) ? hazeItem : null;
+        var shinyItemTemp = Items.TryGet(CalChipSiteModelEnum.ShinyWaferModel, out var shinyWaferItem) ? shinyWaferItem : null;
+        var undefineItemTemp = Items.TryGet(CalChipSiteModelEnum.UndefinedModel, out var undefinedItem) ? undefinedItem : null;
+
         return new CalibrationMicroscopeCalChip
         {
             CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
-            ChuckAfEcsValue = chuck is null ? 0d : chuck.AfEcsValue,
-            ChuckAfMotorValue = chuck is null ? 0d : chuck.AfMotorValue,
-            DswBrightFieldMachinePosition = dsw is null ? Point.Origin.ToCgPoint() : dsw.BrightFieldMachinePosition.ToCgPoint(),
-            DswDarkFieldMachinePosition = dsw is null ? Point.Origin.ToCgPoint() : dsw.DarkFieldMachinePosition.ToCgPoint(),
-            DswEcsValue = dsw is null ? 0d : dsw.EcsValue,
-            DswAfEcsValue = dsw is null ? 0d : dsw.AfEcsValue,
-            DswAfMotorValue = dsw is null ? 0d : dsw.AfMotorValue,
-            UndefinedBrightFieldMachinePosition = undefine is null ? Point.Origin.ToCgPoint() : undefine.BrightFieldMachinePosition.ToCgPoint(),
-            UndefinedDarkFieldMachinePosition = undefine is null ? Point.Origin.ToCgPoint() : undefine.DarkFieldMachinePosition.ToCgPoint(),
-            UndefinedEcsValue = undefine is null ? 0 : undefine.EcsValue,
-            HazeBrightFieldMachinePosition = haze is null ? Point.Origin.ToCgPoint() : haze.BrightFieldMachinePosition.ToCgPoint(),
-            HazeDarkFieldMachinePosition = haze is null ? Point.Origin.ToCgPoint() : haze.DarkFieldMachinePosition.ToCgPoint(),
-            HazeEcsValue = haze is null ? 0d : haze.EcsValue,
-            HazeAfEcsValue = haze is null ? 0d : haze.AfEcsValue,
-            HazeAfMotorValue = haze is null ? 0d : haze.AfMotorValue,
-            ShinyWaferBrightFieldMachinePosition = shiny is null ? Point.Origin.ToCgPoint() : shiny.BrightFieldMachinePosition.ToCgPoint(),
-            ShinyWaferDarkFieldMachinePosition = shiny is null ? Point.Origin.ToCgPoint() : shiny.DarkFieldMachinePosition.ToCgPoint(),
-            ShinyWaferEcsValue = shiny is null ? 0d : shiny.EcsValue,
+            ChuckAfEcsValue = chuckItemTemp?.AfEcsValue ?? 0d,
+            ChuckAfMotorValue = chuckItemTemp?.AfMotorValue ?? 0d,
+            DswBrightFieldMachinePosition = dswItemTemp is null ? Point.Origin.ToCgPoint() : dswItemTemp.BrightFieldMachinePosition.ToCgPoint(),
+            DswDarkFieldMachinePosition = dswItemTemp is null ? Point.Origin.ToCgPoint() : dswItemTemp.DarkFieldMachinePosition.ToCgPoint(),
+            DswEcsValue = dswItemTemp?.EcsValue ?? 0d,
+            DswAfEcsValue = dswItemTemp?.AfEcsValue ?? 0d,
+            DswAfMotorValue = dswItemTemp?.AfMotorValue ?? 0d,
+            UndefinedBrightFieldMachinePosition = undefineItemTemp?.BrightFieldMachinePosition.ToCgPoint() ?? Point.Origin.ToCgPoint(),
+            UndefinedDarkFieldMachinePosition = undefineItemTemp?.DarkFieldMachinePosition.ToCgPoint() ?? Point.Origin.ToCgPoint(),
+            UndefinedEcsValue = undefineItemTemp?.EcsValue ?? 0,
+            HazeBrightFieldMachinePosition = hazeItemTemp?.BrightFieldMachinePosition.ToCgPoint() ?? Point.Origin.ToCgPoint(),
+            HazeDarkFieldMachinePosition = hazeItemTemp?.DarkFieldMachinePosition.ToCgPoint() ?? Point.Origin.ToCgPoint(),
+            HazeEcsValue = hazeItemTemp?.EcsValue ?? 0d,
+            HazeAfEcsValue = hazeItemTemp?.AfEcsValue ?? 0d,
+            HazeAfMotorValue = hazeItemTemp?.AfMotorValue ?? 0d,
+            ShinyWaferBrightFieldMachinePosition = shinyItemTemp?.BrightFieldMachinePosition.ToCgPoint() ?? Point.Origin.ToCgPoint(),
+            ShinyWaferDarkFieldMachinePosition = shinyItemTemp?.DarkFieldMachinePosition.ToCgPoint() ?? Point.Origin.ToCgPoint(),
+            ShinyWaferEcsValue = shinyItemTemp?.EcsValue ?? 0d,
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
             IsRequiredCalibrate = IsRequiredSelfCheck

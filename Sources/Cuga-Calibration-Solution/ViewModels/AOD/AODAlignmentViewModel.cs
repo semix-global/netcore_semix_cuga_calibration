@@ -1,32 +1,33 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.AOD.AODAlignment;
+using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -40,14 +41,11 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    public string ResultAODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Productivity" },
-        new() { StepName = "Find Position" },
+        new() { StepName = "Image Param" },
+        new() { StepName = "Find Haze Position" },
         new() { StepName = "AOD Alignment" }
     ];
 
@@ -56,7 +54,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private AODAlignmentDto _calibratingItem = new();
+    private AODAlignmentDTO _calibratingItem = new();
 
     [ObservableProperty]
     private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
@@ -64,10 +62,10 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<AODAlignmentDto> _reviews = [];
+    private IReadOnlyList<AODAlignmentDTO> _reviews = [];
 
     [ObservableProperty]
-    private IReadOnlyList<AODAlignmentDto> _selectedReviewItems = [];
+    private IReadOnlyList<AODAlignmentDTO> _selectedReviewItems = [];
 
     #endregion 界面相关
 
@@ -77,7 +75,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     private AODAlignmentCache _cache = new();
 
     [ObservableProperty]
-    private AODAlignmentDto[] _calibrations = [];
+    private AODAlignmentDTO[] _calibrations = [];
 
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
@@ -125,26 +123,26 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         }
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses =
-            [
-                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false })
-            ];
+            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AODAlignmentCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<AODAlignmentDto>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODAlignmentCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<AODAlignmentDTO>();
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.NIProductivityInformations.Contains(t.ProductivityInformation))
+            .. Calibrations
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+                    CalibrationStatuses
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .IsCalibrated = t.IsCalibrated;
 
                     return t;
                 })
         ];
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -167,7 +165,34 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
-        return Reviews.Any(t => t.IsCalibrated);
+        return Reviews.Count > 0;
+    }
+
+    protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                return true;
+
+            case 1:
+                return true;
+
+            case 2:
+                return true;
+
+            case 3:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
+
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
@@ -177,21 +202,29 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
-                CalibratingItem = new AODAlignmentDto();
-
-                StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition != Point.Origin
-                    ? Cache.Item.FindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                CalibratingItem = new AODAlignmentDTO();
 
                 return true;
 
             case 1:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.HazeFindBFMachinePosition
+                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+
                 return true;
 
             case 2:
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
-                DialogWindowProvider.ShowDialog($"AOD Alignment {Cache.ProductivityInformation} Ok!");
+
+                return true;
+
+            case 3:
+                CalibrationStatuses
+                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
+                    .IsCalibrated = true;
+
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -208,7 +241,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -217,143 +250,189 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return true;
+            return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.CIBInformation
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
+                   && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step2Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+
             StageViewModel.SetAbsoluteStageTheta(0);
-            Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+            Cache.Item.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
-                Cache.Item.FindBFMachinePosition
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.CIBInformation,
+                Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             var detectImageDirectory = ImageFileDirectory;
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                detectImageDirectory,
                 Cache.ProductivityInformation,
-                Cache.Item.FindBFMachinePosition,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
-                Cache.Item.PMTId,
-                Cache.Item.ChannelId,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.CIBInformation,
+                Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
-                GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+                FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 Cache.Item.StartPrescanFrequency,
                 Cache.Item.StepPrescanFrequency,
-                Cache.Item.StopPrescanFrequency
+                Cache.Item.StopPrescanFrequency,
+                Cache.Item.RangeSkipFitCount,
+                Cache.Threshold,
+                detectImageDirectory,
+                Cache.ProductivityInformation.YPixel
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem = new AODAlignmentDto
+            CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
+            CalibratingItem.Items = [];
+            CalibratingItem.Slope = 0d;
+            CalibratingItem.Intercept = 0d;
+            CalibratingItem.RSquared = 0d;
+            CalibratingItem.FitAlignmentPoints = [];
+            CalibratingItem.IsCalibrated = false;
+
+            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
+            StageViewModel.SetAbsoluteStageTheta(0d);
+            StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+
+            try
             {
-                ProductivityInformation = Cache.ProductivityInformation,
-                PMTId = Cache.Item.PMTId,
-                ChannelId = Cache.Item.ChannelId
-            };
-            Cache.Item.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+                Logger.LogHtmlInformation("Alignment", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            var yPixelHeight = Cache.ProductivityInformation.YPixel;
+                var prescanFrequencies = Generate.LinearRange(Cache.Item.StartPrescanFrequency, Cache.Item.StepPrescanFrequency, Cache.Item.StopPrescanFrequency);
+                Guard.IsNotEmpty(prescanFrequencies);
 
-            foreach (var prescanFrequency in Generate.LinearRange(Cache.Item.StartPrescanFrequency, Cache.Item.StepPrescanFrequency, Cache.Item.StopPrescanFrequency))
-            {
-                var item = new AODAlignmentItemDto { PrescanFrequency = prescanFrequency };
-
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var generatePrescanAODWaveformParam = Cache.Item.GeneratePrescanAODWaveformParam.Clone();
-
-                generatePrescanAODWaveformParam.WithFrequencyFlatness(prescanFrequency);
-                generatePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-                var (aodWaveformResultItem, exceptionItem) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationToken);
-                if (aodWaveformResultItem.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exceptionItem);
-
-                item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResultItem);
-                item.PrescanAODWaveformResultFilePath = aodWaveformResultItem.FilePath;
-
-                LaserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum.OI, item.PrescanAODWaveformProfiles);
-
-                using var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
-                    CalChipSiteModelEnum.HazeModel,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
-                    (true, null),
-                    false,
-                    Cache.Item.CIBConfiguration,
-                    Cache.ProductivityInformation,
-                    OpticsIlluminationModeEnum.NI,
-                    xWidthPixel: Cache.Item.ImageWidth,
-                    pmtId: Cache.Item.PMTId,
-                    channelId: Cache.Item.ChannelId,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
-
-                item.ImageFilePath = $"{detectImageDirectory}\\{item.PrescanFrequency:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg";
-                darkFieldImageDto.Image.Save(item.ImageFilePath);
-                item.ImageProjectionYs = darkFieldImageDto.ProjectionYs;
-                item.ImageProjectionYsMaxPixel = Vector<double>.Build.DenseOfEnumerable(item.ImageProjectionYs).MaximumIndex();
-
-                CalibratingItem.Items = [.. CalibratingItem.Items, item];
-
-                Logger.LogHtmlInformation($"{item.PrescanFrequency:0.###}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                foreach (var prescanFrequency in prescanFrequencies)
                 {
-                    generatePrescanAODWaveformParam = new HtmlQuote(generatePrescanAODWaveformParam.ToHtmlAnonymous()),
-                    item.PrescanAODWaveformResultFilePath,
-                    PrescanAODWaveformProfiles = new HtmlTable([.. item.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                    HtmlImage = new HtmlImage(item.ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    ImageProjectionYs = new HtmlPlot2DLinesChart([(string.Empty, item.ImageProjectionYs.ToPoints())], string.Empty),
-                    item.ImageProjectionYsMaxPixel
-                }), HtmlLogUniqueId.LoggingHtml());
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var generatePrescanAODWaveformParam = Cache.Item.FlatnessGeneratePrescanAODWaveformParam.Clone();
+
+                    generatePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+                    generatePrescanAODWaveformParam.WithFrequencyFlatness(prescanFrequency);
+                    generatePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+                    var (aodWaveformResultItem, exceptionItem) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+                    if (aodWaveformResultItem.IsSuccess == false) throw GuardUtils.IsNotNullAndReturn(exceptionItem);
+
+                    var itemItem = new AODAlignmentDTOItem
+                    {
+                        PrescanFrequency = prescanFrequency,
+                        PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResultItem),
+                        PrescanAODWaveformResultFilePath = aodWaveformResultItem.FilePath
+                    };
+
+                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, itemItem.PrescanAODWaveformProfiles);
+
+                    using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
+                        Cache.ProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
+                        hazeBFPosition,
+                        Cache.Item.CIBInformation,
+                        Cache.Item.ImageWidth,
+                        (false, CalChipSiteModelEnum.HazeModel),
+                        (false, Cache.Item.CIBConfiguration),
+                        (true, null),
+                        false,
+                        cancellationToken);
+
+                    var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.PrescanFrequency:0.###}MHz", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                    darkFieldImage.Image.Save(imageFilePath);
+
+                    itemItem.ImageFilePath = imageFilePath;
+                    itemItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
+                    itemItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+
+                    CalibratingItem.Items = [.. CalibratingItem.Items, itemItem];
+
+                    Logger.LogHtmlInformation($"{itemItem.PrescanFrequency:0.###}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(generatePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                        itemItem.PrescanAODWaveformResultFilePath,
+                        PrescanAODWaveformProfiles = new HtmlTable([.. itemItem.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
+                        itemItem.RawImageFilePath,
+                        HtmlImage = new HtmlImage(itemItem.ImageFilePath)
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+
+                var skipItemItems = CalibratingItem.Items.Skip(Cache.Item.RangeSkipFitCount).SkipLast(Cache.Item.RangeSkipFitCount).ToArray();
+                var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(
+                    Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => t.PrescanFrequency)),
+                    Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => (double)GuardUtils.IsNotNullAndReturn(t.ImageHorizontalProjectsMaxPixel))));
+
+                CalibratingItem.Slope = slope;
+                CalibratingItem.Intercept = intercept;
+                CalibratingItem.RSquared = HostEnvironment.IsProduction() ? rSquared : Random.Shared.NextDouble();
+                CalibratingItem.FitAlignmentPoints = [.. skipItemItems.Index().Select(t => new Point(t.Item.PrescanFrequency, yPredicted[t.Index]))];
+                CalibratingItem.IsCalibrated = CalibratingItem.RSquared >= Cache.Threshold;
+
+                var htmlBullet = new HtmlBullet(new
+                {
+                    CalibratingItem.Slope,
+                    CalibratingItem.Intercept,
+                    CalibratingItem.RSquared,
+                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                });
+
+                if (CalibratingItem.IsCalibrated)
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                else
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                Guard.IsTrue(Save([CalibratingItem], cancellationToken));
+
+                return CalibratingItem.IsCalibrated;
             }
-
-            var itemPoints = CalibratingItem.ItemPoints.Skip(1).SkipLast(1).ToArray();
-            var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(itemPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(itemPoints.Select(t => t.Y)));
-            CalibratingItem.Slope = slope;
-            CalibratingItem.Intercept = intercept;
-            CalibratingItem.RSquared = rSquared;
-            CalibratingItem.ItemFitPoints = [.. itemPoints.Select((t, i) => new Point(t.X, yPredicted[i]))];
-
-            Cache.Item.GeneratePrescanAODWaveformParam.BandWidth = Math.Abs(yPixelHeight / CalibratingItem.Slope);
-            Cache.Item.GeneratePrescanAODWaveformParam.CenterFrequency = (yPixelHeight / 2d - CalibratingItem.Intercept) / CalibratingItem.Slope;
-            Cache.Item.GeneratePrescanAODWaveformParam.FlatnessTime = yPixelHeight * 4d;
-            Cache.Item.GeneratePrescanAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
-
-            var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.Item.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
-            if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
-
-            CalibratingItem.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
-            CalibratingItem.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            finally
             {
-                GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
-                CalibratingItem.PrescanAODWaveformResultFilePath,
-                PrescanAODWaveformProfiles = new HtmlTable([.. CalibratingItem.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                Result = new HtmlPlot2DLinesChart([
-                    (nameof(CalibratingItem.ItemPoints), CalibratingItem.ItemPoints),
-                    (nameof(CalibratingItem.ItemFitPoints), CalibratingItem.ItemFitPoints)
-                ], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+            }
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyActionAsync(CancellationToken cancellationToken)
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         if (SelectedReviewItems.Count == 0)
         {
@@ -363,43 +442,80 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            var errorMessageStringBuilder = new StringBuilder();
+
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var title = selectedReviewItem.ProductivityInformation.ToString();
+
+                /*if (selectedReviewItem.IsCalibrated == false)
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    continue;
+                }*/
+
                 Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
 
-                selectedReviewItem.IsVerified = true;
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                Guard.IsTrue(Save(selectedReviewItem, cancellationToken));
-
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    Result = new HtmlPlot2DLinesChart([
-                        (nameof(selectedReviewItem.ItemPoints), selectedReviewItem.ItemPoints),
-                        (nameof(selectedReviewItem.ItemFitPoints), selectedReviewItem.ItemFitPoints)
-                    ], string.Empty)
+                    Cache.ProductivityInformation,
+                    Cache.Threshold
                 }), HtmlLogUniqueId.LoggingHtml());
+
+                if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
+
+                var htmlBullet = new HtmlBullet(new
+                {
+                    selectedReviewItem.Slope,
+                    selectedReviewItem.Intercept,
+                    selectedReviewItem.RSquared,
+                    ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                });
+
+                if (selectedReviewItem.IsOk)
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                else
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
             }
 
+            Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
-            DialogWindowProvider.ShowDialog("Verify OK");
+            var result = SelectedReviewItems.All(t => t.IsOk);
 
-            return true;
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
         }).ConfigureAwait(false);
     }
 
-    private bool Save(AODAlignmentDto dto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<AODAlignmentDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
-        update(dto);
         update(Cache);
 
-        Calibrations =
-        [
-            .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-            dto.Clone()
-        ];
+        foreach (var dto in dtos)
+        {
+            update(dto);
+            Calibrations =
+            [
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
+                dto.Clone()
+            ];
+        }
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
@@ -13,9 +12,6 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     where TResult : AODWaveformCommonResult, new()
 {
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
-
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -63,7 +59,6 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
 
     public virtual object ToHtmlAnonymous() => new
     {
-        OpticsIlluminationModeEnum,
         ProductivityInformation,
         DefaultAmplitude,
         MeasureMaxPowerMachinePosition,

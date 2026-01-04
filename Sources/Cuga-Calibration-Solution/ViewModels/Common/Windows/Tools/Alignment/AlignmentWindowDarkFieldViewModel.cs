@@ -53,6 +53,9 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     private LaserViewModel _laserViewModel;
 
     [ObservableProperty]
+    private CIBViewModel _cIBViewModel;
+
+    [ObservableProperty]
     private AlignmentParamWindowDarkFieldViewModel _alignmentParamWindowDarkFieldViewModel;
 
     [ObservableProperty]
@@ -120,6 +123,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         StageViewModel stageViewModel,
         MicroscopeViewModel microscopeViewModel,
         LaserViewModel laserViewModel,
+        CIBViewModel cibViewModel,
         IDialogWindowProvider dialogWindowProvider,
         ILogger<AlignmentWindowBrightFieldViewModel> logger,
         IMessenger messenger,
@@ -143,6 +147,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         _stageViewModel = stageViewModel;
         _microscopeViewModel = microscopeViewModel;
         _laserViewModel = laserViewModel;
+        _cIBViewModel = cibViewModel;
         messenger.RegisterAll(this);
     }
 
@@ -163,7 +168,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                                                     && t is { IsOk: true, IsVerified: true })
                         ?? Cache;
 
-                var productivityInformations = LaserViewModel.GetProductivityInformations(Cache.OpticsIlluminationModeEnum);
+                var productivityInformations = _applicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum);
 
                 if (_applicationCookie.MicroscopeLensInformations.Contains(Cache.LowMag) == false ||
                     _applicationCookie.MicroscopeLensInformations.Contains(Cache.HighMag) == false)
@@ -249,7 +254,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
             var magnificationEnum = MicroscopeViewModel.GetCurrentMicroscopeLensInformation();
             if (StepIndex is 2 or 3)
             {
-                LaserViewModel.ToggleCIBControlModeAndProfileType(AlignmentParamWindowDarkFieldViewModel.CIBConfiguration);
+                CIBViewModel.SetCIBConfiguration(_applicationCookie.CIBInformations, AlignmentParamWindowDarkFieldViewModel.CIBConfiguration);
             }
 
             switch (StepIndex)

@@ -22,7 +22,7 @@ public sealed partial class OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus 
         newValue.ListChanged += OnValueOnListChanged;
     }
 
-    private void OnValueOnListChanged(object o, ListChangedEventArgs listChangedEventArgs)
+    private void OnValueOnListChanged(object? sender, ListChangedEventArgs listChangedEventArgs)
     {
         OnPropertyChanged(nameof(IsCalibrated));
     }

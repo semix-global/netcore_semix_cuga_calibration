@@ -31,7 +31,7 @@ public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
     public MicroscopePixelSizeCacheItem CurrentCalibrationCacheItem =>
-        MicroscopePixelSizeCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopePixelSizeCacheItem() { LensInformation = MicroscopeLensInformation.Clone() });
+        MicroscopePixelSizeCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopePixelSizeCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
 
     public void SetFindFocusPosition(Point position)
     {

@@ -1,8 +1,6 @@
-﻿using System.Windows.Controls;
+﻿namespace CugaCalibration.Views.Chuck.AlignmentDegreeOffset.Children;
 
-namespace CugaCalibration.Views.Chuck.AlignmentDegreeOffset.Children;
-
-public partial class Step2View : UserControl
+public partial class Step2View
 {
     public Step2View()
     {

@@ -43,7 +43,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     [
         new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Image Param" },
-        new() { StepName = "Find Position" },
+        new() { StepName = "Find DSW Position" },
         new() { StepName = "Relay" }
     ];
 
@@ -131,7 +131,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            ..Calibrations.Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
+            ..Calibrations
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
                 .Select(t =>
                 {
                     CalibrationStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;
@@ -182,8 +183,9 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition));
 
                 return true;
 
@@ -204,9 +206,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 return true;
 
             case 1:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition != Point.Origin
-                    ? Cache.Item.FindBFMachinePosition
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.DSWFindBFMachinePosition
                     : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.DswItem).BrightFieldMachinePosition));
 
                 return true;
@@ -216,7 +219,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
             case 3:
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum).IsCalibrated = true;
-                DialogWindowProvider.ShowDialog($"AOD Delay Offset {Cache.OpticsIlluminationModeEnum.Humanize()} Ok!");
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -233,7 +236,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -248,14 +251,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetAbsoluteStageTheta(0);
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.DswItem).BrightFieldMachinePosition));
-
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.Item.MicroscopeLensInformation,
@@ -273,16 +272,23 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
+            Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+
             StageViewModel.SetAbsoluteStageTheta(0);
-            Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+            Cache.Item.DSWFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.Item.FindBFMachinePosition
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.ProductivityInformation,
+                Cache.Item.LaserLightInformation,
+                Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.DSWFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -290,13 +296,14 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
+            var detectImageDirectory = ImageFileDirectory;
+
             var currentMotorAbsoluteValue = OpticsViewModel.GetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum);
             var nmPerEcs = AfViewModel.GetNmPerEcs();
-            var detectImageDirectory = ImageFileDirectory;
             // ECS/mm relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大 mm
             var defaultSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* mm */
                                * 1e6d /* mm 转为 nm */
@@ -311,7 +318,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.CIBInformation,
-                Cache.Item.FindBFMachinePosition,
+                Cache.Item.DSWFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.OpticsIlluminationDegreeAngle,
                 Cache.Item.DefaultRelayMotorRatio,
@@ -326,13 +333,9 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Threshold,
                 currentMotorAbsoluteValue,
                 nmPerEcs,
-                detectImageDirectory,
-                defaultSlope
+                defaultSlope,
+                detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
-
-            var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
 
             CalibratingItem.OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum;
             CalibratingItem.Items = [];
@@ -344,6 +347,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             CalibratingItem.MinRelayMotorAbsoluteValue = 0d;
             CalibratingItem.MaxRelayMotorAbsoluteValue = 0d;
             CalibratingItem.IsCalibrated = false;
+
+            var dswBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition);
+            StageViewModel.SetAbsoluteStageTheta(0d);
+            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
 
             try
             {
@@ -359,22 +366,22 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, relayMotorAbsoluteValue);
 
-                    var opticsRelayDTOItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
-                    CalibratingItem.Items = [.. CalibratingItem.Items, opticsRelayDTOItem];
+                    var itemItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
+                    CalibratingItem.Items = [.. CalibratingItem.Items, itemItem];
 
                     var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
 
-                    CatchImage(Generate.LinearRange(
+                    await CatchImageAsync(Generate.LinearRange(
                         Cache.Item.StartRoughECS + deltaECS,
                         Cache.Item.StepRoughECS,
                         Cache.Item.StopRoughECS + deltaECS));
-                    GuardUtils.IsNotNullAndReturn(opticsRelayDTOItem.MaxItem);
+                    GuardUtils.IsNotNullAndReturn(itemItem.MaxItem);
 
-                    CatchImage(Generate.LinearRange(
-                        opticsRelayDTOItem.MaxItem.ECS - Cache.Item.RangeRefinedECS,
+                    await CatchImageAsync(Generate.LinearRange(
+                        itemItem.MaxItem.ECS - Cache.Item.RangeRefinedECS,
                         Cache.Item.StepRefinedECS,
-                        opticsRelayDTOItem.MaxItem.ECS + Cache.Item.RangeRefinedECS));
-                    GuardUtils.IsNotNullAndReturn(opticsRelayDTOItem.MaxItem);
+                        itemItem.MaxItem.ECS + Cache.Item.RangeRefinedECS));
+                    GuardUtils.IsNotNullAndReturn(itemItem.MaxItem);
 
                     if (CalibratingItem.Items.Count > 1)
                     {
@@ -398,15 +405,15 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
                         defalutSlope = defaultSlope,
-                        opticsRelayDTOItem.MaxItem.ECS,
-                        opticsRelayDTOItem.MaxItem.Quality,
-                        opticsRelayDTOItem.MaxItem.RawImageFilePath,
-                        Image = new HtmlImage(opticsRelayDTOItem.MaxItem.ImageFilePath)
+                        itemItem.MaxItem.ECS,
+                        itemItem.MaxItem.Quality,
+                        itemItem.MaxItem.RawImageFilePath,
+                        Image = new HtmlImage(itemItem.MaxItem.ImageFilePath)
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     continue;
 
-                    void CatchImage(IReadOnlyList<double> ecses)
+                    async Task CatchImageAsync(IReadOnlyList<double> ecses)
                     {
                         Guard.IsNotEmpty(ecses);
 
@@ -415,21 +422,24 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         foreach (var ecs in ecses)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
+
                             Logger.LogHtmlInformation($"{ecs:0.###}ECS", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
                             AfViewModel.SetSensorEcsValue(ecs);
 
-                            using var darkFieldImage = LaserViewModel.GetDarkFieldLineScanImage(
-                                Cache.OpticsIlluminationModeEnum,
+                            var itemItemData = new OpticsRelayDTOItem.Item { ECS = ecs };
+
+                            using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
                                 Cache.Item.ProductivityInformation,
-                                CalChipSiteModelEnum.DswModel,
                                 StageCoordinateSystemEnum.Dark,
-                                brightFieldPosition,
+                                dswBFPosition,
+                                Cache.Item.CIBInformation,
+                                Cache.Item.ImageWidth,
+                                (false, CalChipSiteModelEnum.DswModel),
+                                (false, Cache.Item.CIBConfiguration),
                                 (false, Cache.Item.LaserLightInformation),
                                 false,
-                                Cache.Item.CIBInformation,
-                                Cache.Item.CIBConfiguration,
-                                Cache.Item.ImageWidth,
+                                cancellationToken,
                                 isAutoFocus: false);
 
                             var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
@@ -437,15 +447,18 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                             var filePath = Path.Combine(currentDetectImageDirectory, $"{ecs:0.###}ECS_{quality:0.###}Quality_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                             darkFieldImage.Image.Save(filePath);
 
-                            var item = new OpticsRelayDTOItem.Item { ECS = ecs, Quality = quality, ImageFilePath = filePath, RawImageFilePath = darkFieldImage.RawImageFilePath };
-                            opticsRelayDTOItem.Qualitys = [.. ((IReadOnlyList<OpticsRelayDTOItem.Item>)[.. opticsRelayDTOItem.Qualitys, item]).OrderBy(t => t.ECS)];
+                            itemItemData.Quality = quality;
+                            itemItemData.ImageFilePath = filePath;
+                            itemItemData.RawImageFilePath = darkFieldImage.RawImageFilePath;
+
+                            itemItem.Qualitys = [.. ((IReadOnlyList<OpticsRelayDTOItem.Item>)[.. itemItem.Qualitys, itemItemData]).OrderBy(t => t.ECS)];
 
                             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                             {
-                                item.ECS,
-                                item.Quality,
-                                item.ImageFilePath,
-                                item.RawImageFilePath
+                                itemItemData.ECS,
+                                itemItemData.Quality,
+                                itemItemData.ImageFilePath,
+                                itemItemData.RawImageFilePath
                             }), HtmlLogUniqueId.LoggingHtml());
                         }
                     }
@@ -476,13 +489,14 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             finally
             {
                 OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, currentMotorAbsoluteValue);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(brightFieldPosition);
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
             }
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyActionAsync(CancellationToken cancellationToken)
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         if (SelectedReviewItems.Count == 0)
         {
@@ -492,16 +506,30 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.Threshold
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             var errorMessageStringBuilder = new StringBuilder();
 
-            foreach (var selectedReviewItem in SelectedReviewItems)
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.OpticsIlluminationModeEnum))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var title = selectedReviewItem.OpticsIlluminationModeEnum.Humanize();
+
+                /*if (selectedReviewItem.IsCalibrated == false)
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    continue;
+                }*/
+
+                Cache.OpticsIlluminationModeEnum = selectedReviewItem.OpticsIlluminationModeEnum;
+
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                {
+                    Cache.OpticsIlluminationModeEnum,
+                    Cache.Threshold
+                }), HtmlLogUniqueId.LoggingHtml());
+
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
                 var htmlBullet = new HtmlBullet(new
@@ -515,11 +543,11 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 });
 
                 if (selectedReviewItem.IsOk)
-                    Logger.LogHtmlInformation($"OK: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
                 {
-                    errorMessageStringBuilder.AppendLine($"{selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}: Error");
-                    Logger.LogHtmlError($"Error: {selectedReviewItem.OpticsIlluminationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
             }
 

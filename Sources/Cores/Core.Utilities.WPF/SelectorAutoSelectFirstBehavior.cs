@@ -30,9 +30,9 @@ public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
         GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
-    private void OnTabControlLoaded(object sender, RoutedEventArgs e) => TrySelectFirstItem();
+    private void OnTabControlLoaded(object? sender, RoutedEventArgs e) => TrySelectFirstItem();
 
-    private void OnItemsSourceChanged(object sender, EventArgs e) => TrySelectFirstItem();
+    private void OnItemsSourceChanged(object? sender, EventArgs e) => TrySelectFirstItem();
 
     private void TrySelectFirstItem()
     {

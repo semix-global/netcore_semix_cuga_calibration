@@ -5,13 +5,14 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.AODAlignment;
-using Core.Models.Models.AOD.AODDelay;
+using Core.Models.Models.AOD.Alignment;
+using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
@@ -23,7 +24,6 @@ using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.XPixelSize;
 using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
@@ -130,7 +130,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private LaserLineCentricityItemDto[] _laserLineCentricityItems = [];
 
     [ObservableProperty]
-    private LaserXPixelSizeItemDto[] _laserXPixelSizeItems = [];
+    private CIBXPixelSizeDTO[] _cIBXPixelSizeItems = [];
 
     #endregion 缓存
 
@@ -206,19 +206,19 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -242,13 +242,13 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserXPixelSizeItemDto>(out var laserXPixelSizeItems, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBXPixelSizeDTO>(out var cibXPixelSizeItems, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        LaserXPixelSizeItems = laserXPixelSizeItems;
+        CIBXPixelSizeItems = cibXPixelSizeItems;
 
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPixelSizeItemDto>(out var laserPixelSizeItems, out errorMessage) == false)
         {
@@ -1325,7 +1325,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, strings) + Environment.NewLine + string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
                 }
 
-                var darkImageRepeatList = new List<List<DarkFieldImageDto>>();
+                var darkImageRepeatList = new List<List<DarkFieldImageDTO>>();
                 foreach (var _ in Enumerable.Range(1, Cache.RepeatCount))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -1378,7 +1378,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                             using var darkFieldImageDto = rowDarkFieldImageDtoList.ElementAt(column - isInWaferRowList[0].Index);
                             var ySizePerPixel = LaserPixelSizeItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId && t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).YPixelSize;
-                            var xSizePerPixel = LaserXPixelSizeItems.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).XPixelSize;
+                            var xSizePerPixel = CIBXPixelSizeItems.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).XPixelSize;
 
                             var originImageFilePath = $"{detectImageDirectory}\\row({row})_col({column})_index({index})_Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
                             darkFieldImageDto.Image.Save(originImageFilePath);

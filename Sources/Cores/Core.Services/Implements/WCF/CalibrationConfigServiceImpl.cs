@@ -51,14 +51,14 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess($"{sxExecuteRet.Anything}.dat");
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
     {
         var sxExecuteRet = GetPrescanChirpAODWaveConfigs();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRet.Msg, []);
 
         var result = sxExecuteRet.Anything
             .Where(t => t.AODWaveformProfile is PrescanAODWaveformProfile
-                        && t.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
+                        && t.OpticsIlluminationModeEnum == productivityInformation.OpticsIlluminationModeEnum
                         && t.OpticsMagType == productivityInformation.OpticsMagType)
             .Select(t => t.AODWaveformProfile)
             .OfType<PrescanAODWaveformProfile>()
@@ -69,14 +69,14 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<PrescanAODWaveformProfile>>(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation)
     {
         var sxExecuteRet = GetPrescanChirpAODWaveConfigs();
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRet.Msg, []);
 
         var result = sxExecuteRet.Anything
             .Where(t => t.AODWaveformProfile is ChirpAODWaveformProfile
-                        && t.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
+                        && t.OpticsIlluminationModeEnum == productivityInformation.OpticsIlluminationModeEnum
                         && t.OpticsMagType == productivityInformation.OpticsMagType)
             .Select(t => t.AODWaveformProfile)
             .OfType<ChirpAODWaveformProfile>()
@@ -87,12 +87,12 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ChirpAODWaveformProfile>>(result);
     }
 
-    public SxExecuteRet<bool> SetPrescanAODWaveformConfiguration(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
+    public SxExecuteRet<bool> SetPrescanAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
     {
         Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
-        var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag, opticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Prescan, filePath));
+        var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Prescan, filePath));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
         return sxExecuteRet.IsSuccess == false
@@ -100,12 +100,12 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveformConfiguration(OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation, string filePath)
+    public SxExecuteRet<bool> SetChirpAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
     {
         Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
-        var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag, opticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Chirp, filePath));
+        var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Chirp, filePath));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
         return sxExecuteRet.IsSuccess == false

@@ -3,6 +3,8 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
@@ -45,8 +47,8 @@ public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDtoBa
     public CalibrationChuckAlignmentDegreeOffsetItem AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         DegreeOffset = DegreeOffset,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

@@ -56,7 +56,7 @@ public class CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TC
         GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
-    private void OnItemsSourceChanged(object sender, EventArgs e)
+    private void OnItemsSourceChanged(object? sender, EventArgs e)
     {
         _isUpdatingSelection = true;
         try

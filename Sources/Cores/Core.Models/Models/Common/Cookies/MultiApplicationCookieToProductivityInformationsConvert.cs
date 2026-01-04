@@ -12,12 +12,7 @@ public sealed class MultiApplicationCookieToProductivityInformationsConvert : Ab
     public override object Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture)
         => values switch
         {
-            [ApplicationCookie applicationCookie, OpticsIlluminationModeEnum opticsIlluminationModeEnum] => opticsIlluminationModeEnum switch
-            {
-                OpticsIlluminationModeEnum.NI => applicationCookie.NIProductivityInformations,
-                OpticsIlluminationModeEnum.OI => applicationCookie.OIProductivityInformations,
-                _ => ThrowHelper.ThrowNotSupportedException<object>(nameof(opticsIlluminationModeEnum))
-            },
+            [ApplicationCookie applicationCookie, OpticsIlluminationModeEnum opticsIlluminationModeEnum] => applicationCookie.GetProductivityInformations(opticsIlluminationModeEnum),
             [ApplicationCookie, { } o] => o == DependencyProperty.UnsetValue ? (IReadOnlyList<ProductivityInformation>)[] : ThrowHelper.ThrowNotSupportedException<object>(),
             _ => ThrowHelper.ThrowNotSupportedException<object>()
         };

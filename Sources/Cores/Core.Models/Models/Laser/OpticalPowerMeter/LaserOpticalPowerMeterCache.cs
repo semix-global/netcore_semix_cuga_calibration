@@ -1,6 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
@@ -11,11 +9,11 @@ namespace Core.Models.Models.Laser.OpticalPowerMeter;
 public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private int _calibratingRetryTimes = 5;
 
     [ObservableProperty]
     private double _threshold = 0.05;
@@ -32,23 +30,20 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
 public sealed partial class LaserOpticalPowerMeterCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
-    private Point _findPosition;
-
-    [ObservableProperty]
-    private int _rowNumber = 11;
-
-    [ObservableProperty]
-    private int _columnNumber = 11;
-
-    [ObservableProperty]
-    private double _columnCellWidth = 100;
-
-    [ObservableProperty]
-    private double _rowCellHeight = 100;
+    private Point _findMachinePosition;
 
     [ObservableProperty]
     private double _waitTime = 5;
 
     [ObservableProperty]
-    private int _repeatCount = 5;
+    private int _rowCount = 11;
+
+    [ObservableProperty]
+    private int _columnCount = 11;
+
+    [ObservableProperty]
+    private double _columnWidth = 100;
+
+    [ObservableProperty]
+    private double _rowHeight = 100;
 }
