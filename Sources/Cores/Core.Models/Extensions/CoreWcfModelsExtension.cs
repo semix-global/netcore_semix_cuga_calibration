@@ -5,6 +5,7 @@ using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.Delay;
+using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -542,6 +543,21 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB XTC is Empty";
+
+        return isOk;
+    }
+
+
+    public static bool IsOk(this AODUniformityDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                                          && applicationCookie.LaserLightInformations.Contains(t.LaserLightInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count * applicationCookie.LaserLightInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "AOD Uniformity is Empty";
 
         return isOk;
     }

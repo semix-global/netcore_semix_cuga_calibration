@@ -13,6 +13,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Core.Models.Enums.Optics;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -21,6 +22,12 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+
+    [ObservableProperty]
+    private ConcurrentBag<KeyValuePair<OpticsPolarizationModeEnum, double>> _opticsPolarizationModeEnumMeasurePowers = [];
 
     [ObservableProperty]
     private AODUniformityDTOItem _item = new();
@@ -173,6 +180,8 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     public AODUniformityDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        OpticsPolarizationModeEnumMeasurePowers = [..OpticsPolarizationModeEnumMeasurePowers],
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
@@ -186,6 +195,9 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     {
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Coefficient = LaserLightInformation.Coefficient,
+        OpticsPolarizationModeEnumMeasurePowers = [..OpticsPolarizationModeEnumMeasurePowers.Select(t => new KeyValuePair<CgPolarizationTypeEnum, double>(t.Key.ToCgPolarizationTypeEnum(), t.Value))],
+        OpticsPolarizationModeEnum = Item.OpticsPolarizationModeEnum.ToCgPolarizationTypeEnum(),
         Uniformities = [.. Item.Uniformities],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -197,6 +209,9 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
 public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<AODUniformityDTOItem>
 {
+    [ObservableProperty]
+    private OpticsPolarizationModeEnum _opticsPolarizationModeEnum;
+
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
@@ -227,6 +242,7 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
 
     public AODUniformityDTOItem Clone() => new()
     {
+        OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         Uniformities = [.. Uniformities]

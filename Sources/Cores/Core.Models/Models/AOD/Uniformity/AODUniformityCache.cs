@@ -36,9 +36,6 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
-
-    [ObservableProperty]
     private Point _hazeFindBFMachinePosition;
 
     [ObservableProperty]

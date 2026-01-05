@@ -709,6 +709,21 @@ public sealed class CalibrationLaserAODUniformityItem : CalibrationBase
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
     /// <summary>
+    /// 波形功率系数(1表示100%, 0表示0%)
+    /// </summary>
+    public double Coefficient { get; set; }
+
+    /// <summary>
+    /// Uniformity 偏振功率校准结果, **需要下发AOD硬件**
+    /// </summary>
+    public IReadOnlyList<KeyValuePair<CgPolarizationTypeEnum, double>> OpticsPolarizationModeEnumMeasurePowers { get; set; }
+
+    /// <summary>
+    /// Uniformitiy 校准结果使用的偏振
+    /// </summary>
+    public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
+
+    /// <summary>
     /// Uniformity 校准结果, **需要下发AOD硬件**
     /// </summary>
     public IReadOnlyList<double> Uniformities { get; set; }
