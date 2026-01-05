@@ -10,9 +10,6 @@ namespace Core.Models.Models.Chuck.Prealigner;
 
 public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
 {
-    private double _diePitchWidth = 5100;
-    private int _reticleDieCountX = 1;
-
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
@@ -64,19 +61,26 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     [ObservableProperty]
     private string _highSiteTemplateFilePath = string.Empty;
 
+    [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Wafer radius must be greater than 0.1.")]
+    public double WaferRadius
+    {
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 150_000;
+
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Width must be greater than 0.1.")]
     public double DiePitchWidth
     {
-        get => _diePitchWidth;
-        set => SetProperty(ref _diePitchWidth, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 5100;
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Reference Die Col Count must be greater than 1.")]
     public int ReticleDieCountX
     {
-        get => _reticleDieCountX;
-        set => SetProperty(ref _reticleDieCountX, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 1;
 
     [ObservableProperty]
     private Point _offsetPosition;
@@ -181,4 +185,7 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
     private byte[] _waferCenterThumb8 = [];
+
+    [ObservableProperty]
+    private int _times = 10;
 }

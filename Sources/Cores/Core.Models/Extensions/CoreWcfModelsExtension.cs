@@ -202,7 +202,7 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this ChuckPrealignerObjDto result, out string errorMessage)
+    public static bool IsOk(this ChuckPrealignerDTO result, out string errorMessage)
     {
         errorMessage = string.Empty;
 
