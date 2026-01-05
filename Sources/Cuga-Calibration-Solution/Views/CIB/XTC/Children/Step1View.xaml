@@ -60,6 +60,15 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
+                        <ComboBox hc:TitleElement.Title="CIB Information: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                            <i:Interaction.Behaviors>
+                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                        </ComboBox>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

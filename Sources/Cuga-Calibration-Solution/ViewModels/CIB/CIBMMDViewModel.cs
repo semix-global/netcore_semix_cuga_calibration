@@ -407,7 +407,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
                 Cache.MinLogGain,
-                Table = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations])),
+                GainConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations])),
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 

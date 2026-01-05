@@ -39,8 +39,14 @@ public sealed partial class CIBXTCCacheItem : CalibrationCacheBase
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
+    private CIBInformation _cIBInformation = CIBInformation.Default;
+
+    [ObservableProperty]
     private Point _hazeFindBFMachinePosition;
 
     [ObservableProperty]
     private int _imageWidth = 1000;
+
+    [ObservableProperty]
+    private int _segmentCount = 6;
 }

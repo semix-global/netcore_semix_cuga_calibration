@@ -3,6 +3,7 @@ using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.PMT;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.DarkField;
 
@@ -12,13 +13,20 @@ public sealed partial class CIBDelayDTO : ObservableCacheBase, ICloneable<CIBDel
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private int _pMTDelay;
+    private double _pMTDelay;
 
     [ObservableProperty]
-    private int _senseDelay;
+    private double _senseDelay;
 
     [ObservableProperty]
     private double _aGCDelay;
+
+    public CIBDelayDTO WithPMTDelay(double pmtDelay)
+    {
+        PMTDelay = pmtDelay;
+
+        return this;
+    }
 
     #region Mapper
 
@@ -36,8 +44,8 @@ public sealed partial class CIBDelayDTO : ObservableCacheBase, ICloneable<CIBDel
     {
         PMTId = CIBInformation.PMTId,
         Channel = CIBInformation.ChannelId,
-        PMTDelay = PMTDelay,
-        SenseDelay = SenseDelay,
+        PMTDelay = (int)PMTDelay,
+        SenseDelay = (int)SenseDelay,
         DAC_Delay = (int)AGCDelay
     };
 
@@ -52,4 +60,12 @@ public sealed partial class CIBDelayDTO : ObservableCacheBase, ICloneable<CIBDel
     }
 
     #endregion Mapper
+
+    public object ToHtmlAnonymous() => new
+    {
+        CIBInformation = new HtmlQuote(CIBInformation.ToHtmlAnonymous()),
+        PMTDelay,
+        SenseDelay,
+        AGCDelay
+    };
 }

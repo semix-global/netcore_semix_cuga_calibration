@@ -159,7 +159,7 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Frequency(MHz)" DisplayMemberBinding="{Binding PrescanFrequency, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Max Pixel" DisplayMemberBinding="{Binding ImageHorizontalProjectsMaxPixel}" />
+                            <GridViewColumn Header="Max Pixel" DisplayMemberBinding="{Binding ProjectMaxPixel}" />
                             <GridViewColumn Header="Profiles">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentDTOItem}">

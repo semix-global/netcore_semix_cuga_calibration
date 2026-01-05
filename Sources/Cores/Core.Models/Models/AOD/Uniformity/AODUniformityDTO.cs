@@ -144,12 +144,11 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
                         foreach (var (pmtId, itemItemData) in itemItemsData)
                         {
-                            var scatterLineImageHorizontalProjects = scatterPlotControl.GetOrAddScatterLine(
+                            scatterPlotControl.GetOrAddScatterLine(
                                 $"{i + 1}: {pmtId} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
                                 [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
                                 pmtId,
-                                new Range(minPMTId, maxPMTId));
-                            scatterLineImageHorizontalProjects.IsVisible = i == count - 1;
+                                new Range(minPMTId, maxPMTId)).IsVisible = i == count - 1;
                         }
                     }
                 }

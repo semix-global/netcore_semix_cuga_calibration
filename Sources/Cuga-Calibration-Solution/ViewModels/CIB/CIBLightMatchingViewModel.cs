@@ -382,6 +382,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     Cache.Item.LaserLightInformation,
                     Cache.Item.HazeFindBFMachinePosition,
                     Cache.Item.SilicaSphereFindBFMachinePosition,
+                    Cache.Item.ImageWidth,
                     Cache.HazeCalibratingRetryTimes,
                     Cache.SilicaSphereCalibratingRetryTimes,
                     Cache.HazeThreshold,
@@ -391,7 +392,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     currentOpticsApodizationModeEnum,
                     currentOpticsPolarizationModeEnum,
                     currentCollectorPolarizationModeEnum,
-                    cibInformations,
+                    CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
                     detectImageDirectory
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -473,13 +474,13 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                                         darkFieldImage.Image.Save(imageFilePath);
 
-                                        var itemItemData = new CIBLightMatchingDTOItem.Item
-                                        {
-                                            PMTValue = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000),
-                                            ImageFilePath = imageFilePath,
-                                            RawImageFilePath = darkFieldImage.RawImageFilePath
-                                        };
-                                        itemItem.HazeItems = [.. itemItem.HazeItems, itemItemData];
+                                var itemItemData = new CIBLightMatchingDTOItem.Item
+                                {
+                                    PMTValue = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000),
+                                    RawImageFilePath = darkFieldImage.RawImageFilePath,
+                                    ImageFilePath = imageFilePath
+                                };
+                                itemItem.HazeItems = [.. itemItem.HazeItems, itemItemData];
 
                                         Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                                         {
@@ -647,13 +648,13 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                         var histogram = darkFieldImage.Image.GetHistogram(0, 0b0000_1111_1111_1111);
 
-                                        var itemItemData = new CIBLightMatchingDTOItem.Item
-                                        {
-                                            PMTValue = HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000),
-                                            ImageFilePath = imageFilePath,
-                                            RawImageFilePath = darkFieldImage.RawImageFilePath,
-                                            Histogram = histogram
-                                        };
+                                var itemItemData = new CIBLightMatchingDTOItem.Item
+                                {
+                                    PMTValue = HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000),
+                                    RawImageFilePath = darkFieldImage.RawImageFilePath,
+                                    ImageFilePath = imageFilePath,
+                                    Histogram = histogram
+                                };
 
                                         itemItem.SilicaSphereItems = [.. itemItem.SilicaSphereItems, itemItemData];
 

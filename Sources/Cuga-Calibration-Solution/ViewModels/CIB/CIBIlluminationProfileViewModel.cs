@@ -312,36 +312,36 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
             var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
             var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
             var cibInformations = ApplicationCookie.CIBInformations;
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation,
+                Cache.Item.HazeFindBFMachinePosition,
+                Cache.Item.ImageWidth,
+                Cache.CalibratingRetryTimes,
+                Cache.CalibrateThreshold,
+                Cache.CalibrateThresholdMin,
+                Cache.CalibrateThresholdMax,
+                currentOpticsApodizationModeEnum,
+                currentOpticsPolarizationModeEnum,
+                currentCollectorPolarizationModeEnum,
+                CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
+                detectImageDirectory
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            Calibratings = [];
+
+            CIBViewModel.ToggleEnableAGC(cibInformations, true);
+            CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+            CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
+
+            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
+            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
             try
             {
-                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                {
-                    Cache.ProductivityInformation,
-                    Cache.Item.MicroscopeLensInformation,
-                    Cache.Item.LaserLightInformation,
-                    Cache.Item.HazeFindBFMachinePosition,
-                    Cache.CalibratingRetryTimes,
-                    Cache.CalibrateThreshold,
-                    Cache.CalibrateThresholdMin,
-                    Cache.CalibrateThresholdMax,
-                    currentOpticsApodizationModeEnum,
-                    currentOpticsPolarizationModeEnum,
-                    currentCollectorPolarizationModeEnum,
-                    cibInformations,
-                    detectImageDirectory
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                Calibratings = [];
-
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
-                CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
-
-                var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
-                StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
-
                 Logger.LogHtmlInformation("Illumination Profile", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
@@ -400,13 +400,13 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                                     darkFieldImage.Image.Save(imageFilePath);
 
-                                    var itemItemData = new CIBIlluminationProfileDTOItem.Item
-                                    {
-                                        ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
-                                        ImageFilePath = imageFilePath,
-                                        RawImageFilePath = darkFieldImage.RawImageFilePath
-                                    };
-                                    itemItem.Items = [.. itemItem.Items, itemItemData];
+                            var itemItemData = new CIBIlluminationProfileDTOItem.Item
+                            {
+                                ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
+                                RawImageFilePath = darkFieldImage.RawImageFilePath,
+                                ImageFilePath = imageFilePath
+                            };
+                            itemItem.Items = [.. itemItem.Items, itemItemData];
 
                                     Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                                     {
@@ -510,7 +510,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
+                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
             }
         });
     }
