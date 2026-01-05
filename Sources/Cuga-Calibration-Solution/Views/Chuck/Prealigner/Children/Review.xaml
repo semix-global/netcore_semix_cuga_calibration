@@ -57,21 +57,21 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding ReviewDto.EfemLoadWaferChuckAbsoluteAngle, StringFormat={}{0:f10}}"
+                    <TextBox Text="{Binding ReviewDto.ResultItemDto.EfemLoadWaferChuckAbsoluteAngle, StringFormat={}{0:f6}}"
                              hc:TitleElement.Title="Teaching Degrees(°): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"
                              IsReadOnly="True"
                              Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ReviewDto.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
+                    <TextBox Text="{Binding ReviewDto.ResultItemDto.OffsetPosition, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="Teaching Offset Position(um): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"
                              IsReadOnly="True"
                              Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.Degrees, StringFormat={}{0:f10}}"
+                    <TextBox Text="{Binding Cache.Degrees, StringFormat={}{0:f6}}"
                              hc:TitleElement.Title="Verify Degrees(°): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="190"

@@ -61,6 +61,35 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
+                    <StackPanel>
+                        <TextBlock Text="Wafer Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:TitleElement.Title="Die Pitch Width(um): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.DiePitchWidth}" />
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:TitleElement.Title="Reticle Reference Die Col Count: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      Minimum="1"
+                                      Increment="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.ReticleDieCountX}" />
+                    <hc:NumericUpDown Margin="0,0,0,5"
+                                      hc:TitleElement.Title="Wafer Radius(um): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.WaferRadius}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
