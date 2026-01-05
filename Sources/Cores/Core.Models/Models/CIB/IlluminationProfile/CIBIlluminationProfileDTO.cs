@@ -104,29 +104,19 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 
                 foreach (var (i, itemItemData) in itemItem.Items.Index())
                 {
-                    var scatterLine = scatterPlotControl.GetOrAddScatterLine(
+                    scatterPlotControl.GetOrAddScatterLine(
                         0,
                         $"{i + 1}",
                         [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, itemItem.Items.Count - 1));
-                    scatterLine.IsVisible = i == 0 || i == itemItem.Items.Count - 1;
 
-                    scatterLine = scatterPlotControl.GetOrAddScatterLine(
+                    scatterPlotControl.GetOrAddScatterLine(
                         1,
-                        $"Error: {i + 1}",
-                        [.. itemItemData.Errors.Index().Select(t => new Point(t.Index, t.Item))],
-                        i,
-                        new Range(0, itemItem.Items.Count - 1));
-                    scatterLine.IsVisible = i == 0 || i == itemItem.Items.Count - 1;
-
-                    scatterLine = scatterPlotControl.GetOrAddScatterLine(
-                        1,
-                        $"Illumination Profile: {i + 1}",
+                        $"{i + 1} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
                         [.. itemItemData.IlluminationProfiles.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, itemItem.Items.Count - 1));
-                    scatterLine.IsVisible = i == 0 || i == itemItem.Items.Count - 1;
                 }
             }
             finally
@@ -142,11 +132,9 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 
         scatterPlotControl.Configure(new Rows(), 3);
 
-        scatterPlotControl.SetTitle(0, "Haze(Y: Log - X: PMT Id)");
-        scatterPlotControl.SetTitle(1, "Haze Details(Y: PMT Value(Log) - X: PMT Id)");
-        scatterPlotControl.SetTitle(2, "Haze Result(Y: Digital Gain - X: PMT Id)");
-        scatterPlotControl.ToggleInvisibleLegendItem(0, false);
-        scatterPlotControl.ToggleInvisibleLegendItem(1, false);
+        scatterPlotControl.SetTitle(0, "Horizontal Projects(Y: Log - X: px)");
+        scatterPlotControl.SetTitle(1, "Details(Y: Illumination Profile - X: px)");
+        scatterPlotControl.SetTitle(2, "Result(Y: Illumination Profile - X: px)");
 
         return scatterPlotControl;
     }
@@ -237,7 +225,10 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
         private IReadOnlyList<double> _imageHorizontalProjects = [];
 
         [ObservableProperty]
-        private IReadOnlyList<double> _errors = [];
+        private double _minRate;
+
+        [ObservableProperty]
+        private double _maxRate;
 
         [ObservableProperty]
         private IReadOnlyList<double> _illuminationProfiles = [];
@@ -254,7 +245,8 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
         public Item Clone() => new()
         {
             ImageHorizontalProjects = [.. ImageHorizontalProjects],
-            Errors = [.. Errors],
+            MinRate = MinRate,
+            MaxRate = MaxRate,
             IlluminationProfiles = [.. IlluminationProfiles],
             IsOk = IsOk,
             RawImageFilePath = RawImageFilePath,

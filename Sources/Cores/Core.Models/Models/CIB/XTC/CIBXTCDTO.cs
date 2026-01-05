@@ -13,6 +13,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Net.Utilities.ScottPlot.WPF.Plottables;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.XTC;
@@ -118,27 +119,39 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                         scatterLineImageHorizontalProjects.IsVisible = i == count - 1;
                     }
 
-                    var scatterLine = scatterPlotControl.GetOrAddScatterLine(
+                    var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                         1,
                         $"Error: {i + 1}",
                         [.. itemItemsData.Select(t => new Point(t.PMTId, t.Item.Error))],
                         i,
-                        new Range(0, count - 1));
-                    scatterLine.IsVisible = i == 0 || i == count - 1;
+                        new Range(0, count - 1),
+                        markerShape: MarkerShape.HorizontalBar);
+                    SetScatterMarkersStyle(scatterMarkers);
+                    scatterMarkers.IsVisible = i == 0 || i == count - 1;
 
-                    scatterLine = scatterPlotControl.GetOrAddScatterLine(
+                    scatterMarkers = scatterPlotControl.GetOrAddScatterMarkers(
                         1,
                         $"Delay: {i + 1}",
                         [.. itemItemsData.Select(t => new Point(t.PMTId, t.Item.Delay))],
                         i,
-                        new Range(0, count - 1));
-                    scatterLine.IsVisible = i == 0 || i == count - 1;
+                        new Range(0, count - 1),
+                        markerShape: MarkerShape.HorizontalBar);
+                    SetScatterMarkersStyle(scatterMarkers);
+                    scatterMarkers.IsVisible = i == 0 || i == count - 1;
                 }
             }
             finally
             {
                 scatterPlotControl.AutoScaleRefresh();
             }
+        }
+
+        return;
+
+        static void SetScatterMarkersStyle(ScatterMarkers scatterMarkers)
+        {
+            scatterMarkers.MarkerSize = 30;
+            scatterMarkers.MarkerStyle.LineWidth = 5;
         }
     }
 
@@ -148,9 +161,9 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
         scatterPlotControl.Configure(new Rows(), 3);
 
-        scatterPlotControl.SetTitle(0, "Haze(Y: Log - X: PMT Id)");
-        scatterPlotControl.SetTitle(1, "Haze Details(Y: PMT Value(Log) - X: PMT Id)");
-        scatterPlotControl.SetTitle(2, "Haze Result(Y: Digital Gain - X: PMT Id)");
+        scatterPlotControl.SetTitle(0, "Horizontal Projects(Y: Log - X: px)");
+        scatterPlotControl.SetTitle(1, "Details(Y: Delay - X: PMT Id)");
+        scatterPlotControl.SetTitle(2, "Result(Y: Delay - X: PMT Id)");
         scatterPlotControl.ToggleInvisibleLegendItem(0, false);
         scatterPlotControl.ToggleInvisibleLegendItem(1, false);
 

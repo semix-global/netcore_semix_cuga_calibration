@@ -152,7 +152,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                             i,
                             new Range(0, hazeCount - 1),
                             markerShape: MarkerShape.HorizontalBar);
-
                         SetScatterMarkersStyle(scatterMarkers);
                         scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
 
@@ -163,7 +162,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                             i,
                             new Range(0, hazeCount - 1),
                             markerShape: MarkerShape.HorizontalBar);
-
                         SetScatterMarkersStyle(scatterMarkers);
                         scatterMarkers.IsVisible = i == 0 || i == hazeCount - 1;
                     }
@@ -201,7 +199,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                                 i,
                                 new Range(0, silicaSphereCount - 1),
                                 markerShape: MarkerShape.HorizontalBar);
-
                             SetScatterMarkersStyle(scatterMarkers);
                             scatterMarkers.IsVisible = i == 0 || i == silicaSphereCount - 1;
 
@@ -212,7 +209,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                                 i,
                                 new Range(0, silicaSphereCount - 1),
                                 markerShape: MarkerShape.HorizontalBar);
-
                             SetScatterMarkersStyle(scatterMarkers);
                             scatterMarkers.IsVisible = i == 0 || i == silicaSphereCount - 1;
 
@@ -223,7 +219,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                                 i,
                                 new Range(0, silicaSphereCount - 1),
                                 markerShape: MarkerShape.HorizontalBar);
-
                             SetScatterMarkersStyle(scatterMarkers);
                             scatterMarkers.IsVisible = i == 0 || i == silicaSphereCount - 1;
                         }

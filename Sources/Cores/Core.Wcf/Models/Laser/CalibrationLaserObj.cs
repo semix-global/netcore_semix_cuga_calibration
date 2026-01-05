@@ -89,9 +89,14 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserCIBIlluminationProfileItem[] CalibrationLaserCIBIlluminationProfileItems { get; set; } = Array.Empty<CalibrationLaserCIBIlluminationProfileItem>();
 
     /// <summary>
-    /// CIB Illumination Profile 校准对象列表
+    /// CIB XTC 校准对象列表
     /// </summary>
     public CalibrationLaserCIBXTCItem[] CalibrationLaserCIBXTCItems { get; set; } = Array.Empty<CalibrationLaserCIBXTCItem>();
+
+    /// <summary>
+    /// AOD Uniformitiy 校准对象列表
+    /// </summary>
+    public CalibrationLaserAODUniformityItem[] CalibrationLaserAODUniformityItems { get; set; } = Array.Empty<CalibrationLaserAODUniformityItem>();
 
     /// <summary>
     /// Optics Relay 校准对象列表
@@ -685,6 +690,28 @@ public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
         /// </summary>
         public IReadOnlyList<double> IlluminationProfiles { get; set; }
     }
+}
+
+/// <summary>
+/// AOD Uniformitiy 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserAODUniformityItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// Uniformity 校准结果, **需要下发AOD硬件**
+    /// </summary>
+    public IReadOnlyList<double> Uniformities { get; set; }
 }
 
 /// <summary>

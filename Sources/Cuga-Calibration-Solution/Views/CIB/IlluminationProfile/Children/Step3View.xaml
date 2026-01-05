@@ -62,21 +62,22 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.CalibratingRetryTimes}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Range Ratio: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Rate Threshold: "
                                           hc:TitleElement.TitleWidth="200"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.CalibratingThresholdRangeRatio}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(Log): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="200"
-                                          Minimum="1"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Threshold}" />
-                        <TextBox Text="{Binding Cache.CalibratingThreshold, Mode=OneWay, StringFormat='0.###'}"
-                                 hc:TitleElement.Title="Calibrating Threshold(Log): "
+                                          Value="{Binding Cache.CalibrateThreshold}" />
+                        <TextBox Text="{Binding Cache.CalibrateThresholdMin, Mode=OneWay, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Calibrating Rate Threshold Min: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Cache.CalibrateThresholdMax, Mode=OneWay, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Calibrating Rate Threshold Max: "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"

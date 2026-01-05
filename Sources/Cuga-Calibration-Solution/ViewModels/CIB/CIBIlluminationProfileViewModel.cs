@@ -322,8 +322,9 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                     Cache.Item.LaserLightInformation,
                     Cache.Item.HazeFindBFMachinePosition,
                     Cache.CalibratingRetryTimes,
-                    Cache.Threshold,
-                    Cache.CalibratingThreshold,
+                    Cache.CalibrateThreshold,
+                    Cache.CalibrateThresholdMin,
+                    Cache.CalibrateThresholdMax,
                     currentOpticsApodizationModeEnum,
                     currentOpticsPolarizationModeEnum,
                     currentCollectorPolarizationModeEnum,
@@ -422,18 +423,19 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     var imageHorizontalProjectsVector = Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].ImageHorizontalProjects);
                                     var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
 
-                                    var errorVector = imageHorizontalProjectsVector - targetPMTValue;
-                                    itemItem.Items[times].Errors = [.. errorVector];
-                                    if (itemItem.Items.Any(t => t.IsOk))
-                                    {
-                                        itemItem.Items[times].IsOk = true;
-                                        resultList.Add(itemItem.Items[times].IsOk);
+                            itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
+                            itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;
+                            if (itemItem.Items.Any(t => t.IsOk))
+                            {
+                                itemItem.Items[times].IsOk = true;
+                                resultList.Add(itemItem.Items[times].IsOk);
 
                                         continue;
                                     }
 
-                                    itemItem.Items[times].IsOk = errorVector.AbsoluteMaximum() <= Cache.CalibratingThreshold;
-                                    resultList.Add(itemItem.Items[times].IsOk);
+                            itemItem.Items[times].IsOk = Cache.CalibrateThresholdMin <= itemItem.Items[times].MinRate
+                                                         && itemItem.Items[times].MaxRate <= Cache.CalibrateThresholdMax;
+                            resultList.Add(itemItem.Items[times].IsOk);
 
                                     if (itemItem.Items[times].IsOk) continue;
 

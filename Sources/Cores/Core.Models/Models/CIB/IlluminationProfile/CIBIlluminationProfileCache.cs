@@ -16,20 +16,39 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase
     private int _calibratingRetryTimes = 5;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CalibratingThreshold), nameof(ReviewThreshold))]
-    private double _threshold = 16;
+    private double _calibraterRateThreshold = 0.05;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CalibratingThreshold))]
-    private double _calibratingThresholdRangeRatio = 0.5;
+    [NotifyPropertyChangedFor(nameof(CalibrateThresholdMin), nameof(CalibrateThresholdMax))]
+    private double _calibrateThreshold = 0.05;
 
-    public double CalibratingThreshold => Threshold * CalibratingThresholdRangeRatio;
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double CalibrateThresholdMin => 1 - CalibrateThreshold;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double CalibrateThresholdMax => 1 + CalibrateThreshold;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ReviewThreshold))]
-    private double _reviewThresholdRangeRatio = 0.8;
+    [NotifyPropertyChangedFor(nameof(ReviewThresholdMin), nameof(ReviewThresholdMax))]
+    private double _reviewThreshold = 0.05;
 
-    public double ReviewThreshold => Threshold * ReviewThresholdRangeRatio;
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double ReviewThresholdMin => 1 - ReviewThreshold;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double ReviewThresholdMax => 1 + ReviewThreshold;
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBIlluminationProfileCacheItem>> Items { get; init; } = [];
 
