@@ -750,6 +750,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 return false;
             }
 
+            Cache.OpticsIlluminationModeEnum = opticsIlluminationModeGroups.First().Key;
             var productiveGroups = SelectReviews.GroupBy(t => t.ProductivityInformation).ToList();
             if (productiveGroups.Count > 1)
             {

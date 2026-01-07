@@ -48,5 +48,5 @@ public sealed partial class CIBXTCCacheItem : CalibrationCacheBase
     private int _imageWidth = 1000;
 
     [ObservableProperty]
-    private int _segmentCount = 6;
+    private int _segmentCount = 8;
 }
