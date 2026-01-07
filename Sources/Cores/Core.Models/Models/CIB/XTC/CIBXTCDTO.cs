@@ -69,6 +69,20 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
     }
+    
+    partial void OnStopWindowItemChanged(CIBXTCDTOItem.Item? oldValue, CIBXTCDTOItem.Item newValue)
+    {
+        if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
+
+        newValue.PropertyChanged -= ItemOnPropertyChanged;
+        newValue.PropertyChanged += ItemOnPropertyChanged;
+
+        RefreshForwardAndReversePlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
+    }
 
     partial void OnItemsChanged(IReadOnlyList<CIBXTCDTOItem>? oldValue, IReadOnlyList<CIBXTCDTOItem> newValue)
     {
