@@ -7,13 +7,14 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Net.Utilities.Models;
+using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.XTC;
@@ -24,10 +25,10 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private CIBXTCDTOItem.Item _startWindowItem = new();
+    private Item _startWindowItem = new();
 
     [ObservableProperty]
-    private CIBXTCDTOItem.Item _stopWindowItem = new();
+    private Item _stopWindowItem = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -57,7 +58,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnStartWindowItemChanged(CIBXTCDTOItem.Item? oldValue, CIBXTCDTOItem.Item newValue)
+    partial void OnStartWindowItemChanged(Item? oldValue, Item newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -71,7 +72,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
     }
 
-    partial void OnStopWindowItemChanged(CIBXTCDTOItem.Item? oldValue, CIBXTCDTOItem.Item newValue)
+    partial void OnStopWindowItemChanged(Item? oldValue, Item newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -305,6 +306,37 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     };
 
     #endregion Mapper
+
+    public partial class Item : ObservableObject, ICloneable<Item>
+    {
+        [ObservableProperty]
+        private IReadOnlyList<double> _window = [];
+
+        [ObservableProperty]
+        private IReadOnlyList<double> _imageHorizontalProjects = [];
+
+        [ObservableProperty]
+        private IReadOnlyList<double> _smoothImageHorizontalProjects = [];
+
+        [ObservableProperty]
+        private int _projectMinPixel;
+
+        [ObservableProperty]
+        private string _rawImageFilePath = string.Empty;
+
+        [ObservableProperty]
+        private string _imageFilePath = string.Empty;
+
+        public Item Clone() => new()
+        {
+            Window = [.. Window],
+            ImageHorizontalProjects = [.. ImageHorizontalProjects],
+            SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
+            ProjectMinPixel = ProjectMinPixel,
+            RawImageFilePath = RawImageFilePath,
+            ImageFilePath = ImageFilePath
+        };
+    }
 }
 
 public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCDTOItem>, IAdaptTo<CalibrationLaserCIBXTCItem.Item>
@@ -353,42 +385,21 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
 
     #endregion Mapper
 
-    public sealed partial class Item : ObservableObject, ICloneable<Item>
+    public sealed partial class Item : CIBXTCDTO.Item, ICloneable<Item>
     {
-        [ObservableProperty]
-        private IReadOnlyList<double> _window = [];
-
-        [ObservableProperty]
-        private IReadOnlyList<double> _imageHorizontalProjects = [];
-
-        [ObservableProperty]
-        private IReadOnlyList<double> _smoothImageHorizontalProjects = [];
-
-        [ObservableProperty]
-        private int _projectMinPixel;
-
         [ObservableProperty]
         private double _error;
 
         [ObservableProperty]
         private bool _isOk;
 
-        [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
-
-        [ObservableProperty]
-        private string _imageFilePath = string.Empty;
-
-        public Item Clone() => new()
+        public new Item Clone()
         {
-            Window = [.. Window],
-            ImageHorizontalProjects = [.. ImageHorizontalProjects],
-            SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
-            ProjectMinPixel = ProjectMinPixel,
-            Error = Error,
-            IsOk = IsOk,
-            RawImageFilePath = RawImageFilePath,
-            ImageFilePath = ImageFilePath
-        };
+            var clone = GuardUtils.IsAssignableToType<Item>(base.Clone());
+            clone.Error = Error;
+            clone.IsOk = IsOk;
+
+            return clone;
+        }
     }
 }

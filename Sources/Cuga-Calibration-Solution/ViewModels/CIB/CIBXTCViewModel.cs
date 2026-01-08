@@ -332,8 +332,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
-            CalibratingItem.StartWindowItem = new CIBXTCDTOItem.Item();
-            CalibratingItem.StopWindowItem = new CIBXTCDTOItem.Item();
+            CalibratingItem.StartWindowItem = new CIBXTCDTO.Item();
+            CalibratingItem.StopWindowItem = new CIBXTCDTO.Item();
 
             CIBViewModel.ToggleEnableAGC(cibInformations, true);
             CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
@@ -365,7 +365,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                 return true;
 
-                async Task CatchImageAsync(int segmentIndex, CIBXTCDTOItem.Item itemItemData)
+                async Task CatchImageAsync(int segmentIndex, CIBXTCDTO.Item itemItemData)
                 {
                     using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
@@ -701,7 +701,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         return prescanAODWaveformWindow;
     }
 
-    private void Algorithm(int segmentIndex, CIBXTCDTOItem.Item itemItemData)
+    private void Algorithm(int segmentIndex, CIBXTCDTO.Item itemItemData)
     {
         var yPixelTotalLength = Cache.ProductivityInformation.YPixel;
         var yPixelSegmentWidth = yPixelTotalLength / Cache.Item.SegmentCount;
