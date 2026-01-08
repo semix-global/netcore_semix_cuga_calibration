@@ -244,8 +244,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
     {
         await InvokeCalibrateAsync(async () =>
         {
-            Guard.IsTrue((Cache.Item.RowCount & 1) == 1, "It must be odd");
-            Guard.IsTrue((Cache.Item.ColumnCount & 1) == 1, "It must be odd");
+            Guard.IsTrue((Cache.Item.RowCount & 1) == 1, "It must be odd number!");
+            Guard.IsTrue((Cache.Item.ColumnCount & 1) == 1, "It must be odd number!");
 
             var maxCoefficient = ApplicationCookie.LaserLightInformations.Max(t => t.Coefficient);
 

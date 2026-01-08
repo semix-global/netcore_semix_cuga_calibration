@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
@@ -249,7 +250,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         });
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1Async(CancellationToken cancellationToken)
     {
@@ -359,17 +359,32 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 AfViewModel.ToggleBrightFieldEnable(false);
 
                 var relayMotorAbsoluteValues = Generate.LinearRange(Cache.Item.StartRelayMotorAbsoluteValue, Cache.Item.StepRelayMotorAbsoluteValue, Cache.Item.StopRelayMotorAbsoluteValue);
-                foreach (var relayMotorAbsoluteValue in relayMotorAbsoluteValues)
+                var closestIndex = relayMotorAbsoluteValues
+                    .Index()
+                    .OrderBy(x => Math.Abs(x.Item - currentMotorAbsoluteValue))
+                    .First()
+                    .Index;
+                relayMotorAbsoluteValues =
+                [
+                    .. relayMotorAbsoluteValues.AsSpan()[closestIndex..],
+                    .. relayMotorAbsoluteValues.AsSpan()[..closestIndex].ToArray().AsEnumerable().Reverse(),
+                ];
+
+                foreach (var (index, relayMotorAbsoluteValue) in relayMotorAbsoluteValues.Index())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+
                     Logger.LogHtmlInformation($"{relayMotorAbsoluteValue:0.###}mm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                     OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, relayMotorAbsoluteValue);
 
                     var itemItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
-                    CalibratingItem.Items = [.. CalibratingItem.Items, itemItem];
+                    CalibratingItem.Items = [.. ((IReadOnlyList<OpticsRelayDTOItem>)[.. CalibratingItem.Items, itemItem]).OrderBy(t => t.RelayMotorAbsoluteValue)];
 
-                    var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
+                    var deltaECS = (index == 0
+                                       ? Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI ? 1 : -1
+                                       : 1)
+                                   * (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
 
                     await CatchImageAsync(Generate.LinearRange(
                         Cache.Item.StartRoughECS + deltaECS,

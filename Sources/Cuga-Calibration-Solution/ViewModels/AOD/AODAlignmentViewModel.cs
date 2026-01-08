@@ -398,7 +398,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 var skipItemItems = CalibratingItem.Items.Skip(Cache.Item.RangeSkipFitCount).SkipLast(Cache.Item.RangeSkipFitCount).ToArray();
                 var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(
                     Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => t.PrescanFrequency)),
-                    Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => (double)GuardUtils.IsNotNullAndReturn(t.ImageHorizontalProjectsMaxPixel))));
+                    Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => (double)GuardUtils.IsNotNullAndReturn(t.ProjectMaxPixel))));
 
                 CalibratingItem.Slope = slope;
                 CalibratingItem.Intercept = intercept;

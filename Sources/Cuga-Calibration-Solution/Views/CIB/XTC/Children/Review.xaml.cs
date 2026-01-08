@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.Laser.XTCCalibration.Children;
+namespace CugaCalibration.Views.CIB.XTC.Children;
 
 public sealed partial class Review
 {

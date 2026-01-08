@@ -651,9 +651,9 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             item.PrescanStartIndex = (int)Math.Floor(minWindowStartIndex + windowToMinAmount - item.T1 * TValue);
             item.PrescanEndIndex = (int)Math.Floor(minWindowStartIndex + windowToMinAmount + (yPixelHeight - item.T1) * TValue);
             if (item.PrescanStartIndex < 0
-                || prescanAODWaveProfiles[0].ShortList.Count <= item.PrescanStartIndex
+                || prescanAODWaveProfiles[0].Shorts.Count <= item.PrescanStartIndex
                 || item.PrescanEndIndex < 0
-                || prescanAODWaveProfiles[0].ShortList.Count <= item.PrescanEndIndex)
+                || prescanAODWaveProfiles[0].Shorts.Count <= item.PrescanEndIndex)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Param Error {nameof(judgeWindowStartIndex)}: {judgeWindowStartIndex}, {nameof(judgeWindowEndIndex)}: {judgeWindowEndIndex}!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -707,7 +707,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
             List<double> SetPrescanByteListByWindow(int startIndex, int windowToMinAmountTemp)
             {
                 var k = 1d / windowToMinAmountTemp;
-                var prescanList = prescanAODWaveProfiles[0].ShortList;
+                var prescanList = prescanAODWaveProfiles[0].Shorts;
                 var middleIndex = startIndex + windowToMinAmountTemp;
                 var endIndex = startIndex + windowToMinAmountTemp * 2;
                 if (endIndex > prescanList.Count) throw new CalibrationException($"{nameof(endIndex)}: {endIndex} > {nameof(prescanList)}{nameof(prescanList.Count)}: {prescanList.Count}");
@@ -796,7 +796,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
                 endIndex += itemCache.WaveFormVInterval * 3;
             }
 
-            for (var i = waveFormVEndIndex; i < prescanAODWaveProfiles[0].ShortList.Count; i++) //结束部分按照原来系数计算
+            for (var i = waveFormVEndIndex; i < prescanAODWaveProfiles[0].Shorts.Count; i++) //结束部分按照原来系数计算
             {
                 resultPrescanWindowList.Add(coefficient);
             }
@@ -1164,7 +1164,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
 
             await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
 
-            var prescanRateList = Vector<double>.Build.Dense(prescanAODWaveProfiles[0].ShortList.Count, Cache.LaserLightInformation.Coefficient);
+            var prescanRateList = Vector<double>.Build.Dense(prescanAODWaveProfiles[0].Shorts.Count, Cache.LaserLightInformation.Coefficient);
             var illuminationIntensityConsistentDto = new LaserIlluminationProfileItemDto
             {
                 Index = 0,
