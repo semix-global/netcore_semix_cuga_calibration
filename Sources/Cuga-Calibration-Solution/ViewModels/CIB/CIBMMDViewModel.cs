@@ -280,12 +280,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     {
         try
         {
-            if (item.IsOk == false)
+            /*if (item.IsOk == false)
             {
                 DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is OK Failed!");
 
                 return;
-            }
+            }*/
 
             CIBViewModel.SetMMD(
                 item.CIBInformation,
@@ -623,6 +623,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                             SelectedCalibratingItems = Calibratings;
 
                             var noProtectedCIBMMDDtos = (IReadOnlyList<CIBMMDDTO>)[.. Calibratings.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
+                            if (noProtectedCIBMMDDtos.All(t => double.IsNaN(t.Items[coefficientIndex].Items[gainIndex].PMTValue) == false)) continue;
+
                             var cibInformations = (IReadOnlyList<CIBInformation>)[.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)];
                             CIBViewModel.SetGain(cibInformations, gain);
 
@@ -822,7 +824,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             foreach (var itemItem in item.Items)
             {
-                itemItem.Items = itemItem.Items.Where(t => t.Gain >= -5).ToArray();
+                itemItem.Items = itemItem.Items.Where(t => t.Gain >= Cache.FilterMinGain).ToArray();
             }
 
             item.GainRSquared = 0d;
@@ -870,7 +872,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(item.Items.Select(t => t.MeasurePower));
-            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log((t * 0.002 / 0.34) * 1000_000, 2));
+            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log((t * Cache.PowerRate / 0.34) * 1000_000, 2));
 
             var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
             for (var row = 0; row < gainCount; row++)
@@ -947,9 +949,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             item.LogGainX0 = x0;
             item.LogGainDx = dx;
             item.LogGainRSquared = rSquared;
-            item.FitLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
-            var distance = Math.Abs(item.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
-            item.ResultLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - 0))];
+            item.FitLogGainPoints = [.. item.OriginLogGainPoints/*.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))*/];
+            //var distance = Math.Abs(item.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
+            item.ResultLogGainPoints = [.. item.OriginLogGainPoints/*.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - 0))*/];
 
             htmlList.Add(new HtmlBullet(new
             {

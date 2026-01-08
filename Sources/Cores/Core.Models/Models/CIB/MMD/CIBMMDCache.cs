@@ -108,6 +108,12 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _minLogGain = 0.1;
 
     [ObservableProperty]
+    private double _filterMinGain = -5;
+
+    [ObservableProperty]
+    private double _powerRate = 0.002;
+
+    [ObservableProperty]
     private IReadOnlyList<GainConfiguration> _gainConfigurations = [];
 
     /********** 缓存的结果 **********/
