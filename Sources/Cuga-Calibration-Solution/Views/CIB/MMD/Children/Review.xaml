@@ -82,6 +82,16 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MinLogGain}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Filter Min Gain: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.FilterMinGain}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Power Rate: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.PowerRate}" />
                                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                             VerticalAlignment="Top"
                                                             Spacing="10">

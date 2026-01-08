@@ -449,7 +449,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
-            Guard.IsNotEmpty(aodWaveProfile.ByteList);
+            Guard.IsNotEmpty(aodWaveProfile.Bytes);
         }
 
         Thread.Sleep(100);
@@ -491,7 +491,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         foreach (var aodWaveProfile in chirpAODWaveProfiles)
         {
-            Guard.IsNotEmpty(aodWaveProfile.ByteList);
+            Guard.IsNotEmpty(aodWaveProfile.Bytes);
         }
 
         Thread.Sleep(100);

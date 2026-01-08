@@ -41,21 +41,22 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Range Ratio: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Review Rate Threshold: "
                                           hc:TitleElement.TitleWidth="200"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ReviewThresholdRangeRatio}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(Log): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="200"
-                                          Maximum="1"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Threshold}" />
-                        <TextBox Text="{Binding Cache.ReviewThreshold, Mode=OneWay, StringFormat='0.###'}"
-                                 hc:TitleElement.Title="Review Threshold(Log): "
+                                          Value="{Binding Cache.CalibrateThreshold}" />
+                        <TextBox Text="{Binding Cache.CalibrateThresholdMin, Mode=OneWay, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Review Rate Threshold Min: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Cache.CalibrateThresholdMax, Mode=OneWay, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Review Rate Threshold Max: "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"

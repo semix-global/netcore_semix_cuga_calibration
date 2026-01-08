@@ -16,77 +16,69 @@ public abstract class AbstractAODWaveformProfile :
     ObservableCacheBase,
     IAdaptIn<AbstractAODWaveformProfile, AbstractAODWaveformProfile>
 {
-    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
-    private string _filePath = string.Empty;
-    private int _zeroSampleCount;
-    private double _offsetFrequency;
-    private double _offsetFrequencyPeriodCoefficient;
-    private IReadOnlyList<short> _shortList = [];
-    private IReadOnlyList<byte> _byteList = [];
-
     public OpticsAODElectrodeEnum OpticsAODElectrodeEnum
     {
-        get => _opticsAODElectrodeEnum;
-        internal set => SetProperty(ref _opticsAODElectrodeEnum, value);
+        get;
+        internal set => SetProperty(ref field, value);
     }
 
     public string FilePath
     {
-        get => _filePath;
+        get;
         internal set
         {
-            if (SetProperty(ref _filePath, value)) OnFilePathChanged(value);
+            if (SetProperty(ref field, value)) OnFilePathChanged(value);
         }
-    }
+    } = string.Empty;
 
     public int ZeroSampleCount
     {
-        get => _zeroSampleCount;
+        get;
         internal set
         {
-            if (SetProperty(ref _zeroSampleCount, value)) OnPropertyChanged(nameof(TotalSampleCount));
+            if (SetProperty(ref field, value)) OnPropertyChanged(nameof(TotalSampleCount));
         }
     }
 
     public double OffsetFrequency
     {
-        get => _offsetFrequency;
-        internal set => SetProperty(ref _offsetFrequency, value);
+        get;
+        internal set => SetProperty(ref field, value);
     }
 
     public double OffsetFrequencyPeriodCoefficient
     {
-        get => _offsetFrequencyPeriodCoefficient;
-        internal set => SetProperty(ref _offsetFrequencyPeriodCoefficient, value);
+        get;
+        internal set => SetProperty(ref field, value);
     }
 
-    public int TotalSampleCount => ShortList.Count + ZeroSampleCount;
-
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<short> ShortList
-    {
-        get => _shortList;
-        private set
-        {
-            if (SetProperty(ref _shortList, value)) OnPropertyChanged(nameof(TotalSampleCount));
-        }
-    }
+    public int TotalSampleCount => Shorts.Count + ZeroSampleCount;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public IReadOnlyList<byte> ByteList
+    public IReadOnlyList<short> Shorts
     {
-        get => _byteList;
+        get;
         private set
         {
-            if (SetProperty(ref _byteList, value)) OnPropertyChanged(nameof(TotalSampleCount));
+            if (SetProperty(ref field, value)) OnPropertyChanged(nameof(TotalSampleCount));
         }
-    }
+    } = [];
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public IReadOnlyList<byte> Bytes
+    {
+        get;
+        private set
+        {
+            if (SetProperty(ref field, value)) OnPropertyChanged(nameof(TotalSampleCount));
+        }
+    } = [];
 
     #region 波形
 
@@ -195,18 +187,18 @@ public abstract class AbstractAODWaveformProfile :
 
         if (resultString.Count <= 0 && resultString.All(t => t.Length == 4) == false) ThrowHelper.ThrowNotSupportedException("filePath value error.");
 
-        ShortList = [.. resultString.Select(str => Convert.ToInt16(str, 16))];
-        Signals = [.. ShortList.Select((t, i) => new Point(i, (t - (t > Math.Pow(2d, 15d) ? Math.Pow(2d, 32d) : 0)) / Math.Pow(2d, 15d)))];
+        Shorts = [.. resultString.Select(str => Convert.ToInt16(str, 16))];
+        Signals = [.. Shorts.Index().Select(t => new Point(t.Index + 1, t.Item / Math.Pow(2d, 15d)))];
 
         SetByteList(1);
     }
 
-    protected void SetByteList(double coefficient) => SetByteList([.. Enumerable.Repeat(coefficient, ShortList.Count)]);
+    protected void SetByteList(double coefficient) => SetByteList([.. Enumerable.Repeat(coefficient, Shorts.Count)]);
 
     protected void SetByteList(IReadOnlyList<double> coefficientWindowList)
     {
         foreach (var coefficient in coefficientWindowList) Guard.IsTrue(coefficient >= 0, "coefficient is muse be >= 0.");
-        Guard.IsTrue(ShortList.Count == coefficientWindowList.Count, "Count is not equal.");
+        Guard.IsTrue(Shorts.Count == coefficientWindowList.Count, "Count is not equal.");
 
         /*
          * double[-1,1]归一化数据需要转换为16-bit或32-bit整数格式进行传输[DSP、FPGA、DAC数模转换器硬件], 目前这个是16-bit PCM(脉冲编码调制)格式
@@ -239,13 +231,13 @@ public abstract class AbstractAODWaveformProfile :
          */
 
         var result = new List<byte>();
-        foreach (var bytes in ShortList.Select((value, i) => (short)(value * coefficientWindowList[i])).Select(BitConverter.GetBytes))
+        foreach (var bytes in Shorts.Index().Select(t => (short)Math.Round(t.Item * coefficientWindowList[t.Index], MidpointRounding.AwayFromZero)).Select(BitConverter.GetBytes))
         {
             result.Add(bytes[1]);
             result.Add(bytes[0]);
         }
 
-        ByteList = result;
+        Bytes = result;
     }
 
     protected string Save(string directoryPath)
@@ -259,12 +251,12 @@ public abstract class AbstractAODWaveformProfile :
         FileHelper.DeleteFileIfExists(filePath);
         DirectoryHelper.CreateFileDirectoryIfNotExists(filePath);
 
-        Guard.IsTrue(ShortList.Count * 2 == ByteList.Count, "Count is not equal.");
+        Guard.IsTrue(Shorts.Count * 2 == Bytes.Count, "Count is not equal.");
 
         var stringBuilder = new StringBuilder();
-        for (var i = 0; i < ByteList.Count; i += 2)
+        for (var i = 0; i < Bytes.Count; i += 2)
         {
-            stringBuilder.AppendFormat("{0:X2}{1:X2}", ByteList[i], ByteList[i + 1]);
+            stringBuilder.AppendFormat("{0:X2}{1:X2}", Bytes[i], Bytes[i + 1]);
             stringBuilder.AppendLine();
         }
 
@@ -280,8 +272,8 @@ public abstract class AbstractAODWaveformProfile :
         ZeroSampleCount = obj.ZeroSampleCount;
         OffsetFrequency = obj.OffsetFrequency;
         OffsetFrequencyPeriodCoefficient = obj.OffsetFrequencyPeriodCoefficient;
-        ShortList = [.. obj.ShortList];
-        ByteList = [.. obj.ByteList];
+        Shorts = [.. obj.Shorts];
+        Bytes = [.. obj.Bytes];
 
         Signals = [.. obj.Signals];
         FFTSignals = [.. obj.FFTSignals];

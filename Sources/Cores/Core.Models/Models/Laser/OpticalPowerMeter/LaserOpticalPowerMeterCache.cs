@@ -36,10 +36,10 @@ public sealed partial class LaserOpticalPowerMeterCacheItem : CalibrationCacheBa
     private double _waitTime = 5;
 
     [ObservableProperty]
-    private int _rowCount = 11;
+    private int _rowCount = 5;
 
     [ObservableProperty]
-    private int _columnCount = 11;
+    private int _columnCount = 5;
 
     [ObservableProperty]
     private double _columnWidth = 100;

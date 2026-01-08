@@ -105,7 +105,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AOD
                     index,
                     new Range(0, Items.Count - 1));
 
-                item.ImageHorizontalProjectsMaxPixel = Vector<double>.Build.DenseOfEnumerable(item.ImageHorizontalProjects).MaximumIndex();
+                item.ProjectMaxPixel = Vector<double>.Build.DenseOfEnumerable(item.ImageHorizontalProjects).MaximumIndex();
 
                 isNeedRefreshes[index] = true;
             }
@@ -115,7 +115,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AOD
                 ScatterPlotControl.GetOrAddScatterLine(
                     1,
                     "Alignment",
-                    [.. Items.Select(t => new Point(t.PrescanFrequency, GuardUtils.IsNotNullAndReturn(t.ImageHorizontalProjectsMaxPixel)))],
+                    [.. Items.Select(t => new Point(t.PrescanFrequency, GuardUtils.IsNotNullAndReturn(t.ProjectMaxPixel)))],
                     Constants.Category10.GetColor(0));
             }
 
@@ -163,7 +163,7 @@ public sealed partial class AODAlignmentDTOItem : ObservableObject, ICloneable<A
     private IReadOnlyList<double> _imageHorizontalProjects = [];
 
     [ObservableProperty]
-    private int? _imageHorizontalProjectsMaxPixel;
+    private int? _projectMaxPixel;
 
     [ObservableProperty]
     private string _rawImageFilePath = string.Empty;
@@ -177,7 +177,7 @@ public sealed partial class AODAlignmentDTOItem : ObservableObject, ICloneable<A
         PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
         PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],
         ImageHorizontalProjects = [.. ImageHorizontalProjects],
-        ImageHorizontalProjectsMaxPixel = ImageHorizontalProjectsMaxPixel,
+        ProjectMaxPixel = ProjectMaxPixel,
         RawImageFilePath = RawImageFilePath,
         ImageFilePath = ImageFilePath
     };
