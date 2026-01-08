@@ -12,7 +12,6 @@ using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Laser.XTCCalibration;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Setting;
@@ -121,7 +120,6 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibrationItems<AODAlignmentDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserXYAstigmatismCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
@@ -131,7 +129,6 @@ public class CalibrationStatusServiceImpl(
     {
         if (EnableCalibrationItems<LaserXYAstigmatismCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         return true;
     }
@@ -139,7 +136,6 @@ public class CalibrationStatusServiceImpl(
     public bool EnableDependLaserXYAstigmatismCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibrationItems<LaserIlluminationProfileItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserXTCCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;

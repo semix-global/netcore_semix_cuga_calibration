@@ -111,4 +111,10 @@ public sealed class CIBInformation :
     };
 
     #endregion Mapper
+
+    public object ToHtmlAnonymous() => new
+    {
+        PMTId,
+        ChannelId
+    };
 }

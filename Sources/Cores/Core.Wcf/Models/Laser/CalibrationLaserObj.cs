@@ -44,11 +44,6 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserIlluminationProfileItem[] CalibrationLaserIlluminationProfileItemList { get; set; } = Array.Empty<CalibrationLaserIlluminationProfileItem>();
 
     /// <summary>
-    /// XTC
-    /// </summary>
-    public CalibrationLaserXTCCalibrationItem[] CalibrationLaserXtcCalibrationItemList { get; set; } = Array.Empty<CalibrationLaserXTCCalibrationItem>();
-
-    /// <summary>
     /// 暗场相机的Y像素尺寸校准对象列表
     /// </summary>
     public CalibrationLaserPixelSizeItem[] CalibrationLaserPixelSizeItemList { get; set; } = Array.Empty<CalibrationLaserPixelSizeItem>();
@@ -92,6 +87,16 @@ public sealed class CalibrationLaserObj
     /// CIB Illumination Profile 校准对象列表
     /// </summary>
     public CalibrationLaserCIBIlluminationProfileItem[] CalibrationLaserCIBIlluminationProfileItems { get; set; } = Array.Empty<CalibrationLaserCIBIlluminationProfileItem>();
+
+    /// <summary>
+    /// CIB XTC 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBXTCItem[] CalibrationLaserCIBXTCItems { get; set; } = Array.Empty<CalibrationLaserCIBXTCItem>();
+
+    /// <summary>
+    /// AOD Uniformitiy 校准对象列表
+    /// </summary>
+    public CalibrationLaserAODUniformityItem[] CalibrationLaserAODUniformityItems { get; set; } = Array.Empty<CalibrationLaserAODUniformityItem>();
 
     /// <summary>
     /// Optics Relay 校准对象列表
@@ -296,38 +301,6 @@ public sealed class CalibrationLaserIlluminationProfileItem : CalibrationBase
     /// 当前暗场Mag和功率系数下的C偏振功率, **Cuga内部使用**
     /// </summary>
     public double PolarizationCPower { get; set; }
-}
-
-/// <summary>
-/// LaserXTCCalibration
-/// </summary>
-[Serializable]
-public sealed class CalibrationLaserXTCCalibrationItem : CalibrationBase
-{
-    /// <summary>
-    /// Mag类型
-    /// </summary>
-    public CgMagTypeEnum CgMagTypeEnum { get; set; }
-
-    /// <summary>
-    /// 暗场相机ID
-    /// </summary>
-    public int PmtId { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和PmtId下的通道1延迟时间, **需要下发Laser硬件**
-    /// </summary>
-    public int CH1Delay { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和PmtId下的通道2延迟时间, **需要下发Laser硬件**
-    /// </summary>
-    public int CH2Delay { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和PmtId下的通道3延迟时间, **需要下发Laser硬件**
-    /// </summary>
-    public int CH3Delay { get; set; }
 }
 
 /// <summary>
@@ -614,6 +587,49 @@ public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
 }
 
 /// <summary>
+/// CIB XTC 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBXTCItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 校准结果, **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<Item> Items { get; set; }
+
+    /// <summary>
+    /// 每个CIB的校准结果
+    /// </summary>
+    public sealed class Item
+    {
+        /// <summary>
+        /// CIB PMT ID
+        /// </summary>
+        public int PMTId { get; set; }
+
+        /// <summary>
+        /// CIB Channel ID
+        /// </summary>
+        public int ChannelId { get; set; }
+
+        /// <summary>
+        /// 延迟, **需要下发CIB硬件**
+        /// </summary>
+        public double Delay { get; set; }
+    }
+}
+
+/// <summary>
 /// CIB Illumination Profile 校准
 /// </summary>
 [Serializable]
@@ -674,6 +690,43 @@ public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
         /// </summary>
         public IReadOnlyList<double> IlluminationProfiles { get; set; }
     }
+}
+
+/// <summary>
+/// AOD Uniformitiy 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserAODUniformityItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 波形功率系数(1表示100%, 0表示0%)
+    /// </summary>
+    public double Coefficient { get; set; }
+
+    /// <summary>
+    /// Uniformity 偏振功率校准结果, **需要下发AOD硬件**
+    /// </summary>
+    public IReadOnlyList<KeyValuePair<CgPolarizationTypeEnum, double>> OpticsPolarizationModeEnumMeasurePowers { get; set; }
+
+    /// <summary>
+    /// Uniformitiy 校准结果使用的偏振
+    /// </summary>
+    public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
+
+    /// <summary>
+    /// Uniformity 校准结果, **需要下发AOD硬件**
+    /// </summary>
+    public IReadOnlyList<double> Uniformities { get; set; }
 }
 
 /// <summary>

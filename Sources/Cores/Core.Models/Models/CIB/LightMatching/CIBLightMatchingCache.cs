@@ -30,8 +30,16 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(CalibratingHazeThreshold), nameof(ReviewSilicaSphereThreshold))]
     private double _calibratingThresholdRangeRatio = 0.5;
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double CalibratingHazeThreshold => HazeThreshold * CalibratingThresholdRangeRatio;
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
     public double CalibratingSilicaSphereThreshold => SilicaSphereThreshold * CalibratingThresholdRangeRatio;
 
     [ObservableProperty]

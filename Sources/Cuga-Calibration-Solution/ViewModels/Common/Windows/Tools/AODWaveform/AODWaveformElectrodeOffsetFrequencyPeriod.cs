@@ -90,7 +90,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
                     [.. item.FrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
                     index,
                     new Range(0, Items.Count - 1),
-                    markerShape: MarkerShape.OpenCircle);
+                    MarkerShape.OpenCircle);
                 scatterMarkersOrigin.MarkerSize = 10;
 
                 ScatterPlotControl.GetOrAddScatterLine(
@@ -104,7 +104,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
                     item.FrequencyMaximaPoints,
                     index,
                     new Range(0, Items.Count - 1),
-                    markerShape: MarkerShape.Asterisk);
+                    MarkerShape.Asterisk);
                 scatterMarkersMaxima.MarkerSize = 20;
             }
 
@@ -114,7 +114,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
                     "Closest Maxima",
                     ClosestMaximaPoints,
                     Colors.Blue,
-                    markerShape: MarkerShape.FilledSquare);
+                    MarkerShape.FilledSquare);
                 scatterMarkersClosestMaxima.MarkerSize = 20;
             }
 

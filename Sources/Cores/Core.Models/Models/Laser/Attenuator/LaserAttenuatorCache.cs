@@ -32,7 +32,7 @@ public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
     private double _startCoefficient = 0.01;
 
     [ObservableProperty]
-    private double _stepCoefficient = 0.1;
+    private double _stepCoefficient = 0.02;
 
     [ObservableProperty]
     private double _stopCoefficient = 1;

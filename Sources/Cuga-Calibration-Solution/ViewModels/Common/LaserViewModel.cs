@@ -1179,8 +1179,8 @@ public sealed class LaserViewModel(
 
         var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
             .SingleOrDefault(t => t.OpticsIlluminationMode == opticsIlluminationModeEnum
+                                  && t.ProductivityInformation.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
                                   && t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
-                                  && t.ProductivityInformation.StageSpeedType == (int)xStageSpeedEnum
                                   && t.PmtId == pmtId);
         if (ySize is null || ySize.IsOk == false)
         {
@@ -1341,7 +1341,8 @@ public sealed class LaserViewModel(
 
         var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
             .SingleOrDefault(t => t.OpticsIlluminationMode == opticsIlluminationModeEnum
-                                  && t.ProductivityInformation == productivityInformation
+                                  && t.ProductivityInformation.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
+                                  && t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
                                   && t.PmtId == pmtId);
         if (ySize is null || ySize.IsOk == false)
         {

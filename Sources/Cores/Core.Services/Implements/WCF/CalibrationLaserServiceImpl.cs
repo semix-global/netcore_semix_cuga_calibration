@@ -243,7 +243,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         foreach (var aodWaveProfile in prescanAODWaveProfiles)
         {
-            Guard.IsNotEmpty(aodWaveProfile.ByteList);
+            Guard.IsNotEmpty(aodWaveProfile.Bytes);
         }
 
         var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
@@ -254,7 +254,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 Mode = CgAwgSendWaveMode.ElectrodeDataMode,
                 NIOI = opticsIlluminationModeEnum.ToCgNIOITypeEnum(),
                 zeroNum = t.ZeroSampleCount,
-                WaveData = [.. t.ByteList]
+                WaveData = [.. t.Bytes]
             })
         ]));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
@@ -296,7 +296,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         foreach (var aodWaveProfile in chirpAODWaveProfiles)
         {
-            Guard.IsNotEmpty(aodWaveProfile.ByteList);
+            Guard.IsNotEmpty(aodWaveProfile.Bytes);
         }
 
         var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
@@ -307,7 +307,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 Mode = CgAwgSendWaveMode.ElectrodeDataMode,
                 NIOI = opticsIlluminationModeEnum.ToCgNIOITypeEnum(),
                 zeroNum = t.ZeroSampleCount,
-                WaveData = [.. t.ByteList]
+                WaveData = [.. t.Bytes]
             })
         ]));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
