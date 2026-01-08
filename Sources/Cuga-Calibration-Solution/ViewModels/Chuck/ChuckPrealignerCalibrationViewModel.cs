@@ -559,8 +559,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                     ResultPlot = new HtmlContainer(CalibrateDTO.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
             }
+
             var findWaferCenterOffsetResult = Math.Abs(CalibrateDTO.Items[0].OffsetPosition.X) < Cache.VerifyPositionThreshold
-                                            && Math.Abs(CalibrateDTO.Items[0].OffsetPosition.Y) < Cache.VerifyPositionThreshold;
+                                              && Math.Abs(CalibrateDTO.Items[0].OffsetPosition.Y) < Cache.VerifyPositionThreshold;
             var alignmentResult = Math.Abs(CalibrateDTO.Items[0].EfemLoadWaferChuckAbsoluteAngle) < Cache.VerifyDegreesThreshold;
 
             CalibrateDTO.IsCalibrated = findWaferCenterOffsetResult && alignmentResult;

@@ -250,7 +250,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         });
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1Async(CancellationToken cancellationToken)
     {

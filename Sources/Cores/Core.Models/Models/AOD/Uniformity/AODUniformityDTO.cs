@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -13,7 +14,6 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using Core.Models.Enums.Optics;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -180,7 +180,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),
-        OpticsPolarizationModeEnumMeasurePowers = [..OpticsPolarizationModeEnumMeasurePowers],
+        OpticsPolarizationModeEnumMeasurePowers = [.. OpticsPolarizationModeEnumMeasurePowers],
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
@@ -195,7 +195,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Coefficient = LaserLightInformation.Coefficient,
-        OpticsPolarizationModeEnumMeasurePowers = [..OpticsPolarizationModeEnumMeasurePowers.Select(t => new KeyValuePair<CgPolarizationTypeEnum, double>(t.Key.ToCgPolarizationTypeEnum(), t.Value))],
+        OpticsPolarizationModeEnumMeasurePowers = [.. OpticsPolarizationModeEnumMeasurePowers.Select(t => new KeyValuePair<CgPolarizationTypeEnum, double>(t.Key.ToCgPolarizationTypeEnum(), t.Value))],
         OpticsPolarizationModeEnum = Item.OpticsPolarizationModeEnum.ToCgPolarizationTypeEnum(),
         Uniformities = [.. Item.Uniformities],
         IsCalibrated = IsCalibrated,

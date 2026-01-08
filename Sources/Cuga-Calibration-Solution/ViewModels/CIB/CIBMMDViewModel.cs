@@ -304,7 +304,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
@@ -949,9 +948,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             item.LogGainX0 = x0;
             item.LogGainDx = dx;
             item.LogGainRSquared = rSquared;
-            item.FitLogGainPoints = [.. item.OriginLogGainPoints/*.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))*/];
+            item.FitLogGainPoints = [.. item.OriginLogGainPoints /*.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))*/];
             //var distance = Math.Abs(item.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
-            item.ResultLogGainPoints = [.. item.OriginLogGainPoints/*.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - 0))*/];
+            item.ResultLogGainPoints = [.. item.OriginLogGainPoints /*.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - 0))*/];
 
             htmlList.Add(new HtmlBullet(new
             {

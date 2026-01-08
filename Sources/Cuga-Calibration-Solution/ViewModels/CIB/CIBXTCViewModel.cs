@@ -5,6 +5,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.CIB.XTC;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -12,9 +13,15 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Hosting;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -24,13 +31,6 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using Core.Models.Models.Common.AODWaveform;
-using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
-using Microsoft.Extensions.Hosting;
-using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Modules;
-using Net.Utilities.Helpers.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -682,7 +682,6 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             return result;
         }).ConfigureAwait(false);
     }
-
 
     private double[] GetAndApplyWindow(int segmentIndex, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveformProfiles)
     {
