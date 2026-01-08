@@ -169,7 +169,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.OpticsApodizationModeEnum)
                 .ThenBy(t => t.OpticsPolarizationModeEnum)
@@ -876,7 +875,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                            || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
                                            || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
                                            || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
-                dto.Clone()
+                dto
             ];
         }
 

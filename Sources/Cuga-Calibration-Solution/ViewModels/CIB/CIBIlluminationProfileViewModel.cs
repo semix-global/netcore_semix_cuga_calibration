@@ -167,7 +167,6 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.OpticsApodizationModeEnum)
                 .ThenBy(t => t.OpticsPolarizationModeEnum)
@@ -601,7 +600,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                            || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
                                            || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
                                            || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
-                dto.Clone()
+                dto
             ];
         }
 

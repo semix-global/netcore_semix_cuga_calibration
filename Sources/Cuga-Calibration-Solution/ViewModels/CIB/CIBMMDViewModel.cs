@@ -182,7 +182,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.CIBInformation)
         ];
 
@@ -1056,7 +1055,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 .. Calibrations.Where(t => t.CIBInformation != dto.CIBInformation),
-                dto.Clone()
+                dto
             ];
         }
 

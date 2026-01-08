@@ -25,10 +25,10 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private Item _startWindowItem = new();
+    private WindowItem _startWindowItem = new();
 
     [ObservableProperty]
-    private Item _stopWindowItem = new();
+    private WindowItem _stopWindowItem = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -58,7 +58,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnStartWindowItemChanged(Item? oldValue, Item newValue)
+    partial void OnStartWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -72,7 +72,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
     }
 
-    partial void OnStopWindowItemChanged(Item? oldValue, Item newValue)
+    partial void OnStopWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -307,7 +307,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
     #endregion Mapper
 
-    public partial class Item : ObservableObject, ICloneable<Item>
+    public partial class WindowItem : ObservableObject, ICloneable<WindowItem>
     {
         [ObservableProperty]
         private IReadOnlyList<double> _window = [];
@@ -327,7 +327,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         [ObservableProperty]
         private string _imageFilePath = string.Empty;
 
-        public Item Clone() => new()
+        public WindowItem Clone() => new()
         {
             Window = [.. Window],
             ImageHorizontalProjects = [.. ImageHorizontalProjects],
@@ -385,7 +385,7 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
 
     #endregion Mapper
 
-    public sealed partial class Item : CIBXTCDTO.Item, ICloneable<Item>
+    public sealed partial class Item : CIBXTCDTO.WindowItem, ICloneable<Item>
     {
         [ObservableProperty]
         private double _error;

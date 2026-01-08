@@ -142,7 +142,6 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -478,7 +477,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
             Calibrations =
             [
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto.Clone()
+                dto
             ];
         }
 

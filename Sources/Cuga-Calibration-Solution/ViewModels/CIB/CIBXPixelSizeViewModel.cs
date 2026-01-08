@@ -158,7 +158,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -931,7 +930,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto.Clone()
+                dto
             ];
         }
 

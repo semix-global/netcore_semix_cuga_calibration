@@ -157,7 +157,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -482,7 +481,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto.Clone()
+                dto
             ];
         }
 

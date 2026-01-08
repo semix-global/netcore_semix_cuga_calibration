@@ -161,7 +161,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsIlluminationModeEnum)
         ];
 
@@ -591,7 +590,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum),
-                dto.Clone()
+                dto
             ];
         }
 

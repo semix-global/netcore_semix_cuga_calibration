@@ -167,7 +167,6 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -332,8 +331,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
-            CalibratingItem.StartWindowItem = new CIBXTCDTO.Item();
-            CalibratingItem.StopWindowItem = new CIBXTCDTO.Item();
+            CalibratingItem.StartWindowItem = new CIBXTCDTO.WindowItem();
+            CalibratingItem.StopWindowItem = new CIBXTCDTO.WindowItem();
 
             CIBViewModel.ToggleEnableAGC(cibInformations, true);
             CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
@@ -365,7 +364,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                 return true;
 
-                async Task CatchImageAsync(int segmentIndex, CIBXTCDTO.Item itemItemData)
+                async Task CatchImageAsync(int segmentIndex, CIBXTCDTO.WindowItem windowItem)
                 {
                     using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
@@ -383,14 +382,14 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                     var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);
 
-                    itemItemData.ImageFilePath = imageFilePath;
-                    itemItemData.RawImageFilePath = darkFieldImage.RawImageFilePath;
-                    itemItemData.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+                    windowItem.ImageFilePath = imageFilePath;
+                    windowItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
+                    windowItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
 
                     Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
-                        itemItemData.RawImageFilePath,
-                        Image = new HtmlImage(itemItemData.ImageFilePath)
+                        windowItem.RawImageFilePath,
+                        Image = new HtmlImage(windowItem.ImageFilePath)
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
             }
@@ -701,7 +700,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         return prescanAODWaveformWindow;
     }
 
-    private void Algorithm(int segmentIndex, CIBXTCDTO.Item itemItemData)
+    private void Algorithm(int segmentIndex, CIBXTCDTO.WindowItem windowItem)
     {
         var yPixelTotalLength = Cache.ProductivityInformation.YPixel;
         var yPixelSegmentWidth = yPixelTotalLength / Cache.Item.SegmentCount;
@@ -713,12 +712,12 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             yPixelSegmentWidth,
             yPixelTotalLength).Region;
 
-        itemItemData.SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(itemItemData.ImageHorizontalProjects))];
+        windowItem.SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(windowItem.ImageHorizontalProjects))];
         var (x, y) = Extremumor.FindMinima(
-            Vector<double>.Build.DenseOfArray(Enumerable.Range(0, itemItemData.SmoothImageHorizontalProjects.Count).ToArray()),
-            Vector<double>.Build.DenseOfEnumerable(itemItemData.SmoothImageHorizontalProjects));
+            Vector<double>.Build.DenseOfArray(Enumerable.Range(0, windowItem.SmoothImageHorizontalProjects.Count).ToArray()),
+            Vector<double>.Build.DenseOfEnumerable(windowItem.SmoothImageHorizontalProjects));
 
-        itemItemData.ProjectMinPixel = x
+        windowItem.ProjectMinPixel = x
             .Select(t => (int)t)
             .Index()
             .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
@@ -738,7 +737,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto.Clone()
+                dto
             ];
         }
 
