@@ -91,6 +91,9 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
         {
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(itemItem.CIBInformation, GetScatterPlotControl());
 
+            scatterPlotControl.Clear(0);
+            scatterPlotControl.Clear(1);
+
             try
             {
                 if (TargetPMTValues.TryGetSingle(t => t.Key == itemItem.CIBInformation, out var targetPMTValueKvp) == false) return;
@@ -106,14 +109,14 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
                 {
                     scatterPlotControl.GetOrAddScatterLine(
                         0,
-                        $"{i + 1}",
+                        $"{i + 1} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
                         [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, itemItem.Items.Count - 1));
 
                     scatterPlotControl.GetOrAddScatterLine(
                         1,
-                        $"{i + 1} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
+                        $"{i + 1}",
                         [.. itemItemData.IlluminationProfiles.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, itemItem.Items.Count - 1));

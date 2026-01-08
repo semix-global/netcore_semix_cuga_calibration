@@ -203,6 +203,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         {
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(pmtId, GetScatterPlotControl());
 
+            scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
 
             try
@@ -239,7 +240,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
                         scatterPlotControl.GetOrAddScatterLine(
                             1,
-                            $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId})",
+                            $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
                             [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
                             color).IsVisible = i == count - 1;
 
@@ -251,7 +252,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
                         scatterPlotControl.GetOrAddXLine(
                             1,
-                            $"{i + 1} {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
+                            $"{i + 1} {nameof(CIBInformation.ChannelId)}({channelId})",
                             itemItemData.ProjectMinPixel,
                             color).IsVisible = i == count - 1;
                     }
