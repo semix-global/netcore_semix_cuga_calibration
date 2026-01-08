@@ -31,6 +31,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Core.Models.Models.AOD.Uniformity;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -331,8 +332,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
-            CalibratingItem.StartWindowItem = new CIBXTCDTO.WindowItem();
-            CalibratingItem.StopWindowItem = new CIBXTCDTO.WindowItem();
+            CalibratingItem.StartWindowItem = new AODUniformityDTO.WindowItem();
+            CalibratingItem.StopWindowItem = new AODUniformityDTO.WindowItem();
 
             CIBViewModel.ToggleEnableAGC(cibInformations, true);
             CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
@@ -350,11 +351,11 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                 CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startSegmentIndex, prescanAODWaveformProfiles);
                 await CatchImageAsync(startSegmentIndex, CalibratingItem.StartWindowItem);
-                Algorithm(startSegmentIndex, CalibratingItem.StartWindowItem);
+                CalibratingItem.StartWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, startSegmentIndex);
 
                 CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopSegmentIndex, prescanAODWaveformProfiles);
                 await CatchImageAsync(stopSegmentIndex, CalibratingItem.StopWindowItem);
-                Algorithm(stopSegmentIndex, CalibratingItem.StopWindowItem);
+                CalibratingItem.StopWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, stopSegmentIndex);
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -364,7 +365,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                 return true;
 
-                async Task CatchImageAsync(int segmentIndex, CIBXTCDTO.WindowItem windowItem)
+                async Task CatchImageAsync(int segmentIndex, AODUniformityDTO.WindowItem windowItem)
                 {
                     using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
@@ -378,7 +379,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         false,
                         cancellationToken);
 
-                    var title = $"{Cache.Item.SegmentCount}_{segmentIndex}";
+                    var title = $"{segmentIndex}";
                     var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);
 
@@ -504,7 +505,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
                         };
-                        Algorithm(segmentIndex, itemItemData);
+                        itemItemData.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, segmentIndex);
+                        
                         if (HostEnvironment.IsDevelopment()) itemItemData.ProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
                         itemItem.Items = [.. itemItem.Items, itemItemData];
 
@@ -698,33 +700,6 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
 
         return prescanAODWaveformWindow;
-    }
-
-    private void Algorithm(int segmentIndex, CIBXTCDTO.WindowItem windowItem)
-    {
-        var yPixelTotalLength = Cache.ProductivityInformation.YPixel;
-        var yPixelSegmentWidth = yPixelTotalLength / Cache.Item.SegmentCount;
-
-        var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindow(
-            Cache.Item.LaserLightInformation.Coefficient,
-            Cache.Item.LaserLightInformation.Coefficient / 1000d,
-            segmentIndex * yPixelSegmentWidth,
-            yPixelSegmentWidth,
-            yPixelTotalLength).Region;
-
-        windowItem.SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(windowItem.ImageHorizontalProjects))];
-        var (x, y) = Extremumor.FindMinima(
-            Vector<double>.Build.DenseOfArray(Enumerable.Range(0, windowItem.SmoothImageHorizontalProjects.Count).ToArray()),
-            Vector<double>.Build.DenseOfEnumerable(windowItem.SmoothImageHorizontalProjects));
-
-        windowItem.ProjectMinPixel = x
-            .Select(t => (int)t)
-            .Index()
-            .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-            .Select(t => (X: t.Item, Y: y[t.Index]))
-            .OrderBy(t => t.Y)
-            .First()
-            .X;
     }
 
     private bool Save(IReadOnlyList<CIBXTCDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>

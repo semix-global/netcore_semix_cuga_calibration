@@ -438,12 +438,12 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
                                     if (itemItem.Items[times].IsOk) continue;
 
-                                    itemItem.Items[times].IlluminationProfiles = [.. targetPMTValue / imageHorizontalProjectsVector];
-                                    if (itemItem.IlluminationProfiles.Count <= 0) itemItem.IlluminationProfiles = [.. Enumerable.Repeat(1d, imageHorizontalProjectsVector.Count)];
-                                    itemItem.IlluminationProfiles = [.. Vector<double>.Build.DenseOfEnumerable(itemItem.IlluminationProfiles).PointwiseMultiply(Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].IlluminationProfiles))];
+                            itemItem.Items[times].Window = [.. targetPMTValue / imageHorizontalProjectsVector];
+                            if (itemItem.Window.Count <= 0) itemItem.Window = [.. Enumerable.Repeat(1d, imageHorizontalProjectsVector.Count)];
+                            itemItem.Window = [.. Vector<double>.Build.DenseOfEnumerable(itemItem.Window).PointwiseMultiply(Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].Window))];
 
-                                    CIBViewModel.SetIlluminationProfile([itemItem.CIBInformation], itemItem.IlluminationProfiles);
-                                }
+                            CIBViewModel.SetIlluminationProfile([itemItem.CIBInformation], itemItem.Window);
+                        }
 
                                 var htmlBullet = new HtmlBullet(new
                                 {

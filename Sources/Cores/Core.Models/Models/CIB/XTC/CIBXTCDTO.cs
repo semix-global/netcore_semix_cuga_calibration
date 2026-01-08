@@ -13,6 +13,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Core.Models.Models.AOD.Uniformity;
 using Net.Utilities.Models;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
@@ -25,10 +26,10 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private WindowItem _startWindowItem = new();
+    private AODUniformityDTO.WindowItem _startWindowItem = new();
 
     [ObservableProperty]
-    private WindowItem _stopWindowItem = new();
+    private AODUniformityDTO.WindowItem _stopWindowItem = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -58,7 +59,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnStartWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
+    partial void OnStartWindowItemChanged(AODUniformityDTO.WindowItem? oldValue, AODUniformityDTO.WindowItem newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -72,7 +73,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
     }
 
-    partial void OnStopWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
+    partial void OnStopWindowItemChanged(AODUniformityDTO.WindowItem? oldValue, AODUniformityDTO.WindowItem newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -111,8 +112,8 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     {
         ForwardAndReverseScatterPlotControl.Configure(new Columns(), 2);
 
-        ForwardAndReverseScatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
-        ForwardAndReverseScatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        ForwardAndReverseScatterPlotControl.SetTitle(0, "Forward And Reverse Window(Y: Coefficient - X: sa)");
+        ForwardAndReverseScatterPlotControl.SetTitle(1, "Forward And Reverse Horizontal Projects(Y: PMT Value(Log) - X: px)");
     }
 
     public CIBXTCDTO(IReadOnlyList<int> cibInformationPMTIds) : this()
@@ -124,67 +125,46 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     {
         try
         {
-            if (StartWindowItem.Window.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    0,
-                    "Start",
-                    [.. StartWindowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Blue);
-
-            if (StartWindowItem.ImageHorizontalProjects.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Start",
-                    [.. StartWindowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Blue);
-
-            if (StartWindowItem.SmoothImageHorizontalProjects.Count > 0)
-            {
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Start Smooth",
-                    [.. StartWindowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.DarkBlue);
-
-                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
-                    1,
-                    "Start Smooth Min Pixel",
-                    StartWindowItem.ProjectMinPixel,
-                    Colors.DarkBlue);
-            }
-
-            if (StopWindowItem.Window.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    0,
-                    "Stop",
-                    [.. StopWindowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Red);
-
-            if (StopWindowItem.ImageHorizontalProjects.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Stop",
-                    [.. StopWindowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Red);
-
-            if (StopWindowItem.SmoothImageHorizontalProjects.Count > 0)
-            {
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Stop Smooth",
-                    [.. StopWindowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.DarkRed);
-
-                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
-                    1,
-                    "Stop Smooth Min Pixel",
-                    StopWindowItem.ProjectMinPixel,
-                    Colors.DarkRed);
-            }
+            Refresh(StartWindowItem, "Start", Colors.Blue, Colors.DarkBlue);
+            Refresh(StopWindowItem, "Stop", Colors.Red, Colors.DarkRed);
         }
         finally
         {
             ForwardAndReverseScatterPlotControl.AutoScaleRefresh();
+        }
+
+        return;
+
+        void Refresh(AODUniformityDTO.WindowItem windowItem, string title, Color primaryColor, Color secondaryColor)
+        {
+            if (windowItem.Window.Count > 0)
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    0,
+                    title,
+                    [.. windowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                    primaryColor);
+
+            if (windowItem.ImageHorizontalProjects.Count > 0)
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    title,
+                    [.. windowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    primaryColor);
+
+            if (windowItem.SmoothImageHorizontalProjects.Count > 0)
+            {
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    $"{title} Smooth",
+                    [.. windowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    secondaryColor);
+
+                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
+                    1,
+                    $"{title} Smooth Min Pixel",
+                    windowItem.ProjectMinPixel,
+                    secondaryColor);
+            }
         }
     }
 
@@ -306,37 +286,6 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     };
 
     #endregion Mapper
-
-    public partial class WindowItem : ObservableObject, ICloneable<WindowItem>
-    {
-        [ObservableProperty]
-        private IReadOnlyList<double> _window = [];
-
-        [ObservableProperty]
-        private IReadOnlyList<double> _imageHorizontalProjects = [];
-
-        [ObservableProperty]
-        private IReadOnlyList<double> _smoothImageHorizontalProjects = [];
-
-        [ObservableProperty]
-        private int _projectMinPixel;
-
-        [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
-
-        [ObservableProperty]
-        private string _imageFilePath = string.Empty;
-
-        public WindowItem Clone() => new()
-        {
-            Window = [.. Window],
-            ImageHorizontalProjects = [.. ImageHorizontalProjects],
-            SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
-            ProjectMinPixel = ProjectMinPixel,
-            RawImageFilePath = RawImageFilePath,
-            ImageFilePath = ImageFilePath
-        };
-    }
 }
 
 public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCDTOItem>, IAdaptTo<CalibrationLaserCIBXTCItem.Item>
@@ -385,7 +334,7 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
 
     #endregion Mapper
 
-    public sealed partial class Item : CIBXTCDTO.WindowItem, ICloneable<Item>
+    public sealed partial class Item : AODUniformityDTO.WindowItem, ICloneable<Item>
     {
         [ObservableProperty]
         private double _error;

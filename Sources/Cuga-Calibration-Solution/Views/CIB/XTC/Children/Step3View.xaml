@@ -57,6 +57,20 @@
                                           Minimum="4"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.SegmentCount}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.IsReverse}"
+                                 hc:TitleElement.Title="Is Reverse: "
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

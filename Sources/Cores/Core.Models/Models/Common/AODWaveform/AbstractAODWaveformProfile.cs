@@ -188,7 +188,7 @@ public abstract class AbstractAODWaveformProfile :
         if (resultString.Count <= 0 && resultString.All(t => t.Length == 4) == false) ThrowHelper.ThrowNotSupportedException("filePath value error.");
 
         Shorts = [.. resultString.Select(str => Convert.ToInt16(str, 16))];
-        Signals = [.. Shorts.Index().Select(t => new Point(t.Index + 1, t.Item / Math.Pow(2d, 15d)))];
+        Signals = [.. Shorts.Index().Select(t => new Point(t.Index, t.Item / Math.Pow(2d, 15d)))];
 
         SetByteList(1);
     }

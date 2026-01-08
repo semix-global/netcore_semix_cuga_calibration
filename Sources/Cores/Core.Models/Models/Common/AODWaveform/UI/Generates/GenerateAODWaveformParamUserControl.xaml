@@ -40,7 +40,7 @@
                     <ComboBox hc:TitleElement.Title="Productivity Information: "
                               hc:TitleElement.TitlePlacement="Left"
                               hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                              ItemsSource="{Binding ApplicationCookie.ProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
                               Style="{StaticResource ComboBoxExtend}"
                               Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                         <i:Interaction.Behaviors>
@@ -299,8 +299,7 @@
                                                                 </TabItem>
                                                                 <TabItem Header="Plots">
                                                                     <Border Style="{StaticResource BorderRegion}">
-                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
-                                                                                                          ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
                                                                     </Border>
                                                                 </TabItem>
                                                             </TabControl>
