@@ -27,6 +27,7 @@ using System.Text;
 using Core.Models.Models.Common.AODWaveform;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
@@ -308,6 +309,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(async () =>
         {
+            Guard.IsGreaterThanOrEqualTo(Cache.Item.SegmentCount, 4);
             Guard.IsTrue((Cache.Item.SegmentCount & 1) == 0, "It must be even number!");
 
             var detectImageDirectory = ImageFileDirectory;
@@ -504,6 +506,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                             ImageFilePath = imageFilePath
                         };
                         Algorithm(segmentIndex, itemItemData);
+                        if (HostEnvironment.IsDevelopment()) itemItemData.ProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
                         itemItem.Items = [.. itemItem.Items, itemItemData];
 
                         Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
@@ -550,7 +553,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                             itemItem.Delay += (CalibratingItem.IsReverse ? -1 : 1) * itemItem.Items[times].Error;
 
-                            CIBViewModel.SetDelays([cibDelays.Single(t=>t.CIBInformation == itemItem.CIBInformation).WithPMTDelay(itemItem.Delay)]);
+                            CIBViewModel.SetDelays([cibDelays.Single(t => t.CIBInformation == itemItem.CIBInformation).WithPMTDelay(itemItem.Delay)]);
                         }
                     }
 

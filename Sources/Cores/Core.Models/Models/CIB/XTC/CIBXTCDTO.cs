@@ -13,6 +13,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Net.Utilities.ScottPlot.WPF.Helper;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.XTC;
@@ -69,7 +70,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
     }
-    
+
     partial void OnStopWindowItemChanged(CIBXTCDTOItem.Item? oldValue, CIBXTCDTOItem.Item newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
@@ -127,14 +128,14 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                     0,
                     "Start",
                     [.. StartWindowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    color: Colors.Blue);
+                    Colors.Blue);
 
             if (StartWindowItem.ImageHorizontalProjects.Count > 0)
                 ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
                     1,
                     "Start",
                     [.. StartWindowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    color: Colors.Blue);
+                    Colors.Blue);
 
             if (StartWindowItem.SmoothImageHorizontalProjects.Count > 0)
             {
@@ -142,13 +143,13 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                     1,
                     "Start Smooth",
                     [.. StartWindowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    color: Colors.DarkBlue);
+                    Colors.DarkBlue);
 
                 ForwardAndReverseScatterPlotControl.GetOrAddXLine(
                     1,
                     "Start Smooth Min Pixel",
                     StartWindowItem.ProjectMinPixel,
-                    color: Colors.DarkBlue);
+                    Colors.DarkBlue);
             }
 
             if (StopWindowItem.Window.Count > 0)
@@ -156,14 +157,14 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                     0,
                     "Stop",
                     [.. StopWindowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    color: Colors.Red);
+                    Colors.Red);
 
             if (StopWindowItem.ImageHorizontalProjects.Count > 0)
                 ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
                     1,
                     "Stop",
                     [.. StopWindowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    color: Colors.Red);
+                    Colors.Red);
 
             if (StopWindowItem.SmoothImageHorizontalProjects.Count > 0)
             {
@@ -171,13 +172,13 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                     1,
                     "Stop Smooth",
                     [.. StopWindowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    color: Colors.DarkRed);
+                    Colors.DarkRed);
 
                 ForwardAndReverseScatterPlotControl.GetOrAddXLine(
                     1,
                     "Stop Smooth Min Pixel",
                     StopWindowItem.ProjectMinPixel,
-                    color: Colors.DarkRed);
+                    Colors.DarkRed);
             }
         }
         finally
@@ -190,11 +191,11 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     {
         var results = (
             from itemItem in Items
-            group itemItem by itemItem.CIBInformation.ChannelId
+            group itemItem by itemItem.CIBInformation.PMTId
             into g
             orderby g.Key
             select (
-                ChannelId: g.Key,
+                PMTId: g.Key,
                 ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
             )).ToArray();
 
@@ -202,10 +203,12 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         {
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(pmtId, GetScatterPlotControl());
 
+            scatterPlotControl.Clear(1);
+
             try
             {
                 if (TargetPixelValues.TryGetSingle(t => t.Key == pmtId, out var targetPMTValueKvp) == false) return;
-                scatterPlotControl.GetOrAddXLine(0, "Target", targetPMTValueKvp.Value, color: Colors.Red);
+                scatterPlotControl.GetOrAddXLine(1, "Target", targetPMTValueKvp.Value, Colors.Red);
 
                 scatterPlotControl.GetOrAddScatterLine(
                     2,
@@ -220,35 +223,37 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                         .Select(t => (t.CIBInformation.ChannelId, Item: t.Items[i]))
                         .ToArray();
 
+                    var minChannelId = itemItemsData.Min(t => t.ChannelId);
+                    var maxChannelId = itemItemsData.Max(t => t.ChannelId);
+
                     foreach (var (channelId, itemItemData) in itemItemsData)
                     {
                         scatterPlotControl.GetOrAddScatterLine(
                             0,
-                            $"{i + 1}: {channelId}",
+                            "Window",
                             [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                            i,
-                            new Range(0, count - 1)).IsVisible = i == count - 1;
+                            Colors.Red);
+
+                        var color = Constants.Turbo.GetColor(i, new Range(0, count - 1));
+                        if (minChannelId != maxChannelId) color = color.Lighten((1 - new Range(minChannelId, maxChannelId).Normalize(channelId)) * 0.8);
 
                         scatterPlotControl.GetOrAddScatterLine(
                             1,
-                            $"{i + 1}: {channelId}",
+                            $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId})",
                             [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                            i,
-                            new Range(0, count - 1)).IsVisible = i == count - 1;
+                            color).IsVisible = i == count - 1;
 
                         scatterPlotControl.GetOrAddScatterLine(
                             1,
-                            $"{i + 1}: {channelId}",
+                            $"Smooth: {i + 1}: {nameof(CIBInformation.ChannelId)}({channelId})",
                             [.. itemItemData.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                            i,
-                            new Range(0, count - 1)).IsVisible = i == count - 1;
+                            color).IsVisible = i == count - 1;
 
                         scatterPlotControl.GetOrAddXLine(
                             1,
-                            $"{i + 1}: {channelId} Error: {itemItemData.Error:0.###}",
+                            $"{i + 1} {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
                             itemItemData.ProjectMinPixel,
-                            i,
-                            new Range(0, count - 1)).IsVisible = i == count - 1;
+                            color).IsVisible = i == count - 1;
                     }
                 }
             }
@@ -268,6 +273,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         scatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
         scatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
         scatterPlotControl.SetTitle(2, "Result(Y: Delay - X: PMT Id)");
+        scatterPlotControl.ToggleInvisibleLegendItem(0, false);
         scatterPlotControl.ToggleInvisibleLegendItem(1, false);
 
         return scatterPlotControl;

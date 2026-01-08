@@ -94,7 +94,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
             try
             {
                 if (TargetPMTValues.TryGetSingle(t => t.Key == itemItem.CIBInformation, out var targetPMTValueKvp) == false) return;
-                scatterPlotControl.GetOrAddYLine(0, "Target", targetPMTValueKvp.Value, color: Colors.Red);
+                scatterPlotControl.GetOrAddYLine(0, "Target", targetPMTValueKvp.Value, Colors.Red);
 
                 scatterPlotControl.GetOrAddScatterLine(
                     2,

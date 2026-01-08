@@ -116,14 +116,14 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
             {
                 if (HazeTargetPMTValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetPMTValueKvp))
                 {
-                    scatterPlotControl.GetOrAddYLine(0, "Target", hazeTargetPMTValueKvp.Value, color: Colors.Red);
+                    scatterPlotControl.GetOrAddYLine(0, "Target", hazeTargetPMTValueKvp.Value, Colors.Red);
 
                     WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
                         2,
                         "Result",
                         [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGain))],
-                        color: Colors.Red,
-                        markerShape: MarkerShape.HorizontalBar));
+                        Colors.Red,
+                        MarkerShape.HorizontalBar));
 
                     var hazeCount = itemItems.Max(t => t.HazeItems.Count);
                     for (var i = 0; i < hazeCount; i++)
@@ -138,7 +138,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                             [.. hazes.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
                             i,
                             new Range(0, hazeCount - 1),
-                            markerShape: MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
+                            MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
 
                         WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
                             1,
@@ -146,7 +146,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                             [.. hazes.Select(t => new Point(t.PMTId, t.Item.Error))],
                             i,
                             new Range(0, hazeCount - 1),
-                            markerShape: MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
+                            MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
 
                         WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
                             1,
@@ -154,25 +154,25 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                             [.. hazes.Select(t => new Point(t.PMTId, t.Item.Result))],
                             i,
                             new Range(0, hazeCount - 1),
-                            markerShape: MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
+                            MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
                     }
                 }
 
                 if (SilicaSphereTargetPMTValue is not null)
                 {
-                    scatterPlotControl.GetOrAddYLine(3, "Target", SilicaSphereTargetPMTValue.Value, color: Colors.Red);
+                    scatterPlotControl.GetOrAddYLine(3, "Target", SilicaSphereTargetPMTValue.Value, Colors.Red);
 
                     if (SilicaSphereAveragePMTValues.TryGetSingle(t => t.Key == channelId, out var silicaSphereAveragePMTValueKvp))
                     {
-                        var yLine = scatterPlotControl.GetOrAddYLine(3, "Average", silicaSphereAveragePMTValueKvp.Value, color: Colors.Yellow);
+                        var yLine = scatterPlotControl.GetOrAddYLine(3, "Average", silicaSphereAveragePMTValueKvp.Value, Colors.Yellow);
                         yLine.LinePattern = LinePattern.Solid;
 
                         WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
                             5,
                             "Result",
                             [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGainPlusMultiplicativeFactors))],
-                            color: Colors.Red,
-                            markerShape: MarkerShape.HorizontalBar));
+                            Colors.Red,
+                            MarkerShape.HorizontalBar));
 
                         var silicaSphereCount = itemItems.Max(t => t.SilicaSphereItems.Count);
                         for (var i = 0; i < silicaSphereCount; i++)
@@ -187,7 +187,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                                 [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
                                 i,
                                 new Range(0, silicaSphereCount - 1),
-                                markerShape: MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
+                                MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
 
                             WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
                                 4,
@@ -195,7 +195,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                                 [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Error))],
                                 i,
                                 new Range(0, silicaSphereCount - 1),
-                                markerShape: MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
+                                MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
 
                             WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
                                 4,
@@ -203,7 +203,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                                 [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Result))],
                                 i,
                                 new Range(0, silicaSphereCount - 1),
-                                markerShape: MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
+                                MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
                         }
                     }
                 }
