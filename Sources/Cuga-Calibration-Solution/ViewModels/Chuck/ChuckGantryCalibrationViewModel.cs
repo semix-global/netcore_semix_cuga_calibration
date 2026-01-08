@@ -426,7 +426,6 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
             }
 
             ResultChuckGantryDto = chuckGantryObjDto.Clone();
-            StageViewModel.SetGantryOffset(ResultChuckGantryDto.Offset);
 
             (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
 
@@ -487,6 +486,9 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
             var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) =
                 MonitorViewModel.GetHardwareTemperature();
             selectReviewItemDto.IsVerified = false;
+
+            StageViewModel.SetGantryOffset(selectReviewItemDto.Offset);
+
             Logger.LogHtmlInformation("P5 Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 xAxisTemperature,

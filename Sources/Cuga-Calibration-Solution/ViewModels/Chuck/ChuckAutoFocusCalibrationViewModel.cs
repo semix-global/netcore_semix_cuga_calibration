@@ -58,7 +58,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
     private ChuckAutoFocusDto _calibration = new();
 
     [ObservableProperty]
-    private ChuckPrealignerObjDto _chuckPrealigner = new();
+    private ChuckPrealignerDTO _chuckPrealigner = new();
 
     #endregion 缓存
 
@@ -76,7 +76,7 @@ public sealed partial class ChuckAutoFocusCalibrationViewModel : CalibrationView
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckPrealignerObjDto>(out _, out var errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckPrealignerDTO>(out _, out var errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

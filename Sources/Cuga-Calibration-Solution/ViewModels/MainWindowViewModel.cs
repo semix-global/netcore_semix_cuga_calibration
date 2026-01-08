@@ -572,7 +572,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckCenterAndThetaCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckPrealignerCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckPrealignerObjDto>().IsOk(out _);
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckPrealignerDTO>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckStageMapCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckStageMapDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckAutoFocusCalibrationViewModel>();

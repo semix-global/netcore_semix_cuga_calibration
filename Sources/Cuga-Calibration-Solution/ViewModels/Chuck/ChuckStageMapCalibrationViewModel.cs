@@ -188,7 +188,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         ChuckCenter = chuckCenter;
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckPrealignerObjDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckPrealignerDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

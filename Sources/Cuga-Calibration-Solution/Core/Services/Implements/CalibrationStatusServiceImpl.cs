@@ -49,7 +49,7 @@ public class CalibrationStatusServiceImpl(
         if (EnableCalibrationItems<MicroscopeCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckGantryDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckCenterAndThetaItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibration<ChuckPrealignerObjDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckPrealignerDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckGlobalScaleErrorDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
@@ -82,7 +82,7 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependChuckCenterCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibration<ChuckPrealignerObjDto>(isOk, cancellationToken, out errorMessage) == false) return false;
+        if (EnableCalibration<ChuckPrealignerDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibration<ChuckStageMapDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
