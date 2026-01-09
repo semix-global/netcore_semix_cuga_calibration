@@ -551,7 +551,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                             itemItem.Delay += (CalibratingItem.IsReverse ? -1 : 1) * itemItem.Items[times].Error;
 
-                            CIBViewModel.SetDelays([cibDelays.Single(t => t.CIBInformation == itemItem.CIBInformation).WithPMTDelay(itemItem.Delay)]);
+                            CIBViewModel.SetDelays([cibDelays.Single(t => t.CIBInformation == itemItem.CIBInformation).Clone().WithPMTDelay(itemItem.Delay)]);
                         }
                     }
 
