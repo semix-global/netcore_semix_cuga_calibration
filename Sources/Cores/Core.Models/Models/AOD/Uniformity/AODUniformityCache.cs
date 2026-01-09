@@ -47,4 +47,7 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private int _imageWidth = 1000;
+
+    [ObservableProperty]
+    private int _segmentCount = 8;
 }

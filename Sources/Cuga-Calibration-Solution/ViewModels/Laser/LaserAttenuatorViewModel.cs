@@ -33,7 +33,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Attenuator" }
     ];
 

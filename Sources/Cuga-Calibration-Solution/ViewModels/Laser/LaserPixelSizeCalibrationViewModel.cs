@@ -47,7 +47,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Optics Illumination Mode" },
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Config" },
         new() { StepName = "P5" },
         new() { StepName = "Find a Position", DefaultIsNextEnable = true },

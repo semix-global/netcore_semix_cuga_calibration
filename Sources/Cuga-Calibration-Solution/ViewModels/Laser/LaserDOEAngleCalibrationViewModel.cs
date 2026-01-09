@@ -47,7 +47,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "CIB Config" },
         new() { StepName = "PMT Enable Config" },
         new() { StepName = "P5" },

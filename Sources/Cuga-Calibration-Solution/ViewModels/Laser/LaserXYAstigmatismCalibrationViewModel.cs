@@ -51,7 +51,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Config" },
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Select a lens and a location" },
         new() { StepName = "Find Best EcsX With Chirp AOD Default Wave", DefaultIsNextEnable = true },
         new() { StepName = "Get Optimum RateRange" }

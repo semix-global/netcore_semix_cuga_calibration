@@ -1,10 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.CIB.XTC;
+using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
@@ -15,10 +14,8 @@ using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using Microsoft.Extensions.Hosting;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -28,13 +25,12 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using Core.Models.Models.AOD.Uniformity;
 using Constants = Net.Utilities.Models.Constants;
 
-namespace CugaCalibration.ViewModels.CIB;
+namespace CugaCalibration.ViewModels.AOD;
 
-[IOCAppService(ServiceType = typeof(CIBXTCViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(AODUniformityViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -45,10 +41,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Productivity Information" },
+        new() { StepName = "Select Laser Light Information" },
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
-        new() { StepName = "Forward & Reverse " },
-        new() { StepName = "XTC" }
+        new() { StepName = "Forward & Reverse & Mapping" },
+        new() { StepName = "Forward & Reverse & Mapping" },
+        new() { StepName = "Initialize Window" },
+        new() { StepName = "Uniformity" }
     ];
 
     #region 界面相关
@@ -56,7 +55,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private CIBXTCDTO _calibratingItem = new();
+    private AODUniformityDTO _calibratingItem = new();
 
     [ObservableProperty]
     private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
@@ -64,20 +63,20 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXTCDTO> _reviews = [];
+    private IReadOnlyList<AODUniformityDTO> _reviews = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXTCDTO> _selectedReviewItems = [];
+    private IReadOnlyList<AODUniformityDTO> _selectedReviewItems = [];
 
     #endregion 界面相关
 
     #region 缓存
 
     [ObservableProperty]
-    private CIBXTCCache _cache = new();
+    private AODUniformityCache _cache = new();
 
     [ObservableProperty]
-    private CIBXTCDTO[] _calibrations = [];
+    private AODUniformityDTO[] _calibrations = [];
 
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
@@ -127,8 +126,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBXTCCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBXTCDTO>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODUniformityCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<AODUniformityDTO>();
 
         Calibrations =
         [
@@ -208,7 +207,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
-                CalibratingItem = new CIBXTCDTO(ApplicationCookie.CIBInformationPMTIds);
+                CalibratingItem = new AODUniformityDTO(ApplicationCookie.CIBInformationPMTIds);
 
                 return true;
 
@@ -437,13 +436,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                     Cache.CalibratingThreshold,
                     CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
                     PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                    CIBDelays = new HtmlExpand(string.Empty, new HtmlTable([.. cibDelays.Select(t => t.ToHtmlAnonymous())])),
+                    AODDelays = new HtmlExpand(string.Empty, new HtmlTable([.. cibDelays.Select(t => t.ToHtmlAnonymous())])),
                     detectImageDirectory
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 CalibratingItem.Items =
                 [
-                    .. cibInformations.Select(t => new CIBXTCDTOItem
+                    .. cibInformations.Select(t => new AODUniformityDTOItem
                     {
                         CIBInformation = t,
                         Delay = cibDelays.Single(tt => tt.CIBInformation == t).PMTDelay
@@ -459,7 +458,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
-                Logger.LogHtmlInformation("XTC", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Uniformity", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var segmentIndex = Cache.Item.SegmentCount / 2;
                 var window = GetAndApplyWindow(segmentIndex, prescanAODWaveformProfiles);
@@ -495,7 +494,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImage.Image.Save(imageFilePath);
 
-                        var itemItemData = new CIBXTCDTOItem.Item
+                        var itemItemData = new AODUniformityDTOItem.Item
                         {
                             Window = window,
                             ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
@@ -699,7 +698,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         return prescanAODWaveformWindow;
     }
 
-    private bool Save(IReadOnlyList<CIBXTCDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<AODUniformityDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
 

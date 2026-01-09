@@ -42,7 +42,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Optics Illumination Mode" },
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Bright Field P5" },
         new() { StepName = "Dark Field P5" }
     ];

@@ -41,7 +41,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
         new() { StepName = "Illumination Profile" }

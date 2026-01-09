@@ -13,7 +13,6 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using Core.Utilities;
 using MathNet.Numerics.LinearAlgebra;

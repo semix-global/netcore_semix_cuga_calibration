@@ -32,7 +32,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Find Machine Position" },
         new() { StepName = "Optical Power Meter" }
     ];
