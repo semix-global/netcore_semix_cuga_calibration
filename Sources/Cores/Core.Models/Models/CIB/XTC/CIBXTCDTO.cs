@@ -112,8 +112,8 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     {
         ForwardAndReverseScatterPlotControl.Configure(new Columns(), 2);
 
-        ForwardAndReverseScatterPlotControl.SetTitle(0, "Forward And Reverse Window(Y: Coefficient - X: sa)");
-        ForwardAndReverseScatterPlotControl.SetTitle(1, "Forward And Reverse Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        ForwardAndReverseScatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
+        ForwardAndReverseScatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
     }
 
     public CIBXTCDTO(IReadOnlyList<int> cibInformationPMTIds) : this()

@@ -479,7 +479,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         Cache.Item.ImageWidth,
                         (true, null),
                         (true, null),
-                        (false, Cache.Item.LaserLightInformation),
+                        (true, null),
                         false,
                         cancellationToken);
 

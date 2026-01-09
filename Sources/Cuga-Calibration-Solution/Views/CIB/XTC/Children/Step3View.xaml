@@ -64,9 +64,9 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.IsReverse}"
+                        <TextBox Text="{Binding CalibratingItem.IsReverse, Mode=OneWay}"
                                  hc:TitleElement.Title="Is Reverse: "
-                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
