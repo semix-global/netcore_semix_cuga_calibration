@@ -6,7 +6,7 @@ using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class OpticsIlluminationModeCalibrationStatus : ObservableCacheBase, ICalibrationStatus<OpticsIlluminationModeEnum>
+public sealed partial class OpticsIlluminationModeStatus : ObservableCacheBase, IStatus<OpticsIlluminationModeEnum>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _selectedItem = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;

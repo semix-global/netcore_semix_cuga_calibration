@@ -6,17 +6,17 @@ using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class OpticsIlluminationModeAndProductivityInformationCalibrationStatus : ObservableCacheBase, ICalibrationStatus<OpticsIlluminationModeEnum>
+public sealed partial class OpticsIlluminationModeAndProductivityInformationStatus : ObservableCacheBase, IStatus<OpticsIlluminationModeEnum>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _selectedItem;
 
     [ObservableProperty]
-    private BindingList<ProductivityInformationCalibrationStatus> _productivityInformationCalibrationStatusList = [];
+    private BindingList<ProductivityInformationStatus> _productivityInformationCalibrationStatusList = [];
 
     public bool IsCalibrated => ProductivityInformationCalibrationStatusList.All(c => c.IsCalibrated);
 
-    partial void OnProductivityInformationCalibrationStatusListChanged(BindingList<ProductivityInformationCalibrationStatus>? oldValue, BindingList<ProductivityInformationCalibrationStatus> newValue)
+    partial void OnProductivityInformationCalibrationStatusListChanged(BindingList<ProductivityInformationStatus>? oldValue, BindingList<ProductivityInformationStatus> newValue)
     {
         if (oldValue != null) oldValue.ListChanged -= OnValueOnListChanged;
 

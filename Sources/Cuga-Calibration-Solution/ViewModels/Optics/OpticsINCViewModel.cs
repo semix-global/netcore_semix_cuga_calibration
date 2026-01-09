@@ -53,7 +53,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     private OpticsINCDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -118,8 +118,8 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
             return false;
         }
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<OpticsINCCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<OpticsINCDTO>();
@@ -130,7 +130,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                 .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses
+                    CalibratingStatuses
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -214,13 +214,13 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
-                CalibrationStatuses
+                CalibratingStatuses
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation)
                     .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;

@@ -82,7 +82,7 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
     private ObservableCollection<OpticsMagTypeEnumAndLaserLightInformationCalibration> _calibrationStatusList = [];
 
     [ObservableProperty]
-    private ObservableCollection<LaserLightInformationStatus> _calibrationStatusListItem = [];
+    private ObservableCollection<LaserLightInformationStatus1> _calibrationStatusListItem = [];
 
     [ObservableProperty]
     private ObservableCollection<LaserIlluminationProfileItemDto> _calibrationLaserIlluminationProfileDtoList = [];
@@ -217,13 +217,13 @@ public sealed partial class LaserIlluminationProfileCalibrationViewModel : Calib
         {
             CalibrationStatusList =
             [
-                ..ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { ProductivityInformation = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)] })
+                ..ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new OpticsMagTypeEnumAndLaserLightInformationCalibration { ProductivityInformation = t, LaserLightInformationStatusList = [.. LaserLightInformationStatus1.CreateList(ApplicationCookie.LaserLightInformations)] })
             ];
         }
 
         if (CalibrationStatusListItem.Count == 0)
         {
-            CalibrationStatusListItem = [.. LaserLightInformationStatus.CreateList(ApplicationCookie.LaserLightInformations)];
+            CalibrationStatusListItem = [.. LaserLightInformationStatus1.CreateList(ApplicationCookie.LaserLightInformations)];
         }
 
 

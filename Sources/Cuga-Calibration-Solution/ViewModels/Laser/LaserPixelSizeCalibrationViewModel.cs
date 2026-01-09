@@ -66,7 +66,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
     private ObservableCollection<LaserPixelSizeItemDto> _resultLaserPixelSizeItemDtoList = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
@@ -172,10 +172,10 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         CalibrationStatuses =
         [
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI ? ApplicationCookie.OIOpticsMagTypeProductivityInformations : ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [..ApplicationCookie.GetOpticsMagTypeProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 

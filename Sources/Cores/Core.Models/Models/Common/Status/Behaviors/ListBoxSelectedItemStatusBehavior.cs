@@ -8,28 +8,27 @@ using System.Windows.Data;
 
 namespace Core.Models.Models.Common.Status.Behaviors;
 
-public class CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TCalibrationSelectedItem> : Behavior<ListBox>
-    where TCalibrationStatus : ICalibrationStatus<TCalibrationSelectedItem>
+public class ListBoxSelectedItemStatusBehavior<TStatus, TSelectedItem> : Behavior<ListBox> where TStatus : IStatus<TSelectedItem>
 {
     public static readonly DependencyProperty BindableSelectedItemProperty = DependencyProperty.Register(
         nameof(BindableSelectedItem),
-        typeof(TCalibrationSelectedItem),
-        typeof(CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TCalibrationSelectedItem>),
-        new FrameworkPropertyMetadata(default(TCalibrationSelectedItem), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
+        typeof(TSelectedItem),
+        typeof(ListBoxSelectedItemStatusBehavior<TStatus, TSelectedItem>),
+        new FrameworkPropertyMetadata(default(TSelectedItem), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
     );
 
     private static void BindableSelectedItemsPropertyChangedCallback(DependencyObject? d, DependencyPropertyChangedEventArgs e)
     {
-        var behavior = GuardUtils.IsNotNullAndAssignableToType<CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TCalibrationSelectedItem>>(d);
+        var behavior = GuardUtils.IsNotNullAndAssignableToType<ListBoxSelectedItemStatusBehavior<TStatus, TSelectedItem>>(d);
 
         if (e.NewValue is null) return;
 
         behavior.OnItemsSourceChanged(behavior.AssociatedObject, EventArgs.Empty);
     }
 
-    public TCalibrationSelectedItem BindableSelectedItem
+    public TSelectedItem BindableSelectedItem
     {
-        get => (TCalibrationSelectedItem)GetValue(BindableSelectedItemProperty);
+        get => (TSelectedItem)GetValue(BindableSelectedItemProperty);
         set => SetValue(BindableSelectedItemProperty, value);
     }
 
@@ -66,7 +65,7 @@ public class CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TC
             if (AssociatedObject.ItemsSource is null) return;
 
             AssociatedObject.SelectedItem = AssociatedObject.ItemsSource
-                .Cast<TCalibrationStatus>()
+                .Cast<TStatus>()
                 .SingleOrDefault(t => Equals(BindableSelectedItem, t.SelectedItem));
         }
         finally
@@ -82,7 +81,7 @@ public class CalibrationStatusListBoxSelectedItemBehavior<TCalibrationStatus, TC
         var listBox = GuardUtils.IsNotNullAndAssignableToType<ListBox>(sender);
 
         if (listBox.SelectedItem is null) return;
-        BindableSelectedItem = GuardUtils.IsAssignableToType<TCalibrationStatus>(listBox.SelectedItem).SelectedItem;
+        BindableSelectedItem = GuardUtils.IsAssignableToType<TStatus>(listBox.SelectedItem).SelectedItem;
 
         GuardUtils.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemProperty)).UpdateSource();
     }

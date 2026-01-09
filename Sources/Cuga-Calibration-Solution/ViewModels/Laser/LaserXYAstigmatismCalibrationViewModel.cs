@@ -83,7 +83,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
     private LaserXYAstigmatismCalibrationItemDto? _resultLaserXyAstigmatismItemDto;
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibrationStatuses = [];
 
     /// <summary>
     ///EcsY Zlimit中心位置
@@ -181,7 +181,7 @@ public sealed partial class LaserXYAstigmatismCalibrationViewModel(ICalibrationL
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses =
             [
-                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false })
+                .. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
             ];
 
         Calibrations =

@@ -67,7 +67,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     private ObservableCollection<LineOrientationOffsetItemDto> _resultLaserLineOrientationOffsetDtoList = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
 
     [ObservableProperty]
     private bool _isDarkFieldAlignment;
@@ -207,10 +207,10 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         CalibrationStatuses =
         [
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [.. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 

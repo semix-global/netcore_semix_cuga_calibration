@@ -43,7 +43,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
     private LaserAttenuatorDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibration
 
@@ -98,8 +98,8 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
         LaserOpticalPowerMeters = laserOpticalPowerMeters;
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserAttenuatorCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserAttenuatorDTO>();
@@ -110,7 +110,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses
+                    CalibratingStatuses
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -155,13 +155,13 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
                 return true;
 
             case 1:
-                CalibrationStatuses
+                CalibratingStatuses
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation)
                     .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;

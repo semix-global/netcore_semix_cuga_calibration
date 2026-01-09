@@ -61,7 +61,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
     private Point[] _afOffsetPoints = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
 
     #endregion 界面相关
 
@@ -218,10 +218,10 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         CalibrationStatuses =
         [
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [.. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 

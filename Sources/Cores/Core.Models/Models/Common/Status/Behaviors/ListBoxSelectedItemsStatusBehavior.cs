@@ -8,28 +8,27 @@ using System.Windows.Data;
 
 namespace Core.Models.Models.Common.Status.Behaviors;
 
-public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, TCalibrationSelectedItem> : Behavior<ListBox>
-    where TCalibrationStatus : ICalibrationStatus<TCalibrationSelectedItem>
+public class ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem> : Behavior<ListBox> where TStatus : IStatus<TSelectedItem>
 {
     public static readonly DependencyProperty BindableSelectedItemsProperty = DependencyProperty.Register(
         nameof(BindableSelectedItems),
-        typeof(IReadOnlyList<TCalibrationSelectedItem>),
-        typeof(CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, TCalibrationSelectedItem>),
-        new FrameworkPropertyMetadata(Array.Empty<TCalibrationSelectedItem>(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
+        typeof(IReadOnlyList<TSelectedItem>),
+        typeof(ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem>),
+        new FrameworkPropertyMetadata(Array.Empty<TSelectedItem>(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, BindableSelectedItemsPropertyChangedCallback)
     );
 
     private static void BindableSelectedItemsPropertyChangedCallback(DependencyObject? d, DependencyPropertyChangedEventArgs e)
     {
-        var behavior = GuardUtils.IsNotNullAndAssignableToType<CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, TCalibrationSelectedItem>>(d);
+        var behavior = GuardUtils.IsNotNullAndAssignableToType<ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem>>(d);
 
         if (e.NewValue is null) return;
 
         behavior.OnItemsSourceChanged(behavior.AssociatedObject, EventArgs.Empty);
     }
 
-    public IReadOnlyList<TCalibrationSelectedItem> BindableSelectedItems
+    public IReadOnlyList<TSelectedItem> BindableSelectedItems
     {
-        get => (IReadOnlyList<TCalibrationSelectedItem>)GetValue(BindableSelectedItemsProperty);
+        get => (IReadOnlyList<TSelectedItem>)GetValue(BindableSelectedItemsProperty);
         set => SetValue(BindableSelectedItemsProperty, value);
     }
 
@@ -66,7 +65,7 @@ public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, T
             if (AssociatedObject.ItemsSource is null) return;
 
             foreach (var calibrationStatus in AssociatedObject.ItemsSource
-                         .Cast<TCalibrationStatus>()
+                         .Cast<TStatus>()
                          .Where(t => BindableSelectedItems.Contains(t.SelectedItem)))
             {
                 AssociatedObject.SelectedItems.Add(calibrationStatus);
@@ -87,7 +86,7 @@ public class CalibrationStatusListBoxSelectedItemsBehavior<TCalibrationStatus, T
         BindableSelectedItems =
         [
             ..listBox.SelectedItems
-                .Cast<TCalibrationStatus>()
+                .Cast<TStatus>()
                 .Select(t => t.SelectedItem)
         ];
 

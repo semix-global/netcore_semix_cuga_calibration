@@ -12,13 +12,13 @@ public sealed class MultiOpticsIlluminationModeAndProductivityInformationCalibra
     public override object Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture)
         => values switch
         {
-            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> calibrationStatuses, OpticsIlluminationModeEnum opticsIlluminationModeEnum] => opticsIlluminationModeEnum switch
+            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> calibrationStatuses, OpticsIlluminationModeEnum opticsIlluminationModeEnum] => opticsIlluminationModeEnum switch
             {
                 OpticsIlluminationModeEnum.NI => calibrationStatuses.SingleOrDefault(t => t.SelectedItem == OpticsIlluminationModeEnum.NI)?.ProductivityInformationCalibrationStatusList ?? [],
                 OpticsIlluminationModeEnum.OI => calibrationStatuses.SingleOrDefault(t => t.SelectedItem == OpticsIlluminationModeEnum.OI)?.ProductivityInformationCalibrationStatusList ?? [],
                 _ => ThrowHelper.ThrowNotSupportedException<object>(nameof(opticsIlluminationModeEnum))
             },
-            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus>, { } o] => o == DependencyProperty.UnsetValue ? (BindingList<ProductivityInformationCalibrationStatus>)[] : ThrowHelper.ThrowNotSupportedException<object>(),
+            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus>, { } o] => o == DependencyProperty.UnsetValue ? (BindingList<ProductivityInformationStatus>)[] : ThrowHelper.ThrowNotSupportedException<object>(),
             _ => ThrowHelper.ThrowNotSupportedException<object>()
         };
 

@@ -78,7 +78,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     private ObservableCollection<LaserLineCentricityItemDto> _resultLaserLineCentricityItemDtoList = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
@@ -218,10 +218,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         CalibrationStatuses =
         [
             ..ApplicationCookie.OpticsIlluminationModeEnums
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
+                    ProductivityInformationCalibrationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 

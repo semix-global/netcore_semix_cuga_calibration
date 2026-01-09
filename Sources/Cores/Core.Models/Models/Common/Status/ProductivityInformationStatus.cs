@@ -5,10 +5,10 @@ using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class CIBInformationCalibrationStatus : ObservableCacheBase, ICalibrationStatus<CIBInformation>
+public sealed partial class ProductivityInformationStatus : ObservableCacheBase, IStatus<ProductivityInformation>
 {
     [ObservableProperty]
-    private CIBInformation _selectedItem = CIBInformation.Default;
+    private ProductivityInformation _selectedItem = ProductivityInformation.Default;
 
     [ObservableProperty]
     private bool _isCalibrated;

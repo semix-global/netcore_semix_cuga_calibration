@@ -60,7 +60,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     private IReadOnlyList<CIBLightMatchingDTO> _selectedCalibratingItems = [];
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -125,8 +125,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             return false;
         }
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLightMatchingCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<CIBLightMatchingDTO>();
@@ -142,7 +142,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 {
                     t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
 
-                    CalibrationStatuses
+                    CalibratingStatuses
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -245,13 +245,13 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 return true;
 
             case 4:
-                CalibrationStatuses
+                CalibratingStatuses
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation)
                     .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;

@@ -1,31 +1,20 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.Uniformity;
-using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
-using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
-using MathNet.Numerics;
-using Microsoft.Extensions.Hosting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
-using System.IO;
-using System.Text;
-using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
 
@@ -45,7 +34,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
         new() { StepName = "Forward & Reverse & Mapping" },
-        new() { StepName = "Forward & Reverse & Mapping" },
         new() { StepName = "Initialize Window" },
         new() { StepName = "Uniformity" }
     ];
@@ -58,7 +46,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     private AODUniformityDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
@@ -124,7 +112,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         }
 
         if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODUniformityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<AODUniformityDTO>();
@@ -260,8 +248,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
-
-    /*[RelayCommand(IncludeCancelCommand = true)]
+    
+    [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
@@ -269,17 +257,33 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
-                Cache.Item.MicroscopeLensInformation,
-                Cache.Item.LaserLightInformation
+                Cache.LaserLightInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
-                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
+            return ApplicationCookie.LaserLightInformations.Contains(Cache.LaserLightInformation);
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step2Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.LaserLightInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.CIBInformation,
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
+                   && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
+        });
+    }
+
+    /*[RelayCommand(IncludeCancelCommand = true)]
+    private Task Step3Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -696,7 +700,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
 
         return prescanAODWaveformWindow;
-    }*/
+    }
+    */
 
     private bool Save(IReadOnlyList<AODUniformityDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
