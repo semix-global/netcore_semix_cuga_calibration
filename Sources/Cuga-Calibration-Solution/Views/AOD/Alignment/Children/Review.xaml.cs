@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.AOD.AODAlignment.Children;
+﻿namespace CugaCalibration.Views.AOD.Alignment.Children;
 
 public sealed partial class Review
 {
