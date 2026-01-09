@@ -261,7 +261,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         });
     }
 
-    [RelayCommand(IncludeCancelCommand = true)]
+    /*[RelayCommand(IncludeCancelCommand = true)]
     private Task Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
@@ -637,7 +637,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 {
                     errorMessageStringBuilder.AppendLine($"{title}: Error");
                     continue;
-                }*/
+                }#1#
 
                 Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
 
@@ -696,7 +696,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
 
         return prescanAODWaveformWindow;
-    }
+    }*/
 
     private bool Save(IReadOnlyList<AODUniformityDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
