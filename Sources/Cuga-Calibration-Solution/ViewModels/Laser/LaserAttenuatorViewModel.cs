@@ -223,6 +223,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPower.MaxMeasurePowerPosition);
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
             LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.Item.StartCoefficient);
             LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 

@@ -32,6 +32,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected readonly IWindowManagerService WindowManagerService;
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
+    protected readonly OpticsViewModel OpticsViewModel;
     protected readonly StageViewModel StageViewModel;
     protected readonly ConfigViewModel ConfigViewModel;
 
@@ -70,6 +71,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         WindowManagerService = HostApplication.GetRequiredService<IWindowManagerService>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
+        OpticsViewModel = HostApplication.GetRequiredService<OpticsViewModel>();
         StageViewModel = HostApplication.GetRequiredService<StageViewModel>();
         ConfigViewModel = HostApplication.GetRequiredService<ConfigViewModel>();
 
@@ -241,10 +243,10 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             if (isGenerateFlatnessAODWaveform) GenerateFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
             else GenerateScanAODWaveform(item, htmlLogUniqueId, cancellationToken);
 
-            SetAODWaveformProfiles(item, htmlLogUniqueId);
-
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
+            SetAODWaveformProfiles(item, htmlLogUniqueId);
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
