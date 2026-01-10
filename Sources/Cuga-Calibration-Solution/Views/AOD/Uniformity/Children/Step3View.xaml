@@ -56,7 +56,7 @@
                                           hc:TitleElement.TitleWidth="200"
                                           Minimum="4"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.SegmentCount}" />
+                                          Value="{Binding Cache.Item.PrescanAODWaveformProfileSegmentCount}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"

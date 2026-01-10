@@ -51,12 +51,12 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.ImageWidth}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Segment Count: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Prescan Segment Count: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="200"
                                           Minimum="4"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.SegmentCount}" />
+                                          Value="{Binding Cache.Item.PrescanAODWaveformProfileSegmentCount}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"

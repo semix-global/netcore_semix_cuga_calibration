@@ -306,15 +306,15 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(async () =>
         {
-            Guard.IsGreaterThanOrEqualTo(Cache.Item.SegmentCount, 4);
-            Guard.IsTrue((Cache.Item.SegmentCount & 1) == 0, "It must be even number!");
+            Guard.IsGreaterThanOrEqualTo(Cache.Item.PrescanAODWaveformProfileSegmentCount, 4);
+            Guard.IsTrue((Cache.Item.PrescanAODWaveformProfileSegmentCount & 1) == 0, "It must be even number!");
 
             var detectImageDirectory = ImageFileDirectory;
 
             var cibInformations = ApplicationCookie.CIBInformations;
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
-            var startSegmentIndex = Cache.Item.SegmentCount / 2 - 1;
-            var stopSegmentIndex = Cache.Item.SegmentCount / 2 + 1;
+            var startPrescanAODWaveformProfileSegmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2 - 1;
+            var stopPrescanAODWaveformProfileSegmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2 + 1;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -324,11 +324,11 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 Cache.Item.CIBInformation,
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
-                Cache.Item.SegmentCount,
+                Cache.Item.PrescanAODWaveformProfileSegmentCount,
                 CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
                 PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                startSegmentIndex,
-                stopSegmentIndex,
+                startPrescanAODWaveformProfileSegmentIndex,
+                stopPrescanAODWaveformProfileSegmentIndex,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -347,13 +347,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
             try
             {
-                CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startSegmentIndex, prescanAODWaveformProfiles);
-                await CatchImageAsync($"{startSegmentIndex}", CalibratingItem.StartWindowItem);
-                CalibratingItem.StartWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, startSegmentIndex);
+                CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startPrescanAODWaveformProfileSegmentIndex, prescanAODWaveformProfiles);
+                await CatchImageAsync($"{startPrescanAODWaveformProfileSegmentIndex}", CalibratingItem.StartWindowItem);
+                CalibratingItem.StartWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, startPrescanAODWaveformProfileSegmentIndex);
 
-                CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopSegmentIndex, prescanAODWaveformProfiles);
-                await CatchImageAsync($"{stopSegmentIndex}", CalibratingItem.StopWindowItem);
-                CalibratingItem.StopWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, stopSegmentIndex);
+                CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopPrescanAODWaveformProfileSegmentIndex, prescanAODWaveformProfiles);
+                await CatchImageAsync($"{stopPrescanAODWaveformProfileSegmentIndex}", CalibratingItem.StopWindowItem);
+                CalibratingItem.StopWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, stopPrescanAODWaveformProfileSegmentIndex);
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -421,6 +421,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             var cibInformations = ApplicationCookie.CIBInformations;
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
             var cibDelays = CIBViewModel.GetDelays(cibInformations);
+            var prescanAODWaveformProfileSegmentIndexIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2;
 
             try
             {
@@ -432,12 +433,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                     Cache.Item.CIBInformation,
                     Cache.Item.HazeFindBFMachinePosition,
                     Cache.Item.ImageWidth,
-                    Cache.Item.SegmentCount,
+                    Cache.Item.PrescanAODWaveformProfileSegmentCount,
                     Cache.CalibratingRetryTimes,
                     Cache.CalibratingThreshold,
                     CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
                     PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
                     CIBDelays = new HtmlExpand(string.Empty, new HtmlTable([.. cibDelays.Select(t => t.ToHtmlAnonymous())])),
+                    prescanAODWaveformProfileSegmentIndexIndex,
                     detectImageDirectory
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -461,8 +463,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                 Logger.LogHtmlInformation("XTC", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                var segmentIndex = Cache.Item.SegmentCount / 2;
-                var window = GetAndApplyWindow(segmentIndex, prescanAODWaveformProfiles);
+                var window = GetAndApplyWindow(prescanAODWaveformProfileSegmentIndexIndex, prescanAODWaveformProfiles);
 
                 var times = 0;
                 while (true)
@@ -502,7 +503,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
                         };
-                        itemItemData.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, segmentIndex);
+                        itemItemData.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexIndex);
 
                         if (HostEnvironment.IsDevelopment()) itemItemData.ProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
                         itemItem.Items = [.. itemItem.Items, itemItemData];
@@ -684,7 +685,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     private double[] GetAndApplyWindow(int segmentIndex, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveformProfiles)
     {
         var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
-        var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.SegmentCount;
+        var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.PrescanAODWaveformProfileSegmentCount;
 
         var window = Generate.LinearVShapeWindow(
             Cache.Item.LaserLightInformation.Coefficient,

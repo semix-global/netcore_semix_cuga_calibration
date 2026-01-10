@@ -45,7 +45,13 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     public bool IsReverse => StartWindowItem.ProjectMinPixel > StopWindowItem.ProjectMinPixel;
 
     [ObservableProperty]
-    private WindowsItem _mappingWindowItem = new();
+    private WindowItem _mappingWindowItem = new();
+
+    [ObservableProperty]
+    private IReadOnlyList<IReadOnlyList<int>> _imageHorizontalProjectMapping = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<IReadOnlyList<int>> _prescanAODWaveformProfileMapping = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -113,7 +119,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
     }
 
-    partial void OnMappingWindowItemChanged(WindowsItem? oldValue, WindowsItem newValue)
+    partial void OnMappingWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -213,9 +219,9 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                     [.. windowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
                     secondaryColor);
 
-                if (windowItem is WindowsItem windowItems)
+                if (windowItem.ProjectMinPixels.Count > 0)
                 {
-                    foreach (var (index, projectMinPixel) in windowItems.ProjectMinPixels.Index())
+                    foreach (var (index, projectMinPixel) in windowItem.ProjectMinPixels.Index())
                     {
                         ForwardAndReverseScatterPlotControl.GetOrAddXLine(
                             1,
@@ -367,6 +373,9 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         private int _projectMinPixel;
 
         [ObservableProperty]
+        private IReadOnlyList<int> _projectMinPixels = [];
+
+        [ObservableProperty]
         private string _rawImageFilePath = string.Empty;
 
         [ObservableProperty]
@@ -383,36 +392,36 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 yPixelSegmentWidth,
                 yPixelTotalLength).Region;
 
-            SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
-            var (x, y) = Extremumor.FindMinima(
+            // 正序
+            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects)).ToArray();
+            var (forwardX, forwardY) = Extremumor.FindMinima(
                 Vector<double>.Build.DenseOfArray(Enumerable.Range(0, SmoothImageHorizontalProjects.Count).ToArray()),
                 Vector<double>.Build.DenseOfEnumerable(SmoothImageHorizontalProjects));
 
-            ProjectMinPixel = x
+            var forwardProjectMinPixel = forwardX
                 .Select(t => (int)t)
                 .Index()
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                .Select(t => (X: t.Item, Y: y[t.Index]))
+                .Select(t => (X: t.Item, Y: forwardY[t.Index]))
                 .OrderBy(t => t.Y)
-                .First()
-                .X;
+                .First();
+
+            // 倒序
+            var reverseSmoothImageHorizontalProjects = SmoothImageHorizontalProjects.Reverse().ToArray();
+            var (reverseX, reverseY) = Extremumor.FindMinima(
+                Vector<double>.Build.DenseOfArray(Enumerable.Range(0, reverseSmoothImageHorizontalProjects.Length).ToArray()),
+                Vector<double>.Build.DenseOfEnumerable(reverseSmoothImageHorizontalProjects));
+
+            var reverseProjectMinPixel = reverseX
+                .Select(t => (int)t)
+                .Index()
+                .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
+                .Select(t => (X: t.Item, Y: reverseY[t.Index]))
+                .OrderBy(t => t.Y)
+                .First();
+
+            ProjectMinPixel = forwardProjectMinPixel.Y < reverseProjectMinPixel.Y ? forwardProjectMinPixel.X : reverseProjectMinPixel.X;
         }
-
-        public WindowItem Clone() => new()
-        {
-            Window = [.. Window],
-            ImageHorizontalProjects = [.. ImageHorizontalProjects],
-            SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
-            ProjectMinPixel = ProjectMinPixel,
-            RawImageFilePath = RawImageFilePath,
-            ImageFilePath = ImageFilePath
-        };
-    }
-
-    public partial class WindowsItem : WindowItem, ICloneable<WindowsItem>
-    {
-        [ObservableProperty]
-        private IReadOnlyList<int> _projectMinPixels = [];
 
         public void CalculateProjectMinPixels(int yPixelTotalLength, int segmentCount, int[] segmentIndexes)
         {
@@ -447,13 +456,16 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             ProjectMinPixels = projectMinPixels;
         }
 
-        public new WindowsItem Clone()
+        public WindowItem Clone() => new()
         {
-            var clone = GuardUtils.IsAssignableToType<WindowsItem>(base.Clone());
-            clone.ProjectMinPixels = [..ProjectMinPixels];
-
-            return clone;
-        }
+            Window = [.. Window],
+            ImageHorizontalProjects = [.. ImageHorizontalProjects],
+            SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
+            ProjectMinPixel = ProjectMinPixel,
+            ProjectMinPixels = [..ProjectMinPixels],
+            RawImageFilePath = RawImageFilePath,
+            ImageFilePath = ImageFilePath
+        };
     }
 }
 
