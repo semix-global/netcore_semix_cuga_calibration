@@ -1,20 +1,33 @@
+using System.IO;
+using System.Text;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.CIB;
+using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.Uniformity;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
+using MathNet.Numerics;
+using Microsoft.Extensions.Hosting;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
 
@@ -46,7 +59,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     private AODUniformityDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationAndLaserLightInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -111,8 +124,16 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             return false;
         }
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses =
+            [
+                .. ApplicationCookie.OpticsMagTypeProductivityInformations
+                    .Select(t => new ProductivityInformationAndLaserLightInformationStatus
+                    {
+                        SelectedItem = t,
+                        Items = [..ApplicationCookie.LaserLightInformations.Select(tt => new LaserLightInformationStatus { SelectedItem = tt })]
+                    })
+            ];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODUniformityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<AODUniformityDTO>();
@@ -120,13 +141,16 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         Calibrations =
         [
             .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                            && ApplicationCookie.LaserLightInformations.Contains(t.LaserLightInformation))
                 .Select(t =>
                 {
                     t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
 
-                    CalibrationStatuses
+                    CalibratingStatuses
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .Items
+                        .Single(tt => tt.SelectedItem == t.LaserLightInformation)
                         .IsCalibrated = t.IsCalibrated;
 
                     return t;
@@ -174,13 +198,19 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
+                return true;
+
+            case 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
                 return true;
 
-            case 4:
+            case 5:
+                return true;
+
+            case 6:
                 return true;
 
             default:
@@ -195,11 +225,14 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         switch (CalibrationStepIndex)
         {
             case 0:
+                return true;
+
+            case 1:
                 CalibratingItem = new AODUniformityDTO(ApplicationCookie.CIBInformationPMTIds);
 
                 return true;
 
-            case 1:
+            case 2:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
@@ -208,20 +241,25 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                 return true;
 
-            case 2:
-                return true;
-
             case 3:
                 return true;
 
             case 4:
-                CalibrationStatuses
+                return true;
+
+            case 5:
+                return true;
+
+            case 6:
+                CalibratingStatuses
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation)
+                    .Items
+                    .Single(tt => tt.SelectedItem == Cache.LaserLightInformation)
                     .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
@@ -248,7 +286,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
-    
+
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1Async(CancellationToken cancellationToken)
     {
@@ -274,7 +312,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
-                Cache.Item.CIBInformation,
+                Cache.Item.CIBInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
@@ -282,7 +320,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         });
     }
 
-    /*[RelayCommand(IncludeCancelCommand = true)]
+    [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
@@ -295,8 +333,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
+                Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
-                Cache.Item.LaserLightInformation,
+                Cache.Item.CIBInformation,
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -305,7 +344,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3Async(CancellationToken cancellationToken)
+    private Task Step4Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
@@ -316,18 +355,24 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
             var cibInformations = ApplicationCookie.CIBInformations;
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+            var startSegmentIndex = Cache.Item.SegmentCount / 2 - 1;
+            var stopSegmentIndex = Cache.Item.SegmentCount / 2 + 1;
+            var segmentIndexes = Enumerable.Range(0, Cache.Item.SegmentCount - 1).ToArray();
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
+                Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
-                Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.SegmentCount,
                 CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
                 PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+                startSegmentIndex,
+                stopSegmentIndex,
+                segmentIndexes,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -346,16 +391,26 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
             try
             {
-                var startSegmentIndex = Cache.Item.SegmentCount / 2 - 1;
-                var stopSegmentIndex = Cache.Item.SegmentCount / 2 + 1;
-
-                CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startSegmentIndex, prescanAODWaveformProfiles);
-                await CatchImageAsync(startSegmentIndex, CalibratingItem.StartWindowItem);
+                CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startSegmentIndex);
+                await CatchImageAsync($"{startSegmentIndex}", CalibratingItem.StartWindowItem);
                 CalibratingItem.StartWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, startSegmentIndex);
 
-                CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopSegmentIndex, prescanAODWaveformProfiles);
-                await CatchImageAsync(stopSegmentIndex, CalibratingItem.StopWindowItem);
+                CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopSegmentIndex);
+                await CatchImageAsync($"{stopSegmentIndex}", CalibratingItem.StopWindowItem);
                 CalibratingItem.StopWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, stopSegmentIndex);
+
+                var (mappingWindow, mappingRegions) = GetAndApplyMappingWindow();
+                CalibratingItem.MappingWindowItem.Window = mappingWindow;
+                await CatchImageAsync("All", CalibratingItem.StopWindowItem);
+                CalibratingItem.MappingWindowItem.CalculateProjectMinPixels(Cache.ProductivityInformation.YPixel, Cache.Item.SegmentCount, segmentIndexes);
+
+                int t1;
+                if (CalibratingItem.IsReverse)
+                    t1 = Cache.ProductivityInformation.YPixel - CalibratingItem.MappingWindowItem.ProjectMinPixels[0] - 1;
+                else
+                    t1 = CalibratingItem.MappingWindowItem.ProjectMinPixels[0];
+
+                var tValue = (mappingRegions[^1].VMiddleIndex - mappingRegions[0].VStartIndex) / (CalibratingItem.MappingWindowItem.ProjectMinPixels[^1] - CalibratingItem.MappingWindowItem.ProjectMinPixels[0]);
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -365,7 +420,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                 return true;
 
-                async Task CatchImageAsync(int segmentIndex, AODUniformityDTO.WindowItem windowItem)
+                async Task CatchImageAsync(string title, AODUniformityDTO.WindowItem windowItem)
                 {
                     using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
@@ -379,7 +434,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         false,
                         cancellationToken);
 
-                    var title = $"{segmentIndex}";
                     var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);
 
@@ -392,6 +446,42 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         windowItem.RawImageFilePath,
                         Image = new HtmlImage(windowItem.ImageFilePath)
                     }), HtmlLogUniqueId.LoggingHtml());
+                }
+
+                double[] GetAndApplyWindow(int segmentIndex)
+                {
+                    var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
+                    var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.SegmentCount;
+
+                    var window = Generate.LinearVShapeWindow(
+                        Cache.LaserLightInformation.Coefficient,
+                        Cache.LaserLightInformation.Coefficient / 1000d,
+                        segmentIndex * prescanAODWaveformProfileSegmentWidth,
+                        prescanAODWaveformProfileSegmentWidth,
+                        prescanAODWaveformProfileTotalLength).Window;
+
+                    foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(window);
+                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
+
+                    return window;
+                }
+
+                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) GetAndApplyMappingWindow()
+                {
+                    var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
+                    var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.SegmentCount;
+
+                    var (window, regions) = Generate.LinearVShapeWindow(
+                        Cache.LaserLightInformation.Coefficient,
+                        Cache.LaserLightInformation.Coefficient / 1000d,
+                        [..segmentIndexes.Select(t => t * prescanAODWaveformProfileSegmentWidth)],
+                        prescanAODWaveformProfileSegmentWidth,
+                        prescanAODWaveformProfileTotalLength);
+
+                    foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(window);
+                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
+
+                    return (window, regions);
                 }
             }
             catch (Exception ex)
@@ -414,8 +504,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         });
     }
 
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4Async(CancellationToken cancellationToken)
+    /*[RelayCommand(IncludeCancelCommand = true)]
+    private Task Step5Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
@@ -616,7 +706,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
             }
         });
-    }
+    }*/
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
@@ -641,7 +731,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 {
                     errorMessageStringBuilder.AppendLine($"{title}: Error");
                     continue;
-                }#1#
+                }*/
 
                 Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
 
@@ -683,25 +773,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             return result;
         }).ConfigureAwait(false);
     }
-
-    private double[] GetAndApplyWindow(int segmentIndex, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveformProfiles)
-    {
-        var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
-        var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.SegmentCount;
-
-        var prescanAODWaveformWindow = Generate.LinearVShapeWindow(
-            Cache.Item.LaserLightInformation.Coefficient,
-            Cache.Item.LaserLightInformation.Coefficient / 1000d,
-            segmentIndex * prescanAODWaveformProfileSegmentWidth,
-            prescanAODWaveformProfileSegmentWidth,
-            prescanAODWaveformProfileTotalLength).Window;
-
-        foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(prescanAODWaveformWindow);
-        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
-
-        return prescanAODWaveformWindow;
-    }
-    */
 
     private bool Save(IReadOnlyList<AODUniformityDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {

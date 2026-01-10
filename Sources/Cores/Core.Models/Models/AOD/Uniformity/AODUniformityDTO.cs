@@ -38,6 +38,12 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     [ObservableProperty]
     private WindowItem _stopWindowItem = new();
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public bool IsReverse => StartWindowItem.ProjectMinPixel > StopWindowItem.ProjectMinPixel;
+
     [ObservableProperty]
     private WindowsItem _mappingWindowItem = new();
 

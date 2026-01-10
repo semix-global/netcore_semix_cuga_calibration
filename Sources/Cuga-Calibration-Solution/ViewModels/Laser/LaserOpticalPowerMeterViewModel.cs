@@ -405,6 +405,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(selectedReviewItem.MaxMeasurePowerPosition);
                 LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+                OpticsViewModel.ToggleODFilter(false);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, selectedReviewItem.MaxCoefficient);
                 LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 
