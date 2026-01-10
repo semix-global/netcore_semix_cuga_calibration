@@ -311,9 +311,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
                     try
                     {
-                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
-
                         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(itemItem.MeasurePosition);
+
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                         await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 

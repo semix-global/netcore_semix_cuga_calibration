@@ -13,7 +13,7 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _calibratingRetryTimes = 5;
+    private int _calibratingRetryTimes = 10;
 
     [ObservableProperty]
     private double _threshold = 0.05;
