@@ -20,6 +20,9 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
+    private double _dSWAlignmentDegree;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
@@ -117,6 +120,12 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
         }
     }
 
+    [ObservableProperty]
+    private Point _dSWBrightFieldMachineAffinePosition;
+
+    [ObservableProperty]
+    private Point _dSWDarkFieldMachineAffinePosition;
+
     #region Mapper
 
     public MicroscopeCalChipDto Clone()
@@ -131,6 +140,9 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
         {
             CalChipSiteModelEnum = CalChipSiteModelEnum,
             MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+            DSWAlignmentDegree = DSWAlignmentDegree,
+            DSWBrightFieldMachineAffinePosition = DSWBrightFieldMachineAffinePosition,
+            DSWDarkFieldMachineAffinePosition = DSWDarkFieldMachineAffinePosition,
             Items = cloneItems,
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
@@ -151,10 +163,11 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
         return new CalibrationMicroscopeCalChip
         {
             CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
+            DSWAlignmentDegree = DSWAlignmentDegree,
             ChuckAfEcsValue = chuckItemTemp?.AfEcsValue ?? 0d,
             ChuckAfMotorValue = chuckItemTemp?.AfMotorValue ?? 0d,
-            DswBrightFieldMachinePosition = dswItemTemp is null ? Point.Origin.ToCgPoint() : dswItemTemp.BrightFieldMachinePosition.ToCgPoint(),
-            DswDarkFieldMachinePosition = dswItemTemp is null ? Point.Origin.ToCgPoint() : dswItemTemp.DarkFieldMachinePosition.ToCgPoint(),
+            DswBrightFieldMachinePosition = dswItemTemp is null ? Point.Origin.ToCgPoint() : DSWBrightFieldMachineAffinePosition.ToCgPoint(),
+            DswDarkFieldMachinePosition = dswItemTemp is null ? Point.Origin.ToCgPoint() : DSWDarkFieldMachineAffinePosition.ToCgPoint(),
             DswEcsValue = dswItemTemp?.EcsValue ?? 0d,
             DswAfEcsValue = dswItemTemp?.AfEcsValue ?? 0d,
             DswAfMotorValue = dswItemTemp?.AfMotorValue ?? 0d,

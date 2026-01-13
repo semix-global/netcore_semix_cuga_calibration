@@ -65,6 +65,11 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
 
     /// <summary>
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW对准角度
+    /// </summary>
+    public double DSWAlignmentDegree { get; set; }
+
+    /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Chuck暗场Af最佳Ecs
     /// </summary>
     public double ChuckAfEcsValue { get; set; }
@@ -75,12 +80,12 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     public double ChuckAfMotorValue { get; set; }
 
     /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW明场中心的机械位置(绝对位置), **需要下发AF硬件**
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW明场中心根据对准角度放射变化后的机械位置(绝对位置), **需要下发AF硬件**
     /// </summary>
     public CgPoint DswBrightFieldMachinePosition { get; set; }
 
     /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW暗场中心的机械位置(绝对位置), **需要下发AF硬件**
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW暗场中心根据对准角度放射变化后的机械位置(绝对位置), **需要下发AF硬件**
     /// </summary>
     public CgPoint DswDarkFieldMachinePosition { get; set; }
 

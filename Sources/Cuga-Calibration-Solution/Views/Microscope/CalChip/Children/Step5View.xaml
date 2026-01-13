@@ -1,15 +1,14 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Microscope.CalChip.Children.Step3View"
+﻿<UserControl x:Class="CugaCalibration.Views.Microscope.CalChip.Children.Step5View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipCalibrationViewModel}"
-             d:DesignHeight="1000"
+             d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
     <Grid>
@@ -27,41 +26,18 @@
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+
                     <StackPanel>
-                        <TextBlock Text="Param"
+                        <TextBlock Text="Result: Find High Position1"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox x:Name="TemplateTypeComboBox"
-                                 HorizontalAlignment="Left"
-                                 hc:TitleElement.TitleWidth="150"
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.Title="Template Type: "
-                                 SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="Result: Find Low Position1"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding Cache.LowSite1.Location, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
+                    <TextBox Text="{Binding Cache.HighSite1.Location, Converter={StaticResource PointToStringConverter}}"
                              hc:TitleElement.Title="Position1(um): "
                              hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="150"
                              IsReadOnly="True"
                              Background="{StaticResource SecondaryRegionBrush}"
                              Style="{StaticResource TextBoxExtend}" />
@@ -74,20 +50,22 @@
                                      ShowAxes="True"
                                      ShowCursor="False"
                                      ShowGrid="False"
-                                     BackgroundImage="{Binding Cache.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                     BackgroundImage="{Binding Cache.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding Step2CalibrateActionCommand}"
+                        <Button x:Name="ActionButton"
+                                Content="Action"
+                                Command="{Binding Step4CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding Step2CalibrateActionCancelCommand}"
+                        <Button x:Name="CancelButton"
+                                Content="Cancel"
+                                Command="{Binding Step4CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>

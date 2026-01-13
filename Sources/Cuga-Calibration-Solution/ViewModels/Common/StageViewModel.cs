@@ -264,14 +264,14 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        bool isP5 = true)
     {
-        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum, isP5);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         var result = ret.Anything;
-        SetBrightFieldAbsoluteStageXy(result.MarkPoint2);
 
         result.MarkPoint1 = BrightFieldToMachinePosition(result.MarkPoint1);
         result.MarkPoint2 = BrightFieldToMachinePosition(result.MarkPoint2);
@@ -286,9 +286,10 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        bool isP5 = true)
     {
-        var ret = calibrationStageService.AlignmentVerify(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.AlignmentVerify(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum, true);
 
         if (ret.IsSuccess == false)
             throw new CugaException(ret.ErrorMsg);

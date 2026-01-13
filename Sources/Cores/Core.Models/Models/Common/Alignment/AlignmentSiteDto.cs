@@ -35,6 +35,13 @@ public sealed partial class AlignmentSiteDto : ObservableCacheBase, ICloneable<A
         TemplateMatchScoreThreshold = AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
     }
 
+    public AlignmentSiteDto DegreeAngleByXy(double degree)
+    {
+        var result = Clone();
+        result.Location = Location.DegreeAngleByXy(degree);
+        return result;
+    }
+
     #region Mapper
 
     public AlignmentSiteDto Clone() => new()

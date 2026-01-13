@@ -1,6 +1,8 @@
 using Core.Models.Enums.Stage;
 using Cuga.Data.DataStruct.DTO.Swath;
 using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.ADS;
+using Cuga.Data.DataStruct.ADS;
 
 #if NET
 using Cuga.Data.DataStruct.Basic;
@@ -237,4 +239,32 @@ public static class EnumStageExtension
     }
 
     #endregion
+
+    #region Register
+
+#if NETFRAMEWORK
+    public static CgADSTraceBufferReg ToCgADSTraceBufferRegEnum(this AdsTracebufferRegEnum adsTracebufferRegEnum) => adsTracebufferRegEnum switch
+    {
+        AdsTracebufferRegEnum.Z_ECS0 => CgADSTraceBufferReg.Z_ECS0,
+        AdsTracebufferRegEnum.Z_ECS1 => CgADSTraceBufferReg.Z_ECS1,
+        AdsTracebufferRegEnum.Z_ECS2 => CgADSTraceBufferReg.Z_ECS2,
+        AdsTracebufferRegEnum.XY_X0 => CgADSTraceBufferReg.XY_X0,
+        AdsTracebufferRegEnum.XY_X1 => CgADSTraceBufferReg.XY_X1,
+        AdsTracebufferRegEnum.XY_Y0 => CgADSTraceBufferReg.XY_Y0,
+        AdsTracebufferRegEnum.XY_Y1 => CgADSTraceBufferReg.XY_Y1,
+        AdsTracebufferRegEnum.Height => CgADSTraceBufferReg.Height,
+        AdsTracebufferRegEnum.Roll => CgADSTraceBufferReg.ROLL,
+        AdsTracebufferRegEnum.Pitch => CgADSTraceBufferReg.PITCH,
+        AdsTracebufferRegEnum.ACS_X_Speed => CgADSTraceBufferReg.ACS_X_Speed,
+        AdsTracebufferRegEnum.ACS_Y_Speed => CgADSTraceBufferReg.ACS_Y_Speed,
+        AdsTracebufferRegEnum.PropOutput0 => CgADSTraceBufferReg.PropOutput0,
+        AdsTracebufferRegEnum.PropOutput1 => CgADSTraceBufferReg.PropOutput1,
+        AdsTracebufferRegEnum.PropOutput2 => CgADSTraceBufferReg.PropOutput2,
+
+        _ => throw new ArgumentOutOfRangeException(nameof(adsTracebufferRegEnum), adsTracebufferRegEnum, null)
+    };
+
+#endif
+
+    #endregion Register
 }
