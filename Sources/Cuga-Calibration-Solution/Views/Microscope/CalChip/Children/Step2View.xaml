@@ -23,10 +23,12 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat='Cal Chip Step {0}'}" Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat={}Cal Chip Step {0}:}"
+                           Status="{Binding CalibrationStepName}"
+                           Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
+                           Subject="High Microscope Magnification: "
+                           Status="{Binding Cache.LowMicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="CalChip Mode: "

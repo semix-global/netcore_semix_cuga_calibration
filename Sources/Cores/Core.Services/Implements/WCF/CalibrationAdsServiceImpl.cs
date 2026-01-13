@@ -1,3 +1,4 @@
+using Core.Models.Enums.ADS;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
@@ -107,13 +108,13 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
 
     public SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
     {
-        var calibrationRegList = new List<CalibrationRegEnum>
+        var calibrationRegList = new List<CgADSTraceBufferReg>
         {
-            CalibrationRegEnum.Height,
-            CalibrationRegEnum.ROLL,
-            CalibrationRegEnum.PITCH,
-            CalibrationRegEnum.ACS_X_Speed,
-            CalibrationRegEnum.ACS_Y_Speed
+            AdsTracebufferRegEnum.Height.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.Roll.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.Pitch.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.ACS_X_Speed.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.ACS_Y_Speed.ToCgADSTraceBufferRegEnum()
         };
         var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)));
         if (sxExecuteRet.Anything.Count != 5
@@ -133,16 +134,16 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
 
     public SxExecuteRet<List<List<double>>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan)
     {
-        var calibrationRegList = new List<CalibrationRegEnum>
+        var calibrationRegList = new List<CgADSTraceBufferReg>
         {
-            CalibrationRegEnum.Z_ECS0,
-            CalibrationRegEnum.Z_ECS1,
-            CalibrationRegEnum.Z_ECS2,
-            CalibrationRegEnum.Height,
-            CalibrationRegEnum.ROLL,
-            CalibrationRegEnum.PITCH,
-            CalibrationRegEnum.ACS_X_Speed,
-            CalibrationRegEnum.ACS_Y_Speed
+            AdsTracebufferRegEnum.Z_ECS0.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.Z_ECS1.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.Z_ECS2.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.Height.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.Roll.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.Pitch.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.ACS_X_Speed.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.ACS_Y_Speed.ToCgADSTraceBufferRegEnum()
         };
         var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)));
 
@@ -164,15 +165,15 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
 
     public SxExecuteRet<List<List<double>>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(bool isAxisX, TimeSpan timeSpan)
     {
-        var calibrationRegList = new List<CalibrationRegEnum>
+        var calibrationRegList = new List<CgADSTraceBufferReg>
         {
-            CalibrationRegEnum.XY_X0,
-            CalibrationRegEnum.XY_X1,
-            CalibrationRegEnum.XY_Y0,
-            CalibrationRegEnum.XY_Y1,
+            AdsTracebufferRegEnum.XY_X0.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.XY_X1.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.XY_Y0.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.XY_Y1.ToCgADSTraceBufferRegEnum(),
             isAxisX
-                ? CalibrationRegEnum.ACS_X_Speed
-                : CalibrationRegEnum.ACS_Y_Speed
+                ? AdsTracebufferRegEnum.ACS_X_Speed.ToCgADSTraceBufferRegEnum()
+                : AdsTracebufferRegEnum.ACS_Y_Speed.ToCgADSTraceBufferRegEnum()
         };
         var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)));
 

@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.DataAnnotations;
@@ -12,15 +14,18 @@ namespace Core.Models.Models.Microscope.CalChip;
 
 public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 {
-    private double _bfQualityThreshold = 1;
-    private double _dfQualityThreshold = 1;
+    [ObservableProperty]
+    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+
+    [ObservableProperty]
+    private bool _isSkipRtfc = false;
 
     [ObservableProperty]
     private MicroscopeCalChipCacheItem[] _microscopeCalChipCacheItems = [];
@@ -35,6 +40,54 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 
     [ObservableProperty]
     private Point _chuckPosition = Point.Origin;
+
+    /// <summary>
+    /// 晶圆类型
+    /// </summary>
+    [ObservableProperty]
+    private AlgorithmWaferTypeEnum _algorithmWaferTypeEnum = AlgorithmWaferTypeEnum.D300;
+
+    [ObservableProperty]
+    private AlgorithmTemplateSizeEnum _lowSizeEnum = AlgorithmTemplateSizeEnum.Size256;
+
+    [ObservableProperty]
+    private AlgorithmTemplateSizeEnum _highSizeEnum = AlgorithmTemplateSizeEnum.Size256;
+
+    [ObservableProperty]
+    private double _nccTypeTemplateMatchScoreThreshold = 0.8;
+
+    /// <summary>
+    /// 低倍率mark点1位置(wafer中间掩模版芯粒左上角)
+    /// </summary>
+    [ObservableProperty]
+    private AlignmentSiteDto _lowSite1 = new();
+
+    /// <summary>
+    /// 低倍率mark点2位置(mark点1的相邻掩模版芯粒左上角)[没有模板, 用低倍率mark点1模板匹配]
+    /// </summary>
+    [ObservableProperty]
+    private AlignmentSiteDto _lowSite2 = new();
+
+    /// <summary>
+    /// 高倍率mark点1位置(低倍率mark点1的精细位置)
+    /// </summary>
+    [ObservableProperty]
+    private AlignmentSiteDto _highSite1 = new();
+
+    /// <summary>
+    /// 高倍率mark点2位置(低倍率mark点2的精细位置)[没有模板, 用高倍率mark点1模板匹配]
+    /// </summary>
+    [ObservableProperty]
+    private AlignmentSiteDto _highSite2 = new();
+
+    [ObservableProperty]
+    private string _lowSiteTemplateFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _highSiteTemplateFilePath = string.Empty;
+
+    [ObservableProperty]
+    private double _dSWAlignmentVerifyThreshold;
 
     [ObservableProperty]
     private string _verifyBrightFieldResultError = string.Empty;
@@ -54,9 +107,9 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "BfQualityThreshold: ")]
     public double BfQualityThreshold
     {
-        get => _bfQualityThreshold;
-        set => SetProperty(ref _bfQualityThreshold, value, validate: true);
-    }
+        get;
+        set => SetProperty(ref field, value, validate: true);
+    } = 1;
 
     /// <summary>
     /// DF verify清晰度得分和校准结果的清晰度差值需小于该阈值
@@ -64,9 +117,9 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "DfQualityThreshold: ")]
     public double DfQualityThreshold
     {
-        get => _dfQualityThreshold;
-        set => SetProperty(ref _dfQualityThreshold, value, validate: true);
-    }
+        get;
+        set => SetProperty(ref field, value, validate: true);
+    } = 1;
 }
 
 public sealed partial class MicroscopeCalChipCacheItem : ObservableCacheBase
@@ -74,32 +127,26 @@ public sealed partial class MicroscopeCalChipCacheItem : ObservableCacheBase
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum;
 
-    private double _findFocusMin = 1;
-
-    private double _findFocusMax = 1;
-
-    private double _findFocusInterval = 1;
-
     [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMin: ")]
     public double FindFocusMin
     {
-        get => _findFocusMin;
-        set => SetProperty(ref _findFocusMin, value, validate: true);
-    }
+        get;
+        set => SetProperty(ref field, value, validate: true);
+    } = 1;
 
     [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMax: ")]
     public double FindFocusMax
     {
-        get => _findFocusMax;
-        set => SetProperty(ref _findFocusMax, value, validate: true);
-    }
+        get;
+        set => SetProperty(ref field, value, validate: true);
+    } = 1;
 
     [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusInterval: ")]
     public double FindFocusInterval
     {
-        get => _findFocusInterval;
-        set => SetProperty(ref _findFocusInterval, value, validate: true);
-    }
+        get;
+        set => SetProperty(ref field, value, validate: true);
+    } = 1;
 
     #region Position
 

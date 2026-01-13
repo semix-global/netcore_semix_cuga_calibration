@@ -136,6 +136,7 @@
             <param name="isReadId">是否读取waferId</param>
             <returns></returns>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.LoadWaferWithNouch(Semix.WcfTransfer.DTO.ESxStation,System.String,Semix.WcfTransfer.DTO._00.Basic.ESxWaferNouch,System.Boolean)" -->
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.PreLoadWafer(Semix.WcfTransfer.DTO.ESxStation,System.String,System.Int32,System.Boolean)">
             <summary>
             预加载一片晶圆到chuck前等待
@@ -143,6 +144,16 @@
             <param name="station">foup编号</param>
             <param name="slotId">slot编号</param>
             <param name="angle">对准角度</param>
+            <param name="isReadId">是否读取waferId</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.PreLoadWaferWithNouch(Semix.WcfTransfer.DTO.ESxStation,System.String,Semix.WcfTransfer.DTO._00.Basic.ESxWaferNouch,System.Boolean)">
+            <summary>
+            预加载一片晶圆到chuck前等待
+            </summary>
+            <param name="station">foup编号</param>
+            <param name="slotId">slot编号</param>
+            <param name="nouch">对准方向</param>
             <param name="isReadId">是否读取waferId</param>
             <returns></returns>
         </member>
@@ -389,6 +400,33 @@
             <returns></returns>
         </member>
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.AlignmentVerify(Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,System.UInt16,System.UInt16,Semix.WcfTransfer.DTO.C2MAlignType)">
+            <summary>
+            晶圆对准
+            验证角度不校正
+            </summary>
+            <param name="low1"></param>
+            <param name="low2"></param>
+            <param name="high1"></param>
+            <param name="high2"></param>
+            <param name="ll">低倍镜 1.5X 2.10X 3.50X 4.100X 5.150X</param>
+            <param name="hl">高倍镜 1.5X 2.10X 3.50X 4.100X 5.150X</param>
+            <param name="wafer">1.D200 2.D300</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.CalChipAlignment(Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,System.UInt16,System.UInt16,Semix.WcfTransfer.DTO.C2MAlignType)">
+            <summary>
+            执行晶圆对准
+            </summary>
+            <param name="low1"></param>
+            <param name="low2"></param>
+            <param name="high1"></param>
+            <param name="high2"></param>
+            <param name="ll">低倍镜 1.5X 2.10X 3.50X 4.100X 5.150X</param>
+            <param name="hl">高倍镜 1.5X 2.10X 3.50X 4.100X 5.150X</param>
+            <param name="wafer">1.D200 2.D300</param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.CalChipAlignmentVerify(Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,Semix.WcfTransfer.DTO.C2MSiteDTO,System.UInt16,System.UInt16,Semix.WcfTransfer.DTO.C2MAlignType)">
             <summary>
             晶圆对准
             验证角度不校正
@@ -686,6 +724,13 @@
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetFFReviewImg(System.Int32)">
             <summary>
             获取傅里叶相机图像
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetFFReviewImgForTrigger(System.Int32,Semix.WcfTransfer.DTO.SxOpticsParam,System.Int32)">
+            <summary>
+            获取傅里叶相机图像(直接取图，不自动打开相机)
             </summary>
             <param name="id"></param>
             <returns></returns>
