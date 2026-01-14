@@ -4,10 +4,10 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.Uniformity;
-using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
@@ -16,10 +16,13 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
-using Microsoft.Extensions.Hosting;
+using MathNet.Numerics.Interpolation;
+using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -312,7 +315,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
-                Cache.Item.CIBInformation
+                Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
@@ -336,6 +340,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -350,11 +355,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         {
             Guard.IsGreaterThanOrEqualTo(Cache.Item.PrescanAODWaveformProfileSegmentCount, 4);
             Guard.IsTrue((Cache.Item.PrescanAODWaveformProfileSegmentCount & 1) == 0, "It must be even number!");
-            Guard.IsTrue(Cache.ProductivityInformation.YPixel % Cache.Item.ImageSegmentCount == 0, $"Servings must be a factor of {Cache.ProductivityInformation.YPixel}!");
+            Guard.IsLessThanOrEqualTo(Cache.Item.ImageHorizontalProjectsSegmentCount, Cache.ProductivityInformation.YPixel);
 
             var detectImageDirectory = ImageFileDirectory;
 
-            var cibInformations = ApplicationCookie.CIBInformations;
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
             var startPrescanAODWaveformProfileSegmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2 - 1;
             var stopPrescanAODWaveformProfileSegmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2 + 1;
@@ -366,11 +370,11 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
-                Cache.Item.ImageSegmentCount,
-                CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
+                Cache.Item.ImageHorizontalProjectsSegmentCount,
                 PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
                 startPrescanAODWaveformProfileSegmentIndex,
                 stopPrescanAODWaveformProfileSegmentIndex,
@@ -379,129 +383,137 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
+            CalibratingItem.LaserLightInformation = Cache.LaserLightInformation;
             CalibratingItem.StartWindowItem = new AODUniformityDTO.WindowItem();
             CalibratingItem.StopWindowItem = new AODUniformityDTO.WindowItem();
             CalibratingItem.MappingWindowItem = new AODUniformityDTO.WindowItem();
-            CalibratingItem.ImageHorizontalProjectMapping = [];
-            CalibratingItem.PrescanAODWaveformProfileMapping = [];
+            CalibratingItem.Mappings = [];
+            CalibratingItem.ImageHorizontalProjectMappings = [];
+            CalibratingItem.PrescanAODWaveformProfileMappings = [];
 
-            CIBViewModel.ToggleEnableAGC(cibInformations, true);
-            CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+            OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
-            Logger.LogHtmlInformation("Forward and Reverse", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
             try
             {
+                Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
                 CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startPrescanAODWaveformProfileSegmentIndex);
-                await CatchImageAsync($"{startPrescanAODWaveformProfileSegmentIndex}", CalibratingItem.StartWindowItem);
-                CalibratingItem.StartWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, startPrescanAODWaveformProfileSegmentIndex);
+                await CatchImageAsync(
+                    $"{startPrescanAODWaveformProfileSegmentIndex}",
+                    hazeBFPosition,
+                    detectImageDirectory,
+                    CalibratingItem.StartWindowItem,
+                    cancellationToken);
+                CalibratingItem.StartWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, startPrescanAODWaveformProfileSegmentIndex);
 
                 CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopPrescanAODWaveformProfileSegmentIndex);
-                await CatchImageAsync($"{stopPrescanAODWaveformProfileSegmentIndex}", CalibratingItem.StopWindowItem);
-                CalibratingItem.StopWindowItem.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, stopPrescanAODWaveformProfileSegmentIndex);
+                await CatchImageAsync(
+                    $"{stopPrescanAODWaveformProfileSegmentIndex}",
+                    hazeBFPosition,
+                    detectImageDirectory,
+                    CalibratingItem.StopWindowItem,
+                    cancellationToken);
+                CalibratingItem.StopWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, stopPrescanAODWaveformProfileSegmentIndex);
 
-                var (mappingWindow, mappingRegions) = GetAndApplyMappingWindow();
+                var (mappingWindow, mappingRegions) = GetWindow();
                 CalibratingItem.MappingWindowItem.Window = mappingWindow;
-                await CatchImageAsync("All", CalibratingItem.MappingWindowItem);
-                if (CalibratingItem.IsReverse)
-                    CalibratingItem.MappingWindowItem.ImageHorizontalProjects = [.. CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Reverse()];
+                await CatchImageAsync("All",
+                    hazeBFPosition,
+                    detectImageDirectory,
+                    CalibratingItem.MappingWindowItem,
+                    cancellationToken);
 
-                CalibratingItem.MappingWindowItem.CalculateProjectMinPixels(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexes);
+                CalibratingItem.MappingWindowItem.CalculateHorizontalProjectMinPixels(Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexes);
 
-                var imageHorizontalProjectIndex = Enumerable.Range(0, Cache.ProductivityInformation.YPixel).ToArray();
-                CalibratingItem.ImageHorizontalProjectMapping = [..imageHorizontalProjectIndex.ChunkSplitEvenly(Cache.Item.ImageSegmentCount)];
-
-                var period = ((double)mappingRegions[^1].VMiddleIndex - mappingRegions[0].VMiddleIndex) / ((double)CalibratingItem.MappingWindowItem.ProjectMinPixels[^1] - CalibratingItem.MappingWindowItem.ProjectMinPixels[0]);
-                var startPrescanAODWaveformProfileIndex = (int)Math.Floor(mappingRegions[0].VMiddleIndex - (CalibratingItem.MappingWindowItem.ProjectMinPixels[0] - imageHorizontalProjectIndex[0]) * period);
-                var stopPrescanAODWaveformProfileIndex = (int)Math.Floor(mappingRegions[^1].VMiddleIndex + (imageHorizontalProjectIndex[^1] - CalibratingItem.MappingWindowItem.ProjectMinPixels[^1]) * period);
-
-                Logger.LogHtmlInformation("T", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                Logger.LogHtmlInformation("Forward & Reverse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    period,
-                    startPrescanAODWaveformProfileIndex,
-                    stopPrescanAODWaveformProfileIndex
+                    CalibratingItem.IsReverse,
+                    Plot = new HtmlContainer(CalibratingItem.IsReverseScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                Guard.IsGreaterThanOrEqualTo(startPrescanAODWaveformProfileIndex, 0);
-                Guard.IsLessThan(startPrescanAODWaveformProfileIndex, mappingWindow.Length);
-                Guard.IsGreaterThanOrEqualTo(stopPrescanAODWaveformProfileIndex, 0);
-                Guard.IsLessThan(stopPrescanAODWaveformProfileIndex, mappingWindow.Length);
+                var mappingMinIndexes = mappingRegions.Select(t => t.VMiddleIndex).ToArray();
+                var imageHorizontalProjectMinIndexes = CalibratingItem.MappingWindowItem.HorizontalProjectMinPixels.ToArray();
 
-                var mappingDetails = mappingRegions.Index().Select(t => (t.Item.VMiddleIndex, ProjectMinPixel: CalibratingItem.MappingWindowItem.ProjectMinPixels[t.Index])).ToArray();
-                var mapping = new int[imageHorizontalProjectIndex.Length][];
+                var mappingList = new List<AODUniformityDTO.Mapping>();
 
-                var pixels = GenerateUtils.LinearIndexRange(0, CalibratingItem.MappingWindowItem.ProjectMinPixels[0]);
-                foreach (var (index, item) in GenerateUtils.LinearIndexRange(startPrescanAODWaveformProfileIndex, mappingRegions[0].VMiddleIndex).ChunkSplitEvenly(pixels.Length).Index())
+                var linearSpline = LinearSpline.InterpolateSorted([..imageHorizontalProjectMinIndexes], [..mappingMinIndexes]);
+                for (var i = 0; i < CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count; i++)
                 {
-                    mapping[pixels[index]] = item;
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var mappingIndex = linearSpline.Interpolate(i);
+
+                    var indexOf = imageHorizontalProjectMinIndexes.IndexOf(i);
+                    var isNotLinearSpline = indexOf != -1;
+
+                    mappingList.Add(new AODUniformityDTO.Mapping
+                    {
+                        IsNotLinearSpline = isNotLinearSpline,
+                        ImageHorizontalProjectIndex = i,
+                        LinearSplineMappingIndex = mappingIndex
+                    });
                 }
 
-                foreach (var ((firstVMiddleIndex, firstProjectMinPixel), (secondVMiddleIndex, secondProjectMinPixel)) in mappingDetails
-                             .Zip(mappingDetails.Skip(1), (t1, t2) => (First: t1, Second: t2)))
+                var leftMappingMinIndexes = GenerateUtils.LinearIndexRange(0, mappingList[0].MappingIndex - 1);
+                for (var i = 0; i < mappingList.Count; i++)
                 {
-                    pixels = GenerateUtils.LinearIndexRange(secondProjectMinPixel, firstProjectMinPixel);
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                    foreach (var (index, item) in GenerateUtils.LinearIndexRange(firstVMiddleIndex, secondVMiddleIndex).ChunkSplitEvenly(pixels.Length).Index())
+                    if (i == mappingList.Count - 1)
+                        mappingList[i].MappingIndices = [..leftMappingMinIndexes, .. GenerateUtils.LinearIndexRange(mappingList[^1].MappingIndex, mappingWindow.Length - 1)];
+                    else
                     {
-                        mapping[pixels[index]] = item;
+                        var mappingIndexes = GenerateUtils.LinearIndexRange(mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex);
+                        mappingIndexes = mappingIndexes.Except((int[])[mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex]).ToArray();
+
+                        var chunks = mappingIndexes.ChunkSplitEvenly(2).ToArray();
+
+                        mappingList[i].MappingIndices = [..leftMappingMinIndexes, mappingList[i].MappingIndex, ..chunks[0]];
+
+                        leftMappingMinIndexes = chunks.ElementAtOrDefault(1) ?? [];
                     }
                 }
 
+                CalibratingItem.Mappings = mappingList;
 
-                pixels = GenerateUtils.LinearIndexRange(CalibratingItem.MappingWindowItem.ProjectMinPixels[^1], imageHorizontalProjectIndex[^1]);
-                foreach (var (index, item) in GenerateUtils.LinearIndexRange(CalibratingItem.MappingWindowItem.ProjectMinPixels[^1], stopPrescanAODWaveformProfileIndex).ChunkSplitEvenly(pixels.Length).Index())
+                Logger.LogHtmlInformation("Mapping", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    mapping[pixels[index]] = item;
+                    Mappings = new HtmlExpand(string.Empty, new HtmlTable(CalibratingItem.Mappings)),
+                    Plot = new HtmlContainer(CalibratingItem.MappingScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                foreach (var mapping in mappingList)
+                {
+                    Guard.IsGreaterThanOrEqualTo(mapping.MappingIndex, 0);
+                    Guard.IsLessThanOrEqualTo(mapping.MappingIndex, mappingWindow.Length - 1);
+                    if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                 }
 
-                CalibratingItem.PrescanAODWaveformProfileMapping =
+                CalibratingItem.ImageHorizontalProjectMappings = [..imageHorizontalProjectMinIndexes.ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
+                CalibratingItem.PrescanAODWaveformProfileMappings =
                 [
-                    ..CalibratingItem.ImageHorizontalProjectMapping
-                        .Select(t => t.SelectMany(tt => mapping[tt]).ToArray())
+                    ..CalibratingItem.ImageHorizontalProjectMappings
+                        .Select(t => t
+                            .SelectMany(tt => CalibratingItem.Mappings
+                                .Single(ttt => ttt.ImageHorizontalProjectIndex == tt).MappingIndices).ToArray())
                 ];
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    CalibratingItem.IsReverse,
-                    Plot = new HtmlContainer(CalibratingItem.ForwardAndReverseScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
+                    ImageHorizontalProjectMappings = new HtmlExpand(string.Empty, new HtmlTable([..CalibratingItem.ImageHorizontalProjectMappings.Index().Select(t => new { t.Index, t.Item })])),
+                    PrescanAODWaveformProfileMappings = new HtmlExpand(string.Empty, new HtmlTable([..CalibratingItem.PrescanAODWaveformProfileMappings.Index().Select(t => new { t.Index, t.Item })])),
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
 
-                async Task CatchImageAsync(string title, AODUniformityDTO.WindowItem windowItem)
-                {
-                    using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
-                        Cache.ProductivityInformation,
-                        StageCoordinateSystemEnum.Dark,
-                        hazeBFPosition,
-                        Cache.Item.CIBInformation,
-                        Cache.Item.ImageWidth,
-                        (false, CalChipSiteModelEnum.HazeModel),
-                        (true, null),
-                        (true, null),
-                        false,
-                        cancellationToken);
-
-                    var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    darkFieldImage.Image.Save(imageFilePath);
-
-                    windowItem.ImageFilePath = imageFilePath;
-                    windowItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
-                    windowItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
-
-                    Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                    {
-                        windowItem.RawImageFilePath,
-                        Image = new HtmlImage(windowItem.ImageFilePath)
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
-
                 double[] GetAndApplyWindow(int segmentIndex)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
                     var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.PrescanAODWaveformProfileSegmentCount;
 
@@ -512,14 +524,13 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         prescanAODWaveformProfileSegmentWidth,
                         prescanAODWaveformProfileTotalLength).Window;
 
-                    foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(window);
-                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
-
                     return window;
                 }
 
-                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) GetAndApplyMappingWindow()
+                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) GetWindow()
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
                     var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.PrescanAODWaveformProfileSegmentCount;
 
@@ -530,26 +541,13 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         prescanAODWaveformProfileSegmentWidth,
                         prescanAODWaveformProfileTotalLength);
 
-                    foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(window);
-                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
-
                     return (window, regions);
                 }
             }
-            catch (Exception ex)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-                {
-                    Plot = new HtmlContainer(CalibratingItem.ForwardAndReverseScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
-                    Exception = ex
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                return false;
-            }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
+                CIBViewModel.ToggleProfileMode(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
             }
@@ -563,51 +561,151 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         {
             var detectImageDirectory = ImageFileDirectory;
 
-            var cibInformations = ApplicationCookie.CIBInformations;
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
-            var cibDelays = CIBViewModel.GetDelays(cibInformations);
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.LaserLightInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.HazeFindBFMachinePosition,
+                Cache.Item.ImageWidth,
+                Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                Cache.Item.ImageHorizontalProjectsSegmentCount,
+                PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+                detectImageDirectory
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            CalibratingItem.Item = new AODUniformityDTOItem
+            {
+                OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.P,
+                CIBInformation = Cache.Item.CIBInformation
+            };
+
+            OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
+
+            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
+            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
             try
             {
-                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                foreach (var coefficient in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.LaserLightInformation.Coefficient + t * 0.05 * Cache.LaserLightInformation.Coefficient))
                 {
-                    Cache.ProductivityInformation,
-                    Cache.Item.MicroscopeLensInformation,
-                    Cache.Item.LaserLightInformation,
-                    Cache.Item.CIBInformation,
-                    Cache.Item.HazeFindBFMachinePosition,
-                    Cache.Item.ImageWidth,
-                    Cache.Item.PrescanAODWaveformProfileSegmentCount,
-                    Cache.CalibratingRetryTimes,
-                    Cache.CalibratingThreshold,
-                    CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
-                    PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                    AODDelays = new HtmlExpand(string.Empty, new HtmlTable([.. cibDelays.Select(t => t.ToHtmlAnonymous())])),
-                    detectImageDirectory
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var itemItemData = new AODUniformityDTOItem.Item
+                    {
+                        Window = Generate.Repeat(prescanAODWaveformProfiles[0].Shorts.Count, coefficient)
+                    };
+
+                    await CatchImageAsync(
+                        $"{coefficient:0.###}",
+                        hazeBFPosition,
+                        detectImageDirectory,
+                        itemItemData,
+                        cancellationToken);
+
+                    CalibratingItem.Item.InitializeWindowItems = [.. CalibratingItem.Item.InitializeWindowItems, itemItemData];
+                }
+
+                var window = Generate.Repeat(prescanAODWaveformProfiles[0].Shorts.Count, Cache.LaserLightInformation.Coefficient);
+
+                foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings.Index())
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var maximumIndex = Vector<double>.Build.Dense([..CalibratingItem.Item.InitializeWindowItems.Select(t => imageHorizontalProjectIndexes.Select(tt => t.ImageHorizontalProjects[tt]).Average())]).MaximumIndex();
+                    Guard.IsGreaterThan(maximumIndex, 0);
+
+                    Vector<double>.Build.Dense(window).SetSubVectorIndexes(
+                        CalibratingItem.PrescanAODWaveformProfileMappings[index],
+                        CalibratingItem.Item.InitializeWindowItems[maximumIndex].Window[0]);
+                }
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    Plot = new HtmlContainer(CalibratingItem.InitializeWindowScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                CalibratingItem.Items =
-                [
-                    .. cibInformations.Select(t => new AODUniformityDTOItem
-                    {
-                        CIBInformation = t,
-                        Delay = cibDelays.Single(tt => tt.CIBInformation == t).PMTDelay
-                    })
-                ];
-                CalibratingItem.TargetPixelValues = [];
-
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
-                CIBViewModel.SetDelays(cibDelays);
-
-                var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
+                return true;
+            }
+            finally
+            {
+                CIBViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
+                CIBViewModel.ToggleProfileMode(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+            }
+        });
+    }
 
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step6Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(async () =>
+        {
+            var detectImageDirectory = ImageFileDirectory;
+
+            var cibInformations = ApplicationCookie.CIBInformations;
+            var windowLimitMin = Math.Max(0, Cache.LaserLightInformation.Coefficient - Cache.LaserLightInformation.Coefficient * Cache.Item.WindowLimitRate);
+            var windowLimitMax = Math.Min(1d, Cache.LaserLightInformation.Coefficient + Cache.LaserLightInformation.Coefficient * Cache.Item.WindowLimitRate);
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.LaserLightInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.HazeFindBFMachinePosition,
+                Cache.Item.ImageWidth,
+                Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                Cache.Item.ImageHorizontalProjectsSegmentCount,
+                Cache.Item.ImageHorizontalProjectsSkipCout,
+                Cache.Item.ImageHorizontalProjectsSkipLastCout,
+                Cache.Item.WindowLimitRate,
+                Cache.Item.WindowInterval,
+                CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
+                windowLimitMin,
+                windowLimitMax,
+                detectImageDirectory
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            CalibratingItem.Item.WindowLimitMin = windowLimitMin;
+            CalibratingItem.Item.WindowLimitMax = windowLimitMax;
+            CalibratingItem.TargetPMTValues = [];
+            CalibratingItem.Items =
+            [
+                .. cibInformations
+                    .Where(t => t != CalibratingItem.Item.CIBInformation)
+                    .Select(t => new AODUniformityDTOItem
+                    {
+                        OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.P,
+                        CIBInformation = t,
+                        WindowLimitMin = windowLimitMin,
+                        WindowLimitMax = windowLimitMax,
+                    })
+            ];
+
+            var itemItems = CalibratingItem.Items.Concat([CalibratingItem.Item]).ToArray();
+
+            OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
+
+            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
+            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+
+            try
+            {
                 Logger.LogHtmlInformation("Uniformity", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                var segmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2;
-                var window = GetAndApplyWindow(segmentIndex, prescanAODWaveformProfiles);
+                var windowIntervals = Generate.Repeat(CalibratingItem.ImageHorizontalProjectMappings.Count, Cache.Item.WindowInterval);
+                var mappingStatuses = Generate.Repeat(CalibratingItem.ImageHorizontalProjectMappings.Count, Status.None);
 
                 var times = 0;
                 while (true)
@@ -616,6 +714,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
+                    var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+                    foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(CalibratingItem.Item.Window);
+                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
+
                     var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
@@ -623,33 +725,37 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         cibInformations,
                         Cache.Item.ImageWidth,
                         (true, null),
+                        (false, Cache.Item.CIBConfiguration),
                         (true, null),
-                        (false, Cache.Item.LaserLightInformation),
                         false,
                         cancellationToken);
 
-                    Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    {
+                        PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+                    }), HtmlLogUniqueId.LoggingHtml());
 
                     foreach (var (index, darkFieldImage) in cibPMTImages.Index())
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
                         using var _ = darkFieldImage;
-                        var itemItem = CalibratingItem.Items[index];
+                        var itemItem = itemItems.Single(t => t.CIBInformation == cibInformations[index]);
 
                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImage.Image.Save(imageFilePath);
 
                         var itemItemData = new AODUniformityDTOItem.Item
                         {
-                            Window = window,
+                            Window = CalibratingItem.Item.Window,
+                            PrescanAODWaveformProfiles = prescanAODWaveformProfiles,
                             ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
                         };
-                        itemItemData.CalculateProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, segmentIndex);
 
-                        if (HostEnvironment.IsDevelopment()) itemItemData.ProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
+                        if (CalibratingItem.IsReverse) itemItemData.ImageHorizontalProjects = [.. itemItemData.ImageHorizontalProjects.Reverse()];
+
                         itemItem.Items = [.. itemItem.Items, itemItemData];
 
                         Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
@@ -659,55 +765,91 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
 
-                    var results = (
-                        from itemItem in CalibratingItem.Items
-                        group itemItem by itemItem.CIBInformation.PMTId
-                        into g
-                        orderby g.Key
-                        select (
-                            PMTId: g.Key,
-                            ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
-                        )).ToArray();
-
-                    var resultList = new List<bool>();
-                    foreach (var (pmtId, itemItems) in results)
+                    foreach (var itemItem in itemItems)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var pmtIdTargetPixelValue = CalibratingItem.TargetPixelValues.GetOrAdd(pmtId, itemItems.Single(t => t.CIBInformation.ChannelId == Cache.Item.CIBInformation.ChannelId).Items[times].ProjectMinPixel);
+                        var imageHorizontalProjectsVector = Vector<double>.Build.Dense([..itemItem.Items[times].ImageHorizontalProjects.Skip(Cache.Item.ImageHorizontalProjectsSkipCout).SkipLast(Cache.Item.ImageHorizontalProjectsSkipLastCout)]);
+                        var targetPMTValue = CalibratingItem.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
 
-                        foreach (var itemItem in itemItems)
+                        itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
+                        itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;
+
+                        itemItem.Items[times].IsOk = Cache.CalibrateThresholdMin <= itemItem.Items[times].MinRate
+                                                     && itemItem.Items[times].MaxRate <= Cache.CalibrateThresholdMax;
+                    }
+
+                    var notSkipImageHorizontalProjectIndexes = GenerateUtils.LinearIndexRange(0, CalibratingItem.Item.Items[times].ImageHorizontalProjects.Count - 1)
+                        .Skip(Cache.Item.ImageHorizontalProjectsSkipCout)
+                        .SkipLast(Cache.Item.ImageHorizontalProjectsSkipLastCout)
+                        .ToArray();
+
+                    var window = CalibratingItem.Item.Window.ToArray();
+                    foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings
+                                 .Index()
+                                 .Where(t => t.Item.All(tt => notSkipImageHorizontalProjectIndexes.Contains(tt))))
+                    {
+                        var vector = Vector<double>.Build.Dense(window);
+                        var value = imageHorizontalProjectIndexes.Select(t => CalibratingItem.Item.Items[times].ImageHorizontalProjects[t]).Average();
+
+                        var targetPMTValue = CalibratingItem.TargetPMTValues.Get(CalibratingItem.Item.CIBInformation);
+                        if (value > targetPMTValue * (Cache.CalibrateThresholdMax - Cache.CalibrateThreshold * 0.5))
                         {
-                            cancellationToken.ThrowIfCancellationRequested();
+                            if (mappingStatuses[index] == Status.LessThan) windowIntervals[index] *= 0.5d;
 
-                            itemItem.Items[times].Error = itemItem.Items[times].ProjectMinPixel - pmtIdTargetPixelValue;
-                            if (itemItem.Items.Any(t => t.IsOk))
+                            vector.SetSubVectorIndexes(
+                                CalibratingItem.PrescanAODWaveformProfileMappings[index],
+                                vector.SubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index]) - windowIntervals[index]);
+
+                            if (vector.Any(t => t <= CalibratingItem.Item.WindowLimitMin))
                             {
-                                itemItem.Items[times].IsOk = true;
-                                resultList.Add(itemItem.Items[times].IsOk);
+                                vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMin);
 
-                                continue;
+                                mappingStatuses[index] = Status.Ok;
                             }
+                            else
+                            {
+                                mappingStatuses[index] = Status.GreaterThan;
+                            }
+                        }
+                        else if (value < targetPMTValue * (Cache.CalibrateThresholdMin + Cache.CalibrateThreshold * 0.5))
+                        {
+                            if (mappingStatuses[index] == Status.GreaterThan) windowIntervals[index] *= 0.5d;
 
-                            itemItem.Items[times].IsOk = Math.Abs(itemItem.Items[times].Error) <= Cache.CalibratingThreshold;
-                            resultList.Add(itemItem.Items[times].IsOk);
+                            vector.SetSubVectorIndexes(
+                                CalibratingItem.PrescanAODWaveformProfileMappings[index],
+                                vector.SubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index]) + windowIntervals[index]);
 
-                            if (itemItem.Items[times].IsOk) continue;
+                            if (vector.Any(t => t >= CalibratingItem.Item.WindowLimitMax))
+                            {
+                                vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMax);
 
-                            itemItem.Delay += (CalibratingItem.IsReverse ? -1 : 1) * itemItem.Items[times].Error;
-
-                            CIBViewModel.SetDelays([cibDelays.Single(t => t.CIBInformation == itemItem.CIBInformation).WithPMTDelay(itemItem.Delay)]);
+                                mappingStatuses[index] = Status.Ok;
+                            }
+                            else
+                            {
+                                mappingStatuses[index] = Status.LessThan;
+                            }
+                        }
+                        else
+                        {
+                            mappingStatuses[index] = Status.Ok;
                         }
                     }
+
+                    CalibratingItem.Item.Window = window;
+
+                    CalibratingItem.IsCalibrated = mappingStatuses.All(t => t is Status.Ok or Status.None);
 
                     var htmlBullet = new HtmlBullet(new
                     {
                         times,
+                        windowIntervals = new HtmlExpand(string.Empty, new HtmlTable([..windowIntervals.Index().Select(t => new { t.Index, t.Item })])),
+                        mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([..mappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
                         CalibratingItem.ProductivityInformation,
-                        Plot = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                        Plot = new HtmlContainer(CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
+                        Plots = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                     });
-
-                    CalibratingItem.IsCalibrated = resultList.All(t => t);
 
                     if (CalibratingItem.IsCalibrated)
                     {
@@ -753,9 +895,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             {
                 CIBViewModel.ToggleEnableAGC(cibInformations, true);
                 CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
-                CIBViewModel.SetDelays(cibDelays);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
+                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
             }
         });
     }
@@ -826,6 +967,51 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
+    private async Task CatchImageAsync(
+        string title,
+        Point hazeBFPosition,
+        string detectImageDirectory,
+        AODUniformityDTO.WindowItem windowItem,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
+
+        foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(windowItem.Window);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
+
+        windowItem.PrescanAODWaveformProfiles = prescanAODWaveformProfiles;
+
+        using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
+            Cache.ProductivityInformation,
+            StageCoordinateSystemEnum.Dark,
+            hazeBFPosition,
+            Cache.Item.CIBInformation,
+            Cache.Item.ImageWidth,
+            (false, CalChipSiteModelEnum.HazeModel),
+            (false, Cache.Item.CIBConfiguration),
+            (true, null),
+            false,
+            cancellationToken);
+
+        var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+        darkFieldImage.Image.Save(imageFilePath);
+
+        windowItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+        if (CalibratingItem.IsReverse) windowItem.ImageHorizontalProjects = [.. windowItem.ImageHorizontalProjects.Reverse()];
+
+        windowItem.ImageFilePath = imageFilePath;
+        windowItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
+
+        Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        {
+            PrescanAODWaveformProfiles = new HtmlTable([.. windowItem.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+            windowItem.RawImageFilePath,
+            Image = new HtmlImage(windowItem.ImageFilePath)
+        }), HtmlLogUniqueId.LoggingHtml());
+    }
+
     private bool Save(IReadOnlyList<AODUniformityDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
@@ -845,4 +1031,12 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     });
 
     #endregion 校准
+
+    private enum Status
+    {
+        None,
+        GreaterThan,
+        LessThan,
+        Ok
+    }
 }

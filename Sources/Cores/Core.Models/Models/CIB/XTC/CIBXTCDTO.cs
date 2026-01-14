@@ -35,7 +35,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public bool IsReverse => StartWindowItem.ProjectMinPixel > StopWindowItem.ProjectMinPixel;
+    public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
     private IReadOnlyList<CIBXTCDTOItem> _items = [];
@@ -162,7 +162,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                 ForwardAndReverseScatterPlotControl.GetOrAddXLine(
                     1,
                     $"{title} Smooth Min Pixel",
-                    windowItem.ProjectMinPixel,
+                    windowItem.HorizontalProjectMinPixel,
                     secondaryColor);
             }
         }
@@ -234,7 +234,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                         scatterPlotControl.GetOrAddXLine(
                             1,
                             $"{i + 1} {nameof(CIBInformation.ChannelId)}({channelId})",
-                            itemItemData.ProjectMinPixel,
+                            itemItemData.HorizontalProjectMinPixel,
                             color).IsVisible = i == count - 1;
                     }
                 }

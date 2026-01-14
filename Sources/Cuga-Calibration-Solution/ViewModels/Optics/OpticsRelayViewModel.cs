@@ -315,8 +315,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.CIBInformation,
+CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.DSWFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.OpticsIlluminationDegreeAngle,
@@ -443,7 +443,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                             var itemItemData = new OpticsRelayDTOItem.Item { ECS = ecs };
 
-                            using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
+                            using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
                                 Cache.Item.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
                                 dswBFPosition,

@@ -266,7 +266,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.CIBInformation
+
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
@@ -353,7 +353,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.CIBInformation,
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth
@@ -361,7 +360,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
-            var darkFieldImageDto = await CIBViewModel.GetPMTImagesAsync(
+            var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Bright,
                 StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
@@ -419,8 +418,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.CIBInformation,
+CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth,
@@ -469,7 +468,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             var startPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
             var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
-            var darkFieldRawScanImage = await CIBViewModel.GetPMTImagesAsync(
+            var darkFieldRawScanImage = await CIBViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Bright,
                 startPosition,
@@ -706,7 +705,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * selectedReviewItem.XPixelSize / 2d, 0);
                 var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
 
-                var verifyDarkFieldRawScanImage = await CIBViewModel.GetPMTImagesAsync(
+                var verifyDarkFieldRawScanImage = await CIBViewModel.GetPMTImageAsync(
                     Cache.ProductivityInformation,
                     StageCoordinateSystemEnum.Bright,
                     verifyStartPosition,

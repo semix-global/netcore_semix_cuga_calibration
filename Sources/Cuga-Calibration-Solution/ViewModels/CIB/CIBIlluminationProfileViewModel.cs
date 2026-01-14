@@ -27,6 +27,8 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using MathNet.Numerics;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -419,8 +421,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
 
-                                    var imageHorizontalProjectsVector = Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].ImageHorizontalProjects);
-                                    var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
+                            var imageHorizontalProjectsVector = Vector<double>.Build.Dense([..itemItem.Items[times].ImageHorizontalProjects]);
+                            var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
 
                                     itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
                                     itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;
@@ -439,8 +441,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     if (itemItem.Items[times].IsOk) continue;
 
                             itemItem.Items[times].Window = [.. targetPMTValue / imageHorizontalProjectsVector];
-                            if (itemItem.Window.Count <= 0) itemItem.Window = [.. Enumerable.Repeat(1d, imageHorizontalProjectsVector.Count)];
-                            itemItem.Window = [.. Vector<double>.Build.DenseOfEnumerable(itemItem.Window).PointwiseMultiply(Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].Window))];
+                            if (itemItem.Window.Count <= 0) itemItem.Window = [.. Generate.Repeat(1d, imageHorizontalProjectsVector.Count)];
+                            itemItem.Window = [.. Vector<double>.Build.Dense([..itemItem.Window]).PointwiseMultiply(Vector<double>.Build.Dense([..itemItem.Items[times].Window]))];
 
                             CIBViewModel.SetIlluminationProfile([itemItem.CIBInformation], itemItem.Window);
                         }

@@ -4,23 +4,16 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
-using ScottPlot;
-using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Utilities;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Models;
 using Generate = MathNet.Numerics.Generate;
-using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Uniformity;
 
@@ -42,26 +35,22 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public bool IsReverse => StartWindowItem.ProjectMinPixel > StopWindowItem.ProjectMinPixel;
+    public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
     private WindowItem _mappingWindowItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<int>> _imageHorizontalProjectMapping = [];
+    private IReadOnlyList<Mapping> _mappings = [];
 
     [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<int>> _prescanAODWaveformProfileMapping = [];
+    private IReadOnlyList<int[]> _imageHorizontalProjectMappings = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
-    private IScatterPlotControl _forwardAndReverseScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    private IReadOnlyList<int[]> _prescanAODWaveformProfileMappings = [];
 
     [ObservableProperty]
-    private ConcurrentBag<KeyValuePair<OpticsPolarizationModeEnum, double>> _opticsPolarizationModeEnumMeasurePowers = [];
+    private ConcurrentBag<KeyValuePair<CIBInformation, double>> _targetPMTValues = [];
 
     [ObservableProperty]
     private AODUniformityDTOItem _item = new();
@@ -69,263 +58,8 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     [ObservableProperty]
     private IReadOnlyList<AODUniformityDTOItem> _items = [];
 
-#pragma warning disable IDE0079
-#pragma warning disable CS0657
-
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
-    private ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> _scatterPlotControls = [];
-
-#pragma warning restore CS0657
-#pragma warning restore IDE0079
-
-    // ReSharper disable UnusedParameterInPartialMethod
-
-    partial void OnStartWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
-    {
-        if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
-
-        newValue.PropertyChanged -= ItemOnPropertyChanged;
-        newValue.PropertyChanged += ItemOnPropertyChanged;
-
-        RefreshForwardAndReversePlot();
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
-    }
-
-    partial void OnStopWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
-    {
-        if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
-
-        newValue.PropertyChanged -= ItemOnPropertyChanged;
-        newValue.PropertyChanged += ItemOnPropertyChanged;
-
-        RefreshForwardAndReversePlot();
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
-    }
-
-    partial void OnMappingWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
-    {
-        if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
-
-        newValue.PropertyChanged -= ItemOnPropertyChanged;
-        newValue.PropertyChanged += ItemOnPropertyChanged;
-
-        RefreshForwardAndReversePlot();
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
-    }
-
-    partial void OnItemsChanged(IReadOnlyList<AODUniformityDTOItem>? oldValue, IReadOnlyList<AODUniformityDTOItem> newValue)
-    {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
-
-        foreach (var item in newValue)
-        {
-            item.PropertyChanged -= ItemOnPropertyChanged;
-            item.PropertyChanged += ItemOnPropertyChanged;
-        }
-
-        RefreshPlot();
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
-    }
-
-    // ReSharper restore UnusedParameterInPartialMethod
-
-    public AODUniformityDTO()
-    {
-        var customGrid = new CustomGrid();
-        ForwardAndReverseScatterPlotControl.Configure(customGrid, 4,
-            plots =>
-            {
-                customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));
-                customGrid.Set(plots[1], new GridCell(0, 1, 2, 2));
-                customGrid.Set(plots[2], new GridCell(1, 0, 2, 2));
-                customGrid.Set(plots[3], new GridCell(1, 1, 2, 2));
-            });
-
-        ForwardAndReverseScatterPlotControl.SetTitle(0, "Forward And Reverse Window(Y: Coefficient - X: sa)");
-        ForwardAndReverseScatterPlotControl.SetTitle(1, "Forward And Reverse Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        ForwardAndReverseScatterPlotControl.SetTitle(2, "Mapping Window(Y: Coefficient - X: sa)");
-        ForwardAndReverseScatterPlotControl.SetTitle(3, "Mapping Horizontal Projects(Y: PMT Value(Log) - X: px)");
-
-        ScatterPlotControl.Configure(new Rows(), 3);
-
-        ScatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        ScatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: sa)");
-        ScatterPlotControl.SetTitle(2, "Result Window(Y: Coefficient - X: sa)");
-    }
-
-    public AODUniformityDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
-    {
-        ScatterPlotControls = [.. cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl()))];
-    }
-
-    private void RefreshForwardAndReversePlot()
-    {
-        try
-        {
-            Refresh(StartWindowItem, "Start", Colors.Blue, Colors.DarkBlue);
-            Refresh(StopWindowItem, "Stop", Colors.Red, Colors.DarkRed);
-        }
-        finally
-        {
-            ForwardAndReverseScatterPlotControl.AutoScaleRefresh();
-        }
-
-        return;
-
-        void Refresh(WindowItem windowItem, string title, Color primaryColor, Color secondaryColor)
-        {
-            if (windowItem.Window.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    0,
-                    title,
-                    [.. windowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    primaryColor);
-
-            if (windowItem.ImageHorizontalProjects.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    title,
-                    [.. windowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    primaryColor);
-
-            if (windowItem.SmoothImageHorizontalProjects.Count > 0)
-            {
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    $"{title} Smooth",
-                    [.. windowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    secondaryColor);
-
-                if (windowItem.ProjectMinPixels.Count > 0)
-                {
-                    foreach (var (index, projectMinPixel) in windowItem.ProjectMinPixels.Index())
-                    {
-                        ForwardAndReverseScatterPlotControl.GetOrAddXLine(
-                            1,
-                            $"{title} Smooth Min Pixel: {index + 1}",
-                            projectMinPixel,
-                            secondaryColor);
-                    }
-                }
-                else
-                    ForwardAndReverseScatterPlotControl.GetOrAddXLine(
-                        1,
-                        $"{title} Smooth Min Pixel",
-                        windowItem.ProjectMinPixel,
-                        secondaryColor);
-            }
-        }
-    }
-
-    private void RefreshPlot()
-    {
-        try
-        {
-            ScatterPlotControl.Clear(0);
-            ScatterPlotControl.Clear(1);
-
-            ScatterPlotControl.GetOrAddScatterLine(
-                2,
-                "Result",
-                [.. Item.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                Colors.Red);
-
-            foreach (var (i, itemItemData) in Item.Items.Index())
-            {
-                ScatterPlotControl.GetOrAddScatterLine(
-                    0,
-                    $"{i + 1}: {Item.CIBInformation} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
-                    [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    i,
-                    new Range(0, Item.Items.Count - 1));
-
-                ScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    $"{i + 1}: {Item.CIBInformation}",
-                    [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    i,
-                    new Range(0, Item.Items.Count - 1));
-            }
-
-            var results = (
-                from itemItem in Items
-                group itemItem by itemItem.CIBInformation.ChannelId
-                into g
-                orderby g.Key
-                select (
-                    ChannelId: g.Key,
-                    ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
-                )).ToArray();
-
-            foreach (var (channelId, itemItems) in results)
-            {
-                var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
-
-                try
-                {
-                    var count = itemItems.Max(t => t.Items.Count);
-                    for (var i = 0; i < count; i++)
-                    {
-                        var itemItemsData = itemItems.Where(t => i < t.Items.Count)
-                            .Select(t => (t.CIBInformation.PMTId, Item: t.Items[i]))
-                            .ToArray();
-                        var minPMTId = itemItemsData.Min(t => t.PMTId);
-                        var maxPMTId = itemItemsData.Max(t => t.PMTId);
-
-                        foreach (var (pmtId, itemItemData) in itemItemsData)
-                        {
-                            scatterPlotControl.GetOrAddScatterLine(
-                                $"{i + 1}: {pmtId} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
-                                [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                                pmtId,
-                                new Range(minPMTId, maxPMTId)).IsVisible = i == count - 1;
-                        }
-                    }
-                }
-                finally
-                {
-                    scatterPlotControl.AutoScaleRefresh();
-                }
-            }
-        }
-        finally
-        {
-            ScatterPlotControl.AutoScaleRefresh();
-        }
-    }
-
-    private static IScatterPlotControl GetScatterPlotControl()
-    {
-        var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-        scatterPlotControl.SetTitle("Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        scatterPlotControl.ToggleInvisibleLegendItem(false);
-
-        return scatterPlotControl;
-    }
+    private ConcurrentBag<KeyValuePair<OpticsPolarizationModeEnum, double>> _opticsPolarizationModeEnumMeasurePowers = [];
 
     #region Mapper
 
@@ -333,9 +67,15 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),
-        OpticsPolarizationModeEnumMeasurePowers = [.. OpticsPolarizationModeEnumMeasurePowers],
+        StartWindowItem = StartWindowItem.Clone(),
+        StopWindowItem = StopWindowItem.Clone(),
+        MappingWindowItem = MappingWindowItem.Clone(),
+        Mappings = [..Mappings.Select(t => t.Clone())],
+        ImageHorizontalProjectMappings = [..ImageHorizontalProjectMappings.Select<int[], int[]>(t => [..t])],
+        PrescanAODWaveformProfileMappings = [..PrescanAODWaveformProfileMappings.Select<int[], int[]>(t => [..t])],
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
+        OpticsPolarizationModeEnumMeasurePowers = [.. OpticsPolarizationModeEnumMeasurePowers],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -361,6 +101,13 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     public partial class WindowItem : ObservableObject, ICloneable<WindowItem>
     {
         [ObservableProperty]
+        [property: Newtonsoft.Json.JsonIgnore]
+        [property: System.Text.Json.Serialization.JsonIgnore]
+        [property: System.Xml.Serialization.XmlIgnore]
+        [property: LiteDB.BsonIgnore]
+        private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+
+        [ObservableProperty]
         private IReadOnlyList<double> _window = [];
 
         [ObservableProperty]
@@ -370,10 +117,10 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         private IReadOnlyList<double> _smoothImageHorizontalProjects = [];
 
         [ObservableProperty]
-        private int _projectMinPixel;
+        private int _horizontalProjectMinPixel;
 
         [ObservableProperty]
-        private IReadOnlyList<int> _projectMinPixels = [];
+        private IReadOnlyList<int> _horizontalProjectMinPixels = [];
 
         [ObservableProperty]
         private string _rawImageFilePath = string.Empty;
@@ -381,16 +128,16 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         [ObservableProperty]
         private string _imageFilePath = string.Empty;
 
-        public void CalculateProjectMinPixel(int yPixelTotalLength, int segmentCount, int segmentIndex)
+        public void CalculateHorizontalProjectMinPixel(int segmentCount, int segmentIndex)
         {
-            var yPixelSegmentWidth = yPixelTotalLength / segmentCount;
+            var yPixelSegmentWidth = ImageHorizontalProjects.Count / segmentCount;
 
             var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindow(
                 1d,
                 1d,
                 segmentIndex * yPixelSegmentWidth,
                 yPixelSegmentWidth,
-                yPixelTotalLength).Region;
+                ImageHorizontalProjects.Count).Region;
 
             // 正序
             SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects)).ToArray();
@@ -398,7 +145,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 Vector<double>.Build.DenseOfArray(Enumerable.Range(0, SmoothImageHorizontalProjects.Count).ToArray()),
                 Vector<double>.Build.DenseOfEnumerable(SmoothImageHorizontalProjects));
 
-            var forwardProjectMinPixel = forwardX
+            var forwardHorizontalProjectMinPixel = forwardX
                 .Select(t => (int)t)
                 .Index()
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
@@ -412,7 +159,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 Vector<double>.Build.DenseOfArray(Enumerable.Range(0, reverseSmoothImageHorizontalProjects.Length).ToArray()),
                 Vector<double>.Build.DenseOfEnumerable(reverseSmoothImageHorizontalProjects));
 
-            var reverseProjectMinPixel = reverseX
+            var reverseHorizontalProjectMinPixel = reverseX
                 .Select(t => (int)t)
                 .Index()
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
@@ -420,21 +167,23 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 .OrderBy(t => t.Y)
                 .First();
 
-            ProjectMinPixel = forwardProjectMinPixel.Y < reverseProjectMinPixel.Y ? forwardProjectMinPixel.X : reverseProjectMinPixel.X;
+            HorizontalProjectMinPixel = forwardHorizontalProjectMinPixel.Y < reverseHorizontalProjectMinPixel.Y
+                ? forwardHorizontalProjectMinPixel.X
+                : reverseHorizontalProjectMinPixel.X;
         }
 
-        public void CalculateProjectMinPixels(int yPixelTotalLength, int segmentCount, int[] segmentIndexes)
+        public void CalculateHorizontalProjectMinPixels(int segmentCount, int[] segmentIndexes)
         {
-            var projectMinPixels = new int[segmentCount];
+            var horizontalProjectMinPixels = new int[segmentCount];
 
-            var yPixelSegmentWidth = yPixelTotalLength / segmentCount;
+            var yPixelSegmentWidth = ImageHorizontalProjects.Count / segmentCount;
 
             var regions = Generate.LinearVShapeWindow(
                 1d,
                 1d,
                 [..segmentIndexes.Select(t => t * yPixelSegmentWidth)],
                 yPixelSegmentWidth,
-                yPixelTotalLength).Regions;
+                ImageHorizontalProjects.Count).Regions;
 
             SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
             var (x, y) = Extremumor.FindMinima(
@@ -443,7 +192,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
             foreach (var (index, (vYPixelStartIndex, _, vYPixelStopIndex)) in regions.Index())
             {
-                projectMinPixels[index] = x
+                horizontalProjectMinPixels[index] = x
                     .Select(t => (int)t)
                     .Index()
                     .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
@@ -453,7 +202,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                     .X;
             }
 
-            ProjectMinPixels = projectMinPixels;
+            HorizontalProjectMinPixels = horizontalProjectMinPixels;
         }
 
         public WindowItem Clone() => new()
@@ -461,10 +210,39 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             Window = [.. Window],
             ImageHorizontalProjects = [.. ImageHorizontalProjects],
             SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
-            ProjectMinPixel = ProjectMinPixel,
-            ProjectMinPixels = [..ProjectMinPixels],
+            HorizontalProjectMinPixel = HorizontalProjectMinPixel,
+            HorizontalProjectMinPixels = [..HorizontalProjectMinPixels],
             RawImageFilePath = RawImageFilePath,
             ImageFilePath = ImageFilePath
+        };
+    }
+
+    public sealed partial class Mapping : ObservableObject, ICloneable<Mapping>
+    {
+        [ObservableProperty]
+        private bool _isNotLinearSpline;
+
+        [ObservableProperty]
+        private int _imageHorizontalProjectIndex;
+
+        [ObservableProperty]
+        private double _linearSplineMappingIndex;
+
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
+        [LiteDB.BsonIgnore]
+        public int MappingIndex => (int)Math.Round(LinearSplineMappingIndex, MidpointRounding.AwayFromZero);
+
+        [ObservableProperty]
+        private IReadOnlyList<int> _mappingIndices = [];
+
+        public Mapping Clone() => new()
+        {
+            IsNotLinearSpline = IsNotLinearSpline,
+            ImageHorizontalProjectIndex = ImageHorizontalProjectIndex,
+            LinearSplineMappingIndex = LinearSplineMappingIndex,
+            MappingIndices = [..MappingIndices]
         };
     }
 }
@@ -478,10 +256,19 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    private IReadOnlyList<Item> _initializeWindowItems = [];
+
+    [ObservableProperty]
     private IReadOnlyList<Item> _items = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _window = [];
+
+    [ObservableProperty]
+    private double _windowLimitMin;
+    
+    [ObservableProperty]
+    private double _windowLimitMax;
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -500,14 +287,34 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Items));
     }
 
+    partial void OnInitializeWindowItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        OnPropertyChanged(nameof(InitializeWindowItems));
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(InitializeWindowItems));
+    }
+
     #region Mapper
 
     public AODUniformityDTOItem Clone() => new()
     {
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         CIBInformation = CIBInformation.Clone(),
+        InitializeWindowItems = [.. InitializeWindowItems.Select(t => t.Clone())],
         Items = [.. Items.Select(t => t.Clone())],
-        Window = [.. Window]
+        Window = [.. Window],
+        WindowLimitMin = WindowLimitMin,
+        WindowLimitMax = WindowLimitMax
     };
 
     #endregion Mapper
