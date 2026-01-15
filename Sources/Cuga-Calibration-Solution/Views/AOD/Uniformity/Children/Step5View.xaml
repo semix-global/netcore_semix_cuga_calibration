@@ -25,9 +25,6 @@
                 <hc:Shield Subject="Step 6: "
                            Status="{Binding CalibrationStepList[5].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Step 5: "
-                           Status="{Binding CalibrationStepList[4].StepName}"
-                           Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
@@ -51,7 +48,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.IsReverse}"
+                        <TextBox Text="{Binding CalibratingItem.IsReverse, Mode=OneWay}"
                                  hc:TitleElement.Title="Is Reverse: "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"

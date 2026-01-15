@@ -77,6 +77,7 @@ public partial class AODUniformityDTO
 
         ScatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
         ScatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: sa)");
+        ScatterPlotControl.ToggleLegend(1, false);
     }
 
     public AODUniformityDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
@@ -90,6 +91,8 @@ public partial class AODUniformityDTO
         {
             IsReverseScatterPlotControl.Clear(0);
             IsReverseScatterPlotControl.Clear(1);
+            IsReverseScatterPlotControl.Clear(2);
+            IsReverseScatterPlotControl.Clear(3);
 
             Refresh(StartWindowItem, 0, 1, "Start", Colors.Blue, Colors.DarkBlue);
             Refresh(StopWindowItem, 0, 1, "Stop", Colors.Red, Colors.DarkRed);
@@ -154,6 +157,8 @@ public partial class AODUniformityDTO
         {
             MappingScatterPlotControl.Clear();
 
+            if (Mappings.Count <= 0) return;
+
             var isNotLinearSplineImageHorizontalProjectIndexes = Mappings.Where(t => t.IsNotLinearSpline).Select(t => t.ImageHorizontalProjectIndex).ToArray();
             var isNotLinearSplineMappingIndexes = Mappings.Where(t => t.IsNotLinearSpline).Select(t => t.MappingIndex).ToArray();
             var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(
@@ -215,11 +220,10 @@ public partial class AODUniformityDTO
     {
         try
         {
-            ScatterPlotControl.Clear(0);
-            ScatterPlotControl.Clear(1);
-
-            if (TargetPMTValues.TryGetSingle(t => t.Key == Item.CIBInformation, out var targetPMTValueKvp))
+            if (Item.Items.Count >= 0 && TargetPMTValues.TryGetSingle(t => t.Key == Item.CIBInformation, out var targetPMTValueKvp))
             {
+                ScatterPlotControl.Clear(0);
+
                 foreach (var (i, itemItemData) in Item.Items.Index())
                 {
                     ScatterPlotControl.GetOrAddScatterLine(
@@ -247,6 +251,11 @@ public partial class AODUniformityDTO
                 scatterLine.LinePattern = LinePattern.Dotted;
                 scatterLine.LineWidth = 5;
             }
+            else
+            {
+                ScatterPlotControl.Clear(0);
+                ScatterPlotControl.Clear(1);
+            }
 
             var results = (
                 from itemItem in Items
@@ -262,10 +271,15 @@ public partial class AODUniformityDTO
             {
                 var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
 
-                scatterPlotControl.Clear();
-
                 try
                 {
+                    if (itemItems.Any(t => t.Items.Count <= 0))
+                    {
+                        scatterPlotControl.Clear();
+
+                        continue;
+                    }
+
                     var itemItemsData = itemItems
                         .Select(t => (t.CIBInformation.PMTId, Item: t.Items[^1]))
                         .ToArray();

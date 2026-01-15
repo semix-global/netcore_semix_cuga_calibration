@@ -13,6 +13,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
 using Generate = MathNet.Numerics.Generate;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -151,7 +152,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
                 .Select(t => (X: t.Item, Y: forwardY[t.Index]))
                 .OrderBy(t => t.Y)
-                .First();
+                .FirstOrDefault((-1, 0));
 
             // 倒序
             var reverseSmoothImageHorizontalProjects = SmoothImageHorizontalProjects.Reverse().ToArray();
@@ -165,24 +166,28 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
                 .Select(t => (X: t.Item, Y: reverseY[t.Index]))
                 .OrderBy(t => t.Y)
-                .First();
+                .FirstOrDefault((-1, 0));
 
-            HorizontalProjectMinPixel = forwardHorizontalProjectMinPixel.Y < reverseHorizontalProjectMinPixel.Y
-                ? forwardHorizontalProjectMinPixel.X
-                : reverseHorizontalProjectMinPixel.X;
+            HorizontalProjectMinPixel = (forwardHorizontalProjectMinPixel.X, reverseHorizontalProjectMinPixel.X) switch
+            {
+                (not -1, -1) => forwardHorizontalProjectMinPixel.X,
+                (-1, not -1) => reverseHorizontalProjectMinPixel.X,
+                (not -1, not -1) => forwardHorizontalProjectMinPixel.Y < reverseHorizontalProjectMinPixel.Y
+                    ? forwardHorizontalProjectMinPixel.X
+                    : reverseHorizontalProjectMinPixel.X,
+                (_, _) => ThrowHelper.ThrowInvalidOperationException<int>("Horizontal Project Min Pixel is not found."),
+            };
         }
 
         public void CalculateHorizontalProjectMinPixels(int segmentCount, int[] segmentIndexes)
         {
             var horizontalProjectMinPixels = new int[segmentCount];
 
-            var yPixelSegmentWidth = ImageHorizontalProjects.Count / segmentCount;
-
-            var regions = Generate.LinearVShapeWindow(
+            var regions = Generate.LinearVShapeWindowBySegments(
                 1d,
                 1d,
-                [.. segmentIndexes.Select(t => t * yPixelSegmentWidth)],
-                yPixelSegmentWidth,
+                segmentCount,
+                segmentIndexes,
                 ImageHorizontalProjects.Count).Regions;
 
             SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];

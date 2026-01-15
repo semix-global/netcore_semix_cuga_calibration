@@ -28,9 +28,6 @@
                 <hc:Shield Subject="Step 7: "
                            Status="{Binding CalibrationStepList[6].StepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Step 5: "
-                           Status="{Binding CalibrationStepList[4].StepName}"
-                           Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
@@ -112,8 +109,22 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.IsReverse}"
+                        <TextBox Text="{Binding CalibratingItem.IsReverse, Mode=OneWay}"
                                  hc:TitleElement.Title="Is Reverse: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Item.WindowLimitMin, Mode=OneWay, StringFormat='{0.###}'}"
+                                 hc:TitleElement.Title="Window Limit Min(Coefficient): "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Item.WindowLimitMax, Mode=OneWay, StringFormat='{0.###}'}"
+                                 hc:TitleElement.Title="Window Limit Max(Coefficient): "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"

@@ -56,7 +56,7 @@ public partial class AODUniformityDTO
             item.PropertyChanged += ItemOnPropertyChanged;
         }
 
-        RefreshPlot();
+        RefreshMappingPlot();
 
         return;
 

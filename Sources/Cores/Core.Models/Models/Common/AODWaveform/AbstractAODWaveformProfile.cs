@@ -237,7 +237,7 @@ public abstract class AbstractAODWaveformProfile :
                      .Select(t => (short)Math.Round(t.Item * coefficientWindowList[t.Index], MidpointRounding.AwayFromZero))
                      .Index())
         {
-            signals[index] = new Point(index, value / Math.Pow(2d, 15d));
+            signals.Add(new Point(index, value / Math.Pow(2d, 15d)));
 
             var bytes = BitConverter.GetBytes(value);
 

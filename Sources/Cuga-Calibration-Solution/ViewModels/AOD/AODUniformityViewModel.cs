@@ -30,6 +30,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Microsoft.Extensions.Hosting;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -416,7 +417,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     hazeBFPosition,
                     detectImageDirectory,
                     CalibratingItem.StopWindowItem,
-                    cancellationToken);
+                    cancellationToken,
+                    false);
                 CalibratingItem.StopWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, stopPrescanAODWaveformProfileSegmentIndex);
 
                 var (mappingWindow, mappingRegions) = GetWindow();
@@ -425,7 +427,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     hazeBFPosition,
                     detectImageDirectory,
                     CalibratingItem.MappingWindowItem,
-                    cancellationToken);
+                    cancellationToken,
+                    false);
 
                 CalibratingItem.MappingWindowItem.CalculateHorizontalProjectMinPixels(Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexes);
 
@@ -488,12 +491,21 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                 foreach (var mapping in mappingList)
                 {
+                    if (HostEnvironment.IsDevelopment())
+                    {
+                        if (mapping.MappingIndex < 0 || mapping.MappingIndex >= mappingWindow.Length)
+                        {
+                            mapping.LinearSplineMappingIndex = mappingWindow.Length - 1;
+                            mapping.MappingIndices = [mapping.MappingIndex];
+                        }
+                    }
+
                     Guard.IsGreaterThanOrEqualTo(mapping.MappingIndex, 0);
                     Guard.IsLessThanOrEqualTo(mapping.MappingIndex, mappingWindow.Length - 1);
                     if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                 }
 
-                CalibratingItem.ImageHorizontalProjectMappings = [.. imageHorizontalProjectMinIndexes.ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
+                CalibratingItem.ImageHorizontalProjectMappings = [.. GenerateUtils.LinearIndexRange(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1).ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
                 CalibratingItem.PrescanAODWaveformProfileMappings =
                 [
                     ..CalibratingItem.ImageHorizontalProjectMappings
@@ -532,13 +544,12 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
-                    var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.PrescanAODWaveformProfileSegmentCount;
 
-                    var (window, regions) = Generate.LinearVShapeWindow(
+                    var (window, regions) = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        [.. prescanAODWaveformProfileSegmentIndexes.Select(t => t * prescanAODWaveformProfileSegmentWidth)],
-                        prescanAODWaveformProfileSegmentWidth,
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                        prescanAODWaveformProfileSegmentIndexes,
                         prescanAODWaveformProfileTotalLength);
 
                     return (window, regions);
@@ -594,7 +605,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             {
                 Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                foreach (var coefficient in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.LaserLightInformation.Coefficient + t * 0.05 * Cache.LaserLightInformation.Coefficient))
+                foreach (var coefficient in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.LaserLightInformation.Coefficient + t * 0.05 * Cache.LaserLightInformation.Coefficient).Reverse())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -620,12 +631,14 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var maximumIndex = Vector<double>.Build.Dense([.. CalibratingItem.Item.InitializeWindowItems.Select(t => imageHorizontalProjectIndexes.Select(tt => t.ImageHorizontalProjects[tt]).Average())]).MaximumIndex();
-                    Guard.IsGreaterThan(maximumIndex, 0);
+                    Guard.IsGreaterThanOrEqualTo(maximumIndex, 0);
 
                     Vector<double>.Build.Dense(window).SetSubVectorIndexes(
                         CalibratingItem.PrescanAODWaveformProfileMappings[index],
                         CalibratingItem.Item.InitializeWindowItems[maximumIndex].Window[0]);
                 }
+
+                CalibratingItem.Item.Window = window;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -678,6 +691,25 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
             CalibratingItem.Item.WindowLimitMin = windowLimitMin;
             CalibratingItem.Item.WindowLimitMax = windowLimitMax;
+
+            // 建立一个属性
+            var window1 = Generate.Repeat(CalibratingItem.Item.Window.Count, Cache.LaserLightInformation.Coefficient);
+
+            foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings.Index())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var maximumIndex = Vector<double>.Build.Dense([.. CalibratingItem.Item.InitializeWindowItems.Select(t => imageHorizontalProjectIndexes.Select(tt => t.ImageHorizontalProjects[tt]).Average())]).MaximumIndex();
+                Guard.IsGreaterThanOrEqualTo(maximumIndex, 0);
+
+                Vector<double>.Build.Dense(window1).SetSubVectorIndexes(
+                    CalibratingItem.PrescanAODWaveformProfileMappings[index],
+                    CalibratingItem.Item.InitializeWindowItems[maximumIndex].Window[0]);
+            }
+
+            CalibratingItem.Item.Window = window1;
+
+            CalibratingItem.Item.Items = [];
             CalibratingItem.TargetPMTValues = [];
             CalibratingItem.Items =
             [
@@ -801,7 +833,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                                 CalibratingItem.PrescanAODWaveformProfileMappings[index],
                                 vector.SubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index]) - windowIntervals[index]);
 
-                            if (vector.Any(t => t <= CalibratingItem.Item.WindowLimitMin))
+                            if (vector.SubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index]).Any(t => t <= CalibratingItem.Item.WindowLimitMin))
                             {
                                 vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMin);
 
@@ -972,7 +1004,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         Point hazeBFPosition,
         string detectImageDirectory,
         AODUniformityDTO.WindowItem windowItem,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool isNeedReverse = true)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -999,7 +1032,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         darkFieldImage.Image.Save(imageFilePath);
 
         windowItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
-        if (CalibratingItem.IsReverse) windowItem.ImageHorizontalProjects = [.. windowItem.ImageHorizontalProjects.Reverse()];
+        if (isNeedReverse && CalibratingItem.IsReverse) windowItem.ImageHorizontalProjects = [.. windowItem.ImageHorizontalProjects.Reverse()];
 
         windowItem.ImageFilePath = imageFilePath;
         windowItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
