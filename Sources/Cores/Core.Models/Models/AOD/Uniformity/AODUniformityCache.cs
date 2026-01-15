@@ -85,7 +85,7 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private int _imageHorizontalProjectsSkipCout;
-    
+
     [ObservableProperty]
     private int _imageHorizontalProjectsSkipLastCout;
 

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
+using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
@@ -28,7 +29,6 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using Core.Models.Models.AOD.Uniformity;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;

@@ -1,18 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
+using Core.Utilities;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
-using Net.Utilities.Mapper.Interfaces;
-using System.Collections.Concurrent;
-using System.ComponentModel;
-using Core.Models.Models.Common.AODWaveform;
-using Core.Utilities;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
+using System.Collections.Concurrent;
+using System.ComponentModel;
 using Generate = MathNet.Numerics.Generate;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -70,9 +70,9 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         StartWindowItem = StartWindowItem.Clone(),
         StopWindowItem = StopWindowItem.Clone(),
         MappingWindowItem = MappingWindowItem.Clone(),
-        Mappings = [..Mappings.Select(t => t.Clone())],
-        ImageHorizontalProjectMappings = [..ImageHorizontalProjectMappings.Select<int[], int[]>(t => [..t])],
-        PrescanAODWaveformProfileMappings = [..PrescanAODWaveformProfileMappings.Select<int[], int[]>(t => [..t])],
+        Mappings = [.. Mappings.Select(t => t.Clone())],
+        ImageHorizontalProjectMappings = [.. ImageHorizontalProjectMappings.Select<int[], int[]>(t => [.. t])],
+        PrescanAODWaveformProfileMappings = [.. PrescanAODWaveformProfileMappings.Select<int[], int[]>(t => [.. t])],
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         OpticsPolarizationModeEnumMeasurePowers = [.. OpticsPolarizationModeEnumMeasurePowers],
@@ -181,7 +181,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             var regions = Generate.LinearVShapeWindow(
                 1d,
                 1d,
-                [..segmentIndexes.Select(t => t * yPixelSegmentWidth)],
+                [.. segmentIndexes.Select(t => t * yPixelSegmentWidth)],
                 yPixelSegmentWidth,
                 ImageHorizontalProjects.Count).Regions;
 
@@ -211,7 +211,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             ImageHorizontalProjects = [.. ImageHorizontalProjects],
             SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
             HorizontalProjectMinPixel = HorizontalProjectMinPixel,
-            HorizontalProjectMinPixels = [..HorizontalProjectMinPixels],
+            HorizontalProjectMinPixels = [.. HorizontalProjectMinPixels],
             RawImageFilePath = RawImageFilePath,
             ImageFilePath = ImageFilePath
         };
@@ -242,7 +242,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             IsNotLinearSpline = IsNotLinearSpline,
             ImageHorizontalProjectIndex = ImageHorizontalProjectIndex,
             LinearSplineMappingIndex = LinearSplineMappingIndex,
-            MappingIndices = [..MappingIndices]
+            MappingIndices = [.. MappingIndices]
         };
     }
 }
@@ -266,7 +266,7 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
 
     [ObservableProperty]
     private double _windowLimitMin;
-    
+
     [ObservableProperty]
     private double _windowLimitMax;
 

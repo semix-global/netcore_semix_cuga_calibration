@@ -266,7 +266,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
@@ -419,7 +418,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
-CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth,

@@ -11,6 +11,7 @@ using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.Delay;
+using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -26,7 +27,6 @@ using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.DOEAngle;
-
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -66,7 +66,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using Core.Models.Models.AOD.Uniformity;
 
 namespace CugaCalibration.ViewModels;
 
@@ -599,7 +598,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserLineOrientationOffsetCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LineOrientationOffsetItemDto>().IsOk(out _);
-                
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserXYAstigmatismCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserXYAstigmatismCalibrationItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserDOEAngleCalibrationViewModel>();
@@ -630,7 +629,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAttenuatorViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAttenuatorDTO>().IsOk(out _);
-                
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AODUniformityViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODUniformityDTO>().IsOk(out _);
 

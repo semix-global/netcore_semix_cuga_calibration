@@ -316,7 +316,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
-CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.DSWFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.OpticsIlluminationDegreeAngle,

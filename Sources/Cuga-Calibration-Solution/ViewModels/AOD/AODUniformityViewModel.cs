@@ -1,5 +1,3 @@
-using System.IO;
-using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -30,6 +28,8 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.IO;
+using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -440,7 +440,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                 var mappingList = new List<AODUniformityDTO.Mapping>();
 
-                var linearSpline = LinearSpline.InterpolateSorted([..imageHorizontalProjectMinIndexes], [..mappingMinIndexes]);
+                var linearSpline = LinearSpline.InterpolateSorted([.. imageHorizontalProjectMinIndexes], [.. mappingMinIndexes]);
                 for (var i = 0; i < CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -464,7 +464,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     cancellationToken.ThrowIfCancellationRequested();
 
                     if (i == mappingList.Count - 1)
-                        mappingList[i].MappingIndices = [..leftMappingMinIndexes, .. GenerateUtils.LinearIndexRange(mappingList[^1].MappingIndex, mappingWindow.Length - 1)];
+                        mappingList[i].MappingIndices = [.. leftMappingMinIndexes, .. GenerateUtils.LinearIndexRange(mappingList[^1].MappingIndex, mappingWindow.Length - 1)];
                     else
                     {
                         var mappingIndexes = GenerateUtils.LinearIndexRange(mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex);
@@ -472,7 +472,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                         var chunks = mappingIndexes.ChunkSplitEvenly(2).ToArray();
 
-                        mappingList[i].MappingIndices = [..leftMappingMinIndexes, mappingList[i].MappingIndex, ..chunks[0]];
+                        mappingList[i].MappingIndices = [.. leftMappingMinIndexes, mappingList[i].MappingIndex, .. chunks[0]];
 
                         leftMappingMinIndexes = chunks.ElementAtOrDefault(1) ?? [];
                     }
@@ -493,7 +493,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                 }
 
-                CalibratingItem.ImageHorizontalProjectMappings = [..imageHorizontalProjectMinIndexes.ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
+                CalibratingItem.ImageHorizontalProjectMappings = [.. imageHorizontalProjectMinIndexes.ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
                 CalibratingItem.PrescanAODWaveformProfileMappings =
                 [
                     ..CalibratingItem.ImageHorizontalProjectMappings
@@ -504,8 +504,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    ImageHorizontalProjectMappings = new HtmlExpand(string.Empty, new HtmlTable([..CalibratingItem.ImageHorizontalProjectMappings.Index().Select(t => new { t.Index, t.Item })])),
-                    PrescanAODWaveformProfileMappings = new HtmlExpand(string.Empty, new HtmlTable([..CalibratingItem.PrescanAODWaveformProfileMappings.Index().Select(t => new { t.Index, t.Item })])),
+                    ImageHorizontalProjectMappings = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.ImageHorizontalProjectMappings.Index().Select(t => new { t.Index, t.Item })])),
+                    PrescanAODWaveformProfileMappings = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.PrescanAODWaveformProfileMappings.Index().Select(t => new { t.Index, t.Item })])),
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
@@ -537,7 +537,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     var (window, regions) = Generate.LinearVShapeWindow(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        [..prescanAODWaveformProfileSegmentIndexes.Select(t => t * prescanAODWaveformProfileSegmentWidth)],
+                        [.. prescanAODWaveformProfileSegmentIndexes.Select(t => t * prescanAODWaveformProfileSegmentWidth)],
                         prescanAODWaveformProfileSegmentWidth,
                         prescanAODWaveformProfileTotalLength);
 
@@ -619,7 +619,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var maximumIndex = Vector<double>.Build.Dense([..CalibratingItem.Item.InitializeWindowItems.Select(t => imageHorizontalProjectIndexes.Select(tt => t.ImageHorizontalProjects[tt]).Average())]).MaximumIndex();
+                    var maximumIndex = Vector<double>.Build.Dense([.. CalibratingItem.Item.InitializeWindowItems.Select(t => imageHorizontalProjectIndexes.Select(tt => t.ImageHorizontalProjects[tt]).Average())]).MaximumIndex();
                     Guard.IsGreaterThan(maximumIndex, 0);
 
                     Vector<double>.Build.Dense(window).SetSubVectorIndexes(
@@ -769,7 +769,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var imageHorizontalProjectsVector = Vector<double>.Build.Dense([..itemItem.Items[times].ImageHorizontalProjects.Skip(Cache.Item.ImageHorizontalProjectsSkipCout).SkipLast(Cache.Item.ImageHorizontalProjectsSkipLastCout)]);
+                        var imageHorizontalProjectsVector = Vector<double>.Build.Dense([.. itemItem.Items[times].ImageHorizontalProjects.Skip(Cache.Item.ImageHorizontalProjectsSkipCout).SkipLast(Cache.Item.ImageHorizontalProjectsSkipLastCout)]);
                         var targetPMTValue = CalibratingItem.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
 
                         itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
@@ -844,8 +844,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     var htmlBullet = new HtmlBullet(new
                     {
                         times,
-                        windowIntervals = new HtmlExpand(string.Empty, new HtmlTable([..windowIntervals.Index().Select(t => new { t.Index, t.Item })])),
-                        mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([..mappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
+                        windowIntervals = new HtmlExpand(string.Empty, new HtmlTable([.. windowIntervals.Index().Select(t => new { t.Index, t.Item })])),
+                        mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([.. mappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
                         CalibratingItem.ProductivityInformation,
                         Plot = new HtmlContainer(CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
                         Plots = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])

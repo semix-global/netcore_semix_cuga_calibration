@@ -1,8 +1,8 @@
 using CommunityToolkit.Diagnostics;
+using Core.Models.Models.Common.Pattern;
 using Net.Utilities.WPF.Converters.MultiValueConverters;
 using System.Globalization;
 using System.Windows;
-using Core.Models.Models.Common.Pattern;
 
 namespace Core.Models.Models.Common.Status.Converts;
 
