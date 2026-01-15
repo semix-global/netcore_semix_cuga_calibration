@@ -34,6 +34,13 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:NumericUpDown hc:TitleElement.Title="Dsw Alignment Threshold: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="180"
+                                      Minimum="0"
+                                      Increment="0.01"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.DSWAlignmentVerifyThreshold}" />
                     <hc:NumericUpDown hc:TitleElement.Title="Bright Field Quality Threshold: "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="180"
@@ -46,6 +53,13 @@
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.DfQualityThreshold}" />
+                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.DSWAlignmentDegree, StringFormat={}{0:F6}}"
+                             hc:TitleElement.Title="Alignment Verify Degree: "
+                             hc:TitleElement.TitleWidth="180"
+                             hc:TitleElement.TitlePlacement="Left"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding Cache.VerifyBrightFieldResultError}"
                              hc:TitleElement.Title="Bright Field Result Error: "
                              hc:TitleElement.TitleWidth="180"
@@ -138,19 +152,19 @@
                                     <hc:ButtonGroup>
                                         <Button Content="BF Review"
                                                 Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding Value.BrightFieldFilePath}"
+                                                CommandParameter="{Binding BrightFieldFilePath}"
                                                 d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDtoItem}" />
                                         <Button Content="DF Review"
                                                 Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding Value.DarkFieldFilePath}"
+                                                CommandParameter="{Binding DarkFieldFilePath}"
                                                 d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDtoItem}" />
                                         <Button Content="Goto BF"
                                                 Command="{Binding Path=DataContext.GotoBrightFieldPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding Value.CalChipSiteModelEnum}"
+                                                CommandParameter="{Binding CalChipSiteModelEnum}"
                                                 d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDtoItem}" />
                                         <Button Content="Goto DF"
                                                 Command="{Binding Path=DataContext.GotoDarkFieldPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding Value.CalChipSiteModelEnum}"
+                                                CommandParameter="{Binding CalChipSiteModelEnum}"
                                                 d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDtoItem}" />
                                     </hc:ButtonGroup>
                                 </DataTemplate>

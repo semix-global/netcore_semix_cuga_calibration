@@ -917,6 +917,9 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     private void UpdatePreviousNextStatus()
     {
+        if (CalibrationStepIndex >= 0 && CalibrationStepIndex < CalibrationStepList.Count)
+            CalibrationStepName = CalibrationStepList[CalibrationStepIndex].StepName;
+
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(false));
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsReviewEnable(false));

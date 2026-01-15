@@ -134,6 +134,11 @@
             本次采图不获取图像(默认不设置)
             </summary>
         </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.ZParam">
+            <summary>
+            Z参数
+            </summary>
+        </member>
         <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.ImgArrayResoult">
             <summary>
             是否获取包含图像数据的返回对象
@@ -475,6 +480,16 @@
         <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.CellType">
             <summary>
             方向类型
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.EdgeFactor">
+            <summary>
+            边界因子
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCell2Cell.EdgeDistance">
+            <summary>
+            边界距离
             </summary>
         </member>
         <member name="T:Semix.WcfTransfer.DTO.SxCFInfo">

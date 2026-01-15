@@ -2,10 +2,13 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
+using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -20,6 +23,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.Helper;
 using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Microscope;
@@ -31,25 +35,30 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "DSW Left Top Position", StepIndex = 1 },
-        new() { StepName = "DSW Right Bottom Position", StepIndex = 2 },
-        new() { StepName = "DSW", StepIndex = 3 },
-        new() { StepName = "Undefined Left Top Position", StepIndex = 4 },
-        new() { StepName = "Undefined Right Bottom Position", StepIndex = 5 },
-        new() { StepName = "Undefined", StepIndex = 6 },
-        new() { StepName = "Haze Left Top Position", StepIndex = 7 },
-        new() { StepName = "Haze Right Bottom Position", StepIndex = 8 },
-        new() { StepName = "Haze", StepIndex = 9 },
-        new() { StepName = "Shiny Wafer Left Top Position", StepIndex = 10 },
-        new() { StepName = "Shiny Wafer Right Bottom Position", StepIndex = 11 },
-        new() { StepName = "Shiny Wafer", StepIndex = 12 },
-        new() { StepName = "Chuck RTFC", StepIndex = 13 }
+        new() { StepName = "DSW Left Top Position" },
+        new() { StepName = "DSW Right Bottom Position" },
+        new() { StepName = "DSW" },
+        new() { StepName = "DSW Alignment Low MarkSite1" },
+        new() { StepName = "DSW Alignment Low MarkSite2" },
+        new() { StepName = "DSW Alignment High MarkSite1" },
+        new() { StepName = "DSW Alignment High MarkSite2" },
+        new() { StepName = "DSW Alignment" },
+        new() { StepName = "Undefined Left Top Position" },
+        new() { StepName = "Undefined Right Bottom Position" },
+        new() { StepName = "Undefined" },
+        new() { StepName = "Haze Left Top Position" },
+        new() { StepName = "Haze Right Bottom Position" },
+        new() { StepName = "Haze" },
+        new() { StepName = "Shiny Wafer Left Top Position", },
+        new() { StepName = "Shiny Wafer Right Bottom Position", },
+        new() { StepName = "Shiny Wafer", },
+        new() { StepName = "Chuck RTFC" }
     ];
 
     #region 界面相关
@@ -77,8 +86,6 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
     #endregion Review
 
-    private bool _isSkipRtfc = false;
-
     #endregion 界面相关
 
     #region 缓存
@@ -91,6 +98,9 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
     [ObservableProperty]
     private MicroscopeFocusItemDto[] _microscopeFocusItems = [];
+
+    [ObservableProperty]
+    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     #endregion 缓存
 
@@ -119,12 +129,18 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
             return false;
         }
 
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        MicroscopePixelSizeItems = microscopePixelSizeItems;
+
         (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
         Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
-        if (applicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation) == false)
-            Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
-
-        StageViewModel.SetAbsoluteStageTheta(0);
+        if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
+        if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
 
@@ -135,18 +151,21 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
         AfViewModel.ToggleBrightFieldEnable(false);
-        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
+        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.LowMicroscopeLensInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
         }
 
+        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+        AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
+        StageViewModel.SetAbsoluteStageTheta(0);
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
 
         DialogWindowProvider.TryShowDialog("Do you want to skip dark field rtfc step?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-        _isSkipRtfc = dialogResult == DialogResultEnum.Yes;
+        Cache.IsSkipRtfc = dialogResult == DialogResultEnum.Yes;
         return true;
     }
 
@@ -159,7 +178,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
         if (ReviewDto.IsCalibrated == false) return false;
 
         AfViewModel.ToggleBrightFieldEnable(false);
-        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
+        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.LowMicroscopeLensInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -174,12 +193,13 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
         AfViewModel.ToggleBrightFieldEnable(false);
         AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
-        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
+        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.LowMicroscopeLensInformation) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
         }
 
+        StageViewModel.SetAbsoluteStageTheta(0);
         StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
         return true;
     }
@@ -199,45 +219,72 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
                 return true;
 
             case 3:
-                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 return true;
 
             case 4:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, Cache.CalChipSiteModelEnum);
                 return true;
 
             case 5:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.LowSite2.Location);
+
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, Cache.CalChipSiteModelEnum);
                 return true;
 
             case 6:
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, Cache.CalChipSiteModelEnum);
+                return true;
+
+            case 7:
+                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.HighSite2.Location);
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, Cache.CalChipSiteModelEnum);
+
+                return true;
+
+            case 8:
+                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+                return true;
+            case 9:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
+                return true;
+
+            case 10:
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
+                return true;
+
+            case 11:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 return true;
 
-            case 7:
+            case 12:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 return true;
 
-            case 8:
+            case 13:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 return true;
 
-            case 9:
+            case 14:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 return true;
 
-            case 10:
+            case 15:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 return true;
 
-            case 11:
+            case 16:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 return true;
 
-            case 12:
+            case 17:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 return true;
@@ -260,49 +307,70 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
             case 1:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 break;
-
             case 2:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, Cache.CalChipSiteModelEnum);
+                break;
+            case 3:
+                Cache.LowSite2.Location = Cache.LowSite1.Location;
+                return true;
+
+            case 4:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+
+                Cache.HighSite1.Location = Cache.LowSite1.Location;
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, Cache.CalChipSiteModelEnum);
+                return true;
+
+            case 5:
+                Cache.HighSite2.Location = Cache.LowSite2.Location;
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, Cache.CalChipSiteModelEnum);
+                return true;
+
+            case 7:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 break;
 
-            case 3:
+            case 8:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 break;
 
-            case 4:
+            case 9:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 break;
 
-            case 5:
+            case 10:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 break;
 
-            case 6:
+            case 11:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 break;
 
-            case 7:
+            case 12:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 break;
 
-            case 8:
+            case 13:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopPosition);
                 break;
 
-            case 9:
+            case 14:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomPosition);
                 break;
 
-            case 10:
+            case 15:
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterPosition);
                 break;
 
-            case 11:
+            case 16:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.ChuckPosition);
+                StageViewModel.SetMachineAbsoluteStageXy(Cache.ChuckPosition);
                 break;
 
             default:
@@ -311,7 +379,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
         switch (CalibrationStepIndex)
         {
-            case 2 or 5 or 8 or 11 or 12:
+            case 7 or 10 or 13 or 16 or 17:
                 ClearCalibrationTemp();
 
                 var isCalibrated = CalibrationStepIndex == CalibrationStepList.Count - 1;
@@ -458,7 +526,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
             AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
 
-            if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
+            if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.LowMicroscopeLensInformation) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;
@@ -469,7 +537,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.CalChipSiteModelEnum,
-                Cache.MicroscopeLensInformation.LensName,
+                Cache.LowMicroscopeLensInformation.LensName,
                 CurrentEcsValue = ecsValue,
                 FindFocusPosition = findFocusPosition,
                 FindFocusLimitMin = findFocusMin,
@@ -486,7 +554,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
                 ecsList.Add(new MicroscopeFocusItemDto
                 {
                     Index = index + 1,
-                    LensInformation = Cache.MicroscopeLensInformation,
+                    LensInformation = Cache.HighMicroscopeLensInformation,
                     FindPosition = findFocusPosition,
                     Quality = 0,
                     EcsValue = ecsValueTemp,
@@ -522,7 +590,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
             #region DF
 
-            if (!_isSkipRtfc && Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel)
+            if (!Cache.IsSkipRtfc && Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel)
             {
                 RuntimeAfCalibration(ResultMicroscopeCalChipDto, Cache.CalChipSiteModelEnum);
             }
@@ -531,9 +599,9 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                IsSkipRtfc = _isSkipRtfc,
+                Cache.IsSkipRtfc,
                 Cache.CalChipSiteModelEnum,
-                Cache.MicroscopeLensInformation.LensName,
+                Cache.HighMicroscopeLensInformation.LensName,
                 ResultMicroscopeCalChipDto.CurrentItem.EcsValue,
                 ResultMicroscopeCalChipDto.CurrentItem.AfEcsValue,
                 ResultMicroscopeCalChipDto.CurrentItem.AfMotorValue,
@@ -546,12 +614,204 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private async Task<bool> Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return await InvokeCalibrateAsync(() =>
+        {
+            var position = StageViewModel.GetBrightFieldStagePosition();
+            Cache.LowSite1.Location = position;
+            var lowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+            Cache.LowSiteTemplateFilePath = lowTemplateFilePath;
+
+            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            if (generateTemplate == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
+
+            var lowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(lowTemplateFilePath);
+
+            var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
+            if (resultLowSite1.Template is null) return false;
+
+            BitmapSourceHelper.Save(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(resultLowSite1.Template.Thumb), lowTemplateImageFilePath);
+            Cache.LowSite1 = resultLowSite1;
+            Cache.LowSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            Cache.LowSite1.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.AlgorithmTemplateTypeEnum,
+                Cache.LowMicroscopeLensInformation.LensName,
+                Cache.LowSite1.Location,
+                HtmlTab = new HtmlTab(new
+                {
+                    LowTemplate = new HtmlImage(lowTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return await InvokeCalibrateAsync(() =>
+        {
+            var position = StageViewModel.GetBrightFieldStagePosition();
+            if (ReviewViewModel.TryGetMatchPosition(
+                    Cache.AlgorithmTemplateTypeEnum,
+                    MicroscopePixelSizeItems,
+                    position,
+                    Cache.LowMicroscopeLensInformation,
+                    Cache.LowSiteTemplateFilePath,
+                    null, null, null, null,
+                    out var lowPositionResult,
+                    out _, out _, out _, out _,
+                    Cache.CalChipSiteModelEnum) == false) return false;
+
+            Cache.LowSite2.Location = lowPositionResult;
+            var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1, Cache.AlgorithmWaferTypeEnum);
+            Cache.LowSite2 = resultLowSite2;
+            Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            Cache.LowSite2.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.AlgorithmTemplateTypeEnum,
+                Cache.LowMicroscopeLensInformation.LensName,
+                Cache.LowSite2.Location
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step4CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return await InvokeCalibrateAsync(() =>
+        {
+            if (Cache.HighMicroscopeLensInformation.LensCode <= Cache.LowMicroscopeLensInformation.LensCode)
+            {
+                DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
+
+            var position = StageViewModel.GetBrightFieldStagePosition();
+            Cache.HighSite1.Location = position;
+
+            var highTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+            Cache.HighSiteTemplateFilePath = highTemplateFilePath;
+
+            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            if (generateTemplate == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
+
+            var highTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(highTemplateFilePath);
+
+            var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
+            if (resultHighSite1.Template is null) return false;
+
+            BitmapSourceHelper.Save(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(resultHighSite1.Template.Thumb), highTemplateImageFilePath);
+            Cache.HighSite1 = resultHighSite1;
+            Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            Cache.HighSite1.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.HighMicroscopeLensInformation.LensName,
+                Cache.HighSite1.Location,
+                HtmlTab = new HtmlTab(new
+                {
+                    HighTemplate = new HtmlImage(highTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step5CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return await InvokeCalibrateAsync(() =>
+        {
+            var position = StageViewModel.GetBrightFieldStagePosition();
+
+            if (ReviewViewModel.TryGetMatchPosition(
+                    Cache.AlgorithmTemplateTypeEnum,
+                    MicroscopePixelSizeItems,
+                    position,
+                    Cache.HighMicroscopeLensInformation,
+                    Cache.HighSiteTemplateFilePath,
+                    null, null, null, null,
+                    out var highPositionResult,
+                    out _, out _, out _, out _,
+                    Cache.CalChipSiteModelEnum) == false) return false;
+
+            Cache.HighSite2.Location = highPositionResult;
+            var resultHighSite2 = StageViewModel.MarkAlignSite2(Cache.HighSite1, Cache.AlgorithmWaferTypeEnum);
+            Cache.HighSite2 = resultHighSite2;
+            Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            Cache.HighSite2.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.HighMicroscopeLensInformation.LensName,
+                Cache.HighSite2.Location
+            }), HtmlLogUniqueId.LoggingHtml());
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step6CalibrateActionAsync(CancellationToken cancellationToken)
+    {
+        return await InvokeCalibrateAsync(() =>
+        {
+            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.Alignment(
+                Cache.LowSite1,
+                Cache.LowSite2,
+                Cache.HighSite1,
+                Cache.HighSite2,
+                Cache.LowMicroscopeLensInformation,
+                Cache.HighMicroscopeLensInformation,
+                Cache.AlgorithmWaferTypeEnum,
+                false);
+
+            var degree = StageViewModel.GetMachineStageTheta();
+
+            var originBrightFieldPosition = StageViewModel.MachineToBrightFieldPosition(ResultMicroscopeCalChipDto.DswItem.BrightFieldMachinePosition);
+            var originDarkFieldPosition = StageViewModel.MachineToDarkFieldPosition(ResultMicroscopeCalChipDto.DswItem.DarkFieldMachinePosition);
+            ResultMicroscopeCalChipDto.DSWBrightFieldMachineAffinePosition = StageViewModel.BrightFieldToMachinePosition(originBrightFieldPosition.DegreeAngleByXy(degree));
+            ResultMicroscopeCalChipDto.DSWDarkFieldMachineAffinePosition = StageViewModel.DarkFieldToMachinePosition(originDarkFieldPosition.DegreeAngleByXy(degree));
+            ResultMicroscopeCalChipDto.DSWAlignmentDegree = degree;
+
+            AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.DSWBrightFieldMachineAffinePosition);
+            AfViewModel.SetSensorDarkFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.DSWDarkFieldMachineAffinePosition);
+
+            Logger.LogHtmlInformation("P5 OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                ResultMicroscopeCalChipDto.DSWAlignmentDegree,
+                ResultMicroscopeCalChipDto.DswItem.BrightFieldMachinePosition,
+                ResultMicroscopeCalChipDto.DswItem.DarkFieldMachinePosition,
+                ResultMicroscopeCalChipDto.DSWBrightFieldMachineAffinePosition,
+                ResultMicroscopeCalChipDto.DSWDarkFieldMachineAffinePosition
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step7CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
             Cache.ChuckPosition = StageViewModel.GetBrightFieldStagePosition();
-            if (_isSkipRtfc) return true;
+            if (Cache.IsSkipRtfc) return true;
 
             RuntimeAfCalibration(ResultMicroscopeCalChipDto, CalChipSiteModelEnum.ChuckModel);
 
@@ -599,68 +859,87 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
             {
                 ClearCalibrationTemp();
                 var detectImageDirectory = ImageFileDirectory;
+                ResultMicroscopeCalChipDto = ReviewDto.Clone();
 
                 Cache.VerifyBrightFieldResultError = string.Empty;
                 Cache.VerifyDarkFieldResultError = string.Empty;
 
                 AfViewModel.ToggleBrightFieldEnable(false);
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+                var dswAlignmentDegree = ResultMicroscopeCalChipDto.DSWAlignmentDegree;
+                StageViewModel.SetAbsoluteStageTheta(dswAlignmentDegree);
+                AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.DswModel);
 
-                ResultMicroscopeCalChipDto = ReviewDto.Clone();
+                var alignmentResultDto = StageViewModel.AlignmentVerify(
+                    Cache.LowSite1.DegreeAngleByXy(dswAlignmentDegree),
+                    Cache.LowSite2.DegreeAngleByXy(dswAlignmentDegree),
+                    Cache.HighSite1.DegreeAngleByXy(dswAlignmentDegree),
+                    Cache.HighSite2.DegreeAngleByXy(dswAlignmentDegree),
+                    Cache.LowMicroscopeLensInformation,
+                    Cache.HighMicroscopeLensInformation,
+                    Cache.AlgorithmWaferTypeEnum,
+                    false);
+
+                if (Math.Abs(alignmentResultDto.Degrees) > Cache.DSWAlignmentVerifyThreshold)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error:DSW alignment verify is failed!"), HtmlLogUniqueId.LoggingHtml());
+                    return false;
+                }
 
                 foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
                 {
+                    StageViewModel.SetAbsoluteStageTheta(0);
+
                     ResultMicroscopeCalChipDto.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = calChipSiteModelEnum;
                     Logger.LogHtmlInformation($"{Cache.CalChipSiteModelEnum}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
-                    var findFocusPosition = Cache.Item.CenterPosition;
-                    var findFocusMin = Cache.Item.FindFocusMin;
-                    var findFocusMax = Cache.Item.FindFocusMax;
-                    var findFocusInterval = Cache.Item.FindFocusInterval;
+                    var findFocusPosition = ResultMicroscopeCalChipDto.CurrentItem.BrightFieldMachinePosition;
+                    if (calChipSiteModelEnum is CalChipSiteModelEnum.DswModel)
+                    {
+                        StageViewModel.SetAbsoluteStageTheta(dswAlignmentDegree);
+                        findFocusPosition = ResultMicroscopeCalChipDto.DSWBrightFieldMachineAffinePosition;
+                    }
 
                     Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                     {
                         Cache.CalChipSiteModelEnum,
-                        Cache.MicroscopeLensInformation,
+                        Cache.HighMicroscopeLensInformation,
                         FindFocusPosition = findFocusPosition,
-                        FindFocusLimitMin = findFocusMin,
-                        FindFocusLimitMax = findFocusMax,
-                        FindFocusInterval = findFocusInterval,
                         ImageFileDirectory = detectImageDirectory
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
-                    StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
-
-                    if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.MicroscopeLensInformation) == false)
+                    if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.LowMicroscopeLensInformation) == false)
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Switch Magnification Failed."), HtmlLogUniqueId.LoggingHtml());
                         return false;
                     }
+                    AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
 
                     AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, ResultMicroscopeCalChipDto.CurrentItem.EcsValue);
                     AfViewModel.ToggleBrightFieldEnable(true);
 
                     Thread.Sleep(5000);
+                    var ecs = AfViewModel.GetSensorEcsValue();
 
                     var microscopeFocusItemDto = new MicroscopeFocusItemDto
                     {
                         Index = 0,
-                        LensInformation = Cache.MicroscopeLensInformation,
+                        LensInformation = Cache.LowMicroscopeLensInformation,
                         FindPosition = findFocusPosition,
+                        EcsValue = ecs,
                         Quality = 0,
-                        EcsValue = ResultMicroscopeCalChipDto.CurrentItem.EcsValue,
                         FilePath = detectImageDirectory
                     };
-                    GetQuality(microscopeFocusItemDto);
+                    GetQuality(microscopeFocusItemDto, true);
 
                     AfViewModel.ToggleBrightFieldEnable(false);
 
+                    ResultMicroscopeCalChipDto.CurrentItem.EcsValue = ecs;
                     ResultMicroscopeCalChipDto.CurrentItem.BrightFieldQuality = microscopeFocusItemDto.Quality;
                     ResultMicroscopeCalChipDto.CurrentItem.BrightFieldFilePath = microscopeFocusItemDto.FilePath;
 
-                    if (!_isSkipRtfc && calChipSiteModelEnum is not CalChipSiteModelEnum.UndefinedModel && calChipSiteModelEnum is not CalChipSiteModelEnum.ShinyWaferModel)
+                    if (!Cache.IsSkipRtfc && calChipSiteModelEnum is not CalChipSiteModelEnum.UndefinedModel && calChipSiteModelEnum is not CalChipSiteModelEnum.ShinyWaferModel)
                     {
                         AfViewModel.SetDarkField(calChipSiteModelEnum,
                             calChipSiteModelEnum switch
@@ -724,8 +1003,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
                 Cache.VerifyBrightFieldResultError = string.Join("; ", brightFieldQualityErrors.Select(t => $"{t.Key.ToDescriptionOrString()}: {t.Value}"));
                 Cache.VerifyDarkFieldResultError = string.Join("; ", darkFieldQualityErrors.Select(t => $"{t.Key.ToDescriptionOrString()}: {t.Value}"));
 
-                var result = brightFieldQualityErrors.All(t => t.Value < Cache.BfQualityThreshold)
-                             && darkFieldQualityErrors.All(t => t.Value < Cache.DfQualityThreshold);
+                var result = brightFieldQualityErrors.All(t => Math.Abs(t.Value) < Cache.BfQualityThreshold)
+                             && darkFieldQualityErrors.All(t => Math.Abs(t.Value) < Cache.DfQualityThreshold);
 
                 DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
                                                 $"Bright Field Quality Error: ({Cache.VerifyBrightFieldResultError}){Environment.NewLine}" +
@@ -733,12 +1012,13 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
                 Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
                 {
-                    Cache.MicroscopeLensInformation,
-                    Cache.VerifyBrightFieldResultError,
-                    Cache.VerifyDarkFieldResultError,
-                    QualityThreshold = Cache.BfQualityThreshold,
+                    Cache.DSWAlignmentVerifyThreshold,
                     Cache.BfQualityThreshold,
                     Cache.DfQualityThreshold,
+                    VerifyDSWAlignmentDegree = dswAlignmentDegree,
+                    Cache.VerifyBrightFieldResultError,
+                    Cache.VerifyDarkFieldResultError,
+
                     CalibrationResult = new HtmlTable([
                         .. ReviewDto.Items.OrderBy(t => t.Key)
                             .Select(t => new { t.Key, t.Value.BrightFieldMachinePosition, t.Value.EcsValue, t.Value.BrightFieldQuality, t.Value.DarkFieldMachinePosition, t.Value.AfEcsValue, t.Value.AfMotorValue, t.Value.DarkFieldQuality })
@@ -766,9 +1046,9 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
         }
     }
 
-    private void GetQuality(MicroscopeFocusItemDto microscopeFocusItemDto)
+    private void GetQuality(MicroscopeFocusItemDto microscopeFocusItemDto, bool isReview = false)
     {
-        AfViewModel.SetSensorEcsValue(microscopeFocusItemDto.EcsValue);
+        if (isReview == false) AfViewModel.SetSensorEcsValue(microscopeFocusItemDto.EcsValue);
 
         if (microscopeFocusItemDto.Index == 1) Thread.Sleep(3000);
         using var image = ReviewViewModel.GetBrightFieldImage();
@@ -830,7 +1110,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
         update(dto);
         update(Cache);
 
-        dto.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
+        dto.MicroscopeLensInformation = Cache.HighMicroscopeLensInformation;
         Calibration = dto.Clone();
 
         CacheProvider.Set(dto, cancellationToken);

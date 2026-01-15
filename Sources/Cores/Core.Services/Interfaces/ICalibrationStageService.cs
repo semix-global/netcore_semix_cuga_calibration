@@ -247,6 +247,7 @@ public interface ICalibrationStageService
     /// <param name="highMicroscopeLensInformation"></param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <param name="lowMicroscopeLensInformation"></param>
+    /// <param name="isP5">True：P5 False：P2</param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
     SxExecuteRet<AlignmentResultDto> Alignment(
         AlignmentSiteDto lowSite1,
@@ -255,8 +256,8 @@ public interface ICalibrationStageService
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    );
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        bool isP5);
 
     /// <summary>
     /// 晶圆对准 验证角度不校正
@@ -268,6 +269,7 @@ public interface ICalibrationStageService
     /// <param name="lowMicroscopeLensInformation">对准使用的低倍镜</param>
     /// <param name="highMicroscopeLensInformation">对准使用的高倍镜</param>
     /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
+    /// <param name="isP5">True：P5 False：P2</param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
     SxExecuteRet<AlignmentResultDto> AlignmentVerify(
         AlignmentSiteDto lowSite1,
@@ -276,8 +278,8 @@ public interface ICalibrationStageService
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    );
+        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
+        bool isP5);
 
     #endregion 晶圆对准P5
 
