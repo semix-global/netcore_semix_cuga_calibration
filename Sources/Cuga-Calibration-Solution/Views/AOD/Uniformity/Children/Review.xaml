@@ -4,13 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.XTC;assembly=Core.Models"
              xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
-             d:DataContext="{d:DesignInstance Type=viewModels:CIBXTCViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODUniformityViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -41,12 +41,27 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(Log): "
-                                          hc:TitleElement.TitlePlacement="Left"
+                        <hc:NumericUpDown hc:TitleElement.Title="Review Rate Threshold: "
                                           hc:TitleElement.TitleWidth="200"
+                                          hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
+                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ReviewThreshold}" />
+                                          Value="{Binding Cache.CalibrateThreshold}" />
+                        <TextBox Text="{Binding Cache.CalibrateThresholdMin, Mode=OneWay, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Review Rate Threshold Min: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Cache.CalibrateThresholdMax, Mode=OneWay, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Review Rate Threshold Max: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -127,7 +142,7 @@
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBXTCDTO}">
                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <TabControl SelectedIndex="0" ItemsSource="{Binding ScatterPlotControls}">
+                                    <TabControl ItemsSource="{Binding ScatterPlotControls}">
                                         <i:Interaction.Behaviors>
                                             <wpf:SelectorAutoSelectFirstBehavior />
                                         </i:Interaction.Behaviors>

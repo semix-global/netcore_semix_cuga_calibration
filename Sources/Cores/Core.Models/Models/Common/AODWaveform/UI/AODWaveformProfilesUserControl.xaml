@@ -27,7 +27,7 @@
             </DataTemplate>
         </GroupBox.HeaderTemplate>
         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-            <TabControl SelectedIndex="0" ItemsSource="{Binding .}">
+            <TabControl ItemsSource="{Binding .}">
                 <i:Interaction.Behaviors>
                     <wpf:SelectorAutoSelectFirstBehavior />
                 </i:Interaction.Behaviors>

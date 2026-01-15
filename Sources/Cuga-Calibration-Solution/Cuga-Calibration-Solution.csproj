@@ -94,6 +94,16 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Page Update="Views\AOD\Uniformity\Children\Step1View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\AOD\Uniformity\Children\Step5View.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
     </ItemGroup>
 
     <ItemGroup>

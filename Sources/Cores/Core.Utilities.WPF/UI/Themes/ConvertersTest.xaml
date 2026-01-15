@@ -4,6 +4,7 @@
                     xmlns:converters="clr-namespace:Core.Utilities.WPF.Converters"
                     xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF">
     <converters:DoublesToStringConverter x:Key="DoublesToStringConverter" />
+    <converters:IntsToStringConverter x:Key="IntsToStringConverter" />
     <converters:DoubleToGridLengthConverter x:Key="DoubleToGridLengthConverter" />
     <converters:ScatterPlotControlToTitleConverter x:Key="ScatterPlotControlToTitleConverter" />
     <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanAllConverter" />

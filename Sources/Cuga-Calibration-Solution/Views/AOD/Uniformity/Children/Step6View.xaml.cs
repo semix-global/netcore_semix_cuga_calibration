@@ -1,4 +1,4 @@
-namespace CugaCalibration.Views.Laser.IlluminationProfile.Children;
+namespace CugaCalibration.Views.AOD.Uniformity.Children;
 
 public sealed partial class Step6View
 {

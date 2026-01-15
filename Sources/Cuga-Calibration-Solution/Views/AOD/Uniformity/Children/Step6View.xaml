@@ -1,11 +1,13 @@
-﻿<UserControl x:Class="CugaCalibration.Views.AOD.Uniformity.Children.Step4View"
+﻿<UserControl x:Class="CugaCalibration.Views.AOD.Uniformity.Children.Step6View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:uniformity="clr-namespace:Core.Models.Models.AOD.Uniformity;assembly=Core.Models"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
              d:DataContext="{d:DesignInstance Type=viewModels:AODUniformityViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -23,6 +25,9 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Step 7: "
+                           Status="{Binding CalibrationStepList[6].StepName}"
+                           Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Step 5: "
                            Status="{Binding CalibrationStepList[4].StepName}"
                            Color="{StaticResource InfoBrush}" />
@@ -49,24 +54,57 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Image Skip Cout: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ImageHorizontalProjectsSkipCout}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Image Skip Last Cout: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ImageHorizontalProjectsSkipLastCout}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Window Limit Rate: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.WindowLimitRate}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Window Interval(Coefficient): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.WindowInterval}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Times: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="200"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.ImageWidth}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Prescan Segment Count: "
-                                          hc:TitleElement.TitlePlacement="Left"
+                                          Value="{Binding Cache.CalibratingRetryTimes}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibrating Rate Threshold: "
                                           hc:TitleElement.TitleWidth="200"
-                                          Minimum="4"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.PrescanAODWaveformProfileSegmentCount}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Image Segment Count: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="200"
-                                          Minimum="4"
+                                          Minimum="0"
+                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.ImageHorizontalProjectsSegmentCount}" />
+                                          Value="{Binding Cache.CalibrateThreshold}" />
+                        <TextBox Text="{Binding Cache.CalibrateThresholdMin, Mode=OneWay, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Calibrating Rate Threshold Min: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Cache.CalibrateThresholdMax, Mode=OneWay, StringFormat='0.###'}"
+                                 hc:TitleElement.Title="Calibrating Rate Threshold Max: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="LightGray"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"
@@ -85,11 +123,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step4Command}"
+                                    Command="{Binding Step6Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step4CancelCommand}"
+                                    Command="{Binding Step6CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
@@ -100,43 +138,31 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <TabControl>
-                <TabItem Header="IsReverse Plots">
+                <TabItem Header="Plots">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentControl Content="{Binding CalibratingItem.IsReverseScatterPlotControl, Mode=OneWay}" />
+                        <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
                     </Border>
                 </TabItem>
-                <TabItem Header="Mapping Plots">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentControl Content="{Binding CalibratingItem.MappingScatterPlotControl, Mode=OneWay}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Mapping Details">
-                    <ListView Style="{StaticResource ListView.Small}" ItemsSource="{Binding CalibratingItem.Mappings}">
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsNotLinearSpline}" Value="True">
-                                        <Setter Property="FontWeight" Value="Bold" />
-                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="ImageHorizontalProjectIndex" DisplayMemberBinding="{Binding ImageHorizontalProjectIndex}" />
-                                <GridViewColumn Header="LinearSplinePrescanAODWaveformProfileIndex" DisplayMemberBinding="{Binding LinearSplineMappingIndex, StringFormat='0.###'}" />
-                                <GridViewColumn Header="PrescanAODWaveformProfileIndex" DisplayMemberBinding="{Binding MappingIndex}" />
-                                <GridViewColumn Header="PrescanAODWaveformProfileIndices">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate DataType="{x:Type uniformity:AODUniformityDTO+Mapping}">
-                                            <TextBlock Text="{Binding MappingIndices, Converter={StaticResource IntsToStringConverter}}" TextWrapping="Wrap" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                <TabItem Header="Plots by Channel">
+                    <TabControl Margin="5" ItemsSource="{Binding CalibratingItem.ScatterPlotControls}">
+                        <i:Interaction.Behaviors>
+                            <wpf:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
+                                <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"
+                                           Padding="5,2"
+                                           Style="{StaticResource TextBlockDefaultBold}" />
+                            </DataTemplate>
+                        </TabControl.ItemTemplate>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <ContentControl Content="{Binding Value, Mode=OneWay}" />
+                                </Border>
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
                 </TabItem>
             </TabControl>
         </GroupBox>

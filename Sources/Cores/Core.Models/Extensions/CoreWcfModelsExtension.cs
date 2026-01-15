@@ -23,7 +23,7 @@ using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.DOEAngle;
-using Core.Models.Models.Laser.IlluminationProfile;
+
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -284,18 +284,6 @@ public static class CoreWcfModelsExtension
 
         var isOk = result.IsOk;
         if (isOk == false) errorMessage = "Laser Beam Stabilizer is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this LaserIlluminationProfileItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length * 14 && result.All(t => t.IsOk);
-
-        if (isOk == false)
-            errorMessage = "Laser Illumination Profile is Empty";
 
         return isOk;
     }

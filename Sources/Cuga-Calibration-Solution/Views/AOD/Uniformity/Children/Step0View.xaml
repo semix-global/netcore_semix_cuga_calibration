@@ -4,12 +4,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:CIBXTCViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODUniformityViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -58,7 +58,7 @@
                  ItemsSource="{Binding CalibratingStatuses}"
                  SelectionMode="Single">
             <i:Interaction.Behaviors>
-                <behaviors:ListBoxSelectedItemProductivityInformationStatusBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
+                <behaviors:ListBoxSelectedItemProductivityInformationAndLaserLightInformationStatusBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
             </i:Interaction.Behaviors>
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type status:ProductivityInformationStatus}">

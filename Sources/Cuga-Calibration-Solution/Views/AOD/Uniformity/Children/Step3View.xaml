@@ -3,9 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             d:DataContext="{d:DesignInstance Type=viewModels:CIBXTCViewModel}"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODUniformityViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -28,11 +28,11 @@
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Laser Light: "
+                           Status="{Binding Cache.LaserLightInformation}"
+                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Microscope: "
                            Status="{Binding Cache.Item.MicroscopeLensInformation}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Haze BF Machine Position(um): "
-                           Status="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -45,31 +45,9 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="200"
-                                          Minimum="1"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.ImageWidth}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Segment Count: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="200"
-                                          Minimum="4"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.PrescanAODWaveformProfileSegmentCount}" />
-                        <StackPanel>
-                            <TextBlock Text="Result"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                        </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.IsReverse}"
-                                 hc:TitleElement.Title="Is Reverse: "
-                                 hc:TitleElement.TitleWidth="160"
+                        <TextBox Text="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
@@ -88,10 +66,5 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="History">
-            <Border Style="{StaticResource BorderRegion}">
-                <ContentControl Content="{Binding CalibratingItem.ForwardAndReverseScatterPlotControl, Mode=OneWay}" />
-            </Border>
-        </GroupBox>
     </Grid>
 </UserControl>

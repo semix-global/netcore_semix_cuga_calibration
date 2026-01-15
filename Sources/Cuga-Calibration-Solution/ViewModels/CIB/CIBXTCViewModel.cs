@@ -349,11 +349,11 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             {
                 CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startPrescanAODWaveformProfileSegmentIndex, prescanAODWaveformProfiles);
                 await CatchImageAsync($"{startPrescanAODWaveformProfileSegmentIndex}", CalibratingItem.StartWindowItem);
-                CalibratingItem.StartWindowItem.CalculateHorizontalProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, startPrescanAODWaveformProfileSegmentIndex);
+                CalibratingItem.StartWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, startPrescanAODWaveformProfileSegmentIndex);
 
                 CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopPrescanAODWaveformProfileSegmentIndex, prescanAODWaveformProfiles);
                 await CatchImageAsync($"{stopPrescanAODWaveformProfileSegmentIndex}", CalibratingItem.StopWindowItem);
-                CalibratingItem.StopWindowItem.CalculateHorizontalProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, stopPrescanAODWaveformProfileSegmentIndex);
+                CalibratingItem.StopWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, stopPrescanAODWaveformProfileSegmentIndex);
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -503,7 +503,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
                         };
-                        itemItemData.CalculateHorizontalProjectMinPixel(Cache.ProductivityInformation.YPixel, Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexIndex);
+                        itemItemData.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexIndex);
 
                         if (HostEnvironment.IsDevelopment()) itemItemData.HorizontalProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
                         itemItem.Items = [.. itemItem.Items, itemItemData];
