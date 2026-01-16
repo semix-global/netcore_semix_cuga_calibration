@@ -9,6 +9,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
+using Net.Utilities.Algorithms.Extensions;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -52,14 +53,14 @@ public partial class AODUniformityDTO
 
     public AODUniformityDTO()
     {
-        var customGrid = new CustomGrid();
-        IsReverseScatterPlotControl.Configure(customGrid, 5,
+        var customGridIsReverseScatterPlotControl = new CustomGrid();
+        IsReverseScatterPlotControl.Configure(customGridIsReverseScatterPlotControl, 5,
             plots =>
             {
-                customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));
-                customGrid.Set(plots[1], new GridCell(0, 1, 2, 2));
-                customGrid.Set(plots[2], new GridCell(1, 0, 2, 2));
-                customGrid.Set(plots[3], new GridCell(1, 1, 2, 2));
+                customGridIsReverseScatterPlotControl.Set(plots[0], new GridCell(0, 0, 2, 2));
+                customGridIsReverseScatterPlotControl.Set(plots[1], new GridCell(0, 1, 2, 2));
+                customGridIsReverseScatterPlotControl.Set(plots[2], new GridCell(1, 0, 2, 2));
+                customGridIsReverseScatterPlotControl.Set(plots[3], new GridCell(1, 1, 2, 2));
             });
 
         IsReverseScatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
@@ -73,10 +74,18 @@ public partial class AODUniformityDTO
         InitializeWindowScatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
         InitializeWindowScatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: sa)");
 
-        ScatterPlotControl.Configure(new Columns(), 2);
+        var customGridScatterPlotControl = new CustomGrid();
+        ScatterPlotControl.Configure(customGridScatterPlotControl, 3,
+            plots =>
+            {
+                customGridScatterPlotControl.Set(plots[0], new GridCell(0, 0, 2, 3, rowSpan: 2));
+                customGridScatterPlotControl.Set(plots[1], new GridCell(1, 0, 2, 3, rowSpan: 2));
+                customGridScatterPlotControl.Set(plots[2], new GridCell(0, 2, 2, 3, colSpan: 2));
+            });
 
         ScatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        ScatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: sa)");
+        ScatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: px)");
+        ScatterPlotControl.SetTitle(2, "Result Window(Y: Coefficient - X: sa)");
         ScatterPlotControl.ToggleLegend(1, false);
     }
 
@@ -233,10 +242,16 @@ public partial class AODUniformityDTO
                         i,
                         new Range(0, Item.Items.Count - 1));
 
+
+                    var window = Mappings
+                        .OrderBy(t => t.ImageHorizontalProjectIndex)
+                        .Select(t => Vector<double>.Build.Dense([..itemItemData.Window]).SubVectorIndexes([..t.MappingIndices]).Distinct().Single())
+                        .ToArray();
+
                     ScatterPlotControl.GetOrAddScatterLine(
                         1,
                         $"{i + 1}: {Item.CIBInformation}",
-                        [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                        [.. window.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, Item.Items.Count - 1));
                 }
@@ -260,10 +275,10 @@ public partial class AODUniformityDTO
                 ScatterPlotControl.GetOrAddYLine(0, "Target", targetPMTValueKvp.Value, Colors.Red);
 
                 var scatterLine = ScatterPlotControl.GetOrAddScatterLine(
-                    1,
+                    2,
                     "Result",
                     [.. Item.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.LightGreen.WithAlpha(100));
+                    Colors.Red);
                 scatterLine.LinePattern = LinePattern.Dotted;
                 scatterLine.LineWidth = 5;
             }
@@ -310,6 +325,7 @@ public partial class AODUniformityDTO
                 var minPMTId = itemItemsData.Min(t => t.PMTId);
                 var maxPMTId = itemItemsData.Max(t => t.PMTId);
 
+                scatterPlotControl.Clear();
                 foreach (var (pmtId, itemItemData) in itemItemsData)
                 {
                     scatterPlotControl.GetOrAddScatterLine(
