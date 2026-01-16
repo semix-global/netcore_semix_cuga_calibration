@@ -428,7 +428,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     detectImageDirectory,
                     CalibratingItem.MappingWindowItem,
                     cancellationToken,
-                    false);
+                    true);
 
                 CalibratingItem.MappingWindowItem.CalculateHorizontalProjectMinPixels(Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexes);
 
@@ -531,7 +531,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     var window = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount + 1,
                         segmentIndex,
                         prescanAODWaveformProfileTotalLength).Window;
 
@@ -547,7 +547,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     var (window, regions) = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount + 1,
                         prescanAODWaveformProfileSegmentIndexes,
                         prescanAODWaveformProfileTotalLength);
 

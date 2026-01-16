@@ -77,7 +77,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         Mappings = [.. Mappings.Select(t => t.Clone())],
         ImageHorizontalProjectMappings = [.. ImageHorizontalProjectMappings.Select<int[], int[]>(t => [.. t])],
         PrescanAODWaveformProfileMappings = [.. PrescanAODWaveformProfileMappings.Select<int[], int[]>(t => [.. t])],
-        TargetPMTValues = [..TargetPMTValues],
+        TargetPMTValues = [.. TargetPMTValues],
         InitializeWindowItem = InitializeWindowItem.Clone(),
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
@@ -139,7 +139,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindowBySegments(
                 1d,
                 1d,
-                segmentCount,
+                segmentCount + 1,
                 segmentIndex,
                 ImageHorizontalProjects.Count).Region;
 
@@ -174,10 +174,10 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             HorizontalProjectMinPixel = (forwardHorizontalProjectMinPixel.X, reverseHorizontalProjectMinPixel.X) switch
             {
                 (not -1, -1) => forwardHorizontalProjectMinPixel.X,
-                (-1, not -1) => reverseHorizontalProjectMinPixel.X,
+                (-1, not -1) => ImageHorizontalProjects.Count - reverseHorizontalProjectMinPixel.X - 1,
                 (not -1, not -1) => forwardHorizontalProjectMinPixel.Y < reverseHorizontalProjectMinPixel.Y
                     ? forwardHorizontalProjectMinPixel.X
-                    : reverseHorizontalProjectMinPixel.X,
+                    : ImageHorizontalProjects.Count - reverseHorizontalProjectMinPixel.X - 1,
                 (_, _) => ThrowHelper.ThrowInvalidOperationException<int>("Horizontal Project Min Pixel is not found."),
             };
         }
@@ -189,7 +189,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             var regions = Generate.LinearVShapeWindowBySegments(
                 1d,
                 1d,
-                segmentCount,
+                segmentCount + 1,
                 segmentIndexes,
                 ImageHorizontalProjects.Count).Regions;
 
