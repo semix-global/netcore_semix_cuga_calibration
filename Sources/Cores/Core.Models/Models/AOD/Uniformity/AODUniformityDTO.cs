@@ -54,6 +54,9 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     private ConcurrentBag<KeyValuePair<CIBInformation, double>> _targetPMTValues = [];
 
     [ObservableProperty]
+    private AODUniformityDTOItem _initializeWindowItem = new();
+
+    [ObservableProperty]
     private AODUniformityDTOItem _item = new();
 
     [ObservableProperty]
@@ -74,6 +77,8 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         Mappings = [.. Mappings.Select(t => t.Clone())],
         ImageHorizontalProjectMappings = [.. ImageHorizontalProjectMappings.Select<int[], int[]>(t => [.. t])],
         PrescanAODWaveformProfileMappings = [.. PrescanAODWaveformProfileMappings.Select<int[], int[]>(t => [.. t])],
+        TargetPMTValues = [..TargetPMTValues],
+        InitializeWindowItem = InitializeWindowItem.Clone(),
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         OpticsPolarizationModeEnumMeasurePowers = [.. OpticsPolarizationModeEnumMeasurePowers],
@@ -261,9 +266,6 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<Item> _initializeWindowItems = [];
-
-    [ObservableProperty]
     private IReadOnlyList<Item> _items = [];
 
     [ObservableProperty]
@@ -292,30 +294,12 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(Items));
     }
 
-    partial void OnInitializeWindowItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
-    {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
-
-        foreach (var item in newValue)
-        {
-            item.PropertyChanged -= ItemOnPropertyChanged;
-            item.PropertyChanged += ItemOnPropertyChanged;
-        }
-
-        OnPropertyChanged(nameof(InitializeWindowItems));
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(InitializeWindowItems));
-    }
-
     #region Mapper
 
     public AODUniformityDTOItem Clone() => new()
     {
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         CIBInformation = CIBInformation.Clone(),
-        InitializeWindowItems = [.. InitializeWindowItems.Select(t => t.Clone())],
         Items = [.. Items.Select(t => t.Clone())],
         Window = [.. Window],
         WindowLimitMin = WindowLimitMin,

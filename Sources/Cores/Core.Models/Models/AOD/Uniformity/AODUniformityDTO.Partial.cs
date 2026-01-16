@@ -63,7 +63,7 @@ public partial class AODUniformityDTO
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshMappingPlot();
     }
 
-    partial void OnItemChanged(AODUniformityDTOItem? oldValue, AODUniformityDTOItem newValue)
+    partial void OnInitializeWindowItemChanged(AODUniformityDTOItem? oldValue, AODUniformityDTOItem newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -71,31 +71,24 @@ public partial class AODUniformityDTO
         newValue.PropertyChanged += ItemOnPropertyChanged;
 
         RefreshInitializeWindowPlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshInitializeWindowPlot();
+    }
+
+    partial void OnItemChanged(AODUniformityDTOItem? oldValue, AODUniformityDTOItem newValue)
+    {
+        if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
+
+        newValue.PropertyChanged -= ItemOnPropertyChanged;
+        newValue.PropertyChanged += ItemOnPropertyChanged;
+
         RefreshPlot();
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(AODUniformityDTOItem.InitializeWindowItems):
-                    RefreshInitializeWindowPlot();
-
-                    break;
-
-                case nameof(AODUniformityDTOItem.Items):
-                    RefreshPlot();
-
-                    break;
-
-                default:
-                    RefreshInitializeWindowPlot();
-                    RefreshPlot();
-
-                    break;
-            }
-        }
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
     partial void OnItemsChanged(IReadOnlyList<AODUniformityDTOItem>? oldValue, IReadOnlyList<AODUniformityDTOItem> newValue)
@@ -108,10 +101,10 @@ public partial class AODUniformityDTO
             item.PropertyChanged += ItemOnPropertyChanged;
         }
 
-        RefreshPlot();
+        RefreshPlots();
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlots();
     }
 }

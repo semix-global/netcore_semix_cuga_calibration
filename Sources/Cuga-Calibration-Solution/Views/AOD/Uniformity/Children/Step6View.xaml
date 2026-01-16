@@ -116,14 +116,14 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.Item.WindowLimitMin, Mode=OneWay, StringFormat='{0.###}'}"
+                        <TextBox Text="{Binding CalibratingItem.Item.WindowLimitMin, Mode=OneWay, StringFormat='0.###'}"
                                  hc:TitleElement.Title="Window Limit Min(Coefficient): "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.Item.WindowLimitMax, Mode=OneWay, StringFormat='{0.###}'}"
+                        <TextBox Text="{Binding CalibratingItem.Item.WindowLimitMax, Mode=OneWay, StringFormat='0.###'}"
                                  hc:TitleElement.Title="Window Limit Max(Coefficient): "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"

@@ -589,7 +589,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem.Item = new AODUniformityDTOItem
+            CalibratingItem.InitializeWindowItem = new AODUniformityDTOItem
             {
                 OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.P,
                 CIBInformation = Cache.Item.CIBInformation
@@ -605,7 +605,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             {
                 Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                foreach (var coefficient in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.LaserLightInformation.Coefficient + t * 0.05 * Cache.LaserLightInformation.Coefficient).Reverse())
+                foreach (var coefficient in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.LaserLightInformation.Coefficient + t * 0.05 * Cache.LaserLightInformation.Coefficient))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -621,24 +621,25 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         itemItemData,
                         cancellationToken);
 
-                    CalibratingItem.Item.InitializeWindowItems = [.. CalibratingItem.Item.InitializeWindowItems, itemItemData];
+                    CalibratingItem.InitializeWindowItem.Items = [.. CalibratingItem.InitializeWindowItem.Items, itemItemData];
                 }
 
+                var itemItems = CalibratingItem.InitializeWindowItem.Items.OrderByDescending(t => t.Window[0]).ToArray();
                 var window = Generate.Repeat(prescanAODWaveformProfiles[0].Shorts.Count, Cache.LaserLightInformation.Coefficient);
-
                 foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings.Index())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var maximumIndex = Vector<double>.Build.Dense([.. CalibratingItem.Item.InitializeWindowItems.Select(t => imageHorizontalProjectIndexes.Select(tt => t.ImageHorizontalProjects[tt]).Average())]).MaximumIndex();
-                    Guard.IsGreaterThanOrEqualTo(maximumIndex, 0);
+                    var maximumIndex = Vector<double>.Build.Dense([
+                        ..itemItems.Select(t => Vector<double>.Build.Dense([..t.ImageHorizontalProjects]).SubVectorIndexes(imageHorizontalProjectIndexes).Average())
+                    ]).MaximumIndex();
 
                     Vector<double>.Build.Dense(window).SetSubVectorIndexes(
                         CalibratingItem.PrescanAODWaveformProfileMappings[index],
-                        CalibratingItem.Item.InitializeWindowItems[maximumIndex].Window[0]);
+                        itemItems[maximumIndex].Window[0]);
                 }
 
-                CalibratingItem.Item.Window = window;
+                CalibratingItem.InitializeWindowItem.Window = window;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -689,28 +690,16 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem.Item.WindowLimitMin = windowLimitMin;
-            CalibratingItem.Item.WindowLimitMax = windowLimitMax;
-
-            // 建立一个属性
-            var window1 = Generate.Repeat(CalibratingItem.Item.Window.Count, Cache.LaserLightInformation.Coefficient);
-
-            foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings.Index())
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var maximumIndex = Vector<double>.Build.Dense([.. CalibratingItem.Item.InitializeWindowItems.Select(t => imageHorizontalProjectIndexes.Select(tt => t.ImageHorizontalProjects[tt]).Average())]).MaximumIndex();
-                Guard.IsGreaterThanOrEqualTo(maximumIndex, 0);
-
-                Vector<double>.Build.Dense(window1).SetSubVectorIndexes(
-                    CalibratingItem.PrescanAODWaveformProfileMappings[index],
-                    CalibratingItem.Item.InitializeWindowItems[maximumIndex].Window[0]);
-            }
-
-            CalibratingItem.Item.Window = window1;
-
-            CalibratingItem.Item.Items = [];
             CalibratingItem.TargetPMTValues = [];
+            CalibratingItem.Item = new AODUniformityDTOItem
+            {
+                OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.P,
+                CIBInformation = Cache.Item.CIBInformation,
+                WindowLimitMin = windowLimitMin,
+                WindowLimitMax = windowLimitMax,
+                Window = CalibratingItem.InitializeWindowItem.Window,
+                Items = []
+            };
             CalibratingItem.Items =
             [
                 .. cibInformations
@@ -870,7 +859,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     }
 
                     CalibratingItem.Item.Window = window;
-
                     CalibratingItem.IsCalibrated = mappingStatuses.All(t => t is Status.Ok or Status.None);
 
                     var htmlBullet = new HtmlBullet(new
