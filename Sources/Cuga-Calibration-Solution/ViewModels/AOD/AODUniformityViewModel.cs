@@ -232,7 +232,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 return true;
 
             case 1:
-                CalibratingItem = new AODUniformityDTO(ApplicationCookie.CIBInformationPMTIds);
+                CalibratingItem = new AODUniformityDTO(ApplicationCookie.CIBInformationChannelIds);
 
                 return true;
 
@@ -527,13 +527,12 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
-                    var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.PrescanAODWaveformProfileSegmentCount;
 
-                    var window = Generate.LinearVShapeWindow(
+                    var window = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        segmentIndex * prescanAODWaveformProfileSegmentWidth,
-                        prescanAODWaveformProfileSegmentWidth,
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                        segmentIndex,
                         prescanAODWaveformProfileTotalLength).Window;
 
                     return window;

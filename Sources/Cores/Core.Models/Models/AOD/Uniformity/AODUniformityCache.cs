@@ -17,7 +17,7 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private int _calibratingRetryTimes = 5;
+    private int _calibratingRetryTimes = 20;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrateThresholdMin), nameof(CalibrateThresholdMax))]
@@ -78,10 +78,10 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private int _imageWidth = 1000;
 
     [ObservableProperty]
-    private int _prescanAODWaveformProfileSegmentCount = 8;
+    private int _prescanAODWaveformProfileSegmentCount = 10;
 
     [ObservableProperty]
-    private int _imageHorizontalProjectsSegmentCount = 8;
+    private int _imageHorizontalProjectsSegmentCount = 100;
 
     [ObservableProperty]
     private int _imageHorizontalProjectsSkipCout;
@@ -93,5 +93,5 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private double _windowLimitRate = 0.2;
 
     [ObservableProperty]
-    private double _windowInterval = 0.01;
+    private double _windowInterval = 0.1;
 }

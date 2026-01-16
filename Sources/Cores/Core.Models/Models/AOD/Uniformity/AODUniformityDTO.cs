@@ -136,13 +136,11 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
         public void CalculateHorizontalProjectMinPixel(int segmentCount, int segmentIndex)
         {
-            var yPixelSegmentWidth = ImageHorizontalProjects.Count / segmentCount;
-
-            var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindow(
+            var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindowBySegments(
                 1d,
                 1d,
-                segmentIndex * yPixelSegmentWidth,
-                yPixelSegmentWidth,
+                segmentCount,
+                segmentIndex,
                 ImageHorizontalProjects.Count).Region;
 
             // 正序

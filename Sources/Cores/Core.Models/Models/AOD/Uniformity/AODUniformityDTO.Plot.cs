@@ -241,7 +241,7 @@ public partial class AODUniformityDTO
                         new Range(0, Item.Items.Count - 1));
                 }
 
-                foreach (var mapping in ImageHorizontalProjectMappings)
+                /*foreach (var mapping in ImageHorizontalProjectMappings)
                 {
                     if (mapping.Length <= 1) continue;
 
@@ -255,7 +255,7 @@ public partial class AODUniformityDTO
 
                     ScatterPlotControl.GetOrAddXLine(1, $"{mapping[0]}", mapping[0], Colors.LightGray);
                     ScatterPlotControl.GetOrAddXLine(1, $"{mapping[^1]}", mapping[^1], Colors.LightGray);
-                }
+                }*/
 
                 ScatterPlotControl.GetOrAddYLine(0, "Target", targetPMTValueKvp.Value, Colors.Red);
 
