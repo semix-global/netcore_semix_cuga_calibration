@@ -122,7 +122,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AOD
             if (FitAlignmentPoints.Count > 0)
                 ScatterPlotControl.GetOrAddScatterLine(
                     1,
-                    $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######})",
+                    $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######}",
                     FitAlignmentPoints,
                     Constants.Category10.GetColor(1));
         }

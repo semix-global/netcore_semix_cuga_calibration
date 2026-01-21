@@ -181,66 +181,59 @@ public sealed class CalibrationCIBServiceImpl(
         bool isAutoFocus,
         CancellationToken cancellationToken)
     {
+        SxExecuteRet<List<M2CImgSysCollectImgDTO>> dfImgCalibrationRet;
+
         try
         {
-            SxExecuteRet<List<M2CImgSysCollectImgDTO>> dfImgCalibrationRet;
+            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(setWaitTimeRet.ErrorMsg, []);
 
-            try
+            var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
+
+            dfImgCalibrationRet = Invoke(() => Service?.GetDFImgCalibration(new SxCollectImgParam
             {
-                var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-                if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(setWaitTimeRet.ErrorMsg, []);
-
-                var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
-
-                dfImgCalibrationRet = Invoke(() => Service?.GetDFImgCalibration(new SxCollectImgParam
-                {
-                    Type = pmtIds.Length > 1 ? SxCollectImgType.Using : SxCollectImgType.Normal,
-                    Mag = productivityInformation.AdaptTo().Mag,
-                    Speed = productivityInformation.AdaptTo().Speed,
-                    NIOI = productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(),
-                    CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
-                    CollectMode = SxCollectMode.PW,
-                    PMTId = pmtIds.Length > 1 ? -1 : pmtIds[0],
-                    Width = imageWidth,
-                    StartPoint = [position.ToSxPointD()],
-                    IsSingle = true,
-                    AF = isAutoFocus ? 0 : 1,
-                    IsForward = isForward,
-                    IsCalibration = true, /*为true时不下发波形*/
-                    ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
-                }));
-            }
-            finally
-            {
-                var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
-                if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
-            }
-
-            if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(dfImgCalibrationRet.ErrorMsg, []);
-            // if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>($"Dark Images Count is not {cibInformations.Count}", []);
-
-            var result = new DarkFieldImageDTO[cibInformations.Count];
-
-            await Task.WhenAll(cibInformations.Index().Select(t => Task.Run(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var (index, cibInformation) = t;
-
-                var m2CImgSysCollectImgDto = dfImgCalibrationRet.Anything.Single(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId);
-
-                var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
-                var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
-
-                result[index] = new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto);
-            }, cancellationToken)));
-
-            return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(result);
+                Type = pmtIds.Length > 1 ? SxCollectImgType.Using : SxCollectImgType.Normal,
+                Mag = productivityInformation.AdaptTo().Mag,
+                Speed = productivityInformation.AdaptTo().Speed,
+                NIOI = productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(),
+                CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
+                CollectMode = SxCollectMode.PW,
+                PMTId = pmtIds.Length > 1 ? -1 : pmtIds[0],
+                Width = imageWidth,
+                StartPoint = [position.ToSxPointD()],
+                IsSingle = true,
+                AF = isAutoFocus ? 0 : 1,
+                IsForward = isForward,
+                IsCalibration = true, /*为true时不下发波形*/
+                ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+            }));
         }
-        catch (Exception ex)
+        finally
         {
-            return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(ex.ToString(), []);
+            var setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
+            if (setWaitTimeRet.IsSuccess == false) throw new CugaException(setWaitTimeRet.ErrorMsg);
         }
+
+        if (dfImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(dfImgCalibrationRet.ErrorMsg, []);
+        // if (dfImgCalibrationRet.Anything.Count != cibInformations.Count) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>($"Dark Images Count is not {cibInformations.Count}", []);
+
+        var result = new DarkFieldImageDTO[cibInformations.Count];
+
+        await Task.WhenAll(cibInformations.Index().Select(t => Task.Run(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var (index, cibInformation) = t;
+
+            var m2CImgSysCollectImgDto = dfImgCalibrationRet.Anything.Single(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId);
+
+            var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
+            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
+
+            result[index] = new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto);
+        }, cancellationToken)));
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(result);
     }
 
     public async Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(

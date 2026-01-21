@@ -1,4 +1,3 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
@@ -23,7 +22,6 @@ using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.DOEAngle;
-using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -37,7 +35,6 @@ using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
 using Local.NoSQL.DB.Providers.Interfaces;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.WPF.MVVM;
 
 namespace Core.Models.Extensions;
@@ -284,18 +281,6 @@ public static class CoreWcfModelsExtension
 
         var isOk = result.IsOk;
         if (isOk == false) errorMessage = "Laser Beam Stabilizer is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this LaserIlluminationProfileItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.Length == EnumHelper.Enums<OpticsMagTypeEnum>().Length * 14 && result.All(t => t.IsOk);
-
-        if (isOk == false)
-            errorMessage = "Laser Illumination Profile is Empty";
 
         return isOk;
     }

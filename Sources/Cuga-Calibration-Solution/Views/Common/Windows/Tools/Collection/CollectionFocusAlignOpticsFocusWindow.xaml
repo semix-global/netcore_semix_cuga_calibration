@@ -267,7 +267,7 @@
                         <wpf:SelectorAutoSelectFirstBehavior />
                     </i:Interaction.Behaviors>
                     <TabItem Header="Plots">
-                        <TabControl SelectedIndex="0" ItemsSource="{Binding ScatterPlotControls}">
+                        <TabControl ItemsSource="{Binding ScatterPlotControls}">
                             <TabControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
                                     <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"

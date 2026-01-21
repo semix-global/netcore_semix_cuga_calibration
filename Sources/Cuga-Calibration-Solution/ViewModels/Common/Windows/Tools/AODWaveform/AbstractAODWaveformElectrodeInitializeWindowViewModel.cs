@@ -27,6 +27,10 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
     {
         return await InvokeAsync(0, async () =>
         {
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
+
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, 4);
             Cache.Step0.Items = [];
 
@@ -107,6 +111,10 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
     {
         return await InvokeAsync(1, async () =>
         {
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
+
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, 4);
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));

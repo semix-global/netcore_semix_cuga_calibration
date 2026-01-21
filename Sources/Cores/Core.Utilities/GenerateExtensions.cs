@@ -23,7 +23,7 @@ public static class GenerateExtensions
             int vHalfWidth,
             int totalLength)
         {
-            Guard.IsGreaterThan(vMiddleIndex, 0);
+            Guard.IsGreaterThanOrEqualTo(vMiddleIndex, 0);
             Guard.IsLessThan(vMiddleIndex, totalLength);
             Guard.IsGreaterThan(vHalfWidth, 0);
             Guard.IsGreaterThan(totalLength, 0);
@@ -101,8 +101,7 @@ public static class GenerateExtensions
             int vHalfWidth,
             int totalLength)
         {
-            Guard.IsNotNull(vMiddleIndexes);
-            Guard.IsGreaterThan(vMiddleIndexes.Length, 0);
+            Guard.IsNotEmpty(vMiddleIndexes);
             Guard.IsGreaterThan(vHalfWidth, 0);
             Guard.IsGreaterThan(totalLength, 0);
 
@@ -115,7 +114,7 @@ public static class GenerateExtensions
             {
                 var vMiddleIndex = vMiddleIndexes[j];
 
-                Guard.IsGreaterThan(vMiddleIndex, 0);
+                Guard.IsGreaterThanOrEqualTo(vMiddleIndex, 0);
                 Guard.IsLessThan(vMiddleIndex, totalLength);
 
                 var vStartIndex = Math.Max(0, vMiddleIndex - vHalfWidth);

@@ -11,11 +11,11 @@ public sealed partial class OpticsMagTypeEnumAndLaserLightInformationCalibration
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private BindingList<LaserLightInformationStatus> _laserLightInformationStatusList = [];
+    private BindingList<LaserLightInformationStatus1> _laserLightInformationStatusList = [];
 
     public bool IsCalibrated => LaserLightInformationStatusList.All(c => c.IsCalibrated);
 
-    partial void OnLaserLightInformationStatusListChanged(BindingList<LaserLightInformationStatus>? oldValue, BindingList<LaserLightInformationStatus> newValue)
+    partial void OnLaserLightInformationStatusListChanged(BindingList<LaserLightInformationStatus1>? oldValue, BindingList<LaserLightInformationStatus1> newValue)
     {
         if (oldValue != null) oldValue.ListChanged -= OnValueOnListChanged;
 
@@ -28,7 +28,7 @@ public sealed partial class OpticsMagTypeEnumAndLaserLightInformationCalibration
     }
 }
 
-public sealed partial class LaserLightInformationStatus : ObservableCacheBase
+public sealed partial class LaserLightInformationStatus1 : ObservableCacheBase
 {
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
@@ -36,6 +36,6 @@ public sealed partial class LaserLightInformationStatus : ObservableCacheBase
     [ObservableProperty]
     private bool _isCalibrated;
 
-    public static List<LaserLightInformationStatus> CreateList(IReadOnlyList<LaserLightInformation> laserLightInformationList) =>
-        laserLightInformationList.Select(t => new LaserLightInformationStatus { LaserLightInformation = t, IsCalibrated = false }).ToList();
+    public static List<LaserLightInformationStatus1> CreateList(IReadOnlyList<LaserLightInformation> laserLightInformationList) =>
+        laserLightInformationList.Select(t => new LaserLightInformationStatus1 { LaserLightInformation = t, IsCalibrated = false }).ToList();
 }
