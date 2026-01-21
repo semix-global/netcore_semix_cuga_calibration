@@ -42,7 +42,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Optics Illumination Mode" },
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Bright Field P5" },
         new() { StepName = "Dark Field P5" }
     ];
@@ -53,7 +53,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
     private ChuckAlignmentDegreeOffsetItemDto _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
 
     #region Review
 
@@ -159,10 +159,10 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
         CalibrationStatuses =
         [
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(ApplicationCookie.GetProductivityInformations(t))]
+                    ProductivityInformationCalibrationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 

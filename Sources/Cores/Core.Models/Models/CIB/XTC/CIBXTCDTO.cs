@@ -1,19 +1,21 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
+using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.XTC;
@@ -24,16 +26,16 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private CIBXTCDTOItem.Item _startWindowItem = new();
+    private AODUniformityDTO.WindowItem _startWindowItem = new();
 
     [ObservableProperty]
-    private CIBXTCDTOItem.Item _stopWindowItem = new();
+    private AODUniformityDTO.WindowItem _stopWindowItem = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public bool IsReverse => StartWindowItem.ProjectMinPixel > StopWindowItem.ProjectMinPixel;
+    public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
     private IReadOnlyList<CIBXTCDTOItem> _items = [];
@@ -57,7 +59,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnStartWindowItemChanged(CIBXTCDTOItem.Item? oldValue, CIBXTCDTOItem.Item newValue)
+    partial void OnStartWindowItemChanged(AODUniformityDTO.WindowItem? oldValue, AODUniformityDTO.WindowItem newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -71,7 +73,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
     }
 
-    partial void OnStopWindowItemChanged(CIBXTCDTOItem.Item? oldValue, CIBXTCDTOItem.Item newValue)
+    partial void OnStopWindowItemChanged(AODUniformityDTO.WindowItem? oldValue, AODUniformityDTO.WindowItem newValue)
     {
         if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -123,67 +125,46 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     {
         try
         {
-            if (StartWindowItem.Window.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    0,
-                    "Start",
-                    [.. StartWindowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Blue);
-
-            if (StartWindowItem.ImageHorizontalProjects.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Start",
-                    [.. StartWindowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Blue);
-
-            if (StartWindowItem.SmoothImageHorizontalProjects.Count > 0)
-            {
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Start Smooth",
-                    [.. StartWindowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.DarkBlue);
-
-                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
-                    1,
-                    "Start Smooth Min Pixel",
-                    StartWindowItem.ProjectMinPixel,
-                    Colors.DarkBlue);
-            }
-
-            if (StopWindowItem.Window.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    0,
-                    "Stop",
-                    [.. StopWindowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Red);
-
-            if (StopWindowItem.ImageHorizontalProjects.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Stop",
-                    [.. StopWindowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Red);
-
-            if (StopWindowItem.SmoothImageHorizontalProjects.Count > 0)
-            {
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Stop Smooth",
-                    [.. StopWindowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.DarkRed);
-
-                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
-                    1,
-                    "Stop Smooth Min Pixel",
-                    StopWindowItem.ProjectMinPixel,
-                    Colors.DarkRed);
-            }
+            Refresh(StartWindowItem, "Start", Colors.Blue, Colors.DarkBlue);
+            Refresh(StopWindowItem, "Stop", Colors.Red, Colors.DarkRed);
         }
         finally
         {
             ForwardAndReverseScatterPlotControl.AutoScaleRefresh();
+        }
+
+        return;
+
+        void Refresh(AODUniformityDTO.WindowItem windowItem, string title, Color primaryColor, Color secondaryColor)
+        {
+            if (windowItem.Window.Count > 0)
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    0,
+                    title,
+                    [.. windowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                    primaryColor);
+
+            if (windowItem.ImageHorizontalProjects.Count > 0)
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    title,
+                    [.. windowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    primaryColor);
+
+            if (windowItem.SmoothImageHorizontalProjects.Count > 0)
+            {
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    $"{title} Smooth",
+                    [.. windowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    secondaryColor);
+
+                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
+                    1,
+                    $"{title} Smooth Min Pixel",
+                    windowItem.HorizontalProjectMinPixel,
+                    secondaryColor);
+            }
         }
     }
 
@@ -203,6 +184,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         {
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(pmtId, GetScatterPlotControl());
 
+            scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
 
             try
@@ -239,7 +221,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
                         scatterPlotControl.GetOrAddScatterLine(
                             1,
-                            $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId})",
+                            $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
                             [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
                             color).IsVisible = i == count - 1;
 
@@ -251,8 +233,8 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
                         scatterPlotControl.GetOrAddXLine(
                             1,
-                            $"{i + 1} {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
-                            itemItemData.ProjectMinPixel,
+                            $"{i + 1} {nameof(CIBInformation.ChannelId)}({channelId})",
+                            itemItemData.HorizontalProjectMinPixel,
                             color).IsVisible = i == count - 1;
                     }
                 }
@@ -352,42 +334,21 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
 
     #endregion Mapper
 
-    public sealed partial class Item : ObservableObject, ICloneable<Item>
+    public sealed partial class Item : AODUniformityDTO.WindowItem, ICloneable<Item>
     {
-        [ObservableProperty]
-        private IReadOnlyList<double> _window = [];
-
-        [ObservableProperty]
-        private IReadOnlyList<double> _imageHorizontalProjects = [];
-
-        [ObservableProperty]
-        private IReadOnlyList<double> _smoothImageHorizontalProjects = [];
-
-        [ObservableProperty]
-        private int _projectMinPixel;
-
         [ObservableProperty]
         private double _error;
 
         [ObservableProperty]
         private bool _isOk;
 
-        [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
-
-        [ObservableProperty]
-        private string _imageFilePath = string.Empty;
-
-        public Item Clone() => new()
+        public new Item Clone()
         {
-            Window = [.. Window],
-            ImageHorizontalProjects = [.. ImageHorizontalProjects],
-            SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
-            ProjectMinPixel = ProjectMinPixel,
-            Error = Error,
-            IsOk = IsOk,
-            RawImageFilePath = RawImageFilePath,
-            ImageFilePath = ImageFilePath
-        };
+            var clone = GuardUtils.IsAssignableToType<Item>(base.Clone());
+            clone.Error = Error;
+            clone.IsOk = IsOk;
+
+            return clone;
+        }
     }
 }

@@ -188,7 +188,6 @@ public abstract class AbstractAODWaveformProfile :
         if (resultString.Count <= 0 && resultString.All(t => t.Length == 4) == false) ThrowHelper.ThrowNotSupportedException("filePath value error.");
 
         Shorts = [.. resultString.Select(str => Convert.ToInt16(str, 16))];
-        Signals = [.. Shorts.Index().Select(t => new Point(t.Index + 1, t.Item / Math.Pow(2d, 15d)))];
 
         SetByteList(1);
     }
@@ -231,12 +230,22 @@ public abstract class AbstractAODWaveformProfile :
          */
 
         var result = new List<byte>();
-        foreach (var bytes in Shorts.Index().Select(t => (short)Math.Round(t.Item * coefficientWindowList[t.Index], MidpointRounding.AwayFromZero)).Select(BitConverter.GetBytes))
+        var signals = new List<Point>();
+
+        foreach (var (index, value) in Shorts
+                     .Index()
+                     .Select(t => (short)Math.Round(t.Item * coefficientWindowList[t.Index], MidpointRounding.AwayFromZero))
+                     .Index())
         {
+            signals.Add(new Point(index, value / Math.Pow(2d, 15d)));
+
+            var bytes = BitConverter.GetBytes(value);
+
             result.Add(bytes[1]);
             result.Add(bytes[0]);
         }
 
+        Signals = signals;
         Bytes = result;
     }
 

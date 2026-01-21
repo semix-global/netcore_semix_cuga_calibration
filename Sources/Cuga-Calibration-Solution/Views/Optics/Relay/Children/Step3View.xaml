@@ -37,7 +37,7 @@
                 <hc:Shield Subject="Productivity Information: "
                            Status="{Binding Cache.Item.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Laser Light Information: "
+                <hc:Shield Subject="Laser Light: "
                            Status="{Binding Cache.Item.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="CIB Information: "

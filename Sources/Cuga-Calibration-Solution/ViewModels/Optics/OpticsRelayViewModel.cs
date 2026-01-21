@@ -56,7 +56,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     private OpticsRelayDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -121,10 +121,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             return false;
         }
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses =
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses =
             [
-                .. ApplicationCookie.OpticsIlluminationModeEnums.Select(t => new OpticsIlluminationModeCalibrationStatus { SelectedItem = t, IsCalibrated = false })
+                .. ApplicationCookie.OpticsIlluminationModeEnums.Select(t => new OpticsIlluminationModeStatus { SelectedItem = t, IsCalibrated = false })
             ];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<OpticsRelayCache>();
@@ -136,7 +136,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
                 .Select(t =>
                 {
-                    CalibrationStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;
 
                     return t;
                 })
@@ -161,7 +161,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsIlluminationModeEnum)
         ];
 
@@ -219,10 +218,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum).IsCalibrated = true;
+                CalibratingStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum).IsCalibrated = true;
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
@@ -316,8 +315,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.DSWFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.OpticsIlluminationDegreeAngle,
@@ -444,7 +443,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                             var itemItemData = new OpticsRelayDTOItem.Item { ECS = ecs };
 
-                            using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
+                            using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
                                 Cache.Item.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
                                 dswBFPosition,
@@ -591,7 +590,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum),
-                dto.Clone()
+                dto
             ];
         }
 

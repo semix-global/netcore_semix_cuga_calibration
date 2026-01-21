@@ -66,7 +66,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     private IReadOnlyList<CIBMMDDTO> _selectedCalibratingItems = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<CIBInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -142,10 +142,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         LaserOpticalPowerMeters = laserOpticalPowerItems;
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses =
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses =
             [
-                .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationCalibrationStatus { SelectedItem = t, IsCalibrated = false })
+                .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationStatus { SelectedItem = t, IsCalibrated = false })
             ];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBMMDCache>();
@@ -157,7 +157,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
 
                     return t;
                 })
@@ -182,7 +182,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.CIBInformation)
         ];
 
@@ -234,11 +233,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
-                foreach (var cacheCIBInformation in Cache.CIBInformations) CalibrationStatuses.Single(t => t.SelectedItem == cacheCIBInformation).IsCalibrated = true;
+                foreach (var cacheCIBInformation in Cache.CIBInformations) CalibratingStatuses.Single(t => t.SelectedItem == cacheCIBInformation).IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
@@ -1056,7 +1055,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 .. Calibrations.Where(t => t.CIBInformation != dto.CIBInformation),
-                dto.Clone()
+                dto
             ];
         }
 

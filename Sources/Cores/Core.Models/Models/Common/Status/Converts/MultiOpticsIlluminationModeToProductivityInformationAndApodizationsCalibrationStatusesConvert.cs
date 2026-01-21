@@ -8,19 +8,18 @@ using System.Windows;
 
 namespace Core.Models.Models.Common.Status.Converts;
 
-public sealed class MultiOpticsIlluminationModeToProductivityInformationAndApodizationsCalibrationStatusesConvert
-    : AbstractSingletonMultiConverterBase<MultiOpticsIlluminationModeToProductivityInformationAndApodizationsCalibrationStatusesConvert>
+public sealed class MultiOpticsIlluminationModeToProductivityInformationAndApodizationsCalibrationStatusesConvert : AbstractSingletonMultiConverterBase<MultiOpticsIlluminationModeToProductivityInformationAndApodizationsCalibrationStatusesConvert>
 {
     public override object Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture)
         => values switch
         {
-            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationAndApodizationCalibrationStatus> calibrationStatuses, OpticsIlluminationModeEnum opticsIlluminationModeEnum] => opticsIlluminationModeEnum switch
+            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationAndApodizationStatus> calibrationStatuses, OpticsIlluminationModeEnum opticsIlluminationModeEnum] => opticsIlluminationModeEnum switch
             {
                 OpticsIlluminationModeEnum.NI => calibrationStatuses.SingleOrDefault(t => t.SelectedItem == OpticsIlluminationModeEnum.NI)?.ProductivityInformationAndApodizationCalibrationStatusList ?? [],
                 OpticsIlluminationModeEnum.OI => calibrationStatuses.SingleOrDefault(t => t.SelectedItem == OpticsIlluminationModeEnum.OI)?.ProductivityInformationAndApodizationCalibrationStatusList ?? [],
                 _ => ThrowHelper.ThrowNotSupportedException<object>(nameof(opticsIlluminationModeEnum))
             },
-            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationAndApodizationCalibrationStatus>, { } o] => o == DependencyProperty.UnsetValue ? (BindingList<ProductivityInformationAndApodizationCalibrationStatus>)[] : ThrowHelper.ThrowNotSupportedException<object>(),
+            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationAndApodizationStatus>, { } o] => o == DependencyProperty.UnsetValue ? (BindingList<ProductivityInformationAndApodizationStatus>)[] : ThrowHelper.ThrowNotSupportedException<object>(),
             _ => ThrowHelper.ThrowNotSupportedException<object>()
         };
 
@@ -33,12 +32,12 @@ public sealed class MultiProductivityInformationToOpticsApodizationsCalibrationS
     public override object Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture)
         => values switch
         {
-            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationAndApodizationCalibrationStatus> calibrationStatuses, OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation] =>
+            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationAndApodizationStatus> calibrationStatuses, OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation] =>
                 calibrationStatuses.SingleOrDefault(t => t.SelectedItem == opticsIlluminationModeEnum)?
                     .ProductivityInformationAndApodizationCalibrationStatusList
                     .SingleOrDefault(t => t.SelectedItem == productivityInformation)?
                     .OpticsApodizationModeCalibrationStatusList ?? [],
-            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationAndApodizationCalibrationStatus>, { } o1, { } o2] => o1 == DependencyProperty.UnsetValue || o2 == DependencyProperty.UnsetValue ? (BindingList<OpticsApodizationModeCalibrationStatus>)[] : ThrowHelper.ThrowNotSupportedException<object>(),
+            [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationAndApodizationStatus>, { } o1, { } o2] => o1 == DependencyProperty.UnsetValue || o2 == DependencyProperty.UnsetValue ? (BindingList<OpticsApodizationModeStatus>)[] : ThrowHelper.ThrowNotSupportedException<object>(),
             _ => ThrowHelper.ThrowNotSupportedException<object>()
         };
 

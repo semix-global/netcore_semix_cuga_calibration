@@ -88,10 +88,10 @@ public static class Extremumor
     {
         var derivativeY = y.Differentiate() / x.Differentiate();
 
-        var indices = derivativeY.FindAbsAbove(threshold);
+        var indexes = derivativeY.FindAbsAbove(threshold);
 
         var derivativeSign = Vector<double>.Build.SameAs(derivativeY);
-        derivativeSign.SetByIndices(indices, derivativeY.GetByIndices(indices).PointwiseSign());
+        derivativeSign.SetSubVectorIndexes(indexes, derivativeY.SubVectorIndexes(indexes).PointwiseSign());
 
         var derivativeChange = derivativeSign.Differentiate(); // 符号变化量
 
@@ -128,8 +128,8 @@ public static class Extremumor
         if (filteredIndices.Count == 0)
             return (Vector<double>.Build.Dense(0), Vector<double>.Build.Dense(0));
 
-        var extremaX = x.GetByIndices([.. filteredIndices]);
-        var extremaY = y.GetByIndices([.. filteredIndices]);
+        var extremaX = x.SubVectorIndexes([.. filteredIndices]);
+        var extremaY = y.SubVectorIndexes([.. filteredIndices]);
 
         return (extremaX, extremaY);
     }

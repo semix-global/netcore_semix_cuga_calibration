@@ -7,21 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.5.1-preview3.11-xuan" />
-        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.5.1-preview3.11-xuan" />
-        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.5.1-preview3.11-xuan" />
-        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.5.1-preview3.11-xuan" />
-        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.5.1-preview3.11-xuan" />
-        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.5.1-preview3.11-xuan" />
-        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.5.1-preview3.11-xuan" />
+        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.5.1-preview3.18-xuan" />
 
-        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.5.1-preview3.11-xuan" />
+        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.5.1-preview3.18-xuan" />
 
-        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.5.1-preview3.11-xuan" />
-        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.5.1-preview3.11-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.5.1-preview3.18-xuan" />
 
-        <PackageReference Include="Local.NoSQL.DB.Providers" VersionOverride="2.5.1-preview3.11-xuan" />
-        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.5.1-preview3.11-xuan" />
+        <PackageReference Include="Local.NoSQL.DB.Providers" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.5.1-preview3.18-xuan" />
     </ItemGroup>
 
 </Project>
