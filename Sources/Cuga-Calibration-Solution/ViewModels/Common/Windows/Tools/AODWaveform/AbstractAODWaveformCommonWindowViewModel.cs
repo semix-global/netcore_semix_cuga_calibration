@@ -17,6 +17,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Diagnostics;
 using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -240,22 +241,36 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     {
         try
         {
+            var stopWatch = Stopwatch.StartNew();
+
             if (isGenerateFlatnessAODWaveform) GenerateFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
             else GenerateScanAODWaveform(item, htmlLogUniqueId, cancellationToken);
+            stopWatch.Stop();
+            Logger.LogError("GenerateScanAODWaveform: " + stopWatch.ElapsedMilliseconds.ToString());
 
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            OpticsViewModel.ToggleODFilter(false);
+            stopWatch = Stopwatch.StartNew();
             SetAODWaveformProfiles(item, htmlLogUniqueId);
+            stopWatch.Stop();
+            Logger.LogError("SetAODWaveformProfiles: " + stopWatch.ElapsedMilliseconds.ToString());
+
+            stopWatch = Stopwatch.StartNew();
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
+            stopWatch.Stop();
+            Logger.LogError("ToggleOpticsAODWorkingMode: " + stopWatch.ElapsedMilliseconds.ToString());
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
+            stopWatch = Stopwatch.StartNew();
             var measurePower = LaserViewModel.GetOpticalMeasurePower();
+            stopWatch.Stop();
+            Logger.LogError("GetOpticalMeasurePower: " + stopWatch.ElapsedMilliseconds.ToString());
 
+            stopWatch = Stopwatch.StartNew();
             item.MeasurePower = measurePower;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
+            stopWatch.Stop();
+            Logger.LogError("Log: " + stopWatch.ElapsedMilliseconds.ToString());
         }
         finally
         {
