@@ -2,12 +2,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -91,6 +93,9 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
         {
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(itemItem.CIBInformation, GetScatterPlotControl());
 
+            scatterPlotControl.Clear(0);
+            scatterPlotControl.Clear(1);
+
             try
             {
                 if (TargetPMTValues.TryGetSingle(t => t.Key == itemItem.CIBInformation, out var targetPMTValueKvp) == false) return;
@@ -99,22 +104,22 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
                 scatterPlotControl.GetOrAddScatterLine(
                     2,
                     "Result",
-                    [.. itemItem.IlluminationProfiles.Index().Select(t => new Point(t.Index, t.Item))],
+                    [.. itemItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
                     Colors.Red);
 
                 foreach (var (i, itemItemData) in itemItem.Items.Index())
                 {
                     scatterPlotControl.GetOrAddScatterLine(
                         0,
-                        $"{i + 1}",
+                        $"{i + 1} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
                         [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, itemItem.Items.Count - 1));
 
                     scatterPlotControl.GetOrAddScatterLine(
                         1,
-                        $"{i + 1} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
-                        [.. itemItemData.IlluminationProfiles.Index().Select(t => new Point(t.Index, t.Item))],
+                        $"{i + 1}",
+                        [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, itemItem.Items.Count - 1));
                 }
@@ -132,9 +137,9 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 
         scatterPlotControl.Configure(new Rows(), 3);
 
-        scatterPlotControl.SetTitle(0, "Horizontal Projects(Y: Log - X: px)");
-        scatterPlotControl.SetTitle(1, "Details(Y: Illumination Profile - X: px)");
-        scatterPlotControl.SetTitle(2, "Result(Y: Illumination Profile - X: px)");
+        scatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        scatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: sa)");
+        scatterPlotControl.SetTitle(2, "Result Window(Y: Coefficient - X: sa)");
 
         return scatterPlotControl;
     }
@@ -182,7 +187,7 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
     private IReadOnlyList<Item> _items = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _illuminationProfiles = [];
+    private IReadOnlyList<double> _window = [];
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -207,23 +212,20 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        IlluminationProfiles = [.. IlluminationProfiles]
+        Window = [.. Window]
     };
 
     public CalibrationLaserCIBIlluminationProfileItem.Item AdaptTo() => new()
     {
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
-        IlluminationProfiles = [.. IlluminationProfiles]
+        IlluminationProfiles = [.. Window]
     };
 
     #endregion Mapper
 
-    public sealed partial class Item : ObservableObject, ICloneable<Item>
+    public sealed partial class Item : AODUniformityDTO.WindowItem, ICloneable<Item>
     {
-        [ObservableProperty]
-        private IReadOnlyList<double> _imageHorizontalProjects = [];
-
         [ObservableProperty]
         private double _minRate;
 
@@ -231,26 +233,16 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
         private double _maxRate;
 
         [ObservableProperty]
-        private IReadOnlyList<double> _illuminationProfiles = [];
-
-        [ObservableProperty]
         private bool _isOk;
 
-        [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
-
-        [ObservableProperty]
-        private string _imageFilePath = string.Empty;
-
-        public Item Clone() => new()
+        public new Item Clone()
         {
-            ImageHorizontalProjects = [.. ImageHorizontalProjects],
-            MinRate = MinRate,
-            MaxRate = MaxRate,
-            IlluminationProfiles = [.. IlluminationProfiles],
-            IsOk = IsOk,
-            RawImageFilePath = RawImageFilePath,
-            ImageFilePath = ImageFilePath
-        };
+            var clone = GuardUtils.IsAssignableToType<Item>(base.Clone());
+            clone.MinRate = MinRate;
+            clone.MaxRate = MaxRate;
+            clone.IsOk = IsOk;
+
+            return clone;
+        }
     }
 }

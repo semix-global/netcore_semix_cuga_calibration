@@ -228,7 +228,7 @@ public sealed class CIBViewModel(
         }
     }
 
-    public async Task<DarkFieldImageDTO> GetPMTImagesAsync(
+    public async Task<DarkFieldImageDTO> GetPMTImageAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point position,
@@ -374,7 +374,7 @@ public sealed class CIBViewModel(
         }
     }
 
-    public async Task<DarkFieldRawScanImageDTO> GetPMTImagesAsync(
+    public async Task<DarkFieldRawScanImageDTO> GetPMTImageAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,

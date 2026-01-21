@@ -10,7 +10,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.IlluminationProfile;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
@@ -47,7 +46,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Optics Illumination Mode" },
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Config" },
         new() { StepName = "P5" },
         new() { StepName = "Find a Position", DefaultIsNextEnable = true },
@@ -66,7 +65,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
     private ObservableCollection<LaserPixelSizeItemDto> _resultLaserPixelSizeItemDtoList = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
 
     #endregion Calibrate
 
@@ -157,12 +156,6 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserIlluminationProfileItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
@@ -172,10 +165,10 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         CalibrationStatuses =
         [
             ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationCalibrationStatus
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ProductivityInformationCalibrationStatus.CreateList(t is OpticsIlluminationModeEnum.OI ? ApplicationCookie.OIOpticsMagTypeProductivityInformations : ApplicationCookie.NIOpticsMagTypeProductivityInformations)]
+                    ProductivityInformationCalibrationStatusList = [..ApplicationCookie.GetOpticsMagTypeProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 

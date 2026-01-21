@@ -43,7 +43,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
         new() { StepName = "AOD Alignment" }
@@ -57,7 +57,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     private AODAlignmentDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -122,8 +122,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             return false;
         }
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODAlignmentCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<AODAlignmentDTO>();
@@ -134,7 +134,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses
+                    CalibratingStatuses
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -161,7 +161,6 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -220,13 +219,13 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
-                CalibrationStatuses
+                CalibratingStatuses
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation)
                     .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
@@ -264,8 +263,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.CIBInformation
+                Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
@@ -289,8 +288,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -310,8 +309,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
@@ -364,7 +363,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
                     LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, itemItem.PrescanAODWaveformProfiles);
 
-                    using var darkFieldImage = await CIBViewModel.GetPMTImagesAsync(
+                    using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
                         hazeBFPosition,
@@ -510,7 +509,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto.Clone()
+                dto
             ];
         }
 

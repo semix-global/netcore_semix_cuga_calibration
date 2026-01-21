@@ -79,7 +79,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <Border Style="{StaticResource BorderRegion}">
-                <TabControl SelectedIndex="0" ItemsSource="{Binding CalibratingItem.ScatterPlotControls}">
+                <TabControl ItemsSource="{Binding CalibratingItem.ScatterPlotControls}">
                     <i:Interaction.Behaviors>
                         <wpf:SelectorAutoSelectFirstBehavior />
                     </i:Interaction.Behaviors>

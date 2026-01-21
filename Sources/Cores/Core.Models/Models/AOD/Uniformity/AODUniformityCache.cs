@@ -17,13 +17,39 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private int _calibratingRetryTimes = 5;
+    private int _calibratingRetryTimes = 20;
 
     [ObservableProperty]
-    private double _calibratingThreshold = 1;
+    [NotifyPropertyChangedFor(nameof(CalibrateThresholdMin), nameof(CalibrateThresholdMax))]
+    private double _calibrateThreshold = 0.05;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double CalibrateThresholdMin => 1 - CalibrateThreshold;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double CalibrateThresholdMax => 1 + CalibrateThreshold;
 
     [ObservableProperty]
-    private double _reviewThreshold = 1;
+    [NotifyPropertyChangedFor(nameof(ReviewThresholdMin), nameof(ReviewThresholdMax))]
+    private double _reviewThreshold = 0.05;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double ReviewThresholdMin => 1 - ReviewThreshold;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double ReviewThresholdMax => 1 + ReviewThreshold;
 
     public ConcurrentBag<KeyValuePair<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>> Items { get; init; } = [];
 
@@ -43,8 +69,29 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private Point _hazeFindBFMachinePosition;
 
     [ObservableProperty]
     private int _imageWidth = 1000;
+
+    [ObservableProperty]
+    private int _prescanAODWaveformProfileSegmentCount = 10;
+
+    [ObservableProperty]
+    private int _imageHorizontalProjectsSegmentCount = 100;
+
+    [ObservableProperty]
+    private int _imageHorizontalProjectsSkipCout;
+
+    [ObservableProperty]
+    private int _imageHorizontalProjectsSkipLastCout;
+
+    [ObservableProperty]
+    private double _windowLimitRate = 0.2;
+
+    [ObservableProperty]
+    private double _windowInterval = 0.1;
 }

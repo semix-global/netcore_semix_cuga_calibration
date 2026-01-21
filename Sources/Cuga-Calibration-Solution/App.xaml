@@ -22,6 +22,7 @@
             <wpfMvvmConverters:ViewModel2ViewConverter x:Key="ViewModel2ViewConverter" />
             <cookies:MultiApplicationCookieToProductivityInformationsConvert x:Key="MultiApplicationCookieToProductivityInformationsConvert" />
             <converts:MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert x:Key="MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert" />
+            <converts:MultiProductivityInformationAndLaserLightInformationStatusConvert x:Key="MultiProductivityInformationAndLaserLightInformationStatusConvert" />
             <valueConverters:ValueConverterGroup x:Key="IntIs0ToVisibilityConverter">
                 <valueConverters:IntegerToBoolConverter TrueValue="0" FalseValue="-999" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />

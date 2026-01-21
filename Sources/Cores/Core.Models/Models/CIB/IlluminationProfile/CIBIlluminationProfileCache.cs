@@ -16,9 +16,6 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase
     private int _calibratingRetryTimes = 5;
 
     [ObservableProperty]
-    private double _calibraterRateThreshold = 0.05;
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrateThresholdMin), nameof(CalibrateThresholdMax))]
     private double _calibrateThreshold = 0.05;
 

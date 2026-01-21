@@ -13,6 +13,7 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -27,6 +28,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -41,7 +43,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
         new() { StepName = "Illumination Profile" }
@@ -58,7 +60,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
     private IReadOnlyList<CIBIlluminationProfileDTO> _selectedCalibratingItems = [];
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -123,8 +125,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
             return false;
         }
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBIlluminationProfileCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<CIBIlluminationProfileDTO>();
@@ -140,7 +142,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 {
                     t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
 
-                    CalibrationStatuses
+                    CalibratingStatuses
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -167,7 +169,6 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.OpticsApodizationModeEnum)
                 .ThenBy(t => t.OpticsPolarizationModeEnum)
@@ -228,13 +229,13 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 return true;
 
             case 3:
-                CalibrationStatuses
+                CalibratingStatuses
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation)
                     .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
@@ -420,8 +421,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
 
-                                    var imageHorizontalProjectsVector = Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].ImageHorizontalProjects);
-                                    var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
+                            var imageHorizontalProjectsVector = Vector<double>.Build.Dense([.. itemItem.Items[times].ImageHorizontalProjects]);
+                            var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
 
                                     itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
                                     itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;
@@ -439,12 +440,12 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
                                     if (itemItem.Items[times].IsOk) continue;
 
-                                    itemItem.Items[times].IlluminationProfiles = [.. targetPMTValue / imageHorizontalProjectsVector];
-                                    if (itemItem.IlluminationProfiles.Count <= 0) itemItem.IlluminationProfiles = [.. Enumerable.Repeat(1d, imageHorizontalProjectsVector.Count)];
-                                    itemItem.IlluminationProfiles = [.. Vector<double>.Build.DenseOfEnumerable(itemItem.IlluminationProfiles).PointwiseMultiply(Vector<double>.Build.DenseOfEnumerable(itemItem.Items[times].IlluminationProfiles))];
+                            itemItem.Items[times].Window = [.. targetPMTValue / imageHorizontalProjectsVector];
+                            if (itemItem.Window.Count <= 0) itemItem.Window = [.. Generate.Repeat(imageHorizontalProjectsVector.Count, 1d)];
+                            itemItem.Window = [.. Vector<double>.Build.Dense([.. itemItem.Window]).PointwiseMultiply(Vector<double>.Build.Dense([.. itemItem.Items[times].Window]))];
 
-                                    CIBViewModel.SetIlluminationProfile([itemItem.CIBInformation], itemItem.IlluminationProfiles);
-                                }
+                            CIBViewModel.SetIlluminationProfile([itemItem.CIBInformation], itemItem.Window);
+                        }
 
                                 var htmlBullet = new HtmlBullet(new
                                 {
@@ -601,7 +602,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                            || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
                                            || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
                                            || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
-                dto.Clone()
+                dto
             ];
         }
 

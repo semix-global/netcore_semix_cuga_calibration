@@ -197,7 +197,7 @@
                                         <ComboBox hc:TitleElement.Title="Productivity Information: "
                                                   hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="200"
-                                                  ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
+                                                  ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
                                                   Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
                                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />

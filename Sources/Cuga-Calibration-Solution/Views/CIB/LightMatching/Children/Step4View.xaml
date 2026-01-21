@@ -208,7 +208,7 @@
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <TabControl SelectedIndex="0" ItemsSource="{Binding ScatterPlotControls}">
+                                    <TabControl ItemsSource="{Binding ScatterPlotControls}">
                                         <i:Interaction.Behaviors>
                                             <wpf:SelectorAutoSelectFirstBehavior />
                                         </i:Interaction.Behaviors>

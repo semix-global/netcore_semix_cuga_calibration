@@ -1,0 +1,10 @@
+﻿using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Pattern;
+
+namespace Core.Models.Models.Common.Status.Behaviors;
+
+public sealed class OpticsIlluminationModeAndProductivityInformationAndApodizationListBoxSelectedItemStatusBehavior : ListBoxSelectedItemStatusBehavior<OpticsIlluminationModeAndProductivityInformationAndApodizationStatus, OpticsIlluminationModeEnum>;
+
+public sealed class ProductivityInformationAndApodizationListBoxSelectedItemStatusBehavior : ListBoxSelectedItemStatusBehavior<ProductivityInformationAndApodizationStatus, ProductivityInformation>;
+
+public sealed class OpticsApodizationModeListBoxSelectedItemStatusBehavior : ListBoxSelectedItemStatusBehavior<OpticsApodizationModeStatus, OpticsApodizationModeEnum>;

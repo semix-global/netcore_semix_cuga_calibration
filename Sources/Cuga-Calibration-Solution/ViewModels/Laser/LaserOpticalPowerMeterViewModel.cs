@@ -32,7 +32,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Productivity" },
+        new() { StepName = "Select Productivity Information" },
         new() { StepName = "Find Machine Position" },
         new() { StepName = "Optical Power Meter" }
     ];
@@ -45,7 +45,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
     private LaserOpticalPowerMeterDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationCalibrationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -103,8 +103,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
             return false;
         }
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationCalibrationStatus { SelectedItem = t })];
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDTO>();
@@ -115,7 +115,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
-                    CalibrationStatuses
+                    CalibratingStatuses
                         .Single(tt => tt.SelectedItem == t.ProductivityInformation)
                         .IsCalibrated = t.IsCalibrated;
 
@@ -142,7 +142,6 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -188,13 +187,13 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                 return true;
 
             case 2:
-                CalibrationStatuses
+                CalibratingStatuses
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation)
                     .IsCalibrated = true;
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
@@ -275,6 +274,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.FindMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
             LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, maxCoefficient);
             LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 
@@ -312,9 +312,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
                     try
                     {
-                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
-
                         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(itemItem.MeasurePosition);
+
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                         await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -405,6 +405,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(selectedReviewItem.MaxMeasurePowerPosition);
                 LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+                OpticsViewModel.ToggleODFilter(false);
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, selectedReviewItem.MaxCoefficient);
                 LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 
@@ -478,7 +479,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
             Calibrations =
             [
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto.Clone()
+                dto
             ];
         }
 

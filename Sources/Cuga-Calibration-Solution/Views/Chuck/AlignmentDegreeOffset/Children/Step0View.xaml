@@ -47,7 +47,7 @@
                  ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                  SelectionMode="Single">
             <i:Interaction.Behaviors>
-                <behaviors:OpticsIlluminationModeAndProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
+                <behaviors:OpticsIlluminationModeAndProductivityInformationListBoxSelectedItemStatusBehavior BindableSelectedItem="{Binding Cache.OpticsIlluminationModeEnum}" />
             </i:Interaction.Behaviors>
             <ListBox.ItemTemplate>
                 <DataTemplate>

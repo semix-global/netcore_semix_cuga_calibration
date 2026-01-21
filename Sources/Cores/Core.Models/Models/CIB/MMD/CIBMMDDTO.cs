@@ -146,6 +146,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     {
         try
         {
+            ScatterPlotControl.Clear(1);
             ScatterPlotControl.Clear(2);
             ScatterPlotControl.Clear(3);
             ScatterPlotControl.Clear(4);

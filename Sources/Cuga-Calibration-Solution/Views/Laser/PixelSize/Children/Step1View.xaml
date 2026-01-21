@@ -73,10 +73,10 @@
                 </MultiBinding>
             </ListBox.ItemsSource>
             <i:Interaction.Behaviors>
-                <behaviors:ProductivityInformationCalibrationStatusListBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
+                <behaviors:ListBoxSelectedItemProductivityInformationStatusBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
             </i:Interaction.Behaviors>
             <ListBox.ItemTemplate>
-                <DataTemplate DataType="{x:Type status:ProductivityInformationCalibrationStatus}">
+                <DataTemplate DataType="{x:Type status:ProductivityInformationStatus}">
                     <TextBlock Text="{Binding SelectedItem}"
                                Margin="100,5"
                                FontSize="16">

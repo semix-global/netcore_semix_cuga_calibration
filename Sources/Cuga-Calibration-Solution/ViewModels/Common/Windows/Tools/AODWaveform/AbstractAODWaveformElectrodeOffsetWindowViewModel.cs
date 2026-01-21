@@ -33,6 +33,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         return Cache.IsOnlyElectrode4
             ? await InvokeAsync(0, async () =>
             {
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+                LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+                OpticsViewModel.ToggleODFilter(false);
+
                 Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
                 Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
 
@@ -207,6 +211,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             }, isNotSilent).ConfigureAwait(false)
             : await InvokeAsync(stepIndex, async () =>
             {
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+                LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+                OpticsViewModel.ToggleODFilter(false);
+
                 Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
                 Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyPeriodParams.Count, 2);
                 Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
@@ -361,6 +369,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
+
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, Cache.IsOnlyElectrode4 ? 4 : Cache.ElectrodeOffsetFrequencyPeriodParams.Count);
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyUniformityParams);
             Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyUniformityParams.Count, Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize);

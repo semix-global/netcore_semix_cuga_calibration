@@ -112,6 +112,11 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         {
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
 
+            scatterPlotControl.Clear(0);
+            scatterPlotControl.Clear(1);
+            scatterPlotControl.Clear(3);
+            scatterPlotControl.Clear(4);
+
             try
             {
                 if (HazeTargetPMTValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetPMTValueKvp))

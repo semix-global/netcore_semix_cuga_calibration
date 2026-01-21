@@ -39,11 +39,6 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserAodDelayItem[] CalibrationLaserAodDelayItemList { get; set; } = Array.Empty<CalibrationLaserAodDelayItem>();
 
     /// <summary>
-    /// 均匀性校准对象
-    /// </summary>
-    public CalibrationLaserIlluminationProfileItem[] CalibrationLaserIlluminationProfileItemList { get; set; } = Array.Empty<CalibrationLaserIlluminationProfileItem>();
-
-    /// <summary>
     /// 暗场相机的Y像素尺寸校准对象列表
     /// </summary>
     public CalibrationLaserPixelSizeItem[] CalibrationLaserPixelSizeItemList { get; set; } = Array.Empty<CalibrationLaserPixelSizeItem>();
@@ -264,43 +259,6 @@ public sealed class CalibrationLaserAodDelayItem : CalibrationBase
     /// 当前暗场Mag的Chirp AOD 延迟时间(绝对延迟时间), **需要下发Laser硬件**
     /// </summary>
     public double ChirpAodDelayTime { get; set; }
-}
-
-/// <summary>
-/// 均匀性校准对象
-/// </summary>
-[Serializable]
-public sealed class CalibrationLaserIlluminationProfileItem : CalibrationBase
-{
-    /// <summary>
-    /// 波形功率系数(1表示100%, 0表示0%)
-    /// </summary>
-    public double Coefficient { get; set; }
-
-    /// <summary>
-    /// Mag类型
-    /// </summary>
-    public CgMagTypeEnum OpticsMagTypeEnum { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和功率系数下的结果prescan文件路径, **需要下发Laser硬件**
-    /// </summary>
-    public CalibrationPrescanAODWaveformResult[] CalibrationPrescanAODWaveformResults { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和功率系数下的P偏振功率, **Cuga内部使用**
-    /// </summary>
-    public double PolarizationPPower { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和功率系数下的S偏振功率, **Cuga内部使用**
-    /// </summary>
-    public double PolarizationSPower { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和功率系数下的C偏振功率, **Cuga内部使用**
-    /// </summary>
-    public double PolarizationCPower { get; set; }
 }
 
 /// <summary>
