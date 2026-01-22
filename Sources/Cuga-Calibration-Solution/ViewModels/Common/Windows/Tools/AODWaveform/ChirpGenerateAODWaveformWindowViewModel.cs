@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Utilities;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -17,7 +18,7 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
 
     protected override void LoadedElectrodeOffsetResult(CancellationToken cancellationToken)
     {
-        var chirpAODWaveformElectrodeInitializeCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeInitializeCache>();
+        var chirpAODWaveformElectrodeInitializeCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
         if (chirpAODWaveformElectrodeInitializeCache.ElectrodeConfigurationResults.Count == 0)
         {
             DialogWindowProvider.ShowDialog("Please initialize the chirp electrode configuration as it is currently empty.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -33,7 +34,7 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
         Cache.Profiles = [];
         Cache.AODWaveformResultFilePath = string.Empty;
 
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
+        var (aodWaveformResult, exception) = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
         if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         Cache.Profiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);

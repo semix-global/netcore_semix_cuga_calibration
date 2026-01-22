@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.AODWaveform;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
@@ -33,6 +33,7 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         item.PrescanAODWaveformResultFilePath = string.Empty;
 
         Cache.FlatnessGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+        foreach (var electrodeConfiguration in Cache.FlatnessGeneratePrescanAODWaveformParam.ElectrodeConfigurations) electrodeConfiguration.WithAmplitude(Cache.DefaultAmplitude);
         Cache.FlatnessGeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
         Cache.FlatnessGeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 

@@ -235,7 +235,7 @@
                                                         Binding="{Binding Amplitude, StringFormat='0.###'}"
                                                         Visibility="{Binding Value.IsVisibleAmplitude, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}" />
                                     <!--  ReSharper disable once Xaml.BindingWithContextNotResolved  -->
-                                    <DataGridTemplateColumn Header="Uniformity Configurations" Visibility="{Binding Value.IsVisibleUniformityConfiguration, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <DataGridTemplateColumn Header="Uniformity" Visibility="{Binding Value.IsVisibleUniformityConfiguration, Source={StaticResource Proxy}, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Grid Margin="2">
@@ -254,56 +254,58 @@
                                                            PopupAnimation="Slide"
                                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
                                                         <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                            <TabControl>
-                                                                <TabItem Header="Details">
-                                                                    <Border Style="{StaticResource BorderRegion}">
-                                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                                                                <Button Content="Import"
-                                                                                        Command="{Binding ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                                        CommandParameter="{Binding}"
-                                                                                        hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                                                                        Style="{StaticResource ButtonInfo}" />
-                                                                                <Button Content="Add"
-                                                                                        Command="{Binding AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                                        CommandParameter="{Binding}"
-                                                                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                                                                        Style="{StaticResource ButtonInfo}" />
-                                                                                <Button Content="Delete"
-                                                                                        Command="{Binding RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                                                        Style="{StaticResource ButtonDanger}">
-                                                                                    <Button.CommandParameter>
-                                                                                        <MultiBinding Converter="{ui:RemoveUniformityConfigurationConvert}">
-                                                                                            <Binding />
-                                                                                            <Binding Path="SelectedItems" ElementName="DataGridUniformityConfigurations" />
-                                                                                        </MultiBinding>
-                                                                                    </Button.CommandParameter>
-                                                                                </Button>
-                                                                            </hc:UniformSpacingPanel>
-                                                                            <DataGrid x:Name="DataGridUniformityConfigurations"
-                                                                                      MaxHeight="500"
-                                                                                      hc:DataGridAttach.ShowRowNumber="True"
-                                                                                      Style="{StaticResource DataGrid.Small}"
-                                                                                      HeadersVisibility="All"
-                                                                                      RowHeaderWidth="60"
-                                                                                      AutoGenerateColumns="False"
-                                                                                      ItemsSource="{Binding UniformityConfigurations}">
-                                                                                <DataGrid.Columns>
-                                                                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
-                                                                                    <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
-                                                                                </DataGrid.Columns>
-                                                                            </DataGrid>
-                                                                        </hc:UniformSpacingPanel>
-                                                                    </Border>
-                                                                </TabItem>
-                                                                <TabItem Header="Plots">
-                                                                    <Border Style="{StaticResource BorderRegion}">
-                                                                        <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
-                                                                                                          ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
-                                                                    </Border>
-                                                                </TabItem>
-                                                            </TabControl>
+                                                            <Grid>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="Auto" />
+                                                                    <RowDefinition Height="*" />
+                                                                </Grid.RowDefinitions>
+                                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                                    <Button Content="Import"
+                                                                            Command="{Binding ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                            CommandParameter="{Binding}"
+                                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                                            Style="{StaticResource ButtonInfo}" />
+                                                                    <Button Content="Add"
+                                                                            Command="{Binding AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                            CommandParameter="{Binding}"
+                                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                                            Style="{StaticResource ButtonInfo}" />
+                                                                    <Button Content="Delete"
+                                                                            Command="{Binding RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                                            Style="{StaticResource ButtonDanger}">
+                                                                        <Button.CommandParameter>
+                                                                            <MultiBinding Converter="{ui:RemoveUniformityConfigurationConvert}">
+                                                                                <Binding />
+                                                                                <Binding Path="SelectedItems" ElementName="DataGridUniformityConfigurations" />
+                                                                            </MultiBinding>
+                                                                        </Button.CommandParameter>
+                                                                    </Button>
+                                                                </hc:UniformSpacingPanel>
+                                                                <Grid Grid.Row="1">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="Auto" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <DataGrid x:Name="DataGridUniformityConfigurations"
+                                                                              hc:DataGridAttach.ShowRowNumber="True"
+                                                                              Style="{StaticResource DataGrid.Small}"
+                                                                              HeadersVisibility="All"
+                                                                              RowHeaderWidth="60"
+                                                                              AutoGenerateColumns="False"
+                                                                              ItemsSource="{Binding UniformityConfigurations}">
+                                                                        <DataGrid.Columns>
+                                                                            <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                                            <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                                                        </DataGrid.Columns>
+                                                                    </DataGrid>
+                                                                    <GridSplitter Grid.Column="1" Width="5" />
+                                                                    <controls:ScatterMultiPlotControl Grid.Column="2"
+                                                                                                      Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
+                                                                                                      ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                </Grid>
+                                                            </Grid>
                                                         </Border>
                                                     </Popup>
                                                 </Grid>

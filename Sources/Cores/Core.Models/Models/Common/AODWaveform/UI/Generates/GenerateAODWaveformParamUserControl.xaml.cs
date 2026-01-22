@@ -15,6 +15,8 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
+using Cuga.Data.DataStruct.Stage;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.AODWaveform.UI.Generates;
 
@@ -94,10 +96,31 @@ public sealed partial class GenerateAODWaveformParamUserControl
             var dialog = GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
-            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath).ToArray();
-            if (values.Length > 0) generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
+            generateAODWaveformElectrodeConfiguration.UniformityConfigurations = [];
+            
+            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
+                .Where(t => t.Frequency > 0)
+                .ToArray();
+            if (values.Length <= 0)
+            {
+                values = MiniExcel.Query(filePath, useHeaderRow: true)
+                    .Cast<IDictionary<string, object>>()
+                    .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
+                    .Where(t => t.Frequency > 0)
+                    .ToArray();
+            }
 
-            GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration OK!");
+            if (values.Length > 0)
+            {
+                generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
+                GuardUtils.IsNotNullAndReturn(_logger).LogInformation("Import Uniformity Configuration OK!");
+                GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration OK!");
+            }
+            else
+            {
+                GuardUtils.IsNotNullAndReturn(_logger).LogWarning("Import Uniformity Configuration Failed! No data found.");
+                GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
         }
         catch (Exception ex)
         {

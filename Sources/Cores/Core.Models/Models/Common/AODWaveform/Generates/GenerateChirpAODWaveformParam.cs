@@ -64,6 +64,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
     {
         SoundPacketLength,
         SoundSpeed,
+        SpectralDensity,
         Base = new HtmlQuote(base.ToFlatnessHtmlAnonymous())
     };
 
@@ -71,6 +72,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
     {
         SoundPacketLength,
         SoundSpeed,
+        SpectralDensity,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }

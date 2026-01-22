@@ -47,6 +47,7 @@ public sealed class PrescanAODWaveformElectrodeInitializeWindowViewModel :
         item.ChirpAODWaveformResultFilePath = string.Empty;
 
         Cache.FlatnessGenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+        foreach (var electrodeConfiguration in Cache.FlatnessGenerateChirpAODWaveformParam.ElectrodeConfigurations) electrodeConfiguration.WithAmplitude(Cache.DefaultAmplitude);
         Cache.FlatnessGenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
         Cache.FlatnessGenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 

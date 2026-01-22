@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Local.NoSQL.DB.Providers.Bases;
@@ -35,6 +36,23 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
 
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
+
+    partial void OnUniformityConfigurationsChanged(IReadOnlyList<GenerateAODWaveformUniformityConfiguration>? oldValue, IReadOnlyList<GenerateAODWaveformUniformityConfiguration> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        OnPropertyChanged(nameof(UniformityConfigurations));
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(UniformityConfigurations));
+    }
 
     public GenerateAODWaveformElectrodeConfiguration WithAmplitude(double amplitude)
     {
