@@ -40,6 +40,9 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
     [ObservableProperty]
     private string _verifyRawImageFilePath = string.Empty;
 
+    [ObservableProperty]
+    private double _xPixelSizeDelta;
+
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
@@ -63,6 +66,7 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         CIBInformation = CIBInformation.Clone(),
         XPixelSize = XPixelSize,
+        XPixelSizeDelta = XPixelSizeDelta,
         RawImageFilePath = RawImageFilePath,
         SlideItems = [.. SlideItems],
         SlideSplitDifferences = [.. SlideSplitDifferences],
@@ -81,6 +85,7 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         XPixelSize = XPixelSize,
+        XPixelSizeDelta = XPixelSizeDelta,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified
     };
