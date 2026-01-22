@@ -313,6 +313,11 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
     /// 当前暗场Mag和速度下的X方向1像素转尺寸, 单位um/pixel, **Cuga内部使用**
     /// </summary>
     public double XPixelSize { get; set; }
+
+    /// <summary>
+    /// 当前暗场Mag和速度下的X方向1像素转尺寸, 这个是误差变量, 图像匹配算法识别后的像素最大值减去最小值，单位为pixel, **Cuga内部使用**
+    /// </summary>
+    public double XPixelSizeDelta { get; set; }
 }
 
 /// <summary>
