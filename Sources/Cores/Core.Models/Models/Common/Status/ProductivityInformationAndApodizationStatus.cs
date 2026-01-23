@@ -31,11 +31,13 @@ public partial class ProductivityInformationAndApodizationStatus : ObservableCac
     }
 
     public static List<ProductivityInformationAndApodizationStatus> CreateList(IReadOnlyList<ProductivityInformation> productivityInformations) =>
-        [.. productivityInformations.Select(t => new ProductivityInformationAndApodizationStatus
+    [
+        .. productivityInformations.Select(t => new ProductivityInformationAndApodizationStatus
         {
             SelectedItem = t.Clone(),
             OpticsApodizationModeCalibrationStatusList = [.. EnumHelper.Enums<OpticsApodizationModeEnum>().Select(o => new OpticsApodizationModeStatus { SelectedItem = o, IsCalibrated = false })]
-        })];
+        })
+    ];
 }
 
 public partial class OpticsApodizationModeStatus : ObservableCacheBase, IStatus<OpticsApodizationModeEnum>

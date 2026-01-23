@@ -34,8 +34,8 @@ public static class PermissionHelper
         var menuList = applicationCookieService.FindSysMenuListByRecursionComponent(componentName);
 
         foreach (var menuDetail in menuList.Where(t =>
-            !string.IsNullOrWhiteSpace(t.Component) &&
-            !string.IsNullOrWhiteSpace(t.Perms)))
+                     !string.IsNullOrWhiteSpace(t.Component) &&
+                     !string.IsNullOrWhiteSpace(t.Perms)))
         {
             // 如果用户有该权限则跳过
             if (applicationCookie.RoleSysMenuList.Any(t => t.Id == menuDetail.Id))
@@ -58,8 +58,8 @@ public static class PermissionHelper
         if (componentType is null) return;
 
         foreach (var descendant in DependencyObjectHelper
-            .FindVisualDescendants(root, componentType)
-            .OfType<FrameworkElement>())
+                     .FindVisualDescendants(root, componentType)
+                     .OfType<FrameworkElement>())
         {
             var control = descendant.FindName(controlName);
             if (control is null) continue;
