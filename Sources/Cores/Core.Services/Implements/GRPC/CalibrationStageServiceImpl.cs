@@ -340,8 +340,8 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var sxExecuteRet = Invoke(() => isP5 ?
-            Service2?.BFAlignmentVerify(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ushort ll, ushort hl, C2MAlignTypeDTO type)>((
+        var sxExecuteRet = Invoke(() => isP5
+            ? Service2?.BFAlignmentVerify(new SxParamObj<(C2MSiteDTO low1, C2MSiteDTO low2, C2MSiteDTO high1, C2MSiteDTO high2, ushort ll, ushort hl, C2MAlignTypeDTO type)>((
                 lowSite1.AdaptTo(),
                 lowSite2.AdaptTo(),
                 highSite1.AdaptTo(),

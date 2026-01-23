@@ -334,21 +334,21 @@ public sealed class LaserViewModel(
     }
 
     public (double Ecs, double AfMotor) RuntimeAfCalibration(
-       CIBConfiguration cibConfiguration,
-       CIBInformation cibInformation,
-       Point position,
-       LaserLightInformation laserLightInformation,
-       ProductivityInformation productivityInformation,
-       out string resultImageFilePath,
-       bool isAppliedDefaultRtfcParam = true,
-       int pmtId = CalibrationConstantsHelper.MainPmtId,
-       CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
-       StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
-       OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
-       string? saveImageFileDirectory = null,
-       Guid? logGuid = null,
-       string? logName = null
-   )
+        CIBConfiguration cibConfiguration,
+        CIBInformation cibInformation,
+        Point position,
+        LaserLightInformation laserLightInformation,
+        ProductivityInformation productivityInformation,
+        out string resultImageFilePath,
+        bool isAppliedDefaultRtfcParam = true,
+        int pmtId = CalibrationConstantsHelper.MainPmtId,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
+        string? saveImageFileDirectory = null,
+        Guid? logGuid = null,
+        string? logName = null
+    )
     {
         resultImageFilePath = string.Empty;
         var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;

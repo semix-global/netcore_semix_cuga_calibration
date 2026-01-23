@@ -52,7 +52,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Core.Models\03. Core.Models.csproj" />
+        <ProjectReference Include="..\Core.Models\04. Core.Models.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041'">

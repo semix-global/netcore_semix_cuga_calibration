@@ -311,14 +311,14 @@
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="AutoFocus: "
-                                                    Width="150"
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center" />
+                                                   Width="150"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
                                         <ToggleButton IsChecked="{Binding IsAutoFocus}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       Background="{StaticResource DangerBrush}"
-                                                       Style="{StaticResource ToggleButtonSwitch}" />   
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Background="{StaticResource DangerBrush}"
+                                                      Style="{StaticResource ToggleButtonSwitch}" />
                                     </StackPanel>
                                 </hc:UniformSpacingPanel>
                             </Border>

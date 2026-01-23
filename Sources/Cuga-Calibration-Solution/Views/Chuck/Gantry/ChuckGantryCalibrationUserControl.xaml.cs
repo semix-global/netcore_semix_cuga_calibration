@@ -1,15 +1,16 @@
-﻿using CugaCalibration.Core.Attribute;
+﻿using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 
 namespace CugaCalibration.Views.Chuck.Gantry;
 
+[Permission]
 [IOCAppService(ServiceType = typeof(ChuckGantryCalibrationUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ChuckGantryCalibrationUserControl
 {
-    [Permission]
     public ChuckGantryCalibrationUserControl()
     {
         InitializeComponent();
+        InitializePermissionControl();
     }
 }
