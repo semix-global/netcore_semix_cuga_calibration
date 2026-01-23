@@ -85,7 +85,6 @@ public partial class ImageCollectionConfiguration : ObservableCacheBase, IClonea
         {
             _zEndEcs = value;
             OnPropertyChanged(nameof(ZEcsPerXWidthUm));
-
         }
     }
 

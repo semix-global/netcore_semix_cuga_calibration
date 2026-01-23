@@ -1,15 +1,16 @@
-using CugaCalibration.Core.Attribute;
+using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 
 namespace CugaCalibration.Views.Laser.BeamStabilizer;
 
+[Permission]
 [IOCAppService(ServiceType = typeof(LaserBeamStabilizerCalibrationUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class LaserBeamStabilizerCalibrationUserControl
 {
-    [Permission]
     public LaserBeamStabilizerCalibrationUserControl()
     {
         InitializeComponent();
+        InitializePermissionControl();
     }
 }

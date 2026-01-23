@@ -502,9 +502,9 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableCa
             "X Quality",
             xQualityPoints);
         ScatterPlotControl.GetOrAddScatterLine(
-             0,
-             "Fit Points",
-             XFitPositions);
+            0,
+            "Fit Points",
+            XFitPositions);
 
         if (XFitPositions.Count != 0)
         {
@@ -527,9 +527,9 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableCa
             "Y Quality",
             [.. yQualityPoints]);
         ScatterPlotControl.GetOrAddScatterLine(
-          1,
-           "Fit Points",
-           YFitPositions);
+            1,
+            "Fit Points",
+            YFitPositions);
 
         if (YFitPositions.Count != 0)
         {
@@ -552,9 +552,9 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableCa
             "Gray Value",
             lightPoints);
         ScatterPlotControl.GetOrAddScatterLine(
-           2,
-          "Fit Points",
-          GrayFitPositions);
+            2,
+            "Fit Points",
+            GrayFitPositions);
         if (GrayFitPositions.Count != 0)
         {
             var scatterMarkersGray = ScatterPlotControl.GetOrAddScatterMarkers(
@@ -565,8 +565,6 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableCa
                 markerShape: MarkerShape.Asterisk);
             scatterMarkersGray.MarkerSize = 25;
         }
-
-
 
         #endregion
 

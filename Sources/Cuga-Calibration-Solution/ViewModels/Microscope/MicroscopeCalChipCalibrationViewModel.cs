@@ -913,6 +913,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Switch Magnification Failed."), HtmlLogUniqueId.LoggingHtml());
                         return false;
                     }
+
                     AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
                     StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(findFocusPosition);
 
