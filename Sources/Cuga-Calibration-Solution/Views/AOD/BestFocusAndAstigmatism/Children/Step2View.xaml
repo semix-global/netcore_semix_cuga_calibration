@@ -1,0 +1,185 @@
+﻿<UserControl x:Class="CugaCalibration.Views.AOD.BestFocusAndAstigmatism.Children.Step2View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             d:DataContext="{d:DesignInstance Type=viewModels:BestFocusAndAstigmatismCalibrationViewModel}"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style x:Key="ListboxItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+            <!--  默认边框颜色  -->
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <!--  默认边框厚度  -->
+            <Setter Property="BorderThickness" Value="1" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <!--  选中项的边框颜色  -->
+                    <Setter Property="Background" Value="Gray" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="False">
+                    <!--  未选中项的边框颜色  -->
+                    <Setter Property="Background" Value="Transparent" />
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <!--  鼠标悬停时的边框颜色  -->
+                    <Setter Property="Background" Value="LightGray" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="430" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Step 3: "
+                           Status="{Binding CalibrationStepList[0].StepName}"
+                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Productivity: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Optics Apodization Mode: "
+                           Status="{Binding Cache.ApodizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Microscope Magnification: "
+                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
+                           Color="{StaticResource SuccessBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                    <Expander IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Header="CIB Configuration">
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <StackPanel>
+                                                <TextBlock Text="Param"
+                                                           HorizontalAlignment="Center"
+                                                           FontSize="13"
+                                                           FontWeight="Bold"
+                                                           Style="{StaticResource TextBlockDefaultInfo}" />
+                                            </StackPanel>
+                                            <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Style="{StaticResource ComboBoxExtend}"
+                                                      ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                                                <i:Interaction.Behaviors>
+                                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                                </i:Interaction.Behaviors>
+                                            </ComboBox>
+                                            <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Style="{StaticResource ComboBoxExtend}"
+                                                      ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                                                <i:Interaction.Behaviors>
+                                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                                </i:Interaction.Behaviors>
+                                            </ComboBox>
+                                            <ComboBox hc:TitleElement.Title="CIB Information: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="190"
+                                                      Style="{StaticResource ComboBoxExtend}"
+                                                      ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                                                <i:Interaction.Behaviors>
+                                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                                </i:Interaction.Behaviors>
+                                            </ComboBox>
+                                            <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                                        </hc:UniformSpacingPanel>
+                                    </Expander>
+                                </Border>
+                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                    <Expander IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Header="PMT Config">
+                                        <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                                         IsInertiaEnabled="True"
+                                                         VerticalScrollBarVisibility="Auto">
+                                            <GroupBox Header="PMT Enable">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                    <ListBox Width="auto"
+                                                             Height="auto"
+                                                             ItemsSource="{Binding Cache.PmtConfigList}"
+                                                             ItemContainerStyle="{StaticResource ListboxItemStyle}">
+                                                        <ListBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <hc:SimplePanel Height="30" Margin="5">
+                                                                    <TextBlock Text="{Binding Id, StringFormat='PMT {0}'}"
+                                                                               MinWidth="150"
+                                                                               HorizontalAlignment="Left"
+                                                                               VerticalAlignment="Center" />
+                                                                    <ToggleButton IsChecked="{Binding Enabled}"
+                                                                                  HorizontalAlignment="Right"
+                                                                                  VerticalAlignment="Center"
+                                                                                  Background="{StaticResource DangerBrush}"
+                                                                                  Style="{StaticResource ToggleButtonSwitch}" />
+                                                                </hc:SimplePanel>
+                                                            </DataTemplate>
+                                                        </ListBox.ItemTemplate>
+                                                    </ListBox>
+                                                    <hc:SimplePanel Margin="0,10">
+                                                        <Button Content="Clear Selection"
+                                                                Command="{Binding ChangeAllSelectionCommand}"
+                                                                CommandParameter="False"
+                                                                HorizontalAlignment="Left" />
+                                                        <Button Content="Select All"
+                                                                Command="{Binding ChangeAllSelectionCommand}"
+                                                                CommandParameter="True"
+                                                                HorizontalAlignment="Right" />
+                                                    </hc:SimplePanel>
+                                                </hc:UniformSpacingPanel>
+                                            </GroupBox>
+                                        </hc:ScrollViewer>
+
+                                    </Expander>
+                                </Border>
+                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                            VerticalAlignment="Top"
+                                                            Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step2Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step2CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                </Border>
+                            </hc:UniformSpacingPanel>
+                        </Border>
+                    </hc:UniformSpacingPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+        <GridSplitter Grid.Column="1" Width="5" />
+    </Grid>
+</UserControl>

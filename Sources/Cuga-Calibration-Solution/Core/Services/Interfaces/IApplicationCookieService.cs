@@ -1,3 +1,4 @@
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.LineCentricity;
@@ -31,7 +32,8 @@ public interface IApplicationCookieService
     /// 获得光斑暗场中心相对偏差值（晶圆坐标系）
     /// </summary>
     /// <param name="result"></param>
+    /// <param name="opticsIlluminationModeEnum"></param>
     /// <param name="productivityInformation"></param>
     /// <returns></returns>
-    IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(IReadOnlyCollection<LaserLineCentricityItemDto> result, ProductivityInformation productivityInformation);
+    IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(IReadOnlyCollection<LaserLineCentricityItemDto> result, OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation);
 }

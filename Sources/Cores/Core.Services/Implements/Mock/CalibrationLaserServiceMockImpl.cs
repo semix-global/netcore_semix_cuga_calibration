@@ -169,7 +169,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                     ,
                     Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
                     {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 445, XPixelSize = 1.091 } }
+                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 445000, XPixelSize = 1.091 } }
                     }
 #endif
                 },
@@ -194,7 +194,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                     ,
                     Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
                     {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 222.5, XPixelSize = 0.546 } }
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 222500, XPixelSize = 0.546 } }
                     }
 #endif
                 },
@@ -219,7 +219,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                     ,
                     Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
                     {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 175.9, XPixelSize = 0.61 } }
+                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 175900, XPixelSize = 0.61 } }
                     }
 #endif
                 },
@@ -244,7 +244,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                     ,
                     Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
                     {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 88.06, XPixelSize = 0.304 } }
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 88060, XPixelSize = 0.304 } }
                     }
 #endif
                 },
@@ -269,7 +269,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                     ,
                     Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
                     {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 87.24, XPixelSize = 0.416 } }
+                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 87240, XPixelSize = 0.416 } }
                     }
 #endif
                 },
@@ -294,7 +294,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                     ,
                     Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
                     {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 43.6, XPixelSize = 0.208 } }
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 43603, XPixelSize = 0.208 } }
                     }
 #endif
                 },
@@ -323,7 +323,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                     ,
                     Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
                     {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 26.88, XPixelSize = 0.135 } }
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 26880, XPixelSize = 0.135 } }
                     }
 #endif
                 },
@@ -348,7 +348,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                     ,
                     Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
                     {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 40, XPixelSize = 0.2 } }
+                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 40000, XPixelSize = 0.2 } }
                     }
 #endif
                 },
@@ -682,20 +682,25 @@ public sealed class CalibrationLaserServiceMockImpl(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward)
+        bool isForward,
+        (double zStart, double zEnd, double zSpeed)? zMotionParam = null)
     {
         var uri = _mockImageFilePath;
 
         var result = new List<DarkFieldRawScanImageDTO>(3);
 
-        foreach (var i in Enumerable.Range(0, 3))
+        var pmtList = pmtId != -1 ? [pmtId] : Enumerable.Range(1, 15).ToList();
+        foreach (var id in pmtList)
         {
-            using var fileSteam = File.OpenRead(uri);
-            using var binaryReader = new BinaryReader(fileSteam);
-            var (size, _, _) = RawImageFactory.GetSize(binaryReader);
-            var sizeI = (SizeI)size;
+            foreach (var i in Enumerable.Range(0, 3))
+            {
+                using var fileSteam = File.OpenRead(uri);
+                using var binaryReader = new BinaryReader(fileSteam);
+                var (size, _, _) = RawImageFactory.GetSize(binaryReader);
+                var sizeI = (SizeI)size;
 
-            result.Add(new DarkFieldRawScanImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
+                result.Add(new DarkFieldRawScanImageDTO { PmtId = id, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
+            }
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);

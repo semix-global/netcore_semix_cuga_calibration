@@ -1,3 +1,4 @@
+using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -144,13 +145,13 @@ public sealed class ApplicationCookieServiceImpl(
         }
     }
 
-    public IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(IReadOnlyCollection<LaserLineCentricityItemDto> result, ProductivityInformation productivityInformation)
+    public IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(IReadOnlyCollection<LaserLineCentricityItemDto> result, OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
     {
         var (xDirection, yDirection) = calibrationStageServiceImpl.GetMachineDirection().Anything;
 
         var cache = GuardUtils.IsNotNullAndReturn(cacheProvider.GetOrDefault<LaserLineCentricityCache>());
 
-        var resultList = result.Where(t => t.ProductivityInformation == productivityInformation)
+        var resultList = result.Where(t => t.OpticsIlluminationMode == opticsIlluminationModeEnum && t.ProductivityInformation == productivityInformation)
             .OrderBy(t => t.PmtId)
             .ToList();
 

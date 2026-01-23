@@ -376,7 +376,8 @@ public interface ICalibrationLaserService
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward);
+        bool isForward,
+        (double zStart, double zEnd, double zSpeed)? zMotionParam = null);
 
     ///  <summary>
     /// 获得暗场一行长图片对应位置切割后的三个通道图片

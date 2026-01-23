@@ -162,7 +162,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+                    ProductivityInformationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 
@@ -170,7 +170,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
         {
             var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
             var status = opticsIlluminationModeEnumStatus
-                .ProductivityInformationCalibrationStatusList
+                .ProductivityInformationStatusList
                 .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
         }
@@ -239,7 +239,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
                 ];
 
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationCalibrationStatusList
+                    .ProductivityInformationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);

@@ -168,7 +168,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [..ApplicationCookie.GetOpticsMagTypeProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+                    ProductivityInformationStatusList = [..ApplicationCookie.GetOpticsMagTypeProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 
@@ -176,7 +176,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         {
             var opticsIlluminationModeStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
             var status = opticsIlluminationModeStatus
-                .ProductivityInformationCalibrationStatusList
+                .ProductivityInformationStatusList
                 .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
         }
@@ -269,7 +269,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                 }
 
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationCalibrationStatusList
+                    .ProductivityInformationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
@@ -756,7 +756,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
         [
             new() { StepName = "loading" },
             ..CalibrationStatuses.SelectMany(
-                calibrationStatus => calibrationStatus.ProductivityInformationCalibrationStatusList,
+                calibrationStatus => calibrationStatus.ProductivityInformationStatusList,
                 (calibrationStatus, productivityInformations) => new CalibrationItemStep
                 {
                     StepName = $"{calibrationStatus.SelectedItem.ToDescriptionOrString()} {productivityInformations.SelectedItem}"
@@ -835,7 +835,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
                     {
                         Cache.OpticsIlluminationModeEnum = status.SelectedItem;
 
-                        foreach (var productivity in status.ProductivityInformationCalibrationStatusList)
+                        foreach (var productivity in status.ProductivityInformationStatusList)
                         {
                             if (await AutoActionStepAsync(productivity.SelectedItem, cancellationToken) == false)
                             {

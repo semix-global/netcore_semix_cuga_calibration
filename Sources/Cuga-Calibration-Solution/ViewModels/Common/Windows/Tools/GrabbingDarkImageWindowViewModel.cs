@@ -82,6 +82,9 @@ public partial class GrabbingDarkImageWindowViewModel(
     private bool _isForward = true;
 
     [ObservableProperty]
+    private bool _isAutoFocus = true;
+
+    [ObservableProperty]
     private string _prescanAODWaveformResultFilePath = string.Empty;
 
     [ObservableProperty]
@@ -230,7 +233,8 @@ public partial class GrabbingDarkImageWindowViewModel(
                             CIBConfiguration,
                             (isCustomPrescanAod, isCustomPrescanAod ? null : LaserLightInformation),
                             isCustomChirpAod,
-                            IsForward).Select(ToDarkFieldImageDto)
+                            IsForward,
+                            IsAutoFocus).Select(ToDarkFieldImageDto)
                     ]
                     : laserViewModel.GetDarkFieldLineScanImageList(
                         CalChipSiteModelEnum,
@@ -244,7 +248,8 @@ public partial class GrabbingDarkImageWindowViewModel(
                         CIBConfiguration,
                         (isCustomPrescanAod, isCustomPrescanAod ? null : LaserLightInformation),
                         isCustomChirpAod,
-                        IsForward);
+                        IsForward,
+                        IsAutoFocus);
 
                 var darkFieldImageList = new List<DarkFieldImage>();
 
