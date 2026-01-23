@@ -21,8 +21,11 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
-using Semix.WcfTransfer.DTO;
 using System.IO;
+
+#if NET48
+using Semix.WcfTransfer.DTO;
+#endif
 
 namespace Core.Services.Implements.WCF;
 
@@ -649,7 +652,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward)
+        bool isForward,
+        (double zStart, double zEnd, double zSpeed)? zMotionParam = null)
     {
         SxExecuteRet<List<M2CImgSysCollectImgDTO>> darkFieldImagesRet;
         try
@@ -662,7 +666,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                 StageCoordinateSystemEnum.Machine => Invoke(() => Service?.GetDFImgCalibration(
                     new SxCollectImgParam
                     {
-                        Type = SxCollectImgType.Normal,
+                        Type = pmtId == -1 ? SxCollectImgType.Using : SxCollectImgType.Normal,
                         Mag = productivityInformation.AdaptTo().Mag,
                         Speed = productivityInformation.AdaptTo().Speed,
                         NIOI = opticsIlluminationModeEnum.ToSxNIOIEnum(),
@@ -675,7 +679,15 @@ public sealed partial class CalibrationLaserServiceImpl(
                         AF = isAutoFocus ? 0 : 1,
                         IsForward = isForward,
                         IsCalibration = true, /*为true时不下发波形*/
-                        ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                        ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/,
+                        ZParam = (isAutoFocus == false && zMotionParam != null)
+                            ? new SxCollectImgParam.SxZParam()
+                            {
+                                Start = Convert.ToInt32(zMotionParam.Value.zStart),
+                                End = Convert.ToInt32(zMotionParam.Value.zEnd),
+                                Vel = Convert.ToInt32(zMotionParam.Value.zSpeed)
+                            }
+                            : new()
                     })),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
             };
@@ -687,7 +699,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         if (darkFieldImagesRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>(darkFieldImagesRet.ErrorMsg, []);
-        if (darkFieldImagesRet.Anything.Count != 3) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>("Dark Images Count is not 3", []);
+        if (darkFieldImagesRet.Anything.Count % 3 != 0) return SxExecuteRetHelper.CreateError<List<DarkFieldRawScanImageDTO>>("Dark Images Count is not 3", []);
 
         var result = new List<DarkFieldRawScanImageDTO>(darkFieldImagesRet.Anything.Count);
 

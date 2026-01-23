@@ -107,6 +107,16 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref field, value);
     } = -1;
 
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public double XSpeedValue
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = -1;
+
     private ProductivityInformation()
     {
     }
@@ -166,8 +176,8 @@ public sealed class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out OpticsIlluminationModeEnum opticsIlluminationModeEnum, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double sampleRate)
-        => (name, opticsIlluminationModeEnum, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate) = (Name, OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate);
+    public void Deconstruct(out string name, out OpticsIlluminationModeEnum opticsIlluminationModeEnum, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double sampleRate, out double xSpeedValue)
+        => (name, opticsIlluminationModeEnum, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate, xSpeedValue) = (Name, OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate, XSpeedValue);
 
     #endregion Deconstruct
 
@@ -178,6 +188,7 @@ public sealed class ProductivityInformation :
         Name = Name,
 #if NETFRAMEWORK
         NIOI = OpticsIlluminationModeEnum.ToSxNIOIEnum(),
+
 #endif
         Mag = Enum.IsDefined(typeof(SxMAGEnum), OpticsMagType)
             ? (SxMAGEnum)OpticsMagType
@@ -200,6 +211,10 @@ public sealed class ProductivityInformation :
             .Single(t => t.Key == obj.Speed.ToCgSpeedLevelType())
             .Value
             .XPixelSize;
+        XSpeedValue = swathSpeedInfo.Speed
+            .Single(t => t.Key == obj.Speed.ToCgSpeedLevelType())
+            .Value
+            .Vel;
 #endif
         YPixelSize = swathSpeedInfo.YPixelSize;
         YPixel = Convert.ToInt32(swathSpeedInfo.YPixel);
@@ -219,7 +234,8 @@ public sealed class ProductivityInformation :
         YPixelSize = YPixelSize,
         YPixel = YPixel,
         OriginYPixel = OriginYPixel,
-        SampleRate = SampleRate
+        SampleRate = SampleRate,
+        XSpeedValue = XSpeedValue
     };
 
     #endregion Mapper

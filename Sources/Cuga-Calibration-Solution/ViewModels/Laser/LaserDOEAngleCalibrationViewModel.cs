@@ -214,7 +214,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+                    ProductivityInformationStatusList = [.. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 
@@ -286,7 +286,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
                 }
 
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationCalibrationStatusList
+                    .ProductivityInformationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);

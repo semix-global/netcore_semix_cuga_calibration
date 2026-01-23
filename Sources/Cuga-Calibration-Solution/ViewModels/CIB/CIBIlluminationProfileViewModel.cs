@@ -421,8 +421,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                 {
                                     cancellationToken.ThrowIfCancellationRequested();
 
-                            var imageHorizontalProjectsVector = Vector<double>.Build.Dense([.. itemItem.Items[times].ImageHorizontalProjects]);
-                            var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
+                                    var imageHorizontalProjectsVector = Vector<double>.Build.Dense([.. itemItem.Items[times].ImageHorizontalProjects]);
+                                    var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
 
                                     itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
                                     itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;
@@ -440,12 +440,12 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
                                     if (itemItem.Items[times].IsOk) continue;
 
-                            itemItem.Items[times].Window = [.. targetPMTValue / imageHorizontalProjectsVector];
-                            if (itemItem.Window.Count <= 0) itemItem.Window = [.. Generate.Repeat(imageHorizontalProjectsVector.Count, 1d)];
-                            itemItem.Window = [.. Vector<double>.Build.Dense([.. itemItem.Window]).PointwiseMultiply(Vector<double>.Build.Dense([.. itemItem.Items[times].Window]))];
+                                    itemItem.Items[times].Window = [.. targetPMTValue / imageHorizontalProjectsVector];
+                                    if (itemItem.Window.Count <= 0) itemItem.Window = [.. Generate.Repeat(imageHorizontalProjectsVector.Count, 1d)];
+                                    itemItem.Window = [.. Vector<double>.Build.Dense([.. itemItem.Window]).PointwiseMultiply(Vector<double>.Build.Dense([.. itemItem.Items[times].Window]))];
 
-                            CIBViewModel.SetIlluminationProfile([itemItem.CIBInformation], itemItem.Window);
-                        }
+                                    CIBViewModel.SetIlluminationProfile([itemItem.CIBInformation], itemItem.Window);
+                                }
 
                                 var htmlBullet = new HtmlBullet(new
                                 {

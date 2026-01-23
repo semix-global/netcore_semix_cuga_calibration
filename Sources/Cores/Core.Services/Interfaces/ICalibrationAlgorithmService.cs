@@ -52,6 +52,12 @@ public interface ICalibrationAlgorithmService
     /// <returns>光斑大小</returns>
     (double Width, double Height) GetLightQuality(HImage image, Rect roiRect);
 
+    (Point Position, double XMTF, double YMTF, double GrayValue)[] MultiModulationTransferFunction(HImage image);
+
+    (Point Position, double XStrehlRatio, double YStrehlRatio, double GrayValue)[] GetXYStrehlRatio(HImage image);
+
+    Point[] SmoothStrehlFunction(double[] xPositions, double[] strehlRatios);
+
     #endregion 清晰度
 
     #region 尺寸
@@ -192,6 +198,13 @@ public interface ICalibrationAlgorithmService
     /// <param name="rawBytes">raw bytes</param>
     /// <returns>暗场图片</returns>
     (HImage Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes);
+
+    /// <summary>
+    ///  RAW转线性图（含3*3滤波）
+    /// </summary>
+    /// <param name="darkFieldRawImage"></param>
+    /// <returns></returns>
+    HImage DarkFieldRawImageToLinearImage(HImage darkFieldRawImage);
 
     /// <summary>
     /// 计算PMTGain数据

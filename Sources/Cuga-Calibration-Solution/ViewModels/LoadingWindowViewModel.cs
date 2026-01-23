@@ -106,19 +106,27 @@ public sealed partial class LoadingWindowViewModel(
             },
                 t =>
                 {
-                    if (t is null || t.IsNull) return ProductivityInformation.Default;
+                    try
+                    {
+                        if (t is null || t.IsNull) return ProductivityInformation.Default;
 
-                    var opticsIlluminationMode = t[nameof(ProductivityInformation.OpticsIlluminationModeEnum)];
-                    var opticsIlluminationModeEnum = opticsIlluminationMode.IsNull
-                        ? OpticsIlluminationModeEnum.OI
-                        : (OpticsIlluminationModeEnum)(int)opticsIlluminationMode;
+                        var opticsIlluminationMode = t[nameof(ProductivityInformation.OpticsIlluminationModeEnum)];
+                        var opticsIlluminationModeEnum = opticsIlluminationMode.IsNull
+                            ? OpticsIlluminationModeEnum.OI
+                            : (OpticsIlluminationModeEnum)(int)opticsIlluminationMode;
 
-                    var opticsMagType = t[nameof(ProductivityInformation.OpticsMagType)];
-                    var stageSpeedType = t[nameof(ProductivityInformation.StageSpeedType)];
+                        var opticsMagType = t[nameof(ProductivityInformation.OpticsMagType)];
+                        var stageSpeedType = t[nameof(ProductivityInformation.StageSpeedType)];
 
-                    return applicationCookie.ProductivityInformations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
-                                                                                            && tt.OpticsMagType == opticsMagType
-                                                                                            && tt.StageSpeedType == stageSpeedType, ProductivityInformation.Default);
+                        return applicationCookie.ProductivityInformations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
+                                                                                                && tt.OpticsMagType == opticsMagType
+                                                                                                && tt.StageSpeedType == stageSpeedType, ProductivityInformation.Default);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "{@Name}: Connecting Failed", nameof(LoadingWindowViewModel));
+                        return ProductivityInformation.Default;
+                    }
                 });
 
             BsonMapper.Global.RegisterType<MicroscopeLensInformation>(t => new BsonDocument

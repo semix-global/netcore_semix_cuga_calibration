@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -13,7 +14,6 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using CommunityToolkit.Diagnostics;
 using Generate = MathNet.Numerics.Generate;
 
 namespace Core.Models.Models.AOD.Uniformity;

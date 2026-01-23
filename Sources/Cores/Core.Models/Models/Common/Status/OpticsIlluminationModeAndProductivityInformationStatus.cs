@@ -12,11 +12,11 @@ public sealed partial class OpticsIlluminationModeAndProductivityInformationStat
     private OpticsIlluminationModeEnum _selectedItem;
 
     [ObservableProperty]
-    private BindingList<ProductivityInformationStatus> _productivityInformationCalibrationStatusList = [];
+    private BindingList<ProductivityInformationStatus> _productivityInformationStatusList = [];
 
-    public bool IsCalibrated => ProductivityInformationCalibrationStatusList.All(c => c.IsCalibrated);
+    public bool IsCalibrated => ProductivityInformationStatusList.All(c => c.IsCalibrated);
 
-    partial void OnProductivityInformationCalibrationStatusListChanged(BindingList<ProductivityInformationStatus>? oldValue, BindingList<ProductivityInformationStatus> newValue)
+    partial void OnProductivityInformationStatusListChanged(BindingList<ProductivityInformationStatus>? oldValue, BindingList<ProductivityInformationStatus> newValue)
     {
         if (oldValue != null) oldValue.ListChanged -= OnValueOnListChanged;
 

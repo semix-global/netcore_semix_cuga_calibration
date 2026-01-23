@@ -121,12 +121,12 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
             || sxExecuteRet.Anything.Any(t => t.Count == 0)
             || sxExecuteRet.Anything[0].Count != sxExecuteRet.Anything[1].Count
             || sxExecuteRet.Anything[1].Count != sxExecuteRet.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double Height, double Roll, double Pitch, double AcsXSpeed, double AcsYSpeed)>>("Ads error trans buffer is empty", []);
-        // 将三个地址的tracebuffer的数据合并成一个列表
-        var tracebufferList = sxExecuteRet.Anything
-            .Select(shortList => shortList.Select(t => Convert.ToDouble(t)).ToList())
+        // 将三个地址的traceBuffer的数据合并成一个列表
+        var traceBufferList = sxExecuteRet.Anything
+            .Select(shortList => shortList.Select(Convert.ToDouble).ToList())
             .ToList();
-        var resultList = tracebufferList[0]
-            .Select((height, index) => (Height: tracebufferList[0][index], Roll: tracebufferList[1][index], Pitch: tracebufferList[2][index], AcsXSpeed: tracebufferList[3][index], AcsYSpeed: tracebufferList[4][index]))
+        var resultList = traceBufferList[0]
+            .Select((_, index) => (Height: traceBufferList[0][index], Roll: traceBufferList[1][index], Pitch: traceBufferList[2][index], AcsXSpeed: traceBufferList[3][index], AcsYSpeed: traceBufferList[4][index]))
             .ToList();
 
         return SxExecuteRetHelper.CreateSuccess(resultList);

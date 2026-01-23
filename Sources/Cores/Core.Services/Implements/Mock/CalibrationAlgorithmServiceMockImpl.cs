@@ -57,6 +57,39 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return (Random.Next(100, 1000), Random.Next(100, 1000));
     }
 
+    public (Point Position, double XStrehlRatio, double YStrehlRatio, double GrayValue)[] GetXYStrehlRatio(HImage image)
+    {
+        List<(Point Position, double XMTF, double YMTF, double GrayValue)> result = [];
+        for (var i = 0; i < 50; i++)
+        {
+            result.Add((new Point(Random.Next(0, 2000), Random.Next(0, 2000)), Random.NextDouble(), Random.NextDouble(), Random.NextDouble()));
+        }
+
+        return [.. result];
+    }
+
+    public Point[] SmoothStrehlFunction(double[] xPositions, double[] strehlRatios)
+    {
+        List<Point> result = [];
+        for (var i = 0; i < 50; i++)
+        {
+            result.Add((new Point(Random.Next(0, 2000), Random.Next(0, 2000))));
+        }
+
+        return result.ToArray();
+    }
+
+    public (Point Position, double XMTF, double YMTF, double GrayValue)[] MultiModulationTransferFunction(HImage image)
+    {
+        List<(Point Position, double XStrehlRatio, double YStrehlRatio, double GrayValue)> result = [];
+        for (var i = 0; i < 50; i++)
+        {
+            result.Add((new Point(Random.Next(0, 2000), Random.Next(0, 2000)), Random.NextDouble(), Random.NextDouble(), Random.NextDouble()));
+        }
+
+        return [.. result];
+    }
+
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)
     {
         var pixelSize = new Size(Random.Next(1, 10), Random.Next(1, 10));
@@ -188,6 +221,14 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         var (matrix, horizontalFlipRawBytes, _) = RawImageFactory.ToHorizontalFlipMatrix(rawBytes);
 
         return (RawImageFactory.CreateImage(horizontalFlipRawBytes), matrix, horizontalFlipRawBytes);
+    }
+
+    public HImage DarkFieldRawImageToLinearImage(HImage darkFieldRawImage)
+    {
+        _algorithm.RAWConvertLiner(darkFieldRawImage, out var darkFieldLinearImageHObject);
+        using var _ = darkFieldLinearImageHObject;
+        var darkFieldLinearImage = new HImage(darkFieldLinearImageHObject);
+        return darkFieldLinearImage;
     }
 
     public (List<string> DatAvg, List<string> Data) GetPmtGain(Dictionary<int, List<int>> dicPmtData, int lineValue, double minValue, double maxValue)

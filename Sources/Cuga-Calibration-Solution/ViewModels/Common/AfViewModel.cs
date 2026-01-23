@@ -192,6 +192,17 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public List<(double Trigger, double X, double Ecs)> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan)
+    {
+        logger.LogInformation("Start TraceBuffer");
+
+        var ret = calibrationAfService.GetZAndXSyncModeTraceBufferList(timeSpan);
+
+        logger.LogInformation("End TraceBuffer");
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetSensorBrightFieldChuckCenterMachinePositionValue(Point position)
     {
         var ret = calibrationAfService.SetSensorBrightFieldChuckCenterMachinePositionValue(position);

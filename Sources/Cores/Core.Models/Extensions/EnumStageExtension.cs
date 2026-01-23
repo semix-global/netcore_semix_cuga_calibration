@@ -4,6 +4,7 @@ using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.ADS;
 using Cuga.Data.DataStruct.ADS;
 
+
 #if NET
 using Cuga.Data.DataStruct.Basic;
 using Semix.GRPC.DTO.Basic;
@@ -12,7 +13,8 @@ using Semix.GRPC.DTO;
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
 using Cuga.Data.DataStruct.Stage;
-
+using Core.Models.Enums.ADS;
+using Cuga.Data.DataStruct.ADS;
 #endif
 
 namespace Core.Models.Extensions;

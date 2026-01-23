@@ -329,7 +329,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         int pmtId,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         bool isAutoFocus,
-        bool isForward)
+        bool isForward,
+        (double zStart, double zEnd, double zSpeed)? zMotionParam = null)
     {
         throw new NotImplementedException();
     }
