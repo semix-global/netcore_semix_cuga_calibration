@@ -25,6 +25,7 @@
     <Folder Name="/01. Cores/">
         <Project Path="Cores/Core.Models/03. Core.Models.csproj" />
         <Project Path="Cores/Core.Services/04. Core.Services.csproj" />
+        <Project Path="Cores/Core.SourceGenerators/Core.SourceGenerators.csproj" />
         <Project Path="Cores/Core.Utilities.WPF/01. Core.Utilities.WPF.csproj" />
         <Project Path="Cores/Core.Utilities/00. Core.Utilities.csproj" />
         <Project Path="Cores/Core.Wcf/02. Core.Wcf.csproj" />

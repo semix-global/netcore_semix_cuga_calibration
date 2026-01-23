@@ -1,15 +1,16 @@
-using CugaCalibration.Core.Attribute;
+using Core.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 
 namespace CugaCalibration.Views.Laser.OpticalPowerMeter;
 
+[PermissionControl]
 [IOCAppService(ServiceType = typeof(LaserOpticalPowerMeterUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class LaserOpticalPowerMeterUserControl
 {
-    [Permission]
     public LaserOpticalPowerMeterUserControl()
     {
         InitializeComponent();
+        InitializePermissionControl();
     }
 }

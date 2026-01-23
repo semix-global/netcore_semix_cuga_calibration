@@ -30,6 +30,11 @@
         </PackageReference>
     </ItemGroup>
 
+    <!-- Source Generator 项目引用 -->
+    <ItemGroup>
+        <ProjectReference Include="..\Cores\Core.SourceGenerators\Core.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
     <ItemGroup>
         <Reference Include="HAlgorithm">
             <HintPath>..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
