@@ -37,7 +37,7 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         Cache.FlatnessGeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
         Cache.FlatnessGeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
-        var (prescanAODWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.FlatnessGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+        var (prescanAODWaveformResult, exception) = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.FlatnessGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
         if (prescanAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
@@ -51,7 +51,7 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         Cache.FlatnessGenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
         Cache.FlatnessGenerateChirpAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
 
-        (var chirpAODWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.FlatnessGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        (var chirpAODWaveformResult, exception) = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.FlatnessGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
         if (chirpAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
@@ -78,7 +78,7 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         Cache.ScanGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
         Cache.ScanGeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
-        var (prescanAODWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.ScanGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+        var (prescanAODWaveformResult, exception) = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.ScanGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
         if (prescanAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
@@ -91,7 +91,7 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         Cache.ScanGenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
         Cache.ScanGenerateChirpAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
 
-        (var chirpAODWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.ScanGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        (var chirpAODWaveformResult, exception) = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.ScanGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
         if (chirpAODWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
@@ -124,7 +124,7 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
         result.GenerateChirpAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
         result.GenerateChirpAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
 
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(result.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        var (aodWaveformResult, exception) = AODWaveformGenerator1.GenerateChirpAODWaveform(result.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
         if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         result.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);

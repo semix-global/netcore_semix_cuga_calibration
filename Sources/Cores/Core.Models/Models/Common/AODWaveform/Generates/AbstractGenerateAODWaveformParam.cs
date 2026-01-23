@@ -53,34 +53,25 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformSlopeDeltaKConfiguration> _slopeDeltaKConfigurations = [];
+    private double _c2CompensationCoefficient;
 
     [ObservableProperty]
-    private double _sincCoefficient;
+    private double _c3CompensationCoefficient;
 
     [ObservableProperty]
-    private double _astigmatismCompensationCoefficient;
+    private double _c4CompensationCoefficient;
+    
+    [ObservableProperty]
+    private double _c5CompensationCoefficient;
 
     [ObservableProperty]
-    private double _sphericalAberrationCompensationCoefficient;
+    private double _c6CompensationCoefficient;
 
     [ObservableProperty]
-    private double _secondaryAstigmatismCompensationCoefficient;
+    private double _c7CompensationCoefficient;
 
     [ObservableProperty]
-    private double _comaCompensationCoefficient;
-
-    [ObservableProperty]
-    private double _trefoilCompensationCoefficient;
-
-    [ObservableProperty]
-    private double _quadrafoilCompensationCoefficient;
-
-    [ObservableProperty]
-    private double _alphaOrder;
-
-    [ObservableProperty]
-    private double _alphaOrderCoefficient;
+    private double _c8CompensationCoefficient;
 
     partial void OnHeaderFrequencyChanged(double value)
     {
@@ -189,16 +180,13 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         BandWidth = 0d;
         CenterFrequency = frequency;
         foreach (var electrodeConfiguration in ElectrodeConfigurations) electrodeConfiguration.UniformityConfigurations = [];
-        SlopeDeltaKConfigurations = [];
-        SincCoefficient = 0d;
-        AstigmatismCompensationCoefficient = 0d;
-        SphericalAberrationCompensationCoefficient = 0d;
-        SecondaryAstigmatismCompensationCoefficient = 0d;
-        ComaCompensationCoefficient = 0d;
-        TrefoilCompensationCoefficient = 0d;
-        QuadrafoilCompensationCoefficient = 0d;
-        AlphaOrder = 0d;
-        AlphaOrderCoefficient = 0d;
+        C2CompensationCoefficient = 0d;
+        C3CompensationCoefficient = 0d;
+        C4CompensationCoefficient = 0d;
+        C5CompensationCoefficient = 0d;
+        C6CompensationCoefficient = 0d;
+        C7CompensationCoefficient = 0d;
+        C8CompensationCoefficient = 0d;
     }
 
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
@@ -216,16 +204,13 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         EndpointSampleCount = obj.EndpointSampleCount;
         GenerateRetryTimes = obj.GenerateRetryTimes;
         ElectrodeConfigurations = [.. obj.ElectrodeConfigurations.Select(t => t.Clone())];
-        SlopeDeltaKConfigurations = [.. obj.SlopeDeltaKConfigurations.Select(t => t.Clone())];
-        SincCoefficient = obj.SincCoefficient;
-        AstigmatismCompensationCoefficient = obj.AstigmatismCompensationCoefficient;
-        SphericalAberrationCompensationCoefficient = obj.SphericalAberrationCompensationCoefficient;
-        SecondaryAstigmatismCompensationCoefficient = obj.SecondaryAstigmatismCompensationCoefficient;
-        ComaCompensationCoefficient = obj.ComaCompensationCoefficient;
-        TrefoilCompensationCoefficient = obj.TrefoilCompensationCoefficient;
-        QuadrafoilCompensationCoefficient = obj.QuadrafoilCompensationCoefficient;
-        AlphaOrder = obj.AlphaOrder;
-        AlphaOrderCoefficient = obj.AlphaOrderCoefficient;
+        C2CompensationCoefficient = obj.C2CompensationCoefficient;
+        C3CompensationCoefficient = obj.C3CompensationCoefficient;
+        C4CompensationCoefficient = obj.C4CompensationCoefficient;
+        C5CompensationCoefficient = obj.C5CompensationCoefficient;
+        C6CompensationCoefficient = obj.C6CompensationCoefficient;
+        C7CompensationCoefficient = obj.C7CompensationCoefficient;
+        C8CompensationCoefficient = obj.C8CompensationCoefficient;
 
         return this;
     }
@@ -262,15 +247,12 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         EndpointSampleCount,
         GenerateRetryTimes,
         ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())]),
-        SlopeDeltaKConfigurations = new HtmlTable([.. SlopeDeltaKConfigurations.Select(t => t.ToHtmlAnonymous())]),
-        SincCoefficient,
-        AstigmatismCompensationCoefficient,
-        SphericalAberrationCompensationCoefficient,
-        SecondaryAstigmatismCompensationCoefficient,
-        ComaCompensationCoefficient,
-        TrefoilCompensationCoefficient,
-        QuadrafoilCompensationCoefficient,
-        AlphaOrder,
-        AlphaOrderCoefficient
+        C2CompensationCoefficient,
+        C3CompensationCoefficient,
+        C4CompensationCoefficient,
+        C5CompensationCoefficient,
+        C6CompensationCoefficient,
+        C7CompensationCoefficient,
+        C8CompensationCoefficient
     };
 }

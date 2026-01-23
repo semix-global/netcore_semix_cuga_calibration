@@ -75,6 +75,9 @@
         <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveformElectrodeInitialize*.cs">
             <DependentUpon>PrescanAODWaveformElectrodeInitializeWindowViewModel.cs</DependentUpon>
         </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveformTraining*.cs">
+            <DependentUpon>ChirpAODWaveformTrainingWindowViewModel.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>

@@ -317,127 +317,47 @@
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Slope ΔK Configurations"
-                          IsExpanded="False"
-                          ExpandDirection="Down"
-                          Visibility="{Binding IsVisibleSlopeDeltaKConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Border Style="{StaticResource BorderRegion}">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                <Button Content="Add"
-                                        Command="{Binding AddSlopeDeltaKConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                        Style="{StaticResource ButtonInfo}" />
-                                <Button Content="Delete"
-                                        Command="{Binding RemoveSlopeDeltaKConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridSlopeDeltaKConfigurations}"
-                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                        Style="{StaticResource ButtonDanger}" />
-                            </hc:UniformSpacingPanel>
-                            <DataGrid x:Name="DataGridSlopeDeltaKConfigurations"
-                                      MaxHeight="500"
-                                      hc:DataGridAttach.ShowRowNumber="True"
-                                      Style="{StaticResource DataGrid.Small}"
-                                      HeadersVisibility="All"
-                                      RowHeaderWidth="60"
-                                      AutoGenerateColumns="False"
-                                      ItemsSource="{Binding SlopeDeltaKConfigurations}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Width="250"
-                                                        Header="Delta K"
-                                                        Binding="{Binding DeltaK}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </hc:UniformSpacingPanel>
-                    </Border>
-                </Expander>
                 <Expander Header="Compensation"
                           IsExpanded="False"
                           ExpandDirection="Down"
                           Visibility="{Binding IsVisibleCompensation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <TextBox Text="{Binding SincCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Sinc Coefficient: "
+                            <TextBox Text="{Binding C2CompensationCoefficient}"
+                                     hc:TitleElement.Title="C2 Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="0"
-                                    Maximum="10"
-                                    Value="{Binding SincCoefficient}" />
-                            <TextBox Text="{Binding AstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Astigmatism Compensation: "
+                            <TextBox Text="{Binding C3CompensationCoefficient}"
+                                     hc:TitleElement.Title="C3 Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="{Binding AstigmatismCompensationCoefficient}" />
-                            <TextBox Text="{Binding SphericalAberrationCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Spherical Aberration Compensation: "
+                            <TextBox Text="{Binding C4CompensationCoefficient}"
+                                     hc:TitleElement.Title="C4 Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="{Binding SphericalAberrationCompensationCoefficient}" />
-                            <TextBox Text="{Binding SecondaryAstigmatismCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Secondary Astigmatism Compensation: "
+                            <TextBox Text="{Binding C5CompensationCoefficient}"
+                                     hc:TitleElement.Title="C5 Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="{Binding SecondaryAstigmatismCompensationCoefficient}" />
-                            <TextBox Text="{Binding ComaCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Coma Compensation: "
+                            <TextBox Text="{Binding C6CompensationCoefficient}"
+                                     hc:TitleElement.Title="C6 Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="{Binding ComaCompensationCoefficient}" />
-                            <TextBox Text="{Binding TrefoilCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Trefoil Compensation: "
+                            <TextBox Text="{Binding C7CompensationCoefficient}"
+                                     hc:TitleElement.Title="C7 Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="{Binding TrefoilCompensationCoefficient}" />
-                            <TextBox Text="{Binding QuadrafoilCompensationCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Quadrafoil Compensation: "
+                            <TextBox Text="{Binding C8CompensationCoefficient}"
+                                     hc:TitleElement.Title="C8 Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="{Binding QuadrafoilCompensationCoefficient}" />
-                            <TextBox Text="{Binding AlphaOrder, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Alpha Order: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="{Binding AlphaOrder}" />
-                            <TextBox Text="{Binding AlphaOrderCoefficient, StringFormat={}{0:0.######}}"
-                                     hc:TitleElement.Title="Alpha Order Coefficient: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <Slider VerticalAlignment="Center"
-                                    Minimum="-100"
-                                    Maximum="100"
-                                    Value="{Binding AlphaOrderCoefficient}" />
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>

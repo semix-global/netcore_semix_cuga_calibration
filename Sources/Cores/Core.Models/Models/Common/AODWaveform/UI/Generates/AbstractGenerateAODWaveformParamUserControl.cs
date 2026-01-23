@@ -54,12 +54,6 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         typeof(AbstractGenerateAODWaveformParamUserControl),
         new PropertyMetadata(true, OnIsVisibleUniformityConfigurationChanged));
 
-    public static readonly DependencyProperty IsVisibleSlopeDeltaKConfigurationProperty = DependencyProperty.Register(
-        nameof(IsVisibleSlopeDeltaKConfiguration),
-        typeof(bool),
-        typeof(AbstractGenerateAODWaveformParamUserControl),
-        new PropertyMetadata(true, OnIsVisibleSlopeDeltaKConfigurationChanged));
-
     public static readonly DependencyProperty IsVisibleCompensationProperty = DependencyProperty.Register(
         nameof(IsVisibleCompensation),
         typeof(bool),
@@ -104,11 +98,6 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
     private static void OnIsVisibleUniformityConfigurationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleUniformityConfiguration = value;
-    }
-
-    private static void OnIsVisibleSlopeDeltaKConfigurationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleSlopeDeltaKConfiguration = value;
     }
 
     private static void OnIsVisibleCompensationChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -164,12 +153,6 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         set => SetValue(IsVisibleElectrodeConfigurationProperty, value);
     }
 
-    public bool IsVisibleSlopeDeltaKConfiguration
-    {
-        get => (bool)GetValue(IsVisibleSlopeDeltaKConfigurationProperty);
-        set => SetValue(IsVisibleSlopeDeltaKConfigurationProperty, value);
-    }
-
     public bool IsVisibleCompensation
     {
         get => (bool)GetValue(IsVisibleCompensationProperty);
@@ -184,7 +167,6 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         InnerControl.IsVisibleDirectoryPath = IsVisibleDirectoryPath;
         InnerControl.IsVisibleElectrodeConfiguration = IsVisibleElectrodeConfiguration;
         InnerControl.IsVisibleUniformityConfiguration = IsVisibleUniformityConfiguration;
-        InnerControl.IsVisibleSlopeDeltaKConfiguration = IsVisibleSlopeDeltaKConfiguration;
         InnerControl.IsVisibleCompensation = IsVisibleCompensation;
     }
 }

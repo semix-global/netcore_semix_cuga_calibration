@@ -1,0 +1,467 @@
+<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AODWaveform.ChirpAODWaveformTrainingWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+           xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+           Width="1500"
+           Height="1000"
+           d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformTrainingWindowViewModel}"
+           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           BorderThickness="2"
+           ResizeMode="NoResize"
+           ShowInTaskbar="False"
+           WindowStartupLocation="CenterScreen"
+           WindowStyle="None"
+           mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.Resources>
+            <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
+                <Setter Property="CornerRadius" Value="0" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <hc:SimplePanel Grid.Row="0" Grid.Column="0"
+                        Background="{StaticResource PrimaryBrush}">
+            <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TextBlock Text="{Binding Name}"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
+            </StackPanel>
+            <Button Command="{Binding CloseCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonIcon}" TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </hc:SimplePanel>
+        <Grid Grid.Row="1" Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="500" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                        <GroupBox Header="AOD Waveform Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                            Orientation="Vertical"
+                                                            Spacing="2">
+                                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                        <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                    </hc:UniformSpacingPanel>
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="Chirp AOD Waveform" Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <StackPanel>
+                                                    <Button Content="Import"
+                                                            Command="{Binding ImportChirpAODWaveformParamCommand}"
+                                                            HorizontalAlignment="Right"
+                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                            Style="{StaticResource ButtonInfo.Small}" />
+                                                </StackPanel>
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                  IsVisibleDirectoryPath="False"
+                                                                                                  IsVisibleCompensation="False"
+                                                                                                  DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="Prescan AOD Waveform" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <StackPanel>
+                                                    <Button Content="Import"
+                                                            Command="{Binding ImportPrescanAODWaveformParamCommand}"
+                                                            HorizontalAlignment="Right"
+                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                            Style="{StaticResource ButtonInfo.Small}" />
+                                                </StackPanel>
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                    IsVisibleAmplitude="False"
+                                                                                                    IsVisibleDirectoryPath="False"
+                                                                                                    DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <ComboBox hc:TitleElement.Title="CIB Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                                        <i:Interaction.Behaviors>
+                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.CIBConfiguration}" />
+                                    <TextBox Text="{Binding Cache.DSWMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                             hc:TitleElement.Title="Machine Position(um):"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.ScanLength}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Center(ECS): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.CenterECS}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.RangeECS}" />
+                                    <Separator />
+                                    <Expander Header="C2 Coefficient"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StartC2Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepC2Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StopC2Coefficient}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="C3 Coefficient"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StartC3Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepC3Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StopC3Coefficient}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="C4 Coefficient"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StartC4Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepC4Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StopC4Coefficient}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="C5 Coefficient"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StartC5Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepC5Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StopC5Coefficient}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="C6 Coefficient"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StartC6Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepC6Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StopC6Coefficient}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="C7 Coefficient"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StartC7Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepC7Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StopC7Coefficient}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="C8 Coefficient"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StartC8Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepC8Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StopC8Coefficient}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Actions">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical">
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action C2"
+                                                Command="{Binding ActionC2Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Action C3"
+                                                Command="{Binding ActionC3Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Action C4"
+                                                Command="{Binding ActionC4Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action C5"
+                                                Command="{Binding ActionC5Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Action C6"
+                                                Command="{Binding ActionC6Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Action C7"
+                                                Command="{Binding ActionC7Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action C8"
+                                                Command="{Binding ActionC8Command}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding ActionCancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                    </hc:UniformSpacingPanel>
+                </ScrollViewer>
+            </Border>
+            <GridSplitter Grid.Column="1" />
+            <GroupBox Grid.Column="2"
+                      Padding="5"
+                      Header="History">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <ListView x:Name="ListViewHistory"
+                              ItemsSource="{Binding Cache.Items}"
+                              Style="{StaticResource ListView.Small}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="C2 Coefficient" DisplayMemberBinding="{Binding C2Coefficient, StringFormat='0.###'}" />
+                                <GridViewColumn Header="C3 Coefficient" DisplayMemberBinding="{Binding C3Coefficient, StringFormat='0.###'}" />
+                                <GridViewColumn Header="C4 Coefficient" DisplayMemberBinding="{Binding C4Coefficient, StringFormat='0.###'}" />
+                                <GridViewColumn Header="C5 Coefficient" DisplayMemberBinding="{Binding C5Coefficient, StringFormat='0.###'}" />
+                                <GridViewColumn Header="C6 Coefficient" DisplayMemberBinding="{Binding C6Coefficient, StringFormat='0.###'}" />
+                                <GridViewColumn Header="C7 Coefficient" DisplayMemberBinding="{Binding C7Coefficient, StringFormat='0.###'}" />
+                                <GridViewColumn Header="C8 Coefficient" DisplayMemberBinding="{Binding C8Coefficient, StringFormat='0.###'}" />
+                                <GridViewColumn Header="AOD Waveform Profiles">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
+                                            <Grid>
+                                                <ToggleButton x:Name="ToggleButtonAODWaveformProfiles"
+                                                              Content="Profiles"
+                                                              Margin="0,2"
+                                                              HorizontalAlignment="Left"
+                                                              hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                                <Popup Width="800"
+                                                       Height="800"
+                                                       StaysOpen="False"
+                                                       PlacementTarget="{Binding ElementName=ToggleButtonAODWaveformProfiles}"
+                                                       Placement="Right"
+                                                       AllowsTransparency="True"
+                                                       PopupAnimation="Slide"
+                                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
+                                                    <TabControl>
+                                                        <TabItem Header="Chirp AOD Waveform">
+                                                            <profileUI:ChirpAODWaveformProfilesUserControl Margin="5" DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                        </TabItem>
+                                                        <TabItem Header="Prescan AOD Waveform">
+                                                            <profileUI:PrescanAODWaveformProfilesUserControl Margin="5" DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                        </TabItem>
+                                                    </TabControl>
+                                                </Popup>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <GridSplitter Grid.Row="1"
+                                  Height="5"
+                                  HorizontalAlignment="Stretch" />
+                    <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                        <ContentControl Content="{Binding SelectedItem.ScatterPlotControl, ElementName=ListViewHistory, Mode=OneWay}" />
+                    </Border>
+                </Grid>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</hc:Window>

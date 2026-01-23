@@ -847,7 +847,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
         generateChirpAODWaveformParam.BandWidth = bandWidth;
         generateChirpAODWaveformParam.DirectoryPath = ChirpFileDirectory;
 
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        var (aodWaveformResult, exception) = AODWaveformGenerator1.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationToken);
         if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
 
         var chirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);

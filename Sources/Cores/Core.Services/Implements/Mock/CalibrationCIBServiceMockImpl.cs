@@ -174,4 +174,31 @@ public sealed class CalibrationCIBServiceMockImpl(
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results));
     }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point startPosition,
+        Point endPosition,
+        IReadOnlyList<CIBInformation> cibInformations,
+        double startECS,
+        double stopECS,
+        bool isForward,
+        CancellationToken cancellationToken)
+    {
+        var bytes = File.ReadAllBytes(_mockImageFilePath);
+
+        var results = new DarkFieldImageDTO[cibInformations.Count];
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            var cibInformation = cibInformations[i];
+
+            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            var size = (SizeI)image.GetSize();
+            results[i] = new DarkFieldImageDTO { PmtId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix };
+        }
+
+        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
+    }
 }

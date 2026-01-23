@@ -1,4 +1,4 @@
-﻿<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.Optics.OpticsObjectiveYAngleWindow"
+<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.Optics.OpticsObjectiveYAngleWindow"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -130,7 +130,6 @@
                                                                                                       IsVisibleAmplitude="False"
                                                                                                       IsVisibleDirectoryPath="False"
                                                                                                       IsVisibleUniformityConfiguration="False"
-                                                                                                      IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                       IsVisibleCompensation="False"
                                                                                                       DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
@@ -156,7 +155,6 @@
                                                                                                     IsVisibleAmplitude="False"
                                                                                                     IsVisibleDirectoryPath="False"
                                                                                                     IsVisibleUniformityConfiguration="False"
-                                                                                                    IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                     IsVisibleCompensation="False"
                                                                                                     DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>

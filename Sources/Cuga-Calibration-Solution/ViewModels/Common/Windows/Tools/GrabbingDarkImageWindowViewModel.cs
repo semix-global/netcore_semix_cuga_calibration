@@ -110,7 +110,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     {
         try
         {
-            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator.PrescanAODWaveformFileExtension, out var filePath);
+            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator1.PrescanAODWaveformFileExtension, out var filePath);
             if (dialog == false) return;
 
             PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(filePath);
@@ -140,7 +140,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     {
         try
         {
-            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator.ChirpAODWaveformFileExtension, out var filePath);
+            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator1.ChirpAODWaveformFileExtension, out var filePath);
             if (dialog == false) return;
 
             ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(filePath);

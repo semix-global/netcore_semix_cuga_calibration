@@ -28,7 +28,7 @@ public sealed partial class CalibrationLaserServiceImpl
         ];
 
         using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
+        var (aodWaveformResult, exception) = AODWaveformGenerator1.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
         var results = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
 
         return aodWaveformResult.IsSuccess
@@ -48,7 +48,7 @@ public sealed partial class CalibrationLaserServiceImpl
         ];
 
         using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
+        var (aodWaveformResult, exception) = AODWaveformGenerator1.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
         var results = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
 
         return aodWaveformResult.IsSuccess

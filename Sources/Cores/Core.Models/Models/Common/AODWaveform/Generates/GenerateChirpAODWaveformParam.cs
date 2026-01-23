@@ -7,7 +7,7 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateChirpAODWaveformParam :
     AbstractGenerateAODWaveformParam,
-    IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>,
+    IAdaptTo<AODWaveformGenerator1.ChirpAODWaveformParam>,
     ICloneable<GenerateChirpAODWaveformParam>
 {
     [ObservableProperty]
@@ -26,7 +26,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
         OnPropertyChanged(nameof(SpectralDensity));
     }
 
-    public AODWaveformGenerator.ChirpAODWaveformParam AdaptTo() => new(SoundPacketLength, SoundSpeed)
+    public AODWaveformGenerator1.ChirpAODWaveformParam AdaptTo() => new(SoundPacketLength, SoundSpeed)
     {
         BandWidth = BandWidth,
         CenterFrequency = CenterFrequency,
@@ -38,16 +38,13 @@ public sealed partial class GenerateChirpAODWaveformParam :
         EndpointSampleCount = EndpointSampleCount,
         GenerateRetryTimes = GenerateRetryTimes,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())],
-        SincCoefficient = SincCoefficient,
-        AstigmatismCompensationCoefficient = AstigmatismCompensationCoefficient,
-        SphericalAberrationCompensationCoefficient = SphericalAberrationCompensationCoefficient,
-        SecondaryAstigmatismCompensationCoefficient = SecondaryAstigmatismCompensationCoefficient,
-        ComaCompensationCoefficient = ComaCompensationCoefficient,
-        TrefoilCompensationCoefficient = TrefoilCompensationCoefficient,
-        QuadrafoilCompensationCoefficient = QuadrafoilCompensationCoefficient,
-        AlphaOrder = AlphaOrder,
-        AlphaOrderCoefficient = AlphaOrderCoefficient
+        C2CompensationCoefficient = C2CompensationCoefficient,
+        C3CompensationCoefficient = C3CompensationCoefficient,
+        C4CompensationCoefficient = C4CompensationCoefficient,
+        C5CompensationCoefficient = C5CompensationCoefficient,
+        C6CompensationCoefficient = C6CompensationCoefficient,
+        C7CompensationCoefficient = C7CompensationCoefficient,
+        C8CompensationCoefficient = C8CompensationCoefficient
     };
 
     public GenerateChirpAODWaveformParam Clone()
