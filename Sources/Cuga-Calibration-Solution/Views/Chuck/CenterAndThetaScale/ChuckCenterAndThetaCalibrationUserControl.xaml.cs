@@ -1,10 +1,10 @@
-﻿using Core.SourceGenerators.Attributes;
+﻿using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 
 namespace CugaCalibration.Views.Chuck.CenterAndThetaScale;
 
-[PermissionControl]
+[Permission]
 [IOCAppService(ServiceType = typeof(ChuckCenterAndThetaCalibrationUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ChuckCenterAndThetaCalibrationUserControl
 {

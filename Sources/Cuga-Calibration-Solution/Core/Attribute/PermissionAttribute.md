@@ -309,8 +309,8 @@ private static void OnExit(MethodAdviceContext context)
 ```
 Sources/
 ├── Cores/
-│   ├── Core.SourceGenerators/           # 新建项目
-│   │   ├── Core.SourceGenerators.csproj
+│   ├── Core.Utilities.SourceGenerators/           # 新建项目
+│   │   ├── Core.Utilities.SourceGenerators.csproj
 │   │   ├── PermissionGenerator.cs       # 主生成器
 │   │   ├── PermissionSyntaxReceiver.cs  # 语法接收器
 │   │   └── Templates/
@@ -320,7 +320,7 @@ Sources/
 
 #### 1.2 项目配置
 
-**Core.SourceGenerators.csproj**:
+**Core.Utilities.SourceGenerators.csproj**:
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
@@ -342,7 +342,7 @@ Sources/
 创建一个新的、简洁的标记特性（不依赖 MrAdvice）：
 
 ```csharp
-// Core.Models/Attributes/PermissionControlAttribute.cs
+// Core.Models/Attributes/PermissionAttribute.cs
 namespace Core.Models.Attributes;
 
 /// <summary>
@@ -350,7 +350,7 @@ namespace Core.Models.Attributes;
 /// Source Generator 将自动生成权限检查代码
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
-public sealed class PermissionControlAttribute : Attribute
+public sealed class PermissionAttribute : Attribute
 {
 }
 ```
@@ -369,7 +369,7 @@ public class PermissionSyntaxReceiver : ISyntaxContextReceiver
     {
         if (context.Node is ClassDeclarationSyntax classDeclaration)
         {
-            // 检查是否有 [PermissionControl] 特性
+            // 检查是否有 [Permission] 特性
             if (HasPermissionControlAttribute(classDeclaration, context.SemanticModel))
             {
                 CandidateClasses.Add(classDeclaration);
@@ -388,7 +388,7 @@ public class PermissionGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // 1. 收集带有 [PermissionControl] 的类
+        // 1. 收集带有 [Permission] 的类
         var classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: static (s, _) => IsCandidateClass(s),
@@ -545,7 +545,7 @@ public sealed partial class LaserAutoFocusCalibrationUserControl
 using Core.Models.Attributes;
 
 [IOCAppService(...)]
-[PermissionControl]  // 类级别标记
+[Permission]  // 类级别标记
 public sealed partial class LaserAutoFocusCalibrationUserControl
 {
     public LaserAutoFocusCalibrationUserControl()
@@ -583,7 +583,7 @@ public class PermissionGeneratorTests
         var source = @"
             using Core.Models.Attributes;
             
-            [PermissionControl]
+            [Permission]
             public partial class TestUserControl : UserControl { }
         ";
         
@@ -692,7 +692,7 @@ public abstract class PermissionUserControl : UserControl
 ## 八、下一步行动
 
 1. ✅ 完成本计划文档
-2. ⏳ 创建 `Core.SourceGenerators` 项目
+2. ⏳ 创建 `Core.Utilities.SourceGenerators` 项目
 3. ⏳ 实现基础的 Source Generator
 4. ⏳ 编写单元测试验证生成代码
 5. ⏳ 试点迁移一个模块（建议从 AOD 开始）

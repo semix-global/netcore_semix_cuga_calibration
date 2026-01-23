@@ -9,8 +9,8 @@
         <AnalysisLevel>latest</AnalysisLevel>
         <IsRoslynComponent>true</IsRoslynComponent>
 
-        <AssemblyName>Core.SourceGenerators</AssemblyName>
-        <RootNamespace>Core.SourceGenerators</RootNamespace>
+        <AssemblyName>Core.Utilities.SourceGenerators</AssemblyName>
+        <RootNamespace>Core.Utilities.SourceGenerators</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

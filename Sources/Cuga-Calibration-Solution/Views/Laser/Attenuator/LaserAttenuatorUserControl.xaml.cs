@@ -1,10 +1,10 @@
-using Core.SourceGenerators.Attributes;
+using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 
 namespace CugaCalibration.Views.Laser.Attenuator;
 
-[PermissionControl]
+[Permission]
 [IOCAppService(ServiceType = typeof(LaserAttenuatorUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class LaserAttenuatorUserControl
 {

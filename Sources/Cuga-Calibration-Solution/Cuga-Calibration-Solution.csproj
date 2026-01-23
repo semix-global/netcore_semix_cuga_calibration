@@ -29,12 +29,6 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
-
-    <!-- Source Generator 项目引用 -->
-    <ItemGroup>
-        <ProjectReference Include="..\Cores\Core.SourceGenerators\Core.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-
     <ItemGroup>
         <Reference Include="HAlgorithm">
             <HintPath>..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
@@ -54,8 +48,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Cores\Core.Models\03. Core.Models.csproj" />
-        <ProjectReference Include="..\Cores\Core.Services\04. Core.Services.csproj" />
+        <ProjectReference Include="..\Cores\Core.Utilities.SourceGenerators\02. Core.Utilities.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Cores\Core.Models\04. Core.Models.csproj" />
+        <ProjectReference Include="..\Cores\Core.Services\05. Core.Services.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -99,21 +94,6 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Page Update="Views\AOD\BestFocusAndAstigmatism\Children\Step0View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-          <XamlRuntime>Wpf</XamlRuntime>
-          <SubType>Designer</SubType>
-        </Page>
-        <Page Update="Views\AOD\BestFocusAndAstigmatism\Children\Step1View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-          <XamlRuntime>Wpf</XamlRuntime>
-          <SubType>Designer</SubType>
-        </Page>
-        <Page Update="Views\AOD\BestFocusAndAstigmatism\BestFocusAndAstigmatismCalibrationUserControl.xaml">
-          <Generator>MSBuild:Compile</Generator>
-          <XamlRuntime>Wpf</XamlRuntime>
-          <SubType>Designer</SubType>
-        </Page>
     </ItemGroup>
 
     <ItemGroup>
