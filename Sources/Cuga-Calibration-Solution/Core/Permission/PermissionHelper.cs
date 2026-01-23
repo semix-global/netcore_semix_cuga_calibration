@@ -32,7 +32,7 @@ public static class PermissionHelper
 
             foreach (var findVisualDescendant in DependencyObjectHelper.FindVisualDescendants(frameworkElement, type).OfType<FrameworkElement>())
             {
-                var findName = findVisualDescendant!.FindName(detail.Perms!);
+                var findName = findVisualDescendant.FindName(detail.Perms!);
                 if (findName is null) continue;
 
                 switch (detail.MenuTypeEnum)
