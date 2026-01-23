@@ -171,6 +171,13 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
     }
 
+    public SxExecuteRet<List<(double Trigger, double X, double Ecs)>> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
+    }
+
     public SxExecuteRet<bool> SetSensorBrightFieldChuckCenterMachinePositionValue(Point position)
     {
         Thread.Sleep(100);

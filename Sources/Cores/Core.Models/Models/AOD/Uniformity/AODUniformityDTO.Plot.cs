@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
@@ -9,7 +10,6 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
-using Net.Utilities.Algorithms.Extensions;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -245,7 +245,7 @@ public partial class AODUniformityDTO
 
                     var window = Mappings
                         .OrderBy(t => t.ImageHorizontalProjectIndex)
-                        .Select(t => Vector<double>.Build.Dense([..itemItemData.Window]).SubVectorIndexes([..t.MappingIndices]).Distinct().Single())
+                        .Select(t => Vector<double>.Build.Dense([.. itemItemData.Window]).SubVectorIndexes([.. t.MappingIndices]).Distinct().Single())
                         .ToArray();
 
                     ScatterPlotControl.GetOrAddScatterLine(

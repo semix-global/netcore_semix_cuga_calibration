@@ -7,15 +7,15 @@ using System.Windows;
 
 namespace Core.Models.Models.Common.Status.Converts;
 
-public sealed class MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert : AbstractSingletonMultiConverterBase<MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert>
+public sealed class MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert : AbstractSingletonMultiConverterBase<MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert>
 {
     public override object Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture)
         => values switch
         {
             [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> calibrationStatuses, OpticsIlluminationModeEnum opticsIlluminationModeEnum] => opticsIlluminationModeEnum switch
             {
-                OpticsIlluminationModeEnum.NI => calibrationStatuses.SingleOrDefault(t => t.SelectedItem == OpticsIlluminationModeEnum.NI)?.ProductivityInformationCalibrationStatusList ?? [],
-                OpticsIlluminationModeEnum.OI => calibrationStatuses.SingleOrDefault(t => t.SelectedItem == OpticsIlluminationModeEnum.OI)?.ProductivityInformationCalibrationStatusList ?? [],
+                OpticsIlluminationModeEnum.NI => calibrationStatuses.SingleOrDefault(t => t.SelectedItem == OpticsIlluminationModeEnum.NI)?.ProductivityInformationStatusList ?? [],
+                OpticsIlluminationModeEnum.OI => calibrationStatuses.SingleOrDefault(t => t.SelectedItem == OpticsIlluminationModeEnum.OI)?.ProductivityInformationStatusList ?? [],
                 _ => ThrowHelper.ThrowNotSupportedException<object>(nameof(opticsIlluminationModeEnum))
             },
             [IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus>, { } o] => o == DependencyProperty.UnsetValue ? (BindingList<ProductivityInformationStatus>)[] : ThrowHelper.ThrowNotSupportedException<object>(),

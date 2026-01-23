@@ -613,10 +613,12 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             }
 
             CalibratingItem.XPixelSize = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / xFilterDifferences.Average();
+            CalibratingItem.XPixelSizeDelta = xFilterDifferences.Max() - xFilterDifferences.Min();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 CalibratingItem.XPixelSize,
+                CalibratingItem.XPixelSizeDelta,
                 Plot = new HtmlQuote(htmlAnonymous)
             }), HtmlLogUniqueId.LoggingHtml());
 

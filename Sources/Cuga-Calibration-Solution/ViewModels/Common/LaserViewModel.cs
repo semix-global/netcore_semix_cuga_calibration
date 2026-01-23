@@ -11,9 +11,11 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using CugaCalibration.Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -34,6 +36,7 @@ public sealed class LaserViewModel(
     ICalibrationLaserService calibrationLaserService,
     ILogger<LaserViewModel> logger,
     ICalibrationAlgorithmService calibrationAlgorithmService,
+    IApplicationCookieService applicationCookieService,
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
@@ -328,6 +331,71 @@ public sealed class LaserViewModel(
         }
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public (double Ecs, double AfMotor) RuntimeAfCalibration(
+       CIBConfiguration cibConfiguration,
+       CIBInformation cibInformation,
+       Point position,
+       LaserLightInformation laserLightInformation,
+       ProductivityInformation productivityInformation,
+       out string resultImageFilePath,
+       bool isAppliedDefaultRtfcParam = true,
+       int pmtId = CalibrationConstantsHelper.MainPmtId,
+       CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
+       StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
+       OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
+       string? saveImageFileDirectory = null,
+       Guid? logGuid = null,
+       string? logName = null
+   )
+    {
+        resultImageFilePath = string.Empty;
+        var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
+        Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
+
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        var rtfcResult = ret.Anything;
+        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
+        using var darkFieldImageDto = GetDarkFieldLineScanImage(
+            opticsIlluminationModeEnum,
+            productivityInformation,
+            calChipSiteModelEnum,
+            stageCoordinateSystemEnum,
+            position,
+            (false, lightInformation),
+            false,
+            cibInformation,
+            cibConfiguration,
+            800); // 模板匹配只能通道3(1, 2特征不明显)
+
+        if (saveImageFileDirectory is not null)
+        {
+            var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
+            darkFieldImageDto.Image.Save(rtfcResultImagePath);
+
+            resultImageFilePath = rtfcResultImagePath;
+
+            if (logGuid is not null && logName is not null)
+                logger.LogHtmlInformation($"{logName} RTFC", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                {
+                    point,
+                    calChipSiteModelEnum,
+                    pmtId,
+                    laserLightInformation,
+                    ret.Anything.Ecs,
+                    ret.Anything.AfMotor,
+                    darkFieldImageDto.RawImageFilePath,
+                    HtmlTab = new HtmlTab(new
+                    {
+                        RTFCResultImage = new HtmlImage(rtfcResultImagePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
+                    })
+                }), logGuid.Value.LoggingHtml());
+        }
+
+        return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
     }
 
     [Obsolete]
@@ -731,10 +799,10 @@ public sealed class LaserViewModel(
     /// <summary>
     /// PTP行扫
     /// </summary>
+    /// <param name="calChipSiteModelEnum"></param>
     /// <param name="startPosition"></param>
     /// <param name="endPosition"></param>
-    /// <param name="yOpticsMagTypeEnum"></param>
-    /// <param name="xStageSpeedEnum"></param>
+    /// <param name="productivityInformation"></param>
     /// <param name="opticsIlluminationModeEnum"></param>
     /// <param name="pmtId"></param>
     /// <param name="stageCoordinateSystemEnum"></param>
@@ -743,6 +811,7 @@ public sealed class LaserViewModel(
     /// <param name="isCustomChirpAod"></param>
     /// <param name="isForward"></param>
     /// <param name="isAutoFocus"></param>
+    /// <param name="zMotionParam"></param>
     /// <returns></returns>
     /// <exception cref="CugaException"></exception>
     public List<DarkFieldRawScanImageDTO> GetDarkFieldLineScanImageList(
@@ -757,7 +826,8 @@ public sealed class LaserViewModel(
         (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
         bool isCustomChirpAod,
         bool isForward = true,
-        bool isAutoFocus = true)
+        bool isAutoFocus = true,
+        (double zStart, double zEnd, double zSpeed)? zMotionParam = null)
     {
         try
         {
@@ -794,7 +864,7 @@ public sealed class LaserViewModel(
             // 采图模式下发
             ToggleCIBControlModeAndProfileType(cibConfiguration, pmtId, -1);
 
-            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startMachinePosition, endMachinePosition, productivityInformation, opticsIlluminationModeEnum, pmtId, StageCoordinateSystemEnum.Machine, isAutoFocus, isForward);
+            var ret = calibrationLaserService.GetDarkFieldLineScanImageList(startMachinePosition, endMachinePosition, productivityInformation, opticsIlluminationModeEnum, pmtId, StageCoordinateSystemEnum.Machine, isAutoFocus, isForward, zMotionParam);
 
             return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
         }
@@ -883,6 +953,101 @@ public sealed class LaserViewModel(
             isAutoFocus);
 
         return result.Single(t => t.ChannelId == cibInformation.ChannelId);
+    }
+
+    public List<DarkFieldRawScanImageDTO> GetMultiPMTDarkFieldLineScanImageByEnumerable(
+        ProductivityInformation productivityInformation,
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        ImageCollectionConfiguration imageCollectionConfiguration,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
+        bool isCustomChirpAod,
+        CIBConfiguration cIbConfiguration,
+        IReadOnlyList<PmtConfigParam> pmtIdList,
+        OpticsApodizationModeEnum opticsApodizationModeEnum = OpticsApodizationModeEnum.Gaussian,
+        double pmtInterval = 320,
+        bool isAppliedLineCentricityResult = true)
+    {
+        List<DarkFieldRawScanImageDTO> resultDarkFieldImagesList = [];
+        IReadOnlyCollection<(int Pmt, Point Offset)> lineCentricityOffsets = [];
+
+        var (xDirection, yDirection) = (1d, 1d);
+        if (stageCoordinateSystemEnum is StageCoordinateSystemEnum.Machine)
+            (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+
+        var pmtEnableItems = pmtIdList.Where(t => t.Enabled).ToList();
+        if (isAppliedLineCentricityResult)
+        {
+            var lineCentricityItemDtos = cacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>();
+            Guard.IsTrue(pmtEnableItems.All(t => lineCentricityItemDtos.SingleOrDefault(o => o.PmtId == t.Id
+                                                                                             && o.ProductivityInformation == productivityInformation
+                                                                                             && o.OpticsIlluminationMode == productivityInformation.OpticsIlluminationModeEnum
+                                                                                             && o.IsOk) != null), nameof(lineCentricityItemDtos)
+            );
+            lineCentricityOffsets = applicationCookieService.GetLineCentricityMachineOffsetList(lineCentricityItemDtos, productivityInformation.OpticsIlluminationModeEnum, productivityInformation);
+        }
+
+        foreach (var (pmt, yOffset) in pmtEnableItems
+                     .Select(t => t.Id)
+                     .OrderBy(t => t)
+                     .Select(t => (PMT: t, YOffset: yDirection * pmtInterval * (t - CalibrationConstantsHelper.MainPmtId))))
+        {
+            var lineCentricityOffset = lineCentricityOffsets.SingleOrDefault(t => t.Pmt == pmt).Offset;
+            var offsetPosition = new Point(0, yOffset) + (Vector)new Point
+            (
+                xDirection * lineCentricityOffset.X,
+                yDirection * lineCentricityOffset.Y
+            );
+
+            var result = GetDarkFieldLineScanImageList(
+                calChipSiteModelEnum,
+                imageCollectionConfiguration.ExtensionStartPoint + (Vector)offsetPosition,
+                imageCollectionConfiguration.ExtensionEndPoint + (Vector)offsetPosition,
+                productivityInformation,
+                productivityInformation.OpticsIlluminationModeEnum,
+                pmt,
+                stageCoordinateSystemEnum,
+                cIbConfiguration,
+                customPrescanAod,
+                isCustomChirpAod,
+                imageCollectionConfiguration.IsForward,
+                imageCollectionConfiguration.IsAutoFocus,
+                (imageCollectionConfiguration.ExtensionStartEcs, imageCollectionConfiguration.ExtensionEndEcs, imageCollectionConfiguration.ZSpeedValue));
+            resultDarkFieldImagesList.AddRange(result);
+        }
+
+        return resultDarkFieldImagesList;
+    }
+
+    public List<DarkFieldRawScanImageDTO> GetMultiPMTDarkFieldLineScanImageByOnce(
+        ProductivityInformation productivityInformation,
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        ImageCollectionConfiguration imageCollectionConfiguration,
+        (bool IsCustomPrescanAod, LaserLightInformation? LaserLightInformation) customPrescanAod,
+        bool isCustomChirpAod,
+        CIBConfiguration cIbConfiguration,
+        IReadOnlyList<PmtConfigParam> pmtIdList,
+        OpticsApodizationModeEnum opticsApodizationModeEnum = OpticsApodizationModeEnum.None)
+    {
+        var pmtEnableItems = pmtIdList.Where(t => t.Enabled).Select(t => t.Id).ToList();
+
+        var result = GetDarkFieldLineScanImageList(
+            calChipSiteModelEnum,
+            imageCollectionConfiguration.ExtensionStartPoint,
+            imageCollectionConfiguration.ExtensionEndPoint,
+            productivityInformation,
+            productivityInformation.OpticsIlluminationModeEnum,
+            -1,
+            stageCoordinateSystemEnum,
+            cIbConfiguration,
+            customPrescanAod,
+            isCustomChirpAod,
+            imageCollectionConfiguration.IsForward,
+            imageCollectionConfiguration.IsAutoFocus,
+            (imageCollectionConfiguration.ExtensionStartEcs, imageCollectionConfiguration.ExtensionEndEcs, imageCollectionConfiguration.ZSpeedValue));
+
+        return result.Where(t => pmtEnableItems.Contains(t.PmtId)).ToList();
     }
 
     /// <summary>

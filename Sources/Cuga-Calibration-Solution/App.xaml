@@ -1,4 +1,4 @@
-﻿<Application x:Class="CugaCalibration.App"
+<Application x:Class="CugaCalibration.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:coreModels="clr-namespace:Core.Models.Enums;assembly=Core.Models"
@@ -21,8 +21,9 @@
 
             <wpfMvvmConverters:ViewModel2ViewConverter x:Key="ViewModel2ViewConverter" />
             <cookies:MultiApplicationCookieToProductivityInformationsConvert x:Key="MultiApplicationCookieToProductivityInformationsConvert" />
-            <converts:MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert x:Key="MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert" />
+            <converts:MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert x:Key="MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert" />
             <converts:MultiProductivityInformationAndLaserLightInformationStatusConvert x:Key="MultiProductivityInformationAndLaserLightInformationStatusConvert" />
+            <converts:MultiProductivityInformationToOpticsApodizationsCalibrationStatusesConvert x:Key="MultiProductivityInformationToOpticsApodizationsCalibrationStatusesConvert" />
             <valueConverters:ValueConverterGroup x:Key="IntIs0ToVisibilityConverter">
                 <valueConverters:IntegerToBoolConverter TrueValue="0" FalseValue="-999" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />

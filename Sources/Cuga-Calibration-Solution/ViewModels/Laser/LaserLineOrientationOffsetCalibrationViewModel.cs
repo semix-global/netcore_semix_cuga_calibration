@@ -203,7 +203,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
                 {
                     SelectedItem = t,
-                    ProductivityInformationCalibrationStatusList = [.. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+                    ProductivityInformationStatusList = [.. ApplicationCookie.NIOpticsMagTypeProductivityInformations.Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
                 })
         ];
 
@@ -211,7 +211,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         {
             var opticsIlluminationModeStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
             var status = opticsIlluminationModeStatus
-                .ProductivityInformationCalibrationStatusList
+                .ProductivityInformationStatusList
                 .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
         }
@@ -266,7 +266,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         {
             case 1:
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationCalibrationStatusList
+                    .ProductivityInformationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = false;
 
                 return true;
@@ -306,7 +306,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 }
 
                 CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationCalibrationStatusList
+                    .ProductivityInformationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);

@@ -48,7 +48,7 @@
                  ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                  SelectionMode="Single">
             <ListBox.ItemsSource>
-                <MultiBinding Converter="{StaticResource MultiOpticsIlluminationModeAndProductivityInformationCalibrationStatusesToProductivityInformationsCalibrationStatusesConvert}">
+                <MultiBinding Converter="{StaticResource MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert}">
                     <Binding Path="CalibrationStatuses" />
                     <Binding Path="Cache.OpticsIlluminationModeEnum" />
                 </MultiBinding>

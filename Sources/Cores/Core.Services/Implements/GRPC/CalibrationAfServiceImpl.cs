@@ -193,6 +193,11 @@ public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService micro
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<List<(double Trigger, double X, double Ecs)>> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeLensInformation microscopeLensInformation, double standardEcsValue)
     {
         var sxExecuteRet = Invoke(() => Service?.SetMicroscopeEcs(new SxParamObj<(CgMicroscopeLens lens, ushort ecs)>((microscopeLensInformation.AdaptTo().LensCode, Convert.ToUInt16(standardEcsValue)))));
