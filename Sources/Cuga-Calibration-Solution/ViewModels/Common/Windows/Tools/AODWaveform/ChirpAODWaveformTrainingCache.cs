@@ -39,67 +39,13 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private double _rangeECS;
 
     [ObservableProperty]
-    private double _startC2Coefficient;
+    private double _stepPCoefficient = 0.01;
 
     [ObservableProperty]
-    private double _stepC2Coefficient;
+    private int _retryTimes = 10;
 
     [ObservableProperty]
-    private double _stopC2Coefficient;
-
-    [ObservableProperty]
-    private double _startC3Coefficient;
-
-    [ObservableProperty]
-    private double _stepC3Coefficient;
-
-    [ObservableProperty]
-    private double _stopC3Coefficient;
-
-    [ObservableProperty]
-    private double _startC4Coefficient;
-
-    [ObservableProperty]
-    private double _stepC4Coefficient;
-
-    [ObservableProperty]
-    private double _stopC4Coefficient;
-
-    [ObservableProperty]
-    private double _startC5Coefficient;
-
-    [ObservableProperty]
-    private double _stepC5Coefficient;
-
-    [ObservableProperty]
-    private double _stopC5Coefficient;
-
-    [ObservableProperty]
-    private double _startC6Coefficient;
-
-    [ObservableProperty]
-    private double _stepC6Coefficient;
-
-    [ObservableProperty]
-    private double _stopC6Coefficient;
-
-    [ObservableProperty]
-    private double _startC7Coefficient;
-
-    [ObservableProperty]
-    private double _stepC7Coefficient;
-
-    [ObservableProperty]
-    private double _stopC7Coefficient;
-
-    [ObservableProperty]
-    private double _startC8Coefficient;
-
-    [ObservableProperty]
-    private double _stepC8Coefficient;
-
-    [ObservableProperty]
-    private double _stopC8Coefficient;
+    private ChirpAODWaveformTrainingItem _item = new();
 
     [ObservableProperty]
     private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];

@@ -34,25 +34,22 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 
     [ObservableProperty]
-    private double _c2Coefficient;
+    private double _p3Coefficient;
 
     [ObservableProperty]
-    private double _c3Coefficient;
+    private double _p4Coefficient;
 
     [ObservableProperty]
-    private double _c4Coefficient;
+    private double _p5Coefficient;
 
     [ObservableProperty]
-    private double _c5Coefficient;
+    private double _p6Coefficient;
 
     [ObservableProperty]
-    private double _c6Coefficient;
+    private double _p7Coefficient;
 
     [ObservableProperty]
-    private double _c7Coefficient;
-
-    [ObservableProperty]
-    private double _c8Coefficient;
+    private double _p8Coefficient;
 
     [ObservableProperty]
     private IReadOnlyList<Point> _xStrehlRatioPoints = [];

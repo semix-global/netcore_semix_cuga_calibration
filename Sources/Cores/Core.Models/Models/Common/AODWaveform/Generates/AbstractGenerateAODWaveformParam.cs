@@ -53,25 +53,22 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
-    private double _c2CompensationCoefficient;
+    private double _p3CompensationCoefficient;
 
     [ObservableProperty]
-    private double _c3CompensationCoefficient;
-
-    [ObservableProperty]
-    private double _c4CompensationCoefficient;
+    private double _p4CompensationCoefficient;
     
     [ObservableProperty]
-    private double _c5CompensationCoefficient;
+    private double _p5CompensationCoefficient;
 
     [ObservableProperty]
-    private double _c6CompensationCoefficient;
+    private double _p6CompensationCoefficient;
 
     [ObservableProperty]
-    private double _c7CompensationCoefficient;
+    private double _p7CompensationCoefficient;
 
     [ObservableProperty]
-    private double _c8CompensationCoefficient;
+    private double _p8CompensationCoefficient;
 
     partial void OnHeaderFrequencyChanged(double value)
     {
@@ -180,13 +177,12 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         BandWidth = 0d;
         CenterFrequency = frequency;
         foreach (var electrodeConfiguration in ElectrodeConfigurations) electrodeConfiguration.UniformityConfigurations = [];
-        C2CompensationCoefficient = 0d;
-        C3CompensationCoefficient = 0d;
-        C4CompensationCoefficient = 0d;
-        C5CompensationCoefficient = 0d;
-        C6CompensationCoefficient = 0d;
-        C7CompensationCoefficient = 0d;
-        C8CompensationCoefficient = 0d;
+        P3CompensationCoefficient = 0d;
+        P4CompensationCoefficient = 0d;
+        P5CompensationCoefficient = 0d;
+        P6CompensationCoefficient = 0d;
+        P7CompensationCoefficient = 0d;
+        P8CompensationCoefficient = 0d;
     }
 
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
@@ -204,13 +200,12 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         EndpointSampleCount = obj.EndpointSampleCount;
         GenerateRetryTimes = obj.GenerateRetryTimes;
         ElectrodeConfigurations = [.. obj.ElectrodeConfigurations.Select(t => t.Clone())];
-        C2CompensationCoefficient = obj.C2CompensationCoefficient;
-        C3CompensationCoefficient = obj.C3CompensationCoefficient;
-        C4CompensationCoefficient = obj.C4CompensationCoefficient;
-        C5CompensationCoefficient = obj.C5CompensationCoefficient;
-        C6CompensationCoefficient = obj.C6CompensationCoefficient;
-        C7CompensationCoefficient = obj.C7CompensationCoefficient;
-        C8CompensationCoefficient = obj.C8CompensationCoefficient;
+        P3CompensationCoefficient = obj.P3CompensationCoefficient;
+        P4CompensationCoefficient = obj.P4CompensationCoefficient;
+        P5CompensationCoefficient = obj.P5CompensationCoefficient;
+        P6CompensationCoefficient = obj.P6CompensationCoefficient;
+        P7CompensationCoefficient = obj.P7CompensationCoefficient;
+        P8CompensationCoefficient = obj.P8CompensationCoefficient;
 
         return this;
     }
@@ -247,12 +242,11 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         EndpointSampleCount,
         GenerateRetryTimes,
         ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())]),
-        C2CompensationCoefficient,
-        C3CompensationCoefficient,
-        C4CompensationCoefficient,
-        C5CompensationCoefficient,
-        C6CompensationCoefficient,
-        C7CompensationCoefficient,
-        C8CompensationCoefficient
+        P3CompensationCoefficient,
+        P4CompensationCoefficient,
+        P5CompensationCoefficient,
+        P6CompensationCoefficient,
+        P7CompensationCoefficient,
+        P8CompensationCoefficient
     };
 }

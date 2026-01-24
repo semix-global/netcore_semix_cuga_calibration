@@ -84,13 +84,12 @@ public static class AODWaveformProfileFactory
             if (item.FrequencyCoefficients.Count > 0) prescanAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
             if (item.FlatnessLinearFrequencySignals.Count > 0) prescanAODWaveformProfile.FlatnessLinearFrequencySignals = [.. item.FlatnessLinearFrequencySignals];
             if (item.FlatnessTotalFrequencySignals.Count > 0) prescanAODWaveformProfile.FlatnessTotalFrequencySignals = [.. item.FlatnessTotalFrequencySignals];
-            if (item.FlatnessC2CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessC2CompensationSignals = [.. item.FlatnessC2CompensationSignals];
-            if (item.FlatnessC3CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessC3CompensationSignals = [.. item.FlatnessC3CompensationSignals];
-            if (item.FlatnessC4CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessC4CompensationSignals = [.. item.FlatnessC4CompensationSignals];
-            if (item.FlatnessC5CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessC5CompensationSignals = [.. item.FlatnessC5CompensationSignals];
-            if (item.FlatnessC6CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessC6CompensationSignals = [.. item.FlatnessC6CompensationSignals];
-            if (item.FlatnessC7CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessC7CompensationSignals = [.. item.FlatnessC7CompensationSignals];
-            if (item.FlatnessC8CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessC8CompensationSignals = [.. item.FlatnessC8CompensationSignals];
+            if (item.FlatnessP3CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessP3CompensationSignals = [.. item.FlatnessP3CompensationSignals];
+            if (item.FlatnessP4CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessP4CompensationSignals = [.. item.FlatnessP4CompensationSignals];
+            if (item.FlatnessP5CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessP5CompensationSignals = [.. item.FlatnessP5CompensationSignals];
+            if (item.FlatnessP6CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessP6CompensationSignals = [.. item.FlatnessP6CompensationSignals];
+            if (item.FlatnessP7CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessP7CompensationSignals = [.. item.FlatnessP7CompensationSignals];
+            if (item.FlatnessP8CompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessP8CompensationSignals = [.. item.FlatnessP8CompensationSignals];
 
             result.Add(prescanAODWaveformProfile);
         }
@@ -111,13 +110,12 @@ public static class AODWaveformProfileFactory
             if (item.FrequencyCoefficients.Count > 0) chirpAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
             if (item.FlatnessLinearFrequencySignals.Count > 0) chirpAODWaveformProfile.FlatnessLinearFrequencySignals = [.. item.FlatnessLinearFrequencySignals];
             if (item.FlatnessTotalFrequencySignals.Count > 0) chirpAODWaveformProfile.FlatnessTotalFrequencySignals = [.. item.FlatnessTotalFrequencySignals];
-            if (item.FlatnessC2CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessC2CompensationSignals = [.. item.FlatnessC2CompensationSignals];
-            if (item.FlatnessC3CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessC3CompensationSignals = [.. item.FlatnessC3CompensationSignals];
-            if (item.FlatnessC4CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessC4CompensationSignals = [.. item.FlatnessC4CompensationSignals];
-            if (item.FlatnessC5CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessC5CompensationSignals = [.. item.FlatnessC5CompensationSignals];
-            if (item.FlatnessC6CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessC6CompensationSignals = [.. item.FlatnessC6CompensationSignals];
-            if (item.FlatnessC7CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessC7CompensationSignals = [.. item.FlatnessC7CompensationSignals];
-            if (item.FlatnessC8CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessC8CompensationSignals = [.. item.FlatnessC8CompensationSignals];
+            if (item.FlatnessP3CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessP3CompensationSignals = [.. item.FlatnessP3CompensationSignals];
+            if (item.FlatnessP4CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessP4CompensationSignals = [.. item.FlatnessP4CompensationSignals];
+            if (item.FlatnessP5CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessP5CompensationSignals = [.. item.FlatnessP5CompensationSignals];
+            if (item.FlatnessP6CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessP6CompensationSignals = [.. item.FlatnessP6CompensationSignals];
+            if (item.FlatnessP7CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessP7CompensationSignals = [.. item.FlatnessP7CompensationSignals];
+            if (item.FlatnessP8CompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessP8CompensationSignals = [.. item.FlatnessP8CompensationSignals];
 
             result.Add(chirpAODWaveformProfile);
         }
