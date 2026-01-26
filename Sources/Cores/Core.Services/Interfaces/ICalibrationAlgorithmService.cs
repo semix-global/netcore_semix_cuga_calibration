@@ -171,35 +171,6 @@ public interface ICalibrationAlgorithmService
     #region 暗场
 
     /// <summary>
-    /// 获取raw bytes尺寸
-    /// </summary>
-    /// <param name="rawBytes">raw bytes</param>
-    /// <returns>尺寸</returns>
-    public (Size Size, long BodyBytesStartIndex, long BodyBytesLength) GetSize(byte[] rawBytes);
-
-    /// <summary>
-    /// raw body bytes add header and footer
-    /// </summary>
-    /// <param name="bodyBytes">raw body bytes</param>
-    /// <param name="size">图片尺寸</param>
-    /// <returns>raw bytes</returns>
-    byte[] ToRawBytes(byte[] bodyBytes, Size size);
-
-    /// <summary>
-    /// raw bytes to 暗场图片
-    /// </summary>
-    /// <param name="rawBytes">raw bytes</param>
-    /// <returns>暗场图片</returns>
-    (HImage Image, short[,] Matrix) ToImageInfo(byte[] rawBytes);
-
-    /// <summary>
-    /// raw bytes to 暗场图片
-    /// </summary>
-    /// <param name="rawBytes">raw bytes</param>
-    /// <returns>暗场图片</returns>
-    (HImage Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes);
-
-    /// <summary>
     ///  RAW转线性图（含3*3滤波）
     /// </summary>
     /// <param name="darkFieldRawImage"></param>

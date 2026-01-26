@@ -314,7 +314,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             {
                 var hazeResultItem = GuardUtils.IsAssignableToType<HazeResultItem>(item);
 
-                var matrix = Matrix<double>.Build.DenseOfArray(darkFieldImageDto.Matrix);
+                var matrix = Matrix<double>.Build.DenseOfArray(darkFieldImageDto.Image.GetMatrix());
 
                 var baseSize = matrix.RowCount / 3;
                 var remainder = matrix.RowCount % 3;
@@ -419,7 +419,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             {
                 var dswResultItem = GuardUtils.IsAssignableToType<DSWResultItem>(item);
 
-                var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) = StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Matrix, Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
+                var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) = StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Image.GetMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
                 dswResultItem.StrehlRatioX = strehlRatioX;
                 dswResultItem.StrehlRatioY = strehlRatioY;
 

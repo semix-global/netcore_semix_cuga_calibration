@@ -53,11 +53,6 @@ public sealed partial class DarkFieldImageDTO :
     private string _rawImageFilePath = string.Empty;
 
     /// <summary>
-    /// 图片矩阵
-    /// </summary>
-    public required short[,] Matrix { get; init; }
-
-    /// <summary>
     /// 图片
     /// </summary>
     public required HImage Image { get; init; }
@@ -71,7 +66,6 @@ public sealed partial class DarkFieldImageDTO :
         Width = Width,
         Height = Height,
         RawImageFilePath = RawImageFilePath,
-        Matrix = MatrixUtils.Clone(Matrix),
         Image = Image.Copy(),
         Id = Id,
         Expiration = Expiration

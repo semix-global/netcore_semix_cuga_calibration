@@ -615,9 +615,9 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -638,9 +638,9 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -727,9 +727,9 @@ public sealed class CalibrationLaserServiceMockImpl(
         {
             foreach (var i in Enumerable.Range(0, 3))
             {
-                var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+                var image = RawImageFactory.CreateImage(bytes);
                 var size = (SizeI)image.GetSize();
-                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image });
             }
 
             result.Add(temp);
@@ -756,9 +756,9 @@ public sealed class CalibrationLaserServiceMockImpl(
         {
             foreach (var i in Enumerable.Range(0, 3))
             {
-                var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+                var image = RawImageFactory.CreateImage(bytes);
                 var size = (SizeI)image.GetSize();
-                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image });
             }
 
             result.Add(temp);

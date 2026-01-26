@@ -13,6 +13,7 @@ using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Algorithms.Halcon;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
@@ -212,9 +213,9 @@ public sealed class CalibrationCIBServiceImpl(
             var m2CImgSysCollectImgDto = dfImgCalibrationRet.Anything.Single(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId);
 
             var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
+            var image = RawImageFactory.CreateImage(rawBytes);
 
-            result[index] = new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto);
+            result[index] = new DarkFieldImageDTO { Image = image }.AdaptIn(m2CImgSysCollectImgDto);
         }, cancellationToken)));
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(result);
@@ -319,9 +320,9 @@ public sealed class CalibrationCIBServiceImpl(
             var m2CImgSysCollectImgDto = dfImgCalibrationRet.Anything.Single(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId);
 
             var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
+            var image = RawImageFactory.CreateImage(rawBytes);
 
-            result[index] = new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto);
+            result[index] = new DarkFieldImageDTO { Image = image }.AdaptIn(m2CImgSysCollectImgDto);
         }, cancellationToken)));
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(result);
