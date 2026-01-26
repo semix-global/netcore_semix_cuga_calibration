@@ -1376,7 +1376,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                                 {
                                     Error = $"Try {EnumHelper.ToDescriptionString(Cache.AlgorithmTemplateTypeEnum)} Match To Offset Failed",
-                                    darkFieldImageDto.PmtId,
+                                    PmtId = darkFieldImageDto.PMTId,
                                     darkFieldImageDto.ChannelId,
                                     darkFieldImageDto.Width,
                                     Cache.ProductivityInformation,
@@ -1401,7 +1401,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                             Logger.LogHtmlInformation($"{index + 1}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                             {
-                                darkFieldImageDto.PmtId,
+                                PmtId = darkFieldImageDto.PMTId,
                                 darkFieldImageDto.ChannelId,
                                 darkFieldImageDto.Width,
                                 Cache.ProductivityInformation,

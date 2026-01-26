@@ -716,14 +716,14 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Get Y Pixel Size Failed: {ex.Message}"), HtmlLogUniqueId.LoggingHtml());
         }
 
-        laserPixelSizeItemDto.FilePath = $"{laserPixelSizeItemDto.OriginFilePath}{(algoRet ? string.Empty : "\\Error")}\\PmtId({laserPixelSizeItemDto.PmtId})_YPixelSize({laserPixelSizeItemDto.YPixelSize:f3})_Guid({HtmlLogUniqueId}).jpg";
+        laserPixelSizeItemDto.FilePath = $"{laserPixelSizeItemDto.OriginFilePath}{(algoRet ? string.Empty : "\\Error")}\\PMTId({laserPixelSizeItemDto.PmtId})_YPixelSize({laserPixelSizeItemDto.YPixelSize:f3})_Guid({HtmlLogUniqueId}).jpg";
         laserPixelSizeItemDto.OriginFilePath = darkFieldImageDto.RawImageFilePath;
 
         darkFieldImageDto.Image.Save(laserPixelSizeItemDto.FilePath);
 
         Logger.LogHtmlInformation($"Get Y Pixel Size Success:PMT ID {laserPixelSizeItemDto.PmtId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
-            darkFieldImageDto.PmtId,
+            PmtId = darkFieldImageDto.PMTId,
             darkFieldImageDto.ChannelId,
             darkFieldImageDto.Width,
             laserPixelSizeItemDto.ProductivityInformation,

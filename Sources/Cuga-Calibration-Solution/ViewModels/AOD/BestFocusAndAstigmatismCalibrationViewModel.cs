@@ -792,7 +792,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
             [
                 ..darkFieldImageDtoList.Select(t => new BestFocusAndAstigmatismChannelItemDto
                 {
-                    PmtId = t.PmtId,
+                    PmtId = t.PMTId,
                     ChannelId = t.ChannelId,
                     RawFilePath = t.RawImageFilePath
                 })

@@ -796,7 +796,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<HImage>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDTO { PmtId = pmtId, ChannelId = item.Channel, Image = image, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDTO { PMTId = pmtId, ChannelId = item.Channel, Image = image, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -888,7 +888,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<HImage>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDTO { PmtId = pmtId, ChannelId = item.Channel, Image = image, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDTO { PMTId = pmtId, ChannelId = item.Channel, Image = image, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
