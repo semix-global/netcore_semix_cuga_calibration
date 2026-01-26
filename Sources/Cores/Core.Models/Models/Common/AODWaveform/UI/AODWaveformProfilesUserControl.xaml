@@ -99,20 +99,45 @@
                                                                           ScatterLine0Title="Liner"
                                                                           ScatterLine0Points="{Binding FlatnessLinearFrequencySignals}"
                                                                           ScatterLine1Title="P3"
-                                                                          ScatterLine1Points="{Binding FlatnessP3CompensationSignals}"
+                                                                          ScatterLine1Points="{Binding FlatnessP3CompensationFrequencySignals}"
                                                                           ScatterLine2Title="P4"
-                                                                          ScatterLine2Points="{Binding FlatnessP4CompensationSignals}"
+                                                                          ScatterLine2Points="{Binding FlatnessP4CompensationFrequencySignals}"
                                                                           ScatterLine3Title="P5"
-                                                                          ScatterLine3Points="{Binding FlatnessP5CompensationSignals}"
+                                                                          ScatterLine3Points="{Binding FlatnessP5CompensationFrequencySignals}"
                                                                           ScatterLine5Title="P6"
-                                                                          ScatterLine5Points="{Binding FlatnessP6CompensationSignals}"
+                                                                          ScatterLine5Points="{Binding FlatnessP6CompensationFrequencySignals}"
                                                                           ScatterLine6Title="P7"
-                                                                          ScatterLine6Points="{Binding FlatnessP7CompensationSignals}"
+                                                                          ScatterLine6Points="{Binding FlatnessP7CompensationFrequencySignals}"
                                                                           ScatterLine7Title="P8"
-                                                                          ScatterLine7Points="{Binding FlatnessP8CompensationSignals}" />
+                                                                          ScatterLine7Points="{Binding FlatnessP8CompensationFrequencySignals}" />
                                         <controls:ScatterMultiPlotControl Grid.Column="1"
                                                                           Title="Total Flatness Frequency"
                                                                           ScatterLine0Points="{Binding FlatnessTotalFrequencySignals}" />
+                                    </Grid>
+                                </TabItem>
+                                <TabItem Header="Flatness Phase">
+                                    <Grid Margin="5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <controls:ScatterMultiPlotControl Grid.Column="0"
+                                                                          Title="Split"
+                                                                          ScatterLine1Title="P3"
+                                                                          ScatterLine1Points="{Binding FlatnessP3CompensationPhaseSignals}"
+                                                                          ScatterLine2Title="P4"
+                                                                          ScatterLine2Points="{Binding FlatnessP4CompensationPhaseSignals}"
+                                                                          ScatterLine3Title="P5"
+                                                                          ScatterLine3Points="{Binding FlatnessP5CompensationPhaseSignals}"
+                                                                          ScatterLine5Title="P6"
+                                                                          ScatterLine5Points="{Binding FlatnessP6CompensationPhaseSignals}"
+                                                                          ScatterLine6Title="P7"
+                                                                          ScatterLine6Points="{Binding FlatnessP7CompensationPhaseSignals}"
+                                                                          ScatterLine7Title="P8"
+                                                                          ScatterLine7Points="{Binding FlatnessP8CompensationPhaseSignals}" />
+                                        <controls:ScatterMultiPlotControl Grid.Column="1"
+                                                                          Title="Total Flatness Phase"
+                                                                          ScatterLine0Points="{Binding FlatnessTotalPhaseSignals}" />
                                     </Grid>
                                 </TabItem>
                             </TabControl>
