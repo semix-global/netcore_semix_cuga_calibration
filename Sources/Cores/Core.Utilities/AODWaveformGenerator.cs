@@ -698,13 +698,9 @@ public static class AODWaveformGenerator1
 
             (Vector<double> Frequency, Vector<double> Phase) GetP2CompensationSignals(Vector<double> tShift)
             {
-                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
-                {
-                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
-                    return (zeros, zeros);
-                }
-
-                return (2d * tShift.PointwisePower(1d), tShift.PointwisePower(2));
+                return param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness
+                    ? (2d * tShift.PointwisePower(1d), tShift.PointwisePower(2))
+                    : (Vector<double>.Build.Dense(t.Count, 0d), Vector<double>.Build.Dense(t.Count, 0d));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP3CompensationSignals(double coefficient, Vector<double> tShift)
@@ -715,7 +711,11 @@ public static class AODWaveformGenerator1
                     return (zeros, zeros);
                 }
 
-                return (3d * coefficient * tShift.PointwisePower(2d), coefficient * tShift.PointwisePower(3d));
+                // P3(x) = 1/2 * (5x^3 - 3x)
+                var t2 = tShift.PointwisePower(2d);
+                var t3 = tShift.PointwisePower(3d);
+
+                return (coefficient * 0.5d * (15d * t2 - 3d), coefficient * 0.5d * (5d * t3 - 3d * tShift));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP4CompensationSignals(double coefficient, Vector<double> tShift)
@@ -726,7 +726,12 @@ public static class AODWaveformGenerator1
                     return (zeros, zeros);
                 }
 
-                return (4d * coefficient * tShift.PointwisePower(3d), coefficient * tShift.PointwisePower(4d));
+                // P4(x) = 1/8 * (35x^4 - 30x^2 + 3)
+                var t2 = tShift.PointwisePower(2d);
+                var t3 = tShift.PointwisePower(3d);
+                var t4 = tShift.PointwisePower(4d);
+
+                return (coefficient * 0.125d * (140d * t3 - 60d * tShift), coefficient * 0.125d * (35d * t4 - 30d * t2 + 3d));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP5CompensationSignals(double coefficient, Vector<double> tShift)
@@ -737,7 +742,13 @@ public static class AODWaveformGenerator1
                     return (zeros, zeros);
                 }
 
-                return (5d * coefficient * tShift.PointwisePower(4d), coefficient * tShift.PointwisePower(5d));
+                // P5(x) = 1/8 * (63x^5 - 70x^3 + 15x)
+                var t2 = tShift.PointwisePower(2d);
+                var t4 = tShift.PointwisePower(4d);
+                var t3 = tShift.PointwisePower(3d);
+                var t5 = tShift.PointwisePower(5d);
+
+                return (coefficient * 0.125d * (315d * t4 - 210d * t2 + 15d), coefficient * 0.125d * (63d * t5 - 70d * t3 + 15d * tShift));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP6CompensationSignals(double coefficient, Vector<double> tShift)
@@ -748,7 +759,14 @@ public static class AODWaveformGenerator1
                     return (zeros, zeros);
                 }
 
-                return (6d * coefficient * tShift.PointwisePower(5d), coefficient * tShift.PointwisePower(6d));
+                // P6(x) = 1/16 * (231x^6 - 315x^4 + 105x^2 - 5)
+                var t2 = tShift.PointwisePower(2d);
+                var t3 = tShift.PointwisePower(3d);
+                var t4 = tShift.PointwisePower(4d);
+                var t5 = tShift.PointwisePower(5d);
+                var t6 = tShift.PointwisePower(6d);
+
+                return (coefficient * 0.0625d * (1386d * t5 - 1260d * t3 + 210d * tShift), coefficient * 0.0625d * (231d * t6 - 315d * t4 + 105d * t2 - 5d));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP7CompensationSignals(double coefficient, Vector<double> tShift)
@@ -759,7 +777,15 @@ public static class AODWaveformGenerator1
                     return (zeros, zeros);
                 }
 
-                return (7d * coefficient * tShift.PointwisePower(6d), coefficient * tShift.PointwisePower(7d));
+                // P7(x) = 1/16 * (429x^7 - 693x^5 + 315x^3 - 35x)
+                var t2 = tShift.PointwisePower(2d);
+                var t4 = tShift.PointwisePower(4d);
+                var t6 = tShift.PointwisePower(6d);
+                var t3 = tShift.PointwisePower(3d);
+                var t5 = tShift.PointwisePower(5d);
+                var t7 = tShift.PointwisePower(7d);
+
+                return (coefficient * 0.0625d * (3003d * t6 - 3465d * t4 + 945d * t2 - 35d), coefficient * 0.0625d * (429d * t7 - 693d * t5 + 315d * t3 - 35d * tShift));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP8CompensationSignals(double coefficient, Vector<double> tShift)
@@ -770,7 +796,16 @@ public static class AODWaveformGenerator1
                     return (zeros, zeros);
                 }
 
-                return (8d * coefficient * tShift.PointwisePower(7d), coefficient * tShift.PointwisePower(8d));
+                // P8(x) = 1/128 * (6435x^8 - 12012x^6 + 6930x^4 - 1260x^2 + 35)
+                var t2 = tShift.PointwisePower(2d);
+                var t4 = tShift.PointwisePower(4d);
+                var t6 = tShift.PointwisePower(6d);
+                var t8 = tShift.PointwisePower(8d);
+                var t3 = tShift.PointwisePower(3d);
+                var t5 = tShift.PointwisePower(5d);
+                var t7 = tShift.PointwisePower(7d);
+
+                return (coefficient * 0.0078125d * (51480d * t7 - 72072d * t5 + 27720d * t3 - 2520d * tShift), coefficient * 0.0078125d * (6435d * t8 - 12012d * t6 + 6930d * t4 - 1260d * t2 + 35d));
             }
 
             void FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
@@ -788,7 +823,7 @@ public static class AODWaveformGenerator1
                 (p7Frequencies, p7Phases) = GetP7CompensationSignals(param.P7CompensationCoefficient, tShift);
                 (p8Frequencies, p8Phases) = GetP8CompensationSignals(param.P8CompensationCoefficient, tShift);
 
-                flatnessFrequencies = centerFrequency * halfT + (footerFrequency - lowFrequency) * halfT / 4d * (linearFrequencies + p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
+                flatnessFrequencies = centerFrequency + (footerFrequency - lowFrequency) / 4d * (linearFrequencies + p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
 
                 #region 相位
 
