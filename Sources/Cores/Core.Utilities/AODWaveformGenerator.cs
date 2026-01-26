@@ -550,86 +550,28 @@ public static class AODWaveformGenerator1
             var footerSampleIndices = GenerateUtils.LinearIndexRange(param.NumberOfSamples - param.EndpointSampleCount, param.NumberOfSamples - 1);
 
             var t = (Vector<double>.Build.DenseOfArray(flatnessSampleIndices) - flatnessSampleIndices[0]) * dt; // us
-            var duration = t[^1] - t[0];
-            t -= duration / 2d; // us
-            var k = (footerFrequency - lowFrequency) / duration; // MHz/us
-
-            var halfDuration = duration / 2d;
-            var t2 = t / halfDuration;
-            var bandwidth = footerFrequency - lowFrequency;
-            var c2 = bandwidth * halfDuration / 4d;
+            var halfT = (t[^1] - t[0]) / 2d;
+            t -= halfT; // us
+            t /= halfT; // us
 
             var aodWaveformSignals = Vector<double>.Build.Dense(param.NumberOfSamples);
-
-            Vector<double> linearFrequencies;
-            Vector<double> p3Frequencies;
-            Vector<double> p4Frequencies;
-            Vector<double> p5Frequencies;
-            Vector<double> p6Frequencies;
-            Vector<double> p7Frequencies;
-            Vector<double> p8Frequencies;
-
-            Vector<double> p3Phases;
-            Vector<double> p4Phases;
-            Vector<double> p5Phases;
-            Vector<double> p6Phases;
-            Vector<double> p7Phases;
-            Vector<double> p8Phases;
 
             Vector<Complex> fftResult;
             Vector<double> fftFrequencies;
             Vector<double> fftMagnitudes;
 
-            Vector<double> currentFlatnessPhases = null!;
-
             #endregion 返回结果
 
             #region 频率
 
-            switch (param.FunctionMonotonicTypeEnum)
-            {
-                case FunctionMonotonicTypeEnum.Increasing:
-                case FunctionMonotonicTypeEnum.Deceasing:
-                    linearFrequencies = k * t;
-                    p3Frequencies = 3d / 4d * bandwidth * param.P3CompensationCoefficient * t2.PointwisePower(2d);
-                    p4Frequencies = 4d / 4d * bandwidth * param.P4CompensationCoefficient * t2.PointwisePower(3d);
-                    p5Frequencies = 5d / 4d * bandwidth * param.P5CompensationCoefficient * t2.PointwisePower(4d);
-                    p6Frequencies = 6d / 4d * bandwidth * param.P6CompensationCoefficient * t2.PointwisePower(5d);
-                    p7Frequencies = 7d / 4d * bandwidth * param.P7CompensationCoefficient * t2.PointwisePower(6d);
-                    p8Frequencies = 8d / 4d * bandwidth * param.P8CompensationCoefficient * t2.PointwisePower(7d);
-
-                    p3Phases = 2d * Math.PI * c2 * param.P3CompensationCoefficient * t2.PointwisePower(3d);
-                    p4Phases = 2d * Math.PI * c2 * param.P4CompensationCoefficient * t2.PointwisePower(4d);
-                    p5Phases = 2d * Math.PI * c2 * param.P5CompensationCoefficient * t2.PointwisePower(5d);
-                    p6Phases = 2d * Math.PI * c2 * param.P6CompensationCoefficient * t2.PointwisePower(6d);
-                    p7Phases = 2d * Math.PI * c2 * param.P7CompensationCoefficient * t2.PointwisePower(7d);
-                    p8Phases = 2d * Math.PI * c2 * param.P8CompensationCoefficient * t2.PointwisePower(8d);
-
-                    break;
-
-                case FunctionMonotonicTypeEnum.Flatness:
-                default:
-                    linearFrequencies = Vector<double>.Build.Dense(t.Count, 0d);
-                    p3Frequencies = Vector<double>.Build.Dense(t.Count, 0d);
-                    p4Frequencies = Vector<double>.Build.Dense(t.Count, 0d);
-                    p5Frequencies = Vector<double>.Build.Dense(t.Count, 0d);
-                    p6Frequencies = Vector<double>.Build.Dense(t.Count, 0d);
-                    p7Frequencies = Vector<double>.Build.Dense(t.Count, 0d);
-                    p8Frequencies = Vector<double>.Build.Dense(t.Count, 0d);
-
-                    p3Phases = Vector<double>.Build.Dense(t.Count, 0d);
-                    p4Phases = Vector<double>.Build.Dense(t.Count, 0d);
-                    p5Phases = Vector<double>.Build.Dense(t.Count, 0d);
-                    p6Phases = Vector<double>.Build.Dense(t.Count, 0d);
-                    p7Phases = Vector<double>.Build.Dense(t.Count, 0d);
-                    p8Phases = Vector<double>.Build.Dense(t.Count, 0d);
-
-                    break;
-            }
-
-            var flatnessFrequencies = centerFrequency + linearFrequencies + p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies;
-
-            if (flatnessFrequencies.Exists(f => f <= 0 || f > param.HighFrequency * 1.5d)) ThrowHelper.ThrowArgumentException(nameof(flatnessFrequencies), $"Synthesized frequencies must be in the range (0, {param.HighFrequency * 1.5d:f3} MHz)");
+            Vector<double> linearFrequencies, p2Phases;
+            Vector<double> p3Frequencies, p3Phases;
+            Vector<double> p4Frequencies, p4Phases;
+            Vector<double> p5Frequencies, p5Phases;
+            Vector<double> p6Frequencies, p6Phases;
+            Vector<double> p7Frequencies, p7Phases;
+            Vector<double> p8Frequencies, p8Phases;
+            Vector<double> flatnessFrequencies, flatnessPhases;
 
             #endregion 频率
 
@@ -694,15 +636,17 @@ public static class AODWaveformGenerator1
                 item.FrequencyCoefficients = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. frequencyCoefficientList.Select(point => new Point(point.X, 0d))]
                     : [.. frequencyCoefficientList];
-                item.FlatnessLinearFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, linearFrequencies[tuple.Index]))];
+
                 item.FlatnessTotalFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
                     : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessFrequencies[tuple.Index]))];
                 item.FlatnessTotalPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, currentFlatnessPhases[tuple.Index]))];
+                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessPhases[tuple.Index]))];
+
+                item.FlatnessLinearFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
+                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, linearFrequencies[tuple.Index]))];
                 item.FlatnessP3CompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
                     : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p3Frequencies[tuple.Index]))];
@@ -752,37 +696,105 @@ public static class AODWaveformGenerator1
 
             return (result, null);
 
+            (Vector<double> Frequency, Vector<double> Phase) GetP2CompensationSignals(Vector<double> tShift)
+            {
+                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+                {
+                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                    return (zeros, zeros);
+                }
+
+                return (2d * tShift.PointwisePower(1d), tShift.PointwisePower(2));
+            }
+
+            (Vector<double> Frequency, Vector<double> Phase) GetP3CompensationSignals(double coefficient, Vector<double> tShift)
+            {
+                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+                {
+                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                    return (zeros, zeros);
+                }
+
+                return (3d * coefficient * tShift.PointwisePower(2d), coefficient * tShift.PointwisePower(3d));
+            }
+
+            (Vector<double> Frequency, Vector<double> Phase) GetP4CompensationSignals(double coefficient, Vector<double> tShift)
+            {
+                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+                {
+                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                    return (zeros, zeros);
+                }
+
+                return (4d * coefficient * tShift.PointwisePower(3d), coefficient * tShift.PointwisePower(4d));
+            }
+
+            (Vector<double> Frequency, Vector<double> Phase) GetP5CompensationSignals(double coefficient, Vector<double> tShift)
+            {
+                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+                {
+                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                    return (zeros, zeros);
+                }
+
+                return (5d * coefficient * tShift.PointwisePower(4d), coefficient * tShift.PointwisePower(5d));
+            }
+
+            (Vector<double> Frequency, Vector<double> Phase) GetP6CompensationSignals(double coefficient, Vector<double> tShift)
+            {
+                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+                {
+                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                    return (zeros, zeros);
+                }
+
+                return (6d * coefficient * tShift.PointwisePower(5d), coefficient * tShift.PointwisePower(6d));
+            }
+
+            (Vector<double> Frequency, Vector<double> Phase) GetP7CompensationSignals(double coefficient, Vector<double> tShift)
+            {
+                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+                {
+                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                    return (zeros, zeros);
+                }
+
+                return (7d * coefficient * tShift.PointwisePower(6d), coefficient * tShift.PointwisePower(7d));
+            }
+
+            (Vector<double> Frequency, Vector<double> Phase) GetP8CompensationSignals(double coefficient, Vector<double> tShift)
+            {
+                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+                {
+                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                    return (zeros, zeros);
+                }
+
+                return (8d * coefficient * tShift.PointwisePower(7d), coefficient * tShift.PointwisePower(8d));
+            }
+
             void FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var δt = offsetFrequencyPeriodCoefficient * 1d / offsetFrequency;
+                var δt = offsetFrequency == 0 ? 0d : offsetFrequencyPeriodCoefficient * 1d / offsetFrequency;
+                var tShift = t - δt / halfT;
+
+                (linearFrequencies, p2Phases) = GetP2CompensationSignals(tShift);
+                (p3Frequencies, p3Phases) = GetP3CompensationSignals(param.P3CompensationCoefficient, tShift);
+                (p4Frequencies, p4Phases) = GetP4CompensationSignals(param.P4CompensationCoefficient, tShift);
+                (p5Frequencies, p5Phases) = GetP5CompensationSignals(param.P5CompensationCoefficient, tShift);
+                (p6Frequencies, p6Phases) = GetP6CompensationSignals(param.P6CompensationCoefficient, tShift);
+                (p7Frequencies, p7Phases) = GetP7CompensationSignals(param.P7CompensationCoefficient, tShift);
+                (p8Frequencies, p8Phases) = GetP8CompensationSignals(param.P8CompensationCoefficient, tShift);
+
+                flatnessFrequencies = centerFrequency * halfT + (footerFrequency - lowFrequency) * halfT / 4d * (linearFrequencies + p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
 
                 #region 相位
 
                 var headerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
-                Vector<double> flatnessPhases;
-                if (param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness)
-                {
-                    var tShift = t - δt;
-                    var t2Shift = tShift / halfDuration;
-                    var c2 = bandwidth * halfDuration / 4d;
 
-                    flatnessPhases = 2d * Math.PI * (centerFrequency * tShift
-                                                     + c2 * (t2Shift.PointwisePower(2)
-                                                             + param.P3CompensationCoefficient * t2Shift.PointwisePower(3)
-                                                             + param.P4CompensationCoefficient * t2Shift.PointwisePower(4)
-                                                             + param.P5CompensationCoefficient * t2Shift.PointwisePower(5)
-                                                             + param.P6CompensationCoefficient * t2Shift.PointwisePower(6)
-                                                             + param.P7CompensationCoefficient * t2Shift.PointwisePower(7)
-                                                             + param.P8CompensationCoefficient * t2Shift.PointwisePower(8)));
-                }
-                else
-                {
-                    flatnessPhases = 2d * Math.PI * (centerFrequency * (t - δt));
-                }
-
-                currentFlatnessPhases = flatnessPhases;
+                flatnessPhases = 2d * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - lowFrequency) * halfT / 4d * (p2Phases + p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases));
 
                 var footerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
 
