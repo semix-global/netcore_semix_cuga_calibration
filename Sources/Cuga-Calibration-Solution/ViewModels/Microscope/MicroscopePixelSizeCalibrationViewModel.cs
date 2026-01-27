@@ -1,8 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
+using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -81,6 +83,9 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     private MicroscopePixelSizeCacheItem _selectMicroscopePixelSizeCacheItem = new();
 
     [ObservableProperty]
+    private MicroscopeCalChipDto _microscopeCalChip = new();
+
+    [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _calibrations = [];
 
     #endregion 缓存
@@ -91,38 +96,45 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
-        await Task.Run(() =>
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
         {
-            if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-            {
-                DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
+            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
 
-            if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-            {
-                DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
 
-            (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
-            Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
 
-            Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
-            SynchronizationContextProvider.Send(() =>
-                CalibrationStatusList =
-                [
-                    .. ApplicationCookie.MicroscopeLensInformations
-                        .Select(t => new MicroscopeLensInfoCalibrationStatus { MicroscopeLensInformation = t, IsCalibrated = false })
-                ]
-            );
-            foreach (var calibrationStatus in Calibrations)
-            {
-                CalibrationStatusList
-                    .Single(t => t.MicroscopeLensInformation == calibrationStatus.LensInformation)
-                    .IsCalibrated = calibrationStatus.IsCalibrated;
-            }
-        }).ConfigureAwait(false);
+        MicroscopeCalChip = microscopeCalChip;
+
+        (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
+
+        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
+        SynchronizationContextProvider.Send(() =>
+            CalibrationStatusList =
+            [
+                .. ApplicationCookie.MicroscopeLensInformations
+                    .Select(t => new MicroscopeLensInfoCalibrationStatus { MicroscopeLensInformation = t, IsCalibrated = false })
+            ]
+        );
+        foreach (var calibrationStatus in Calibrations)
+        {
+            CalibrationStatusList
+                .Single(t => t.MicroscopeLensInformation == calibrationStatus.LensInformation)
+                .IsCalibrated = calibrationStatus.IsCalibrated;
+        }
 
         RecipeCacheProvider.Set(Cache, cancellationToken);
 
@@ -160,6 +172,16 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             case 0:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
+                if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel)
+                {
+                    StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
+                    StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition), Cache.CalChipSiteModelEnum);
+                }
+                else
+                {
+                    Logger.LogHtmlError("The Cal Chip Model is not supported!", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    return false;
+                }
 
                 return true;
 
@@ -201,10 +223,13 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         }
     }
 
-    protected override Task<bool> CancelingAsync()
+    protected override async Task<bool> CancelingAsync()
     {
+        await Task.CompletedTask.ConfigureAwait(false);
+
         StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-        return Task.FromResult(true);
+
+        return true;
     }
 
     #endregion 控制校准业务重载
@@ -220,7 +245,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeLensInformation.LensName
+                Cache.MicroscopeLensInformation.LensName,
+                Cache.CalChipSiteModelEnum
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -309,25 +335,18 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> VerifyActionAsync(CancellationToken cancellationToken)
     {
-        var result = true;
         if (SelectReviewItemDto is null)
         {
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        await InvokeVerifyAsync(async () =>
-        {
-            if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false) result = false;
-            return result;
-        }).ConfigureAwait(false);
-        return result;
+        return await InvokeVerifyAsync(async () => await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken)).ConfigureAwait(false);
     }
 
-    private async Task<bool> VerifyCalibrationAsync(MicroscopePixelSizeItemDto selectReviewItemDto, CancellationToken cancellationToken)
+    private async Task<bool> VerifyCalibrationAsync(MicroscopePixelSizeItemDto? selectReviewItemDto, CancellationToken cancellationToken)
     {
-        var result = true;
-        await Task.Run(() =>
+        return await Task.Run(() =>
         {
             ClearCalibrationTemp();
             var detectImageDirectory = ImageFileDirectory;
@@ -336,63 +355,65 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Please select a review item!"), HtmlLogUniqueId.LoggingHtml());
-                result = false;
+                return false;
             }
-            else
+
+            if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel)
+                StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
+
+            selectReviewItemDto.IsVerified = false;
+            Cache.MicroscopeLensInformation = SelectReviewItemDto!.LensInformation;
+            SelectMicroscopePixelSizeCacheItem = Cache.CurrentCalibrationCacheItem;
+            SelectMicroscopePixelSizeCacheItem.FindPosition = selectReviewItemDto.FindPosition;
+
+            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+            Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
+                Cache.MicroscopeLensInformation.LensName,
+                SelectMicroscopePixelSizeCacheItem.FindPosition,
+                ImageFileDirectory = detectImageDirectory
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            if (GetPixelSize(detectImageDirectory, cancellationToken, 1) == false) return false;
+
+            var averageWidth = MicroscopePixelSizeItemDtoList.Select(t => t.PixelSize.Width).Average();
+            var averageHeight = MicroscopePixelSizeItemDtoList.Select(t => t.PixelSize.Height).Average();
+            var averagePixelSize = new Size(averageWidth, averageHeight);
+            var error = (Size)((Vector)averagePixelSize - (Vector)selectReviewItemDto.PixelSize);
+            ReviewResultList.Add((Cache.MicroscopeLensInformation.LensName, selectReviewItemDto.PixelSize, averagePixelSize, error));
+            var result = error.DiagonalLength < Cache.Threshold.DiagonalLength;
+
+            Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            {
+                NowOffset = averagePixelSize,
+                OldOffset = selectReviewItemDto.PixelSize,
+                Error = error
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            selectReviewItemDto.IsVerified = result;
+            if (Save(selectReviewItemDto, cancellationToken) == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
                 selectReviewItemDto.IsVerified = false;
-                Cache.MicroscopeLensInformation = SelectReviewItemDto!.LensInformation;
-                SelectMicroscopePixelSizeCacheItem = Cache.CurrentCalibrationCacheItem;
-                SelectMicroscopePixelSizeCacheItem.FindPosition = selectReviewItemDto.FindPosition;
-
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                {
-                    Cache.MicroscopeLensInformation.LensName,
-                    SelectMicroscopePixelSizeCacheItem.FindPosition,
-                    ImageFileDirectory = detectImageDirectory
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                if (GetPixelSize(detectImageDirectory, cancellationToken, 1) == false) return;
-
-                var averageWidth = MicroscopePixelSizeItemDtoList.Select(t => t.PixelSize.Width).Average();
-                var averageHeight = MicroscopePixelSizeItemDtoList.Select(t => t.PixelSize.Height).Average();
-                var averagePixelSize = new Size(averageWidth, averageHeight);
-                var error = (Size)((Vector)averagePixelSize - (Vector)selectReviewItemDto.PixelSize);
-                ReviewResultList.Add((Cache.MicroscopeLensInformation.LensName, selectReviewItemDto.PixelSize, averagePixelSize, error));
-                result = error.DiagonalLength < Cache.Threshold.DiagonalLength;
-
-                Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    NowOffset = averagePixelSize,
-                    OldOffset = selectReviewItemDto.PixelSize,
-                    Error = error
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                selectReviewItemDto.IsVerified = result;
-                if (Save(selectReviewItemDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    selectReviewItemDto.IsVerified = false;
-                    result = false;
-                    return;
-                }
-
-                if (!result || !IsAutoCalibrate)
-                {
-                    DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({averagePixelSize}) Old Offset: ({SelectReviewItemDto!.PixelSize}) Error: ({error})", DialogButtonsEnum.OK,
-                        result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-                }
+                return false;
             }
+
+            if (!result || !IsAutoCalibrate)
+            {
+                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({averagePixelSize}) Old Offset: ({SelectReviewItemDto!.PixelSize}) Error: ({error})", DialogButtonsEnum.OK,
+                    result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            }
+
+            return result;
         }, cancellationToken);
-        return result;
     }
 
     private bool GetPixelSize(string detectImageDirectory, CancellationToken cancellationToken, int repeatCount = 10)
     {
         try
         {
+            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
             StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopePixelSizeCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
             foreach (var times in Enumerable.Range(1, repeatCount))
             {

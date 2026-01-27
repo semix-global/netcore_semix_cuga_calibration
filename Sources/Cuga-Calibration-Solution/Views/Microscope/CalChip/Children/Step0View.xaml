@@ -7,6 +7,8 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -77,6 +79,18 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </hc:ComboBox>
+                    <hc:ComboBox HorizontalAlignment="Left"
+                                 hc:TitleElement.TitleWidth="150"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Wafer Type: "
+                                 SelectedItem="{Binding Cache.AlgorithmWaferTypeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmWaferTypeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
                 </hc:UniformSpacingPanel>
 
                 <StackPanel>
@@ -88,8 +102,8 @@
                 </StackPanel>
                 <TextBox Text="{Binding Cache.Item.LeftTopPosition, Converter={StaticResource PointToStringConverter}}"
                          Width="275"
-                         hc:InfoElement.Title="Left-Top Position(um): "
-                         hc:InfoElement.TitlePlacement="Left"
+                         hc:TitleElement.Title="Left-Top Position(um): "
+                         hc:TitleElement.TitlePlacement="Left"
                          Style="{StaticResource TextBoxExtend}" />
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"

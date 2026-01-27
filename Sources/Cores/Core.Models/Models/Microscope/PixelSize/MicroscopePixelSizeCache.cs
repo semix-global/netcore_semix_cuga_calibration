@@ -9,7 +9,7 @@ namespace Core.Models.Models.Microscope.PixelSize;
 public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;

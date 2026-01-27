@@ -8,16 +8,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.5.1-preview3.18-xuan" />
-        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.5.1-preview3.18-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot.WPF" VersionOverride="2.5.1-preview3.18-xuan" />
-        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.5.1-preview3.19-xuan" />
+        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.5.1-preview3.19-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF" VersionOverride="2.5.1-preview3.19-xuan" />
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.5.1-preview3.19-xuan" />
 
-        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.5.1-preview3.18-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.5.1-preview3.18-xuan" />
-        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.5.1-preview3.19-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.5.1-preview3.19-xuan" />
+        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.5.1-preview3.19-xuan" />
 
-        <PackageReference Include="WPF.CustomControl" VersionOverride="2.5.1-preview3.18-xuan" />
+        <PackageReference Include="WPF.CustomControl" VersionOverride="2.5.1-preview3.19-xuan" />
     </ItemGroup>
 
     <ItemGroup>
