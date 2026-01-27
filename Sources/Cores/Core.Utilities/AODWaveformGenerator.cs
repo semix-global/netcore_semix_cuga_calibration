@@ -396,6 +396,22 @@ public static class AODWaveformGenerator1
         public IReadOnlyList<Point> FlatnessTotalPhaseSignals { get; internal set; } = [];
 
         /// <summary>
+        /// AOD波形总补偿频率信号(P3-P8)
+        ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
+        public IReadOnlyList<Point> FlatnessTotalCompensationFrequencySignals { get; internal set; } = [];
+
+        /// <summary>
+        /// AOD波形总补偿相位信号(P3-P8)
+        ///</summary>
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
+        public IReadOnlyList<Point> FlatnessTotalCompensationPhaseSignals { get; internal set; } = [];
+
+        /// <summary>
         /// AOD波形三次补偿信号
         ///</summary>
         [Newtonsoft.Json.JsonIgnore]
@@ -571,6 +587,7 @@ public static class AODWaveformGenerator1
             Vector<double> p6Frequencies, p6Phases;
             Vector<double> p7Frequencies, p7Phases;
             Vector<double> p8Frequencies, p8Phases;
+            Vector<double> flatnessCompensationFrequencies, flatnessCompensationPhases;
             Vector<double> flatnessFrequencies, flatnessPhases;
 
             #endregion 频率
@@ -643,6 +660,12 @@ public static class AODWaveformGenerator1
                 item.FlatnessTotalPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
                     : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessPhases[tuple.Index]))];
+                item.FlatnessTotalCompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
+                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessCompensationFrequencies[tuple.Index]))];
+                item.FlatnessTotalCompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
+                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessCompensationPhases[tuple.Index]))];
 
                 item.FlatnessLinearFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
@@ -823,13 +846,15 @@ public static class AODWaveformGenerator1
                 (p7Frequencies, p7Phases) = GetP7CompensationSignals(param.P7CompensationCoefficient, tShift);
                 (p8Frequencies, p8Phases) = GetP8CompensationSignals(param.P8CompensationCoefficient, tShift);
 
-                flatnessFrequencies = centerFrequency + (footerFrequency - lowFrequency) / 4d * (linearFrequencies + p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
+                flatnessCompensationFrequencies = (footerFrequency - headerFrequency) / 4d * (p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
+                flatnessFrequencies = centerFrequency + (footerFrequency - headerFrequency) / 4d * linearFrequencies + flatnessCompensationFrequencies;
 
                 #region 相位
 
                 var headerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
 
-                flatnessPhases = 2d * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - lowFrequency) * halfT / 4d * (p2Phases + p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases));
+                flatnessCompensationPhases = 2 * Math.PI * ((footerFrequency - headerFrequency) * halfT / 4d * (p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases));
+                flatnessPhases = 2 * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - headerFrequency) * halfT / 4d * p2Phases) + flatnessCompensationPhases;
 
                 var footerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
 
