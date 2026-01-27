@@ -54,7 +54,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.327,
-                    YPixel = 508,
+                    YPixel = 508
                 },
                 508,
                 408,
@@ -92,7 +92,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.1635,
-                    YPixel = 1008,
+                    YPixel = 1008
                 },
                 1008,
                 290,
@@ -111,7 +111,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.1635,
-                    YPixel = 1008,
+                    YPixel = 1008
                 },
                 1008,
                 290,

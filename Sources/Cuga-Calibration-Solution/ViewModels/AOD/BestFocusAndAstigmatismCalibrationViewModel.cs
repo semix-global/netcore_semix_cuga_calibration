@@ -526,7 +526,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
                     Cache.Item.StartSpectralDensity,
                     Cache.Item.SpectralDensityStepCount,
                     SpectralDensityStep = Cache.Item.StepSpectralDensity,
-                    DefaultGenerateChirpAODWaveformParam = new HtmlQuote(Cache.Item.DefaultGenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+                    DefaultGenerateChirpAODWaveformParam = new HtmlQuote(Cache.Item.DefaultGenerateChirpAODWaveformParam.ToHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 // 创建一个Channel用于实现生产者-消费者模式
@@ -741,7 +741,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
                                     .Select(tt => tt.ToFlatnessHtmlAnonymous())
                             ])))
                 ]
-            ),
+            )
         }), HtmlLogUniqueId.LoggingHtml());
     }
 

@@ -340,7 +340,7 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableCacheBase, IClon
         TriggerEndIndex,
         TraceBuffers = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
         ChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
-        ChirpAODWaveformProfiles = new HtmlTable([.. ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
+        ChirpAODWaveformProfiles = new HtmlTable([.. ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
     };
 
     public BestFocusAndAstigmatismItemDto Clone() => new()
@@ -649,7 +649,7 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableCa
             YQualitysAnalysis = ScatterPlotControl.GetHtmlPlot2DLinesChart(1),
             LightAnalysis = ScatterPlotControl.GetHtmlPlot2DLinesChart(2),
             Interpolation = ScatterPlotControl.GetHtmlPlot2DLinesChart(3),
-            OriginImage = new HtmlImage(OriginFilePath),
+            OriginImage = new HtmlImage(OriginFilePath)
             // LinearImage = new HtmlImage(File.Exists(LinearFilePath) ? LinearFilePath : OriginFilePath)
         })
     };
