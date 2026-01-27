@@ -38,7 +38,6 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
     {
         Thread.Sleep(100);
 
-
         var productivityInformations = new[]
         {
             ProductivityInformation.Default.Clone().AdaptIn(
