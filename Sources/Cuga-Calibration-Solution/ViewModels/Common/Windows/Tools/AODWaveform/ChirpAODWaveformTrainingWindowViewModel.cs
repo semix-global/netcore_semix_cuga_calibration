@@ -89,7 +89,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
 
-
             if (chirpResult is null)
             {
                 dialogWindowProvider.ShowDialog("No matched found for current Productivity Information!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -120,7 +119,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             {
                 var detectImageDirectory = ImageFileDirectory;
                 Cache.Items = [];
-
 
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -164,28 +162,32 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     var plusPCoefficient = currentPCoefficient + Cache.StepPCoefficient;
                     var minusPCoefficient = currentPCoefficient - Cache.StepPCoefficient;
 
-                    cancellationToken.ThrowIfCancellationRequested();
                     var plusItem = await RunCatchImagesAsync(p, plusPCoefficient);
                     if (plusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y)
                     {
                         Cache.Item = plusItem;
+
                         return;
                     }
 
-                    cancellationToken.ThrowIfCancellationRequested();
                     var minusItem = await RunCatchImagesAsync(p, minusPCoefficient);
                     if (minusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y) Cache.Item = minusItem;
                 }
 
-                async Task<ChirpAODWaveformTrainingItem> RunCatchImagesAsync(int index, double val) => await CatchImagesAsync(
-                    index == 3 ? val : Cache.Item.P3Coefficient,
-                    index == 4 ? val : Cache.Item.P4Coefficient,
-                    index == 5 ? val : Cache.Item.P5Coefficient,
-                    index == 6 ? val : Cache.Item.P6Coefficient,
-                    index == 7 ? val : Cache.Item.P7Coefficient,
-                    index == 8 ? val : Cache.Item.P8Coefficient,
-                    detectImageDirectory,
-                    cancellationToken);
+                async Task<ChirpAODWaveformTrainingItem> RunCatchImagesAsync(int index, double val)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    return await CatchImagesAsync(
+                        index == 3 ? val : Cache.Item.P3Coefficient,
+                        index == 4 ? val : Cache.Item.P4Coefficient,
+                        index == 5 ? val : Cache.Item.P5Coefficient,
+                        index == 6 ? val : Cache.Item.P6Coefficient,
+                        index == 7 ? val : Cache.Item.P7Coefficient,
+                        index == 8 ? val : Cache.Item.P8Coefficient,
+                        detectImageDirectory,
+                        cancellationToken);
+                }
 
                 dialogWindowProvider.ShowDialog("Training Success");
             }
@@ -303,12 +305,13 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
         return item;
     }
 
-
     [RelayCommand]
     private void Close()
     {
         try
         {
+            TrainingCancelCommand.Execute(null);
+
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
             cacheProvider.Set(Cache, cancellationTokenSource.Token);

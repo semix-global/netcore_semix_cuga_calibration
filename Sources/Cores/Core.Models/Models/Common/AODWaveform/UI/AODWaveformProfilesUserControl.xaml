@@ -96,8 +96,6 @@
                                         </Grid.ColumnDefinitions>
                                         <controls:ScatterMultiPlotControl Grid.Column="0"
                                                                           Title="Split"
-                                                                          ScatterLine0Title="Liner"
-                                                                          ScatterLine0Points="{Binding FlatnessLinearFrequencySignals}"
                                                                           ScatterLine1Title="P3"
                                                                           ScatterLine1Points="{Binding FlatnessP3CompensationFrequencySignals}"
                                                                           ScatterLine2Title="P4"

@@ -12,6 +12,8 @@
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+           xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformTrainingWindowViewModel}"
@@ -221,7 +223,7 @@
                                 <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical">
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
-                                                Command="{Binding TrainingCancelCommand}"
+                                                Command="{Binding TrainingCommand}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="Cancel"
@@ -247,16 +249,21 @@
                             </Grid.RowDefinitions>
                             <ListView x:Name="ListViewHistory"
                                       ItemsSource="{Binding Cache.Items}"
+                                      SelectedItem="{Binding Cache.Item, Mode=OneWay}"
                                       Style="{StaticResource ListView.Small}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                </i:Interaction.Behaviors>
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="P3 Coefficient" DisplayMemberBinding="{Binding P3Coefficient}" />
-                                        <GridViewColumn Header="P4 Coefficient" DisplayMemberBinding="{Binding P4Coefficient}" />
-                                        <GridViewColumn Header="P5 Coefficient" DisplayMemberBinding="{Binding P5Coefficient}" />
-                                        <GridViewColumn Header="P6 Coefficient" DisplayMemberBinding="{Binding P6Coefficient}" />
-                                        <GridViewColumn Header="P7 Coefficient" DisplayMemberBinding="{Binding P7Coefficient}" />
-                                        <GridViewColumn Header="P8 Coefficient" DisplayMemberBinding="{Binding P8Coefficient}" />
-                                        <GridViewColumn Header="AOD Waveform Profiles">
+                                        <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestYStrehlRatioValue, StringFormat='0.###'}" />
+                                        <GridViewColumn Header="P3 Coefficient" DisplayMemberBinding="{Binding P3Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P4 Coefficient" DisplayMemberBinding="{Binding P4Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P5 Coefficient" DisplayMemberBinding="{Binding P5Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P6 Coefficient" DisplayMemberBinding="{Binding P6Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P7 Coefficient" DisplayMemberBinding="{Binding P7Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P8 Coefficient" DisplayMemberBinding="{Binding P8Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="Profiles">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
                                                     <Grid>
@@ -304,6 +311,11 @@
                             </Grid.RowDefinitions>
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
+                                    <TextBox Text="{Binding Cache.Item.P3Coefficient}"
+                                             hc:TitleElement.Title="P3:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
                                     <TextBox Text="{Binding Cache.Item.P3Coefficient}"
                                              hc:TitleElement.Title="P3:"
                                              hc:TitleElement.TitlePlacement="Left"

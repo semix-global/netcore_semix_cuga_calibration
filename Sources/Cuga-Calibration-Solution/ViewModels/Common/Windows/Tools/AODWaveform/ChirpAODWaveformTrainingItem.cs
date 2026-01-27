@@ -14,7 +14,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
-    
+
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
@@ -66,8 +66,11 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
     [ObservableProperty]
     private IReadOnlyList<Point> _yStrehlRatioFitPoints = [];
 
+    [NotifyPropertyChangedFor(nameof(BestYStrehlRatioValue))]
     [ObservableProperty]
     private Point _bestYStrehlRatio;
+
+    public double BestYStrehlRatioValue => BestYStrehlRatio.Y;
 
     [ObservableProperty]
     private IReadOnlyList<Point> _grayPoints = [];
@@ -128,8 +131,8 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
         try
         {
             Refresh(0, XStrehlRatioPoints, XStrehlRatioFitPoints, BestXStrehlRatio);
-            Refresh(0, YStrehlRatioPoints, YStrehlRatioFitPoints, BestYStrehlRatio);
-            Refresh(0, GrayPoints, GrayFitPoints, BestGray);
+            Refresh(1, YStrehlRatioPoints, YStrehlRatioFitPoints, BestYStrehlRatio);
+            Refresh(2, GrayPoints, GrayFitPoints, BestGray);
         }
         finally
         {
