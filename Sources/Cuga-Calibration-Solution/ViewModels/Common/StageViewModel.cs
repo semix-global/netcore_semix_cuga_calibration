@@ -265,9 +265,12 @@ public sealed partial class StageViewModel(
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        bool isP5 = true)
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
-        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum, isP5);
+        SetAbsoluteStageTheta(0);
+        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
+
+        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum, calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
@@ -287,9 +290,11 @@ public sealed partial class StageViewModel(
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        bool isP5 = true)
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
-        var ret = calibrationStageService.AlignmentVerify(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum, true);
+        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
+
+        var ret = calibrationStageService.AlignmentVerify(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum, calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel);
 
         if (ret.IsSuccess == false)
             throw new CugaException(ret.ErrorMsg);

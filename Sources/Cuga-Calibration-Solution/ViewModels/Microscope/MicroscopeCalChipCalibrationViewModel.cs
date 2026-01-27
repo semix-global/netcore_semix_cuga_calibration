@@ -137,12 +137,12 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
         MicroscopePixelSizeItems = microscopePixelSizeItems;
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
         Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -779,7 +779,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
                 Cache.LowMicroscopeLensInformation,
                 Cache.HighMicroscopeLensInformation,
                 Cache.AlgorithmWaferTypeEnum,
-                false);
+                Cache.CalChipSiteModelEnum);
 
             var degree = StageViewModel.GetMachineStageTheta();
 
@@ -794,6 +794,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
             Logger.LogHtmlInformation("P5 OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
+                Cache.AlgorithmWaferTypeEnum,
                 ResultMicroscopeCalChipDto.DSWAlignmentDegree,
                 ResultMicroscopeCalChipDto.DswItem.BrightFieldMachinePosition,
                 ResultMicroscopeCalChipDto.DswItem.DarkFieldMachinePosition,
@@ -868,7 +869,6 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
                 var dswAlignmentDegree = ResultMicroscopeCalChipDto.DSWAlignmentDegree;
                 StageViewModel.SetAbsoluteStageTheta(dswAlignmentDegree);
-                AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.DswModel);
 
                 var alignmentResultDto = StageViewModel.AlignmentVerify(
                     Cache.LowSite1.DegreeAngleByXy(dswAlignmentDegree),
@@ -878,7 +878,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
                     Cache.LowMicroscopeLensInformation,
                     Cache.HighMicroscopeLensInformation,
                     Cache.AlgorithmWaferTypeEnum,
-                    false);
+                    CalChipSiteModelEnum.DswModel);
 
                 if (Math.Abs(alignmentResultDto.Degrees) > Cache.DSWAlignmentVerifyThreshold)
                 {
@@ -1115,7 +1115,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
         Calibration = dto.Clone();
 
         CacheProvider.Set(dto, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

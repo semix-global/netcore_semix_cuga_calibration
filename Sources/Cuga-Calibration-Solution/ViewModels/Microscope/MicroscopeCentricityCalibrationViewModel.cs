@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
@@ -73,6 +74,9 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     private MicroscopeCentricityItemDto[] _calibrations = [];
 
     [ObservableProperty]
+    private MicroscopeCalChipDto _microscopeCalChip = new();
+
+    [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     #endregion 缓存
@@ -102,6 +106,14 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        MicroscopeCalChip = microscopeCalChip;
 
         SynchronizationContextProvider.Send(() =>
         {
@@ -140,7 +152,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         SelectMicroscopeCentricityCacheItem = Cache.CurrentCalibrationCacheItem;
-        StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition);
+        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
 
         return true;
     }
@@ -178,7 +190,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         SelectMicroscopeCentricityCacheItem = Cache.CurrentCalibrationCacheItem;
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition);
+        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
         return true;
     }
 
@@ -235,10 +247,13 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         }
     }
 
-    protected override Task<bool> CancelingAsync()
+    protected override async Task<bool> CancelingAsync()
     {
+        await Task.CompletedTask.ConfigureAwait(false);
+
         StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-        return Task.FromResult(true);
+
+        return true;
     }
 
     #endregion 控制校准业务
@@ -255,8 +270,9 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                LensName = Cache.MicroscopeLensInformation.LensName,
+                Cache.MicroscopeLensInformation.LensName,
                 Cache.AlgorithmTemplateTypeEnum,
+                Cache.CalChipSiteModelEnum,
                 SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum,
                 SelectMicroscopeCentricityCacheItem.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
@@ -302,7 +318,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 var averageX = MicroscopeCentricityItemDtoList.Average(t => t.CentricityPosition.X);
                 var averageY = MicroscopeCentricityItemDtoList.Average(t => t.CentricityPosition.Y);
                 var averageCentricityPosition = new Point(averageX, averageY);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(averageCentricityPosition);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(averageCentricityPosition, Cache.CalChipSiteModelEnum);
 
                 SelectMicroscopeCentricityItemDto = MicroscopeCentricityItemDtoList.OrderBy(t => (t.CentricityPosition - (Vector)averageCentricityPosition).ToOriginLength).First();
                 ResultMicroscopeCentricityItemDto = SelectMicroscopeCentricityItemDto.Clone();
@@ -343,164 +359,148 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> VerifyActionAsync(CancellationToken cancellationToken)
     {
-        var result = true;
         if (SelectReviewItemDto is null)
         {
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        await InvokeVerifyAsync(async () =>
-        {
-            if (await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken) == false) result = false;
-            return result;
-        }).ConfigureAwait(false);
-        return result;
+        return await InvokeVerifyAsync(async () => await VerifyCalibrationAsync(SelectReviewItemDto, cancellationToken)).ConfigureAwait(false);
     }
 
-    private async Task<bool> VerifyCalibrationAsync(MicroscopeCentricityItemDto selectReviewItemDto, CancellationToken cancellationToken)
+    private async Task<bool> VerifyCalibrationAsync(MicroscopeCentricityItemDto? selectReviewItemDto, CancellationToken cancellationToken)
     {
-        var result = true;
-        await Task.Run(() =>
+        return await Task.Run(() =>
         {
             if (selectReviewItemDto is null)
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                result = false;
+                return false;
+            }
+
+            Cache.MicroscopeLensInformation = selectReviewItemDto.LensInformation;
+            SelectMicroscopeCentricityCacheItem = Cache.CurrentCalibrationCacheItem;
+
+            Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            ClearCalibrationTemp();
+            var detectImageDirectory = ImageFileDirectory;
+
+            selectReviewItemDto.IsVerified = false;
+
+            var centricityItemMaxDto = ReviewList.Single(t => t.LensInformation == Cache.MicroscopeCentricityCacheItemDic.OrderBy(t => t.Value.LensInformation.ObjectiveMagnification).Last().Value.LensInformation);
+
+            if (IsAutoCalibrate) // 定位最高倍的位置
+            {
+                if (selectReviewItemDto.LensInformation == ApplicationCookie.MicroscopeLensInformations[0])
+                {
+                    //if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(magnificationInfos[0]), magnificationInfos[0], Cache.GetTemplateFilePath(magnificationInfos[0]), detectImageDirectory, HtmlLogUniqueId, Name, "Low Magnification",
+                    //    out var resultPositionLow, out _, out _, out _, out _) == false) return;
+
+                    //var highMagnificationInfo = magnificationInfos[magnificationInfos.Count < 3 ? magnificationInfos.Count - 1 : 2];
+                    //if (magnificationInfos.Count == 1 || ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, resultPositionLow, highMagnificationInfo, Cache.GetTemplateFilePath(highMagnificationInfo), detectImageDirectory, HtmlLogUniqueId, Name, "High Magnification",
+                    //        out resultPositionLow, out _, out _, out _, out _) == false) return;
+
+                    if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto!.LensInformation), centricityItemMaxDto.LensInformation, Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
+                            out var maxMatchResultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false)
+                    {
+                        return false;
+                    }
+
+                    Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto.LensInformation.LensName].FindPosition = maxMatchResultPosition;
+                }
+
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto!.LensInformation.LensName].FindPosition, Cache.CalChipSiteModelEnum);
             }
             else
             {
-                Cache.MicroscopeLensInformation = selectReviewItemDto.LensInformation;
-                SelectMicroscopeCentricityCacheItem = Cache.CurrentCalibrationCacheItem;
-
-                Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-                ClearCalibrationTemp();
-                var detectImageDirectory = ImageFileDirectory;
-
-                selectReviewItemDto.IsVerified = false;
-
-                var centricityItemMaxDto = ReviewList.Single(t => t.LensInformation == Cache.MicroscopeCentricityCacheItemDic.OrderBy(t => t.Value.LensInformation.ObjectiveMagnification).Last().Value.LensInformation);
-
-                if (IsAutoCalibrate) // 定位最高倍的位置
+                if (centricityItemMaxDto is null)
                 {
-                    if (selectReviewItemDto.LensInformation == ApplicationCookie.MicroscopeLensInformations[0])
-                    {
-                        //if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(magnificationInfos[0]), magnificationInfos[0], Cache.GetTemplateFilePath(magnificationInfos[0]), detectImageDirectory, HtmlLogUniqueId, Name, "Low Magnification",
-                        //    out var resultPositionLow, out _, out _, out _, out _) == false) return;
-
-                        //var highMagnificationInfo = magnificationInfos[magnificationInfos.Count < 3 ? magnificationInfos.Count - 1 : 2];
-                        //if (magnificationInfos.Count == 1 || ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, resultPositionLow, highMagnificationInfo, Cache.GetTemplateFilePath(highMagnificationInfo), detectImageDirectory, HtmlLogUniqueId, Name, "High Magnification",
-                        //        out resultPositionLow, out _, out _, out _, out _) == false) return;
-
-                        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto!.LensInformation), centricityItemMaxDto.LensInformation, Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
-                                out var maxMatchResultPosition, out _, out _, out _, out _) == false)
-                        {
-                            result = false;
-                            return;
-                        }
-
-                        Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto.LensInformation.LensName].FindPosition = maxMatchResultPosition;
-                    }
-
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto!.LensInformation.LensName].FindPosition);
-                }
-                else
-                {
-                    if (centricityItemMaxDto is null)
-                    {
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Please calibrate max magnification first!"), HtmlLogUniqueId.LoggingHtml());
-                        result = false;
-                        return;
-                    }
-                    else
-                        StageViewModel.SetBrightFieldAbsoluteStageXy(centricityItemMaxDto.CentricityPosition);
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Please calibrate max magnification first!"), HtmlLogUniqueId.LoggingHtml());
+                    return false;
                 }
 
-                var templateFilePath = SelectMicroscopeCentricityCacheItem.TemplateFilePath;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                StageViewModel.MoveRelativeStageXy(selectReviewItemDto.Offset);
-
-                var oldPosition = StageViewModel.GetBrightFieldStagePosition();
-
-                if (MatchTemplate(oldPosition, templateFilePath, detectImageDirectory, cancellationToken, 1) == false)
-                {
-                    result = false;
-                    return;
-                }
-
-                var microscopeCentricityItem = MicroscopeCentricityItemDtoList[0];
-                var newPosition = microscopeCentricityItem.CentricityPosition;
-                var error = newPosition - (Vector)oldPosition;
-                result = error.ToOriginLength < Cache.Threshold.ToOriginLength;
-                Cache.VerifyResultPosition = newPosition;
-                Cache.VerifyResultError = error;
-
-                Logger.LogHtmlInformation($"Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    NewPosition = newPosition,
-                    OldPosition = oldPosition,
-                    Error = error,
-                    Cache.Threshold,
-                    microscopeCentricityItem.LensInformation.LensName,
-                    microscopeCentricityItem.CentricityPosition,
-                    microscopeCentricityItem.Offset,
-                    Score = microscopeCentricityItem.TemplateScore,
-                    Angle = microscopeCentricityItem.TemplateAngle,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        ResultImage = new HtmlImage(microscopeCentricityItem.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        TemplateImage = new HtmlImage(microscopeCentricityItem.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                    })
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                selectReviewItemDto.IsVerified = result;
-                if (Save(selectReviewItemDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    selectReviewItemDto.IsVerified = false;
-                    result = false;
-                    return;
-                }
-
-                if (!IsAutoCalibrate)
-                {
-                    DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({newPosition}) Old Offset: ({oldPosition}) Error: ({error})", DialogButtonsEnum.OK,
-                        result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-                }
-
-                if (result == false)
-                    return;
-
-                // 同心验证
-                var varifiedDtoList = Calibrations.Where(t => t.IsOk).ToList();
-                if (varifiedDtoList.Count >= 2)
-                {
-                    var concentricOffset = varifiedDtoList.Max(t => t.Offset.ToOriginLength) - varifiedDtoList.Min(t => t.Offset.ToOriginLength);
-                    result = Math.Abs(concentricOffset) <= Cache.ConcentricThreshold;
-                    if (result == false)
-                    {
-                        DialogWindowProvider.ShowDialog($"Concentric {(result ? "OK" : "Failed")}, Offset: {concentricOffset}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-                        selectReviewItemDto.IsVerified = false;
-                        if (Save(selectReviewItemDto, cancellationToken) == false)
-                        {
-                            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                            return;
-                        }
-                    }
-
-                    Logger.LogHtmlInformation($"Concentric {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                    {
-                        Cache.ConcentricThreshold,
-                        concentricOffset,
-                        MinEcsMicroscopeType = Calibrations.Minima(t => t.Offset.ToOriginLength).Single().LensInformation.LensName,
-                        MaxEcsMicroscopeType = Calibrations.Maxima(t => t.Offset.ToOriginLength).Single().LensInformation.LensName,
-                        DistanceResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, LensName = t.LensInformation.LensName, t.CentricityPosition, t.Offset, Distance = t.Offset.ToOriginLength })])
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centricityItemMaxDto.CentricityPosition, Cache.CalChipSiteModelEnum);
             }
-        }, cancellationToken);
-        return result;
+
+            var templateFilePath = SelectMicroscopeCentricityCacheItem.TemplateFilePath;
+            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+            StageViewModel.MoveRelativeStageXy(selectReviewItemDto.Offset);
+
+            var oldPosition = StageViewModel.GetBrightFieldStagePosition();
+
+            if (MatchTemplate(oldPosition, templateFilePath, detectImageDirectory, cancellationToken, 1) == false) return false;
+
+            var microscopeCentricityItem = MicroscopeCentricityItemDtoList[0];
+            var newPosition = microscopeCentricityItem.CentricityPosition;
+            var error = newPosition - (Vector)oldPosition;
+            var result = error.ToOriginLength < Cache.Threshold.ToOriginLength;
+            Cache.VerifyResultPosition = newPosition;
+            Cache.VerifyResultError = error;
+
+            Logger.LogHtmlInformation($"Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            {
+                NewPosition = newPosition,
+                OldPosition = oldPosition,
+                Error = error,
+                Cache.Threshold,
+                microscopeCentricityItem.LensInformation.LensName,
+                microscopeCentricityItem.CentricityPosition,
+                microscopeCentricityItem.Offset,
+                Score = microscopeCentricityItem.TemplateScore,
+                Angle = microscopeCentricityItem.TemplateAngle,
+                HtmlTab = new HtmlTab(new
+                {
+                    ResultImage = new HtmlImage(microscopeCentricityItem.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(microscopeCentricityItem.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            selectReviewItemDto.IsVerified = result;
+            if (Save(selectReviewItemDto, cancellationToken) == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                selectReviewItemDto.IsVerified = false;
+                return false;
+            }
+
+            if (!IsAutoCalibrate)
+            {
+                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({newPosition}) Old Offset: ({oldPosition}) Error: ({error})", DialogButtonsEnum.OK,
+                    result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            }
+
+            if (result == false) return false;
+
+            // 同心验证
+            var varifiedDtoList = Calibrations.Where(t => t.IsOk).ToList();
+            if (varifiedDtoList.Count >= 2)
+            {
+                var concentricOffset = varifiedDtoList.Max(t => t.Offset.ToOriginLength) - varifiedDtoList.Min(t => t.Offset.ToOriginLength);
+                result = Math.Abs(concentricOffset) <= Cache.ConcentricThreshold;
+                if (result == false)
+                {
+                    DialogWindowProvider.ShowDialog($"Concentric {(result ? "OK" : "Failed")}, Offset: {concentricOffset}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                    selectReviewItemDto.IsVerified = false;
+                    if (Save(selectReviewItemDto, cancellationToken) == false)
+                    {
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
+                        return false;
+                    }
+                }
+
+                Logger.LogHtmlInformation($"Concentric {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                {
+                    Cache.ConcentricThreshold,
+                    concentricOffset,
+                    MinEcsMicroscopeType = Calibrations.Minima(t => t.Offset.ToOriginLength).Single().LensInformation.LensName,
+                    MaxEcsMicroscopeType = Calibrations.Maxima(t => t.Offset.ToOriginLength).Single().LensInformation.LensName,
+                    DistanceResult = new HtmlTable([.. Calibrations.Select(t => new { t.IsVerified, LensName = t.LensInformation.LensName, t.CentricityPosition, t.Offset, Distance = t.Offset.ToOriginLength })])
+                }), HtmlLogUniqueId.LoggingHtml());
+            }
+
+            return result;
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     private bool MatchTemplate(Point position, string templatePath, string detectImageDirectory, CancellationToken cancellationToken, int repeatCount = 5)
@@ -521,7 +521,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 Logger.LogHtmlInformation($"Repeat Time:{times}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                 if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.MicroscopeLensInformation, templatePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
-                        out var resultPosition, out var score, out var angle, out var resultImageFilePath, out _) == false) return false;
+                        out var resultPosition, out var score, out var angle, out var resultImageFilePath, out _, Cache.CalChipSiteModelEnum) == false) return false;
 
                 var microscopeCentricityItemDto = new MicroscopeCentricityItemDto
                 {
@@ -541,7 +541,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     ResultPosition = microscopeCentricityItemDto.CentricityPosition
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(position);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, Cache.CalChipSiteModelEnum);
 
                 SynchronizationContextProvider.Send(() => MicroscopeCentricityItemDtoList.Add(microscopeCentricityItemDto));
             }

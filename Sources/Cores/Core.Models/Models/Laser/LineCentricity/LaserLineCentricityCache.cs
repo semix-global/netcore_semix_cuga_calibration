@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
+using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
@@ -11,6 +12,9 @@ namespace Core.Models.Models.Laser.LineCentricity;
 
 public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
 {
+    [ObservableProperty]
+    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
