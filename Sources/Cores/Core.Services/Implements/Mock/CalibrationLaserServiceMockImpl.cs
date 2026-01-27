@@ -150,7 +150,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         var oiProductivityInformations = new[]
         {
-            ProductivityInformation.Default.Clone().AdaptIn(
+           ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
                     Name = "S5",
@@ -165,16 +165,11 @@ public sealed class CalibrationLaserServiceMockImpl(
                 {
                     YPixelSize = 0.327,
                     YPixel = 508,
-                    Hz = 408
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 445000, XPixelSize = 1.091 } }
-                    }
-#endif
                 },
-                508),
+                508,
+                445000,
+                408
+            ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -189,17 +184,11 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.327,
-                    YPixel = 508,
-                    Hz = 408
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 222500, XPixelSize = 0.546 } }
-                    }
-#endif
+                    YPixel = 508
                 },
-                508),
+                508,
+                222500,
+                408),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -215,16 +204,10 @@ public sealed class CalibrationLaserServiceMockImpl(
                 {
                     YPixelSize = 0.1635,
                     YPixel = 1008,
-                    Hz = 290
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 175900, XPixelSize = 0.61 } }
-                    }
-#endif
                 },
-                1008),
+                1008,
+                175900,
+                290),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -240,16 +223,10 @@ public sealed class CalibrationLaserServiceMockImpl(
                 {
                     YPixelSize = 0.1635,
                     YPixel = 1008,
-                    Hz = 290
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 88060, XPixelSize = 0.304 } }
-                    }
-#endif
                 },
-                1008),
+                1008,
+                88060,
+                290),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -264,17 +241,11 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.11286,
-                    YPixel = 1500,
-                    Hz = 210
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 87240, XPixelSize = 0.416 } }
-                    }
-#endif
+                    YPixel = 1500
                 },
-                1500),
+                1500,
+                87240,
+                210),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -289,46 +260,15 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.11286,
-                    YPixel = 1500,
-                    Hz = 210
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 43603, XPixelSize = 0.208 } }
-                    }
-#endif
+                    YPixel = 1500
                 },
-                1500)
+                1500,
+                43600,
+                210)
         };
 
         var niProductivityInformations = new[]
         {
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S90",
-#if NETFRAMEWORK
-                    NIOI = SxNIOIEnum.NI,
-#endif
-                    Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.096,
-                    YPixel = 1720,
-                    Hz = 200
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 26880, XPixelSize = 0.135 } }
-                    }
-#endif
-                },
-                1720),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -343,17 +283,30 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.144,
-                    YPixel = 1160,
-                    Hz = 200
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 40000, XPixelSize = 0.2 } }
-                    }
-#endif
+                    YPixel = 1160
                 },
-                1160)
+                1160,
+                40000,
+                200),
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S90",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.NI,
+#endif
+                    Mag = SxMAGEnum.High,
+                    Speed = SxSpeedEnum.Low,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    YPixelSize = 0.096,
+                    YPixel = 1720
+                },
+                1720,
+                26880,
+                200)
         };
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>(opticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI

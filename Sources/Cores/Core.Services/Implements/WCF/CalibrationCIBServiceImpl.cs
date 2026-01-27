@@ -301,7 +301,7 @@ public sealed class CalibrationCIBServiceImpl(
             IsForward = isForward,
             IsCalibration = true, /*为true时不下发波形*/
             ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/,
-            ZParam = new SxCollectImgParam.SxZParam()
+            ZParam = new SxZParam
             {
                 Start = Convert.ToInt32(startECS),
                 End = Convert.ToInt32(stopECS),

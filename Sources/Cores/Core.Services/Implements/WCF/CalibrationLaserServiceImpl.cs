@@ -150,7 +150,15 @@ public sealed partial class CalibrationLaserServiceImpl(
             var pmtDataLineHeightSxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(c2MProductivityInfo.Mag, opticsIlluminationModeEnum.ToSxNIOIEnum()));
             if (pmtDataLineHeightSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
 
-            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
+            var hzAndRealSpeedSxExecuteRet = Invoke(() => Service?.GetHzAndRealSpeed(c2MProductivityInfo.NIOI, c2MProductivityInfo.Mag, c2MProductivityInfo.Speed));
+            if (hzAndRealSpeedSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
+
+            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(
+                c2MProductivityInfo,
+                speedInfoSxExecuteRet.Anything,
+                pmtDataLineHeightSxExecuteRet.Anything,
+                hzAndRealSpeedSxExecuteRet.Anything.realSpeed,
+                hzAndRealSpeedSxExecuteRet.Anything.hz));
         }
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
@@ -364,13 +372,13 @@ public sealed partial class CalibrationLaserServiceImpl(
 
                 break;
 
-            case ( > 0, > 0):
+            case (> 0, > 0):
                 Guard.IsNotNull(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Single(t => t == channelId));
                 sendDataList.Add((value, pmtId, channelId));
 
                 break;
 
-            case ( > 0, Constants.NegInt32Value):
+            case (> 0, Constants.NegInt32Value):
                 sendDataList.AddRange(pmtConfigList.Single(t => t.PmtId == pmtId).ChannelIdList.Select(t => (value, pmtId, t)));
                 break;
 
@@ -475,7 +483,9 @@ public sealed partial class CalibrationLaserServiceImpl(
         double? coefficient = null,
         Point? point = null)
     {
-        ushort? level = null;
+        throw new NotImplementedException();
+
+        /*ushort? level = null;
         if (coefficient is not null)
         {
             var laserLightInformationRet = CoefficientToLaserLightInformation(coefficient.Value);
@@ -492,7 +502,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));
+            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));*/
     }
 
     [Obsolete]
@@ -682,7 +692,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                         IsCalibration = true, /*为true时不下发波形*/
                         ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/,
                         ZParam = (isAutoFocus == false && zMotionParam != null)
-                            ? new SxCollectImgParam.SxZParam()
+                            ? new SxZParam()
                             {
                                 Start = Convert.ToInt32(zMotionParam.Value.zStart),
                                 End = Convert.ToInt32(zMotionParam.Value.zEnd),
