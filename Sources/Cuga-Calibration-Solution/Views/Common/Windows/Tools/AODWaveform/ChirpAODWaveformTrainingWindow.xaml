@@ -249,7 +249,6 @@
                             </Grid.RowDefinitions>
                             <ListView x:Name="ListViewHistory"
                                       ItemsSource="{Binding Cache.Items}"
-                                      SelectedItem="{Binding Cache.Item, Mode=OneWay}"
                                       Style="{StaticResource ListView.Small}">
                                 <i:Interaction.Behaviors>
                                     <behaviors:ListBoxScrollToCurrentBehavior />

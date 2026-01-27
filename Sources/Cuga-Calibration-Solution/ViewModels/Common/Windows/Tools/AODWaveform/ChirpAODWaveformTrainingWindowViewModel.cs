@@ -270,7 +270,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             item.ProductivityInformation,
             StageCoordinateSystemEnum.Dark,
             startPositon,
-            startPositon + new Vector(Cache.ScanLength, startPositon.Y),
+            startPositon + new Vector(Cache.ScanLength, 0),
             item.CIBInformation,
             (true, null),
             (false, Cache.CIBConfiguration),
