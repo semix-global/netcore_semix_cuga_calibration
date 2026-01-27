@@ -23,7 +23,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
-
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -150,7 +149,7 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         var oiProductivityInformations = new[]
         {
-           ProductivityInformation.Default.Clone().AdaptIn(
+            ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
                     Name = "S5",
@@ -167,9 +166,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                     YPixel = 508,
                 },
                 508,
-                445000,
-                408
-            ),
+                408,
+                445000),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -187,8 +185,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                     YPixel = 508
                 },
                 508,
-                222500,
-                408),
+                408,
+                222500),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -206,8 +204,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                     YPixel = 1008,
                 },
                 1008,
-                175900,
-                290),
+                290,
+                175900),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -225,8 +223,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                     YPixel = 1008,
                 },
                 1008,
-                88060,
-                290),
+                290,
+                88060),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -244,8 +242,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                     YPixel = 1500
                 },
                 1500,
-                87240,
-                210),
+                210,
+                87240),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -263,8 +261,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                     YPixel = 1500
                 },
                 1500,
-                43600,
-                210)
+                210,
+                43600)
         };
 
         var niProductivityInformations = new[]
@@ -286,8 +284,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                     YPixel = 1160
                 },
                 1160,
-                40000,
-                200),
+                200,
+                40000),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -305,8 +303,8 @@ public sealed class CalibrationLaserServiceMockImpl(
                     YPixel = 1720
                 },
                 1720,
-                26880,
-                200)
+                200,
+                26880)
         };
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>(opticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI

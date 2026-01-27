@@ -52,8 +52,8 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
                 c2MProductivityInfo,
                 speedInfoSxExecuteRet.Anything,
                 pmtDataLineHeightSxExecuteRet.Anything,
-                hzAndRealSpeedSxExecuteRet.Anything.realSpeed,
-                hzAndRealSpeedSxExecuteRet.Anything.hz));
+                hzAndRealSpeedSxExecuteRet.Anything.hz,
+                hzAndRealSpeedSxExecuteRet.Anything.realSpeed));
         }
 
         Guard.IsTrue(productivityInformationList.DistinctBy(t => t).Count() == productivityInformationList.Count, "Productivity Information is not unique");

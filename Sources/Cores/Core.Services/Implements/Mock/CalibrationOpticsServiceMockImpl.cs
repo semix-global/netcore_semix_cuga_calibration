@@ -57,9 +57,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 508,
                 },
                 508,
-                445000,
-                408
-            ),
+                408,
+                445000),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -77,8 +76,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 508
                 },
                 508,
-                222500,
-                408),
+                408,
+                222500),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -96,8 +95,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1008,
                 },
                 1008,
-                175900,
-                290),
+                290,
+                175900),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -115,8 +114,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1008,
                 },
                 1008,
-                88060,
-                290),
+                290,
+                88060),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -134,8 +133,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1500
                 },
                 1500,
-                87240,
-                210),
+                210,
+                87240),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -153,8 +152,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1500
                 },
                 1500,
-                43600,
-                210),
+                210,
+                43600),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -172,8 +171,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1160
                 },
                 1160,
-                40000,
-                200),
+                200,
+                40000),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -191,8 +190,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1720
                 },
                 1720,
-                26880,
-                200)
+                200,
+                26880)
         };
         Guard.IsTrue(productivityInformations.DistinctBy(t => t).Count() == productivityInformations.Length, "Productivity Information is not unique");
 

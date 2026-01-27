@@ -201,7 +201,7 @@ public sealed class ProductivityInformation :
             : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
     };
 
-    public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo, double originYPixel, double xSpeedValue, double sampleRate)
+    public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo, double originYPixel, double sampleRate, double xSpeedValue)
     {
         Name = obj.Name;
 #if NETFRAMEWORK
@@ -214,7 +214,7 @@ public sealed class ProductivityInformation :
         OriginYPixel = Convert.ToInt32(originYPixel);
         SampleRate = sampleRate;
         XSpeedValue = xSpeedValue;
-        XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* MHz */;
+        XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
 
         return this;
     }

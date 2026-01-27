@@ -157,8 +157,8 @@ public sealed partial class CalibrationLaserServiceImpl(
                 c2MProductivityInfo,
                 speedInfoSxExecuteRet.Anything,
                 pmtDataLineHeightSxExecuteRet.Anything,
-                hzAndRealSpeedSxExecuteRet.Anything.realSpeed,
-                hzAndRealSpeedSxExecuteRet.Anything.hz));
+                hzAndRealSpeedSxExecuteRet.Anything.hz,
+                hzAndRealSpeedSxExecuteRet.Anything.realSpeed));
         }
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
