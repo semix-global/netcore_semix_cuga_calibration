@@ -782,10 +782,9 @@ public static class AODWaveformGenerator1
                 }
 
                 // P3(x) = 1/2 * (5x^3 - 3x)
-                var t2 = tShift.PointwisePower(2d);
                 var t3 = tShift.PointwisePower(3d);
 
-                return (coefficient * 0.5d * (15d * t2 - 3d), coefficient * 0.5d * (5d * t3 - 3d * tShift));
+                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 2d * (5d * t3 - 3d * tShift));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP4CompensationSignals(double coefficient, Vector<double> tShift)
@@ -798,10 +797,9 @@ public static class AODWaveformGenerator1
 
                 // P4(x) = 1/8 * (35x^4 - 30x^2 + 3)
                 var t2 = tShift.PointwisePower(2d);
-                var t3 = tShift.PointwisePower(3d);
                 var t4 = tShift.PointwisePower(4d);
 
-                return (coefficient * 0.125d * (140d * t3 - 60d * tShift), coefficient * 0.125d * (35d * t4 - 30d * t2 + 3d));
+                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 8d * (35d * t4 - 30d * t2 + 3d));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP5CompensationSignals(double coefficient, Vector<double> tShift)
@@ -813,12 +811,10 @@ public static class AODWaveformGenerator1
                 }
 
                 // P5(x) = 1/8 * (63x^5 - 70x^3 + 15x)
-                var t2 = tShift.PointwisePower(2d);
-                var t4 = tShift.PointwisePower(4d);
                 var t3 = tShift.PointwisePower(3d);
                 var t5 = tShift.PointwisePower(5d);
 
-                return (coefficient * 0.125d * (315d * t4 - 210d * t2 + 15d), coefficient * 0.125d * (63d * t5 - 70d * t3 + 15d * tShift));
+                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 8d * (63d * t5 - 70d * t3 + 15d * tShift));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP6CompensationSignals(double coefficient, Vector<double> tShift)
@@ -831,12 +827,10 @@ public static class AODWaveformGenerator1
 
                 // P6(x) = 1/16 * (231x^6 - 315x^4 + 105x^2 - 5)
                 var t2 = tShift.PointwisePower(2d);
-                var t3 = tShift.PointwisePower(3d);
                 var t4 = tShift.PointwisePower(4d);
-                var t5 = tShift.PointwisePower(5d);
                 var t6 = tShift.PointwisePower(6d);
 
-                return (coefficient * 0.0625d * (1386d * t5 - 1260d * t3 + 210d * tShift), coefficient * 0.0625d * (231d * t6 - 315d * t4 + 105d * t2 - 5d));
+                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 16d * (231d * t6 - 315d * t4 + 105d * t2 - 5d));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP7CompensationSignals(double coefficient, Vector<double> tShift)
@@ -848,14 +842,11 @@ public static class AODWaveformGenerator1
                 }
 
                 // P7(x) = 1/16 * (429x^7 - 693x^5 + 315x^3 - 35x)
-                var t2 = tShift.PointwisePower(2d);
-                var t4 = tShift.PointwisePower(4d);
-                var t6 = tShift.PointwisePower(6d);
                 var t3 = tShift.PointwisePower(3d);
                 var t5 = tShift.PointwisePower(5d);
                 var t7 = tShift.PointwisePower(7d);
 
-                return (coefficient * 0.0625d * (3003d * t6 - 3465d * t4 + 945d * t2 - 35d), coefficient * 0.0625d * (429d * t7 - 693d * t5 + 315d * t3 - 35d * tShift));
+                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 16d * (429d * t7 - 693d * t5 + 315d * t3 - 35d * tShift));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP8CompensationSignals(double coefficient, Vector<double> tShift)
@@ -871,11 +862,8 @@ public static class AODWaveformGenerator1
                 var t4 = tShift.PointwisePower(4d);
                 var t6 = tShift.PointwisePower(6d);
                 var t8 = tShift.PointwisePower(8d);
-                var t3 = tShift.PointwisePower(3d);
-                var t5 = tShift.PointwisePower(5d);
-                var t7 = tShift.PointwisePower(7d);
 
-                return (coefficient * 0.0078125d * (51480d * t7 - 72072d * t5 + 27720d * t3 - 2520d * tShift), coefficient * 0.0078125d * (6435d * t8 - 12012d * t6 + 6930d * t4 - 1260d * t2 + 35d));
+                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 128d * (6435d * t8 - 12012d * t6 + 6930d * t4 - 1260d * t2 + 35d));
             }
         }
         catch (Exception ex)
