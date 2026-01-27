@@ -12,7 +12,6 @@
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
-           xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="1000"
@@ -226,6 +225,9 @@
                                                 Command="{Binding TrainingCommand}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Continue"
+                                                Command="{Binding ContinueCommand}"
+                                                Style="{StaticResource ButtonDefault}" />
                                         <Button Content="Cancel"
                                                 Command="{Binding TrainingCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -249,6 +251,7 @@
                             </Grid.RowDefinitions>
                             <ListView x:Name="ListViewHistory"
                                       ItemsSource="{Binding Cache.Items}"
+                                      SelectedItem="{Binding Cache.Item, Mode=TwoWay}"
                                       Style="{StaticResource ListView.Small}">
                                 <i:Interaction.Behaviors>
                                     <behaviors:ListBoxScrollToCurrentBehavior />

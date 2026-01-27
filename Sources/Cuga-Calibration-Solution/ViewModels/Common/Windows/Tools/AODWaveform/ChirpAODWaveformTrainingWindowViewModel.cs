@@ -2,6 +2,7 @@ using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
@@ -11,6 +12,7 @@ using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualStudio.Threading;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -36,6 +38,8 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     ApplicationCookie applicationCookie,
     ILogger<ChirpAODWaveformTrainingWindowViewModel> logger) : ViewModelBase
 {
+    private readonly AsyncAutoResetEvent _asyncAutoResetEvent = new(false);
+
     public string Name => "Chirp AOD Waveform Training";
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
@@ -162,23 +166,31 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     var plusPCoefficient = currentPCoefficient + Cache.StepPCoefficient;
                     var minusPCoefficient = currentPCoefficient - Cache.StepPCoefficient;
 
-                    var plusItem = await RunCatchImagesAsync(p, plusPCoefficient);
-                    if (plusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y)
+                    await RunCatchImagesAsync(p, plusPCoefficient);
+
+                    dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    await _asyncAutoResetEvent.WaitAsync(cancellationToken);
+
+                    /*if (plusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y)
                     {
                         Cache.Item = plusItem;
 
                         return;
-                    }
+                    }*/
 
-                    var minusItem = await RunCatchImagesAsync(p, minusPCoefficient);
-                    if (minusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y) Cache.Item = minusItem;
+                    await RunCatchImagesAsync(p, minusPCoefficient);
+
+                    dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    await _asyncAutoResetEvent.WaitAsync(cancellationToken);
+
+                    /*if (minusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y) Cache.Item = minusItem;*/
                 }
 
-                async Task<ChirpAODWaveformTrainingItem> RunCatchImagesAsync(int index, double val)
+                async Task RunCatchImagesAsync(int index, double val)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    return await CatchImagesAsync(
+                    await CatchImagesAsync(
                         index == 3 ? val : Cache.Item.P3Coefficient,
                         index == 4 ? val : Cache.Item.P4Coefficient,
                         index == 5 ? val : Cache.Item.P5Coefficient,
@@ -206,6 +218,12 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 logger.LogError(ex, "Training Failed");
             }
         }, cancellationToken).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private void Continue()
+    {
+        _asyncAutoResetEvent.Set();
     }
 
     private async Task<ChirpAODWaveformTrainingItem> CatchImagesAsync(
@@ -266,7 +284,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
         var startPositon = stageViewModel.MachineToBrightFieldPosition(Cache.DSWMachinePosition);
 
-        var darkFieldImage = await cibViewModel.GetPMTImageAsync(
+        using var darkFieldImage = await cibViewModel.GetPMTImageAsync(
             item.ProductivityInformation,
             StageCoordinateSystemEnum.Dark,
             startPositon,
@@ -284,7 +302,11 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
         var imageFilePath = Path.Combine(detectImageDirectory, item.CIBInformation.ToString(), $"{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg");
         darkFieldImage.Image.Save(imageFilePath);
 
-        var resultPlots = calibrationAlgorithmService.GetXYStrehlRatio(darkFieldImage.Image);
+        using var image = Cache.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog
+            ? calibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImage.Image)
+            : darkFieldImage.Image.Copy();
+
+        var resultPlots = calibrationAlgorithmService.GetXYStrehlRatio(image);
         item.XStrehlRatioPoints = [.. resultPlots.Select(t => new Point(t.Position.X, t.XStrehlRatio))];
         item.YStrehlRatioPoints = [.. resultPlots.Select(t => new Point(t.Position.X, t.YStrehlRatio))];
         item.GrayPoints = [.. resultPlots.Select(t => new Point(t.Position.X, t.GrayValue))];

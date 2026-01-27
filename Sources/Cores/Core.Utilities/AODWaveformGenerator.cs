@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Diagnostics;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
@@ -579,20 +578,6 @@ public static class AODWaveformGenerator1
 
             #endregion 返回结果
 
-            #region 频率
-
-            Vector<double> linearFrequencies, p2Phases;
-            Vector<double> p3Frequencies, p3Phases;
-            Vector<double> p4Frequencies, p4Phases;
-            Vector<double> p5Frequencies, p5Phases;
-            Vector<double> p6Frequencies, p6Phases;
-            Vector<double> p7Frequencies, p7Phases;
-            Vector<double> p8Frequencies, p8Phases;
-            Vector<double> flatnessCompensationFrequencies, flatnessCompensationPhases;
-            Vector<double> flatnessFrequencies, flatnessPhases;
-
-            #endregion 频率
-
             var result = GuardUtils.IsNotNullAndAssignableToType<TResult>(Activator.CreateInstance(typeof(TResult), param, true));
             result.Initialize();
 
@@ -600,7 +585,16 @@ public static class AODWaveformGenerator1
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
+                var (linearFrequencies, _,
+                    p3Frequencies, p3Phases,
+                    p4Frequencies, p4Phases,
+                    p5Frequencies, p5Phases,
+                    p6Frequencies, p6Phases,
+                    p7Frequencies, p7Phases,
+                    p8Frequencies, p8Phases,
+                    flatnessCompensationFrequencies, flatnessCompensationPhases,
+                    flatnessFrequencies, flatnessPhases) = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
+
                 var frequencyCoefficientList = new List<Point>();
 
                 if (param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness && item.OffsetConfiguration.UniformityConfigurations.Count > 0)
@@ -720,30 +714,39 @@ public static class AODWaveformGenerator1
 
             return (result, null);
 
-            void FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
+            (Vector<double> LinearFrequencies, Vector<double> P2Phases,
+                Vector<double> P3Frequencies, Vector<double> P3Phases,
+                Vector<double> P4Frequencies, Vector<double> P4Phases,
+                Vector<double> P5Frequencies, Vector<double> P5Phases,
+                Vector<double> P6Frequencies, Vector<double> P6Phases,
+                Vector<double> P7Frequencies, Vector<double> P7Phases,
+                Vector<double> P8Frequencies, Vector<double> P8Phases,
+                Vector<double> FlatnessCompensationFrequencies, Vector<double> FlatnessCompensationPhases,
+                Vector<double> FlatnessFrequencies, Vector<double> FlatnessPhases)
+                FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var δt = offsetFrequency == 0 ? 0d : offsetFrequencyPeriodCoefficient * 1d / offsetFrequency;
                 var tShift = t - δt / halfT;
 
-                (linearFrequencies, p2Phases) = GetP2CompensationSignals(tShift);
-                (p3Frequencies, p3Phases) = GetP3CompensationSignals(param.P3CompensationCoefficient, tShift);
-                (p4Frequencies, p4Phases) = GetP4CompensationSignals(param.P4CompensationCoefficient, tShift);
-                (p5Frequencies, p5Phases) = GetP5CompensationSignals(param.P5CompensationCoefficient, tShift);
-                (p6Frequencies, p6Phases) = GetP6CompensationSignals(param.P6CompensationCoefficient, tShift);
-                (p7Frequencies, p7Phases) = GetP7CompensationSignals(param.P7CompensationCoefficient, tShift);
-                (p8Frequencies, p8Phases) = GetP8CompensationSignals(param.P8CompensationCoefficient, tShift);
+                var (linearFrequencies, p2Phases) = GetP2CompensationSignals(tShift);
+                var (p3Frequencies, p3Phases) = GetP3CompensationSignals(param.P3CompensationCoefficient, tShift);
+                var (p4Frequencies, p4Phases) = GetP4CompensationSignals(param.P4CompensationCoefficient, tShift);
+                var (p5Frequencies, p5Phases) = GetP5CompensationSignals(param.P5CompensationCoefficient, tShift);
+                var (p6Frequencies, p6Phases) = GetP6CompensationSignals(param.P6CompensationCoefficient, tShift);
+                var (p7Frequencies, p7Phases) = GetP7CompensationSignals(param.P7CompensationCoefficient, tShift);
+                var (p8Frequencies, p8Phases) = GetP8CompensationSignals(param.P8CompensationCoefficient, tShift);
 
-                flatnessCompensationFrequencies = (footerFrequency - headerFrequency) / 4d * (p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
-                flatnessFrequencies = centerFrequency + (footerFrequency - headerFrequency) / 4d * linearFrequencies + flatnessCompensationFrequencies;
+                var flatnessCompensationFrequencies = (footerFrequency - headerFrequency) / 4d * (p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
+                var flatnessFrequencies = centerFrequency + (footerFrequency - headerFrequency) / 4d * linearFrequencies + flatnessCompensationFrequencies;
 
                 #region 相位
 
                 var headerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
 
-                flatnessCompensationPhases = (footerFrequency - headerFrequency) * halfT / 4d * (p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases);
-                flatnessPhases = 2 * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - headerFrequency) * halfT / 4d * p2Phases + flatnessCompensationPhases);
+                var flatnessCompensationPhases = (footerFrequency - headerFrequency) * halfT / 4d * (p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases);
+                var flatnessPhases = 2 * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - headerFrequency) * halfT / 4d * p2Phases + flatnessCompensationPhases);
 
                 var footerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
 
@@ -764,6 +767,16 @@ public static class AODWaveformGenerator1
                 (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(param.SampleRate);
 
                 #endregion 傅里叶
+
+                return (linearFrequencies, p2Phases,
+                    p3Frequencies, p3Phases,
+                    p4Frequencies, p4Phases,
+                    p5Frequencies, p5Phases,
+                    p6Frequencies, p6Phases,
+                    p7Frequencies, p7Phases,
+                    p8Frequencies, p8Phases,
+                    flatnessCompensationFrequencies, flatnessCompensationPhases,
+                    flatnessFrequencies, flatnessPhases);
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP2CompensationSignals(Vector<double> tShift)
