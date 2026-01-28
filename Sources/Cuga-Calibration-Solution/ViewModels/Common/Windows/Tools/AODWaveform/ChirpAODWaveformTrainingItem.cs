@@ -53,6 +53,9 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
     private double _p8Coefficient;
 
     [ObservableProperty]
+    private string _rawImageFilePath = string.Empty;
+
+    [ObservableProperty]
     private IReadOnlyList<Point> _xStrehlRatioPoints = [];
 
     [ObservableProperty]
@@ -78,9 +81,6 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
 
     [ObservableProperty]
     private Point _bestGray;
-
-    [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -155,4 +155,19 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
             scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
         }
     }
+
+    public object ToHtmlAnonymous() => new
+    {
+        ProductivityInformation,
+        LaserLightInformation,
+        CIBInformation,
+        P3Coefficient,
+        P4Coefficient,
+        P5Coefficient,
+        P6Coefficient,
+        P7Coefficient,
+        P8Coefficient,
+        RawImageFilePath,
+        BestYStrehlRatio
+    };
 }

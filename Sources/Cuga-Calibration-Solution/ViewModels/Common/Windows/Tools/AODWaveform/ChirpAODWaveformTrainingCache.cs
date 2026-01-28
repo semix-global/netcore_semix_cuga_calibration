@@ -3,6 +3,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -39,6 +40,9 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private double _rangeECS;
 
     [ObservableProperty]
+    private bool _isConfirmBestYStrehlRatioResult = true;
+
+    [ObservableProperty]
     private double _stepPCoefficient = 0.01;
 
     [ObservableProperty]
@@ -49,4 +53,21 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
 
     [ObservableProperty]
     private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];
+
+    public object ToHtmlAnonymous() => new
+    {
+        ProductivityInformation,
+        LaserLightInformation,
+        GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+        GenerateChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+        CIBInformation = new HtmlQuote(CIBInformation.ToHtmlAnonymous()),
+        CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
+        DSWMachinePosition,
+        ScanLength,
+        CenterECS,
+        RangeECS,
+        IsConfirmBestYStrehlRatioResult,
+        StepPCoefficient,
+        RetryTimes
+    };
 }

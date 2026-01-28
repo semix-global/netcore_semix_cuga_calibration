@@ -167,7 +167,7 @@
                                     </ComboBox>
                                     <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                                     <Expander Header="Position"
-                                              IsExpanded="True"
+                                              IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -197,10 +197,21 @@
                                         </Border>
                                     </Expander>
                                     <Expander Header="Training"
-                                              IsExpanded="True"
+                                              IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Is Confirm Result: "
+                                                               Width="200"
+                                                               HorizontalAlignment="Left"
+                                                               VerticalAlignment="Center" />
+                                                    <ToggleButton IsChecked="{Binding Cache.IsConfirmBestYStrehlRatioResult}"
+                                                                  HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"
+                                                                  Background="{StaticResource DangerBrush}"
+                                                                  Style="{StaticResource ToggleButtonSwitch}" />
+                                                </StackPanel>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Step: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
