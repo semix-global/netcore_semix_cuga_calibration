@@ -217,29 +217,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand]
-    private void ImportGainConfiguration()
-    {
-        try
-        {
-            var dialog = DialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
-            if (dialog == false) return;
-
-            var values = (IReadOnlyList<CIBMMDCache.GainConfiguration>)[.. MiniExcel.Query<CIBMMDCache.GainConfiguration>(filePath)];
-            if (values.Count > 0) Cache.GainConfigurations = values;
-
-            DialogWindowProvider.ShowDialog($"{nameof(ImportGainConfiguration)} OK!");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, nameof(ImportGainConfiguration));
-            DialogWindowProvider.ShowDialog($"""
-                                             {nameof(ImportGainConfiguration)} Failed!
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-        }
-    }
-
-    [RelayCommand]
     private void SetCIBMMD(CIBMMDDTO item)
     {
         try
@@ -369,8 +346,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ScaleFactor,
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
-                Cache.MinLogGain,
-                GainConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations])),
+                MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations])),
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -404,7 +380,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 ChirpAODWaveformProfiles = new HtmlTable([.. Cache.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
             }), HtmlLogUniqueId.LoggingHtml());
 
-            // 获取功率
+            #region 获取功率
+
             var coefficients = Generate.LinearRange(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
@@ -514,15 +491,23 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 measurePowerPoints = Cache.ScatterPlotControl.GetHtmlPlot2DLinesChart()
             }), HtmlLogUniqueId.LoggingHtml());
 
+            #endregion
+
+            #region 获取 Gain Relationship / 初始化 Calibratings
+
+            var cibmmdGains = CIBViewModel.GetCIBMMDGains(Cache.CIBInformations, Cache.StartGain, Cache.StepGain, Cache.StopGain);
+
             // 获取gain
             var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
             Calibratings =
             [
                 ..Cache.CIBInformations
+                    .Index()
                     .Select(t => new CIBMMDDTO
                     {
-                        CIBInformation = t,
+                        CIBInformation = t.Item,
+                        GainRelationships = cibmmdGains[t.Index],
                         Items =
                         [
                             .. Cache.UseODFilterMeasurePowerPoints.Select(tt => new CIBMMDDTOItem
@@ -541,6 +526,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     })
                     .OrderBy(t => t.CIBInformation)
             ];
+
+            #endregion
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -693,8 +680,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ScaleFactor,
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
-                Cache.MinLogGain,
-                Table = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.GainConfigurations]))
+                MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations]))
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -778,15 +764,24 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     private void Algorithm(CIBMMDDTO item)
     {
-        var htmlList = new List<BaseHtmlElement>();
+        var htmlList = new List<BaseHtmlElement>
+        {
+            new HtmlBullet(new
+            {
+                GainRelationships = new HtmlExpand(string.Empty, new HtmlTable([.. item.GainRelationships]))
+            })
+        };
+
         var htmlContainer = new HtmlContainer(htmlList);
         var isSuccess = false;
 
         try
         {
+            var mmdConfiguration = Cache.MMDConfigurations.Single(t => t.CIBInformation == item.CIBInformation);
+
             foreach (var itemItem in item.Items)
             {
-                itemItem.Items = itemItem.Items.Where(t => t.Gain >= Cache.FilterMinGain).ToArray();
+                itemItem.Items = itemItem.Items.Where(t => t.Gain >= mmdConfiguration.FilterMinGain).ToArray();
             }
 
             item.GainRSquared = 0d;
@@ -804,10 +799,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             item.GainS16BitPoints = [];
 
             var gains = (IReadOnlyList<double>)[.. item.Items[0].Items.Select(t => t.Gain)];
-            var gainConfigurations = (IReadOnlyList<CIBMMDCache.GainConfiguration>)
-            [
-                ..gains.Select(t => Cache.GainConfigurations.Single(tt => Math.Abs(tt.Gain - t) < 1e-3))
-            ];
 
             var coefficientCount = item.Items.Count;
             var gainCount = gains.Count;
@@ -834,7 +825,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(item.Items.Select(t => t.MeasurePower));
-            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log((t * Cache.PowerRate / 0.34) * 1000_000, 2));
+            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log(t * mmdConfiguration.PowerRate / 0.34 * 1000_000, 2));
 
             var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
             for (var row = 0; row < gainCount; row++)
@@ -911,9 +902,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             item.LogGainX0 = x0;
             item.LogGainDx = dx;
             item.LogGainRSquared = rSquared;
-            item.FitLogGainPoints = [.. item.OriginLogGainPoints /*.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))*/];
-            //var distance = Math.Abs(item.FitLogGainPoints.Min(t => t.Y) - Cache.MinLogGain);
-            item.ResultLogGainPoints = [.. item.OriginLogGainPoints /*.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - 0))*/];
+            item.FitLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
+            var distance = mmdConfiguration.IsEnableMinLogGain ? Math.Abs(item.FitLogGainPoints.Min(t => t.Y) - mmdConfiguration.MinLogGain) : 0d;
+            item.ResultLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - distance))];
 
             htmlList.Add(new HtmlBullet(new
             {
@@ -937,8 +928,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 .Select(t => (
                     Gain: t.Item.X,
                     LogGainMultiplication128: (int)Math.Round(t.Item.Y * 128 /* KLA写死128 */, MidpointRounding.AwayFromZero),
-                    gainConfigurations[t.Index].SenseU14Bit,
-                    gainConfigurations[t.Index].GainS16Bit
+                    item.GainRelationships[t.Index].SenseU14Bit,
+                    item.GainRelationships[t.Index].GainS16Bit
                 ))
                 .ToArray();
 
@@ -1002,6 +993,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             item.IsCalibrated = isSuccess;
             item.IsVerified = false;
+
             if (isSuccess)
                 Logger.LogHtmlInformation($"OK: {item.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, HtmlLogUniqueId.LoggingHtml());
             else

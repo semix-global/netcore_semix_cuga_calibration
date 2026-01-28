@@ -62,17 +62,53 @@ public static class Boltzmann
     {
         if (x.Count != y.Count) return ThrowHelper.ThrowArgumentException<(double A1, double A2, double X0, double Dx, double RSquared, Vector<double> YPredicted)>("Vectors x and y must have the same length.");
 
-        // 初始参数估计
+        // 1. 初始渐近线估计 (A1, A2)
         var guessA1 = y.Maximum();
         var guessA2 = y.Minimum();
-        var guessX0 = x[(y - (guessA1 + guessA2) / 2d).AbsoluteMinimumIndex()];
-        var guessDx = (y.Differentiate() / x.Differentiate()).PointwiseAbs().Median();
-        // guessX0 = x[x.Count / 2];
-        // guessDx = 1d;
 
-        if (guessDx < 0.1) guessDx = 0.5;
+        // 2. 线性化拟合以获得更准确的中心点 (X0) 和斜率 (Dx) 初始值
+        // 公式推导:
+        // y = A2 + (A1 - A2) / (1 + exp((x - x0) / dx))
+        // => (A1 - A2) / (y - A2) - 1 = exp((x - x0) / dx)
+        // => ln((A1 - A2) / (y - A2) - 1) = (1 / dx) * x - (x0 / dx)
+        // 这是一个线性形式 Y' = m * x + c，其中 m = 1/dx, c = -x0/dx
 
-        // 使用非线性最小二乘法拟合
+        var lx = new List<double>();
+        var lz = new List<double>();
+
+        for (var i = 0; i < x.Count; i++)
+        {
+            // 归一化判断，确保 y 在 (min, max) 之间且不贴边以保证 ln 的定义域
+            var normalizedY = (y[i] - guessA2) / (guessA1 - guessA2);
+            if (normalizedY > 0.01 && normalizedY < 0.99)
+            {
+                var ratio = (guessA1 - guessA2) / (y[i] - guessA2) - 1.0;
+                if (ratio > 0)
+                {
+                    lx.Add(x[i]);
+                    lz.Add(Math.Log(ratio));
+                }
+            }
+        }
+
+        double guessX0, guessDx;
+        if (lx.Count >= 2)
+        {
+            // 执行线性拟合 z = slope * x + intercept
+            var (intercept, slope) = Fit.Line(lx.ToArray(), lz.ToArray());
+            guessDx = 1.0 / slope;
+            guessX0 = -intercept * guessDx;
+        }
+        else
+        {
+            // 如果数据不足以线性化，退回到简单的启发式估计
+            guessX0 = x[(y - (guessA1 + guessA2) / 2d).AbsoluteMinimumIndex()];
+            guessDx = (guessA1 - guessA2) / 4.0; // 粗略估计
+        }
+
+        if (Math.Abs(guessDx) < 0.001) guessDx = 0.5;
+
+        // 3. 使用非线性最小二乘法进行最终拟合（优化所有 4 个参数 A1, A2, X0, Dx）
         var (a1Fit, a2Fit, x0Fit, dxFit) = Fit.Curve(
             x.AsArray() ?? x.ToArray(),
             y.AsArray() ?? y.ToArray(),

@@ -10,6 +10,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
+using Core.Models.Models.Common.DarkField;
 
 namespace Core.Models.Models.CIB.MMD;
 
@@ -17,6 +18,9 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 {
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
+
+    [ObservableProperty]
+    private IReadOnlyList<CIBMMDGainRelationshipDTO> _gainRelationships = [];
 
     [ObservableProperty]
     private IReadOnlyList<CIBMMDDTOItem> _items = [];

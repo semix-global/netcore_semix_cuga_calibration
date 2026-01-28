@@ -54,27 +54,51 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _xStrehlRatioPoints = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _xStrehlRatioFitPoints = [];
 
     [ObservableProperty]
     private Point _bestXStrehlRatio;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _yStrehlRatioPoints = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _yStrehlRatioFitPoints = [];
 
     [ObservableProperty]
     private Point _bestYStrehlRatio;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _grayPoints = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _grayFitPoints = [];
 
     [ObservableProperty]

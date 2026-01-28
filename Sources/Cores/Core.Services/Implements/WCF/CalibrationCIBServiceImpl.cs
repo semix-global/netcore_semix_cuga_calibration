@@ -17,12 +17,12 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
+using MathNet.Numerics;
 
 namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationCIBService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationCIBServiceImpl(
-    ICalibrationAlgorithmService calibrationAlgorithmService) : BaseService<ICgCalibrationService>, ICalibrationCIBService
+public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationService>, ICalibrationCIBService
 {
     public SxExecuteRet<bool> Connect()
     {
@@ -170,6 +170,35 @@ public sealed class CalibrationCIBServiceImpl(
         return pmtRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(pmtRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain)
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetDcSenseRelationalTables([.. cibInformations.Select(t => (stopGain, startGain, stepGain, t.PMTId, t.ChannelId))]));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(sxExecuteRet.ErrorMsg, []);
+
+        var gains = Generate.LinearRange(startGain, stepGain, stopGain);
+
+        var results = new CIBMMDGainRelationshipDTO[cibInformations.Count][];
+
+        foreach (var (cibInformationIndex, cibInformation) in cibInformations.Index())
+        {
+            var cgDcSenseRelationalModel = sxExecuteRet.Anything.Single(t => t.PmtId == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+
+            var cibmmdGains = new CIBMMDGainRelationshipDTO[gains.Length];
+
+            foreach (var (gainIndex, gain) in gains.Index())
+            {
+                cibmmdGains[gainIndex] = new CIBMMDGainRelationshipDTO()
+                    .AdaptIn(cgDcSenseRelationalModel)
+                    .WithGain(gain)
+                    .WithSenseU14Bit(Convert.ToInt32(cgDcSenseRelationalModel.AvgSense[gainIndex]));
+            }
+
+            results[cibInformationIndex] = cibmmdGains;
+        }
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
     }
 
     public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
