@@ -7,6 +7,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCentricityCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -37,13 +38,23 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:ComboBox HorizontalAlignment="Left"
+                                 hc:TitleElement.TitleWidth="150"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Cal Chip: "
+                                 SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
                     <hc:ComboBox x:Name="TemplateTypeComboBox"
-                                 Width="275"
                                  HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="140"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Template Type: "
-                                 hc:InfoElement.Necessary="True"
+                                 hc:TitleElement.TitleWidth="150"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Template Type: "
                                  SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
                         <hc:ComboBox.ItemTemplate>
@@ -64,9 +75,8 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <TextBox Text="{Binding Cache.CurrentCalibrationCacheItem.FindPosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel Margin="5"
                                             HorizontalAlignment="Left"

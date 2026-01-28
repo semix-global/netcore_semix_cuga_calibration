@@ -8,6 +8,8 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
+             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserLineCentricityCalibrationViewModel}"
              d:DesignHeight="500"
              d:DesignWidth="800"
@@ -27,14 +29,17 @@
                        Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                        Color="{StaticResource SuccessBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                        VerticalAlignment="Top"
-                                        Spacing="10">
-                    <Button Content="Action"
-                            Command="{Binding Step0CalibrateActionCommand}"
-                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                            Style="{StaticResource ButtonPrimary.Loading}" />
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button Content="Action"
+                                Command="{Binding Step0CalibrateActionCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                    </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
+
             </Border>
         </hc:UniformSpacingPanel>
 

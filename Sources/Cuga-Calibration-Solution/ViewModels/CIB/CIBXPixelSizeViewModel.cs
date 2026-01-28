@@ -9,6 +9,7 @@ using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
+using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -98,6 +99,12 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     private CIBXPixelSizeCache _cache = new();
 
     [ObservableProperty]
+    private MicroscopeCalChipDto _microscopeCalChip = new();
+
+    [ObservableProperty]
+    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
     private CIBXPixelSizeDTO[] _calibrations = [];
 
     #endregion 缓存
@@ -116,11 +123,20 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             return false;
         }
 
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
+        {
+            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        MicroscopeCalChip = microscopeCalChip;
+
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBXPixelSizeCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>();
@@ -147,6 +163,15 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
+
+        return true;
+    }
+
+    protected override async Task<bool> CancelingAsync()
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
         return true;
     }
@@ -184,7 +209,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             case 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -209,9 +234,14 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             case 2:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindBFMachinePosition != Point.Origin
-                    ? StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
-                    : Point.Origin);
+
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.CalChipSiteModelEnum switch
+                    {
+                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition,
+                        CalChipSiteModelEnum.DswModel => MicroscopeCalChip.DSWBrightFieldMachineAffinePosition,
+                        _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
+                    }), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -286,31 +316,39 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
 
-            var alignmentResult = new AlignmentResultDto();
+            AlignmentResultDto alignmentResult;
             if (Cache.Item.IsDarkFieldAlignment)
             {
                 AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t => t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                                         && t.ProductivityInformation == Cache.ProductivityInformation, new AlignmentCacheDarkField());
-                if (AlignmentCacheDarkField.IsOk)
-                    alignmentResult = StageViewModel.AlignmentDarkField(
-                        AlignmentCacheDarkField.LowSite1,
-                        AlignmentCacheDarkField.LowSite2,
-                        AlignmentCacheDarkField.HighSite1,
-                        AlignmentCacheDarkField.HighSite2,
-                        Cache.ProductivityInformation,
-                        AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                        opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
-                else
+                if (AlignmentCacheDarkField.IsOk == false)
                 {
                     var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
                     Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
                     AlignmentCacheDarkFields = [.. AlignmentCacheDarkFields, alignmentWindowDarkFieldViewModel.Cache];
                 }
+
+                alignmentResult = StageViewModel.AlignmentDarkField(
+                    AlignmentCacheDarkField.LowSite1,
+                    AlignmentCacheDarkField.LowSite2,
+                    AlignmentCacheDarkField.HighSite1,
+                    AlignmentCacheDarkField.HighSite2,
+                    Cache.ProductivityInformation,
+                    AlignmentCacheDarkField.LowMag,
+                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
             }
             else
             {
-                if (AlignmentCacheBrightField.IsOk)
+                if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
+                {
+                    if (AlignmentCacheBrightField.IsOk == false)
+                    {
+                        var alignmentWindowBrightFieldViewModel = AlignmentWindowBrightFieldViewModel;
+                        Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel) == true, nameof(alignmentWindowBrightFieldViewModel));
+                        AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
+                    }
+
                     alignmentResult = StageViewModel.Alignment(
                         AlignmentCacheBrightField.LowSite1,
                         AlignmentCacheBrightField.LowSite2,
@@ -318,12 +356,20 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                         AlignmentCacheBrightField.HighSite2,
                         AlignmentCacheBrightField.LowMag,
                         AlignmentCacheBrightField.HighMag,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
+                        Cache.CalChipSiteModelEnum);
+                }
                 else
                 {
-                    var alignmentWindowBrightFieldViewModel = AlignmentWindowBrightFieldViewModel;
-                    Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel) == true, nameof(alignmentWindowBrightFieldViewModel));
-                    AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
+                    alignmentResult = StageViewModel.Alignment(
+                        MicroscopeCalChipCache.LowSite1,
+                        MicroscopeCalChipCache.LowSite2,
+                        MicroscopeCalChipCache.HighSite1,
+                        MicroscopeCalChipCache.HighSite2,
+                        MicroscopeCalChipCache.LowMicroscopeLensInformation,
+                        MicroscopeCalChipCache.HighMicroscopeLensInformation,
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
+                        Cache.CalChipSiteModelEnum);
                 }
             }
 
@@ -331,6 +377,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
+                Cache.CalChipSiteModelEnum,
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
@@ -365,7 +412,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
                 Cache.Item.CIBInformation,
                 Cache.Item.ImageWidth,
-                (false, CalChipSiteModelEnum.ChuckModel),
+                (false, Cache.CalChipSiteModelEnum),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 false,
@@ -456,7 +503,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
             };
 
-            var dies = waferMapDieBuilder.BuildDie(new Circle(Point.Origin, Cache.Item.WaferRadius));
+            var dies = waferMapDieBuilder.BuildDie(new Circle
+                (
+                    Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel
+                        ? StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition)
+                        : Point.Origin
+                    , Cache.Item.WaferRadius)
+            );
 
             var currentRowDies = dies
                 .Where(t => t.Index.Y == 0)
@@ -473,13 +526,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 startPosition,
                 endPosition,
                 Cache.Item.CIBInformation,
-                (false, CalChipSiteModelEnum.ChuckModel),
+                (false, Cache.CalChipSiteModelEnum),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 false,
                 cancellationToken);
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
             CalibratingItem.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
 
@@ -642,6 +695,46 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 return false;
             }
 
+            if (Cache.Item.IsDarkFieldAlignment == false)
+            {
+                if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
+                {
+                    StageViewModel.Alignment(
+                        AlignmentCacheBrightField.LowSite1,
+                        AlignmentCacheBrightField.LowSite2,
+                        AlignmentCacheBrightField.HighSite1,
+                        AlignmentCacheBrightField.HighSite2,
+                        AlignmentCacheBrightField.LowMag,
+                        AlignmentCacheBrightField.HighMag,
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
+                        Cache.CalChipSiteModelEnum);
+                }
+                else
+                {
+                    StageViewModel.Alignment(
+                        MicroscopeCalChipCache.LowSite1,
+                        MicroscopeCalChipCache.LowSite2,
+                        MicroscopeCalChipCache.HighSite1,
+                        MicroscopeCalChipCache.HighSite2,
+                        MicroscopeCalChipCache.LowMicroscopeLensInformation,
+                        MicroscopeCalChipCache.HighMicroscopeLensInformation,
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
+                        Cache.CalChipSiteModelEnum);
+                }
+            }
+            else
+            {
+                StageViewModel.AlignmentDarkField(
+                    AlignmentCacheDarkField.LowSite1,
+                    AlignmentCacheDarkField.LowSite2,
+                    AlignmentCacheDarkField.HighSite1,
+                    AlignmentCacheDarkField.HighSite2,
+                    Cache.ProductivityInformation,
+                    AlignmentCacheDarkField.LowMag,
+                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
+            }
+
             var errorMessageStringBuilder = new StringBuilder();
 
             foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
@@ -695,7 +788,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                     OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
                 };
 
-                var dies = waferMapDieBuilder.BuildDie(new Circle(Point.Origin, Cache.Item.WaferRadius));
+                var dies = waferMapDieBuilder.BuildDie(new Circle
+                    (
+                        Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel
+                            ? StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DswItem.BrightFieldMachinePosition)
+                            : Point.Origin
+                        , Cache.Item.WaferRadius)
+                );
 
                 var currentRowDies = dies
                     .Where(t => t.Index.Y == 0)
@@ -712,7 +811,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                     verifyStartPosition,
                     verifyEndPosition,
                     Cache.Item.CIBInformation,
-                    (false, CalChipSiteModelEnum.ChuckModel),
+                    (false, Cache.CalChipSiteModelEnum),
                     (false, Cache.Item.CIBConfiguration),
                     (false, Cache.Item.LaserLightInformation),
                     false,
@@ -720,7 +819,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
                 selectedReviewItem.VerifyRawImageFilePath = verifyDarkFieldRawScanImage.RawImageFilePath;
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {

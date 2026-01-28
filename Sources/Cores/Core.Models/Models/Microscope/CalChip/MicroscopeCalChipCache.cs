@@ -25,7 +25,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
     [ObservableProperty]
-    private bool _isSkipRtfc = false;
+    private bool _isSkipRtfc;
 
     [ObservableProperty]
     private MicroscopeCalChipCacheItem[] _microscopeCalChipCacheItems = [];

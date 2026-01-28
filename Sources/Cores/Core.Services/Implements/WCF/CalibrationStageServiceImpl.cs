@@ -315,7 +315,7 @@ public sealed class CalibrationStageServiceImpl(
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        bool isP5)
+        bool isP2)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentResultDto());
@@ -325,8 +325,8 @@ public sealed class CalibrationStageServiceImpl(
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var sxExecuteRet = Invoke(() => isP5
-            ? Service!.Alignment(
+        var sxExecuteRet = Invoke(() => isP2
+            ? Service!.CalChipAlignment(
                 lowSite1.AdaptTo(),
                 lowSite2.AdaptTo(),
                 highSite1.AdaptTo(),
@@ -334,14 +334,15 @@ public sealed class CalibrationStageServiceImpl(
                 Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
                 Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
                 type: C2MAlignType.Mid)
-            : Service!.CalChipAlignment(
+            : Service!.Alignment(
                 lowSite1.AdaptTo(),
                 lowSite2.AdaptTo(),
                 highSite1.AdaptTo(),
                 highSite2.AdaptTo(),
                 Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
                 Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
-                type: C2MAlignType.Mid));
+                type: C2MAlignType.Mid)
+        );
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
@@ -355,7 +356,7 @@ public sealed class CalibrationStageServiceImpl(
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        bool isP5)
+        bool isP2)
     {
         var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
         if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentResultDto());
@@ -365,8 +366,8 @@ public sealed class CalibrationStageServiceImpl(
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
 
-        var sxExecuteRet = Invoke(() => isP5
-            ? Service!.AlignmentVerify(
+        var sxExecuteRet = Invoke(() => isP2
+            ? Service!.CalChipAlignmentVerify(
                 lowSite1.AdaptTo(),
                 lowSite2.AdaptTo(),
                 highSite1.AdaptTo(),
@@ -374,14 +375,15 @@ public sealed class CalibrationStageServiceImpl(
                 Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
                 Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
                 type: C2MAlignType.Mid)
-            : Service!.CalChipAlignmentVerify(
+            : Service!.AlignmentVerify(
                 lowSite1.AdaptTo(),
                 lowSite2.AdaptTo(),
                 highSite1.AdaptTo(),
                 highSite2.AdaptTo(),
                 Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
                 Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
-                type: C2MAlignType.Mid));
+                type: C2MAlignType.Mid)
+        );
 
         return sxExecuteRet.Anything is null
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())

@@ -138,6 +138,7 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
             foreach (var opticsIlluminationModeEnumKvp in cgElectrodeFileModel.PrescanFilePaths)
             {
                 var opticsIlluminationModeEnum = opticsIlluminationModeEnumKvp.Key.ToOpticsIlluminationModeEnum();
+                // if (opticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI) continue;
                 foreach (var opticsMagTypeKvp in opticsIlluminationModeEnumKvp.Value)
                 {
                     var opticsMagType = (int)opticsMagTypeKvp.Key.ToSxMagEnum();
@@ -153,6 +154,7 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
             foreach (var opticsIlluminationModeEnumKvp in cgElectrodeFileModel.ChirpFilePaths)
             {
                 var opticsIlluminationModeEnum = opticsIlluminationModeEnumKvp.Key.ToOpticsIlluminationModeEnum();
+                // if (opticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI) continue;
                 foreach (var opticsMagTypeKvp in opticsIlluminationModeEnumKvp.Value)
                 {
                     var opticsMagType = (int)opticsMagTypeKvp.Key.ToSxMagEnum();

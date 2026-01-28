@@ -283,7 +283,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        bool isP5
+        bool isP2
     )
     {
         Thread.Sleep(100);
@@ -300,7 +300,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        bool isP5)
+        bool isP2)
     {
         Thread.Sleep(100);
         var offsetAngle = 0.01 + Random.NextDouble() * (0.1 - 0.05);

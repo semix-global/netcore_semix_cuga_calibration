@@ -456,7 +456,7 @@ public sealed class LaserViewModel(
     public double ReadDOECurrentAngle()
     {
         var ret = calibrationLaserService.ReadDOECurrentAngle();
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess && ret.Anything != 0 ? ret.Anything : throw new CugaException(ret.ErrorMsg + $"DOE pos is {ret.Anything}");
     }
 
     public void SetDOEAngle(double angle)

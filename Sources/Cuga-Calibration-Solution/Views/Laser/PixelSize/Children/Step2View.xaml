@@ -7,6 +7,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Laser"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:LaserPixelSizeCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -57,69 +58,117 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox hc:InfoElement.Title="Low Site1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             IsReadOnly="True">
+                    <TextBox hc:TitleElement.Title="Low Site1(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="150"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}">
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                            <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.LowSite1.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                            <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="{Binding MicroscopeCalChipCache.LowSite1.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </MultiDataTrigger>
                                     <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.LowSite1.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
-                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.LowSite1.Location, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-                    <TextBox hc:InfoElement.Title="Low Site2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             IsReadOnly="True">
+                    <TextBox hc:TitleElement.Title="Low Site2(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="150"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}">
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                            <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.LowSite2.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                            <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="{Binding MicroscopeCalChipCache.LowSite2.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </MultiDataTrigger>
                                     <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.LowSite2.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
-                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.LowSite2.Location, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-                    <TextBox hc:InfoElement.Title="High Site1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             IsReadOnly="True">
+                    <TextBox hc:TitleElement.Title="High Site1(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="150"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}">
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                            <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.HighSite1.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                            <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="{Binding MicroscopeCalChipCache.HighSite1.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </MultiDataTrigger>
                                     <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.HighSite1.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
-                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.HighSite1.Location, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-                    <TextBox hc:InfoElement.Title="High Site2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             IsReadOnly="True">
+                    <TextBox hc:TitleElement.Title="High Site2(um): "
+                             hc:TitleElement.TitlePlacement="Left"
+                             hc:TitleElement.TitleWidth="150"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}">
                         <TextBox.Style>
                             <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
                                 <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                            <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.HighSite2.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                            <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Text" Value="{Binding MicroscopeCalChipCache.HighSite2.Location, Converter={StaticResource PointToStringConverter}}" />
+                                    </MultiDataTrigger>
                                     <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="Text" Value="{Binding AlignmentCacheDarkField.HighSite2.Location, Converter={StaticResource PointToStringConverter}}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
-                                        <Setter Property="Text" Value="{Binding AlignmentCacheBrightField.HighSite2.Location, Converter={StaticResource PointToStringConverter}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -137,11 +186,22 @@
                             <view:CanvasView.Style>
                                 <Style TargetType="view:CanvasView">
                                     <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                                <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheBrightField.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                        </MultiDataTrigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                                <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="BackgroundImage" Value="{Binding MicroscopeCalChipCache.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                        </MultiDataTrigger>
                                         <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                             <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheDarkField.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
-                                            <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheBrightField.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -158,11 +218,22 @@
                             <view:CanvasView.Style>
                                 <Style TargetType="view:CanvasView">
                                     <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                                <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheBrightField.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                        </MultiDataTrigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}" />
+                                                <Condition Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="BackgroundImage" Value="{Binding MicroscopeCalChipCache.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
+                                        </MultiDataTrigger>
                                         <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.True}">
                                             <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheDarkField.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.IsDarkFieldAlignment}" Value="{x:Static constants:Constants.False}">
-                                            <Setter Property="BackgroundImage" Value="{Binding AlignmentCacheBrightField.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

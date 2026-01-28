@@ -30,9 +30,9 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="150"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Cal Chip: "
+                                 hc:TitleElement.TitleWidth="150"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Cal Chip: "
                                  SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}">
                         <hc:ComboBox.ItemTemplate>

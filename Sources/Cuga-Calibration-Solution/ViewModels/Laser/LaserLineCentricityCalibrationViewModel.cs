@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
@@ -35,6 +36,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Laser;
@@ -42,11 +44,8 @@ namespace CugaCalibration.ViewModels.Laser;
 [IOCAppService(ServiceType = typeof(LaserLineCentricityCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class LaserLineCentricityCalibrationViewModel(
     IApplicationCookieService applicationCookieService,
-    CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel,
-    EnableOpticsIlluminationModeWindowViewModel enableOpticsIlluminationModeWindowViewModel,
-    AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
-    AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel) : CalibrationViewModelBase
+    EnableOpticsIlluminationModeWindowViewModel enableOpticsIlluminationModeWindowViewModel) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -59,7 +58,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Config" },
-        new() { StepName = "P5" },
+        new() { StepName = "Alignment" },
         new() { StepName = "Find a Position" },
         new() { StepName = "Find Template" },
         new() { StepName = "Line Centricity Calibration" }
@@ -102,6 +101,12 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     private LaserLineCentricityItemDto[] _calibrations = [];
 
     [ObservableProperty]
+    private MicroscopeCalChipDto _microscopeCalChip = new();
+
+    [ObservableProperty]
+    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
     private ChuckCenterAndThetaItemDto _chuckCenter = new();
 
     [ObservableProperty]
@@ -118,6 +123,15 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
     [ObservableProperty]
     private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+
+    [ObservableProperty]
+    private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
+
+    [ObservableProperty]
+    private AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowBrightFieldViewModel>();
+
+    [ObservableProperty]
+    private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
 
     #endregion 缓存
 
@@ -141,11 +155,13 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
+
+        MicroscopeCalChip = microscopeCalChip;
 
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
         {
@@ -203,6 +219,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserLineCentricityCache>();
 
@@ -235,6 +252,15 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         return true;
     }
 
+    protected override async Task<bool> CancelingAsync()
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+
+        return true;
+    }
+
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -252,7 +278,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             return false;
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
 
         return true;
     }
@@ -277,11 +303,17 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             case 3:
                 await AutomationRecipeInformationAsync(string.Empty);
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.CalChipSiteModelEnum switch
+                    {
+                        CalChipSiteModelEnum.ChuckModel => StageViewModel.BrightFieldToMachinePosition(Cache.Item.FindPosition),
+                        CalChipSiteModelEnum.DswModel => MicroscopeCalChip.DSWBrightFieldMachineAffinePosition,
+                        _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
+                    }), Cache.CalChipSiteModelEnum);
                 return true;
 
             case 4:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
                 return true;
 
             case 5:
@@ -326,54 +358,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     #endregion 控制校准业务
 
     #region 校准
-
-    [RelayCommand]
-    private async Task GetPointAsync(string parameter)
-    {
-        try
-        {
-            Logger.LogInformation("{@Name}: Get Point Image Start", Name);
-            await Task.Run(() =>
-            {
-                var result = StageViewModel.GetBrightFieldStagePosition();
-
-                Cache.Item.FindPosition = result;
-
-                Cache.Item.BrightTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-                var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum);
-                if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                else Cache.Item.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.BrightTemplateFilePath);
-
-                Logger.LogInformation("{@Name}: Get Point Image OK!", Name);
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Point Image Failed", Name);
-        }
-    }
-
-    [RelayCommand]
-    private async Task<bool> GotoPointAsync(object parameter)
-    {
-        try
-        {
-            Logger.LogInformation("{@Name}: Move Point Start", Name);
-            return await Task.Run(() =>
-            {
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
-
-                Logger.LogInformation("{@Name}: Move Point OK!", Name);
-                return true;
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Move Point Failed", Name);
-            return false;
-        }
-    }
-
 
     [RelayCommand]
     private Task ConfigStepActionAsync()
@@ -426,66 +410,68 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     {
         return InvokeCalibrateAsync(() =>
         {
-            AlignmentResultDto alignmentResultDto = new();
-
+            AlignmentResultDto alignmentResult;
             if (Cache.IsDarkFieldAlignment)
             {
-                if (AlignmentCacheDarkField.IsOk)
+                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t => t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                                        && t.ProductivityInformation == Cache.ProductivityInformation, new AlignmentCacheDarkField());
+                if (AlignmentCacheDarkField.IsOk == false)
                 {
-                    alignmentResultDto = StageViewModel.AlignmentDarkField(
-                        AlignmentCacheDarkField.LowSite1,
-                        AlignmentCacheDarkField.LowSite2,
-                        AlignmentCacheDarkField.HighSite1,
-                        AlignmentCacheDarkField.HighSite2,
-                        AlignmentCacheDarkField.ProductivityInformation,
-                        AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
-                    return true;
+                    var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
+                    Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
+                    AlignmentCacheDarkFields = [.. AlignmentCacheDarkFields, alignmentWindowDarkFieldViewModel.Cache];
                 }
 
-                var showDialog = WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel);
-
-                if (showDialog == false)
-                {
-                    DialogWindowProvider.ShowDialog("Alignment Setting is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return false;
-                }
-
-                AlignmentCacheDarkField = alignmentWindowDarkFieldViewModel.Cache;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheDarkField.LowSite1.Location);
+                alignmentResult = StageViewModel.AlignmentDarkField(
+                    AlignmentCacheDarkField.LowSite1,
+                    AlignmentCacheDarkField.LowSite2,
+                    AlignmentCacheDarkField.HighSite1,
+                    AlignmentCacheDarkField.HighSite2,
+                    Cache.ProductivityInformation,
+                    AlignmentCacheDarkField.LowMag,
+                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
             }
             else
             {
-                if (AlignmentCacheBrightField.IsOk)
+                if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
                 {
-                    alignmentResultDto = StageViewModel.Alignment(
+                    if (AlignmentCacheBrightField.IsOk == false)
+                    {
+                        var alignmentWindowBrightFieldViewModel = AlignmentWindowBrightFieldViewModel;
+                        Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel) == true, nameof(alignmentWindowBrightFieldViewModel));
+                        AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
+                    }
+
+                    alignmentResult = StageViewModel.Alignment(
                         AlignmentCacheBrightField.LowSite1,
                         AlignmentCacheBrightField.LowSite2,
                         AlignmentCacheBrightField.HighSite1,
                         AlignmentCacheBrightField.HighSite2,
                         AlignmentCacheBrightField.LowMag,
                         AlignmentCacheBrightField.HighMag,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
-                    return true;
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
+                        Cache.CalChipSiteModelEnum);
                 }
-
-                var showDialog = WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel);
-
-                if (showDialog == false)
+                else
                 {
-                    DialogWindowProvider.ShowDialog("Alignment Setting is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return false;
+                    alignmentResult = StageViewModel.Alignment(
+                        MicroscopeCalChipCache.LowSite1,
+                        MicroscopeCalChipCache.LowSite2,
+                        MicroscopeCalChipCache.HighSite1,
+                        MicroscopeCalChipCache.HighSite2,
+                        MicroscopeCalChipCache.LowMicroscopeLensInformation,
+                        MicroscopeCalChipCache.HighMicroscopeLensInformation,
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
+                        Cache.CalChipSiteModelEnum);
                 }
-
-                AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheBrightField.LowSite1.Location);
             }
 
-            Cache.P5Angle = alignmentResultDto.Degrees;
+            Cache.P5Angle = alignmentResult.Degrees;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.CalChipSiteModelEnum,
                 Cache.IsDarkFieldAlignment,
                 Cache.P5Angle
             }), HtmlLogUniqueId.LoggingHtml());
@@ -497,13 +483,18 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-        await InvokeCalibrateAsync(() =>
+        Cache.Item.FindPosition = StageViewModel.GetBrightFieldStagePosition();
+        Cache.Item.BrightTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+        var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum);
+        if (generateTemplateHigh == false)
         {
-            result = Step3CalibrateAction();
-            return result;
-        });
-        return result;
+            DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        Cache.Item.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.BrightTemplateFilePath);
+
+        return await InvokeCalibrateAsync(Step3CalibrateAction);
     }
 
     private bool Step3CalibrateAction()
@@ -516,7 +507,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         }
 
         Cache.Item.FindPosition = resultPosition;
-        Cache.Item.BrightTemplateImageFilePath = highResultImageFilePath;
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
         {
             Cache.Item.AlgorithmTemplateTypeEnum,
@@ -537,13 +527,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step4CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-        await InvokeCalibrateAsync(() =>
-        {
-            result = Step4CalibrateAction();
-            return result;
-        });
-        return result;
+        return await InvokeCalibrateAsync(Step4CalibrateAction);
     }
 
     private bool Step4CalibrateAction()
@@ -559,7 +543,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         Cache.Item.FindBrightMachinePosition = machineStagePosition;
 
         var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
-            CalChipSiteModelEnum.ChuckModel,
+            Cache.CalChipSiteModelEnum,
             Cache.Item.FindPosition,
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
@@ -584,10 +568,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         {
             var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
             darkFieldImageDto.Image.Save(filePath);
-            createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
-            createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
+            CreateDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
+            CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
-            var showDialog = WindowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel);
+            var showDialog = WindowManagerService.ShowDialog(CreateDarkImageTemplateWindowViewModel);
 
             if (showDialog == false)
             {
@@ -613,13 +597,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step5CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-        await InvokeCalibrateAsync(async () =>
-        {
-            result = await Step5CalibrateAsync(cancellationToken);
-            return result;
-        });
-        return result;
+        return await InvokeCalibrateAsync(async () => await Step5CalibrateAsync(cancellationToken));
     }
 
     private Task<bool> Step5CalibrateAsync(CancellationToken cancellationToken)
@@ -720,15 +698,13 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             }
 
             return true;
-        });
+        }, cancellationToken);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyActionAsync(CancellationToken cancellationToken)
+    private async Task<bool> VerifyActionAsync(CancellationToken cancellationToken)
     {
-        var result = true;
-
-        await InvokeVerifyAsync(() =>
+        return await InvokeVerifyAsync(() =>
         {
             if (SelectReviews.Count == 0)
             {
@@ -755,9 +731,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                                                                   && t.OpticsIlluminationMode == Cache.OpticsIlluminationModeEnum
                                                                   && t.PmtId == 8);
 
-            if (VerifyCalibration(centerLineCentricityItemDto, cancellationToken) == false) result = false;
-
-            return result;
+            return VerifyCalibration(centerLineCentricityItemDto, cancellationToken);
         }).ConfigureAwait(false);
     }
 
@@ -767,9 +741,10 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         var detectImageDirectory = ImageFileDirectory;
         var templateFileDirectory = TemplateFileDirectory;
 
-        if (IsAutoCalibrate == false)
+        if (Cache.IsDarkFieldAlignment == false)
         {
-            if (Cache.IsDarkFieldAlignment == false)
+            if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
+            {
                 StageViewModel.Alignment(
                     AlignmentCacheBrightField.LowSite1,
                     AlignmentCacheBrightField.LowSite2,
@@ -777,19 +752,33 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                     AlignmentCacheBrightField.HighSite2,
                     AlignmentCacheBrightField.LowMag,
                     AlignmentCacheBrightField.HighMag,
-                    AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
+                    AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
+                    Cache.CalChipSiteModelEnum);
+            }
             else
             {
-                StageViewModel.AlignmentDarkField(
-                    AlignmentCacheDarkField.LowSite1,
-                    AlignmentCacheDarkField.LowSite2,
-                    AlignmentCacheDarkField.HighSite1,
-                    AlignmentCacheDarkField.HighSite2,
-                    AlignmentCacheDarkField.ProductivityInformation,
-                    AlignmentCacheDarkField.LowMag,
-                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
+                StageViewModel.Alignment(
+                    MicroscopeCalChipCache.LowSite1,
+                    MicroscopeCalChipCache.LowSite2,
+                    MicroscopeCalChipCache.HighSite1,
+                    MicroscopeCalChipCache.HighSite2,
+                    MicroscopeCalChipCache.LowMicroscopeLensInformation,
+                    MicroscopeCalChipCache.HighMicroscopeLensInformation,
+                    AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
+                    Cache.CalChipSiteModelEnum);
             }
+        }
+        else
+        {
+            StageViewModel.AlignmentDarkField(
+                AlignmentCacheDarkField.LowSite1,
+                AlignmentCacheDarkField.LowSite2,
+                AlignmentCacheDarkField.HighSite1,
+                AlignmentCacheDarkField.HighSite2,
+                Cache.ProductivityInformation,
+                AlignmentCacheDarkField.LowMag,
+                AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
         }
 
         var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
@@ -806,7 +795,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         //暗场采图匹配后得到补偿offset后的暗场坐标
         if (LaserViewModel.TryGetMatchPositionByScanImage(
                 Cache.AlgorithmTemplateTypeEnum,
-                CalChipSiteModelEnum.ChuckModel,
+                Cache.CalChipSiteModelEnum,
                 CalibrationConstantsHelper.MainPmtId,
                 resultPosition,
                 Cache.Item.TemplateFilePath,
@@ -910,7 +899,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         //暗场采图匹配后得到补偿offset后的暗场坐标
         if (LaserViewModel.TryGetMatchPositionByScanImage(
                 Cache.Item.AlgorithmTemplateTypeEnum,
-                CalChipSiteModelEnum.ChuckModel,
+                Cache.CalChipSiteModelEnum,
                 laserLineCentricityItemDto.PmtId,
                 laserLineCentricityItemDto.FindDarkMachinePosition,
                 Cache.Item.TemplateFilePath,
@@ -1205,9 +1194,8 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 if (await NextingAsync(cancellationToken) == false) return false;
             }
 
-            if (await AutoNextingAsync(cancellationToken) == false) return false;
-            return true;
-        });
+            return await AutoNextingAsync(cancellationToken) != false;
+        }, cancellationToken);
     }
 
     private async Task<bool> AutoNextingAsync(CancellationToken cancellationToken)
