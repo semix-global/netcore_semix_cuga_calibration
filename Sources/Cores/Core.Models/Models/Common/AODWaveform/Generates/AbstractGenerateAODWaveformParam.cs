@@ -47,9 +47,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     private int _endpointSampleCount;
 
     [ObservableProperty]
-    private int _generateRetryTimes = 1000;
-
-    [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
@@ -198,7 +195,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         DirectoryPath = obj.DirectoryPath;
         ZeroSampleCount = obj.ZeroSampleCount;
         EndpointSampleCount = obj.EndpointSampleCount;
-        GenerateRetryTimes = obj.GenerateRetryTimes;
         ElectrodeConfigurations = [.. obj.ElectrodeConfigurations.Select(t => t.Clone())];
         P3CompensationCoefficient = obj.P3CompensationCoefficient;
         P4CompensationCoefficient = obj.P4CompensationCoefficient;
@@ -223,7 +219,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         DirectoryPath,
         ZeroSampleCount,
         EndpointSampleCount,
-        GenerateRetryTimes,
         ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToFlatnessHtmlAnonymous())])
     };
 
@@ -240,7 +235,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         DirectoryPath,
         ZeroSampleCount,
         EndpointSampleCount,
-        GenerateRetryTimes,
         ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())]),
         P3CompensationCoefficient,
         P4CompensationCoefficient,

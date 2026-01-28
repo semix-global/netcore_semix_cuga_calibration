@@ -135,11 +135,6 @@ public static class AODWaveformGenerator1
         public int EndpointSampleCount { get; init; }
 
         /// <summary>
-        /// 生成AOD波形文件重试次数
-        /// </summary>
-        public int GenerateRetryTimes { get; init; }
-
-        /// <summary>
         /// 生成多个AOD波形中每个波形的频率偏移配置集合
         /// </summary>
         public IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations { get; init; } = [];
@@ -209,7 +204,6 @@ public static class AODWaveformGenerator1
             Guard.IsNotNullOrWhiteSpace(DirectoryPath);
             Guard.IsGreaterThanOrEqualTo(ZeroSampleCount, 0d);
             Guard.IsGreaterThanOrEqualTo(EndpointSampleCount, 0d);
-            Guard.IsGreaterThan(GenerateRetryTimes, 0d);
 
             Guard.IsNotEmpty(OffsetConfigurations, "Offset Configuration is must be not empty.");
 
@@ -372,14 +366,6 @@ public static class AODWaveformGenerator1
         public IReadOnlyList<Point> FrequencyCoefficients { get; internal set; } = [];
 
         /// <summary>
-        /// AOD波形线性频率信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessLinearFrequencySignals { get; internal set; } = [];
-
-        /// <summary>
         /// AOD波形非线性频率信号
         ///</summary>
         [Newtonsoft.Json.JsonIgnore]
@@ -396,116 +382,12 @@ public static class AODWaveformGenerator1
         public IReadOnlyList<Point> FlatnessTotalPhaseSignals { get; internal set; } = [];
 
         /// <summary>
-        /// AOD波形总补偿频率信号(P3-P8)
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessTotalCompensationFrequencySignals { get; internal set; } = [];
-
-        /// <summary>
         /// AOD波形总补偿相位信号(P3-P8)
         ///</summary>
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessTotalCompensationPhaseSignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形三次补偿信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP3CompensationFrequencySignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形三次补偿相位信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP3CompensationPhaseSignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形四次补偿信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP4CompensationFrequencySignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形四次补偿相位信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP4CompensationPhaseSignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形五次补偿信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP5CompensationFrequencySignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形五次补偿相位信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP5CompensationPhaseSignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形六次补偿信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP6CompensationFrequencySignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形六次补偿相位信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP6CompensationPhaseSignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形七次补偿信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP7CompensationFrequencySignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形七次补偿相位信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP7CompensationPhaseSignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形八次补偿信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP8CompensationFrequencySignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形八次补偿相位信号
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessP8CompensationPhaseSignals { get; internal set; } = [];
     }
 
     #endregion 结果
@@ -585,15 +467,8 @@ public static class AODWaveformGenerator1
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var (linearFrequencies, _,
-                    p3Frequencies, p3Phases,
-                    p4Frequencies, p4Phases,
-                    p5Frequencies, p5Phases,
-                    p6Frequencies, p6Phases,
-                    p7Frequencies, p7Phases,
-                    p8Frequencies, p8Phases,
-                    flatnessCompensationFrequencies, flatnessCompensationPhases,
-                    flatnessFrequencies, flatnessPhases) = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
+                var (flatnessTotalCompensationPhases, flatnessTotalFrequencies, flatnessTotalPhases)
+                    = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
 
                 var frequencyCoefficientList = new List<Point>();
 
@@ -606,12 +481,32 @@ public static class AODWaveformGenerator1
                     var flatnessAODWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
                     for (var i = 0; i < flatnessAODWaveformSignals.Count; i++)
                     {
-                        var frequency = flatnessFrequencies[i];
+                        var frequency = flatnessTotalFrequencies[i];
                         var coefficient = linearSpline.Interpolate(frequency);
 
                         flatnessAODWaveformSignals[i] *= coefficient;
 
                         frequencyCoefficientList.Add(new Point(frequency, coefficient));
+
+                        if (i == 0)
+                        {
+                            if (headerSampleIndices.Length > 0)
+                            {
+                                var headerAODWaveformSignals = aodWaveformSignals.SubVectorRange(headerSampleIndices[0], headerSampleIndices[^1]);
+
+                                aodWaveformSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], headerAODWaveformSignals * coefficient);
+                            }
+                        }
+
+                        if (i == flatnessAODWaveformSignals.Count - 1)
+                        {
+                            if (headerSampleIndices.Length > 0)
+                            {
+                                var footerAODWaveformSignals = aodWaveformSignals.SubVectorRange(footerSampleIndices[0], footerSampleIndices[^1]);
+
+                                aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], footerAODWaveformSignals * coefficient);
+                            }
+                        }
                     }
 
                     aodWaveformSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], flatnessAODWaveformSignals);
@@ -651,61 +546,13 @@ public static class AODWaveformGenerator1
 
                 item.FlatnessTotalFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessFrequencies[tuple.Index]))];
+                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalFrequencies[tuple.Index]))];
                 item.FlatnessTotalPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessPhases[tuple.Index]))];
-                item.FlatnessTotalCompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessCompensationFrequencies[tuple.Index]))];
+                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalPhases[tuple.Index]))];
                 item.FlatnessTotalCompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                     ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessCompensationPhases[tuple.Index]))];
-
-                item.FlatnessLinearFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, linearFrequencies[tuple.Index]))];
-                item.FlatnessP3CompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p3Frequencies[tuple.Index]))];
-                item.FlatnessP3CompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p3Phases[tuple.Index]))];
-
-                item.FlatnessP4CompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p4Frequencies[tuple.Index]))];
-                item.FlatnessP4CompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p4Phases[tuple.Index]))];
-
-                item.FlatnessP5CompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p5Frequencies[tuple.Index]))];
-                item.FlatnessP5CompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p5Phases[tuple.Index]))];
-
-                item.FlatnessP6CompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p6Frequencies[tuple.Index]))];
-                item.FlatnessP6CompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p6Phases[tuple.Index]))];
-
-                item.FlatnessP7CompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p7Frequencies[tuple.Index]))];
-                item.FlatnessP7CompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p7Phases[tuple.Index]))];
-
-                item.FlatnessP8CompensationFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p8Frequencies[tuple.Index]))];
-                item.FlatnessP8CompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, p8Phases[tuple.Index]))];
+                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalCompensationPhases[tuple.Index]))];
             }
 
             DirectoryHelper.CreateFileDirectoryIfNotExists(result.FilePath);
@@ -714,23 +561,14 @@ public static class AODWaveformGenerator1
 
             return (result, null);
 
-            (Vector<double> LinearFrequencies, Vector<double> P2Phases,
-                Vector<double> P3Frequencies, Vector<double> P3Phases,
-                Vector<double> P4Frequencies, Vector<double> P4Phases,
-                Vector<double> P5Frequencies, Vector<double> P5Phases,
-                Vector<double> P6Frequencies, Vector<double> P6Phases,
-                Vector<double> P7Frequencies, Vector<double> P7Phases,
-                Vector<double> P8Frequencies, Vector<double> P8Phases,
-                Vector<double> FlatnessCompensationFrequencies, Vector<double> FlatnessCompensationPhases,
-                Vector<double> FlatnessFrequencies, Vector<double> FlatnessPhases)
-                FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
+            (Vector<double> FlatnessTotalCompensationPhases, Vector<double> FlatnessTotalFrequencies, Vector<double> FlatnessTotalPhases) FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var δt = offsetFrequency == 0 ? 0d : offsetFrequencyPeriodCoefficient * 1d / offsetFrequency;
                 var tShift = t - δt / halfT;
 
-                var (linearFrequencies, p2Phases) = GetP2CompensationSignals(tShift);
+                var (p2Frequencies, p2Phases) = GetP2CompensationSignals(tShift);
                 var (p3Frequencies, p3Phases) = GetP3CompensationSignals(param.P3CompensationCoefficient, tShift);
                 var (p4Frequencies, p4Phases) = GetP4CompensationSignals(param.P4CompensationCoefficient, tShift);
                 var (p5Frequencies, p5Phases) = GetP5CompensationSignals(param.P5CompensationCoefficient, tShift);
@@ -738,25 +576,25 @@ public static class AODWaveformGenerator1
                 var (p7Frequencies, p7Phases) = GetP7CompensationSignals(param.P7CompensationCoefficient, tShift);
                 var (p8Frequencies, p8Phases) = GetP8CompensationSignals(param.P8CompensationCoefficient, tShift);
 
-                var flatnessCompensationFrequencies = (footerFrequency - headerFrequency) / 4d * (p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
-                var flatnessFrequencies = centerFrequency + (footerFrequency - headerFrequency) / 4d * linearFrequencies + flatnessCompensationFrequencies;
+                var flatnessTotalCompensationFrequencies = (footerFrequency - headerFrequency) / 4d * (p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
+                var flatnessTotalFrequencies = centerFrequency + (footerFrequency - headerFrequency) / 4d * p2Frequencies + flatnessTotalCompensationFrequencies;
 
                 #region 相位
 
-                var headerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
+                var headerTotalPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
 
-                var flatnessCompensationPhases = (footerFrequency - headerFrequency) * halfT / 4d * (p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases);
-                var flatnessPhases = 2 * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - headerFrequency) * halfT / 4d * p2Phases + flatnessCompensationPhases);
+                var flatnessTotalCompensationPhases = (footerFrequency - headerFrequency) * halfT / 4d * (p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases);
+                var flatnessTotalPhases = 2 * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - headerFrequency) * halfT / 4d * p2Phases + flatnessTotalCompensationPhases);
 
-                var footerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
+                var footerTotalPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
 
                 #endregion
 
                 #region 波形
 
-                if (headerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], amplitude * headerPhases.PointwiseCos().PointwiseMultiply(Vector<double>.Build.DenseOfArray(headerSampleIndices) / headerSampleIndices.Length));
-                aodWaveformSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], amplitude * flatnessPhases.PointwiseCos());
-                if (footerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], amplitude * footerPhases.PointwiseCos().PointwiseMultiply(1d - (Vector<double>.Build.DenseOfArray(footerSampleIndices) - footerSampleIndices[0] + 1d) / footerSampleIndices.Length));
+                if (headerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], amplitude * headerTotalPhases.PointwiseCos().PointwiseMultiply(Vector<double>.Build.DenseOfArray(headerSampleIndices) / headerSampleIndices.Length));
+                aodWaveformSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], amplitude * flatnessTotalPhases.PointwiseCos());
+                if (footerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], amplitude * footerTotalPhases.PointwiseCos().PointwiseMultiply(1d - (Vector<double>.Build.DenseOfArray(footerSampleIndices) - footerSampleIndices[0] + 1d) / footerSampleIndices.Length));
 
                 #endregion 波形
 
@@ -768,22 +606,14 @@ public static class AODWaveformGenerator1
 
                 #endregion 傅里叶
 
-                return (linearFrequencies, p2Phases,
-                    p3Frequencies, p3Phases,
-                    p4Frequencies, p4Phases,
-                    p5Frequencies, p5Phases,
-                    p6Frequencies, p6Phases,
-                    p7Frequencies, p7Phases,
-                    p8Frequencies, p8Phases,
-                    flatnessCompensationFrequencies, flatnessCompensationPhases,
-                    flatnessFrequencies, flatnessPhases);
+                return (flatnessTotalCompensationPhases, flatnessTotalFrequencies, flatnessTotalPhases);
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP2CompensationSignals(Vector<double> tShift)
             {
-                return param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness
-                    ? (2d * tShift.PointwisePower(1d), tShift.PointwisePower(2))
-                    : (Vector<double>.Build.Dense(t.Count, 0d), Vector<double>.Build.Dense(t.Count, 0d));
+                return param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness
+                    ? (Vector<double>.Build.Dense(t.Count, 0d), Vector<double>.Build.Dense(t.Count, 0d))
+                    : (2d * tShift.PointwisePower(1d), tShift.PointwisePower(2));
             }
 
             (Vector<double> Frequency, Vector<double> Phase) GetP3CompensationSignals(double coefficient, Vector<double> tShift)

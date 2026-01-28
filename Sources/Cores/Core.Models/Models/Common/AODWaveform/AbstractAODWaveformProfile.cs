@@ -103,13 +103,6 @@ public abstract class AbstractAODWaveformProfile :
     [LiteDB.BsonIgnore]
     public IReadOnlyList<Point> FrequencyCoefficients { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessLinearFrequencySignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessLinearFrequencySignals { get; internal set; } = [];
-
     /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalFrequencySignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -124,103 +117,12 @@ public abstract class AbstractAODWaveformProfile :
     [LiteDB.BsonIgnore]
     public IReadOnlyList<Point> FlatnessTotalPhaseSignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalCompensationFrequencySignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessTotalCompensationFrequencySignals { get; internal set; } = [];
-
     /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalCompensationPhaseSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
     public IReadOnlyList<Point> FlatnessTotalCompensationPhaseSignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP3CompensationFrequencySignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP3CompensationFrequencySignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP3CompensationPhaseSignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP3CompensationPhaseSignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP4CompensationFrequencySignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP4CompensationFrequencySignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP4CompensationPhaseSignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP4CompensationPhaseSignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP5CompensationFrequencySignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP5CompensationFrequencySignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP5CompensationPhaseSignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP5CompensationPhaseSignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP6CompensationFrequencySignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP6CompensationFrequencySignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP6CompensationPhaseSignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP6CompensationPhaseSignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP7CompensationFrequencySignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP7CompensationFrequencySignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP7CompensationPhaseSignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP7CompensationPhaseSignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP8CompensationFrequencySignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP8CompensationFrequencySignals { get; internal set; } = [];
-
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessP8CompensationPhaseSignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IReadOnlyList<Point> FlatnessP8CompensationPhaseSignals { get; internal set; } = [];
 
     #endregion 波形
 
@@ -343,28 +245,14 @@ public abstract class AbstractAODWaveformProfile :
         Signals = [.. obj.Signals];
         FFTSignals = [.. obj.FFTSignals];
         FrequencyCoefficients = [.. obj.FrequencyCoefficients];
-        FlatnessLinearFrequencySignals = [.. obj.FlatnessLinearFrequencySignals];
         FlatnessTotalFrequencySignals = [.. obj.FlatnessTotalFrequencySignals];
         FlatnessTotalPhaseSignals = [.. obj.FlatnessTotalPhaseSignals];
-        FlatnessTotalCompensationFrequencySignals = [.. obj.FlatnessTotalCompensationFrequencySignals];
         FlatnessTotalCompensationPhaseSignals = [.. obj.FlatnessTotalCompensationPhaseSignals];
-        FlatnessP3CompensationFrequencySignals = [.. obj.FlatnessP3CompensationFrequencySignals];
-        FlatnessP3CompensationPhaseSignals = [.. obj.FlatnessP3CompensationPhaseSignals];
-        FlatnessP4CompensationFrequencySignals = [.. obj.FlatnessP4CompensationFrequencySignals];
-        FlatnessP4CompensationPhaseSignals = [.. obj.FlatnessP4CompensationPhaseSignals];
-        FlatnessP5CompensationFrequencySignals = [.. obj.FlatnessP5CompensationFrequencySignals];
-        FlatnessP5CompensationPhaseSignals = [.. obj.FlatnessP5CompensationPhaseSignals];
-        FlatnessP6CompensationFrequencySignals = [.. obj.FlatnessP6CompensationFrequencySignals];
-        FlatnessP6CompensationPhaseSignals = [.. obj.FlatnessP6CompensationPhaseSignals];
-        FlatnessP7CompensationFrequencySignals = [.. obj.FlatnessP7CompensationFrequencySignals];
-        FlatnessP7CompensationPhaseSignals = [.. obj.FlatnessP7CompensationPhaseSignals];
-        FlatnessP8CompensationFrequencySignals = [.. obj.FlatnessP8CompensationFrequencySignals];
-        FlatnessP8CompensationPhaseSignals = [.. obj.FlatnessP8CompensationPhaseSignals];
 
         return this;
     }
 
-    public virtual object ToFlatnessHtmlAnonymous() => new
+    public object ToFlatnessHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
         FilePath,
@@ -378,7 +266,7 @@ public abstract class AbstractAODWaveformProfile :
         })
     };
 
-    public virtual object ToHtmlAnonymous() => new
+    public object ToHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
         FilePath,
@@ -390,26 +278,10 @@ public abstract class AbstractAODWaveformProfile :
             TimeDomainSignal = new HtmlPlot2DLinesChart([(string.Empty, [.. Signals])], string.Empty),
             SpectrumFFTAnalysis = new HtmlPlot2DLinesChart([(string.Empty, [.. FFTSignals])], string.Empty),
             DynamicFrequencyCoefficient = new HtmlPlot2DLinesChart([(string.Empty, [.. FrequencyCoefficients])], string.Empty),
-            FlatnessFrequency = new HtmlPlot2DLinesChart([
-                (nameof(FlatnessLinearFrequencySignals), [.. FlatnessLinearFrequencySignals]),
-                (nameof(FlatnessTotalFrequencySignals), [.. FlatnessTotalFrequencySignals]),
-                (nameof(FlatnessTotalCompensationFrequencySignals), [.. FlatnessTotalCompensationFrequencySignals]),
-                (nameof(FlatnessP3CompensationFrequencySignals), [.. FlatnessP3CompensationFrequencySignals]),
-                (nameof(FlatnessP4CompensationFrequencySignals), [.. FlatnessP4CompensationFrequencySignals]),
-                (nameof(FlatnessP5CompensationFrequencySignals), [.. FlatnessP5CompensationFrequencySignals]),
-                (nameof(FlatnessP6CompensationFrequencySignals), [.. FlatnessP6CompensationFrequencySignals]),
-                (nameof(FlatnessP7CompensationFrequencySignals), [.. FlatnessP7CompensationFrequencySignals]),
-                (nameof(FlatnessP8CompensationFrequencySignals), [.. FlatnessP8CompensationFrequencySignals])
-            ], string.Empty),
-            FlatnessPhase = new HtmlPlot2DLinesChart([
-                (nameof(FlatnessTotalPhaseSignals), [.. FlatnessTotalPhaseSignals]),
+            Details = new HtmlPlot2DLinesChart([
                 (nameof(FlatnessTotalCompensationPhaseSignals), [.. FlatnessTotalCompensationPhaseSignals]),
-                (nameof(FlatnessP3CompensationPhaseSignals), [.. FlatnessP3CompensationPhaseSignals]),
-                (nameof(FlatnessP4CompensationPhaseSignals), [.. FlatnessP4CompensationPhaseSignals]),
-                (nameof(FlatnessP5CompensationPhaseSignals), [.. FlatnessP5CompensationPhaseSignals]),
-                (nameof(FlatnessP6CompensationPhaseSignals), [.. FlatnessP6CompensationPhaseSignals]),
-                (nameof(FlatnessP7CompensationPhaseSignals), [.. FlatnessP7CompensationPhaseSignals]),
-                (nameof(FlatnessP8CompensationPhaseSignals), [.. FlatnessP8CompensationPhaseSignals])
+                (nameof(FlatnessTotalPhaseSignals), [.. FlatnessTotalPhaseSignals]),
+                (nameof(FlatnessTotalFrequencySignals), [.. FlatnessTotalFrequencySignals])
             ], string.Empty)
         })
     };

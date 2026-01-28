@@ -23,7 +23,6 @@ public sealed partial class GeneratePrescanAODWaveformParam :
         FileNameSuffix = $"{ProductivityInformation.OpticsIlluminationModeEnum}_{ProductivityInformation.AdaptTo().Mag}",
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
-        GenerateRetryTimes = GenerateRetryTimes,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
         P3CompensationCoefficient = P3CompensationCoefficient,
         P4CompensationCoefficient = P4CompensationCoefficient,

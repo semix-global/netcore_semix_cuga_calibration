@@ -189,13 +189,6 @@
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Minimum="0"
                                               Value="{Binding EndpointSampleCount}" />
-                            <hc:NumericUpDown hc:TitleElement.Title="Generate Retry Times: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Maximum="1000000"
-                                              Minimum="1"
-                                              Value="{Binding GenerateRetryTimes}" />
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
