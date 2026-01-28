@@ -517,7 +517,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     ImageHorizontalProjectMappings = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.ImageHorizontalProjectMappings.Index().Select(t => new { t.Index, t.Item })])),
-                    PrescanAODWaveformProfileMappings = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.PrescanAODWaveformProfileMappings.Index().Select(t => new { t.Index, t.Item })])),
+                    PrescanAODWaveformProfileMappings = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.PrescanAODWaveformProfileMappings.Index().Select(t => new { t.Index, t.Item })]))
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
@@ -708,7 +708,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.P,
                         CIBInformation = t,
                         WindowLimitMin = windowLimitMin,
-                        WindowLimitMax = windowLimitMax,
+                        WindowLimitMax = windowLimitMax
                     })
             ];
 

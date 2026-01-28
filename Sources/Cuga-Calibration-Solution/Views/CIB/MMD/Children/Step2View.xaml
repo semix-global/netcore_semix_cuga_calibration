@@ -106,7 +106,6 @@
                                                                                           IsVisibleFrequency="False"
                                                                                           IsVisibleDirectoryPath="False"
                                                                                           IsVisibleUniformityConfiguration="False"
-                                                                                          IsVisibleSlopeDeltaKConfiguration="False"
                                                                                           IsVisibleCompensation="False"
                                                                                           DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
                                 </hc:UniformSpacingPanel>
@@ -131,7 +130,6 @@
                                                                                         IsVisibleFrequency="False"
                                                                                         IsVisibleDirectoryPath="False"
                                                                                         IsVisibleUniformityConfiguration="False"
-                                                                                        IsVisibleSlopeDeltaKConfiguration="False"
                                                                                         IsVisibleCompensation="False"
                                                                                         DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
                                 </hc:UniformSpacingPanel>

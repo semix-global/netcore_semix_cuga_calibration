@@ -48,7 +48,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         OpticsAODElectrodeEnum = t,
                         OffsetFrequency = Cache.OffsetFrequency,
                         OffsetFrequencyPeriodCoefficient = 0d,
-                        Amplitude = Cache.DefaultAmplitude,
+                        Amplitude = 1d, // 生成result默认幅值都是1
                         IsGenerateAODWaveformZero = false
                     })
                 ];
@@ -216,7 +216,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 OpticsViewModel.ToggleODFilter(false);
 
                 Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
-                Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyPeriodParams.Count, 2);
+                Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyPeriodParams.Count, 1);
                 Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
                 Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
 
@@ -228,7 +228,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1,
                         OffsetFrequency = Cache.OffsetFrequency,
                         OffsetFrequencyPeriodCoefficient = 0d,
-                        Amplitude = Cache.DefaultAmplitude,
+                        Amplitude = 1d, // 生成result默认幅值都是1
                         IsGenerateAODWaveformZero = false
                     }
                 ];
@@ -336,7 +336,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                 OpticsAODElectrodeEnum = param.OpticsAODElectrodeEnum,
                                 OffsetFrequency = Cache.OffsetFrequency,
                                 OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value,
-                                Amplitude = Cache.DefaultAmplitude,
+                                Amplitude = 1d, // 生成result默认幅值都是1
                                 IsGenerateAODWaveformZero = false
                             }
                         ];
@@ -375,6 +375,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, Cache.IsOnlyElectrode4 ? 4 : Cache.ElectrodeOffsetFrequencyPeriodParams.Count);
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyUniformityParams);
+            Guard.IsTrue(Cache.ElectrodeOffsetFrequencyUniformityParams.All(t => Cache.ElectrodeOffsetFrequencyPeriodParams.Any(tt => t.OpticsAODElectrodeEnum == tt.OpticsAODElectrodeEnum)));
             Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyUniformityParams.Count, Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize);
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));

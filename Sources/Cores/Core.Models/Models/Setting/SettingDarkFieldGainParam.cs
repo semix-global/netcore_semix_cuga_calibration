@@ -11,13 +11,13 @@ namespace Core.Models.Models.Setting;
 public sealed partial class SettingDarkFieldGainParam : ObservableCacheBase, IAdaptIn<SettingDarkFieldGainParam, SettingDarkFieldGainParam>
 {
     /// <summary>
-    /// PmtId
+    /// PMTId
     /// </summary>
     [ObservableProperty]
     private int _pmtId = 8;
 
     /// <summary>
-    /// PmtId
+    /// PMTId
     /// </summary>
     [ObservableProperty]
     private int _channelId = 3;

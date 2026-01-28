@@ -421,7 +421,9 @@ public sealed partial class MainWindowViewModel(
 
             case ".raw":
                 // 取反
-                var (image1, matrix) = calibrationAlgorithmService.ToImageInfo(File.ReadAllBytes(openFileDialog.FileName));
+                var rawBytes = File.ReadAllBytes(openFileDialog.FileName);
+                var (matrix, _) = RawImageFactory.ToMatrix(rawBytes);
+                var image1 = RawImageFactory.CreateImage(rawBytes);
                 var convertToDoubleMatrix = Matrix<double>.Build.DenseOfArray(matrix);
                 image = image1;
                 y = [.. convertToDoubleMatrix.RowSums().Divide(convertToDoubleMatrix.RowCount).Select(t => -t)];
@@ -570,7 +572,9 @@ public sealed partial class MainWindowViewModel(
 
             var strings = file.Split(["PMT", "Channel"], StringSplitOptions.RemoveEmptyEntries);
 
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(File.ReadAllBytes(file));
+            var rawBytes = File.ReadAllBytes(file);
+            var (matrix, _) = RawImageFactory.ToMatrix(rawBytes);
+            var image = RawImageFactory.CreateImage(rawBytes);
             using var _ = image;
             var convertToDoubleMatrix = Matrix<double>.Build.DenseOfArray(matrix);
 

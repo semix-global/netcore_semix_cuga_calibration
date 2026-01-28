@@ -342,7 +342,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.DefectRunSwath_Frame(Semix.WcfTransfer.DTO.SxSwathRecipe,System.Collections.Generic.List{Semix.WcfTransfer.DTO.M2CReviewFrameDTO})">
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.DefectRunSwath_Frame(Semix.WcfTransfer.DTO.SxSwathRecipe,System.Collections.Generic.List{Semix.WcfTransfer.DTO.M2CReviewFrameDTO},System.Boolean)">
             <summary>
             根据缺陷坐标下发对应Frame信息
             </summary>
@@ -728,7 +728,7 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetFFReviewImgForTrigger(System.Int32,Semix.WcfTransfer.DTO.SxOpticsParam,System.Int32)">
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.GetFFReviewImgForTrigger(System.Int32,Semix.WcfTransfer.DTO.SxOpticsParam,Semix.WcfTransfer.DTO.SxPointD,System.Int32)">
             <summary>
             获取傅里叶相机图像(直接取图，不自动打开相机)
             </summary>
@@ -767,6 +767,13 @@
         <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetCH3FFBox(System.Collections.Generic.List{Semix.WcfTransfer.DTO.C2MFFBlockBox})">
             <summary>
             部署通道3傅里叶
+            </summary>
+            <param name="box"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IC2MMachineFacadeService.SetAllFFDefault">
+            <summary>
+            部署通道所有傅里叶到默认位置
             </summary>
             <param name="box"></param>
             <returns></returns>
@@ -1075,6 +1082,51 @@
             <summary>
             报告进程信息
             </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IIdoTrainingService.SendDirectoryStructure(Semix.WcfTransfer.DTO.IdoDirectoryStructure)">
+            <summary>
+            第一步：传输目录结构（先创建目标目录）
+            </summary>
+            <param name="rootStructure"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IIdoTrainingService.SendFileBatch(Semix.WcfTransfer.DTO.IdoFileBatch)">
+            <summary>
+            第二步：批量传输文件（按批次）
+            </summary>
+            <param name="batch"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IIdoTrainingService.SendParam(Semix.WcfTransfer.DTO.IdoParam)">
+            <summary>
+            发送参数
+            </summary>
+            <param name="batch"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IIdoTrainingService.SendIp(System.Collections.Generic.List{Semix.WcfTransfer.DTO.IdoIp})">
+            <summary>
+            发送参数
+            </summary>
+            <param name="batch"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2IdoUploadService.Upload(System.String)">
+            <summary>
+            上传信息
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2IdoUploadService.Clear">
+            <summary>
+            清除信息
+            </summary>
+        </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IDO2.InterfaceIDO2.PushModel(System.Collections.Generic.List{Semix.WcfTransfer.DTO.IdoIp},System.String[])">
+            <summary>
+            下发ip 文件
+            </summary>
+            <param name="batch"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

@@ -27,6 +27,7 @@ using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -525,7 +526,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
                     Cache.Item.StartSpectralDensity,
                     Cache.Item.SpectralDensityStepCount,
                     SpectralDensityStep = Cache.Item.StepSpectralDensity,
-                    DefaultGenerateChirpAODWaveformParam = new HtmlQuote(Cache.Item.DefaultGenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+                    DefaultGenerateChirpAODWaveformParam = new HtmlQuote(Cache.Item.DefaultGenerateChirpAODWaveformParam.ToHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 // 创建一个Channel用于实现生产者-消费者模式
@@ -669,9 +670,9 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
             var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
             var bytes = File.ReadAllBytes(channelItemDto.RawFilePath);
-            var (image, matrix) = CalibrationAlgorithmService.ToImageInfo(bytes);
+            var image = RawImageFactory.CreateImage(bytes);
 
-            using var darkFieldImageDto = new DarkFieldImageDTO { Image = image, Matrix = matrix };
+            using var darkFieldImageDto = new DarkFieldImageDTO { Image = image };
             darkFieldImageDto.Image.Save(originImageFilePath);
 
             var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImageDto.Image);
@@ -740,7 +741,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
                                     .Select(tt => tt.ToFlatnessHtmlAnonymous())
                             ])))
                 ]
-            ),
+            )
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
@@ -791,7 +792,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
             [
                 ..darkFieldImageDtoList.Select(t => new BestFocusAndAstigmatismChannelItemDto
                 {
-                    PmtId = t.PmtId,
+                    PmtId = t.PMTId,
                     ChannelId = t.ChannelId,
                     RawFilePath = t.RawImageFilePath
                 })
@@ -847,8 +848,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
         generateChirpAODWaveformParam.BandWidth = bandWidth;
         generateChirpAODWaveformParam.DirectoryPath = ChirpFileDirectory;
 
-        var (aodWaveformResult, exception) = AODWaveformGenerator.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationToken);
-        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+        var aodWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationToken);
 
         var chirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
 

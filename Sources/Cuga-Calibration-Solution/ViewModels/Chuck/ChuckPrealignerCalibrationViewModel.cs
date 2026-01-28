@@ -573,7 +573,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 CalibrateDTO.ResultItemDto.OffsetPosition,
                 CalibrateDTO.ResultItemDto.EfemLoadWaferStagePosition,
                 CenterOffsetCalibrationResult = CalibrateDTO.ResultItemDto.NewEfemLoadWaferStagePosition,
-                AngleOffsetCalibrationResult = CalibrateDTO.ResultItemDto.EfemLoadWaferChuckAbsoluteAngle,
+                AngleOffsetCalibrationResult = CalibrateDTO.ResultItemDto.EfemLoadWaferChuckAbsoluteAngle
             }), HtmlLogUniqueId.LoggingHtml());
 
             if (IsAutoCalibrate == false)

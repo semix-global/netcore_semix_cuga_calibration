@@ -199,30 +199,6 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return true;
     }
 
-    public (Size Size, long BodyBytesStartIndex, long BodyBytesLength) GetSize(byte[] rawBytes)
-    {
-        return RawImageFactory.GetSize(rawBytes);
-    }
-
-    public byte[] ToRawBytes(byte[] bodyBytes, Size size)
-    {
-        return RawImageFactory.BodyAddHeaderFooter(bodyBytes, size);
-    }
-
-    public (HImage Image, short[,] Matrix) ToImageInfo(byte[] rawBytes)
-    {
-        var (matrix, _) = RawImageFactory.ToMatrix(rawBytes);
-
-        return (RawImageFactory.CreateImage(rawBytes), matrix);
-    }
-
-    public (HImage Image, short[,] Matrix, byte[] RawBytes) ToHorizontalFlipImageInfo(byte[] rawBytes)
-    {
-        var (matrix, horizontalFlipRawBytes, _) = RawImageFactory.ToHorizontalFlipMatrix(rawBytes);
-
-        return (RawImageFactory.CreateImage(horizontalFlipRawBytes), matrix, horizontalFlipRawBytes);
-    }
-
     public HImage DarkFieldRawImageToLinearImage(HImage darkFieldRawImage)
     {
         _algorithm.RAWConvertLiner(darkFieldRawImage, out var darkFieldLinearImageHObject);

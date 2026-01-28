@@ -366,7 +366,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 relayMotorAbsoluteValues =
                 [
                     .. relayMotorAbsoluteValues.AsSpan()[closestIndex..],
-                    .. relayMotorAbsoluteValues.AsSpan()[..closestIndex].ToArray().AsEnumerable().Reverse(),
+                    .. relayMotorAbsoluteValues.AsSpan()[..closestIndex].ToArray().AsEnumerable().Reverse()
                 ];
 
                 foreach (var (index, relayMotorAbsoluteValue) in relayMotorAbsoluteValues.Index())

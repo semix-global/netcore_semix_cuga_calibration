@@ -1047,7 +1047,7 @@ public sealed class LaserViewModel(
             imageCollectionConfiguration.IsAutoFocus,
             (imageCollectionConfiguration.ExtensionStartEcs, imageCollectionConfiguration.ExtensionEndEcs, imageCollectionConfiguration.ZSpeedValue));
 
-        return result.Where(t => pmtEnableItems.Contains(t.PmtId)).ToList();
+        return result.Where(t => pmtEnableItems.Contains(t.PMTId)).ToList();
     }
 
     /// <summary>
@@ -1387,7 +1387,7 @@ public sealed class LaserViewModel(
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
-                        darkFieldImageDto.PmtId,
+                        PmtId = darkFieldImageDto.PMTId,
                         darkFieldImageDto.ChannelId,
                         darkFieldImageDto.Width,
                         XWidthPixel = xWidthPixel,
@@ -1547,7 +1547,7 @@ public sealed class LaserViewModel(
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
-                        darkFieldImageDto.PmtId,
+                        PmtId = darkFieldImageDto.PMTId,
                         darkFieldImageDto.ChannelId,
                         darkFieldImageDto.Width,
                         XWidthPixel = xWidthPixel,

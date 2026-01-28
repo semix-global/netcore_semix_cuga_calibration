@@ -138,6 +138,6 @@ public partial class ImageCollectionConfiguration : ObservableCacheBase, IClonea
         UniformExtensionTime = UniformExtensionTime,
         IsCustomEcs = IsCustomEcs,
         ZStartEcs = ZStartEcs,
-        ZEndEcs = ZEndEcs,
+        ZEndEcs = ZEndEcs
     };
 }
