@@ -656,7 +656,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
                 else
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    Logger.LogHtmlError("NSC zero point not found. Please check whether the AF motor, ECS, slope, and other related configurations are correctly set.", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
                         startEcs,
                         endEcs,

@@ -12,6 +12,7 @@ using Core.Services.Interfaces;
 using Core.Utilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -110,7 +111,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     {
         try
         {
-            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator.PrescanAODWaveformFileExtension, out var filePath);
+            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator1.PrescanAODWaveformFileExtension, out var filePath);
             if (dialog == false) return;
 
             PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(filePath);
@@ -140,7 +141,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     {
         try
         {
-            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator.ChirpAODWaveformFileExtension, out var filePath);
+            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator1.ChirpAODWaveformFileExtension, out var filePath);
             if (dialog == false) return;
 
             ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(filePath);
@@ -331,12 +332,11 @@ public partial class GrabbingDarkImageWindowViewModel(
             DarkFieldImageDTO ToDarkFieldImageDto(DarkFieldRawScanImageDTO origin)
             {
                 var rawBytes = System.IO.File.ReadAllBytes(origin.RawImageFilePath);
-                var (image, matrix) = calibrationAlgorithmService.ToImageInfo(rawBytes);
+                var image = RawImageFactory.CreateImage(rawBytes);
 
                 return new DarkFieldImageDTO
                 {
-                    Image = image,
-                    Matrix = matrix
+                    Image = image
                 }.AdaptIn(origin);
             }
         });

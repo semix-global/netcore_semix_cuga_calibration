@@ -53,9 +53,9 @@ public static class AODWaveformProfileFactory
 
     public static IReadOnlyList<PrescanAODWaveformProfile> CreatePrescanList(string prescanAODWaveformResultFilePath)
     {
-        Guard.IsEqualTo(Path.GetExtension(prescanAODWaveformResultFilePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
+        Guard.IsEqualTo(Path.GetExtension(prescanAODWaveformResultFilePath), AODWaveformGenerator1.PrescanAODWaveformFileExtension, "File Extension is not valid.");
 
-        var prescanAODWaveformResult = FileHelper.DeserializeOperate<AODWaveformGenerator.PrescanAODWaveformResult>(prescanAODWaveformResultFilePath);
+        var prescanAODWaveformResult = FileHelper.DeserializeOperate<AODWaveformGenerator1.PrescanAODWaveformResult>(prescanAODWaveformResultFilePath);
         Guard.IsNotNull(prescanAODWaveformResult, "File Extension is not valid.");
 
         return CreatePrescanList(prescanAODWaveformResult);
@@ -63,15 +63,15 @@ public static class AODWaveformProfileFactory
 
     public static IReadOnlyList<ChirpAODWaveformProfile> CreateChirpList(string chirpAODWaveformResultFilePath)
     {
-        Guard.IsEqualTo(Path.GetExtension(chirpAODWaveformResultFilePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
+        Guard.IsEqualTo(Path.GetExtension(chirpAODWaveformResultFilePath), AODWaveformGenerator1.ChirpAODWaveformFileExtension, "File Extension is not valid.");
 
-        var chirpAODWaveformResult = FileHelper.DeserializeOperate<AODWaveformGenerator.ChirpAODWaveformResult>(chirpAODWaveformResultFilePath);
+        var chirpAODWaveformResult = FileHelper.DeserializeOperate<AODWaveformGenerator1.ChirpAODWaveformResult>(chirpAODWaveformResultFilePath);
         Guard.IsNotNull(chirpAODWaveformResult, "File Extension is not valid.");
 
         return CreateChirpList(chirpAODWaveformResult);
     }
 
-    public static IReadOnlyList<PrescanAODWaveformProfile> CreatePrescanList(AODWaveformGenerator.PrescanAODWaveformResult prescanAODWaveformResult, double coefficient = 1d)
+    public static IReadOnlyList<PrescanAODWaveformProfile> CreatePrescanList(AODWaveformGenerator1.PrescanAODWaveformResult prescanAODWaveformResult, double coefficient = 1d)
     {
         var result = new List<PrescanAODWaveformProfile>();
         foreach (var item in prescanAODWaveformResult.Items)
@@ -82,15 +82,9 @@ public static class AODWaveformProfileFactory
             if (item.Signals.Count > 0) prescanAODWaveformProfile.Signals = [.. item.Signals];
             if (item.FFTSignals.Count > 0) prescanAODWaveformProfile.FFTSignals = [.. item.FFTSignals];
             if (item.FrequencyCoefficients.Count > 0) prescanAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
-            if (item.FlatnessLinearFrequencySignals.Count > 0) prescanAODWaveformProfile.FlatnessLinearFrequencySignals = [.. item.FlatnessLinearFrequencySignals];
             if (item.FlatnessTotalFrequencySignals.Count > 0) prescanAODWaveformProfile.FlatnessTotalFrequencySignals = [.. item.FlatnessTotalFrequencySignals];
-            if (item.FlatnessAstigmatismCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessAstigmatismCompensationSignals = [.. item.FlatnessAstigmatismCompensationSignals];
-            if (item.FlatnessSphericalAberrationCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessSphericalAberrationCompensationSignals = [.. item.FlatnessSphericalAberrationCompensationSignals];
-            if (item.FlatnessSecondaryAstigmatismCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessSecondaryAstigmatismCompensationSignals = [.. item.FlatnessSecondaryAstigmatismCompensationSignals];
-            if (item.FlatnessComaCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessComaCompensationSignals = [.. item.FlatnessComaCompensationSignals];
-            if (item.FlatnessTrefoilCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessTrefoilCompensationSignals = [.. item.FlatnessTrefoilCompensationSignals];
-            if (item.FlatnessQuadrafoilCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessQuadrafoilCompensationSignals = [.. item.FlatnessQuadrafoilCompensationSignals];
-            if (item.FlatnessAlphaOrderCompensationSignals.Count > 0) prescanAODWaveformProfile.FlatnessAlphaOrderCompensationSignals = [.. item.FlatnessAlphaOrderCompensationSignals];
+            if (item.FlatnessTotalPhaseSignals.Count > 0) prescanAODWaveformProfile.FlatnessTotalPhaseSignals = [.. item.FlatnessTotalPhaseSignals];
+            if (item.FlatnessTotalCompensationPhaseSignals.Count > 0) prescanAODWaveformProfile.FlatnessTotalCompensationPhaseSignals = [.. item.FlatnessTotalCompensationPhaseSignals];
 
             result.Add(prescanAODWaveformProfile);
         }
@@ -98,7 +92,7 @@ public static class AODWaveformProfileFactory
         return result;
     }
 
-    public static IReadOnlyList<ChirpAODWaveformProfile> CreateChirpList(AODWaveformGenerator.ChirpAODWaveformResult chirpAODWaveformResult)
+    public static IReadOnlyList<ChirpAODWaveformProfile> CreateChirpList(AODWaveformGenerator1.ChirpAODWaveformResult chirpAODWaveformResult)
     {
         var result = new List<ChirpAODWaveformProfile>();
         foreach (var item in chirpAODWaveformResult.Items)
@@ -109,15 +103,9 @@ public static class AODWaveformProfileFactory
             if (item.Signals.Count > 0) chirpAODWaveformProfile.Signals = [.. item.Signals];
             if (item.FFTSignals.Count > 0) chirpAODWaveformProfile.FFTSignals = [.. item.FFTSignals];
             if (item.FrequencyCoefficients.Count > 0) chirpAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
-            if (item.FlatnessLinearFrequencySignals.Count > 0) chirpAODWaveformProfile.FlatnessLinearFrequencySignals = [.. item.FlatnessLinearFrequencySignals];
             if (item.FlatnessTotalFrequencySignals.Count > 0) chirpAODWaveformProfile.FlatnessTotalFrequencySignals = [.. item.FlatnessTotalFrequencySignals];
-            if (item.FlatnessAstigmatismCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessAstigmatismCompensationSignals = [.. item.FlatnessAstigmatismCompensationSignals];
-            if (item.FlatnessSphericalAberrationCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessSphericalAberrationCompensationSignals = [.. item.FlatnessSphericalAberrationCompensationSignals];
-            if (item.FlatnessSecondaryAstigmatismCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessSecondaryAstigmatismCompensationSignals = [.. item.FlatnessSecondaryAstigmatismCompensationSignals];
-            if (item.FlatnessComaCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessComaCompensationSignals = [.. item.FlatnessComaCompensationSignals];
-            if (item.FlatnessTrefoilCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessTrefoilCompensationSignals = [.. item.FlatnessTrefoilCompensationSignals];
-            if (item.FlatnessQuadrafoilCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessQuadrafoilCompensationSignals = [.. item.FlatnessQuadrafoilCompensationSignals];
-            if (item.FlatnessAlphaOrderCompensationSignals.Count > 0) chirpAODWaveformProfile.FlatnessAlphaOrderCompensationSignals = [.. item.FlatnessAlphaOrderCompensationSignals];
+            if (item.FlatnessTotalPhaseSignals.Count > 0) chirpAODWaveformProfile.FlatnessTotalPhaseSignals = [.. item.FlatnessTotalPhaseSignals];
+            if (item.FlatnessTotalCompensationPhaseSignals.Count > 0) chirpAODWaveformProfile.FlatnessTotalCompensationPhaseSignals = [.. item.FlatnessTotalCompensationPhaseSignals];
 
             result.Add(chirpAODWaveformProfile);
         }

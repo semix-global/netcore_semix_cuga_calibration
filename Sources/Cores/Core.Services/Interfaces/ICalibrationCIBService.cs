@@ -143,4 +143,28 @@ public interface ICalibrationCIBService
         bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 读取所有CIB的图片
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
+    /// <param name="startPosition">起点位置</param>
+    /// <param name="endPosition">终点位置</param>
+    /// <param name="cibInformations">CIB列表</param>
+    /// <param name="startECS">ECS起点</param>
+    /// <param name="stopECS">ECS终点</param>
+    /// <param name="isForward">是否是正向扫图还是反向扫图</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>CIB对应的图片</returns>
+    Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point startPosition,
+        Point endPosition,
+        IReadOnlyList<CIBInformation> cibInformations,
+        double startECS,
+        double stopECS,
+        bool isForward,
+        CancellationToken cancellationToken);
 }

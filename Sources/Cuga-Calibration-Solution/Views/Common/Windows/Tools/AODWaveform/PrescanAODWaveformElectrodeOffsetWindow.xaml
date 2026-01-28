@@ -223,7 +223,6 @@
                                                                                                     IsVisibleDirectoryPath="False"
                                                                                                     IsVisibleElectrodeConfiguration="False"
                                                                                                     IsVisibleUniformityConfiguration="False"
-                                                                                                    IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                     IsVisibleCompensation="False"
                                                                                                     DataContext="{Binding Cache.FlatnessGeneratePrescanAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
@@ -250,7 +249,6 @@
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
                                                                                                   IsVisibleUniformityConfiguration="False"
-                                                                                                  IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                   IsVisibleCompensation="False"
                                                                                                   DataContext="{Binding Cache.FlatnessGenerateChirpAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
@@ -683,12 +681,13 @@
                                                     <DataGridTemplateColumn Header="Uniformity">
                                                         <DataGridTemplateColumn.CellTemplate>
                                                             <DataTemplate>
-                                                                <Grid>
+                                                                <Grid Margin="2">
                                                                     <ToggleButton x:Name="ToggleButtonUniformityConfigurations"
                                                                                   Content="Profiles"
                                                                                   Margin="0,2"
                                                                                   HorizontalAlignment="Left"
-                                                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                                                                  Style="{StaticResource ToggleButtonDefault.Small}" />
                                                                     <Popup Width="800"
                                                                            Height="800"
                                                                            StaysOpen="False"
@@ -697,8 +696,30 @@
                                                                            AllowsTransparency="True"
                                                                            PopupAnimation="Slide"
                                                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
-                                                                        <Border Style="{StaticResource BorderRegion}">
-                                                                            <controls:ScatterMultiPlotControl Title="Uniformity Configurations(Y: Coefficient - X: MHz)" ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                                            <Grid>
+                                                                                <Grid.ColumnDefinitions>
+                                                                                    <ColumnDefinition Width="*" />
+                                                                                    <ColumnDefinition Width="Auto" />
+                                                                                    <ColumnDefinition Width="*" />
+                                                                                </Grid.ColumnDefinitions>
+                                                                                <DataGrid x:Name="DataGridUniformityConfigurations"
+                                                                                          hc:DataGridAttach.ShowRowNumber="True"
+                                                                                          Style="{StaticResource DataGrid.Small}"
+                                                                                          HeadersVisibility="All"
+                                                                                          RowHeaderWidth="60"
+                                                                                          AutoGenerateColumns="False"
+                                                                                          ItemsSource="{Binding UniformityConfigurations}">
+                                                                                    <DataGrid.Columns>
+                                                                                        <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                                                        <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                                                                    </DataGrid.Columns>
+                                                                                </DataGrid>
+                                                                                <GridSplitter Grid.Column="1" Width="5" />
+                                                                                <controls:ScatterMultiPlotControl Grid.Column="2"
+                                                                                                                  Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
+                                                                                                                  ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                            </Grid>
                                                                         </Border>
                                                                     </Popup>
                                                                 </Grid>

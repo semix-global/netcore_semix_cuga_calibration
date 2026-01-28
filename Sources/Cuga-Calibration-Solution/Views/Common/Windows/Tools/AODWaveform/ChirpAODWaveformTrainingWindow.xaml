@@ -1,0 +1,461 @@
+<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AODWaveform.ChirpAODWaveformTrainingWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+           xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           Width="1500"
+           Height="1000"
+           d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformTrainingWindowViewModel}"
+           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           BorderThickness="2"
+           ResizeMode="NoResize"
+           ShowInTaskbar="False"
+           WindowStartupLocation="CenterScreen"
+           WindowStyle="None"
+           mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.Resources>
+            <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
+                <Setter Property="CornerRadius" Value="0" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <hc:SimplePanel Grid.Row="0" Grid.Column="0"
+                        Background="{StaticResource PrimaryBrush}">
+            <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TextBlock Text="{Binding Name}"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
+            </StackPanel>
+            <Button Command="{Binding CloseCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonIcon}" TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </hc:SimplePanel>
+        <Grid Grid.Row="1" Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="500" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                        <GroupBox Header="AOD Waveform Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                            Orientation="Vertical"
+                                                            Spacing="2">
+                                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                        <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                    </hc:UniformSpacingPanel>
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="Chirp AOD Waveform" Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <StackPanel>
+                                                    <Button Content="Import"
+                                                            Command="{Binding ImportChirpAODWaveformParamCommand}"
+                                                            HorizontalAlignment="Right"
+                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                            Style="{StaticResource ButtonInfo.Small}" />
+                                                </StackPanel>
+                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                  IsVisibleDirectoryPath="False"
+                                                                                                  IsVisibleCompensation="False"
+                                                                                                  DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="Prescan AOD Waveform" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <StackPanel>
+                                                    <Button Content="Import"
+                                                            Command="{Binding ImportPrescanAODWaveformParamCommand}"
+                                                            HorizontalAlignment="Right"
+                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                            Style="{StaticResource ButtonInfo.Small}" />
+                                                </StackPanel>
+                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                    IsVisibleAmplitude="False"
+                                                                                                    IsVisibleDirectoryPath="False"
+                                                                                                    DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Params">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <ComboBox hc:TitleElement.Title="CIB Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                                        <i:Interaction.Behaviors>
+                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.CIBConfiguration}" />
+                                    <Expander Header="Position"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <TextBox Text="{Binding Cache.DSWMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                                         hc:TitleElement.Title="Machine Position(um):"
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.ScanLength}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Center(ECS): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.CenterECS}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.RangeECS}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="Training"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Is Confirm Result: "
+                                                               Width="200"
+                                                               HorizontalAlignment="Left"
+                                                               VerticalAlignment="Center" />
+                                                    <ToggleButton IsChecked="{Binding Cache.IsConfirmBestYStrehlRatioResult}"
+                                                                  HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"
+                                                                  Background="{StaticResource DangerBrush}"
+                                                                  Style="{StaticResource ToggleButtonSwitch}" />
+                                                </StackPanel>
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepPCoefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Retry Times: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.RetryTimes}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Actions">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Spacing="10" Orientation="Vertical">
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding TrainingCommand}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                        <Button Content="Continue"
+                                                Command="{Binding ContinueCommand}"
+                                                Style="{StaticResource ButtonDefault}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding TrainingCancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                    </hc:UniformSpacingPanel>
+                </ScrollViewer>
+            </Border>
+            <GridSplitter Grid.Column="1" Width="5" />
+            <GroupBox Grid.Column="2" Header="History">
+                <TabControl>
+                    <TabItem Header="Items">
+                        <Grid Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Border Style="{StaticResource BorderRegion}">
+                                <TextBlock>
+                                    <Run Text="[Best] Y Strehl: " />
+                                    <Run Text="{Binding Cache.Item.BestYStrehlRatio, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                                    <Run Text=", " />
+                                    <Run Text="P3: " />
+                                    <Run Text="{Binding Cache.Item.P3Coefficient, StringFormat='0.######'}" />
+                                    <Run Text=", " />
+                                    <Run Text="P4: " />
+                                    <Run Text="{Binding Cache.Item.P4Coefficient, StringFormat='0.######'}" />
+                                    <Run Text=", " />
+                                    <Run Text="P5: " />
+                                    <Run Text="{Binding Cache.Item.P5Coefficient, StringFormat='0.######'}" />
+                                    <Run Text=", " />
+                                    <Run Text="P6: " />
+                                    <Run Text="{Binding Cache.Item.P6Coefficient, StringFormat='0.######'}" />
+                                    <Run Text=", " />
+                                    <Run Text="P7: " />
+                                    <Run Text="{Binding Cache.Item.P7Coefficient, StringFormat='0.######'}" />
+                                    <Run Text=", " />
+                                    <Run Text="P8: " />
+                                    <Run Text="{Binding Cache.Item.P8Coefficient, StringFormat='0.######'}" />
+                                </TextBlock>
+                            </Border>
+                            <ListView Grid.Row="1"
+                                      ItemsSource="{Binding Cache.Items}"
+                                      SelectedItem="{Binding Cache.SelectedItem}"
+                                      Style="{StaticResource ListView.Small}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                </i:Interaction.Behaviors>
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                            </Trigger>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource MultiValueEqualsConverter}">
+                                                        <Binding />
+                                                        <Binding Path="DataContext.Cache.Item"
+                                                                 Mode="OneWay"
+                                                                 RelativeSource="{RelativeSource AncestorType=Window}" />
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestYStrehlRatio, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                                        <GridViewColumn Header="P3 Coefficient" DisplayMemberBinding="{Binding P3Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P4 Coefficient" DisplayMemberBinding="{Binding P4Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P5 Coefficient" DisplayMemberBinding="{Binding P5Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P6 Coefficient" DisplayMemberBinding="{Binding P6Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P7 Coefficient" DisplayMemberBinding="{Binding P7Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="P8 Coefficient" DisplayMemberBinding="{Binding P8Coefficient, StringFormat='0.######'}" />
+                                        <GridViewColumn Header="Profiles">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
+                                                    <Grid>
+                                                        <ToggleButton x:Name="ToggleButtonAODWaveformProfiles"
+                                                                      Content="Profiles"
+                                                                      Margin="0,2"
+                                                                      HorizontalAlignment="Left"
+                                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                                        <Popup Width="800"
+                                                               Height="800"
+                                                               StaysOpen="False"
+                                                               PlacementTarget="{Binding ElementName=ToggleButtonAODWaveformProfiles}"
+                                                               Placement="Right"
+                                                               AllowsTransparency="True"
+                                                               PopupAnimation="Slide"
+                                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
+                                                            <TabControl>
+                                                                <TabItem Header="Chirp AOD Waveform">
+                                                                    <profileUI:ChirpAODWaveformProfilesUserControl Margin="5" DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                                </TabItem>
+                                                                <TabItem Header="Prescan AOD Waveform">
+                                                                    <profileUI:PrescanAODWaveformProfilesUserControl Margin="5" DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                                </TabItem>
+                                                            </TabControl>
+                                                        </Popup>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="400" Header="Raw File Path">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
+                                                    <TextBlock TextWrapping="Wrap">
+                                                        <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
+                                                            <Run Text="{Binding RawImageFilePath}" />
+                                                        </Hyperlink>
+                                                    </TextBlock>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <GridSplitter Grid.Row="2" Height="5" />
+                            <Border Grid.Row="3" Style="{StaticResource BorderRegion}">
+                                <ContentControl Content="{Binding Cache.SelectedItem.ScatterPlotControl, Mode=OneWay}" />
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Best Item">
+                        <Grid Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
+                                    <TextBox Text="{Binding Cache.Item.RawImageFilePath}"
+                                             TextWrapping="Wrap"
+                                             hc:TitleElement.Title="Raw File Path:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Item.P3Coefficient}"
+                                             hc:TitleElement.Title="P3:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Item.P4Coefficient}"
+                                             hc:TitleElement.Title="P4:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Item.P5Coefficient}"
+                                             hc:TitleElement.Title="P5:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Item.P6Coefficient}"
+                                             hc:TitleElement.Title="P6:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Item.P7Coefficient}"
+                                             hc:TitleElement.Title="P7:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Item.P8Coefficient}"
+                                             hc:TitleElement.Title="P8:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Cache.Item.RawImageFilePath}"
+                                             TextWrapping="Wrap"
+                                             hc:TitleElement.Title="Raw File Path:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <ToggleButton x:Name="ToggleButtonBestItemAODWaveformProfiles"
+                                                  Content="Profiles"
+                                                  Margin="0,2"
+                                                  HorizontalAlignment="Left"
+                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                    <Popup Width="800"
+                                           Height="800"
+                                           StaysOpen="False"
+                                           PlacementTarget="{Binding ElementName=ToggleButtonBestItemAODWaveformProfiles}"
+                                           Placement="Right"
+                                           AllowsTransparency="True"
+                                           PopupAnimation="Slide"
+                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonBestItemAODWaveformProfiles, Mode=TwoWay}">
+                                        <TabControl>
+                                            <TabItem Header="Chirp AOD Waveform">
+                                                <profileUI:ChirpAODWaveformProfilesUserControl Margin="5" DataContext="{Binding Cache.Item.ChirpAODWaveformProfiles}" />
+                                            </TabItem>
+                                            <TabItem Header="Prescan AOD Waveform">
+                                                <profileUI:PrescanAODWaveformProfilesUserControl Margin="5" DataContext="{Binding Cache.Item.PrescanAODWaveformProfiles}" />
+                                            </TabItem>
+                                        </TabControl>
+                                    </Popup>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                            <GridSplitter Grid.Row="1" Height="5" />
+                            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                <ContentControl Content="{Binding Cache.Item.ScatterPlotControl}" />
+                            </Border>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</hc:Window>

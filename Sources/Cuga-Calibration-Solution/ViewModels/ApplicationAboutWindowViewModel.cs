@@ -103,7 +103,11 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
             var solutionDirectory = Path.GetFullPath(Path.Combine(projDirectory, @"..\"));
             var documentPath = Path.Combine(solutionDirectory, _options.Value.UpdateDocumentPath);
 
-            using var _ = Process.Start(documentPath);
+            using var _ = Process.Start(new ProcessStartInfo
+            {
+                FileName = documentPath,
+                UseShellExecute = true
+            });
         }
         catch (Exception e)
         {

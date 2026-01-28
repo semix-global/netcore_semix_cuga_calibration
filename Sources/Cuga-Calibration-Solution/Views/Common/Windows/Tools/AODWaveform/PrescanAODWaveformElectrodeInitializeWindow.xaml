@@ -216,7 +216,6 @@
                                                                                                     IsVisibleDirectoryPath="False"
                                                                                                     IsVisibleElectrodeConfiguration="False"
                                                                                                     IsVisibleUniformityConfiguration="False"
-                                                                                                    IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                     IsVisibleCompensation="False"
                                                                                                     DataContext="{Binding Cache.FlatnessGeneratePrescanAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>
@@ -243,7 +242,6 @@
                                                                                                   IsVisibleAmplitude="False"
                                                                                                   IsVisibleDirectoryPath="False"
                                                                                                   IsVisibleUniformityConfiguration="False"
-                                                                                                  IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                   IsVisibleCompensation="False"
                                                                                                   DataContext="{Binding Cache.FlatnessGenerateChirpAODWaveformParam}" />
                                             </hc:UniformSpacingPanel>

@@ -16,6 +16,7 @@ using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
 using HalconDotNet;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
@@ -149,7 +150,15 @@ public sealed partial class CalibrationLaserServiceImpl(
             var pmtDataLineHeightSxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(c2MProductivityInfo.Mag, opticsIlluminationModeEnum.ToSxNIOIEnum()));
             if (pmtDataLineHeightSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
 
-            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
+            var hzAndRealSpeedSxExecuteRet = Invoke(() => Service?.GetHzAndRealSpeed(c2MProductivityInfo.NIOI, c2MProductivityInfo.Mag, c2MProductivityInfo.Speed));
+            if (hzAndRealSpeedSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
+
+            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(
+                c2MProductivityInfo,
+                speedInfoSxExecuteRet.Anything,
+                pmtDataLineHeightSxExecuteRet.Anything,
+                hzAndRealSpeedSxExecuteRet.Anything.hz,
+                hzAndRealSpeedSxExecuteRet.Anything.realSpeed));
         }
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
@@ -474,7 +483,9 @@ public sealed partial class CalibrationLaserServiceImpl(
         double? coefficient = null,
         Point? point = null)
     {
-        ushort? level = null;
+        throw new NotImplementedException();
+
+        /*ushort? level = null;
         if (coefficient is not null)
         {
             var laserLightInformationRet = CoefficientToLaserLightInformation(coefficient.Value);
@@ -491,7 +502,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));
+            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));*/
     }
 
     [Obsolete]
@@ -533,8 +544,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
             var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
+            var image = RawImageFactory.CreateImage(bytes);
+            result.Add(new DarkFieldImageDTO { Image = image }.AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -577,8 +588,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
             var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
-            result.Add(new DarkFieldImageDTO { Image = image, Matrix = matrix }.AdaptIn(m2CImgSysCollectImgDto));
+            var image = RawImageFactory.CreateImage(bytes);
+            result.Add(new DarkFieldImageDTO { Image = image }.AdaptIn(m2CImgSysCollectImgDto));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -681,7 +692,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                         IsCalibration = true, /*为true时不下发波形*/
                         ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/,
                         ZParam = (isAutoFocus == false && zMotionParam != null)
-                            ? new SxCollectImgParam.SxZParam()
+                            ? new SxZParam()
                             {
                                 Start = Convert.ToInt32(zMotionParam.Value.zStart),
                                 End = Convert.ToInt32(zMotionParam.Value.zEnd),
@@ -786,16 +797,16 @@ public sealed partial class CalibrationLaserServiceImpl(
             {
                 var bytes = File.ReadAllBytes(item.Url);
 
-                var (image, matrix) = stageCoordinateSystemEnum switch
+                var image = stageCoordinateSystemEnum switch
                 {
                     StageCoordinateSystemEnum.Machine => directionX < 0 && machinePositionList.First().X < machinePositionList.Last().X
-                        ? DropLast(calibrationAlgorithmService.ToHorizontalFlipImageInfo(bytes))
-                        : calibrationAlgorithmService.ToImageInfo(bytes),
-                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => calibrationAlgorithmService.ToImageInfo(bytes),
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
+                        ? RawImageFactory.CreateImage(RawImageFactory.ToHorizontalFlipMatrix(bytes).RawBytes)
+                        : RawImageFactory.CreateImage(bytes),
+                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => RawImageFactory.CreateImage(bytes),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<HImage>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDTO { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDTO { PMTId = pmtId, ChannelId = item.Channel, Image = image, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -803,8 +814,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
-
-        static (HImage Image, short[,] Matrix) DropLast((HImage Image, short[,] Matrix, byte[] RawBytes) tuple) => (tuple.Image, tuple.Matrix);
     }
 
     public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(
@@ -880,16 +889,16 @@ public sealed partial class CalibrationLaserServiceImpl(
             {
                 var bytes = File.ReadAllBytes(item.Url);
 
-                var (image, matrix) = stageCoordinateSystemEnum switch
+                var image = stageCoordinateSystemEnum switch
                 {
                     StageCoordinateSystemEnum.Machine => directionX < 0 && machinePositionList.First().X < machinePositionList.Last().X
-                        ? DropLast(calibrationAlgorithmService.ToHorizontalFlipImageInfo(bytes))
-                        : calibrationAlgorithmService.ToImageInfo(bytes),
-                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => calibrationAlgorithmService.ToImageInfo(bytes),
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<(HImage Image, short[,] Matrix)>(nameof(stageCoordinateSystemEnum))
+                        ? RawImageFactory.CreateImage(RawImageFactory.ToHorizontalFlipMatrix(bytes).RawBytes)
+                        : RawImageFactory.CreateImage(bytes),
+                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => RawImageFactory.CreateImage(bytes),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<HImage>(nameof(stageCoordinateSystemEnum))
                 };
 
-                var splitImageDto = new DarkFieldImageDTO { PmtId = pmtId, ChannelId = item.Channel, Image = image, Matrix = matrix, Height = item.ImgHeight, Width = item.ImgWidth };
+                var splitImageDto = new DarkFieldImageDTO { PMTId = pmtId, ChannelId = item.Channel, Image = image, Height = item.ImgHeight, Width = item.ImgWidth };
                 splitImages.Add(splitImageDto);
             }
 
@@ -897,8 +906,6 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
-
-        static (HImage Image, short[,] Matrix) DropLast((HImage Image, short[,] Matrix, byte[] RawBytes) tuple) => (tuple.Image, tuple.Matrix);
     }
 
     public SxExecuteRet<double> ReadDOECurrentAngle()

@@ -5,7 +5,6 @@ using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -48,12 +47,6 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
     [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IPlotControl PlotControl => GuardUtils.IsAssignableToType<IPlotControl>(ScatterPlotControl);
-
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
@@ -78,16 +71,16 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
     {
         ScatterPlotControl.SetTitle("Map(Y: um - X: um - Z: mW)");
 
-        PlotControl.Plot.HideAxesAndGrid();
-        PlotControl.UserInputProcessor.UserActionResponses.Remove(PlotControl.UserInputProcessor.UserActionResponses.Single(t => t is MouseDragCrosshair));
-        PlotControl.UserInputProcessor.UserActionResponses.Add(new MouseDragTextCrosshair(StandardMouseButtons.Left, StandardMouseButtons.Right)); // 右键拖动: 十字线
+        ScatterPlotControl.Plot.HideAxesAndGrid();
+        ScatterPlotControl.UserInputProcessor.UserActionResponses.Remove(ScatterPlotControl.UserInputProcessor.UserActionResponses.Single(t => t is MouseDragCrosshair));
+        ScatterPlotControl.UserInputProcessor.UserActionResponses.Add(new MouseDragTextCrosshair(StandardMouseButtons.Left, StandardMouseButtons.Right)); // 右键拖动: 十字线
     }
 
     private void RefreshPlot()
     {
         try
         {
-            lock (PlotControl.Plot.Sync) PlotControl.Plot.PlottableList.RemoveAll(t => t is Text);
+            lock (ScatterPlotControl.Plot.Sync) ScatterPlotControl.Plot.PlottableList.RemoveAll(t => t is Text);
 
             if (Items.Count <= 0) return;
 
@@ -110,7 +103,7 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
                     LabelAlignment = Alignment.MiddleCenter
                 };
 
-                lock (PlotControl.Plot.Sync) PlotControl.Plot.PlottableList.Add(txt);
+                lock (ScatterPlotControl.Plot.Sync) ScatterPlotControl.Plot.PlottableList.Add(txt);
                 if (index != maximumIndex) continue;
 
                 txt.LabelBorderColor = Colors.OrangeRed;

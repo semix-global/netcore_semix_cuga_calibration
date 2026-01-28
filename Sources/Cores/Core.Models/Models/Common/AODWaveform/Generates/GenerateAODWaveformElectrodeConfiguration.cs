@@ -5,6 +5,7 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
+using System.ComponentModel;
 
 #if NETFRAMEWORK
 using Core.Models.Extensions;
@@ -14,7 +15,7 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     ObservableCacheBase,
-    IAdaptTo<AODWaveformGenerator.AODWaveformOffsetConfiguration>,
+    IAdaptTo<AODWaveformGenerator1.AODWaveformOffsetConfiguration>,
     IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>,
     ICloneable<GenerateAODWaveformElectrodeConfiguration>
 {
@@ -36,6 +37,23 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     [ObservableProperty]
     private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
 
+    partial void OnUniformityConfigurationsChanged(IReadOnlyList<GenerateAODWaveformUniformityConfiguration>? oldValue, IReadOnlyList<GenerateAODWaveformUniformityConfiguration> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        OnPropertyChanged(nameof(UniformityConfigurations));
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(UniformityConfigurations));
+    }
+
     public GenerateAODWaveformElectrodeConfiguration WithAmplitude(double amplitude)
     {
         Amplitude = amplitude;
@@ -50,7 +68,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         return this;
     }
 
-    public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(
+    public AODWaveformGenerator1.AODWaveformOffsetConfiguration AdaptTo() => new(
 #if NETFRAMEWORK
         OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum().ToString(),
 #else
