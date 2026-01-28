@@ -13,6 +13,7 @@
     <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanNegationAllConverter" IsNegation="True" />
     <multiValueConverters:MultiValueBooleanAnyConverter x:Key="MultiValueBooleanAnyConverter" />
     <multiValueConverters:MultiValueBooleanAnyConverter x:Key="MultiValueBooleanNegationAnyConverter" IsNegation="True" />
+    <multiValueConverters:MultiValueReferenceEqualsConverter x:Key="MultiValueReferenceEqualsConverter" />
     <Geometry x:Key="ImportGeometry">m 11.63,15.818 a 0.459,0.459 0 0 0 0.312,0.138 c 0.014,0 0.027,0.005 0.042,0.006 0.015,10e-4 0.027,0 0.041,-0.006 a 0.457,0.457 0 0 0 0.312,-0.138 l 3.669,-3.669 a 0.5,0.5 0 0 0 -0.707,-0.707 l -2.815,2.815 V 3.515 a 0.5,0.5 0 0 0 -1,0 V 14.257 L 8.668,11.442 a 0.5,0.5 0 0 0 -0.707,0.707 z m -6.078,5.15 a 2.577,2.577 0 0 1 -2.5,-2.73 c -0.012,-2.153 0,-4.306 0,-6.459 a 0.5,0.5 0 0 1 1,0 c 0,2.2 -0.032,4.4 0,6.6 0.016,1.107 0.848,1.589 1.838,1.589 H 18.353 A 1.546,1.546 0 0 0 19.825,19 a 3.023,3.023 0 0 0 0.1,-1.061 v -6.16 0 a 0.5,0.5 0 0 1 1,0 c 0,2.224 0.085,4.465 0,6.687 a 2.567,2.567 0 0 1 -2.67,2.5 z</Geometry>
     <Style x:Key="ButtonInfo.Loading"
            BasedOn="{StaticResource ButtonInfo}"

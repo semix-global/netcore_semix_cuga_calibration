@@ -49,6 +49,13 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private int _retryTimes = 10;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
+    private ChirpAODWaveformTrainingItem _selectedItem = new();
+
+    [ObservableProperty]
     private ChirpAODWaveformTrainingItem _item = new();
 
     [ObservableProperty]

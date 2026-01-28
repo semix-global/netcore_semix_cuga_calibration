@@ -285,9 +285,9 @@
                                     <Run Text="{Binding Cache.Item.P8Coefficient, StringFormat='0.######'}" />
                                 </TextBlock>
                             </Border>
-                            <ListView x:Name="ListViewHistory" Grid.Row="1"
+                            <ListView Grid.Row="1"
                                       ItemsSource="{Binding Cache.Items}"
-                                      SelectedItem="{Binding Cache.Item}"
+                                      SelectedItem="{Binding Cache.SelectedItem}"
                                       Style="{StaticResource ListView.Small}">
                                 <i:Interaction.Behaviors>
                                     <behaviors:ListBoxScrollToCurrentBehavior />
@@ -300,6 +300,19 @@
                                             <Trigger Property="IsSelected" Value="True">
                                                 <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                             </Trigger>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource MultiValueReferenceEqualsConverter}">
+                                                        <Binding />
+                                                        <Binding Path="DataContext.Cache.Item"
+                                                                 Mode="OneWay"
+                                                                 RelativeSource="{RelativeSource AncestorType=Window}" />
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                                            </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </ListView.ItemContainerStyle>
@@ -345,7 +358,11 @@
                                         <GridViewColumn Width="400" Header="Raw File Path">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
-                                                    <TextBlock Text="{Binding RawImageFilePath}" TextWrapping="Wrap" />
+                                                    <TextBlock TextWrapping="Wrap">
+                                                        <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
+                                                            <Run Text="{Binding RawImageFilePath}" />
+                                                        </Hyperlink>
+                                                    </TextBlock>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
@@ -354,7 +371,7 @@
                             </ListView>
                             <GridSplitter Grid.Row="2" Height="5" />
                             <Border Grid.Row="3" Style="{StaticResource BorderRegion}">
-                                <ContentControl Content="{Binding SelectedItem.ScatterPlotControl, ElementName=ListViewHistory, Mode=OneWay}" />
+                                <ContentControl Content="{Binding Cache.SelectedItem.ScatterPlotControl, Mode=OneWay}" />
                             </Border>
                         </Grid>
                     </TabItem>

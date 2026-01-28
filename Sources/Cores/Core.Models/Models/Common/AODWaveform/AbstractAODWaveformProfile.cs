@@ -278,11 +278,9 @@ public abstract class AbstractAODWaveformProfile :
             TimeDomainSignal = new HtmlPlot2DLinesChart([(string.Empty, [.. Signals])], string.Empty),
             SpectrumFFTAnalysis = new HtmlPlot2DLinesChart([(string.Empty, [.. FFTSignals])], string.Empty),
             DynamicFrequencyCoefficient = new HtmlPlot2DLinesChart([(string.Empty, [.. FrequencyCoefficients])], string.Empty),
-            Details = new HtmlPlot2DLinesChart([
-                (nameof(FlatnessTotalCompensationPhaseSignals), [.. FlatnessTotalCompensationPhaseSignals]),
-                (nameof(FlatnessTotalPhaseSignals), [.. FlatnessTotalPhaseSignals]),
-                (nameof(FlatnessTotalFrequencySignals), [.. FlatnessTotalFrequencySignals])
-            ], string.Empty)
+            TotalCompensationPhase = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessTotalCompensationPhaseSignals])], string.Empty),
+            TotalPhase = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessTotalPhaseSignals])], string.Empty),
+            TotalFrequency = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessTotalFrequencySignals])], string.Empty)
         })
     };
 }

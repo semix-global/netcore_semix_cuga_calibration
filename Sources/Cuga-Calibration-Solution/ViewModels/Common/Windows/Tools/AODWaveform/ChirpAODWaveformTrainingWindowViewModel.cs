@@ -157,6 +157,18 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     await OptimizeCoefficientAsync(8);
                 }
 
+                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                {
+                    Base = new HtmlQuote(Cache.Item.ToHtmlAnonymous()),
+                    GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+                    Cache.Item.PrescanAODWaveformResultFilePath,
+                    PrescanAODWaveformProfiles = new HtmlTable([.. Cache.Item.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+                    GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+                    Cache.Item.ChirpAODWaveformResultFilePath,
+                    ChirpAODWaveformProfiles = new HtmlTable([.. Cache.Item.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+                    ScatterPlotControl = new HtmlContainer([.. Cache.Item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                }), htmlLogUniqueId.LoggingHtml());
+
                 async Task OptimizeCoefficientAsync(int p)
                 {
                     try
@@ -186,6 +198,8 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                         {
                             dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
+
+                            Cache.Item = Cache.SelectedItem;
                         }
                         else
                         {
@@ -204,10 +218,15 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                         {
                             dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                             await _asyncAutoResetEvent.WaitAsync(cancellationToken);
+
+                            Cache.Item = Cache.SelectedItem;
                         }
                         else
                         {
-                            if (minusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y) Cache.Item = minusItem;
+                            if (minusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y)
+                            {
+                                Cache.Item = minusItem;
+                            }
                         }
                     }
                     finally

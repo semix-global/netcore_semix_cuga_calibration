@@ -89,12 +89,6 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
     [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
-    public IPlotControl PlotControl => GuardUtils.IsAssignableToType<IPlotControl>(ScatterPlotControl);
-
     public ChirpAODWaveformTrainingItem()
     {
         ScatterPlotControl.Configure(new Columns(), 3);
@@ -138,7 +132,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
         {
             ScatterPlotControl.AutoScaleRefresh();
 
-            foreach (var plot in PlotControl.Multiplot.GetPlots()) plot.Axes.SetLimitsY(0.1d, 0.3d);
+            foreach (var plot in ScatterPlotControl.Multiplot.GetPlots()) plot.Axes.SetLimitsY(0.1d, 0.3d);
         }
 
         return;
