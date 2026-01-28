@@ -232,7 +232,7 @@ public static class AODWaveformGenerator1
     /// PrescanAOD波形结果
     /// </remarks>
     /// <param name="Param">PrescanAOD波形生成参数</param>
-    public sealed record PrescanAODWaveformResult(PrescanAODWaveformParam Param, bool IsSuccess) : AbstractAODWaveformResult<PrescanAODWaveformParam>(Param, IsSuccess)
+    public sealed record PrescanAODWaveformResult(PrescanAODWaveformParam Param) : AbstractAODWaveformResult<PrescanAODWaveformParam>(Param)
     {
         internal override void Initialize()
         {
@@ -250,8 +250,6 @@ public static class AODWaveformGenerator1
                            }}" +
                            $"{PrescanAODWaveformFileExtension}";
 
-            if (IsSuccess == false) fileName = $"ERROR_{fileName}";
-
             FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
@@ -260,8 +258,6 @@ public static class AODWaveformGenerator1
                 fileName = prescan +
                            $"_{Param.FileNameSuffix}" +
                            $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$02${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
-
-                if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
                 itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
@@ -275,7 +271,7 @@ public static class AODWaveformGenerator1
     /// ChirpAOD波形结果
     /// </remarks>
     /// <param name="Param">ChirpAOD波形生成参数</param>
-    public sealed record ChirpAODWaveformResult(ChirpAODWaveformParam Param, bool IsSuccess) : AbstractAODWaveformResult<ChirpAODWaveformParam>(Param, IsSuccess)
+    public sealed record ChirpAODWaveformResult(ChirpAODWaveformParam Param) : AbstractAODWaveformResult<ChirpAODWaveformParam>(Param)
     {
         internal override void Initialize()
         {
@@ -293,8 +289,6 @@ public static class AODWaveformGenerator1
                            }}" +
                            $"{ChirpAODWaveformFileExtension}";
 
-            if (IsSuccess == false) fileName = $"ERROR_{fileName}";
-
             FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
@@ -303,7 +297,6 @@ public static class AODWaveformGenerator1
                 fileName = chirp +
                            $"_{Param.FileNameSuffix}" +
                            $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$03${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
-                if (IsSuccess == false) fileName = $"ERROR_{fileName}";
 
                 itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
@@ -316,8 +309,7 @@ public static class AODWaveformGenerator1
     /// AOD波形结果
     /// </summary>
     /// <param name="Param">AOD波形生成参数</param>
-    /// <param name="IsSuccess">是否成功</param>
-    public abstract record AbstractAODWaveformResult<TParam>(TParam Param, bool IsSuccess) where TParam : AbstractAODWaveformParam
+    public abstract record AbstractAODWaveformResult<TParam>(TParam Param) where TParam : AbstractAODWaveformParam
     {
         protected readonly string Id = DateTime.Now.ToString(Constants.LongFileDateTimeFormat);
 
@@ -396,322 +388,315 @@ public static class AODWaveformGenerator1
     /// <remarks>
     /// 生成PrescanAOD波形
     /// </remarks>
-    public static (PrescanAODWaveformResult AODWaveformResult, Exception? Exception) GeneratePrescanAODWaveform(PrescanAODWaveformParam param, CancellationToken cancellationToken) => GenerateAODWaveform<PrescanAODWaveformResult, PrescanAODWaveformParam>(param, cancellationToken);
+    public static PrescanAODWaveformResult GeneratePrescanAODWaveform(PrescanAODWaveformParam param, CancellationToken cancellationToken) => GenerateAODWaveform<PrescanAODWaveformResult, PrescanAODWaveformParam>(param, cancellationToken);
 
     /// <inheritdoc cref="GenerateAODWaveform{TResult,TParam}"/>
     /// <remarks>
     /// 生成ChirpAOD波形
     /// </remarks>
-    public static (ChirpAODWaveformResult AODWaveformResult, Exception? Exception) GenerateChirpAODWaveform(ChirpAODWaveformParam param, CancellationToken cancellationToken) => GenerateAODWaveform<ChirpAODWaveformResult, ChirpAODWaveformParam>(param, cancellationToken);
+    public static ChirpAODWaveformResult GenerateChirpAODWaveform(ChirpAODWaveformParam param, CancellationToken cancellationToken) => GenerateAODWaveform<ChirpAODWaveformResult, ChirpAODWaveformParam>(param, cancellationToken);
 
     /// <summary>
     /// 生成AOD波形
     /// </summary>
     /// <param name="param">AOD波形生成参数</param>
     /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>(结果, 异常信息)</returns>
-    private static (TResult AODWaveformResult, Exception? Exception) GenerateAODWaveform<TResult, TParam>(TParam param, CancellationToken cancellationToken)
+    /// <returns>结果</returns>
+    private static TResult GenerateAODWaveform<TResult, TParam>(TParam param, CancellationToken cancellationToken)
         where TResult : AbstractAODWaveformResult<TParam>
         where TParam : AbstractAODWaveformParam
     {
-        try
+        param.Validate();
+
+        var centerFrequency = param.CenterFrequency;
+        var lowFrequency = param.LowFrequency;
+        var highFrequency = param.HighFrequency;
+
+        var headerFrequency = param.FunctionMonotonicTypeEnum switch
         {
-            param.Validate();
+            FunctionMonotonicTypeEnum.Increasing => lowFrequency,
+            FunctionMonotonicTypeEnum.Deceasing => highFrequency,
+            FunctionMonotonicTypeEnum.Flatness => centerFrequency,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(param.FunctionMonotonicTypeEnum))
+        };
 
-            var centerFrequency = param.CenterFrequency;
-            var lowFrequency = param.LowFrequency;
-            var highFrequency = param.HighFrequency;
+        var footerFrequency = param.FunctionMonotonicTypeEnum switch
+        {
+            FunctionMonotonicTypeEnum.Increasing => highFrequency,
+            FunctionMonotonicTypeEnum.Deceasing => lowFrequency,
+            FunctionMonotonicTypeEnum.Flatness => centerFrequency,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(param.FunctionMonotonicTypeEnum))
+        };
 
-            var headerFrequency = param.FunctionMonotonicTypeEnum switch
+        #region 返回结果
+
+        var dt = 1d / param.SampleRate; // 每个采样点的时间间隔 (us/sa): 1 / (Msa/s) = 10^-6s/sa = us/sa
+
+        var allSampleIndices = GenerateUtils.LinearIndexRange(0, param.NumberOfSamples - 1);
+        var headerSampleIndices = GenerateUtils.LinearIndexRange(0, param.EndpointSampleCount - 1);
+        var flatnessSampleIndices = GenerateUtils.LinearIndexRange(param.EndpointSampleCount, param.NumberOfSamples - param.EndpointSampleCount - 1);
+        var footerSampleIndices = GenerateUtils.LinearIndexRange(param.NumberOfSamples - param.EndpointSampleCount, param.NumberOfSamples - 1);
+
+        var t = (Vector<double>.Build.DenseOfArray(flatnessSampleIndices) - flatnessSampleIndices[0]) * dt; // us
+        var halfT = (t[^1] - t[0]) / 2d;
+        t -= halfT; // us
+        t /= halfT; // us
+
+        var aodWaveformSignals = Vector<double>.Build.Dense(param.NumberOfSamples);
+
+        Vector<Complex> fftResult;
+        Vector<double> fftFrequencies;
+        Vector<double> fftMagnitudes;
+
+        #endregion 返回结果
+
+        var result = GuardUtils.IsNotNullAndAssignableToType<TResult>(Activator.CreateInstance(typeof(TResult), param));
+        result.Initialize();
+
+        foreach (var item in result.Items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var (flatnessTotalCompensationPhases, flatnessTotalFrequencies, flatnessTotalPhases)
+                = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
+
+            var frequencyCoefficientList = new List<Point>();
+
+            if (param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness && item.OffsetConfiguration.UniformityConfigurations.Count > 0)
             {
-                FunctionMonotonicTypeEnum.Increasing => lowFrequency,
-                FunctionMonotonicTypeEnum.Deceasing => highFrequency,
-                FunctionMonotonicTypeEnum.Flatness => centerFrequency,
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(param.FunctionMonotonicTypeEnum))
-            };
+                var linearSpline = LinearSpline.InterpolateSorted(
+                    [.. item.OffsetConfiguration.UniformityConfigurations.Select(configuration => configuration.Frequency)],
+                    [.. item.OffsetConfiguration.UniformityConfigurations.Select(configuration => configuration.Coefficient)]);
 
-            var footerFrequency = param.FunctionMonotonicTypeEnum switch
-            {
-                FunctionMonotonicTypeEnum.Increasing => highFrequency,
-                FunctionMonotonicTypeEnum.Deceasing => lowFrequency,
-                FunctionMonotonicTypeEnum.Flatness => centerFrequency,
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(param.FunctionMonotonicTypeEnum))
-            };
-
-            #region 返回结果
-
-            var dt = 1d / param.SampleRate; // 每个采样点的时间间隔 (us/sa): 1 / (Msa/s) = 10^-6s/sa = us/sa
-
-            var allSampleIndices = GenerateUtils.LinearIndexRange(0, param.NumberOfSamples - 1);
-            var headerSampleIndices = GenerateUtils.LinearIndexRange(0, param.EndpointSampleCount - 1);
-            var flatnessSampleIndices = GenerateUtils.LinearIndexRange(param.EndpointSampleCount, param.NumberOfSamples - param.EndpointSampleCount - 1);
-            var footerSampleIndices = GenerateUtils.LinearIndexRange(param.NumberOfSamples - param.EndpointSampleCount, param.NumberOfSamples - 1);
-
-            var t = (Vector<double>.Build.DenseOfArray(flatnessSampleIndices) - flatnessSampleIndices[0]) * dt; // us
-            var halfT = (t[^1] - t[0]) / 2d;
-            t -= halfT; // us
-            t /= halfT; // us
-
-            var aodWaveformSignals = Vector<double>.Build.Dense(param.NumberOfSamples);
-
-            Vector<Complex> fftResult;
-            Vector<double> fftFrequencies;
-            Vector<double> fftMagnitudes;
-
-            #endregion 返回结果
-
-            var result = GuardUtils.IsNotNullAndAssignableToType<TResult>(Activator.CreateInstance(typeof(TResult), param, true));
-            result.Initialize();
-
-            foreach (var item in result.Items)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var (flatnessTotalCompensationPhases, flatnessTotalFrequencies, flatnessTotalPhases)
-                    = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
-
-                var frequencyCoefficientList = new List<Point>();
-
-                if (param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness && item.OffsetConfiguration.UniformityConfigurations.Count > 0)
+                var flatnessAODWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
+                for (var i = 0; i < flatnessAODWaveformSignals.Count; i++)
                 {
-                    var linearSpline = LinearSpline.InterpolateSorted(
-                        [.. item.OffsetConfiguration.UniformityConfigurations.Select(configuration => configuration.Frequency)],
-                        [.. item.OffsetConfiguration.UniformityConfigurations.Select(configuration => configuration.Coefficient)]);
+                    var frequency = flatnessTotalFrequencies[i];
+                    var coefficient = linearSpline.Interpolate(frequency);
 
-                    var flatnessAODWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
-                    for (var i = 0; i < flatnessAODWaveformSignals.Count; i++)
+                    flatnessAODWaveformSignals[i] *= coefficient;
+
+                    frequencyCoefficientList.Add(new Point(frequency, coefficient));
+
+                    if (i == 0)
                     {
-                        var frequency = flatnessTotalFrequencies[i];
-                        var coefficient = linearSpline.Interpolate(frequency);
-
-                        flatnessAODWaveformSignals[i] *= coefficient;
-
-                        frequencyCoefficientList.Add(new Point(frequency, coefficient));
-
-                        if (i == 0)
+                        if (headerSampleIndices.Length > 0)
                         {
-                            if (headerSampleIndices.Length > 0)
-                            {
-                                var headerAODWaveformSignals = aodWaveformSignals.SubVectorRange(headerSampleIndices[0], headerSampleIndices[^1]);
+                            var headerAODWaveformSignals = aodWaveformSignals.SubVectorRange(headerSampleIndices[0], headerSampleIndices[^1]);
 
-                                aodWaveformSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], headerAODWaveformSignals * coefficient);
-                            }
-                        }
-
-                        if (i == flatnessAODWaveformSignals.Count - 1)
-                        {
-                            if (headerSampleIndices.Length > 0)
-                            {
-                                var footerAODWaveformSignals = aodWaveformSignals.SubVectorRange(footerSampleIndices[0], footerSampleIndices[^1]);
-
-                                aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], footerAODWaveformSignals * coefficient);
-                            }
+                            aodWaveformSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], headerAODWaveformSignals * coefficient);
                         }
                     }
 
-                    aodWaveformSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], flatnessAODWaveformSignals);
+                    if (i == flatnessAODWaveformSignals.Count - 1)
+                    {
+                        if (headerSampleIndices.Length > 0)
+                        {
+                            var footerAODWaveformSignals = aodWaveformSignals.SubVectorRange(footerSampleIndices[0], footerSampleIndices[^1]);
 
-                    fftResult = flatnessAODWaveformSignals.ToComplex().FastFourierTransform();
-                    (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(param.SampleRate);
+                            aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], footerAODWaveformSignals * coefficient);
+                        }
+                    }
                 }
 
-                /*
-                 * double[-1,1]归一化数据需要转换为16-bit整数格式进行传输[DSP、FPGA、DAC数字信号转换为模拟信号]
-                 * 16-bit PCM(脉冲编码调制)格式: Int16 范围 [-32768, 32767]
-                 *
-                 * 归一化映射:
-                 *   -1.0 → -32768 (0x8000) Math.Pow(2d, 15d) -1
-                 *    0.0 → 0      (0x0000)
-                 *   +1.0 → +32767 (0x7FFF) -Math.Pow(2d, 15d)
-                 */
+                aodWaveformSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], flatnessAODWaveformSignals);
 
-                // 将结果转换为16位整数并保存到文件
-                var hexStrings = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (string[])[..Enumerable.Repeat(((short)0).ToString("x4"), aodWaveformSignals.Count)]
-                    : [..aodWaveformSignals.Select(y => ((short)Math.Clamp(Math.Round(y * Math.Pow(2d, 15d), MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue)).ToString("x4"))];
-
-                DirectoryHelper.CreateFileDirectoryIfNotExists(item.FilePath);
-                FileHelper.DeleteFileIfExists(item.FilePath);
-                File.WriteAllText(item.FilePath, string.Join(Environment.NewLine, hexStrings));
-
-                item.Signals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. allSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. allSampleIndices.Index().Select(tuple => new Point(tuple.Item, aodWaveformSignals[tuple.Index]))];
-                item.FFTSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. fftFrequencies.Zip(fftMagnitudes, (x, _) => new Point(x, 0))]
-                    : [.. fftFrequencies.Zip(fftMagnitudes, (x, y) => new Point(x, y))];
-                item.FrequencyCoefficients = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. frequencyCoefficientList.Select(point => new Point(point.X, 0d))]
-                    : [.. frequencyCoefficientList];
-
-                item.FlatnessTotalFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalFrequencies[tuple.Index]))];
-                item.FlatnessTotalPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalPhases[tuple.Index]))];
-                item.FlatnessTotalCompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                    ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                    : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalCompensationPhases[tuple.Index]))];
-            }
-
-            DirectoryHelper.CreateFileDirectoryIfNotExists(result.FilePath);
-            FileHelper.DeleteFileIfExists(result.FilePath);
-            FileHelper.SerializeOperate(result, result.FilePath);
-
-            return (result, null);
-
-            (Vector<double> FlatnessTotalCompensationPhases, Vector<double> FlatnessTotalFrequencies, Vector<double> FlatnessTotalPhases) FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var δt = offsetFrequency == 0 ? 0d : offsetFrequencyPeriodCoefficient * 1d / offsetFrequency;
-                var tShift = t - δt / halfT;
-
-                var (p2Frequencies, p2Phases) = GetP2CompensationSignals(tShift);
-                var (p3Frequencies, p3Phases) = GetP3CompensationSignals(param.P3CompensationCoefficient, tShift);
-                var (p4Frequencies, p4Phases) = GetP4CompensationSignals(param.P4CompensationCoefficient, tShift);
-                var (p5Frequencies, p5Phases) = GetP5CompensationSignals(param.P5CompensationCoefficient, tShift);
-                var (p6Frequencies, p6Phases) = GetP6CompensationSignals(param.P6CompensationCoefficient, tShift);
-                var (p7Frequencies, p7Phases) = GetP7CompensationSignals(param.P7CompensationCoefficient, tShift);
-                var (p8Frequencies, p8Phases) = GetP8CompensationSignals(param.P8CompensationCoefficient, tShift);
-
-                var flatnessTotalCompensationFrequencies = (footerFrequency - headerFrequency) / 4d * (p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
-                var flatnessTotalFrequencies = centerFrequency + (footerFrequency - headerFrequency) / 4d * p2Frequencies + flatnessTotalCompensationFrequencies;
-
-                #region 相位
-
-                var headerTotalPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
-
-                var flatnessTotalCompensationPhases = (footerFrequency - headerFrequency) * halfT / 4d * (p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases);
-                var flatnessTotalPhases = 2 * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - headerFrequency) * halfT / 4d * p2Phases + flatnessTotalCompensationPhases);
-
-                var footerTotalPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
-
-                #endregion
-
-                #region 波形
-
-                if (headerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], amplitude * headerTotalPhases.PointwiseCos().PointwiseMultiply(Vector<double>.Build.DenseOfArray(headerSampleIndices) / headerSampleIndices.Length));
-                aodWaveformSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], amplitude * flatnessTotalPhases.PointwiseCos());
-                if (footerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], amplitude * footerTotalPhases.PointwiseCos().PointwiseMultiply(1d - (Vector<double>.Build.DenseOfArray(footerSampleIndices) - footerSampleIndices[0] + 1d) / footerSampleIndices.Length));
-
-                #endregion 波形
-
-                #region 傅里叶
-
-                var flatnessAODWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
                 fftResult = flatnessAODWaveformSignals.ToComplex().FastFourierTransform();
                 (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(param.SampleRate);
-
-                #endregion 傅里叶
-
-                return (flatnessTotalCompensationPhases, flatnessTotalFrequencies, flatnessTotalPhases);
             }
 
-            (Vector<double> Frequency, Vector<double> Phase) GetP2CompensationSignals(Vector<double> tShift)
-            {
-                return param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness
-                    ? (Vector<double>.Build.Dense(t.Count, 0d), Vector<double>.Build.Dense(t.Count, 0d))
-                    : (2d * tShift.PointwisePower(1d), tShift.PointwisePower(2));
-            }
+            /*
+             * double[-1,1]归一化数据需要转换为16-bit整数格式进行传输[DSP、FPGA、DAC数字信号转换为模拟信号]
+             * 16-bit PCM(脉冲编码调制)格式: Int16 范围 [-32768, 32767]
+             *
+             * 归一化映射:
+             *   -1.0 → -32768 (0x8000) Math.Pow(2d, 15d) -1
+             *    0.0 → 0      (0x0000)
+             *   +1.0 → +32767 (0x7FFF) -Math.Pow(2d, 15d)
+             */
 
-            (Vector<double> Frequency, Vector<double> Phase) GetP3CompensationSignals(double coefficient, Vector<double> tShift)
-            {
-                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
-                {
-                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
-                    return (zeros, zeros);
-                }
+            // 将结果转换为16位整数并保存到文件
+            var hexStrings = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                ? (string[])[..Enumerable.Repeat(((short)0).ToString("x4"), aodWaveformSignals.Count)]
+                : [..aodWaveformSignals.Select(y => ((short)Math.Clamp(Math.Round(y * Math.Pow(2d, 15d), MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue)).ToString("x4"))];
 
-                // P3(x) = 1/2 * (5x^3 - 3x)
-                var t3 = tShift.PointwisePower(3d);
+            DirectoryHelper.CreateFileDirectoryIfNotExists(item.FilePath);
+            FileHelper.DeleteFileIfExists(item.FilePath);
+            File.WriteAllText(item.FilePath, string.Join(Environment.NewLine, hexStrings));
 
-                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 2d * (5d * t3 - 3d * tShift));
-            }
+            item.Signals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                ? (Point[])[.. allSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
+                : [.. allSampleIndices.Index().Select(tuple => new Point(tuple.Item, aodWaveformSignals[tuple.Index]))];
+            item.FFTSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                ? (Point[])[.. fftFrequencies.Zip(fftMagnitudes, (x, _) => new Point(x, 0))]
+                : [.. fftFrequencies.Zip(fftMagnitudes, (x, y) => new Point(x, y))];
+            item.FrequencyCoefficients = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                ? (Point[])[.. frequencyCoefficientList.Select(point => new Point(point.X, 0d))]
+                : [.. frequencyCoefficientList];
 
-            (Vector<double> Frequency, Vector<double> Phase) GetP4CompensationSignals(double coefficient, Vector<double> tShift)
-            {
-                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
-                {
-                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
-                    return (zeros, zeros);
-                }
-
-                // P4(x) = 1/8 * (35x^4 - 30x^2 + 3)
-                var t2 = tShift.PointwisePower(2d);
-                var t4 = tShift.PointwisePower(4d);
-
-                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 8d * (35d * t4 - 30d * t2 + 3d));
-            }
-
-            (Vector<double> Frequency, Vector<double> Phase) GetP5CompensationSignals(double coefficient, Vector<double> tShift)
-            {
-                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
-                {
-                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
-                    return (zeros, zeros);
-                }
-
-                // P5(x) = 1/8 * (63x^5 - 70x^3 + 15x)
-                var t3 = tShift.PointwisePower(3d);
-                var t5 = tShift.PointwisePower(5d);
-
-                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 8d * (63d * t5 - 70d * t3 + 15d * tShift));
-            }
-
-            (Vector<double> Frequency, Vector<double> Phase) GetP6CompensationSignals(double coefficient, Vector<double> tShift)
-            {
-                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
-                {
-                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
-                    return (zeros, zeros);
-                }
-
-                // P6(x) = 1/16 * (231x^6 - 315x^4 + 105x^2 - 5)
-                var t2 = tShift.PointwisePower(2d);
-                var t4 = tShift.PointwisePower(4d);
-                var t6 = tShift.PointwisePower(6d);
-
-                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 16d * (231d * t6 - 315d * t4 + 105d * t2 - 5d));
-            }
-
-            (Vector<double> Frequency, Vector<double> Phase) GetP7CompensationSignals(double coefficient, Vector<double> tShift)
-            {
-                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
-                {
-                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
-                    return (zeros, zeros);
-                }
-
-                // P7(x) = 1/16 * (429x^7 - 693x^5 + 315x^3 - 35x)
-                var t3 = tShift.PointwisePower(3d);
-                var t5 = tShift.PointwisePower(5d);
-                var t7 = tShift.PointwisePower(7d);
-
-                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 16d * (429d * t7 - 693d * t5 + 315d * t3 - 35d * tShift));
-            }
-
-            (Vector<double> Frequency, Vector<double> Phase) GetP8CompensationSignals(double coefficient, Vector<double> tShift)
-            {
-                if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
-                {
-                    var zeros = Vector<double>.Build.Dense(t.Count, 0d);
-                    return (zeros, zeros);
-                }
-
-                // P8(x) = 1/128 * (6435x^8 - 12012x^6 + 6930x^4 - 1260x^2 + 35)
-                var t2 = tShift.PointwisePower(2d);
-                var t4 = tShift.PointwisePower(4d);
-                var t6 = tShift.PointwisePower(6d);
-                var t8 = tShift.PointwisePower(8d);
-
-                return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 128d * (6435d * t8 - 12012d * t6 + 6930d * t4 - 1260d * t2 + 35d));
-            }
+            item.FlatnessTotalFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
+                : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalFrequencies[tuple.Index]))];
+            item.FlatnessTotalPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
+                : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalPhases[tuple.Index]))];
+            item.FlatnessTotalCompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+                ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
+                : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessTotalCompensationPhases[tuple.Index]))];
         }
-        catch (Exception ex)
+
+        DirectoryHelper.CreateFileDirectoryIfNotExists(result.FilePath);
+        FileHelper.DeleteFileIfExists(result.FilePath);
+        FileHelper.SerializeOperate(result, result.FilePath);
+
+        return result;
+
+        (Vector<double> FlatnessTotalCompensationPhases, Vector<double> FlatnessTotalFrequencies, Vector<double> FlatnessTotalPhases) FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
         {
-            return (GuardUtils.IsNotNullAndAssignableToType<TResult>(Activator.CreateInstance(typeof(TResult), param, false)), ex);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var δt = offsetFrequency == 0 ? 0d : offsetFrequencyPeriodCoefficient * 1d / offsetFrequency;
+            var tShift = t - δt / halfT;
+
+            var (p2Frequencies, p2Phases) = GetP2CompensationSignals(tShift);
+            var (p3Frequencies, p3Phases) = GetP3CompensationSignals(param.P3CompensationCoefficient, tShift);
+            var (p4Frequencies, p4Phases) = GetP4CompensationSignals(param.P4CompensationCoefficient, tShift);
+            var (p5Frequencies, p5Phases) = GetP5CompensationSignals(param.P5CompensationCoefficient, tShift);
+            var (p6Frequencies, p6Phases) = GetP6CompensationSignals(param.P6CompensationCoefficient, tShift);
+            var (p7Frequencies, p7Phases) = GetP7CompensationSignals(param.P7CompensationCoefficient, tShift);
+            var (p8Frequencies, p8Phases) = GetP8CompensationSignals(param.P8CompensationCoefficient, tShift);
+
+            var flatnessTotalCompensationFrequencies = (footerFrequency - headerFrequency) / 4d * (p3Frequencies + p4Frequencies + p5Frequencies + p6Frequencies + p7Frequencies + p8Frequencies);
+            var flatnessTotalFrequencies = centerFrequency + (footerFrequency - headerFrequency) / 4d * p2Frequencies + flatnessTotalCompensationFrequencies;
+
+            #region 相位
+
+            var headerTotalPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
+
+            var flatnessTotalCompensationPhases = (footerFrequency - headerFrequency) * halfT / 4d * (p3Phases + p4Phases + p5Phases + p6Phases + p7Phases + p8Phases);
+            var flatnessTotalPhases = 2 * Math.PI * (centerFrequency * halfT * tShift + (footerFrequency - headerFrequency) * halfT / 4d * p2Phases + flatnessTotalCompensationPhases);
+
+            var footerTotalPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
+
+            #endregion
+
+            #region 波形
+
+            if (headerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(headerSampleIndices[0], headerSampleIndices[^1], amplitude * headerTotalPhases.PointwiseCos().PointwiseMultiply(Vector<double>.Build.DenseOfArray(headerSampleIndices) / headerSampleIndices.Length));
+            aodWaveformSignals.SetSubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1], amplitude * flatnessTotalPhases.PointwiseCos());
+            if (footerSampleIndices.Length > 0) aodWaveformSignals.SetSubVectorRange(footerSampleIndices[0], footerSampleIndices[^1], amplitude * footerTotalPhases.PointwiseCos().PointwiseMultiply(1d - (Vector<double>.Build.DenseOfArray(footerSampleIndices) - footerSampleIndices[0] + 1d) / footerSampleIndices.Length));
+
+            #endregion 波形
+
+            #region 傅里叶
+
+            var flatnessAODWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
+            fftResult = flatnessAODWaveformSignals.ToComplex().FastFourierTransform();
+            (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(param.SampleRate);
+
+            #endregion 傅里叶
+
+            return (flatnessTotalCompensationPhases, flatnessTotalFrequencies, flatnessTotalPhases);
+        }
+
+        (Vector<double> Frequency, Vector<double> Phase) GetP2CompensationSignals(Vector<double> tShift)
+        {
+            return param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness
+                ? (Vector<double>.Build.Dense(t.Count, 0d), Vector<double>.Build.Dense(t.Count, 0d))
+                : (2d * tShift.PointwisePower(1d), tShift.PointwisePower(2));
+        }
+
+        (Vector<double> Frequency, Vector<double> Phase) GetP3CompensationSignals(double coefficient, Vector<double> tShift)
+        {
+            if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+            {
+                var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                return (zeros, zeros);
+            }
+
+            // P3(x) = 1/2 * (5x^3 - 3x)
+            var t3 = tShift.PointwisePower(3d);
+
+            return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 2d * (5d * t3 - 3d * tShift));
+        }
+
+        (Vector<double> Frequency, Vector<double> Phase) GetP4CompensationSignals(double coefficient, Vector<double> tShift)
+        {
+            if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+            {
+                var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                return (zeros, zeros);
+            }
+
+            // P4(x) = 1/8 * (35x^4 - 30x^2 + 3)
+            var t2 = tShift.PointwisePower(2d);
+            var t4 = tShift.PointwisePower(4d);
+
+            return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 8d * (35d * t4 - 30d * t2 + 3d));
+        }
+
+        (Vector<double> Frequency, Vector<double> Phase) GetP5CompensationSignals(double coefficient, Vector<double> tShift)
+        {
+            if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+            {
+                var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                return (zeros, zeros);
+            }
+
+            // P5(x) = 1/8 * (63x^5 - 70x^3 + 15x)
+            var t3 = tShift.PointwisePower(3d);
+            var t5 = tShift.PointwisePower(5d);
+
+            return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 8d * (63d * t5 - 70d * t3 + 15d * tShift));
+        }
+
+        (Vector<double> Frequency, Vector<double> Phase) GetP6CompensationSignals(double coefficient, Vector<double> tShift)
+        {
+            if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+            {
+                var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                return (zeros, zeros);
+            }
+
+            // P6(x) = 1/16 * (231x^6 - 315x^4 + 105x^2 - 5)
+            var t2 = tShift.PointwisePower(2d);
+            var t4 = tShift.PointwisePower(4d);
+            var t6 = tShift.PointwisePower(6d);
+
+            return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 16d * (231d * t6 - 315d * t4 + 105d * t2 - 5d));
+        }
+
+        (Vector<double> Frequency, Vector<double> Phase) GetP7CompensationSignals(double coefficient, Vector<double> tShift)
+        {
+            if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+            {
+                var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                return (zeros, zeros);
+            }
+
+            // P7(x) = 1/16 * (429x^7 - 693x^5 + 315x^3 - 35x)
+            var t3 = tShift.PointwisePower(3d);
+            var t5 = tShift.PointwisePower(5d);
+            var t7 = tShift.PointwisePower(7d);
+
+            return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 16d * (429d * t7 - 693d * t5 + 315d * t3 - 35d * tShift));
+        }
+
+        (Vector<double> Frequency, Vector<double> Phase) GetP8CompensationSignals(double coefficient, Vector<double> tShift)
+        {
+            if (param.FunctionMonotonicTypeEnum == FunctionMonotonicTypeEnum.Flatness)
+            {
+                var zeros = Vector<double>.Build.Dense(t.Count, 0d);
+                return (zeros, zeros);
+            }
+
+            // P8(x) = 1/128 * (6435x^8 - 12012x^6 + 6930x^4 - 1260x^2 + 35)
+            var t2 = tShift.PointwisePower(2d);
+            var t4 = tShift.PointwisePower(4d);
+            var t6 = tShift.PointwisePower(6d);
+            var t8 = tShift.PointwisePower(8d);
+
+            return (Vector<double>.Build.Dense(t.Count, 0d), coefficient * 1d / 128d * (6435d * t8 - 12012d * t6 + 6930d * t4 - 1260d * t2 + 35d));
         }
     }
 }

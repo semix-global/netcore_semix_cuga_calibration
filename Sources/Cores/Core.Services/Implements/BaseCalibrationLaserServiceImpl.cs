@@ -2,7 +2,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Net.Utilities.Algorithms.Modules;
-using Net.Utilities.Models;
 using Semix.CoreLib;
 
 #if NET
@@ -28,12 +27,11 @@ public sealed partial class CalibrationLaserServiceImpl
         ];
 
         using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        var (aodWaveformResult, exception) = AODWaveformGenerator1.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
+
+        var aodWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
         var results = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
 
-        return aodWaveformResult.IsSuccess
-            ? SxExecuteRetHelper.CreateSuccess(results)
-            : SxExecuteRetHelper.CreateError(GuardUtils.IsNotNullAndReturn(exception).Message, results);
+        return SxExecuteRetHelper.CreateSuccess(results);
     }
 
     public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GenerateChirpAodWaves(GenerateChirpAODWaveformParam generateChirpAODWaveformParam)
@@ -48,11 +46,10 @@ public sealed partial class CalibrationLaserServiceImpl
         ];
 
         using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        var (aodWaveformResult, exception) = AODWaveformGenerator1.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
+
+        var aodWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationTokenSource.Token);
         var results = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
 
-        return aodWaveformResult.IsSuccess
-            ? SxExecuteRetHelper.CreateSuccess(results)
-            : SxExecuteRetHelper.CreateError(GuardUtils.IsNotNullAndReturn(exception).Message, results);
+        return SxExecuteRetHelper.CreateSuccess(results);
     }
 }

@@ -33,8 +33,7 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
         Cache.Profiles = [];
         Cache.AODWaveformResultFilePath = string.Empty;
 
-        var (aodWaveformResult, exception) = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
-        if (aodWaveformResult.IsSuccess == false) ThrowHelper.ThrowInvalidOperationException(string.Empty, GuardUtils.IsNotNullAndReturn(exception));
+        var aodWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
 
         Cache.Profiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
         Cache.AODWaveformResultFilePath = aodWaveformResult.FilePath;
