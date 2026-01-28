@@ -302,15 +302,13 @@
                                             </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource MultiValueReferenceEqualsConverter}">
+                                                    <MultiBinding Converter="{StaticResource MultiValueEqualsConverter}">
                                                         <Binding />
                                                         <Binding Path="DataContext.Cache.Item"
                                                                  Mode="OneWay"
                                                                  RelativeSource="{RelativeSource AncestorType=Window}" />
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
-                                                <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
-                                                <Setter Property="FontWeight" Value="Bold" />
                                                 <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>

@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
@@ -11,7 +10,7 @@ using ScottPlot.MultiplotLayouts;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
+public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase, IEquatable<ChirpAODWaveformTrainingItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -164,4 +163,16 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
         RawImageFilePath,
         BestYStrehlRatio
     };
+
+    public bool Equals(ChirpAODWaveformTrainingItem? other) => ReferenceEquals(this, other) || (P3Coefficient.Equals(other?.P3Coefficient)
+                                                                                                && P4Coefficient.Equals(other.P4Coefficient)
+                                                                                                && P5Coefficient.Equals(other.P5Coefficient)
+                                                                                                && P6Coefficient.Equals(other.P6Coefficient)
+                                                                                                && P7Coefficient.Equals(other.P7Coefficient)
+                                                                                                && P8Coefficient.Equals(other.P8Coefficient)
+                                                                                                && RawImageFilePath.Equals(other.RawImageFilePath));
+
+    public override bool Equals(object? obj) => obj is ChirpAODWaveformTrainingItem other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(P3Coefficient, P4Coefficient, P5Coefficient, P6Coefficient, P7Coefficient, P8Coefficient, RawImageFilePath);
 }
