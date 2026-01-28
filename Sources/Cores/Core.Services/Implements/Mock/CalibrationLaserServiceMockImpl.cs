@@ -23,7 +23,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
-
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -164,17 +163,11 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.327,
-                    YPixel = 508,
-                    Hz = 408
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 445000, XPixelSize = 1.091 } }
-                    }
-#endif
+                    YPixel = 508
                 },
-                508),
+                508,
+                408,
+                445000),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -189,17 +182,11 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.327,
-                    YPixel = 508,
-                    Hz = 408
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 222500, XPixelSize = 0.546 } }
-                    }
-#endif
+                    YPixel = 508
                 },
-                508),
+                508,
+                408,
+                222500),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -214,17 +201,11 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.1635,
-                    YPixel = 1008,
-                    Hz = 290
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 175900, XPixelSize = 0.61 } }
-                    }
-#endif
+                    YPixel = 1008
                 },
-                1008),
+                1008,
+                290,
+                175900),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -239,17 +220,11 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.1635,
-                    YPixel = 1008,
-                    Hz = 290
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 88060, XPixelSize = 0.304 } }
-                    }
-#endif
+                    YPixel = 1008
                 },
-                1008),
+                1008,
+                290,
+                88060),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -264,17 +239,11 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.11286,
-                    YPixel = 1500,
-                    Hz = 210
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.High, new CgSpeedSetting { Vel = 87240, XPixelSize = 0.416 } }
-                    }
-#endif
+                    YPixel = 1500
                 },
-                1500),
+                1500,
+                210,
+                87240),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -289,46 +258,15 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.11286,
-                    YPixel = 1500,
-                    Hz = 210
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 43603, XPixelSize = 0.208 } }
-                    }
-#endif
+                    YPixel = 1500
                 },
-                1500)
+                1500,
+                210,
+                43600)
         };
 
         var niProductivityInformations = new[]
         {
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S90",
-#if NETFRAMEWORK
-                    NIOI = SxNIOIEnum.NI,
-#endif
-                    Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.096,
-                    YPixel = 1720,
-                    Hz = 200
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 26880, XPixelSize = 0.135 } }
-                    }
-#endif
-                },
-                1720),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -343,17 +281,30 @@ public sealed class CalibrationLaserServiceMockImpl(
                 new CgSwathSpeedInfo
                 {
                     YPixelSize = 0.144,
-                    YPixel = 1160,
-                    Hz = 200
-#if NETFRAMEWORK
-                    ,
-                    Speed = new CgDictionary<CgSpeedLevelType, CgSpeedSetting>
-                    {
-                        { CgSpeedLevelType.Low, new CgSpeedSetting { Vel = 40000, XPixelSize = 0.2 } }
-                    }
-#endif
+                    YPixel = 1160
                 },
-                1160)
+                1160,
+                200,
+                40000),
+            ProductivityInformation.Default.Clone().AdaptIn(
+                new C2MProductivityInfo
+                {
+                    Name = "S90",
+#if NETFRAMEWORK
+                    NIOI = SxNIOIEnum.NI,
+#endif
+                    Mag = SxMAGEnum.High,
+                    Speed = SxSpeedEnum.Low,
+                    IsUsed = true
+                },
+                new CgSwathSpeedInfo
+                {
+                    YPixelSize = 0.096,
+                    YPixel = 1720
+                },
+                1720,
+                200,
+                26880)
         };
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>(opticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI
@@ -615,9 +566,9 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDTO { PMTId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -638,9 +589,9 @@ public sealed class CalibrationLaserServiceMockImpl(
 
         foreach (var i in Enumerable.Range(0, 3))
         {
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            result.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+            result.Add(new DarkFieldImageDTO { PMTId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -669,7 +620,7 @@ public sealed class CalibrationLaserServiceMockImpl(
             using var binaryReader = new BinaryReader(fileSteam);
             var (size, _, _) = RawImageFactory.GetSize(binaryReader);
             var sizeI = (SizeI)size;
-            result.Add(new DarkFieldRawScanImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
+            result.Add(new DarkFieldRawScanImageDTO { PMTId = pmtId, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -700,7 +651,7 @@ public sealed class CalibrationLaserServiceMockImpl(
                 var (size, _, _) = RawImageFactory.GetSize(binaryReader);
                 var sizeI = (SizeI)size;
 
-                result.Add(new DarkFieldRawScanImageDTO { PmtId = id, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
+                result.Add(new DarkFieldRawScanImageDTO { PMTId = id, ChannelId = i + 1, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = uri });
             }
         }
 
@@ -727,9 +678,9 @@ public sealed class CalibrationLaserServiceMockImpl(
         {
             foreach (var i in Enumerable.Range(0, 3))
             {
-                var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+                var image = RawImageFactory.CreateImage(bytes);
                 var size = (SizeI)image.GetSize();
-                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDTO { PMTId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image });
             }
 
             result.Add(temp);
@@ -756,9 +707,9 @@ public sealed class CalibrationLaserServiceMockImpl(
         {
             foreach (var i in Enumerable.Range(0, 3))
             {
-                var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+                var image = RawImageFactory.CreateImage(bytes);
                 var size = (SizeI)image.GetSize();
-                temp.Add(new DarkFieldImageDTO { PmtId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix });
+                temp.Add(new DarkFieldImageDTO { PMTId = pmtId, ChannelId = i + 1, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image });
             }
 
             result.Add(temp);

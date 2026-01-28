@@ -139,6 +139,11 @@
             Z参数
             </summary>
         </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.PxRange">
+            <summary>
+            图像起始结束像素坐标
+            </summary>
+        </member>
         <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.ImgArrayResoult">
             <summary>
             是否获取包含图像数据的返回对象
@@ -2312,6 +2317,56 @@
             <summary>
             AF
             </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoDirectoryStructure.DirectoryName">
+            <summary>
+            文件夹名称
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoDirectoryStructure.RelativePath">
+            <summary>
+            相对于根目录的路径
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoDirectoryStructure.SubDirectories">
+            <summary>
+            子目录
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoFileBatch.BatchNumber">
+            <summary>
+            批次号
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoFileBatch.TotalBatches">
+            <summary>
+            总批次
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoFileBatch.Files">
+            <summary>
+            本批次文件
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoFileData.FileName">
+            <summary>
+            文件名
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoFileData.RelativePath">
+            <summary>
+            相对于根目录的路径
+            </summary>
+        </member>
+        <member name="P:Semix.WcfTransfer.DTO.IdoFileData.Content">
+            <summary>
+            直接传输字节数组（18460字节，无需Base64，减少开销）
+            </summary>
+        </member>
+        <member name="F:Semix.WcfTransfer.Interfaces.IDO2.ClassificationObj.claImageDirectory">
+            <summary>
+            分类训练界面参数
+            </summary>  
         </member>
     </members>
 </doc>

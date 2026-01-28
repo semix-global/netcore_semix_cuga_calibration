@@ -7,7 +7,7 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateChirpAODWaveformParam :
     AbstractGenerateAODWaveformParam,
-    IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>,
+    IAdaptTo<AODWaveformGenerator1.ChirpAODWaveformParam>,
     ICloneable<GenerateChirpAODWaveformParam>
 {
     [ObservableProperty]
@@ -26,7 +26,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
         OnPropertyChanged(nameof(SpectralDensity));
     }
 
-    public AODWaveformGenerator.ChirpAODWaveformParam AdaptTo() => new(SoundPacketLength, SoundSpeed)
+    public AODWaveformGenerator1.ChirpAODWaveformParam AdaptTo() => new(SoundPacketLength, SoundSpeed)
     {
         BandWidth = BandWidth,
         CenterFrequency = CenterFrequency,
@@ -36,18 +36,13 @@ public sealed partial class GenerateChirpAODWaveformParam :
         FileNameSuffix = $"{ProductivityInformation.OpticsIlluminationModeEnum}_{ProductivityInformation.AdaptTo().Mag}",
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
-        GenerateRetryTimes = GenerateRetryTimes,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())],
-        SincCoefficient = SincCoefficient,
-        AstigmatismCompensationCoefficient = AstigmatismCompensationCoefficient,
-        SphericalAberrationCompensationCoefficient = SphericalAberrationCompensationCoefficient,
-        SecondaryAstigmatismCompensationCoefficient = SecondaryAstigmatismCompensationCoefficient,
-        ComaCompensationCoefficient = ComaCompensationCoefficient,
-        TrefoilCompensationCoefficient = TrefoilCompensationCoefficient,
-        QuadrafoilCompensationCoefficient = QuadrafoilCompensationCoefficient,
-        AlphaOrder = AlphaOrder,
-        AlphaOrderCoefficient = AlphaOrderCoefficient
+        P3CompensationCoefficient = P3CompensationCoefficient,
+        P4CompensationCoefficient = P4CompensationCoefficient,
+        P5CompensationCoefficient = P5CompensationCoefficient,
+        P6CompensationCoefficient = P6CompensationCoefficient,
+        P7CompensationCoefficient = P7CompensationCoefficient,
+        P8CompensationCoefficient = P8CompensationCoefficient
     };
 
     public GenerateChirpAODWaveformParam Clone()
@@ -64,6 +59,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
     {
         SoundPacketLength,
         SoundSpeed,
+        SpectralDensity,
         Base = new HtmlQuote(base.ToFlatnessHtmlAnonymous())
     };
 
@@ -71,6 +67,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
     {
         SoundPacketLength,
         SoundSpeed,
+        SpectralDensity,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }

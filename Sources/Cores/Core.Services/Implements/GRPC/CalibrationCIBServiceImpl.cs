@@ -92,4 +92,9 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
     {
         throw new NotImplementedException();
     }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point startPosition, Point endPosition, IReadOnlyList<CIBInformation> cibInformations, double startECS, double stopECS, bool isForward, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

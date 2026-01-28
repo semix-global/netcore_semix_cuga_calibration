@@ -178,7 +178,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 (not -1, not -1) => forwardHorizontalProjectMinPixel.Y < reverseHorizontalProjectMinPixel.Y
                     ? forwardHorizontalProjectMinPixel.X
                     : ImageHorizontalProjects.Count - reverseHorizontalProjectMinPixel.X - 1,
-                (_, _) => ThrowHelper.ThrowInvalidOperationException<int>("Horizontal Project Min Pixel is not found."),
+                (_, _) => ThrowHelper.ThrowInvalidOperationException<int>("Horizontal Project Min Pixel is not found.")
             };
         }
 

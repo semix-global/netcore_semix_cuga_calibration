@@ -89,7 +89,7 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
 
     public SxExecuteRet<bool> SetPrescanAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
     {
-        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator1.PrescanAODWaveformFileExtension, "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
         var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Prescan, filePath));
@@ -102,7 +102,7 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
 
     public SxExecuteRet<bool> SetChirpAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
     {
-        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator1.ChirpAODWaveformFileExtension, "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
         var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Chirp, filePath));

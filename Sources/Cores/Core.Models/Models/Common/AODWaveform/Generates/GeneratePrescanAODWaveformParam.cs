@@ -7,13 +7,13 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GeneratePrescanAODWaveformParam :
     AbstractGenerateAODWaveformParam,
-    IAdaptTo<AODWaveformGenerator.PrescanAODWaveformParam>,
+    IAdaptTo<AODWaveformGenerator1.PrescanAODWaveformParam>,
     ICloneable<GeneratePrescanAODWaveformParam>
 {
     [ObservableProperty]
     private double _flatnessTime = 4300;
 
-    public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => new(FlatnessTime)
+    public AODWaveformGenerator1.PrescanAODWaveformParam AdaptTo() => new(FlatnessTime)
     {
         BandWidth = BandWidth,
         CenterFrequency = CenterFrequency,
@@ -23,18 +23,13 @@ public sealed partial class GeneratePrescanAODWaveformParam :
         FileNameSuffix = $"{ProductivityInformation.OpticsIlluminationModeEnum}_{ProductivityInformation.AdaptTo().Mag}",
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
-        GenerateRetryTimes = GenerateRetryTimes,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())],
-        SincCoefficient = SincCoefficient,
-        AstigmatismCompensationCoefficient = AstigmatismCompensationCoefficient,
-        SphericalAberrationCompensationCoefficient = SphericalAberrationCompensationCoefficient,
-        SecondaryAstigmatismCompensationCoefficient = SecondaryAstigmatismCompensationCoefficient,
-        ComaCompensationCoefficient = ComaCompensationCoefficient,
-        TrefoilCompensationCoefficient = TrefoilCompensationCoefficient,
-        QuadrafoilCompensationCoefficient = QuadrafoilCompensationCoefficient,
-        AlphaOrder = AlphaOrder,
-        AlphaOrderCoefficient = AlphaOrderCoefficient
+        P3CompensationCoefficient = P3CompensationCoefficient,
+        P4CompensationCoefficient = P4CompensationCoefficient,
+        P5CompensationCoefficient = P5CompensationCoefficient,
+        P6CompensationCoefficient = P6CompensationCoefficient,
+        P7CompensationCoefficient = P7CompensationCoefficient,
+        P8CompensationCoefficient = P8CompensationCoefficient
     };
 
     public GeneratePrescanAODWaveformParam Clone()

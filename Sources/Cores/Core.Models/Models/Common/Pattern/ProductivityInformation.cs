@@ -107,6 +107,9 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref field, value);
     } = -1;
 
+    /// <summary>
+    /// um/s
+    /// </summary>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
@@ -198,28 +201,20 @@ public sealed class ProductivityInformation :
             : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
     };
 
-    public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo, double originYPixel)
+    public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo, double originYPixel, double sampleRate, double xSpeedValue)
     {
+        Name = obj.Name;
 #if NETFRAMEWORK
         OpticsIlluminationModeEnum = obj.NIOI.ToOpticsIlluminationModeEnum();
 #endif
-        Name = obj.Name;
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
-#if NET48
-        XPixelSize = swathSpeedInfo.Speed
-            .Single(t => t.Key == obj.Speed.ToCgSpeedLevelType())
-            .Value
-            .XPixelSize;
-        XSpeedValue = swathSpeedInfo.Speed
-            .Single(t => t.Key == obj.Speed.ToCgSpeedLevelType())
-            .Value
-            .Vel;
-#endif
         YPixelSize = swathSpeedInfo.YPixelSize;
         YPixel = Convert.ToInt32(swathSpeedInfo.YPixel);
         OriginYPixel = Convert.ToInt32(originYPixel);
-        SampleRate = swathSpeedInfo.Hz;
+        SampleRate = sampleRate;
+        XSpeedValue = xSpeedValue;
+        XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
 
         return this;
     }

@@ -55,9 +55,9 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
         new() { StepName = "Haze Left Top Position" },
         new() { StepName = "Haze Right Bottom Position" },
         new() { StepName = "Haze" },
-        new() { StepName = "Shiny Wafer Left Top Position", },
-        new() { StepName = "Shiny Wafer Right Bottom Position", },
-        new() { StepName = "Shiny Wafer", },
+        new() { StepName = "Shiny Wafer Left Top Position" },
+        new() { StepName = "Shiny Wafer Right Bottom Position" },
+        new() { StepName = "Shiny Wafer" },
         new() { StepName = "Chuck RTFC" }
     ];
 

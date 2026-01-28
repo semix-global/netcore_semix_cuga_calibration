@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -94,10 +95,31 @@ public sealed partial class GenerateAODWaveformParamUserControl
             var dialog = GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
-            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath).ToArray();
-            if (values.Length > 0) generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
+            generateAODWaveformElectrodeConfiguration.UniformityConfigurations = [];
 
-            GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration OK!");
+            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
+                .Where(t => t.Frequency > 0)
+                .ToArray();
+            if (values.Length <= 0)
+            {
+                values = MiniExcel.Query(filePath, useHeaderRow: true)
+                    .Cast<IDictionary<string, object>>()
+                    .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
+                    .Where(t => t.Frequency > 0)
+                    .ToArray();
+            }
+
+            if (values.Length > 0)
+            {
+                generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
+                GuardUtils.IsNotNullAndReturn(_logger).LogInformation("Import Uniformity Configuration OK!");
+                GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration OK!");
+            }
+            else
+            {
+                GuardUtils.IsNotNullAndReturn(_logger).LogWarning("Import Uniformity Configuration Failed! No data found.");
+                GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
         }
         catch (Exception ex)
         {
@@ -127,26 +149,6 @@ public sealed partial class GenerateAODWaveformParamUserControl
         foreach (GenerateAODWaveformUniformityConfiguration selectItem in valueTuple.Value.SelectItems) configurationList.Remove(selectItem);
 
         valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
-    });
-
-    [RelayCommand]
-    private void AddSlopeDeltaKConfiguration() => Invoke(param =>
-    {
-        var configurationList = param.SlopeDeltaKConfigurations.ToList();
-        configurationList.Add(new GenerateAODWaveformSlopeDeltaKConfiguration());
-
-        param.SlopeDeltaKConfigurations = configurationList;
-    });
-
-    [RelayCommand]
-    private void RemoveSlopeDeltaKConfiguration(IEnumerable? selectItems) => Invoke(param =>
-    {
-        if (selectItems is null) return;
-
-        var configurationList = param.SlopeDeltaKConfigurations.ToList();
-        foreach (GenerateAODWaveformSlopeDeltaKConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
-
-        param.SlopeDeltaKConfigurations = configurationList;
     });
 
     private void Invoke(Action<AbstractGenerateAODWaveformParam> action)

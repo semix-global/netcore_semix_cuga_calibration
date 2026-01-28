@@ -138,9 +138,9 @@ public sealed class CalibrationCIBServiceMockImpl(
         {
             var cibInformation = cibInformations[i];
 
-            var (image, matrix) = calibrationAlgorithmService.ToImageInfo(bytes);
+            var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            results[i] = new DarkFieldImageDTO { PmtId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image, Matrix = matrix };
+            results[i] = new DarkFieldImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
@@ -169,9 +169,36 @@ public sealed class CalibrationCIBServiceMockImpl(
             var (size, _, _) = RawImageFactory.GetSize(binaryReader);
             var sizeI = (SizeI)size;
 
-            results[i] = new DarkFieldRawScanImageDTO { PmtId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = _mockImageFilePath };
+            results[i] = new DarkFieldRawScanImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = _mockImageFilePath };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results));
+    }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point startPosition,
+        Point endPosition,
+        IReadOnlyList<CIBInformation> cibInformations,
+        double startECS,
+        double stopECS,
+        bool isForward,
+        CancellationToken cancellationToken)
+    {
+        var bytes = File.ReadAllBytes(_mockImageFilePath);
+
+        var results = new DarkFieldImageDTO[cibInformations.Count];
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            var cibInformation = cibInformations[i];
+
+            var image = RawImageFactory.CreateImage(bytes);
+            var size = (SizeI)image.GetSize();
+            results[i] = new DarkFieldImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image };
+        }
+
+        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
     }
 }

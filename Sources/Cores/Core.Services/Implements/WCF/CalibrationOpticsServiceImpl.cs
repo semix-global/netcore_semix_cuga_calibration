@@ -45,7 +45,15 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
             var pmtDataLineHeightSxExecuteRet = Invoke(() => Service?.GetPmtDataLineHeight(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
             if (pmtDataLineHeightSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
 
-            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(c2MProductivityInfo, speedInfoSxExecuteRet.Anything, pmtDataLineHeightSxExecuteRet.Anything));
+            var hzAndRealSpeedSxExecuteRet = Invoke(() => Service?.GetHzAndRealSpeed(c2MProductivityInfo.NIOI, c2MProductivityInfo.Mag, c2MProductivityInfo.Speed));
+            if (hzAndRealSpeedSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
+
+            productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(
+                c2MProductivityInfo,
+                speedInfoSxExecuteRet.Anything,
+                pmtDataLineHeightSxExecuteRet.Anything,
+                hzAndRealSpeedSxExecuteRet.Anything.hz,
+                hzAndRealSpeedSxExecuteRet.Anything.realSpeed));
         }
 
         Guard.IsTrue(productivityInformationList.DistinctBy(t => t).Count() == productivityInformationList.Count, "Productivity Information is not unique");
