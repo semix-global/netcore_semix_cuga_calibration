@@ -6,6 +6,8 @@
     <converters:DoublesToStringConverter x:Key="DoublesToStringConverter" />
     <converters:IntsToStringConverter x:Key="IntsToStringConverter" />
     <converters:DoubleToGridLengthConverter x:Key="DoubleToGridLengthConverter" />
+    <converters:PointYToStringConverter x:Key="PointYToStringConverter" />
+    <converters:PointXToStringConverter x:Key="PointXToStringConverter" />
     <converters:ScatterPlotControlToTitleConverter x:Key="ScatterPlotControlToTitleConverter" />
     <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanAllConverter" />
     <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanNegationAllConverter" IsNegation="True" />

@@ -46,8 +46,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
     public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public string ImageFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
     [ObservableProperty]
     private ChirpAODWaveformTrainingCache _cache = new();
 
@@ -121,7 +119,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
         {
             try
             {
-                var detectImageDirectory = ImageFileDirectory;
                 Cache.Items = [];
 
                 cancellationToken.ThrowIfCancellationRequested();
@@ -133,7 +130,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     0,
                     0,
                     0,
-                    detectImageDirectory,
                     cancellationToken);
 
                 for (var i = 0; i < Cache.RetryTimes; i++)
@@ -197,7 +193,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                         index == 6 ? val : Cache.Item.P6Coefficient,
                         index == 7 ? val : Cache.Item.P7Coefficient,
                         index == 8 ? val : Cache.Item.P8Coefficient,
-                        detectImageDirectory,
                         cancellationToken);
                 }
 
@@ -233,7 +228,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
         double p6Coefficient,
         double p7Coefficient,
         double p8Coefficient,
-        string detectImageDirectory,
         CancellationToken cancellationToken)
     {
         var item = new ChirpAODWaveformTrainingItem
@@ -299,9 +293,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             cancellationToken
         );
 
-        var imageFilePath = Path.Combine(detectImageDirectory, item.CIBInformation.ToString(), $"{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg");
-        darkFieldImage.Image.Save(imageFilePath);
-
         using var image = Cache.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog
             ? calibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImage.Image)
             : darkFieldImage.Image.Copy();
@@ -319,7 +310,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
         item.BestYStrehlRatio = item.YStrehlRatioFitPoints.Maxima(t => t.Y).First();
         item.BestGray = item.GrayFitPoints.Maxima(t => t.Y).First();
 
-        item.ImageFilePath = imageFilePath;
         item.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
         Cache.Items = [.. Cache.Items, item];

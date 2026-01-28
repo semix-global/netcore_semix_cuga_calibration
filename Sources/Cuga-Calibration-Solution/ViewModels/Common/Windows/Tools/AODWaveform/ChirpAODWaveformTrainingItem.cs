@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Local.NoSQL.DB.Providers.Bases;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
@@ -66,11 +67,8 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
     [ObservableProperty]
     private IReadOnlyList<Point> _yStrehlRatioFitPoints = [];
 
-    [NotifyPropertyChangedFor(nameof(BestYStrehlRatioValue))]
     [ObservableProperty]
     private Point _bestYStrehlRatio;
-
-    public double BestYStrehlRatioValue => BestYStrehlRatio.Y;
 
     [ObservableProperty]
     private IReadOnlyList<Point> _grayPoints = [];
@@ -85,14 +83,17 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
     private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
-
-    [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    [LiteDB.BsonIgnore]
+    public IPlotControl PlotControl => GuardUtils.IsAssignableToType<IPlotControl>(ScatterPlotControl);
 
     public ChirpAODWaveformTrainingItem()
     {
@@ -125,7 +126,6 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
 
     // ReSharper restore UnusedParameterInPartialMethod
 
-
     private void RefreshPlot()
     {
         try
@@ -137,7 +137,11 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase
         finally
         {
             ScatterPlotControl.AutoScaleRefresh();
+
+            foreach (var plot in PlotControl.Multiplot.GetPlots()) plot.Axes.SetLimitsY(0.1d, 0.3d);
         }
+
+        return;
 
         void Refresh(int plotIndex, IReadOnlyList<Point> points, IReadOnlyList<Point> fitPoints, Point bestPoint)
         {
