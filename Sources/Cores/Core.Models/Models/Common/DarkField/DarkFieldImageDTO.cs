@@ -98,7 +98,7 @@ public sealed class DarkFieldImageDTO :
 
         return this;
     }
-    
+
     public DarkFieldImageDTO AdaptIn(DarkFieldRawScanImageDTO obj)
     {
         Guard.IsNotNull(obj);

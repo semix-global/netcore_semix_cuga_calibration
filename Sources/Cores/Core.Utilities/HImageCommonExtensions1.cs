@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;
-using System;
 using System.Runtime.InteropServices;
 
 namespace Core.Utilities;

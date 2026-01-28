@@ -1,7 +1,7 @@
 #if !NETCOREAPP
 
-using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable once CheckNamespace
 namespace System;

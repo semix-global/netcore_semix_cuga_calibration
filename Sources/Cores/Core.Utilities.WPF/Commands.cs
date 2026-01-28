@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
+using CommunityToolkit.Mvvm.Input;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using CommunityToolkit.Mvvm.Input;
 
 namespace Core.Utilities.WPF;
 

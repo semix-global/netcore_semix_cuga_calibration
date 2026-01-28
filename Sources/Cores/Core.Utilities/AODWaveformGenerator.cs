@@ -517,8 +517,8 @@ public static class AODWaveformGenerator1
 
             // 将结果转换为16位整数并保存到文件
             var hexStrings = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                ? (string[])[..Enumerable.Repeat(((short)0).ToString("x4"), aodWaveformSignals.Count)]
-                : [..aodWaveformSignals.Select(y => ((short)Math.Clamp(Math.Round(y * Math.Pow(2d, 15d), MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue)).ToString("x4"))];
+                ? (string[])[.. Enumerable.Repeat(((short)0).ToString("x4"), aodWaveformSignals.Count)]
+                : [.. aodWaveformSignals.Select(y => ((short)Math.Clamp(Math.Round(y * Math.Pow(2d, 15d), MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue)).ToString("x4"))];
 
             DirectoryHelper.CreateFileDirectoryIfNotExists(item.FilePath);
             FileHelper.DeleteFileIfExists(item.FilePath);

@@ -54,7 +54,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     [ObservableProperty]
     private double _p4CompensationCoefficient;
-    
+
     [ObservableProperty]
     private double _p5CompensationCoefficient;
 

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -15,8 +16,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
-using Cuga.Data.DataStruct.Stage;
-using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.AODWaveform.UI.Generates;
 
@@ -97,7 +96,7 @@ public sealed partial class GenerateAODWaveformParamUserControl
             if (dialog == false) return;
 
             generateAODWaveformElectrodeConfiguration.UniformityConfigurations = [];
-            
+
             var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
                 .Where(t => t.Frequency > 0)
                 .ToArray();

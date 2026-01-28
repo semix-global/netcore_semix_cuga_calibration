@@ -1,6 +1,6 @@
-﻿using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.WPF.Converters.MultiValueConverters;
+using System.Globalization;
 
 namespace Core.Utilities.WPF.Converters.MultiValueConverters;
 

@@ -240,7 +240,6 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     {
         try
         {
-
             if (isGenerateFlatnessAODWaveform) GenerateFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
             else GenerateScanAODWaveform(item, htmlLogUniqueId, cancellationToken);
 
