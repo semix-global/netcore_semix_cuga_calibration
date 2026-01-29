@@ -12,6 +12,7 @@ using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.AOD.Uniformity;
+using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -42,6 +43,7 @@ using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Ads;
 using CugaCalibration.ViewModels.AOD;
+using CugaCalibration.ViewModels.AutoFocus;
 using CugaCalibration.ViewModels.Chuck;
 using CugaCalibration.ViewModels.CIB;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
@@ -634,6 +636,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODUniformityDTO>().IsOk(out _);
 
                 #endregion
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<GlobalFocusOffsetViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<GlobalFocusOffsetDTO>().IsOk(out _);
             }
             catch (Exception ex)
             {

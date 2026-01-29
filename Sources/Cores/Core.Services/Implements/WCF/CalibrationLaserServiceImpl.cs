@@ -477,23 +477,25 @@ public sealed partial class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
+    public SxExecuteRet<(double Ecs, double Motor, bool isAFServo)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
+        ProductivityInformation productivityInformation,
         int pmtId,
         double? coefficient = null,
         Point? point = null)
     {
-        throw new NotImplementedException();
-
-        /*ushort? level = null;
+        ushort? level = null;
         if (coefficient is not null)
         {
             var laserLightInformationRet = CoefficientToLaserLightInformation(coefficient.Value);
-            if (laserLightInformationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(laserLightInformationRet.ErrorMsg);
+            if (laserLightInformationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor, bool isAFServo)>(laserLightInformationRet.ErrorMsg);
             level = Convert.ToUInt16(laserLightInformationRet.Anything.Level);
         }
 
         var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(
+            productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+            productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+            productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
             calChipSiteModelEnum.ToCgCalChipType(),
             Convert.ToUInt16(pmtId),
             level,
@@ -501,8 +503,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         ));
 
         return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor)>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset));*/
+            ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor, bool isAFServo)>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor, bool isAFServo)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset, true));
     }
 
     [Obsolete]

@@ -271,8 +271,9 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
+    public SxExecuteRet<(double Ecs, double Motor, bool isAFServo)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
+        ProductivityInformation productivityInformation,
         int pmtId,
         double? coefficient = null,
         Point? point = null)
