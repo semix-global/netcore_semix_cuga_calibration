@@ -78,6 +78,41 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
 
         return result.ToArray();
     }
+    
+    public (Point[] XStrehlRatioPoints, Point[] YStrehlRatioPoints, Point[] GrayPoints) GetXYStrehlRatios(HImage image, out Point[] strehlXSmoothPoints, out Point[] strehlYSmoothPoints, out Point[] graySmoothPoints)
+    {
+        strehlXSmoothPoints =
+        [
+            .. Enumerable.Range(0, 2000)
+                .Select(i => new Point(i, Random.NextDouble()))
+        ];
+
+        strehlYSmoothPoints =
+        [
+            .. Enumerable.Range(0, 2000)
+                .Select(i => new Point(i, Random.NextDouble()))
+        ];
+
+        graySmoothPoints =
+        [
+            .. Enumerable.Range(0, 2000)
+                .Select(i => new Point(i, Random.Next(0, 2000)))
+        ];
+
+        return (
+            [
+                .. Enumerable.Range(0, 2000)
+                    .Select(i => new Point(i, Random.NextDouble()))
+            ],
+            [
+                .. Enumerable.Range(0, 2000)
+                    .Select(i => new Point(i, Random.NextDouble()))
+            ],
+            [
+                .. Enumerable.Range(0, 2000)
+                    .Select(i => new Point(i, Random.Next(0, 2000)))
+            ]);
+    }
 
     public (Point Position, double XMTF, double YMTF, double GrayValue)[] MultiModulationTransferFunction(HImage image)
     {

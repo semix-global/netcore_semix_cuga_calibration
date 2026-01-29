@@ -109,6 +109,44 @@ public sealed class CalibrationAlgorithmServiceImpl(
         ]);
     }
 
+    public (Point[] XStrehlRatioPoints, Point[] YStrehlRatioPoints, Point[] GrayPoints) GetXYStrehlRatios(HImage image, out Point[] strehlXSmoothPoints, out Point[] strehlYSmoothPoints, out Point[] graySmoothPoints)
+    {
+        _algorithm.STLR(image, out var pixelPositionXTuple, out var xStrehlRatioTuple, out var yStrehlRatioTuple, out var grayValue,
+            out var fitPointXTuple, out var xFitRatio, out var yFitRatio, out var grayFitRatio);
+
+        strehlXSmoothPoints =
+        [
+            .. Enumerable.Range(0, fitPointXTuple.Length)
+                .Select(i => new Point(fitPointXTuple[i].D, xFitRatio[i].D))
+        ];
+
+        strehlYSmoothPoints =
+        [
+            .. Enumerable.Range(0, fitPointXTuple.Length)
+                .Select(i => new Point(fitPointXTuple[i].D, yFitRatio[i].D))
+        ];
+
+        graySmoothPoints =
+        [
+            .. Enumerable.Range(0, fitPointXTuple.Length)
+                .Select(i => new Point(fitPointXTuple[i].D, grayFitRatio[i].D))
+        ];
+
+        return (
+            [
+                .. Enumerable.Range(0, pixelPositionXTuple.Length)
+                    .Select(i => new Point(pixelPositionXTuple[i].D, xStrehlRatioTuple[i].D))
+            ],
+            [
+                .. Enumerable.Range(0, pixelPositionXTuple.Length)
+                    .Select(i => new Point(pixelPositionXTuple[i].D, yStrehlRatioTuple[i].D))
+            ],
+            [
+                .. Enumerable.Range(0, pixelPositionXTuple.Length)
+                    .Select(i => new Point(pixelPositionXTuple[i].D, grayValue[i].D))
+            ]);
+    }
+
     public (double Width, double Height) GetLightQuality(HImage image, Rect roiRect)
     {
         using var roiImage = image.ToRoi(roiRect);

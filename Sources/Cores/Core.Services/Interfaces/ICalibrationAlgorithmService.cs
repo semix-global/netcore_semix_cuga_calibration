@@ -56,6 +56,8 @@ public interface ICalibrationAlgorithmService
 
     (Point Position, double XStrehlRatio, double YStrehlRatio, double GrayValue)[] GetXYStrehlRatio(HImage image);
 
+    (Point[] XStrehlRatioPoints, Point[] YStrehlRatioPoints, Point[] GrayPoints) GetXYStrehlRatios(HImage image, out Point[] strehlXSmoothPoints, out Point[] strehlYSmoothPoints, out Point[] graySmoothPoints);
+
     Point[] SmoothStrehlFunction(double[] xPositions, double[] strehlRatios);
 
     #endregion 清晰度

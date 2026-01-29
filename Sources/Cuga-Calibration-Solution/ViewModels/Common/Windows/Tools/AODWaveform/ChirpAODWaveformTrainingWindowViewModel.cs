@@ -359,14 +359,15 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 ? calibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImage.Image)
                 : darkFieldImage.Image.Copy();
 
-            var resultPlots = calibrationAlgorithmService.GetXYStrehlRatio(image);
-            item.XStrehlRatioPoints = [.. resultPlots.Select(t => new Point(t.Position.X, t.XStrehlRatio))];
-            item.YStrehlRatioPoints = [.. resultPlots.Select(t => new Point(t.Position.X, t.YStrehlRatio))];
-            item.GrayPoints = [.. resultPlots.Select(t => new Point(t.Position.X, t.GrayValue))];
+            var(xStrehlRatioPoints, yStrehlRatioPoints, grayPoints) = calibrationAlgorithmService.GetXYStrehlRatios(image,out var strehlXSmoothPoints, out var strehlYSmoothPoints, out var graySmoothPoints);
 
-            item.XStrehlRatioFitPoints = calibrationAlgorithmService.SmoothStrehlFunction([.. resultPlots.Select(t => t.Position.X)], [.. resultPlots.Select(t => t.XStrehlRatio)]);
-            item.YStrehlRatioFitPoints = calibrationAlgorithmService.SmoothStrehlFunction([.. resultPlots.Select(t => t.Position.X)], [.. resultPlots.Select(t => t.YStrehlRatio)]);
-            item.GrayFitPoints = calibrationAlgorithmService.SmoothStrehlFunction([.. resultPlots.Select(t => t.Position.X)], [.. resultPlots.Select(t => t.GrayValue)]);
+            item.XStrehlRatioPoints = [..xStrehlRatioPoints];
+            item.YStrehlRatioPoints = [..yStrehlRatioPoints];
+            item.GrayPoints = [.. grayPoints];
+
+            item.XStrehlRatioFitPoints = [..strehlXSmoothPoints];
+            item.YStrehlRatioFitPoints = [..strehlYSmoothPoints];
+            item.GrayFitPoints =  [..graySmoothPoints];
 
             item.BestXStrehlRatio = item.XStrehlRatioFitPoints.Maxima(t => t.Y).First();
             item.BestYStrehlRatio = item.YStrehlRatioFitPoints.Maxima(t => t.Y).First();
