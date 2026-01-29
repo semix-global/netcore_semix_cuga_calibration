@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -9,6 +10,7 @@ using Net.Utilities.Nlog.Extensions;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(PrescanAODWaveformElectrodeOffsetWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(PrescanAODWaveformElectrodeOffsetCache))]
 public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
     AbstractAODWaveformElectrodeOffsetWindowViewModel<PrescanAODWaveformElectrodeOffsetCache, PrescanAODWaveformElectrodeOffsetItem, PrescanAODWaveformElectrodeOffsetResult>
 {

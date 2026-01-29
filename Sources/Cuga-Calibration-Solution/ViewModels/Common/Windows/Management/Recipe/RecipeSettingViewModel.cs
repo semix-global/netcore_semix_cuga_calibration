@@ -44,10 +44,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Core.Utilities.SourceGenerators.Attributes;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 
 [IOCAppService(ServiceType = typeof(RecipeSettingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[RecipeCache(typeof(CalibrationRecipeDto))]
 public sealed partial class RecipeSettingViewModel(
     ICacheProvider cacheProvider,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]

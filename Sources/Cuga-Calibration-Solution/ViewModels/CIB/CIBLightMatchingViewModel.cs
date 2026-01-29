@@ -12,6 +12,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Humanizer;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -32,6 +33,8 @@ using System.Text;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBLightMatchingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(CIBLightMatchingDTO), true)]
+[RecipeCache(typeof(CIBLightMatchingCache))]
 public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 {
     #region 属性

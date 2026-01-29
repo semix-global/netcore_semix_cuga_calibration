@@ -1,5 +1,6 @@
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -8,8 +9,11 @@ using Net.Utilities.WPF.Enums;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
+public sealed class PrescanGenerateAODWaveformCache : GenerateAODWaveformCache<GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile>;
+
 [IOCAppService(ServiceType = typeof(PrescanGenerateAODWaveformWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile>
+[DefaultCache(typeof(PrescanGenerateAODWaveformCache))]
+public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<PrescanGenerateAODWaveformCache, GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile>
 {
     public override string Name => "Generate Prescan AOD Waveform";
 

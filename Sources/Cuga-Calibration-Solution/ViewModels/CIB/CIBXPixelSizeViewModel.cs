@@ -14,6 +14,7 @@ using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using HalconDotNet;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -34,6 +35,8 @@ using System.Threading.Channels;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBXPixelSizeViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(CIBXPixelSizeDTO), true)]
+[RecipeCache(typeof(CIBXPixelSizeCache))]
 public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 {
     #region 属性

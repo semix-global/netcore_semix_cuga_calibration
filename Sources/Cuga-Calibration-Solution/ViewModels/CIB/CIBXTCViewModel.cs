@@ -13,6 +13,7 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using Microsoft.Extensions.Hosting;
@@ -34,6 +35,8 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBXTCViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(CIBXTCDTO), true)]
+[RecipeCache(typeof(CIBXTCCache))]
 public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 {
     #region 属性

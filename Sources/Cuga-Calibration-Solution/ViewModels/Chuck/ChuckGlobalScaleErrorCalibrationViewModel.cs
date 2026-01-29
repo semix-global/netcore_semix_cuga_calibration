@@ -5,7 +5,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Alignment;
@@ -14,6 +13,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -31,9 +31,9 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGlobalScaleErrorCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
-    IHostEnvironment hostEnvironment,
-    AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel) : CalibrationViewModelBase
+[DefaultCache(typeof(ChuckGlobalScaleErrorDto))]
+[RecipeCache(typeof(ChuckGlobalScaleErrorCache))]
+public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel, IHostEnvironment hostEnvironment) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -83,9 +83,6 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
 
     [ObservableProperty]
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
-
-    [ObservableProperty]
-    private ChuckAutoFocusDto _chuckAutoFocus = new();
 
     [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];

@@ -15,12 +15,14 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.LineOrientationOffset;
+using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -36,6 +38,8 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserLineOrientationOffsetCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(LineOrientationOffsetItemDto), true)]
+[RecipeCache(typeof(LineOrientationOffsetCache))]
 public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
@@ -174,13 +178,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserXYAstigmatismCalibrationItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBYPixelSizeDTO>(out var laserPixelSizes, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPixelSizeItemDto>(out var laserPixelSizes, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

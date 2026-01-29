@@ -7,6 +7,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules;
@@ -23,6 +24,8 @@ using System.Text;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserAttenuatorViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(LaserAttenuatorDTO), true)]
+[RecipeCache(typeof(LaserAttenuatorCache))]
 public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 {
     #region 属性

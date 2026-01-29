@@ -11,6 +11,7 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
@@ -29,6 +30,8 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeCalChipCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(MicroscopeCalChipDto))]
+[RecipeCache(typeof(MicroscopeCalChipCache))]
 public sealed partial class MicroscopeCalChipCalibrationViewModel(
     CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie) : CalibrationViewModelBase

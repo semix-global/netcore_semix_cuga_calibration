@@ -11,7 +11,6 @@ using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Setting;
 using CugaCalibration.Core.Services.Interfaces;
@@ -117,7 +116,6 @@ public class CalibrationStatusServiceImpl(
     public bool EnableDependLaserAodDelayCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
         if (EnableCalibrationItems<AODAlignmentDTO>(isOk, cancellationToken, out errorMessage) == false) return false;
-        if (EnableCalibrationItems<LaserXYAstigmatismCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
 
         return true;
@@ -125,7 +123,6 @@ public class CalibrationStatusServiceImpl(
 
     public bool EnableDependLaserPrescanChirpAodAlignmentCalibrations(bool isOk, CancellationToken cancellationToken, out string errorMessage)
     {
-        if (EnableCalibrationItems<LaserXYAstigmatismCalibrationItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         if (EnableCalibrationItems<LaserLineCentricityItemDto>(isOk, cancellationToken, out errorMessage) == false) return false;
         return true;
     }

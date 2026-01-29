@@ -4,6 +4,7 @@ using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.YGains;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,6 +24,8 @@ using static Core.Models.Models.Ads.YGains.AdsYGainsCache;
 namespace CugaCalibration.ViewModels.Ads;
 
 [IOCAppService(ServiceType = typeof(AdsYGainsCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(AdsYGainsItemDto))]
+[RecipeCache(typeof(AdsYGainsCache))]
 public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -148,9 +151,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsYGainsCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsYGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsYGainsItemDto>();
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -1637,7 +1640,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         Calibration = itemDto.Clone();
 
         CacheProvider.Set(Calibration, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

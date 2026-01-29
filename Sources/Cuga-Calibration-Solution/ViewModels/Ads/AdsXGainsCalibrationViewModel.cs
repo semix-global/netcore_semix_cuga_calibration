@@ -7,6 +7,7 @@ using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Common.Status;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -28,6 +29,8 @@ using static Core.Models.Models.Ads.XGains.AdsXGainsCache;
 namespace CugaCalibration.ViewModels.Ads;
 
 [IOCAppService(ServiceType = typeof(AdsXGainsCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(AdsXGainsItemDto))]
+[RecipeCache(typeof(AdsXGainsCache))]
 public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -152,9 +155,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsXGainsCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsXGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsXGainsItemDto>();
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -1531,7 +1534,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         Calibration = itemDto.Clone();
 
         CacheProvider.Set(Calibration, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()

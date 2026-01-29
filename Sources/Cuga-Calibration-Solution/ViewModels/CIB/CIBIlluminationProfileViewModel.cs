@@ -12,6 +12,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Humanizer;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
@@ -33,6 +34,8 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBIlluminationProfileViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(CIBIlluminationProfileDTO), true)]
+[RecipeCache(typeof(CIBIlluminationProfileCache))]
 public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewModelBase
 {
     #region 属性

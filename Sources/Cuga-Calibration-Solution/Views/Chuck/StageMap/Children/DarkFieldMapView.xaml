@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
-             d:DataContext="{d:DesignInstance Type=viewModels:ChuckAutoFocusCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">

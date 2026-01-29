@@ -7,6 +7,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -22,6 +23,8 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeCentricityCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(MicroscopeCentricityItemDto), true)]
+[RecipeCache(typeof(MicroscopeCentricityCache))]
 public sealed partial class MicroscopeCentricityCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性

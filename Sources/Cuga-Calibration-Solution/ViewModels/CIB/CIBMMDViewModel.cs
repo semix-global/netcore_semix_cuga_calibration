@@ -16,6 +16,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Humanizer;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -40,6 +41,8 @@ using Generate = MathNet.Numerics.Generate;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBMMDViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(CIBMMDDTO), true)]
+[RecipeCache(typeof(CIBMMDCache))]
 public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 {
     #region 属性

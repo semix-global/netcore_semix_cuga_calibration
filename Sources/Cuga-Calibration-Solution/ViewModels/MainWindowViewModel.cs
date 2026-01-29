@@ -14,7 +14,6 @@ using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
-using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
@@ -32,6 +31,7 @@ using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
+using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
@@ -68,6 +68,8 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using System.IO;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
 using CIBYPixelSizeViewModel = CugaCalibration.ViewModels.CIB.CIBYPixelSizeViewModel;
 
 namespace CugaCalibration.ViewModels;
@@ -408,10 +410,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     }
 
     [RelayCommand]
-    private void OpenToolMenu(string viewModel)
+    private void OpenToolMenu(SysMenuDto sysMenu)
     {
         try
         {
+            var viewModel = sysMenu.Component;
             if (string.IsNullOrWhiteSpace(viewModel)) return;
 
             var viewModelBase = HostApplication.GetRequiredService<ViewModelBase>(viewModel);
@@ -419,11 +422,39 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             switch (viewModelBase)
             {
                 case MainWindowViewModel:
-                    var save = _calibrationCacheProviderService.TrySave();
-                    if (save)
-                        _dialogWindowProvider.ShowDialog("Save Success.");
-                    else
-                        _dialogWindowProvider.ShowDialog("Save Failed! Please save it again.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                    switch (sysMenu.Name)
+                    {
+                        case CalibrationConstantsHelper.Save:
+                            var save = _calibrationCacheProviderService.TrySave();
+                            if (save)
+                                _dialogWindowProvider.ShowDialog("Save Success.");
+                            else
+                                _dialogWindowProvider.ShowDialog("Save Failed! Please save it again.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+
+                            break;
+
+                        case CalibrationConstantsHelper.Export:
+                            if (_dialogWindowProvider.TryShowSaveFilePathDialog(".json", out var exportPath) == true)
+                            {
+                                if (_calibrationCacheProviderService.TryExport(exportPath))
+                                    _dialogWindowProvider.ShowDialog("Export Success.");
+                                else
+                                    _dialogWindowProvider.ShowDialog("Export Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                            }
+
+                            break;
+
+                        case CalibrationConstantsHelper.Import:
+                            if (_dialogWindowProvider.TryShowSelectFilePathDialog(".json", out var importPath) == true)
+                            {
+                                if (_calibrationCacheProviderService.TryImport(importPath))
+                                    _dialogWindowProvider.ShowDialog("Import Success.");
+                                else
+                                    _dialogWindowProvider.ShowDialog("Import Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                            }
+
+                            break;
+                    }
 
                     break;
 
@@ -458,7 +489,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "{@Name}: Load Menu View({@ViewModel}) Failed", nameof(MainWindowViewModel), viewModel);
+            _logger.LogError(ex, "{@Name}: Load Menu View({@ViewModel}) Failed", nameof(MainWindowViewModel), sysMenu.Name);
         }
     }
 
@@ -577,8 +608,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckPrealignerDTO>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckStageMapCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckStageMapDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckAutoFocusCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckAutoFocusDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckGlobalScaleErrorCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckAlignmentDegreeOffsetCalibrationViewModel>();
@@ -600,8 +629,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserLineOrientationOffsetCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LineOrientationOffsetItemDto>().IsOk(out _);
 
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserXYAstigmatismCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserXYAstigmatismCalibrationItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserDOEAngleCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserDOEAngleDto>().IsOk(out _);
 

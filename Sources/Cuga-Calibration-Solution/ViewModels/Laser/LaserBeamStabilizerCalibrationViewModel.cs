@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Laser.BeamStabilizer;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -14,6 +15,8 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserBeamStabilizerCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(LaserBeamStabilizerObjDto))]
+[RecipeCache(typeof(LaserBeamStabilizerCache))]
 public sealed partial class LaserBeamStabilizerCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -61,14 +64,14 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
             return false;
         }
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserBeamStabilizerCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserBeamStabilizerCache>();
         Calibration = CacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>();
 
         Cache.Threshold = Cache.Threshold == 0 ? 25 : Cache.Threshold;
         FirstLaserBeamStabilizerObjDto = new LaserBeamStabilizerObjDto { Interval = 30 };
         SynchronizationContextProvider.Send(LaserBeamStabilizerObjDtoList.Clear);
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -330,7 +333,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
         Calibration = dto.Clone();
 
         CacheProvider.Set(dto, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

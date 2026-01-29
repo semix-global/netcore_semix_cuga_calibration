@@ -18,6 +18,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -33,6 +34,8 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckAlignmentDegreeOffsetCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(ChuckAlignmentDegreeOffsetItemDto), true)]
+[RecipeCache(typeof(ChuckAlignmentDegreeOffsetCache))]
 public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel) : CalibrationViewModelBase

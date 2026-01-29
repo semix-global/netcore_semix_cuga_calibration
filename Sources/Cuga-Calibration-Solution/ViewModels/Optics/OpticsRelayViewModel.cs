@@ -11,6 +11,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Optics.Relay;
 using Humanizer;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
@@ -32,6 +33,8 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Optics;
 
 [IOCAppService(ServiceType = typeof(OpticsRelayViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(OpticsRelayDTO), true)]
+[RecipeCache(typeof(OpticsRelayCache))]
 public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 {
     #region 属性

@@ -10,7 +10,6 @@ using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.ViewModels;
@@ -538,7 +537,6 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.SetArray<LaserAttenuatorDTO>([], CancellationToken.None);
         cacheProvider.SetArray<AODDelayDTO>([], CancellationToken.None);
         cacheProvider.SetArray<AODAlignmentDTO>([], CancellationToken.None);
-        cacheProvider.SetArray<LaserXYAstigmatismCalibrationItemDto>([], CancellationToken.None);
     }
 
     [RelayCommand]

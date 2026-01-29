@@ -13,7 +13,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class GenerateAODWaveformCache<TParam, TProfile> : ObservableCacheBase
+public partial class GenerateAODWaveformCache<TParam, TProfile> : ObservableCacheBase
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
 {
@@ -27,17 +27,18 @@ public sealed partial class GenerateAODWaveformCache<TParam, TProfile> : Observa
     private string _aODWaveformResultFilePath = string.Empty;
 }
 
-public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile> : ViewModelBase
+public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TCache, TParam, TProfile> : ViewModelBase
+    where TCache : GenerateAODWaveformCache<TParam, TProfile>, new()
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
 {
-    protected readonly ILogger<AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>> Logger;
+    protected readonly ILogger<AbstractGenerateAODWaveformWindowViewModel<TCache, TParam, TProfile>> Logger;
     protected readonly ICacheProvider CacheProvider;
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
 
     [ObservableProperty]
-    private GenerateAODWaveformCache<TParam, TProfile> _cache = new();
+    private TCache _cache = new();
 
     public abstract string Name { get; }
 
@@ -49,14 +50,14 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TParam,
 
     protected AbstractGenerateAODWaveformWindowViewModel()
     {
-        Logger = (ILogger<AbstractGenerateAODWaveformWindowViewModel<TParam, TProfile>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
+        Logger = (ILogger<AbstractGenerateAODWaveformWindowViewModel<TCache, TParam, TProfile>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
     }
 
     [RelayCommand]
-    private void Loaded() => Cache = CacheProvider.GetOrDefault<GenerateAODWaveformCache<TParam, TProfile>>();
+    private void Loaded() => Cache = CacheProvider.GetOrDefault<TCache>();
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task LoadedElectrodeOffsetResultAsync(CancellationToken cancellationToken) => await InvokeAsync(() => LoadedElectrodeOffsetResult(cancellationToken), "Load AOD Waveform Electrode Offset");

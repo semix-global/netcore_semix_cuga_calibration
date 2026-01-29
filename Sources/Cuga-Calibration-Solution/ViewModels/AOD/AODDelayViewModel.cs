@@ -10,6 +10,7 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -29,6 +30,8 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.AOD;
 
 [IOCAppService(ServiceType = typeof(AODDelayViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(AODDelayDTO), true)]
+[RecipeCache(typeof(AODDelayCache))]
 public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 {
     #region 属性

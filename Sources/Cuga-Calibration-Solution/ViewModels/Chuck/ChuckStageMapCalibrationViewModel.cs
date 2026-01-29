@@ -25,11 +25,13 @@ using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 
 using Core.Models.Models.Laser.XYAstigmatism;
+using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -49,6 +51,8 @@ using Net.Utilities.WPF.Enums;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckStageMapCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(ChuckStageMapDto))]
+[RecipeCache(typeof(ChuckStageMapCache))]
 public sealed partial class ChuckStageMapCalibrationViewModel(
     ApplicationCookie applicationCookie,
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
@@ -218,12 +222,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         }
 
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserXYAstigmatismCalibrationItemDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -1449,9 +1447,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 var plotDicGroup = (from kvp in plotDic
-                                    group kvp.Value by kvp.Key.RepeatIndex
+                    group kvp.Value by kvp.Key.RepeatIndex
                     into g
-                                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
                 if (plotDicGroup.Count == 0)
                     continue;
 

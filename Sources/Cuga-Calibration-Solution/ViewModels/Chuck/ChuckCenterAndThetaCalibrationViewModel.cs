@@ -13,6 +13,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,8 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckCenterAndThetaCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(ChuckCenterAndThetaItemDto))]
+[RecipeCache(typeof(ChuckCenterAndThetaCache))]
 public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnvironment hostEnvironment) : CalibrationViewModelBase
 {
     #region 属性

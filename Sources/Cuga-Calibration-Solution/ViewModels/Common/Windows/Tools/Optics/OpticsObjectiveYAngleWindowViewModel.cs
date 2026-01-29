@@ -28,6 +28,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Utilities.SourceGenerators.Attributes;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
@@ -173,6 +174,7 @@ public sealed partial class OpticsObjectiveYAngleResult : ObservableCacheBase
 }
 
 [IOCAppService(ServiceType = typeof(OpticsObjectiveYAngleWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(OpticsObjectiveYAngleCache))]
 public sealed partial class OpticsObjectiveYAngleWindowViewModel(
     ApplicationCookie applicationCookie,
     ICalibrationAlgorithmService calibrationAlgorithmService,

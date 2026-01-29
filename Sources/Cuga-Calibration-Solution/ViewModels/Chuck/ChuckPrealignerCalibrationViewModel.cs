@@ -13,6 +13,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
@@ -28,6 +29,8 @@ using Net.Utilities.WPF.Helper;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckPrealignerCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(ChuckPrealignerDTO))]
+[RecipeCache(typeof(ChuckPrealignerCache))]
 public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewModel efemWindowViewModel) : CalibrationViewModelBase
 {
     #region 属性

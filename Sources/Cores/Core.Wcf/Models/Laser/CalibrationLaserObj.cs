@@ -59,11 +59,6 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = Array.Empty<CalibrationLaserLineOrientationOffsetItem>();
 
     /// <summary>
-    /// 暗场AOD散光校准对象列表
-    /// </summary>
-    public CalibrationLaserXYAstigmatismItem[] CalibrationLaserXYAstigmatismItemList { get; set; } = Array.Empty<CalibrationLaserXYAstigmatismItem>();
-
-    /// <summary>
     /// 暗场DOE角度校准对象
     /// </summary>
     public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
@@ -396,20 +391,6 @@ public sealed class CalibrationLaserLineOrientationOffsetItem : CalibrationBase
 public sealed class CalibrationLaserDOEAngle : CalibrationBase
 {
     public double DOEAngle { get; set; }
-}
-
-/// <summary>
-/// 暗场散光校准
-/// </summary>
-[Serializable]
-public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
-{
-    /// <summary>
-    /// Mag类型
-    /// </summary>
-    public CgMagTypeEnum CgMagTypeEnum { get; set; }
-
-    public CalibrationChirpAODWaveformResult[] ChirpAODWaveformResultList { get; set; }
 }
 
 /// <summary>

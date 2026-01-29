@@ -17,12 +17,14 @@ using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.XYAstigmatism;
+using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules;
@@ -39,8 +41,9 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserDOEAngleCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserDOEAngleCalibrationViewModel(
-    CalibrationSetting calibrationSetting) : CalibrationViewModelBase
+[DefaultCache(typeof(LaserDOEAngleDto))]
+[RecipeCache(typeof(LaserDOEAngleCache))]
+public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -192,13 +195,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserXYAstigmatismCalibrationItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBYPixelSizeDTO>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPixelSizeItemDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -220,7 +217,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserDOEAngleCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserDOEAngleCache>();
         Calibration = CacheProvider.GetOrDefault<LaserDOEAngleDto>();
 
         CalibrationStatuses =
@@ -241,7 +238,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
 
         if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -781,7 +778,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(
         Calibration = dto.Clone();
 
         CacheProvider.Set(dto, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

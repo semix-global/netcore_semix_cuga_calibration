@@ -6,6 +6,10 @@ namespace CugaCalibration.Core.Services.Interfaces;
 public interface ICalibrationCacheProvider
 {
     bool TrySave(string? filePath = null);
+    
+    bool TryExport(string filePath);
+    
+    bool TryImport(string filePath);
 
     bool TrySet<T>(T dto, CancellationToken cancellationToken) where T : class, ICacheItem, new();
 

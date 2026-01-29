@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
@@ -21,6 +22,8 @@ using Net.Utilities.WPF.Enums;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserAutoFocusCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(LaserAutoFocusDto))]
+[RecipeCache(typeof(LaserAutoFocusCache))]
 public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -124,12 +127,12 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         MicroscopeCalChip = microscopeCalChip;
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserAutoFocusCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<LaserAutoFocusDto>();
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -1114,7 +1117,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         Calibration = dto.Clone();
 
         CacheProvider.Set(dto, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

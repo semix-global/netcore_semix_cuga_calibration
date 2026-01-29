@@ -35,6 +35,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Immutable;
 using System.IO;
+using Core.Utilities.SourceGenerators.Attributes;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
@@ -255,6 +256,7 @@ public sealed partial class DSWResultItem : ObservableCacheBase
 }
 
 [IOCAppService(ServiceType = typeof(CollectionFocusAlignOpticsFocusWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(CollectionFocusAlignOpticsFocusCache))]
 public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     IServiceProvider serviceProvider,
     StageViewModel stageViewModel,

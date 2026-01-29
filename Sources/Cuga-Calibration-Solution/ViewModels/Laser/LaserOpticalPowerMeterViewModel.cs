@@ -9,6 +9,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using HandyControl.Tools.Extension;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;
@@ -22,6 +23,8 @@ using System.Text;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserOpticalPowerMeterViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(LaserOpticalPowerMeterDTO), true)]
+[RecipeCache(typeof(LaserOpticalPowerMeterCache))]
 public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewModelBase
 {
     #region 属性

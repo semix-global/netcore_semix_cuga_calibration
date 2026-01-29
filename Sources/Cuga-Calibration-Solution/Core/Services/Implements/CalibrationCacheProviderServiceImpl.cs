@@ -23,6 +23,9 @@ using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
+using CommunityToolkit.Diagnostics;
+using Net.Utilities.Helpers.Extensions;
+using Newtonsoft.Json;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -91,11 +94,76 @@ public class CalibrationCacheProviderServiceImpl(
             }
 
             FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, filePath ?? $"Result_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.dat"));
+
             return true;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Save calibration result failed");
+            logger.LogError(ex, "Save result failed");
+            return false;
+        }
+    }
+
+    public bool TryExport(string filePath)
+    {
+        try
+        {
+            var exportData = new Dictionary<string, string>();
+            foreach (var cacheItem in CacheCollector.DefaultCaches)
+            {
+                var data = cacheItem.IsArray
+                    ? cacheProvider.GetOrDefaultArray(cacheItem.Type)
+                    : cacheProvider.GetOrDefault(cacheItem.Type);
+
+                exportData[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = JsonConvert.SerializeObject(data);
+            }
+
+            FileHelper.SerializeOperate(exportData, filePath);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Export cache failed");
+
+            return false;
+        }
+    }
+
+    public bool TryImport(string filePath)
+    {
+        try
+        {
+            var jsonContent = File.ReadAllText(filePath);
+
+            var importData = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent);
+            Guard.IsNotNull(importData);
+
+            foreach (var cacheItem in CacheCollector.DefaultCaches)
+            {
+                if (importData.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var json) == false) continue;
+
+                var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
+
+                var data = JsonConvert.DeserializeObject(json, targetType);
+                Guard.IsNotNull(data);
+
+                if (cacheItem.IsArray)
+                {
+                    cacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, CancellationToken.None);
+                }
+                else
+                {
+                    cacheProvider.Set(data, cacheItem.Type, CancellationToken.None);
+                }
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Import cache failed");
+
             return false;
         }
     }

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,8 @@ using Net.Utilities.WPF.Enums;
 namespace CugaCalibration.ViewModels.Ads;
 
 [IOCAppService(ServiceType = typeof(AdsPressureGainsCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(AdsPressureGainsDto))]
+[RecipeCache(typeof(AdsPressureGainsCache))]
 public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -61,10 +64,9 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsPressureGainsCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsPressureGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsPressureGainsDto>();
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -295,7 +297,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
         Calibration = dto.Clone();
         CacheProvider.Set(dto, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

@@ -24,11 +24,13 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Utilities.SourceGenerators.Attributes;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(ChirpAODWaveformTrainingWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+[DefaultCache(typeof(ChirpAODWaveformTrainingCache))]
 public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     CIBViewModel cibViewModel,
     LaserViewModel laserViewModel,
