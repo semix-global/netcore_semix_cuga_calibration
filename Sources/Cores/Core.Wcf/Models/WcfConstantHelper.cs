@@ -12,5 +12,7 @@ public static class WcfConstantHelper
 
     public const string LaserNodeCalibrationName = "Laser";
 
+    public const string AutoFocusNodeCalibrationName = "AutoFocus";
+
     #endregion 校准大项描述文本
 }

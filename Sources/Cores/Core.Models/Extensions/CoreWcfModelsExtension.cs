@@ -5,6 +5,7 @@ using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.AOD.Uniformity;
+using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -547,5 +548,19 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
+    #endregion
+
+    #region Auto Focus
+    public static bool IsOk(this GlobalFocusOffsetDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation) && t.IsOk);
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "Global Focus Offset is Empty";
+
+        return isOk;
+    }
     #endregion
 }

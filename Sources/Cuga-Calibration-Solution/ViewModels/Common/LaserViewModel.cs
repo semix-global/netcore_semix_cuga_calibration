@@ -9,6 +9,7 @@ using Core.Models.Helper;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.LineCentricity;
@@ -40,7 +41,8 @@ public sealed class LaserViewModel(
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
-    ICacheProvider cacheProvider) : ViewModelBase
+    ICacheProvider cacheProvider,
+    ApplicationCookie applicationCookie) : ViewModelBase
 {
     #region 服务
 
@@ -269,7 +271,7 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(
+    public (double Ecs, double Motor) RuntimeAfCalibration(
         CIBConfiguration cibConfiguration,
         Point position,
         LaserLightInformation laserLightInformation,
@@ -290,10 +292,10 @@ public sealed class LaserViewModel(
         var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
         Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, applicationCookie.OILowProductivityInformation, pmtId, lightInformation?.Coefficient, point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
+        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.Motor);
         using var darkFieldImageDto = GetDarkFieldLineScanImage(
             calChipSiteModelEnum,
             position,
@@ -320,7 +322,7 @@ public sealed class LaserViewModel(
                     pmtId,
                     laserLightInformation,
                     ret.Anything.Ecs,
-                    ret.Anything.AfMotor,
+                    AfMotor = ret.Anything.Motor,
                     darkFieldImageDto.RawImageFilePath,
                     HtmlTab = new HtmlTab(new
                     {
@@ -330,72 +332,7 @@ public sealed class LaserViewModel(
             resultImageFilePath = rtfcResultImagePath;
         }
 
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(
-        CIBConfiguration cibConfiguration,
-        CIBInformation cibInformation,
-        Point position,
-        LaserLightInformation laserLightInformation,
-        ProductivityInformation productivityInformation,
-        out string resultImageFilePath,
-        bool isAppliedDefaultRtfcParam = true,
-        int pmtId = CalibrationConstantsHelper.MainPmtId,
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
-        string? saveImageFileDirectory = null,
-        Guid? logGuid = null,
-        string? logName = null
-    )
-    {
-        resultImageFilePath = string.Empty;
-        var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
-        Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
-
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        var rtfcResult = ret.Anything;
-        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
-        using var darkFieldImageDto = GetDarkFieldLineScanImage(
-            opticsIlluminationModeEnum,
-            productivityInformation,
-            calChipSiteModelEnum,
-            stageCoordinateSystemEnum,
-            position,
-            (false, lightInformation),
-            false,
-            cibInformation,
-            cibConfiguration,
-            800); // 模板匹配只能通道3(1, 2特征不明显)
-
-        if (saveImageFileDirectory is not null)
-        {
-            var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
-            darkFieldImageDto.Image.Save(rtfcResultImagePath);
-
-            resultImageFilePath = rtfcResultImagePath;
-
-            if (logGuid is not null && logName is not null)
-                logger.LogHtmlInformation($"{logName} RTFC", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                {
-                    point,
-                    calChipSiteModelEnum,
-                    pmtId,
-                    laserLightInformation,
-                    ret.Anything.Ecs,
-                    ret.Anything.AfMotor,
-                    darkFieldImageDto.RawImageFilePath,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        RTFCResultImage = new HtmlImage(rtfcResultImagePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
-                    })
-                }), logGuid.Value.LoggingHtml());
-        }
-
-        return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess ? (ret.Anything.Ecs, ret.Anything.Motor) : throw new CugaException(ret.ErrorMsg);
     }
 
     [Obsolete]
@@ -456,7 +393,7 @@ public sealed class LaserViewModel(
     public double ReadDOECurrentAngle()
     {
         var ret = calibrationLaserService.ReadDOECurrentAngle();
-        return ret.IsSuccess && ret.Anything != 0 ? ret.Anything : throw new CugaException(ret.ErrorMsg + $"DOE pos is {ret.Anything}");
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public void SetDOEAngle(double angle)
@@ -1387,7 +1324,7 @@ public sealed class LaserViewModel(
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
-                        PmtId = darkFieldImageDto.PMTId,
+                        darkFieldImageDto.PMTId,
                         darkFieldImageDto.ChannelId,
                         darkFieldImageDto.Width,
                         XWidthPixel = xWidthPixel,
@@ -1547,7 +1484,7 @@ public sealed class LaserViewModel(
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
-                        PmtId = darkFieldImageDto.PMTId,
+                        darkFieldImageDto.PMTId,
                         darkFieldImageDto.ChannelId,
                         darkFieldImageDto.Width,
                         XWidthPixel = xWidthPixel,

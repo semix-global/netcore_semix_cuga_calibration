@@ -73,6 +73,12 @@ public sealed class CalibrationObj
     /// </summary>
     [Description(WcfConstantHelper.LaserNodeCalibrationName)]
     public CalibrationLaserObj CalibrationLaserObj { get; set; } = new CalibrationLaserObj();
+
+    /// <summary>
+    /// 暗场自动聚焦校准对象
+    /// </summary>
+    [Description(WcfConstantHelper.AutoFocusNodeCalibrationName)]
+    public CalibrationAutoFocusObj CalibrationAutoFocusObj { get; set; } = new CalibrationAutoFocusObj();
 }
 ```
 
@@ -1600,3 +1606,64 @@ public sealed class CalibrationOpticsINC : CalibrationBase
 }
 ```
 
+# 5. 自动聚焦: `CalibrationAutoFocusObj`
+
+---
+
+```csharp
+/// <summary>
+/// AutoFocus校准对象
+/// </summary>
+[Serializable]
+public sealed class CalibrationAutoFocusObj
+{
+    /// <summary>
+    /// GFO校准对象列表
+    /// </summary>
+    public CalibrationGlobalFocusOffset[] CalibrationGlobalFocusOffsets { get; set; } = Array.Empty<CalibrationGlobalFocusOffset>();
+}
+```
+
+## 1.1. 暗场焦点位置校准: `CalibrationGlobalFocusOffset`
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
+> 
+> 个数： OI 3 * 3 = 9 NI 2 * 1 = 2
+
+```csharp
+/// <summary>
+/// 暗场CalChip DSW焦点位置校准对象
+/// </summary>
+[Serializable]
+public sealed class CalibrationGlobalFocusOffset : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**
+    /// </summary>
+    public bool IsAFServo { get; set; }
+
+    /// <summary>
+    /// 焦点ECS, **Cuga内部使用**
+    /// </summary>
+    public double ECSValue { get; set; }
+
+    /// <summary>
+    /// 电机值, **Cuga内部使用**
+    /// </summary>
+     public double MotorValue { get; set; }
+}
+```
