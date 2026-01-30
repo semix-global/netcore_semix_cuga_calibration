@@ -190,9 +190,10 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             foreach (var (gainIndex, gain) in gains.Index())
             {
                 cibmmdGains[gainIndex] = new CIBMMDGainRelationshipDTO()
-                    .AdaptIn(cgDcSenseRelationalModel)
+                    .WithCIBInformation(cibInformation)
                     .WithGain(gain)
-                    .WithSenseU14Bit(Convert.ToInt32(cgDcSenseRelationalModel.AvgSense[gainIndex]));
+                    .WithSenseU14Bit(Convert.ToInt32(cgDcSenseRelationalModel.AvgSense[gainIndex].sense))
+                    .WithGainS16Bit(cgDcSenseRelationalModel.AvgSense[gainIndex].dc);
             }
 
             results[cibInformationIndex] = cibmmdGains;

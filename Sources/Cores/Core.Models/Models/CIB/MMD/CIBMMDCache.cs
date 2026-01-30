@@ -230,12 +230,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
         private CIBInformation _cIBInformation = CIBInformation.Default;
 
         [ObservableProperty]
-        private bool _isEnableMinLogGain;
-
-        [ObservableProperty]
-        private double _minLogGain;
-
-        [ObservableProperty]
         private double _filterMinGain;
 
         [ObservableProperty]

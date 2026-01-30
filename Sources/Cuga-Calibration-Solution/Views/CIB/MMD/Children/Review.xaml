@@ -92,8 +92,6 @@
                                                                         IsReadOnly="True" />
                                                     <DataGridTextColumn Header="Filter Min Gain(V)" Binding="{Binding FilterMinGain, StringFormat='0.######'}" />
                                                     <DataGridTextColumn Header="Power Rate" Binding="{Binding PowerRate, StringFormat='0.######'}" />
-                                                    <DataGridCheckBoxColumn Header="Is Enable Min LogGain" Binding="{Binding IsEnableMinLogGain}" />
-                                                    <DataGridTextColumn Header="Min LogGain" Binding="{Binding MinLogGain, StringFormat='0.######'}" />
                                                 </DataGrid.Columns>
                                             </DataGrid>
                                         </Border>
@@ -241,7 +239,7 @@
                                                    Placement="Right"
                                                    AllowsTransparency="True"
                                                    PopupAnimation="Slide"
-                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonReviewGainRelationships, Mode=TwoWay}">
                                                 <DataGrid hc:DataGridAttach.ShowRowNumber="True"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="All"

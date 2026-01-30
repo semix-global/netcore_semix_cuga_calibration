@@ -10,9 +10,6 @@ using Cuga.Data.DataStruct.PMT;
 namespace Core.Models.Models.Common.DarkField;
 
 public sealed partial class CIBMMDGainRelationshipDTO : ObservableCacheBase, ICloneable<CIBMMDGainRelationshipDTO>
-#if NETFRAMEWORK
-    , IAdaptIn<CgDcSenseRelationalModel, CIBMMDGainRelationshipDTO>
-#endif
 {
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
@@ -67,15 +64,4 @@ public sealed partial class CIBMMDGainRelationshipDTO : ObservableCacheBase, ICl
 
         return this;
     }
-
-#if NETFRAMEWORK
-
-    public CIBMMDGainRelationshipDTO AdaptIn(CgDcSenseRelationalModel obj)
-    {
-        CIBInformation = CIBInformation.Default.Clone().AdaptIn((obj.PmtId, obj.Channel, true));
-
-        return this;
-    }
-
-#endif
 }

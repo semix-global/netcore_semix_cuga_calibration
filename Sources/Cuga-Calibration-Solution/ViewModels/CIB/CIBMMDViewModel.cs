@@ -18,7 +18,6 @@ using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MiniExcelLibs;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
@@ -38,6 +37,9 @@ using Generate = MathNet.Numerics.Generate;
 
 namespace CugaCalibration.ViewModels.CIB;
 
+/// <summary>
+/// Mixed Mode Detection
+/// </summary>
 [IOCAppService(ServiceType = typeof(CIBMMDViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 {
@@ -779,11 +781,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             var mmdConfiguration = Cache.MMDConfigurations.Single(t => t.CIBInformation == item.CIBInformation);
 
-            foreach (var itemItem in item.Items)
-            {
-                itemItem.Items = itemItem.Items.Where(t => t.Gain >= mmdConfiguration.FilterMinGain).ToArray();
-            }
-
             item.GainRSquared = 0d;
             item.GainResidual = 0d;
             item.GainPoints = [];
@@ -794,14 +791,25 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             item.LogGainDx = 0d;
             item.LogGainRSquared = 0d;
             item.FitLogGainPoints = [];
-            item.ResultLogGainPoints = [];
             item.LogGainMul128U12BitPoints = [];
             item.GainS16BitPoints = [];
 
-            var gains = (IReadOnlyList<double>)[.. item.Items[0].Items.Select(t => t.Gain)];
+            var point3DList = (
+                    from itemItem in item.Items
+                    from itemItemData in itemItem.Items.Where(t => t.Gain >= mmdConfiguration.FilterMinGain)
+                    where double.IsNaN(itemItemData.PMTValue) == false
+                    select new Point3D(itemItemData.Gain, itemItem.MeasurePower, itemItemData.PMTValue))
+                .ToList();
+
+            htmlList.Add(new HtmlBullet(new
+            {
+                Map = new HtmlPlot3DChart(point3DList, "Map(X: Gain(V) - Y: mW - Z: PMT Value)", HtmlPlot3DType.Bar3D)
+            }));
+
+            var gains = item.Items[0].Items.Where(t => t.Gain >= mmdConfiguration.FilterMinGain).Select(t => t.Gain).ToArray();
 
             var coefficientCount = item.Items.Count;
-            var gainCount = gains.Count;
+            var gainCount = gains.Length;
 
             // Log(Light) + Log(Gain) = Log(Current)
             // A * X = B (最小二乘法)
@@ -825,14 +833,14 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(item.Items.Select(t => t.MeasurePower));
-            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log(t * mmdConfiguration.PowerRate / 0.34 * 1000_000, 2));
+            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log(t * mmdConfiguration.PowerRate /* mW */ * 1000_000 / 0.34 /* 266nm激光当前采样下的单光子功率nW */, 2));
 
             var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
             for (var row = 0; row < gainCount; row++)
             {
                 for (var col = 0; col < coefficientCount; col++)
                 {
-                    currentMatrix[row, col] = item.Items[col].Items[row].PMTValue;
+                    currentMatrix[row, col] = item.Items[col].Items.Where(t => t.Gain >= mmdConfiguration.FilterMinGain).ToArray()[row].PMTValue;
                 }
             }
 
@@ -903,8 +911,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             item.LogGainDx = dx;
             item.LogGainRSquared = rSquared;
             item.FitLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
-            var distance = mmdConfiguration.IsEnableMinLogGain ? Math.Abs(item.FitLogGainPoints.Min(t => t.Y) - mmdConfiguration.MinLogGain) : 0d;
-            item.ResultLogGainPoints = [.. item.OriginLogGainPoints.Index().Select(t => new Point(t.Item.X, item.FitLogGainPoints[t.Index].Y - distance))];
 
             htmlList.Add(new HtmlBullet(new
             {
@@ -915,7 +921,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 gainResidual
             }));
 
-            isSuccess = item.ResultLogGainPoints.All(t => t.Y is >= 0 and <= 14) && item.ResultLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain 不能超过 14, 且严格递增
+            isSuccess = item.FitLogGainPoints.All(t => t.Y is >= 0 and <= 14) && item.FitLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain [0, 14], 且严格递增
             if (isSuccess == false)
             {
                 ThrowHelper.ThrowArgumentException("LogGain out of range[0, 14]", nameof(item));
@@ -923,7 +929,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return;
             }
 
-            var results = item.ResultLogGainPoints
+            var results = item.FitLogGainPoints
                 .Index()
                 .Select(t => (
                     Gain: t.Item.X,

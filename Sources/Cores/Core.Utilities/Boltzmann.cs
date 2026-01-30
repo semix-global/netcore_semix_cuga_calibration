@@ -1,8 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.Statistics;
-using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Modules;
 
 namespace Core.Utilities;
 
@@ -14,10 +13,10 @@ public static class Boltzmann
     /// <summary>
     /// 计算 Boltzmann 函数值: y = A2 + (A1 - A2) / (1 + exp((x - x0) / dx))
     /// </summary>
-    /// <param name="a1">上渐近线</param>
-    /// <param name="a2">下渐近线</param>
-    /// <param name="x0">中心点（拐点）</param>
-    /// <param name="dx">斜率参数</param>
+    /// <param name="a1">x-> -∞, y -> A1</param>
+    /// <param name="a2">x-> +∞, y -> A2</param>
+    /// <param name="x0">中心点[拐点]</param>
+    /// <param name="dx">越小 → 分母变化越快 → 曲线越陡; 越大 → 变化慢 → 曲线越平</param>
     /// <param name="x">自变量</param>
     /// <returns>计算得到的 Boltzmann 函数值</returns>
     public static double BoltzmannFunction(double a1, double a2, double x0, double dx, double x) => a2 + (a1 - a2) / (1 + Math.Exp((x - x0) / dx));
@@ -27,10 +26,10 @@ public static class Boltzmann
     /// 已知 y，求 x：
     /// x = x0 + dx * ln( (A1 - A2) / (y - A2) - 1 )
     /// </summary>
-    /// <param name="a1">上渐近线</param>
-    /// <param name="a2">下渐近线</param>
-    /// <param name="x0">中心点（拐点）</param>
-    /// <param name="dx">斜率参数</param>
+    /// <param name="a1">x-> -∞, y -> A1</param>
+    /// <param name="a2">x-> +∞, y -> A2</param>
+    /// <param name="x0">中心点[拐点]</param>
+    /// <param name="dx">越小 → 分母变化越快 → 曲线越陡; 越大 → 变化慢 → 曲线越平</param>
     /// <param name="y">函数值</param>
     /// <returns>使 BoltzmannFunction(a1, a2, x0, dx, x) = y 的 x</returns>
     /// <exception cref="ArgumentOutOfRangeException">
@@ -55,7 +54,7 @@ public static class Boltzmann
     /// <param name="x">自变量向量</param>
     /// <param name="y">因变量向量</param>
     /// <returns>
-    /// 包含以下内容的元组: A1 (上渐近线), A2 (下渐近线), X0 (中心点), Dx (斜率), RSquared (R²), YPredicted (预测的 Y 值向量)
+    /// 包含以下内容的元组: A1 (x-> -∞, y -> A1), A2 (x-> +∞, y -> A2), X0 (中心点[拐点]), Dx (越小 → 分母变化越快 → 曲线越陡; 越大 → 变化慢 → 曲线越平), RSquared (R²), YPredicted (预测的 Y 值向量)
     /// </returns>
     /// <exception cref="ArgumentException">当 x 和 y 长度不同时抛出</exception>
     public static (double A1, double A2, double X0, double Dx, double RSquared, Vector<double> YPredicted) BoltzmannFit(Vector<double> x, Vector<double> y)
@@ -63,8 +62,17 @@ public static class Boltzmann
         if (x.Count != y.Count) return ThrowHelper.ThrowArgumentException<(double A1, double A2, double X0, double Dx, double RSquared, Vector<double> YPredicted)>("Vectors x and y must have the same length.");
 
         // 1. 初始渐近线估计 (A1, A2)
-        var guessA1 = y.Maximum();
-        var guessA2 = y.Minimum();
+        double guessA1, guessA2;
+        if (PolynomialLeastSquares.Polynomial1Fit(x, y).Slope > 0) // 递增
+        {
+            guessA1 = y.Minimum();
+            guessA2 = y.Maximum();
+        }
+        else
+        {
+            guessA1 = y.Maximum();
+            guessA2 = y.Minimum();
+        }
 
         // 2. 线性化拟合以获得更准确的中心点 (X0) 和斜率 (Dx) 初始值
         // 公式推导:
@@ -73,45 +81,30 @@ public static class Boltzmann
         // => ln((A1 - A2) / (y - A2) - 1) = (1 / dx) * x - (x0 / dx)
         // 这是一个线性形式 Y' = m * x + c，其中 m = 1/dx, c = -x0/dx
 
-        var lx = new List<double>();
-        var lz = new List<double>();
+        var lineXList = new List<double>();
+        var lineYList = new List<double>();
 
         for (var i = 0; i < x.Count; i++)
         {
-            // 归一化判断，确保 y 在 (min, max) 之间且不贴边以保证 ln 的定义域
-            var normalizedY = (y[i] - guessA2) / (guessA1 - guessA2);
-            if (normalizedY > 0.01 && normalizedY < 0.99)
-            {
-                var ratio = (guessA1 - guessA2) / (y[i] - guessA2) - 1.0;
-                if (ratio > 0)
-                {
-                    lx.Add(x[i]);
-                    lz.Add(Math.Log(ratio));
-                }
-            }
+            var log = Math.Log((guessA1 - guessA2) / (y[i] - guessA2) - 1.0);
+            if (double.IsNaN(log) || double.IsInfinity(log)) continue;
+
+            lineXList.Add(x[i]);
+            lineYList.Add(log);
         }
 
-        double guessX0, guessDx;
-        if (lx.Count >= 2)
-        {
-            // 执行线性拟合 z = slope * x + intercept
-            var (intercept, slope) = Fit.Line(lx.ToArray(), lz.ToArray());
-            guessDx = 1.0 / slope;
-            guessX0 = -intercept * guessDx;
-        }
-        else
-        {
-            // 如果数据不足以线性化，退回到简单的启发式估计
-            guessX0 = x[(y - (guessA1 + guessA2) / 2d).AbsoluteMinimumIndex()];
-            guessDx = (guessA1 - guessA2) / 4.0; // 粗略估计
-        }
+        var (slope, intercept, rSquared1, yPredicted1) = PolynomialLeastSquares.Polynomial1Fit(
+            Vector<double>.Build.Dense([..lineXList]),
+            Vector<double>.Build.Dense([..lineYList])
+        );
 
-        if (Math.Abs(guessDx) < 0.001) guessDx = 0.5;
+        var guessDx = 1.0 / slope;
+        var guessX0 = -intercept * guessDx;
 
         // 3. 使用非线性最小二乘法进行最终拟合（优化所有 4 个参数 A1, A2, X0, Dx）
         var (a1Fit, a2Fit, x0Fit, dxFit) = Fit.Curve(
-            x.AsArray() ?? x.ToArray(),
-            y.AsArray() ?? y.ToArray(),
+            x.AsArray() ?? [..x],
+            y.AsArray() ?? [..y],
             BoltzmannFunction,
             guessA1,
             guessA2,
