@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
@@ -25,6 +24,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using MathNet.Numerics;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -117,14 +117,31 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingAsync(CancellationToken cancellationToken)
+    private async Task TrainingP3Async(CancellationToken cancellationToken) => await TrainingPAsync(3, Cache.StartP3Coefficient, Cache.StepP3Coefficient, Cache.StopP3Coefficient, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task TrainingP4Async(CancellationToken cancellationToken) => await TrainingPAsync(4, Cache.StartP4Coefficient, Cache.StepP4Coefficient, Cache.StopP4Coefficient, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task TrainingP5Async(CancellationToken cancellationToken) => await TrainingPAsync(5, Cache.StartP5Coefficient, Cache.StepP5Coefficient, Cache.StopP5Coefficient, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task TrainingP6Async(CancellationToken cancellationToken) => await TrainingPAsync(6, Cache.StartP6Coefficient, Cache.StepP6Coefficient, Cache.StopP6Coefficient, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task TrainingP7Async(CancellationToken cancellationToken) => await TrainingPAsync(7, Cache.StartP7Coefficient, Cache.StepP7Coefficient, Cache.StopP7Coefficient, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task TrainingP8Async(CancellationToken cancellationToken) => await TrainingPAsync(8, Cache.StartP8Coefficient, Cache.StepP8Coefficient, Cache.StopP8Coefficient, cancellationToken);
+
+    private async Task TrainingPAsync(int p, double start, double step, double stop, CancellationToken cancellationToken)
     {
         await Task.Run(async () =>
         {
             var htmlLogUniqueId = Guid.NewGuid();
 
             logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation("Training", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation($"Training P{p}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
             logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
@@ -134,29 +151,33 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                logger.LogHtmlInformation("Default", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
-                Cache.Item = await CatchImagesAsync(
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    htmlLogUniqueId,
-                    cancellationToken);
-
-                for (var times = 0; times < Cache.RetryTimes; times++)
+                foreach (var val in Generate.LinearRange(start, step, stop))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    logger.LogHtmlInformation($"Training: {times + 1}", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation($"P{p}: {val:0.######}", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
-                    await OptimizeCoefficientAsync(3);
-                    await OptimizeCoefficientAsync(4);
-                    await OptimizeCoefficientAsync(5);
-                    await OptimizeCoefficientAsync(6);
-                    await OptimizeCoefficientAsync(7);
-                    await OptimizeCoefficientAsync(8);
+                    var currentItem = await CatchImagesAsync(
+                        p == 3 ? val : Cache.P3Coefficient,
+                        p == 4 ? val : Cache.P4Coefficient,
+                        p == 5 ? val : Cache.P5Coefficient,
+                        p == 6 ? val : Cache.P6Coefficient,
+                        p == 7 ? val : Cache.P7Coefficient,
+                        p == 8 ? val : Cache.P8Coefficient,
+                        htmlLogUniqueId,
+                        cancellationToken);
+
+                    if (Cache.IsConfirmBestYStrehlRatioResult)
+                    {
+                        dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                        await _asyncAutoResetEvent.WaitAsync(cancellationToken);
+
+                        Cache.Item = Cache.SelectedItem;
+                    }
+                    else
+                    {
+                        if (currentItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y) Cache.Item = currentItem;
+                    }
                 }
 
                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -171,105 +192,29 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     ScatterPlotControl = new HtmlContainer([.. Cache.Item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 }), htmlLogUniqueId.LoggingHtml());
 
-                async Task OptimizeCoefficientAsync(int p)
-                {
-                    try
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        logger.LogHtmlInformation($"P{p}", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
-
-                        var currentPCoefficient = p switch
-                        {
-                            3 => Cache.Item.P3Coefficient,
-                            4 => Cache.Item.P4Coefficient,
-                            5 => Cache.Item.P5Coefficient,
-                            6 => Cache.Item.P6Coefficient,
-                            7 => Cache.Item.P7Coefficient,
-                            8 => Cache.Item.P8Coefficient,
-                            _ => ThrowHelper.ThrowArgumentException<double>(nameof(p))
-                        };
-
-                        var plusPCoefficient = currentPCoefficient + Cache.StepPCoefficient;
-                        var minusPCoefficient = currentPCoefficient - Cache.StepPCoefficient;
-
-                        logger.LogHtmlInformation($"+ {Cache.StepPCoefficient:0.######}", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
-                        var plusItem = await RunCatchImagesAsync(p, plusPCoefficient);
-
-                        if (Cache.IsConfirmBestYStrehlRatioResult)
-                        {
-                            dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                            await _asyncAutoResetEvent.WaitAsync(cancellationToken);
-
-                            Cache.Item = Cache.SelectedItem;
-                        }
-                        else
-                        {
-                            if (plusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y)
-                            {
-                                Cache.Item = plusItem;
-
-                                return;
-                            }
-                        }
-
-                        logger.LogHtmlInformation($"- {Cache.StepPCoefficient:0.######}", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
-                        var minusItem = await RunCatchImagesAsync(p, minusPCoefficient);
-
-                        if (Cache.IsConfirmBestYStrehlRatioResult)
-                        {
-                            dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                            await _asyncAutoResetEvent.WaitAsync(cancellationToken);
-
-                            Cache.Item = Cache.SelectedItem;
-                        }
-                        else
-                        {
-                            if (minusItem.BestYStrehlRatio.Y > Cache.Item.BestYStrehlRatio.Y)
-                            {
-                                Cache.Item = minusItem;
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        logger.LogHtmlInformation("[Best]", HtmlHeaderLevelEnum.Header6, new HtmlQuote(Cache.Item.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
-                    }
-                }
-
-                async Task<ChirpAODWaveformTrainingItem> RunCatchImagesAsync(int index, double val) => await CatchImagesAsync(
-                    index == 3 ? val : Cache.Item.P3Coefficient,
-                    index == 4 ? val : Cache.Item.P4Coefficient,
-                    index == 5 ? val : Cache.Item.P5Coefficient,
-                    index == 6 ? val : Cache.Item.P6Coefficient,
-                    index == 7 ? val : Cache.Item.P7Coefficient,
-                    index == 8 ? val : Cache.Item.P8Coefficient,
-                    htmlLogUniqueId,
-                    cancellationToken);
-
                 isSuccess = true;
 
-                dialogWindowProvider.ShowDialog("Training Success");
+                dialogWindowProvider.ShowDialog($"Training P{p} Success");
             }
             catch (Exception ex)
             {
                 if (ex is OperationCanceledException)
                 {
-                    dialogWindowProvider.ShowDialog($"{Name}: Training Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    dialogWindowProvider.ShowDialog($"{Name}: Training P{p} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                     return;
                 }
 
                 dialogWindowProvider.ShowDialog($"""
-                                                 {Name}: Training Failed
+                                                 {Name}: Training P{p} Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
             }
             finally
             {
-                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name.Replace(" ", string.Empty)}_{(isSuccess ? "OK" : "Failed")}"));
+                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name.Replace(" ", string.Empty)}_P{p}_{(isSuccess ? "OK" : "Failed")}"));
             }
         }, cancellationToken).ConfigureAwait(false);
     }
@@ -359,7 +304,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 ? calibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImage.Image)
                 : darkFieldImage.Image.Copy();
 
-            var(xStrehlRatioPoints, yStrehlRatioPoints, grayPoints) = calibrationAlgorithmService.GetXYStrehlRatios(image,out var strehlXSmoothPoints, out var strehlYSmoothPoints, out var graySmoothPoints);
+            var (xStrehlRatioPoints, yStrehlRatioPoints, grayPoints) = calibrationAlgorithmService.GetXYStrehlRatios(image, out var strehlXSmoothPoints, out var strehlYSmoothPoints, out var graySmoothPoints);
 
             item.XStrehlRatioPoints = [..xStrehlRatioPoints];
             item.YStrehlRatioPoints = [..yStrehlRatioPoints];
@@ -367,7 +312,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             item.XStrehlRatioFitPoints = [..strehlXSmoothPoints];
             item.YStrehlRatioFitPoints = [..strehlYSmoothPoints];
-            item.GrayFitPoints =  [..graySmoothPoints];
+            item.GrayFitPoints = [..graySmoothPoints];
 
             item.BestXStrehlRatio = item.XStrehlRatioFitPoints.Maxima(t => t.Y).First();
             item.BestYStrehlRatio = item.YStrehlRatioFitPoints.Maxima(t => t.Y).First();
@@ -398,7 +343,12 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     {
         try
         {
-            TrainingCancelCommand.Execute(null);
+            TrainingP3CancelCommand.Execute(null);
+            TrainingP4CancelCommand.Execute(null);
+            TrainingP5CancelCommand.Execute(null);
+            TrainingP6CancelCommand.Execute(null);
+            TrainingP7CancelCommand.Execute(null);
+            TrainingP8CancelCommand.Execute(null);
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
