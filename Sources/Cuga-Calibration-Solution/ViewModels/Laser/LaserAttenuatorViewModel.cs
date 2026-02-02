@@ -5,7 +5,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -81,25 +80,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDTO>(out var laserOpticalPowerMeters, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserOpticalPowerMeters = laserOpticalPowerMeters;
+        LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();
 
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];

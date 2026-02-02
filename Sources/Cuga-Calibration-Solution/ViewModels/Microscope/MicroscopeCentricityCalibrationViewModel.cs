@@ -5,7 +5,6 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -92,31 +91,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopeCalChip = microscopeCalChip;
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
         SynchronizationContextProvider.Send(() =>
         {
@@ -130,7 +105,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     .Select(info => new CalibrationItemStep { StepName = info.LensName })
             ]);
         });
-        MicroscopePixelSizeItems = microscopePixelSizeItems;
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 

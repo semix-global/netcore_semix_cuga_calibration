@@ -58,12 +58,6 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserBeamStabilizerCache>();
         Calibration = CacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>();
 

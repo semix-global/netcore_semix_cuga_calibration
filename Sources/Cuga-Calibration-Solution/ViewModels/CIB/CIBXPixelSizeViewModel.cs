@@ -5,16 +5,15 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using HalconDotNet;
-using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -120,19 +119,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopeCalChip = microscopeCalChip;
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];

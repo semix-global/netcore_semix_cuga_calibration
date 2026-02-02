@@ -5,7 +5,6 @@ using Core.Models.Extensions;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -101,25 +100,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopeCalChip = microscopeCalChip;
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
@@ -490,17 +471,6 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     }) && EnableDependedCalibrationItems(cancellationToken);
-
-    protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
-    {
-        if (CalibrationStatusService.EnableDependMicroscopePixelSizeCalibrations(false, cancellationToken, out var errorMsg) == false)
-        {
-            Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
-            return false;
-        }
-
-        return true;
-    }
 
     private void ClearCalibrationTemp()
     {

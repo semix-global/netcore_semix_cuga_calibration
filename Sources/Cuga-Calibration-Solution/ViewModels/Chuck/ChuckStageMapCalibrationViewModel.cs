@@ -5,12 +5,8 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.Alignment;
-using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Chuck.CenterAndTheta;
-using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
@@ -19,19 +15,15 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -145,111 +137,15 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        ChuckCenter = CalibrationStatusService.GetCalibration<ChuckCenterAndThetaItemDto>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        CIBXPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
 
-        MicroscopePixelSizeItems = microscopePixelSizeItems;
+        LaserPixelSizeItems = CalibrationStatusService.GetCalibrations<LaserPixelSizeItemDto>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeCentricityItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGantryDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGlobalScaleErrorDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterAndThetaItemDto>(out var chuckCenter, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        ChuckCenter = chuckCenter;
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckPrealignerDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBXPixelSizeDTO>(out var cibXPixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        CIBXPixelSizeItems = cibXPixelSizeItems;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBYPixelSizeDTO>(out var laserPixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserPixelSizeItems = laserPixelSizeItems;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserLineCentricityItemDto>(out var laserLineCentricityItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserLineCentricityItems = laserLineCentricityItems;
+        LaserLineCentricityItems = CalibrationStatusService.GetCalibrations<LaserLineCentricityItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckStageMapDto>();
@@ -552,7 +448,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         var laserLineCentricityItemDto = LaserLineCentricityItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
                                                                               && t.ProductivityInformation == Cache.ProductivityInformation);
-
 
         var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
             CalChipSiteModelEnum.ChuckModel,
@@ -1447,9 +1342,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 var plotDicGroup = (from kvp in plotDic
-                    group kvp.Value by kvp.Key.RepeatIndex
+                                    group kvp.Value by kvp.Key.RepeatIndex
                     into g
-                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
                 if (plotDicGroup.Count == 0)
                     continue;
 
@@ -1492,23 +1387,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         CacheProvider.Set(dto, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     }) && EnableDependedCalibrationItems(cancellationToken);
-
-    protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
-    {
-        if (CalibrationStatusService.EnableDependBrightStageMapCalibrations(false, cancellationToken, out var errorMsg) == false)
-        {
-            Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
-            return false;
-        }
-
-        if (CalibrationStatusService.EnableDependDarkStageMapCalibrations(false, cancellationToken, out errorMsg) == false)
-        {
-            Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
-            return false;
-        }
-
-        return true;
-    }
 
     #endregion 校准
 

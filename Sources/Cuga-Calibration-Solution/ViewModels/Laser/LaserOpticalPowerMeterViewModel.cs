@@ -3,10 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models;
-using Core.Models.Models.Chuck.Gantry;
-using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using HandyControl.Tools.Extension;
 using Core.Utilities.SourceGenerators.Attributes;
@@ -81,30 +78,6 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGantryDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGlobalScaleErrorDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
 
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];

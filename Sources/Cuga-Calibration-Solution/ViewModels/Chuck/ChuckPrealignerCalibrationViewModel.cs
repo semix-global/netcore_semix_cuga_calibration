@@ -4,18 +4,13 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
-using Core.Models.Models.Chuck.Gantry;
-using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Local.NoSQL.DB.Providers.Extensions;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -90,49 +85,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopePixelSizeItems = microscopePixelSizeItems;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeCentricityItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGantryDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGlobalScaleErrorDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterAndThetaItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckPrealignerCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckPrealignerDTO>();
@@ -195,6 +148,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location);
                 return true;
+
             case 1:
                 Cache.LowSite2.Location = Cache.LowSite1.Location + (Vector)new Point(Cache.DiePitchWidth * Cache.ReticleDieCountX, 0);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location);
@@ -742,7 +696,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         item.NewEfemLoadWaferStagePosition = offsetPositionCalibrationResult;
     }
 
-
     private bool Save(ChuckPrealignerDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(dto);
@@ -753,17 +706,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         CacheProvider.Set(dto, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     }) && EnableDependedCalibrationItems(cancellationToken);
-
-    protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
-    {
-        if (CalibrationStatusService.EnableDependPrealignerCalibrations(false, cancellationToken, out var errorMsg) == false)
-        {
-            Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
-            return false;
-        }
-
-        return true;
-    }
 
     #endregion 校准
 }

@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -144,12 +143,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsYGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsYGainsItemDto>();
@@ -691,7 +684,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                             {
                                                 y4Max = resultValue.y1;
                                                 y4Min = Cache.FindMinY;
-                                            } //y5Max = resultValue.y1 - 2; y5Min = Cache.FindMinY; 
+                                            } //y5Max = resultValue.y1 - 2; y5Min = Cache.FindMinY;
                                             else
                                             {
                                                 y4Min = resultValue.y1;
@@ -711,7 +704,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                             {
                                                 y4Max = resultValue.y1;
                                                 y4Min = Cache.FindMinY;
-                                            } //y5Max = resultValue.y1 - 2; 
+                                            } //y5Max = resultValue.y1 - 2;
                                         }
                                     }
                                     else
@@ -720,7 +713,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         if (resultValue.z1IsPositive == z4IsPositive)
                                         {
                                             y4Min = resultValue.y1;
-                                        } //y5Min = resultValue.y1 + 2; 
+                                        } //y5Min = resultValue.y1 + 2;
                                         else
                                         {
                                             y4Max = resultValue.y1;
@@ -1042,7 +1035,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
                     var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
                     var (p6, p7, p8, _, yPredicted3) = PolynomialLeastSquares.Polynomial2Fit(X, Y3);
-
 
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
@@ -1480,7 +1472,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(Cache.GetStartPosition());
                 transBuffer = await task.ConfigureAwait(false);
             }
-
 
             if (repeatCount > 5) return (false, transBuffer);
             if (transBuffer.Count <= 0) return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);

@@ -6,20 +6,15 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.Alignment;
-using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -147,73 +142,13 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        ChuckCenter = CalibrationStatusService.GetCalibration<ChuckCenterAndThetaItemDto>();
 
-        MicroscopeCalChip = microscopeCalChip;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopePixelSizeItems = microscopePixelSizeItems;
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterAndThetaItemDto>(out var chuckCenter, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        ChuckCenter = chuckCenter;
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPixelSizeItemDto>(out var laserPixelSizes, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserPixelSizes = laserPixelSizes;
+        LaserPixelSizes = CalibrationStatusService.GetCalibrations<LaserPixelSizeItemDto>();
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
@@ -954,17 +889,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     });
-
-    protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
-    {
-        if (CalibrationStatusService.EnableDependLaserLineCentricityCalibrations(false, cancellationToken, out var errorMsg) == false)
-        {
-            Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
-            return false;
-        }
-
-        return true;
-    }
 
     private void ClearCalibrationTemp()
     {

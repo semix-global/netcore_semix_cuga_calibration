@@ -5,7 +5,6 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Focus;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
@@ -107,25 +106,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopeCalChip = microscopeCalChip;
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<LaserAutoFocusDto>();
@@ -915,7 +896,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
         {
             Guard.IsNotNull(ResultLaserAutoFocusDto);
             Guard.IsNotNull(Cache);
-
 
             return true;
         }).ConfigureAwait(false);

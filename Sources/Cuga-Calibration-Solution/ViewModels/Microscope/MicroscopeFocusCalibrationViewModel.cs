@@ -93,12 +93,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
 

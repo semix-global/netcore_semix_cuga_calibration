@@ -1,5 +1,4 @@
 using Core.Models.Helper;
-using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using Core.Utilities;
@@ -166,77 +165,6 @@ public class CalibrationCacheProviderServiceImpl(
 
             return false;
         }
-    }
-
-    // todo:delete
-    public bool TrySet<T>(T dto, CancellationToken cancellationToken) where T : class, ICacheItem, new()
-    {
-        return InvokeSave(update =>
-        {
-            update(dto);
-            cacheProvider.Set(dto, cancellationToken);
-            return true;
-        }, typeof(T).Name);
-    }
-
-    // todo:delete
-    public bool TrySetArray<T>(T[] dtoList, CancellationToken cancellationToken) where T : class, ICacheItem, new()
-    {
-        return InvokeSave(update =>
-        {
-            foreach (var dto in dtoList) update(dto);
-
-            cacheProvider.SetArray(dtoList, cancellationToken);
-            return true;
-        }, typeof(T).Name);
-    }
-
-    public bool TrySetDisable<T>(CancellationToken cancellationToken) where T : CalibrationDtoBase, new()
-    {
-        var calibrationDtoBase = cacheProvider.GetOrDefault<T>();
-
-        calibrationDtoBase.IsCalibrated = calibrationDtoBase.IsVerified = false;
-
-        return TrySet(calibrationDtoBase, cancellationToken);
-    }
-
-    public bool TrySetArrayDisable<T>(CancellationToken cancellationToken) where T : CalibrationDtoBase, new()
-    {
-        var caches = cacheProvider.GetOrDefaultArray<T>();
-
-        foreach (var calibrationDtoBase in caches)
-        {
-            calibrationDtoBase.IsCalibrated = calibrationDtoBase.IsVerified = false;
-        }
-
-        return TrySetArray(caches, cancellationToken);
-    }
-
-    public bool TrySetIsRequiredSelfCheck<T>(bool isRequiredSelfCheck, CancellationToken cancellationToken) where T : CalibrationDtoBase, new()
-    {
-        var calibrationDtoBase = cacheProvider.GetOrDefault<T>();
-
-        if (calibrationDtoBase.IsRequiredSelfCheck == isRequiredSelfCheck) // 避免重复写入
-            return true;
-
-        calibrationDtoBase.IsRequiredSelfCheck = isRequiredSelfCheck;
-
-        return TrySet(calibrationDtoBase, cancellationToken);
-    }
-
-    public bool TrySetArrayIsRequiredSelfCheck<T>(bool isRequiredSelfCheck, CancellationToken cancellationToken) where T : CalibrationDtoBase, new()
-    {
-        var caches = cacheProvider.GetOrDefaultArray<T>();
-
-        if (caches.All(t => t.IsRequiredSelfCheck == isRequiredSelfCheck)) // 避免重复写入
-            return true;
-
-        foreach (var calibrationDtoBase in caches)
-        {
-            calibrationDtoBase.IsRequiredSelfCheck = isRequiredSelfCheck;
-        }
-
-        return TrySetArray(caches, cancellationToken);
     }
 
     public bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name)

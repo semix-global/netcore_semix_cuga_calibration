@@ -4,7 +4,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Common.Status;
 using Core.Utilities.SourceGenerators.Attributes;
@@ -148,12 +147,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsXGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsXGainsItemDto>();
