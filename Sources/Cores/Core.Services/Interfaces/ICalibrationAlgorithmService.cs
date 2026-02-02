@@ -44,21 +44,24 @@ public interface ICalibrationAlgorithmService
     /// <returns>MTF</returns>
     (double MtfX, double MtfY) ModulationTransferFunction(HImage image, Rect roiRect);
 
-    /// <summary>
-    /// 获得暗场图片光斑大小
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="roiRect">ROI</param>
-    /// <returns>光斑大小</returns>
-    (double Width, double Height) GetLightQuality(HImage image, Rect roiRect);
-
-    (Point Position, double XMTF, double YMTF, double GrayValue)[] MultiModulationTransferFunction(HImage image);
-
-    (Point Position, double XStrehlRatio, double YStrehlRatio, double GrayValue)[] GetXYStrehlRatio(HImage image);
-
-    (Point[] XStrehlRatioPoints, Point[] YStrehlRatioPoints, Point[] GrayPoints) GetXYStrehlRatios(HImage image, out Point[] strehlXSmoothPoints, out Point[] strehlYSmoothPoints, out Point[] graySmoothPoints);
-
-    Point[] SmoothStrehlFunction(double[] xPositions, double[] strehlRatios);
+    (
+        Point[] XStrehlRatioPoints,
+        Point[] YStrehlRatioPoints,
+        Point[] GrayPoints,
+        Point BestXStrehlRatioPoint,
+        Point[][] BestXStrehlRatioXPSFPoints,
+        Point[][] BestXStrehlRatioYPSFPoints,
+        Point BestYStrehlRatioPoint,
+        Point[][] BestYStrehlRatioXPSFPoints,
+        Point[][] BestYStrehlRatioYPSFPoints) GetXYStrehlRatios(
+            HImage image,
+            out Point[] xStrehlRatioFitPoints,
+            out Point[] yStrehlRatioFitPoints,
+            out Point[] grayFitPoints,
+            out Point[] bestXStrehlRatioXPSFFitPoints,
+            out Point[] bestXStrehlRatioYPSFFitPoints,
+            out Point[] bestYStrehlRatioXPSFFitPoints,
+            out Point[] bestYStrehlRatioYPSFFitPoints);
 
     #endregion 清晰度
 

@@ -545,7 +545,7 @@
                             <Border Margin="0,5" Style="{StaticResource BorderRegion}">
                                 <TextBlock>
                                     <Run Text="[Best] Y Strehl: " />
-                                    <Run Text="{Binding Cache.Item.BestYStrehlRatio, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                                    <Run Text="{Binding Cache.Item.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
                                     <Run Text=", " />
                                     <Run Text="P3: " />
                                     <Run Text="{Binding Cache.Item.P3Coefficient, StringFormat='0.######'}" />
@@ -597,7 +597,7 @@
                                 </ListView.ItemContainerStyle>
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestYStrehlRatio, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                                        <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
                                         <GridViewColumn Header="P3 Coefficient" DisplayMemberBinding="{Binding P3Coefficient, StringFormat='0.######'}" />
                                         <GridViewColumn Header="P4 Coefficient" DisplayMemberBinding="{Binding P4Coefficient, StringFormat='0.######'}" />
                                         <GridViewColumn Header="P5 Coefficient" DisplayMemberBinding="{Binding P5Coefficient, StringFormat='0.######'}" />
@@ -649,9 +649,23 @@
                                 </ListView.View>
                             </ListView>
                             <GridSplitter Grid.Row="2" Height="5" />
-                            <Border Grid.Row="3" Style="{StaticResource BorderRegion}">
-                                <ContentControl Content="{Binding Cache.SelectedItem.ScatterPlotControl, Mode=OneWay}" />
-                            </Border>
+                            <TabControl Grid.Row="3">
+                                <TabItem Header="Y Strehl Ratio">
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <ContentControl Content="{Binding Cache.SelectedItem.YStrehlRatioScatterPlotControl, Mode=OneWay}" />
+                                    </Border>
+                                </TabItem>
+                                <TabItem Header="X Strehl Ratio">
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <ContentControl Content="{Binding Cache.SelectedItem.XStrehlRatioScatterPlotControl, Mode=OneWay}" />
+                                    </Border>
+                                </TabItem>
+                                <TabItem Header="Gray">
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <ContentControl Content="{Binding Cache.SelectedItem.GrayScatterPlotControl, Mode=OneWay}" />
+                                    </Border>
+                                </TabItem>
+                            </TabControl>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Best Item">
@@ -664,7 +678,7 @@
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
                                     <TextBlock TextWrapping="Wrap">
-                                        <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
+                                        <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding Cache.Item.RawImageFilePath}">
                                             <Run Text="{Binding Cache.Item.RawImageFilePath}" />
                                         </Hyperlink>
                                     </TextBlock>
@@ -723,9 +737,23 @@
                                 </hc:UniformSpacingPanel>
                             </Border>
                             <GridSplitter Grid.Row="1" Height="5" />
-                            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                                <ContentControl Content="{Binding Cache.Item.ScatterPlotControl}" />
-                            </Border>
+                            <TabControl Grid.Row="2">
+                                <TabItem Header="Y Strehl Ratio">
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <ContentControl Content="{Binding Cache.SelectedItem.YStrehlRatioScatterPlotControl, Mode=OneWay}" />
+                                    </Border>
+                                </TabItem>
+                                <TabItem Header="X Strehl Ratio">
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <ContentControl Content="{Binding Cache.SelectedItem.XStrehlRatioScatterPlotControl, Mode=OneWay}" />
+                                    </Border>
+                                </TabItem>
+                                <TabItem Header="Gray">
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <ContentControl Content="{Binding Cache.SelectedItem.GrayScatterPlotControl, Mode=OneWay}" />
+                                    </Border>
+                                </TabItem>
+                            </TabControl>
                         </Grid>
                     </TabItem>
                 </TabControl>
