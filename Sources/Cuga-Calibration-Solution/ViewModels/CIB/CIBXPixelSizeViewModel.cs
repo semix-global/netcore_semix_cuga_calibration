@@ -503,13 +503,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
             };
 
-            var dies = waferMapDieBuilder.BuildDie(new Circle
-                (
-                    Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel
-                        ? StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition)
-                        : Point.Origin
-                    , Cache.Item.WaferRadius)
-            );
+            var dies = waferMapDieBuilder.BuildDie(new Circle(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.Item.WaferRadius));
 
             var currentRowDies = dies
                 .Where(t => t.Index.Y == 0)
@@ -788,13 +782,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                     OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
                 };
 
-                var dies = waferMapDieBuilder.BuildDie(new Circle
-                    (
-                        Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel
-                            ? StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DswItem.BrightFieldMachinePosition)
-                            : Point.Origin
-                        , Cache.Item.WaferRadius)
-                );
+                var dies = waferMapDieBuilder.BuildDie(new Circle(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.Item.WaferRadius));
 
                 var currentRowDies = dies
                     .Where(t => t.Index.Y == 0)
