@@ -542,7 +542,7 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <Border Style="{StaticResource BorderRegion}">
+                            <Border Margin="0,5" Style="{StaticResource BorderRegion}">
                                 <TextBlock>
                                     <Run Text="[Best] Y Strehl: " />
                                     <Run Text="{Binding Cache.Item.BestYStrehlRatio, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
@@ -663,12 +663,11 @@
                             </Grid.RowDefinitions>
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
-                                    <TextBox Text="{Binding Cache.Item.RawImageFilePath}"
-                                             TextWrapping="Wrap"
-                                             hc:TitleElement.Title="Raw File Path:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBlock TextWrapping="Wrap">
+                                        <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
+                                            <Run Text="{Binding Cache.Item.RawImageFilePath}" />
+                                        </Hyperlink>
+                                    </TextBlock>
                                     <TextBox Text="{Binding Cache.Item.P3Coefficient}"
                                              hc:TitleElement.Title="P3:"
                                              hc:TitleElement.TitlePlacement="Left"
@@ -696,12 +695,6 @@
                                              Style="{StaticResource TextBoxExtend}" />
                                     <TextBox Text="{Binding Cache.Item.P8Coefficient}"
                                              hc:TitleElement.Title="P8:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.Item.RawImageFilePath}"
-                                             TextWrapping="Wrap"
-                                             hc:TitleElement.Title="Raw File Path:"
                                              hc:TitleElement.TitlePlacement="Left"
                                              IsReadOnly="True"
                                              Style="{StaticResource TextBoxExtend}" />

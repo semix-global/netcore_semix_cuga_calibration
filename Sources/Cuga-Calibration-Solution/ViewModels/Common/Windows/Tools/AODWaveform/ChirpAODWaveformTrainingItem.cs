@@ -193,7 +193,8 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
                                                                                                 && P6Coefficient.Equals(other.P6Coefficient)
                                                                                                 && P7Coefficient.Equals(other.P7Coefficient)
                                                                                                 && P8Coefficient.Equals(other.P8Coefficient)
-                                                                                                && RawImageFilePath.Equals(other.RawImageFilePath));
+                                                                                                && RawImageFilePath.Equals(other.RawImageFilePath)
+                                                                                                && BestYStrehlRatio.Equals(other.BestYStrehlRatio));
 
     public override bool Equals(object? obj) => obj is ChirpAODWaveformTrainingItem other && Equals(other);
 

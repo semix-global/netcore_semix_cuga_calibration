@@ -134,8 +134,10 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     [property: LiteDB.BsonIgnore]
     private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];
 
-    partial void OnItemChanged(ChirpAODWaveformTrainingItem value)
+    partial void OnItemChanged(ChirpAODWaveformTrainingItem? value)
     {
+        if (value is null) return;
+
         P3Coefficient = value.P3Coefficient;
         P4Coefficient = value.P4Coefficient;
         P5Coefficient = value.P5Coefficient;
