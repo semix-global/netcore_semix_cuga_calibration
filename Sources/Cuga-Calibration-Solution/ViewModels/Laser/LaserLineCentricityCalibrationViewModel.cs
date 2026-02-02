@@ -500,7 +500,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     private bool Step3CalibrateAction()
     {
         if (ReviewViewModel.TryGetMatchPosition(Cache.Item.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.Item.FindPosition, Cache.MicroscopeLensInformation, Cache.Item.BrightTemplateFilePath, ImageFileDirectory, null, Name,
-                "High Magnification Matching Position", out var resultPosition, out _, out _, out var highResultImageFilePath, out _) == false)
+                "High Magnification Matching Position", out var resultPosition, out _, out _, out var highResultImageFilePath, out _, Cache.CalChipSiteModelEnum) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -533,12 +533,6 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     private bool Step4CalibrateAction()
     {
         var machineStagePosition = StageViewModel.BrightFieldToMachinePosition(Cache.Item.FindPosition);
-
-        if (Cache.Item.FindPosition.ToOriginLength >= Cache.ChuckRadius)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("The Bright Field Position Out Of The Wafer!"), HtmlLogUniqueId.LoggingHtml());
-            return false;
-        }
 
         Cache.Item.FindBrightMachinePosition = machineStagePosition;
 
@@ -788,7 +782,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
         Cache.ProductivityInformation = centerLineCentricityItemDto.ProductivityInformation;
         Cache.OpticsIlluminationModeEnum = centerLineCentricityItemDto.OpticsIlluminationMode;
         if (ReviewViewModel.TryGetMatchPosition(Cache.Item.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.Item.FindPosition, Cache.MicroscopeLensInformation, Cache.Item.BrightTemplateFilePath, detectImageDirectory, HtmlLogUniqueId, Name, string.Empty,
-                out var resultPosition, out _, out _, out _, out _) == false) return false;
+                out var resultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false) return false;
         var brightFieldMachinePosition = StageViewModel.BrightFieldToMachinePosition(resultPosition);
         Cache.Item.FindPosition = resultPosition;
 
@@ -813,7 +807,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 Cache.Item.XWidthPixel,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
                 Cache.OpticsIlluminationModeEnum,
-                CalibrationSetting.SettingCommonParam.MainLaserLightInformation) == false)
+                null) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -917,7 +911,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 Cache.Item.XWidthPixel,
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine,
                 Cache.OpticsIlluminationModeEnum,
-                CalibrationSetting.SettingCommonParam.MainLaserLightInformation) == false)
+                null) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;

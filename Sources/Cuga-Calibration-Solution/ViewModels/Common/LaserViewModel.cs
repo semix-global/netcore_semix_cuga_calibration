@@ -497,7 +497,8 @@ public sealed class LaserViewModel(
                     break;
 
                 case StageCoordinateSystemEnum.Dark:
-                    stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
+                    stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
                     break;
 
                 case StageCoordinateSystemEnum.Machine:
@@ -529,11 +530,13 @@ public sealed class LaserViewModel(
                     break;
 
                 case StageCoordinateSystemEnum.Dark:
-                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(position);
+                    stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
                     break;
 
                 case StageCoordinateSystemEnum.Machine:
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position);
+                    position = stageViewModel.MachineToDarkFieldPosition(position);
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
                     break;
 
                 default:
