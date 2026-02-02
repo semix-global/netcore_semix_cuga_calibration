@@ -64,7 +64,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private double _startP3Coefficient;
 
     [ObservableProperty]
-    private double _stepP3Coefficient = 0.01;
+    private double _stepP3Coefficient = 0.02;
 
     [ObservableProperty]
     private double _stopP3Coefficient;
@@ -73,7 +73,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private double _startP4Coefficient;
 
     [ObservableProperty]
-    private double _stepP4Coefficient = 0.01;
+    private double _stepP4Coefficient = 0.02;
 
     [ObservableProperty]
     private double _stopP4Coefficient;
@@ -82,7 +82,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private double _startP5Coefficient;
 
     [ObservableProperty]
-    private double _stepP5Coefficient = 0.01;
+    private double _stepP5Coefficient = 0.001;
 
     [ObservableProperty]
     private double _stopP5Coefficient;
@@ -91,7 +91,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private double _startP6Coefficient;
 
     [ObservableProperty]
-    private double _stepP6Coefficient = 0.01;
+    private double _stepP6Coefficient = 0.001;
 
     [ObservableProperty]
     private double _stopP6Coefficient;
@@ -100,7 +100,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private double _startP7Coefficient;
 
     [ObservableProperty]
-    private double _stepP7Coefficient = 0.01;
+    private double _stepP7Coefficient = 0.0001;
 
     [ObservableProperty]
     private double _stopP7Coefficient;
@@ -109,7 +109,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private double _startP8Coefficient;
 
     [ObservableProperty]
-    private double _stepP8Coefficient = 0.01;
+    private double _stepP8Coefficient = 0.0001;
 
     [ObservableProperty]
     private double _stopP8Coefficient;
@@ -128,6 +128,10 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private ChirpAODWaveformTrainingItem _item = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];
 
     partial void OnItemChanged(ChirpAODWaveformTrainingItem value)
