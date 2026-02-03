@@ -23,6 +23,7 @@ using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using static Core.Models.Models.Ads.XGains.AdsXGainsCache;
 
 namespace CugaCalibration.ViewModels.Ads;
@@ -893,7 +894,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     var X = Vector<double>.Build.DenseOfEnumerable(SpeedValueList);
                     var Y1 = Vector<double>.Build.DenseOfEnumerable(x1List);
                     var Y2 = Vector<double>.Build.DenseOfEnumerable(x2List);
-                    var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
+                    var (p0, p1, p2, _, yPredicted1) = PolynomialCurve.Fit2(X, Y1);
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
                         x1SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted1[i]));
@@ -904,7 +905,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     adsXGainsItemDto.SetX1P3(p0);
                     adsXGainsItemDto.SetX1Plots(x1PlotList);
                     adsXGainsItemDto.SetX1SmoothPlots(x1SmoothPlotList);
-                    var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
+                    var (p3, p4, p5, _, yPredicted2) = PolynomialCurve.Fit2(X, Y2);
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
                         x2SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted2[i]));
@@ -942,7 +943,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     var X = Vector<double>.Build.DenseOfEnumerable(SpeedValueList);
                     var Y1 = Vector<double>.Build.DenseOfEnumerable(x1List);
                     var Y2 = Vector<double>.Build.DenseOfEnumerable(x2List);
-                    var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
+                    var (p0, p1, p2, _, yPredicted1) = PolynomialCurve.Fit2(X, Y1);
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
                         x1SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted1[i]));
@@ -953,7 +954,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     adsXGainsItemDto.SetX1P3(p0);
                     adsXGainsItemDto.SetX1Plots(x1PlotList);
                     adsXGainsItemDto.SetX1SmoothPlots(x1SmoothPlotList);
-                    var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
+                    var (p3, p4, p5, _, yPredicted2) = PolynomialCurve.Fit2(X, Y2);
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
                         x2SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted2[i]));

@@ -533,7 +533,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
                 //
                 // var listCol = CalibratingItem.Items.Select(t => 1 / t.SpectralDensity);
                 //
-                // var (k, b, _, _) = PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
+                // var (k, b, _, _) = PolynomialCurve.Fit1(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
                 //
                 // var resultItemDto = CalibratingItem.Items.Minima(t =>
                 //     Math.Abs(GuardUtils.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId)).XYBestFocusOffsetEcs)

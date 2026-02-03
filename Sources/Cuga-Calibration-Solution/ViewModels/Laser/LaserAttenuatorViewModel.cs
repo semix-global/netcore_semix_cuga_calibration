@@ -19,6 +19,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -241,7 +242,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
             CalibratingItem.MaxMeasurePower = CalibratingItem.MeasurePowerPoints.Max(t => t.Y);
             CalibratingItem.AttenuatorPoints = [.. CalibratingItem.MeasurePowerPoints.Select(t => new Point(t.X, t.Y / CalibratingItem.MaxMeasurePower))];
 
-            var (p0, p1, p2, p3, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial3Fit(
+            var (p0, p1, p2, p3, rSquared, yPredicted) = PolynomialCurve.Fit3(
                 Vector<double>.Build.DenseOfEnumerable(CalibratingItem.AttenuatorPoints.Select(t => t.X)),
                 Vector<double>.Build.DenseOfEnumerable(CalibratingItem.AttenuatorPoints.Select(t => t.Y)));
 

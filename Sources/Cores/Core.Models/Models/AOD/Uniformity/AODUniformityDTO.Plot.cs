@@ -10,6 +10,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -170,7 +171,7 @@ public partial class AODUniformityDTO
 
             var isNotLinearSplineImageHorizontalProjectIndexes = Mappings.Where(t => t.IsNotLinearSpline).Select(t => t.ImageHorizontalProjectIndex).ToArray();
             var isNotLinearSplineMappingIndexes = Mappings.Where(t => t.IsNotLinearSpline).Select(t => t.MappingIndex).ToArray();
-            var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(
+            var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
                 Vector<double>.Build.Dense([.. isNotLinearSplineImageHorizontalProjectIndexes]),
                 Vector<double>.Build.Dense([.. isNotLinearSplineMappingIndexes]));
 

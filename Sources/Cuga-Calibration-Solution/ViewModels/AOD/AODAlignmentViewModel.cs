@@ -26,6 +26,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -364,7 +365,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 }
 
                 var skipItemItems = CalibratingItem.Items.Skip(Cache.Item.RangeSkipFitCount).SkipLast(Cache.Item.RangeSkipFitCount).ToArray();
-                var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(
+                var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
                     Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => t.PrescanFrequency)),
                     Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => (double)GuardUtils.IsNotNullAndReturn(t.ProjectMaxPixel))));
 

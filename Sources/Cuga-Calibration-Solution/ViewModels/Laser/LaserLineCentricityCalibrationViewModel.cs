@@ -35,6 +35,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -899,7 +900,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     {
         var pmtXErrorCoordinatess = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.X)).ToArray();
-        var (polynomialX, rSquaredXError, _) = PolynomialLeastSquares.PolynomialFit(
+        var (polynomialX, rSquaredXError, _) = PolynomialCurve.FitN(
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinatess.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinatess.Select(t => t.Y)),
             1);
@@ -909,7 +910,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         var pmtYErrorCoordinatess = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.Y)).ToArray();
-        var (polynomialY, rSquaredYError, yPredictedYError) = PolynomialLeastSquares.PolynomialFit(
+        var (polynomialY, rSquaredYError, yPredictedYError) = PolynomialCurve.FitN(
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinatess.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinatess.Select(t => t.Y)),
             1);

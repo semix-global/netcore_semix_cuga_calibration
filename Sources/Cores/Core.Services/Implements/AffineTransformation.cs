@@ -4,6 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
@@ -171,7 +172,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodColumnList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
-            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
+            var (k, b, rSquared, yPredicted) = PolynomialCurve.Fit1(xVector, yVector);
             foreach (var badColumn in badColumnList)
             {
                 var badValue = errorXOriginTempMatrix[row, badColumn];
@@ -209,7 +210,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodRowList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
-            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
+            var (k, b, rSquared, yPredicted) = PolynomialCurve.Fit1(xVector, yVector);
             var badValue = errorXOriginTempMatrix[badRow, badColumn];
             errorXOriginTempMatrix[badRow, badColumn] = k * badRow + b;
             badXLogList.Add((badRow, badColumn, badValue, errorXOriginTempMatrix[badRow, badColumn],
@@ -278,7 +279,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodColumnList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
-            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
+            var (k, b, rSquared, yPredicted) = PolynomialCurve.Fit1(xVector, yVector);
             foreach (var badColumn in badColumnList)
             {
                 var badValue = errorYOriginTempMatrix[row, badColumn];
@@ -316,7 +317,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
 
             var xVector = Vector<double>.Build.DenseOfEnumerable(goodRowList);
             var yVector = Vector<double>.Build.DenseOfEnumerable(goodValueList);
-            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
+            var (k, b, rSquared, yPredicted) = PolynomialCurve.Fit1(xVector, yVector);
             var badValue = errorYOriginTempMatrix[badRow, badColumn];
             errorYOriginTempMatrix[badRow, badColumn] = k * badRow + b;
             badYLogList.Add((badRow, badColumn, badValue, errorYOriginTempMatrix[badRow, badColumn],
@@ -376,8 +377,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             var idealYRow = FilterRow(idealYMatrix, row).Result;
             var realXRow = FilterRow(realXMatrix, row).Result;
             var realYCol = FilterRow(realYMatrix, row).Result;
-            var (k1, _, _, _) = PolynomialLeastSquares.Polynomial1Fit(idealXRow, idealYRow);
-            var (k2, b2, rSquared2, yPredicted2) = PolynomialLeastSquares.Polynomial1Fit(realXRow, realYCol);
+            var (k1, _, _, _) = PolynomialCurve.Fit1(idealXRow, idealYRow);
+            var (k2, b2, rSquared2, yPredicted2) = PolynomialCurve.Fit1(realXRow, realYCol);
             alignmentRealLineList.Add(($"row {row}", ToPoints(realXRow, realYCol)));
             alignmentRealLineList.Add(($"row {row}: y = {k2:e3}x + {b2:f3}, r^2 = {rSquared2}", ToPoints(realXRow, yPredicted2)));
 
@@ -474,8 +475,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             var idealXColumn = FilterColumn(idealXMatrix, column).Result;
             var realYColumn = FilterColumn(realYMatrix, column).Result;
             var realXColumn = FilterColumn(realXMatrix, column).Result;
-            var (k1, _, _, _) = PolynomialLeastSquares.Polynomial1Fit(idealYColumn, idealXColumn);
-            var (k2, b2, rSquared2, yPredicted2) = PolynomialLeastSquares.Polynomial1Fit(realYColumn, realXColumn);
+            var (k1, _, _, _) = PolynomialCurve.Fit1(idealYColumn, idealXColumn);
+            var (k2, b2, rSquared2, yPredicted2) = PolynomialCurve.Fit1(realYColumn, realXColumn);
             gantryLineList.Add(($"column {column}", ToPoints(realYColumn, realXColumn)));
             gantryLineList.Add(($"column {column}: y = {k2:e3}x + {b2:f3}, r^2 = {rSquared2}", ToPoints(realYColumn, yPredicted2)));
 
@@ -595,7 +596,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             // 因为编码器非线形误差，所以不可能是y=x的关系, 所以可能会多走少走
             var idealXRow = FilterRow(idealXMatrix, row).Result;
             var realXRow = FilterRow(realXMatrix, row).Result;
-            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(idealXRow, realXRow);
+            var (k, b, rSquared, yPredicted) = PolynomialCurve.Fit1(idealXRow, realXRow);
             scaleXLineList.Add(($"row {row}: y = {k:f10}x + {b:f3}, r^2 = {rSquared}", ToPoints(idealXRow, yPredicted)));
 
             xScaleVector[row - minRowIndex] = k;
@@ -612,7 +613,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         {
             var idealYColumn = FilterColumn(idealYMatrix, column).Result;
             var realYColumn = FilterColumn(realYMatrix, column).Result;
-            var (k, b, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(idealYColumn, realYColumn);
+            var (k, b, rSquared, yPredicted) = PolynomialCurve.Fit1(idealYColumn, realYColumn);
             scaleYLineList.Add(($"column {column}: y = {k:f10}x + {b:f3}, r^2 = {rSquared}", ToPoints(idealYColumn, yPredicted)));
 
             yScaleVector[column - minColumnIndex] = k;
@@ -762,7 +763,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             if (isSuccess == false) continue;
             var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, errorXRow.Count).Select(x => (double)x));
 
-            var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial5Fit(x, errorXRow);
+            var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolynomialCurve.Fit5(x, errorXRow);
             polyErrorXLineList.Add(($"row {row}", ToPoints(x, errorXRow)));
             polyErrorXLineList.Add(($"row {row}: y = {p0} + {p1}*x + {p2}*x^2 + {p3}*x^3 + {p4}*x^4 + {p5}*x^5, r^2 = {rSquared}", ToPoints(x, yPredicted)));
 
@@ -779,7 +780,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             if (isSuccess == false) continue;
             var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, errorYRow.Count).Select(x => (double)x));
 
-            var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial5Fit(x, errorYRow);
+            var (p0, p1, p2, p3, p4, p5, rSquared, yPredicted) = PolynomialCurve.Fit5(x, errorYRow);
             polyErrorYLineList.Add(($"row {row}", ToPoints(x, errorYRow)));
             polyErrorYLineList.Add(($"row {row}: y = {p0} + {p1}*x + {p2}*x^2 + {p3}*x^3 + {p4}*x^4 + {p5}*x^5, r^2 = {rSquared}", ToPoints(x, yPredicted)));
 

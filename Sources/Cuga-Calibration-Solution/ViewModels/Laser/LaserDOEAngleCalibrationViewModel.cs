@@ -32,6 +32,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -642,7 +643,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
             // var xVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => (t.PmtId - 1) * Cache.PmtInterval)]);
             var yVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => (t.AfEcs - darkFieldRTFCDtoList[0].AfEcs) * Cache.UmPerEcs)]);
             // var yVector = Vector<double>.Build.DenseOfEnumerable([.. darkFieldRTFCDtoList.Select(t => t.AfOffset * Cache.Item.EcsPerAfOffset * Cache.UmPerEcs)]);
-            var (slope, intercept, _, _) = PolynomialLeastSquares.Polynomial1Fit(xVector, yVector);
+            var (slope, intercept, _, _) = PolynomialCurve.Fit1(xVector, yVector);
 
             var doeReviseAngle = Math.Atan(slope / Math.Sin(Cache.Item.ObliqueAngle * Math.PI / 180)) * 180 / Math.PI;
 

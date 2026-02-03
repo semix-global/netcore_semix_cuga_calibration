@@ -26,6 +26,7 @@ using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis.AdsDiagonosis;
 
@@ -477,7 +478,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             var listRow = plotList.Select(t => Cache.IsFindX ? t.StartPosition.X : t.StartPosition.Y).ToList();
             var listCol = plotList.Select(t => isGetDeltaX ? t.DeltaX : t.DeltaY).ToList();
 
-            var (fitLineK, fitLineB, _, _) = PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
+            var (fitLineK, fitLineB, _, _) = PolynomialCurve.Fit1(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
             fitFuncList.AddRange(listRow.Select(t => new Point(t, fitLineK * t + fitLineB)));
 
             var isSuccess = fitLineK != 0;

@@ -25,6 +25,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -369,7 +370,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     if (CalibratingItem.Items.Count > 1)
                     {
-                        var (slope, intercept, rSquared, yPredicted) = PolynomialLeastSquares.Polynomial1Fit(
+                        var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
                             Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)),
                             Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)));
 

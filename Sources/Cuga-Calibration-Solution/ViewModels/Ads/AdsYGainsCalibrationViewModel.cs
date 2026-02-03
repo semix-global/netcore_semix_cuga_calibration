@@ -18,6 +18,7 @@ using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using static Core.Models.Models.Ads.YGains.AdsYGainsCache;
 
 namespace CugaCalibration.ViewModels.Ads;
@@ -1032,9 +1033,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     var Y1 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y1List);
                     var Y2 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y2List);
                     var Y3 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y3List);
-                    var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
-                    var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
-                    var (p6, p7, p8, _, yPredicted3) = PolynomialLeastSquares.Polynomial2Fit(X, Y3);
+                    var (p0, p1, p2, _, yPredicted1) = PolynomialCurve.Fit2(X, Y1);
+                    var (p3, p4, p5, _, yPredicted2) = PolynomialCurve.Fit2(X, Y2);
+                    var (p6, p7, p8, _, yPredicted3) = PolynomialCurve.Fit2(X, Y3);
 
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
@@ -1101,9 +1102,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     var Y2 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y2List);
                     var Y3 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y3List);
 
-                    var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
-                    var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
-                    var (p6, p7, p8, _, yPredicted3) = PolynomialLeastSquares.Polynomial2Fit(X, Y3);
+                    var (p0, p1, p2, _, yPredicted1) = PolynomialCurve.Fit2(X, Y1);
+                    var (p3, p4, p5, _, yPredicted2) = PolynomialCurve.Fit2(X, Y2);
+                    var (p6, p7, p8, _, yPredicted3) = PolynomialCurve.Fit2(X, Y3);
 
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
