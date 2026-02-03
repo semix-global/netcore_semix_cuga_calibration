@@ -1,11 +1,16 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Cookies;
 using Cuga.Data.DataStruct.PMT;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.WPF.MVVM;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 
+[JsonConverter(typeof(LaserLightInformationConverter))]
 public sealed class LaserLightInformation :
     ObservableObject,
     IComparable<LaserLightInformation>,
@@ -118,4 +123,43 @@ public sealed class LaserLightInformation :
     };
 
     #endregion Mapper
+
+    private sealed class LaserLightInformationConverter : JsonConverter<LaserLightInformation>
+    {
+        private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);
+
+        public override void WriteJson(JsonWriter writer, LaserLightInformation? value, JsonSerializer serializer)
+        {
+            if (value is null)
+            {
+                writer.WriteNull();
+                return;
+            }
+
+            writer.WriteStartObject();
+            writer.WritePropertyName(nameof(Level));
+            writer.WriteValue(value.Level);
+            writer.WritePropertyName(nameof(Coefficient));
+            writer.WriteValue(value.Coefficient);
+            writer.WriteEndObject();
+        }
+
+        public override LaserLightInformation ReadJson(JsonReader reader, Type objectType, LaserLightInformation? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return Default;
+
+            var jsonObject = JObject.Load(reader);
+
+            var level = jsonObject[nameof(Level)]?.Value<double>() ?? Default.Level;
+            var coefficient = jsonObject[nameof(Coefficient)]?.Value<double>() ?? Default.Coefficient;
+
+            var temp = new LaserLightInformation
+            {
+                Level = level,
+                Coefficient = coefficient
+            };
+
+            return ApplicationCookie.Value.LaserLightInformations.SingleOrDefault(t => t == temp, Default);
+        }
+    }
 }

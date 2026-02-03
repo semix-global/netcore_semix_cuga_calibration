@@ -23,8 +23,10 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
 using CommunityToolkit.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Helpers.Extensions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -32,6 +34,8 @@ namespace CugaCalibration.Core.Services.Implements;
 public class CalibrationCacheProviderServiceImpl(
     IOptions<ApplicationSetting> options,
     ICacheProvider cacheProvider,
+    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
+    ICacheProvider recipeCacheProvider,
     ILogger<CalibrationCacheProviderServiceImpl> logger,
     IDialogWindowProvider dialogWindowProvider,
     ApplicationCookie applicationCookie,
@@ -107,17 +111,37 @@ public class CalibrationCacheProviderServiceImpl(
     {
         try
         {
-            var exportData = new Dictionary<string, string>();
+            var defaultJObject = new JObject();
             foreach (var cacheItem in CacheCollector.DefaultCaches)
             {
                 var data = cacheItem.IsArray
                     ? cacheProvider.GetOrDefaultArray(cacheItem.Type)
                     : cacheProvider.GetOrDefault(cacheItem.Type);
 
-                exportData[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = JsonConvert.SerializeObject(data);
+                defaultJObject[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = data is not null
+                    ? JToken.FromObject(data)
+                    : JValue.CreateNull();
             }
 
-            FileHelper.SerializeOperate(exportData, filePath);
+            var recipeJObject = new JObject();
+            foreach (var cacheItem in CacheCollector.RecipeCaches)
+            {
+                var data = cacheItem.IsArray
+                    ? recipeCacheProvider.GetOrDefaultArray(cacheItem.Type)
+                    : recipeCacheProvider.GetOrDefault(cacheItem.Type);
+
+                recipeJObject[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = data is not null
+                    ? JToken.FromObject(data)
+                    : JValue.CreateNull();
+            }
+
+            var exportJObject = new JObject
+            {
+                [nameof(CacheCollector.DefaultCaches)] = defaultJObject,
+                [nameof(CacheCollector.RecipeCaches)] = recipeJObject
+            };
+
+            File.WriteAllText(filePath, exportJObject.ToString(Formatting.Indented));
 
             return true;
         }
@@ -133,27 +157,59 @@ public class CalibrationCacheProviderServiceImpl(
     {
         try
         {
-            var jsonContent = File.ReadAllText(filePath);
+            var importJObject = JObject.Parse(File.ReadAllText(filePath));
 
-            var importData = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonContent);
-            Guard.IsNotNull(importData);
-
-            foreach (var cacheItem in CacheCollector.DefaultCaches)
+            if (importJObject.TryGetValue(nameof(CacheCollector.DefaultCaches), out var defaultJToken) && defaultJToken is JObject defaultJObject)
             {
-                if (importData.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var json) == false) continue;
-
-                var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
-
-                var data = JsonConvert.DeserializeObject(json, targetType);
-                Guard.IsNotNull(data);
-
-                if (cacheItem.IsArray)
+                foreach (var cacheItem in CacheCollector.DefaultCaches)
                 {
-                    cacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, CancellationToken.None);
+                    if (defaultJObject.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false || jToken.Type == JTokenType.Null) continue;
+
+                    var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
+
+                    var data = jToken.ToObject(targetType);
+
+                    Guard.IsNotNull(data);
+                    try
+                    {
+                        if (cacheItem.IsArray)
+                        {
+                            cacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, CancellationToken.None);
+                        }
+                        else
+                        {
+                            cacheProvider.Set(data, cacheItem.Type, CancellationToken.None);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Import cache failed");
+
+                        return false;
+                    }
                 }
-                else
+            }
+
+            if (importJObject.TryGetValue(nameof(CacheCollector.RecipeCaches), out var recipeJToken) && recipeJToken is JObject recipeJObject)
+            {
+                foreach (var cacheItem in CacheCollector.RecipeCaches)
                 {
-                    cacheProvider.Set(data, cacheItem.Type, CancellationToken.None);
+                    if (recipeJObject.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false || jToken.Type == JTokenType.Null) continue;
+
+                    var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
+
+                    var data = jToken.ToObject(targetType);
+
+                    Guard.IsNotNull(data);
+
+                    if (cacheItem.IsArray)
+                    {
+                        recipeCacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, CancellationToken.None);
+                    }
+                    else
+                    {
+                        recipeCacheProvider.Set(data, cacheItem.Type, CancellationToken.None);
+                    }
                 }
             }
 

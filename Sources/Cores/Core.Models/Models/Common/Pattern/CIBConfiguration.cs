@@ -5,7 +5,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public sealed partial class CIBConfiguration : ObservableCacheBase, ICloneable<CIBConfiguration>
+public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBConfiguration>
 {
     [ObservableProperty]
     private int _gain = -2;

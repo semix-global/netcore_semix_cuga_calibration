@@ -5,7 +5,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public partial class ImageCollectionConfiguration : ObservableCacheBase, ICloneable<ImageCollectionConfiguration>
+public partial class ImageCollectionConfiguration : ObservableObject, ICloneable<ImageCollectionConfiguration>
 {
     [ObservableProperty]
     private bool _isAutoFocus = true;
