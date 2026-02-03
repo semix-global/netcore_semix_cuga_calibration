@@ -14,7 +14,7 @@ using Core.Models.Extensions;
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
-    ObservableCacheBase,
+    ObservableObject,
     IAdaptTo<AODWaveformGenerator1.AODWaveformOffsetConfiguration>,
     IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>,
     ICloneable<GenerateAODWaveformElectrodeConfiguration>

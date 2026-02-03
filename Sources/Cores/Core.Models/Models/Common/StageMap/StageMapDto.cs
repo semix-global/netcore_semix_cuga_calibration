@@ -14,7 +14,7 @@ namespace Core.Models.Models.Common.StageMap;
 /// <summary>
 /// StageMap坐标(笛卡尔坐标系)
 /// </summary>
-public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageMapDto>, IAdaptTo<Wcf.Models.Chuck.StageMap>
+public sealed partial class StageMapDto : ObservableObject, ICloneable<StageMapDto>, IAdaptTo<Wcf.Models.Chuck.StageMap>
 {
     [ObservableProperty]
     private StageMapItemDto[][] _idealStageMapItemMatrix = [];

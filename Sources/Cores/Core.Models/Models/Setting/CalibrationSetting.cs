@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Setting;
 
-public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<CalibrationSetting, CalibrationSetting>
+public sealed partial class CalibrationSetting : ObservableObject, IAdaptIn<CalibrationSetting, CalibrationSetting>
 {
     /// <summary>
     /// 通用参数

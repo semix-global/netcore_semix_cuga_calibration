@@ -5,7 +5,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 
-public sealed partial class WaferMapDieItemDto : ObservableCacheBase, ICloneable<WaferMapDieItemDto>
+public sealed partial class WaferMapDieItemDto : ObservableObject, ICloneable<WaferMapDieItemDto>
 {
     [ObservableProperty]
     private int _rowIndex;

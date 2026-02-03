@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
+public partial class AODWaveformCommonCache<TResult> : ObservableObject
     where TResult : AODWaveformCommonResult, new()
 {
     [ObservableProperty]

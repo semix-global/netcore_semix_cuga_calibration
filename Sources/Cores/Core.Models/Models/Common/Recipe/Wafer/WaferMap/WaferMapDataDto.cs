@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 
-public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<WaferMapDataDto>
+public sealed partial class WaferMapDataDto : ObservableObject, ICloneable<WaferMapDataDto>
 {
     [ObservableProperty]
     [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Diameter: ")]

@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 
-public sealed partial class ReticleMarkItemDto : ObservableCacheBase, ICloneable<ReticleMarkItemDto>
+public sealed partial class ReticleMarkItemDto : ObservableObject, ICloneable<ReticleMarkItemDto>
 {
     [ObservableProperty]
     private int _maskIndex;

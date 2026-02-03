@@ -173,7 +173,7 @@ public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable
     };
 }
 
-public partial class BestFocusAndAstigmatismItemDto : ObservableCacheBase, ICloneable<BestFocusAndAstigmatismItemDto>
+public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneable<BestFocusAndAstigmatismItemDto>
 {
     [ObservableProperty]
     private double _spectralDensity;
@@ -358,7 +358,7 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableCacheBase, IClon
     };
 }
 
-public sealed partial class BestFocusAndAstigmatismChannelGroupItemDto : ObservableCacheBase
+public sealed partial class BestFocusAndAstigmatismChannelGroupItemDto : ObservableObject
 {
     [ObservableProperty]
     private int _channelId;
@@ -369,7 +369,7 @@ public sealed partial class BestFocusAndAstigmatismChannelGroupItemDto : Observa
     private IReadOnlyList<BestFocusAndAstigmatismChannelItemDto> _channelItems = [];
 }
 
-public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableCacheBase, ICloneable<BestFocusAndAstigmatismChannelItemDto>
+public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableObject, ICloneable<BestFocusAndAstigmatismChannelItemDto>
 {
     [ObservableProperty]
     private int _pmtId;

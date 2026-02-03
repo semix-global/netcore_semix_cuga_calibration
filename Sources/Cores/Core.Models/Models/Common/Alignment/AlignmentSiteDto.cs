@@ -16,7 +16,7 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentSiteDto : ObservableCacheBase, ICloneable<AlignmentSiteDto>, IAdaptTo<C2MSiteDTO>, IAdaptIn<C2MSiteDTO, AlignmentSiteDto>
+public sealed partial class AlignmentSiteDto : ObservableObject, ICloneable<AlignmentSiteDto>, IAdaptTo<C2MSiteDTO>, IAdaptIn<C2MSiteDTO, AlignmentSiteDto>
 {
     [ObservableProperty]
     private Point _location;

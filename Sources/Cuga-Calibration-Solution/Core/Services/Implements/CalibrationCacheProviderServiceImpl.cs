@@ -170,7 +170,7 @@ public class CalibrationCacheProviderServiceImpl(
                     obj.Remove(nameof(ICacheItem.CreatedTime));
                     obj.Remove(nameof(ICacheItem.ModifiedTime));
                     obj.Remove(nameof(ICacheItem.IsDeleted));
-                    obj.Remove(nameof(ObservableCacheBase.HasErrors));
+                    obj.Remove(nameof(ObservableObject.HasErrors));
                     obj.Remove(nameof(CalibrationDtoBase.CreatedUserId));
 
                     break;

@@ -122,7 +122,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
     #endregion Mapper
 }
 
-public sealed partial class ChuckGlobalTemplateMatchDtoItem : ObservableCacheBase, ICloneable<ChuckGlobalTemplateMatchDtoItem>
+public sealed partial class ChuckGlobalTemplateMatchDtoItem : ObservableObject, ICloneable<ChuckGlobalTemplateMatchDtoItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;

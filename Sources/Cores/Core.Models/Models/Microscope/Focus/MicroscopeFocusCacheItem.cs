@@ -9,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Focus;
 
-public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, ICloneable<MicroscopeFocusCacheItem>
+public sealed partial class MicroscopeFocusCacheItem : ObservableObject, ICloneable<MicroscopeFocusCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;

@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus : ObservableCacheBase
+public sealed partial class OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus : ObservableObject
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

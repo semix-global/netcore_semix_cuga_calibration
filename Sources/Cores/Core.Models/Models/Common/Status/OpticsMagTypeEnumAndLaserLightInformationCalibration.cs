@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class OpticsMagTypeEnumAndLaserLightInformationCalibration : ObservableCacheBase
+public sealed partial class OpticsMagTypeEnumAndLaserLightInformationCalibration : ObservableObject
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -28,7 +28,7 @@ public sealed partial class OpticsMagTypeEnumAndLaserLightInformationCalibration
     }
 }
 
-public sealed partial class LaserLightInformationStatus1 : ObservableCacheBase
+public sealed partial class LaserLightInformationStatus1 : ObservableObject
 {
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;

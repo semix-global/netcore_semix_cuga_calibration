@@ -8,7 +8,7 @@ namespace Core.Models.Models.Common.EFEM;
 /// EFEM中FOUP盒里面层数项目: "EFEM" 通常代表 "Equipment Front End Module"，意为 "设备前端模块", FOUP 是用于半导体晶圆的封装和传输的标准化载体
 /// </summary>
 // ReSharper disable once InconsistentNaming
-public sealed partial class EFEMFoupItem : ObservableCacheBase
+public sealed partial class EFEMFoupItem : ObservableObject
 {
     /// <summary>
     /// 站点

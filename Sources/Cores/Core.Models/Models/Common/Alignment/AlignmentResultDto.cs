@@ -14,7 +14,7 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentResultDto : ObservableCacheBase, ICloneable<AlignmentResultDto>, IAdaptTo<C2MAlignResult>, IAdaptIn<C2MAlignResult, AlignmentResultDto>
+public sealed partial class AlignmentResultDto : ObservableObject, ICloneable<AlignmentResultDto>, IAdaptTo<C2MAlignResult>, IAdaptIn<C2MAlignResult, AlignmentResultDto>
 {
     /// <summary>
     /// 对准旋转的角度

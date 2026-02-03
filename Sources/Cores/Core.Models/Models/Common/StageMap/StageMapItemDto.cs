@@ -5,7 +5,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.StageMap;
 
-public sealed partial class StageMapItemDto : ObservableCacheBase, ICloneable<StageMapItemDto>
+public sealed partial class StageMapItemDto : ObservableObject, ICloneable<StageMapItemDto>
 {
     [ObservableProperty]
     private int _row;

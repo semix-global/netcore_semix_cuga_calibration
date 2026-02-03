@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Setting;
 
-public sealed partial class SettingPmtConfigParam : ObservableCacheBase, IAdaptIn<SettingPmtConfigParam, SettingPmtConfigParam>
+public sealed partial class SettingPmtConfigParam : ObservableObject, IAdaptIn<SettingPmtConfigParam, SettingPmtConfigParam>
 {
     [ObservableProperty]
     private ObservableCollection<PmtConfigParam> _pmtConfigList = [];
@@ -22,7 +22,7 @@ public sealed partial class SettingPmtConfigParam : ObservableCacheBase, IAdaptI
     #endregion Mapper
 }
 
-public sealed partial class PmtConfigParam : ObservableCacheBase, IAdaptIn<PmtConfigParam, PmtConfigParam>, ICloneable<PmtConfigParam>
+public sealed partial class PmtConfigParam : ObservableObject, IAdaptIn<PmtConfigParam, PmtConfigParam>, ICloneable<PmtConfigParam>
 {
     [ObservableProperty]
     private bool _enabled = true;

@@ -5,7 +5,7 @@ using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public partial class AlignmentCacheBase : ObservableCacheBase
+public partial class AlignmentCacheBase : ObservableObject
 {
     /// <summary>
     /// 算法匹配类型

@@ -4,7 +4,7 @@ using Local.NoSQL.DB.Providers.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformityParam : ObservableCacheBase
+public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformityParam : ObservableObject
 {
     [ObservableProperty]
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;

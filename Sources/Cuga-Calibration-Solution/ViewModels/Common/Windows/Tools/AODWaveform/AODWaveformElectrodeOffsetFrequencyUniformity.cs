@@ -13,7 +13,7 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem> : ObservableCacheBase
+public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem> : ObservableObject
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]

@@ -159,7 +159,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<
     #endregion Mapper
 }
 
-public sealed partial class ChuckPrealignerDTOItem : ObservableCacheBase, ICloneable<ChuckPrealignerDTOItem>
+public sealed partial class ChuckPrealignerDTOItem : ObservableObject, ICloneable<ChuckPrealignerDTOItem>
 {
     [ObservableProperty]
     private Point _offsetPosition;

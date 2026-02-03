@@ -8,7 +8,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Recipe.Info;
 
-public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<CalibrationRecipeInfoDto>, IAdaptTo<SysRecipeInformationDto>, IAdaptIn<SysRecipeInformationDto, CalibrationRecipeInfoDto>
+public partial class CalibrationRecipeInfoDto : ObservableObject, ICloneable<CalibrationRecipeInfoDto>, IAdaptTo<SysRecipeInformationDto>, IAdaptIn<SysRecipeInformationDto, CalibrationRecipeInfoDto>
 {
     [ObservableProperty]
     private string _recipeName = "Default";

@@ -191,7 +191,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     #endregion Mapper
 }
 
-public sealed partial class MicroscopeCalChipDtoItem : ObservableCacheBase, ICloneable<MicroscopeCalChipDtoItem>
+public sealed partial class MicroscopeCalChipDtoItem : ObservableObject, ICloneable<MicroscopeCalChipDtoItem>
 {
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum;

@@ -4,7 +4,7 @@ using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class MicroscopeLensInfoCalibrationStatus : ObservableCacheBase
+public sealed partial class MicroscopeLensInfoCalibrationStatus : ObservableObject
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;

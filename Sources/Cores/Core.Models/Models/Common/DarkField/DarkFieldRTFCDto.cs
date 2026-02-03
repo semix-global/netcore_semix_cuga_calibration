@@ -4,7 +4,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.DarkField;
 
-public partial class DarkFieldRTFCDto : ObservableCacheBase
+public partial class DarkFieldRTFCDto : ObservableObject
 {
     [ObservableProperty]
     private int _pmtId;

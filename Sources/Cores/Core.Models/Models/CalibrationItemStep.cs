@@ -7,7 +7,7 @@ namespace Core.Models.Models;
 /// 校准步骤
 /// </summary>
 [ObservableRecipient]
-public sealed partial class CalibrationItemStep : ObservableCacheBase
+public sealed partial class CalibrationItemStep : ObservableObject
 {
     private readonly bool _defaultIsNextEnable;
 

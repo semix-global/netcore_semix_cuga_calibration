@@ -12,7 +12,7 @@ using Cuga.Data.DataStruct.PMT;
 
 namespace Core.Models.Models.Common.DarkField;
 
-public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneable<DarkFieldPmtDataDto>, IAdaptTo<CgPMTDataModel>, IAdaptIn<CgPMTDataModel, DarkFieldPmtDataDto>
+public sealed partial class DarkFieldPmtDataDto : ObservableObject, ICloneable<DarkFieldPmtDataDto>, IAdaptTo<CgPMTDataModel>, IAdaptIn<CgPMTDataModel, DarkFieldPmtDataDto>
 {
     [ObservableProperty]
     private int _pmtId;

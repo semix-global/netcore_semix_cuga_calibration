@@ -7,7 +7,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
+public sealed partial class ChirpAODWaveformTrainingCache : ObservableObject
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

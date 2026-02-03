@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class OpticsIlluminationModeAndProductivityInformationStatus : ObservableCacheBase, IStatus<OpticsIlluminationModeEnum>
+public sealed partial class OpticsIlluminationModeAndProductivityInformationStatus : ObservableObject, IStatus<OpticsIlluminationModeEnum>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _selectedItem;

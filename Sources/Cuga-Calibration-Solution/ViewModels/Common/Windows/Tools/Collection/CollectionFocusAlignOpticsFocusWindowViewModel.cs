@@ -41,7 +41,7 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
-public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCacheBase
+public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableObject
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -169,7 +169,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
     };
 }
 
-public sealed partial class HazeResult : ObservableCacheBase
+public sealed partial class HazeResult : ObservableObject
 {
     [ObservableProperty]
     private double _eCS;
@@ -178,7 +178,7 @@ public sealed partial class HazeResult : ObservableCacheBase
     private IReadOnlyList<HazeResultItem> _items = [];
 }
 
-public sealed partial class HazeResultItem : ObservableCacheBase
+public sealed partial class HazeResultItem : ObservableObject
 {
     [ObservableProperty]
     private int _channelId;
@@ -219,7 +219,7 @@ public sealed partial class HazeResultItem : ObservableCacheBase
     };
 }
 
-public sealed partial class DSWResult : ObservableCacheBase
+public sealed partial class DSWResult : ObservableObject
 {
     [ObservableProperty]
     private double _eCS;
@@ -228,7 +228,7 @@ public sealed partial class DSWResult : ObservableCacheBase
     private IReadOnlyList<DSWResultItem> _items = [];
 }
 
-public sealed partial class DSWResultItem : ObservableCacheBase
+public sealed partial class DSWResultItem : ObservableObject
 {
     [ObservableProperty]
     private int _channelId;

@@ -10,7 +10,7 @@ using System.IO;
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public abstract partial class AbstractGenerateAODWaveformParam :
-    ObservableCacheBase,
+    ObservableObject,
     IAdaptIn<AbstractGenerateAODWaveformParam, AbstractGenerateAODWaveformParam>
 {
     [ObservableProperty]

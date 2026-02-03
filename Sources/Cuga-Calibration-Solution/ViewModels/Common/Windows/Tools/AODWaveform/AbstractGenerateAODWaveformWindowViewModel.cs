@@ -13,7 +13,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class GenerateAODWaveformCache<TParam, TProfile> : ObservableCacheBase
+public partial class GenerateAODWaveformCache<TParam, TProfile> : ObservableObject
     where TParam : AbstractGenerateAODWaveformParam, new()
     where TProfile : AbstractAODWaveformProfile
 {

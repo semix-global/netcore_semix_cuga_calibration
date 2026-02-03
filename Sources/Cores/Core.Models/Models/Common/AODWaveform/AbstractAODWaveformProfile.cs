@@ -13,7 +13,7 @@ using System.Text;
 namespace Core.Models.Models.Common.AODWaveform;
 
 public abstract class AbstractAODWaveformProfile :
-    ObservableCacheBase,
+    ObservableObject,
     IAdaptIn<AbstractAODWaveformProfile, AbstractAODWaveformProfile>
 {
     public OpticsAODElectrodeEnum OpticsAODElectrodeEnum

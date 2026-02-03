@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.PixelSize;
 
-public sealed partial class MicroscopePixelSizeCacheItem : ObservableCacheBase
+public sealed partial class MicroscopePixelSizeCacheItem : ObservableObject
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;

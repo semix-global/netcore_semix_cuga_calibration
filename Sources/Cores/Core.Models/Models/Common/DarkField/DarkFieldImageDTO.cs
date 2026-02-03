@@ -15,7 +15,7 @@ using Semix.WcfTransfer.DTO;
 namespace Core.Models.Models.Common.DarkField;
 
 public partial class DarkFieldRawScanImageDTO :
-    ObservableCacheBase,
+    ObservableObject,
     ICloneable<DarkFieldRawScanImageDTO>,
     IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldRawScanImageDTO>
 {

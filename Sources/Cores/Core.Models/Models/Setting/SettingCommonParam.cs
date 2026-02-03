@@ -9,7 +9,7 @@ namespace Core.Models.Models.Setting;
 /// <summary>
 /// 通用参数
 /// </summary>
-public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<SettingCommonParam, SettingCommonParam>
+public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<SettingCommonParam, SettingCommonParam>
 {
     [ObservableProperty]
     private LogLevelEnum _minLogLevelEnum = LogLevelEnum.Info;

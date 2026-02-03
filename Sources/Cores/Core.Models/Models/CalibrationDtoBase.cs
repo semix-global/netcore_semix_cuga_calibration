@@ -4,7 +4,7 @@ using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 
 namespace Core.Models.Models;
 
-public partial class CalibrationDtoBase : ObservableCacheBase, IEntityAdd
+public partial class CalibrationDtoBase : ObservableObject, IEntityAdd
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsOk))]

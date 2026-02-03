@@ -5,7 +5,7 @@ using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class ProductivityInformationStatus : ObservableCacheBase, IStatus<ProductivityInformation>
+public sealed partial class ProductivityInformationStatus : ObservableObject, IStatus<ProductivityInformation>
 {
     [ObservableProperty]
     private ProductivityInformation _selectedItem = ProductivityInformation.Default;

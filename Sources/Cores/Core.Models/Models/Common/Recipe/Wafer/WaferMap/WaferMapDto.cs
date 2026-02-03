@@ -6,7 +6,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 
-public sealed partial class WaferMapDto : ObservableCacheBase, ICloneable<WaferMapDto>
+public sealed partial class WaferMapDto : ObservableObject, ICloneable<WaferMapDto>
 {
     [ObservableProperty]
     private WaferMapDataDto _waferMapData = new();

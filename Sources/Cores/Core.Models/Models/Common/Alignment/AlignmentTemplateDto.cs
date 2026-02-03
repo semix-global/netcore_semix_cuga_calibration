@@ -14,7 +14,7 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentTemplateDto : ObservableCacheBase, ICloneable<AlignmentTemplateDto>, IAdaptTo<C2MTemplateDTO>, IAdaptIn<C2MTemplateDTO, AlignmentTemplateDto>
+public sealed partial class AlignmentTemplateDto : ObservableObject, ICloneable<AlignmentTemplateDto>, IAdaptTo<C2MTemplateDTO>, IAdaptIn<C2MTemplateDTO, AlignmentTemplateDto>
 {
     /// <summary>
     /// 模板路径

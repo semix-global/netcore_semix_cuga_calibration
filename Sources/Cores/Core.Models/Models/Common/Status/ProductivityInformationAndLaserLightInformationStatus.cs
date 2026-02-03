@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class ProductivityInformationAndLaserLightInformationStatus : ObservableCacheBase, IStatus<ProductivityInformation>
+public sealed partial class ProductivityInformationAndLaserLightInformationStatus : ObservableObject, IStatus<ProductivityInformation>
 {
     [ObservableProperty]
     private ProductivityInformation _selectedItem = ProductivityInformation.Default;
@@ -34,7 +34,7 @@ public sealed partial class ProductivityInformationAndLaserLightInformationStatu
     }
 }
 
-public sealed partial class LaserLightInformationStatus : ObservableCacheBase, IStatus<LaserLightInformation>
+public sealed partial class LaserLightInformationStatus : ObservableObject, IStatus<LaserLightInformation>
 {
     [ObservableProperty]
     private LaserLightInformation _selectedItem = LaserLightInformation.Default;

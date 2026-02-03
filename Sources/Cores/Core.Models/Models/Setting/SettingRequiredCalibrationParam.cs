@@ -5,7 +5,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Setting;
 
-public sealed partial class SettingRequiredCalibrationParam : ObservableCacheBase, ICloneable<SettingRequiredCalibrationParam>, IAdaptIn<SettingRequiredCalibrationParam, SettingRequiredCalibrationParam>
+public sealed partial class SettingRequiredCalibrationParam : ObservableObject, ICloneable<SettingRequiredCalibrationParam>, IAdaptIn<SettingRequiredCalibrationParam, SettingRequiredCalibrationParam>
 {
     [ObservableProperty]
     private string _description = string.Empty;

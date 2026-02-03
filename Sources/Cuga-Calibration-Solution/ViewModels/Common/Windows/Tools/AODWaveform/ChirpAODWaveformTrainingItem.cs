@@ -10,7 +10,7 @@ using ScottPlot.MultiplotLayouts;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class ChirpAODWaveformTrainingItem : ObservableCacheBase, IEquatable<ChirpAODWaveformTrainingItem>
+public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEquatable<ChirpAODWaveformTrainingItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

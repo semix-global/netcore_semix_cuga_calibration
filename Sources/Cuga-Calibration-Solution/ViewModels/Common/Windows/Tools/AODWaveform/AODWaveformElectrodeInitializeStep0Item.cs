@@ -5,7 +5,7 @@ using Local.NoSQL.DB.Providers.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeInitializeStep0Item<TItem> : ObservableCacheBase
+public sealed partial class AODWaveformElectrodeInitializeStep0Item<TItem> : ObservableObject
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]

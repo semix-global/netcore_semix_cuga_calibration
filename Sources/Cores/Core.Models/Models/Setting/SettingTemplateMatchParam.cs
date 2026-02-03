@@ -7,7 +7,7 @@ namespace Core.Models.Models.Setting;
 /// <summary>
 /// 模板匹配参数
 /// </summary>
-public sealed partial class SettingTemplateMatchParam : ObservableCacheBase, IAdaptIn<SettingTemplateMatchParam, SettingTemplateMatchParam>
+public sealed partial class SettingTemplateMatchParam : ObservableObject, IAdaptIn<SettingTemplateMatchParam, SettingTemplateMatchParam>
 {
     /// <summary>
     /// Sharpe匹配得分阈值
