@@ -23,6 +23,8 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
 using CommunityToolkit.Diagnostics;
+using Core.Models.Models;
+using Local.NoSQL.DB.Providers.Bases;
 using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Helpers.Extensions;
 using Newtonsoft.Json;
@@ -118,7 +120,10 @@ public class CalibrationCacheProviderServiceImpl(
                     ? cacheProvider.GetOrDefaultArray(cacheItem.Type)
                     : cacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
 
-                defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = JToken.FromObject(data);
+                var jToken = JToken.FromObject(data);
+                RemoveMetadata(jToken);
+
+                defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
             }
 
             var recipeCaches = new Dictionary<string, JToken>();
@@ -128,7 +133,10 @@ public class CalibrationCacheProviderServiceImpl(
                     ? recipeCacheProvider.GetOrDefaultArray(cacheItem.Type)
                     : recipeCacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
 
-                recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = JToken.FromObject(data);
+                var jToken = JToken.FromObject(data);
+                RemoveMetadata(jToken);
+
+                recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
             }
 
             var exportData = new Dictionary<string, Dictionary<string, JToken>>
@@ -146,6 +154,27 @@ public class CalibrationCacheProviderServiceImpl(
             logger.LogError(ex, "Export cache failed");
 
             return false;
+        }
+
+        void RemoveMetadata(JToken token)
+        {
+            switch (token)
+            {
+                case JArray array:
+                    foreach (var item in array) RemoveMetadata(item);
+
+                    break;
+                case JObject obj:
+                    obj.Remove(nameof(ICacheItem.Id));
+                    obj.Remove(nameof(ICacheItem.Expiration));
+                    obj.Remove(nameof(ICacheItem.CreatedTime));
+                    obj.Remove(nameof(ICacheItem.ModifiedTime));
+                    obj.Remove(nameof(ICacheItem.IsDeleted));
+                    obj.Remove(nameof(ObservableCacheBase.HasErrors));
+                    obj.Remove(nameof(CalibrationDtoBase.CreatedUserId));
+
+                    break;
+            }
         }
     }
 
