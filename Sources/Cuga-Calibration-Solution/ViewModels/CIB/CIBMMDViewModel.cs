@@ -32,6 +32,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -882,7 +883,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var xValidLogGainVector = aValidGainSubMatrix.QR().Solve(bValidVector);
 
             var xLogVector = Vector<double>.Build.Dense([.. xLogMeasurePowerVector, .. xValidLogGainVector]);
-            var gainRSquared = Boltzmann.RSquared(aValidGainSubMatrix * xValidLogGainVector, bValidVector);
+            var gainRSquared = BoltzmannCurve.RSquared(aValidGainSubMatrix * xValidLogGainVector, bValidVector);
             var gainResidual = (aValidMatrix * xLogVector - bValidLogCurrentVector).L2Norm();
 
             item.GainRSquared = gainRSquared;
@@ -904,7 +905,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Select(t => new Point(gains[t.Index], t.Item))
             ];
 
-            var (a1, a2, x0, dx, rSquared, yPredicted) = Boltzmann.BoltzmannFit(Vector<double>.Build.DenseOfEnumerable(item.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(item.OriginLogGainPoints.Select(t => t.Y)));
+            var (a1, a2, x0, dx, rSquared, yPredicted) = BoltzmannCurve.Fit(Vector<double>.Build.DenseOfEnumerable(item.OriginLogGainPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(item.OriginLogGainPoints.Select(t => t.Y)));
             item.LogGainA1 = a1;
             item.LogGainA2 = a2;
             item.LogGainX0 = x0;

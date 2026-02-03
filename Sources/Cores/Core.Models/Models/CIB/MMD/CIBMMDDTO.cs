@@ -10,6 +10,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
 using Core.Models.Models.Common.DarkField;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace Core.Models.Models.CIB.MMD;
 
@@ -179,7 +180,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
                 OriginLogGainPoints,
                 Constants.Category10.GetColor(0));
             scatterLines.ElementAtOrDefault(1)?.Update(
-                $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
+                BoltzmannCurve.ToString(LogGainA1, LogGainA2, LogGainX0, LogGainDx, LogGainRSquared, "0.######"),
                 FitLogGainPoints,
                 Constants.Category10.GetColor(1));
 
