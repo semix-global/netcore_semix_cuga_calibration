@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Cuga.Data.DataStruct.DTO.Swath;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
@@ -11,7 +10,6 @@ using Newtonsoft.Json.Linq;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 using Core.Models.Extensions;
@@ -256,7 +254,7 @@ public sealed class ProductivityInformation :
 
             writer.WriteStartObject();
             writer.WritePropertyName(nameof(OpticsIlluminationModeEnum));
-            writer.WriteValue(value.OpticsIlluminationModeEnum);
+            writer.WriteValue((int)value.OpticsIlluminationModeEnum);
             writer.WritePropertyName(nameof(OpticsMagType));
             writer.WriteValue(value.OpticsMagType);
             writer.WritePropertyName(nameof(StageSpeedType));
@@ -270,7 +268,7 @@ public sealed class ProductivityInformation :
 
             var jsonObject = JObject.Load(reader);
 
-            var opticsIlluminationModeEnum = jsonObject[nameof(OpticsIlluminationModeEnum)]?.Value<OpticsIlluminationModeEnum>() ?? Default.OpticsIlluminationModeEnum;
+            var opticsIlluminationModeEnum = (OpticsIlluminationModeEnum)(jsonObject[nameof(OpticsIlluminationModeEnum)]?.Value<int>() ?? (int)OpticsIlluminationModeEnum.OI);
             var opticsMagType = jsonObject[nameof(OpticsMagType)]?.Value<int>() ?? Default.OpticsMagType;
             var stageSpeedType = jsonObject[nameof(StageSpeedType)]?.Value<int>() ?? Default.StageSpeedType;
 

@@ -111,37 +111,33 @@ public class CalibrationCacheProviderServiceImpl(
     {
         try
         {
-            var defaultJObject = new JObject();
+            var defaultCaches = new Dictionary<string, JToken>();
             foreach (var cacheItem in CacheCollector.DefaultCaches)
             {
                 var data = cacheItem.IsArray
                     ? cacheProvider.GetOrDefaultArray(cacheItem.Type)
-                    : cacheProvider.GetOrDefault(cacheItem.Type);
+                    : cacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
 
-                defaultJObject[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = data is not null
-                    ? JToken.FromObject(data)
-                    : JValue.CreateNull();
+                defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = JToken.FromObject(data);
             }
 
-            var recipeJObject = new JObject();
+            var recipeCaches = new Dictionary<string, JToken>();
             foreach (var cacheItem in CacheCollector.RecipeCaches)
             {
                 var data = cacheItem.IsArray
                     ? recipeCacheProvider.GetOrDefaultArray(cacheItem.Type)
-                    : recipeCacheProvider.GetOrDefault(cacheItem.Type);
+                    : recipeCacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
 
-                recipeJObject[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = data is not null
-                    ? JToken.FromObject(data)
-                    : JValue.CreateNull();
+                recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = JToken.FromObject(data);
             }
 
-            var exportJObject = new JObject
+            var exportData = new Dictionary<string, Dictionary<string, JToken>>
             {
-                [nameof(CacheCollector.DefaultCaches)] = defaultJObject,
-                [nameof(CacheCollector.RecipeCaches)] = recipeJObject
+                [nameof(CacheCollector.DefaultCaches)] = defaultCaches,
+                [nameof(CacheCollector.RecipeCaches)] = recipeCaches
             };
 
-            File.WriteAllText(filePath, exportJObject.ToString(Formatting.Indented));
+            FileHelper.SerializeOperate(exportData, filePath);
 
             return true;
         }
@@ -157,49 +153,41 @@ public class CalibrationCacheProviderServiceImpl(
     {
         try
         {
-            var importJObject = JObject.Parse(File.ReadAllText(filePath));
+            var importData = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, JToken>>>(File.ReadAllText(filePath));
 
-            if (importJObject.TryGetValue(nameof(CacheCollector.DefaultCaches), out var defaultJToken) && defaultJToken is JObject defaultJObject)
+            Guard.IsNotNull(importData);
+
+            if (importData.TryGetValue(nameof(CacheCollector.DefaultCaches), out var defaultCaches))
             {
                 foreach (var cacheItem in CacheCollector.DefaultCaches)
                 {
-                    if (defaultJObject.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false || jToken.Type == JTokenType.Null) continue;
+                    if (defaultCaches.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false) continue;
+                    if (jToken.Type == JTokenType.Null) continue;
 
                     var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
-
                     var data = jToken.ToObject(targetType);
-
                     Guard.IsNotNull(data);
-                    try
-                    {
-                        if (cacheItem.IsArray)
-                        {
-                            cacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, CancellationToken.None);
-                        }
-                        else
-                        {
-                            cacheProvider.Set(data, cacheItem.Type, CancellationToken.None);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Import cache failed");
 
-                        return false;
+                    if (cacheItem.IsArray)
+                    {
+                        cacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, CancellationToken.None);
+                    }
+                    else
+                    {
+                        cacheProvider.Set(data, cacheItem.Type, CancellationToken.None);
                     }
                 }
             }
 
-            if (importJObject.TryGetValue(nameof(CacheCollector.RecipeCaches), out var recipeJToken) && recipeJToken is JObject recipeJObject)
+            if (importData.TryGetValue(nameof(CacheCollector.RecipeCaches), out var recipeCaches))
             {
                 foreach (var cacheItem in CacheCollector.RecipeCaches)
                 {
-                    if (recipeJObject.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false || jToken.Type == JTokenType.Null) continue;
+                    if (recipeCaches.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false) continue;
+                    if (jToken.Type == JTokenType.Null) continue;
 
                     var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
-
                     var data = jToken.ToObject(targetType);
-
                     Guard.IsNotNull(data);
 
                     if (cacheItem.IsArray)
