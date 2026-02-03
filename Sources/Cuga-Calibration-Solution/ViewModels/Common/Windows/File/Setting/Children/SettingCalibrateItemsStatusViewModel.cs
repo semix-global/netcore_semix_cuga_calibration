@@ -148,7 +148,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
 
     public override Task<bool> SavingAsync()
     {
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             if (_isLoadSuccess == false) return true; // 未加载缓存成功，不保存
 
@@ -190,7 +190,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
 
             // 序列化覆盖原先的result
             var appliedFilePath = _configViewModel.GetAppliedCalibrateResultFilePath();
-            var save = _calibrationCacheProviderService.TrySave(appliedFilePath);
+            var save = await _calibrationCacheProviderService.TrySaveAsync(appliedFilePath, CancellationToken.None);
             if (save)
                 _dialogWindowProvider.ShowDialog("Save Success.");
             else

@@ -4,11 +4,11 @@ namespace CugaCalibration.Core.Services.Interfaces;
 
 public interface ICalibrationCacheProvider
 {
-    bool TrySave(string? filePath = null);
+    Task<bool> TrySaveAsync(string? filePath, CancellationToken cancellationToken);
 
-    bool TryExport(string filePath);
+    Task<bool> TryExportAsync(string filePath, CancellationToken cancellationToken);
 
-    bool TryImport(string filePath);
+    Task<bool> TryImportAsync(string filePath, CancellationToken cancellationToken);
 
-    bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name);
+    bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name, CancellationToken token);
 }

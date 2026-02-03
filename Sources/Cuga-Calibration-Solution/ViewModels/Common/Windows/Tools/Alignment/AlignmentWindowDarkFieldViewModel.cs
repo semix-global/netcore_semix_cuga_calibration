@@ -415,7 +415,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
         _recipeCacheProvider.SetArray(Caches, cancellationToken);
         return true;
-    }, nameof(AlignmentCacheDarkField));
+    }, nameof(AlignmentCacheDarkField), cancellationToken);
 
     [RelayCommand(CanExecute = nameof(IsAdvancedEnable))]
     private Task AdvancedAsync()

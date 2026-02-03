@@ -409,7 +409,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     }
 
     [RelayCommand]
-    private void OpenToolMenu(SysMenuDto sysMenu)
+    private async Task OpenToolMenuAsync(SysMenuDto sysMenu)
     {
         try
         {
@@ -424,7 +424,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                     switch (sysMenu.Name)
                     {
                         case CalibrationConstantsHelper.Save:
-                            var save = _calibrationCacheProviderService.TrySave();
+                            var save = await _calibrationCacheProviderService.TrySaveAsync(null, CancellationToken.None);
                             if (save)
                                 _dialogWindowProvider.ShowDialog("Save Success.");
                             else
@@ -435,7 +435,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                         case CalibrationConstantsHelper.Export:
                             if (_dialogWindowProvider.TryShowSaveFilePathDialog(".json", out var exportPath) == true)
                             {
-                                if (_calibrationCacheProviderService.TryExport(exportPath))
+                                if (await _calibrationCacheProviderService.TryExportAsync(exportPath, CancellationToken.None))
                                     _dialogWindowProvider.ShowDialog("Export Success.");
                                 else
                                     _dialogWindowProvider.ShowDialog("Export Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
@@ -446,7 +446,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                         case CalibrationConstantsHelper.Import:
                             if (_dialogWindowProvider.TryShowSelectFilePathDialog(".json", out var importPath) == true)
                             {
-                                if (_calibrationCacheProviderService.TryImport(importPath))
+                                if (await _calibrationCacheProviderService.TryImportAsync(importPath, CancellationToken.None))
                                     _dialogWindowProvider.ShowDialog("Import Success.");
                                 else
                                     _dialogWindowProvider.ShowDialog("Import Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
