@@ -4,7 +4,7 @@ using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 
 namespace Core.Models.Models.Common.Recipe;
 
-public partial class CalibrationRecipeDtoBase : ObservableObject, IEntityAdd
+public partial class CalibrationRecipeDtoBase : ObservableCacheBase, IEntityAdd
 {
     [ObservableProperty]
     private long _createdUserId;

@@ -424,9 +424,7 @@ public sealed partial class StageMapDto : ObservableObject, ICloneable<StageMapD
         IdealCsvFilePath = IdealCsvFilePath,
         RealCsvFilePath = RealCsvFilePath,
         RealIsMatchOkCsvFilePath = RealIsMatchOkCsvFilePath,
-        ErrorCsvFilePath = ErrorCsvFilePath,
-        Id = Id,
-        Expiration = Expiration
+        ErrorCsvFilePath = ErrorCsvFilePath
     };
 
     public Wcf.Models.Chuck.StageMap AdaptTo() => new()

@@ -40,9 +40,7 @@ public sealed partial class AlignmentTemplateDto : ObservableObject, ICloneable<
     {
         Name = Name,
         Thumb = [.. Thumb],
-        Size = Size,
-        Id = Id,
-        Expiration = Expiration
+        Size = Size
     };
 
     public C2MTemplateDTO AdaptTo() => new()

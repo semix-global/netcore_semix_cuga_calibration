@@ -69,9 +69,7 @@ public sealed partial class StageMapItemDto : ObservableObject, ICloneable<Stage
         TemplateImageFilePath = TemplateImageFilePath,
         TemplateScore = TemplateScore,
         TemplateAngle = TemplateAngle,
-        IsMatchOk = IsMatchOk,
-        Id = Id,
-        Expiration = Expiration
+        IsMatchOk = IsMatchOk
     };
 
     #endregion Mapper

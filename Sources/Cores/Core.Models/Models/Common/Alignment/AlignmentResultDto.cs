@@ -40,9 +40,7 @@ public sealed partial class AlignmentResultDto : ObservableObject, ICloneable<Al
     {
         Degrees = Degrees,
         MarkPoint1 = MarkPoint1,
-        MarkPoint2 = MarkPoint2,
-        Id = Id,
-        Expiration = Expiration
+        MarkPoint2 = MarkPoint2
     };
 
     public C2MAlignResult AdaptTo() => new()

@@ -7,6 +7,9 @@ namespace Core.Models.Models.Common.DarkField;
 public partial class DarkFieldRTFCDto : ObservableObject
 {
     [ObservableProperty]
+    private long _id;
+    
+    [ObservableProperty]
     private int _pmtId;
 
     [ObservableProperty]

@@ -35,9 +35,7 @@ public sealed partial class CIBDelayDTO : ObservableObject, ICloneable<CIBDelayD
         CIBInformation = CIBInformation.Clone(),
         PMTDelay = PMTDelay,
         SenseDelay = SenseDelay,
-        AGCDelay = AGCDelay,
-        Id = Id,
-        Expiration = Expiration
+        AGCDelay = AGCDelay
     };
 
     public CgPMTDelayModel AdaptTo() => new()

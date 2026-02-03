@@ -42,9 +42,7 @@ public partial class DarkFieldRawScanImageDTO :
         ChannelId = ChannelId,
         Width = Width,
         Height = Height,
-        RawImageFilePath = RawImageFilePath,
-        Id = Id,
-        Expiration = Expiration
+        RawImageFilePath = RawImageFilePath
     };
 
     public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj)
@@ -81,9 +79,7 @@ public sealed class DarkFieldImageDTO :
         Width = Width,
         Height = Height,
         RawImageFilePath = RawImageFilePath,
-        Image = Image.Copy(),
-        Id = Id,
-        Expiration = Expiration
+        Image = Image.Copy()
     };
 
     public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj)

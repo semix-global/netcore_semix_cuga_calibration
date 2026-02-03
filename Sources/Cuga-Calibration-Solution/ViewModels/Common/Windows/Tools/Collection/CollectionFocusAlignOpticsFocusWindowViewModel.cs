@@ -41,7 +41,7 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
-public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableObject
+public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCacheBase
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

@@ -23,6 +23,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.IO;
 using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models;
 using Local.NoSQL.DB.Providers.Bases;
 using Microsoft.Extensions.DependencyInjection;
@@ -170,7 +171,7 @@ public class CalibrationCacheProviderServiceImpl(
                     obj.Remove(nameof(ICacheItem.CreatedTime));
                     obj.Remove(nameof(ICacheItem.ModifiedTime));
                     obj.Remove(nameof(ICacheItem.IsDeleted));
-                    obj.Remove(nameof(ObservableObject.HasErrors));
+                    obj.Remove(nameof(ObservableValidator.HasErrors));
                     obj.Remove(nameof(CalibrationDtoBase.CreatedUserId));
 
                     break;

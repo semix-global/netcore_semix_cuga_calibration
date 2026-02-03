@@ -32,7 +32,7 @@ using Core.Utilities.SourceGenerators.Attributes;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public sealed partial class OpticsObjectiveYAngleCache : ObservableObject
+public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
 {
     #region Param
 

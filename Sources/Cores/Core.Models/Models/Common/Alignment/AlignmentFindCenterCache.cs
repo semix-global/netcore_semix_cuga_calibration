@@ -4,7 +4,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public partial class AlignmentFindCenterCache : ObservableObject
+public partial class AlignmentFindCenterCache : ObservableCacheBase
 {
     [ObservableProperty]
     private bool _isOk;

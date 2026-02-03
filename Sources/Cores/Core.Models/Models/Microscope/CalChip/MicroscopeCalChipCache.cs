@@ -122,7 +122,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     } = 1;
 }
 
-public sealed partial class MicroscopeCalChipCacheItem : ObservableObject
+public sealed partial class MicroscopeCalChipCacheItem : ObservableValidator
 {
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum;

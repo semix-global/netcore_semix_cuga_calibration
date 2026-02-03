@@ -352,9 +352,8 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
         TriggerStartIndex = TriggerStartIndex,
         TriggerEndIndex = TriggerEndIndex,
         ChannelItems = ChannelItems.Select(t => t.Clone()).ToList().AsReadOnly(),
-        GenerateChirpAODWaveformParam = GenerateChirpAODWaveformParam.Clone(),
-        Id = Id,
-        Expiration = Expiration
+        GenerateChirpAODWaveformParam = GenerateChirpAODWaveformParam.Clone()
+
     };
 }
 
@@ -669,8 +668,7 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableOb
         GrayValues = GrayValues.ToList().AsReadOnly(),
         RawFilePath = RawFilePath,
         OriginFilePath = OriginFilePath,
-        LinearFilePath = LinearFilePath,
-        Id = Id,
-        Expiration = Expiration
+        LinearFilePath = LinearFilePath
+
     };
 }

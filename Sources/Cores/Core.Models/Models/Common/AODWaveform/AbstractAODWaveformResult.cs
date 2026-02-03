@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Local.NoSQL.DB.Providers.Bases;
 

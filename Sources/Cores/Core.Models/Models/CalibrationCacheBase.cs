@@ -5,7 +5,7 @@ using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 
 namespace Core.Models.Models;
 
-public partial class CalibrationCacheBase : ObservableObject, IEntityAdd
+public partial class CalibrationCacheBase : ObservableCacheBase, IEntityAdd
 {
     [ObservableProperty]
     private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;

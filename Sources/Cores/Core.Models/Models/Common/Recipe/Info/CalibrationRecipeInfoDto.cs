@@ -11,6 +11,9 @@ namespace Core.Models.Models.Common.Recipe.Info;
 public partial class CalibrationRecipeInfoDto : ObservableObject, ICloneable<CalibrationRecipeInfoDto>, IAdaptTo<SysRecipeInformationDto>, IAdaptIn<SysRecipeInformationDto, CalibrationRecipeInfoDto>
 {
     [ObservableProperty]
+    private long _id;
+    
+    [ObservableProperty]
     private string _recipeName = "Default";
 
     [ObservableProperty]
