@@ -215,7 +215,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
             XStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
             YStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
 
-            foreach (var plot in XStrehlRatioScatterPlotControl.Multiplot.GetPlots().Skip(1))
+            foreach (var plot in XStrehlRatioScatterPlotControl.Multiplot.GetPlots().Skip(1).Concat(YStrehlRatioScatterPlotControl.Multiplot.GetPlots().Skip(1)))
             {
                 var fitPoints = plot.GetPlottables().OfType<ScatterLine>().SingleOrDefault()?.ScatterSourcePoints.Points ?? [];
 
@@ -228,7 +228,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
                     var length = max - min;
                     var middle = (max + min) / 2d;
 
-                    plot.Axes.SetLimitsX(middle - length / 4d, middle + length / 4d);
+                    plot.Axes.SetLimitsX(middle - length / 8d, middle + length / 8d);
                 }
             }
         }
