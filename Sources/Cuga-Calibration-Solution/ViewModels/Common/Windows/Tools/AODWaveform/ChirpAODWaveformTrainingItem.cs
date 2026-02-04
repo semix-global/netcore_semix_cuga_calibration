@@ -211,8 +211,8 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
             YStrehlRatioScatterPlotControl.AutoScaleRefresh();
             GrayScatterPlotControl.AutoScaleRefresh();
 
-            XStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.1d, 0.3d);
-            YStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.1d, 0.3d);
+            XStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
+            YStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
         }
 
         return;
@@ -227,8 +227,9 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, 1);
             scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
-            scatterLines[0].LineWidth = 5;
-            scatterLines[0].MarkerSize = 10;
+            scatterLines[0].LineWidth = 2;
+            scatterLines[0].MarkerSize = 5;
+            scatterLines[0].MarkerColor = Colors.DarkGreen;
         }
 
         void Refresh(IScatterPlotControl scatterPlotControl, int plotIndex, IReadOnlyList<IReadOnlyList<Point>> points, IReadOnlyList<Point> fitPoints)
@@ -244,8 +245,9 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(plotIndex, 1);
             scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
-            scatterLines[0].LineWidth = 5;
-            scatterLines[0].MarkerSize = 10;
+            scatterLines[0].LineWidth = 2;
+            scatterLines[0].MarkerSize = 5;
+            scatterLines[0].MarkerColor = Colors.DarkGreen;
         }
     }
 
