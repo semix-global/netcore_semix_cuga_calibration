@@ -261,11 +261,6 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <TextBox Text="{Binding Cache.DSWMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                                         hc:TitleElement.Title="Machine Position(um):"
-                                                         hc:TitleElement.TitlePlacement="Left"
-                                                         hc:TitleElement.TitleWidth="200"
-                                                         Style="{StaticResource TextBoxExtend}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Start"
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"

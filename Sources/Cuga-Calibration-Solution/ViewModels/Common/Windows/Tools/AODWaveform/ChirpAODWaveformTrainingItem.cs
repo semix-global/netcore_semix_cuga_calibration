@@ -234,7 +234,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
             foreach (var (index, temp) in points.Index())
             {
-                scatterMarkers[index].Update(string.Empty, temp, Constants.Category20.GetColor(index).Lighten(0.3), MarkerShape.FilledCircle);
+                scatterMarkers[index].Update(string.Empty, temp, Colors.Gray, MarkerShape.FilledCircle);
             }
 
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(plotIndex, 1);
