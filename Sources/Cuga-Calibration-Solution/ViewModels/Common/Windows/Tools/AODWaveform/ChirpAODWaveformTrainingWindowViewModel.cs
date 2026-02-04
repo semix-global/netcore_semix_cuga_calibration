@@ -347,6 +347,8 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             Cache.Items = [.. Cache.Items, item];
 
+            Cache.SelectedItem = item;
+
             return item;
         }
         finally

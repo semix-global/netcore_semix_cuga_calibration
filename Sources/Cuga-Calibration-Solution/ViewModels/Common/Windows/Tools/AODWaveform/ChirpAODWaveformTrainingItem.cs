@@ -6,6 +6,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Plottables;
+using Net.Utilities.ScottPlot.WPF.WPF;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
@@ -213,6 +214,23 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
             XStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
             YStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
+
+            foreach (var plot in XStrehlRatioScatterPlotControl.Multiplot.GetPlots().Skip(1))
+            {
+                var fitPoints = plot.GetPlottables().OfType<ScatterLine>().SingleOrDefault()?.ScatterSourcePoints.Points ?? [];
+
+                if (fitPoints.Count > 0)
+                {
+                    var xes = fitPoints.Select(t => t.X).ToArray();
+
+                    var max = xes.Max();
+                    var min = xes.Min();
+                    var length = max - min;
+                    var middle = (max + min) / 2d;
+
+                    plot.Axes.SetLimitsX(middle - length / 4d, middle + length / 4d);
+                }
+            }
         }
 
         return;
