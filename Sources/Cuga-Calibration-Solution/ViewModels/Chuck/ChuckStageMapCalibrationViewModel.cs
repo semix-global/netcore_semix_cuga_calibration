@@ -43,8 +43,6 @@ using Net.Utilities.WPF.Enums;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckStageMapCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(ChuckStageMapDto))]
-[RecipeCache(typeof(ChuckStageMapCache))]
 public sealed partial class ChuckStageMapCalibrationViewModel(
     ApplicationCookie applicationCookie,
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
@@ -94,9 +92,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private ChuckStageMapCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private ChuckStageMapDto _calibration = new();
 

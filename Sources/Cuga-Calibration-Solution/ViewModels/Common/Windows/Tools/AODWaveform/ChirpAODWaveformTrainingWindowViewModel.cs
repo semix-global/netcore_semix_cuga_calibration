@@ -30,7 +30,6 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(ChirpAODWaveformTrainingWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(ChirpAODWaveformTrainingCache))]
 public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     CIBViewModel cibViewModel,
     LaserViewModel laserViewModel,
@@ -50,6 +49,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
     public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
+    [DefaultCache]
     [ObservableProperty]
     private ChirpAODWaveformTrainingCache _cache = new();
 

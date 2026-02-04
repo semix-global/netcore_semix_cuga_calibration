@@ -37,8 +37,7 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TCache,
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
 
-    [ObservableProperty]
-    private TCache _cache = new();
+    public abstract TCache Cache { get; set; }
 
     public abstract string Name { get; }
 

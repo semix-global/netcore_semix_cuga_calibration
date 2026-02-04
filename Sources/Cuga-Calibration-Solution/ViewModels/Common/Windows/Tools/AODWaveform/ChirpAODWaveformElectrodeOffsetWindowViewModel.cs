@@ -10,11 +10,17 @@ using Net.Utilities.Nlog.Extensions;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(ChirpAODWaveformElectrodeOffsetWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(ChirpAODWaveformElectrodeOffsetCache))]
 public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
     AbstractAODWaveformElectrodeOffsetWindowViewModel<ChirpAODWaveformElectrodeOffsetCache, ChirpAODWaveformElectrodeOffsetItem, ChirpAODWaveformElectrodeOffsetResult>
 {
     public override string Name => "Chirp AOD Waveform Electrode Offset";
+
+    [DefaultCache]
+    public override ChirpAODWaveformElectrodeOffsetCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     protected override void GenerateFlatnessAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {

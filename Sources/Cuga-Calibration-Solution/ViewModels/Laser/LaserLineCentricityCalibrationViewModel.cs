@@ -40,8 +40,6 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserLineCentricityCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(LaserLineCentricityItemDto), true)]
-[RecipeCache(typeof(LaserLineCentricityCache))]
 public sealed partial class LaserLineCentricityCalibrationViewModel(
     IApplicationCookieService applicationCookieService,
     EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel,
@@ -94,9 +92,11 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LaserLineCentricityCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LaserLineCentricityItemDto[] _calibrations = [];
 

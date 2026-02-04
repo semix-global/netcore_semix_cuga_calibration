@@ -28,8 +28,6 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckAlignmentDegreeOffsetCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(ChuckAlignmentDegreeOffsetItemDto), true)]
-[RecipeCache(typeof(ChuckAlignmentDegreeOffsetCache))]
 public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel) : CalibrationViewModelBase
@@ -69,9 +67,11 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private ChuckAlignmentDegreeOffsetCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private ChuckAlignmentDegreeOffsetItemDto[] _calibrations = [];
 

@@ -30,8 +30,6 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeCalChipCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(MicroscopeCalChipDto))]
-[RecipeCache(typeof(MicroscopeCalChipCache))]
 public sealed partial class MicroscopeCalChipCalibrationViewModel(
     CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie) : CalibrationViewModelBase
@@ -93,9 +91,11 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private MicroscopeCalChipCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private MicroscopeCalChipDto _calibration = new();
 

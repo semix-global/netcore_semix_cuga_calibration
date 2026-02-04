@@ -39,8 +39,6 @@ using Generate = MathNet.Numerics.Generate;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBMMDViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(CIBMMDDTO), true)]
-[RecipeCache(typeof(CIBMMDCache))]
 public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -81,9 +79,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private CIBMMDCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private CIBMMDDTO[] _calibrations = [];
 

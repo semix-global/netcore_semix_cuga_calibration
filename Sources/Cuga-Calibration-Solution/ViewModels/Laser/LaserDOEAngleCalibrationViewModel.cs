@@ -37,8 +37,6 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserDOEAngleCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(LaserDOEAngleDto))]
-[RecipeCache(typeof(LaserDOEAngleCache))]
 public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting calibrationSetting) : CalibrationViewModelBase
 {
     #region 属性
@@ -93,9 +91,11 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LaserDOEAngleCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LaserDOEAngleDto _calibration = new();
 

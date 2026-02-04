@@ -28,7 +28,6 @@ using Core.Utilities.SourceGenerators.Attributes;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 
 [IOCAppService(ServiceType = typeof(AlignmentWindowDarkFieldViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[RecipeCache(typeof(AlignmentCacheDarkField), true)]
 public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>, IRecipient<ValueChangedMessage<ToggleToolsEvent>>
 {
     private readonly ISynchronizationContextProvider _contextProvider;
@@ -63,6 +62,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [ObservableProperty]
     private AlignmentCacheDarkField _cache = new();
 
+    [RecipeCache]
     [ObservableProperty]
     private AlignmentCacheDarkField[] _caches = [];
 

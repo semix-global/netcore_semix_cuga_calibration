@@ -36,8 +36,6 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserLineOrientationOffsetCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(LineOrientationOffsetItemDto), true)]
-[RecipeCache(typeof(LineOrientationOffsetCache))]
 public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
@@ -89,9 +87,11 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LineOrientationOffsetCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LineOrientationOffsetItemDto[] _calibrations = [];
 

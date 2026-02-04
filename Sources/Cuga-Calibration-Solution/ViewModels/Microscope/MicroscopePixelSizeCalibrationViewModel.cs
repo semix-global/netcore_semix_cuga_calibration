@@ -23,8 +23,6 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopePixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(MicroscopePixelSizeItemDto), true)]
-[RecipeCache(typeof(MicroscopePixelSizeCache))]
 public sealed partial class MicroscopePixelSizeCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -78,6 +76,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private MicroscopePixelSizeCache _cache = new();
 
@@ -87,6 +86,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _calibrations = [];
 

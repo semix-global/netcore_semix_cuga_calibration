@@ -1,5 +1,4 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
@@ -19,16 +18,16 @@ public sealed class CacheSourceGenerator : IIncrementalGenerator
 
                                                namespace Core.Utilities.SourceGenerators.Attributes
                                                {
-                                                   [global::System.AttributeUsage(global::System.AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+                                                   [global::System.AttributeUsage(global::System.AttributeTargets.Property | global::System.AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
                                                    internal sealed class DefaultCacheAttribute : global::System.Attribute
                                                    {
-                                                       public DefaultCacheAttribute(global::System.Type type, bool isArray = false) { }
+                                                       public DefaultCacheAttribute() { }
                                                    }
 
-                                                   [global::System.AttributeUsage(global::System.AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+                                                   [global::System.AttributeUsage(global::System.AttributeTargets.Property | global::System.AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
                                                    internal sealed class RecipeCacheAttribute : global::System.Attribute
                                                    {
-                                                       public RecipeCacheAttribute(global::System.Type type, bool isArray = false) { }
+                                                       public RecipeCacheAttribute() { }
                                                    }
                                                }
                                                """;
@@ -41,17 +40,17 @@ public sealed class CacheSourceGenerator : IIncrementalGenerator
         var defaultCacheTypes = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 fullyQualifiedMetadataName: DefaultCacheAttributeFullName,
-                predicate: static (node, _) => IsTargetClass(node),
-                transform: static (ctx, _) => GetAttributeArguments(ctx, DefaultCacheAttributeFullName))
-            .SelectMany(static (items, _) => items)
+                predicate: static (node, _) => node is PropertyDeclarationSyntax or VariableDeclaratorSyntax,
+                transform: static (ctx, _) => GetArguments(ctx))
+            .Where(static item => string.IsNullOrWhiteSpace(item.Type) == false)
             .Collect();
 
         var recipeCacheTypes = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 fullyQualifiedMetadataName: RecipeCacheAttributeFullName,
-                predicate: static (node, _) => IsTargetClass(node),
-                transform: static (ctx, _) => GetAttributeArguments(ctx, RecipeCacheAttributeFullName))
-            .SelectMany(static (items, _) => items)
+                predicate: static (node, _) => node is PropertyDeclarationSyntax or VariableDeclaratorSyntax,
+                transform: static (ctx, _) => GetArguments(ctx))
+            .Where(static item => string.IsNullOrWhiteSpace(item.Type) == false)
             .Collect();
 
         var combined = defaultCacheTypes.Combine(recipeCacheTypes);
@@ -59,37 +58,40 @@ public sealed class CacheSourceGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(combined, static (ctx, source) =>
         {
             var (defaultCaches, recipeCaches) = source;
+
             ctx.AddSource("SourceGenerators.CacheCollector.g.cs", SourceText.From(GenerateCacheCollector(defaultCaches, recipeCaches), Encoding.UTF8));
         });
     }
 
-    private static bool IsTargetClass(SyntaxNode node)
+    private static (string Type, bool IsArray) GetArguments(GeneratorAttributeSyntaxContext context)
     {
-        return node is ClassDeclarationSyntax classDeclaration
-               && classDeclaration.Modifiers.Any(SyntaxKind.AbstractKeyword) == false
-               && classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword) == false;
-    }
-
-    private static ImmutableArray<(string Type, bool IsArray)> GetAttributeArguments(GeneratorAttributeSyntaxContext context, string attributeFullName)
-    {
-        var items = ImmutableArray.CreateBuilder<(string Type, bool IsArray)>();
-
-        foreach (var attribute in context.Attributes.Where(attribute => attribute.AttributeClass?.ToDisplayString() == attributeFullName))
+        var typeSymbol = context.TargetSymbol switch
         {
-            if (attribute.ConstructorArguments[0].Value is ITypeSymbol typeSymbol &&
-                attribute.ConstructorArguments[1].Value is bool isArray)
-            {
-                items.Add((typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), isArray));
-            }
-        }
+            IPropertySymbol propertySymbol => propertySymbol.Type,
+            IFieldSymbol fieldSymbol => fieldSymbol.Type,
+            _ => null
+        };
 
-        return items.ToImmutable();
+        if (typeSymbol is null) return (string.Empty, false);
+
+        var isArray = typeSymbol.Kind == SymbolKind.ArrayType;
+
+        if (isArray && typeSymbol is IArrayTypeSymbol arraySymbol) typeSymbol = arraySymbol.ElementType;
+
+        return (typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), isArray);
     }
 
     private static string GenerateCacheCollector(ImmutableArray<(string Type, bool IsArray)> defaultCaches, ImmutableArray<(string Type, bool IsArray)> recipeCaches)
     {
-        var defaultCacheContent = string.Join("\n", defaultCaches.Distinct().OrderBy(t => t.Type).Select(t => $"            new CacheItem(typeof({t.Type}), {t.IsArray.ToString().ToLower()}),"));
-        var recipeCacheContent = string.Join("\n", recipeCaches.Distinct().OrderBy(t => t.Type).Select(t => $"            new CacheItem(typeof({t.Type}), {t.IsArray.ToString().ToLower()}),"));
+        var defaultCacheContent = string.Join("\n", defaultCaches
+            .Distinct()
+            .OrderBy(t => t.Type)
+            .Select(t => $"            new CacheItem(typeof({t.Type}), {t.IsArray.ToString().ToLower()}),"));
+
+        var recipeCacheContent = string.Join("\n", recipeCaches
+            .Distinct()
+            .OrderBy(t => t.Type)
+            .Select(t => $"            new CacheItem(typeof({t.Type}), {t.IsArray.ToString().ToLower()}),"));
 
         return $$"""
                  // <auto-generated />

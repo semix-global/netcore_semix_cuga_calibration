@@ -20,8 +20,6 @@ using System.Text;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserOpticalPowerMeterViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(LaserOpticalPowerMeterDTO), true)]
-[RecipeCache(typeof(LaserOpticalPowerMeterCache))]
 public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -63,9 +61,11 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LaserOpticalPowerMeterCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LaserOpticalPowerMeterDTO[] _calibrations = [];
 

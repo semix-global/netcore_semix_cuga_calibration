@@ -27,8 +27,6 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.AOD;
 
 [IOCAppService(ServiceType = typeof(AODDelayViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(AODDelayDTO), true)]
-[RecipeCache(typeof(AODDelayCache))]
 public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -67,9 +65,11 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private AODDelayCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private AODDelayDTO[] _calibrations = [];
 

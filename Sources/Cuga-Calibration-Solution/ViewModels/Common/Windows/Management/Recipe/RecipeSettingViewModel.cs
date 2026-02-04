@@ -49,7 +49,6 @@ using Core.Utilities.SourceGenerators.Attributes;
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 
 [IOCAppService(ServiceType = typeof(RecipeSettingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[RecipeCache(typeof(CalibrationRecipeDto))]
 public sealed partial class RecipeSettingViewModel(
     ICacheProvider cacheProvider,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
@@ -102,6 +101,7 @@ public sealed partial class RecipeSettingViewModel(
     [ObservableProperty]
     private bool _isEditWaferMapEnable = true;
 
+    [RecipeCache]
     [ObservableProperty]
     private CalibrationRecipeDto _calibrationRecipeDto = new();
 

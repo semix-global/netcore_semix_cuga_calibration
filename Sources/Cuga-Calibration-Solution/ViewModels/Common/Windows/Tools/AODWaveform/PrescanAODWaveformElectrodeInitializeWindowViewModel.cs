@@ -10,11 +10,17 @@ using Net.Utilities.Nlog.Extensions;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(PrescanAODWaveformElectrodeInitializeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(PrescanAODWaveformElectrodeInitializeCache))]
 public sealed class PrescanAODWaveformElectrodeInitializeWindowViewModel :
     AbstractAODWaveformElectrodeInitializeWindowViewModel<PrescanAODWaveformElectrodeInitializeCache, PrescanAODWaveformElectrodeInitializeItem, PrescanAODWaveformElectrodeInitializeResult>
 {
     public override string Name => "Prescan AOD Waveform Electrode Initialize";
+
+    [DefaultCache]
+    public override PrescanAODWaveformElectrodeInitializeCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     protected override async Task LoadedAsync()
     {

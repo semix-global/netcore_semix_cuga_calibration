@@ -21,8 +21,6 @@ using Net.Utilities.WPF.Enums;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserAutoFocusCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(LaserAutoFocusDto))]
-[RecipeCache(typeof(LaserAutoFocusCache))]
 public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -87,9 +85,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LaserAutoFocusCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LaserAutoFocusDto _calibration = new();
 

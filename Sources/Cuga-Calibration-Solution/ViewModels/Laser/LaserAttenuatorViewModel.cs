@@ -24,8 +24,6 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserAttenuatorViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(LaserAttenuatorDTO), true)]
-[RecipeCache(typeof(LaserAttenuatorCache))]
 public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -62,9 +60,11 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LaserAttenuatorCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LaserAttenuatorDTO[] _calibrations = [];
 

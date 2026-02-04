@@ -29,8 +29,6 @@ using static Core.Models.Models.Ads.XGains.AdsXGainsCache;
 namespace CugaCalibration.ViewModels.Ads;
 
 [IOCAppService(ServiceType = typeof(AdsXGainsCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(AdsXGainsItemDto))]
-[RecipeCache(typeof(AdsXGainsCache))]
 public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -133,9 +131,11 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private AdsXGainsCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private AdsXGainsItemDto _calibration = new();
 

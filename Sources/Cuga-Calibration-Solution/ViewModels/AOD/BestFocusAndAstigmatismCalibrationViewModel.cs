@@ -45,8 +45,6 @@ using Interpolator = Core.Utilities.Interpolator;
 namespace CugaCalibration.ViewModels.AOD;
 
 [IOCAppService(ServiceType = typeof(BestFocusAndAstigmatismCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(BestFocusAndAstigmatismDTO), true)]
-[RecipeCache(typeof(BestFocusAndAstigmatismCache))]
 public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -104,9 +102,11 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private BestFocusAndAstigmatismCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private BestFocusAndAstigmatismDTO[] _calibrations = [];
 

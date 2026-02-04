@@ -25,8 +25,6 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGantryCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(ChuckGantryDto))]
-[RecipeCache(typeof(ChuckGantryCache))]
 public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel) : CalibrationViewModelBase
 {
     #region 属性
@@ -65,9 +63,11 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private ChuckGantryCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private ChuckGantryDto _calibration = new();
 

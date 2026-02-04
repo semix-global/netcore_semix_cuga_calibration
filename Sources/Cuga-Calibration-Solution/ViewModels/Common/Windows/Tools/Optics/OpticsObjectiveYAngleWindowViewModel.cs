@@ -174,7 +174,6 @@ public sealed partial class OpticsObjectiveYAngleResult : ObservableObject
 }
 
 [IOCAppService(ServiceType = typeof(OpticsObjectiveYAngleWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(OpticsObjectiveYAngleCache))]
 public sealed partial class OpticsObjectiveYAngleWindowViewModel(
     ApplicationCookie applicationCookie,
     ICalibrationAlgorithmService calibrationAlgorithmService,
@@ -198,6 +197,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
     public Guid HtmlLogUniqueId { get; private set; }
 
+    [DefaultCache]
     [ObservableProperty]
     private OpticsObjectiveYAngleCache _cache = new();
 

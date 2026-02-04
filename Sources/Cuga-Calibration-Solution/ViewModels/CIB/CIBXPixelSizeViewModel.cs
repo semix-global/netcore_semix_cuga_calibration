@@ -34,8 +34,6 @@ using System.Threading.Channels;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBXPixelSizeViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(CIBXPixelSizeDTO), true)]
-[RecipeCache(typeof(CIBXPixelSizeCache))]
 public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -97,6 +95,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     [ObservableProperty]
     private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
 
+    [RecipeCache]
     [ObservableProperty]
     private CIBXPixelSizeCache _cache = new();
 
@@ -106,6 +105,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private CIBXPixelSizeDTO[] _calibrations = [];
 

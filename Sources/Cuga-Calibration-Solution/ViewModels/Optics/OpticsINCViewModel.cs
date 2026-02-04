@@ -27,8 +27,6 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Optics;
 
 [IOCAppService(ServiceType = typeof(OpticsINCViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(OpticsINCDTO), true)]
-[RecipeCache(typeof(OpticsINCCache))]
 public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 {
     #region 属性
@@ -67,9 +65,11 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private OpticsINCCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private OpticsINCDTO[] _calibrations = [];
 

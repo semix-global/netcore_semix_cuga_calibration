@@ -24,7 +24,6 @@ using Core.Utilities.SourceGenerators.Attributes;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 
 [IOCAppService(ServiceType = typeof(AlignmentWindowBrightFieldViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[RecipeCache(typeof(AlignmentCacheBrightField))]
 public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>
 {
     private readonly ISynchronizationContextProvider _contextProvider;
@@ -49,6 +48,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     [ObservableProperty]
     private AlignmentParamWindowBrightFieldViewModel _alignmentParamWindowBrightFieldViewModel;
 
+    [RecipeCache]
     [ObservableProperty]
     private AlignmentCacheBrightField _cache = new();
 

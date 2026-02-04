@@ -44,8 +44,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public ApplicationCookie ApplicationCookie { get; }
 
-    [ObservableProperty]
-    private TCache _cache = new();
+    public abstract TCache Cache { get; set; }
 
     public abstract string Name { get; }
 

@@ -10,11 +10,17 @@ using Net.Utilities.Nlog.Extensions;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 [IOCAppService(ServiceType = typeof(ChirpAODWaveformElectrodeInitializeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(ChirpAODWaveformElectrodeInitializeCache))]
 public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
     AbstractAODWaveformElectrodeInitializeWindowViewModel<ChirpAODWaveformElectrodeInitializeCache, ChirpAODWaveformElectrodeInitializeItem, ChirpAODWaveformElectrodeInitializeResult>
 {
     public override string Name => "Chirp AOD Waveform Electrode Initialize";
+
+    [DefaultCache]
+    public override ChirpAODWaveformElectrodeInitializeCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     protected override async Task LoadedAsync()
     {

@@ -28,8 +28,6 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserPixelSizeCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(LaserPixelSizeItemDto), true)]
-[RecipeCache(typeof(LaserPixelSizeCache))]
 public sealed partial class LaserPixelSizeCalibrationViewModel(
     EnableProductiveInformationWindowViewModel enableProductiveInformationWindowViewModel,
     EnableOpticsIlluminationModeWindowViewModel enableOpticsIlluminationModeWindowViewModel) : CalibrationViewModelBase
@@ -80,9 +78,11 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LaserPixelSizeCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LaserPixelSizeItemDto[] _calibrations = [];
 

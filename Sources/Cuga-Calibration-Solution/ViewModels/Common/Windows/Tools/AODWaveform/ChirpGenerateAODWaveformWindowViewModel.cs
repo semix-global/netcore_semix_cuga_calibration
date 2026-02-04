@@ -12,10 +12,16 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed class ChirpGenerateAODWaveformCache : GenerateAODWaveformCache<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>;
 
 [IOCAppService(ServiceType = typeof(ChirpGenerateAODWaveformWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(ChirpGenerateAODWaveformCache))]
 public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<ChirpGenerateAODWaveformCache, GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
 {
     public override string Name => "Generate Chirp AOD Waveform";
+
+    [DefaultCache]
+    public override ChirpGenerateAODWaveformCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     protected override void LoadedElectrodeOffsetResult(CancellationToken cancellationToken)
     {

@@ -256,7 +256,6 @@ public sealed partial class DSWResultItem : ObservableObject
 }
 
 [IOCAppService(ServiceType = typeof(CollectionFocusAlignOpticsFocusWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(CollectionFocusAlignOpticsFocusCache))]
 public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     IServiceProvider serviceProvider,
     StageViewModel stageViewModel,
@@ -282,6 +281,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
     public Guid HtmlLogUniqueId { get; private set; }
 
+    [DefaultCache]
     [ObservableProperty]
     private CollectionFocusAlignOpticsFocusCache _cache = new();
 

@@ -12,10 +12,16 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed class PrescanGenerateAODWaveformCache : GenerateAODWaveformCache<GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile>;
 
 [IOCAppService(ServiceType = typeof(PrescanGenerateAODWaveformWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(PrescanGenerateAODWaveformCache))]
 public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<PrescanGenerateAODWaveformCache, GeneratePrescanAODWaveformParam, PrescanAODWaveformProfile>
 {
     public override string Name => "Generate Prescan AOD Waveform";
+
+    [DefaultCache]
+    public override PrescanGenerateAODWaveformCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     protected override void LoadedElectrodeOffsetResult(CancellationToken cancellationToken)
     {

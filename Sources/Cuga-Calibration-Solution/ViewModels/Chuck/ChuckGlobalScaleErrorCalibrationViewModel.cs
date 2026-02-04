@@ -28,8 +28,6 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGlobalScaleErrorCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-[DefaultCache(typeof(ChuckGlobalScaleErrorDto))]
-[RecipeCache(typeof(ChuckGlobalScaleErrorCache))]
 public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel, IHostEnvironment hostEnvironment) : CalibrationViewModelBase
 {
     #region 属性
@@ -72,9 +70,11 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private ChuckGlobalScaleErrorCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private ChuckGlobalScaleErrorDto _calibration = new();
 
