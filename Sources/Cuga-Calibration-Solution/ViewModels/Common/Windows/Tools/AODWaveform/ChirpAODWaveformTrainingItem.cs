@@ -5,6 +5,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.ScottPlot.WPF.Plottables;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
@@ -226,10 +227,14 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, 1);
             scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
+            scatterLines[0].LineWidth = 5;
+            scatterLines[0].MarkerSize = 10;
         }
 
         void Refresh(IScatterPlotControl scatterPlotControl, int plotIndex, IReadOnlyList<IReadOnlyList<Point>> points, IReadOnlyList<Point> fitPoints)
         {
+            scatterPlotControl.Clear(plotIndex);
+
             var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(plotIndex, points.Count);
 
             foreach (var (index, temp) in points.Index())
@@ -239,6 +244,8 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(plotIndex, 1);
             scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
+            scatterLines[0].LineWidth = 5;
+            scatterLines[0].MarkerSize = 10;
         }
     }
 
