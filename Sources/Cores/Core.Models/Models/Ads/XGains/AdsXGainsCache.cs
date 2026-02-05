@@ -8,7 +8,6 @@ namespace Core.Models.Models.Ads.XGains;
 public sealed partial class AdsXGainsCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    [property: JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
     private List<double> _speedXValueList = [50, 65, 85, 110, 143, 186, 242, 315, 400];
 
     [ObservableProperty]

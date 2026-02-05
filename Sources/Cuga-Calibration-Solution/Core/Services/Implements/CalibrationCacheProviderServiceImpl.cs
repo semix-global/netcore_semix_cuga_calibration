@@ -146,7 +146,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                     Guard.IsNotNull(data);
 
-                    var jToken = JToken.FromObject(data);
+                    var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
                     RemoveMetadata(jToken);
 
                     defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
@@ -177,7 +177,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                             Guard.IsNotNull(data);
 
-                            var jToken = JToken.FromObject(data);
+                            var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
                             RemoveMetadata(jToken);
 
                             recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
@@ -195,8 +195,8 @@ public class CalibrationCacheProviderServiceImpl(
                 {
                     // [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
                     [nameof(CalibrationDtoBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
-                    [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches),
-                    [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches)
+                    [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer),
+                    [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer)
                 };
 
                 FileHelper.SerializeOperate(exportData, filePath);
@@ -255,7 +255,7 @@ public class CalibrationCacheProviderServiceImpl(
                         || jToken.Type == JTokenType.Null) continue;
 
                     var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
-                    var data = jToken.ToObject(targetType);
+                    var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
                     Guard.IsNotNull(data);
 
                     if (cacheItem.IsArray) cacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, cancellationToken);
@@ -295,7 +295,7 @@ public class CalibrationCacheProviderServiceImpl(
                                 || jToken.Type == JTokenType.Null) continue;
 
                             var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
-                            var data = jToken.ToObject(targetType);
+                            var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
                             Guard.IsNotNull(data);
 
                             if (cacheItem.IsArray)

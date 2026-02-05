@@ -247,4 +247,67 @@ public sealed class CacheSerializationTest : IDisposable
 
         JsonConvert.SerializeObject(deserialized).Should().Be(json);
     }
+
+    [Fact]
+    public void FooSerialization_ShouldOnlySerializePublicProperties_AndSupportPrivateSetters()
+    {
+        var foo = new Foo(
+            22,
+            33,
+            44,
+            55
+        )
+        {
+            PublicPropertyPublicSetInt = 11
+        };
+
+        // Act
+        var json = JsonConvert.SerializeObject(foo, PrivateSetterContractResolver.PrivateSetterAndReplaceSettings);
+        var deserialized = JsonConvert.DeserializeObject<Foo>(json, PrivateSetterContractResolver.PrivateSetterAndReplaceSettings);
+
+        // Assert
+        json.Should().Contain(nameof(Foo.PublicPropertyPublicSetInt));
+        json.Should().Contain(nameof(Foo.PublicPropertyPrivateSetInt));
+        json.Should().Contain(nameof(Foo.PublicPropertyInternalSetInt));
+        json.Should().Contain(nameof(Foo.PublicPropertyReadOnlyInt));
+
+        json.Should().NotContain("PrivatePropertyPrivateSetInt");
+
+        deserialized.Should().NotBeNull();
+        deserialized.PublicPropertyPublicSetInt.Should().Be(11);
+        deserialized.PublicPropertyPrivateSetInt.Should().Be(22);
+        deserialized.PublicPropertyInternalSetInt.Should().Be(33);
+        deserialized.PublicPropertyReadOnlyInt.Should().Be(4);
+        ObjectHelper.GetPropertyValue(deserialized, "PrivatePropertyPrivateSetInt").Should().Be(5);
+    }
+
+    public sealed class Foo
+    {
+        public int PublicPropertyPublicSetInt { get; set; } = 1;
+
+        public int PublicPropertyPrivateSetInt { get; private set; } = 2;
+
+        public int PublicPropertyInternalSetInt { get; internal set; } = 3;
+
+        public int PublicPropertyReadOnlyInt { get; } = 4;
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        private int PrivatePropertyPrivateSetInt { get; set; } = 5;
+
+        public Foo()
+        {
+        }
+
+        public Foo(
+            int publicPropertyPrivateSetInt,
+            int publicPropertyInternalSetInt,
+            int publicPropertyReadOnlyInt,
+            int privatePropertyPrivateSetInt)
+        {
+            PublicPropertyPrivateSetInt = publicPropertyPrivateSetInt;
+            PublicPropertyInternalSetInt = publicPropertyInternalSetInt;
+            PublicPropertyReadOnlyInt = publicPropertyReadOnlyInt;
+            PrivatePropertyPrivateSetInt = privatePropertyPrivateSetInt;
+        }
+    }
 }

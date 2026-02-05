@@ -99,10 +99,10 @@ public sealed partial class AdsXYMoveDiagnosisWindowViewModel(
     [ObservableProperty]
     private ObservableCollection<Position> _selectPositions =
     [
-        new Position { Number = "pos1", Type = StageCoordinateSystemEnum.Machine, StartPos = new Point(-150000.000, 0), EndPos = new Point(150000.000, 0), Time = 8, SpeedX = 100, SpeedY = 150 },
-        new Position { Number = "pos2", Type = StageCoordinateSystemEnum.Machine, StartPos = new Point(150000.000, 0), EndPos = new Point(-150000.000, 0), Time = 8, SpeedX = 100, SpeedY = 150 },
-        new Position { Number = "pos3", Type = StageCoordinateSystemEnum.Machine, StartPos = new Point(0, -150000.000), EndPos = new Point(0, 150000.000), Time = 8, SpeedX = 100, SpeedY = 150 },
-        new Position { Number = "pos4", Type = StageCoordinateSystemEnum.Machine, StartPos = new Point(0, 150000.000), EndPos = new Point(0, -150000.000), Time = 8, SpeedX = 100, SpeedY = 150 }
+        new() { Number = "pos1", Type = StageCoordinateSystemEnum.Machine, StartPos = new Point(-150000.000, 0), EndPos = new Point(150000.000, 0), Time = 8, SpeedX = 100, SpeedY = 150 },
+        new() { Number = "pos2", Type = StageCoordinateSystemEnum.Machine, StartPos = new Point(150000.000, 0), EndPos = new Point(-150000.000, 0), Time = 8, SpeedX = 100, SpeedY = 150 },
+        new() { Number = "pos3", Type = StageCoordinateSystemEnum.Machine, StartPos = new Point(0, -150000.000), EndPos = new Point(0, 150000.000), Time = 8, SpeedX = 100, SpeedY = 150 },
+        new() { Number = "pos4", Type = StageCoordinateSystemEnum.Machine, StartPos = new Point(0, 150000.000), EndPos = new Point(0, -150000.000), Time = 8, SpeedX = 100, SpeedY = 150 }
     ];
 
     [ObservableProperty]

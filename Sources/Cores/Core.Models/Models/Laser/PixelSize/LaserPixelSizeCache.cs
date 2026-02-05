@@ -9,13 +9,10 @@ using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
-namespace Core.Models.Models.Laser.LineCentricity;
+namespace Core.Models.Models.Laser.PixelSize;
 
-public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
+public sealed partial class LaserPixelSizeCache : CalibrationCacheBase
 {
-    [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
@@ -25,7 +22,7 @@ public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.GridConrner_100um;
+    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -42,47 +39,32 @@ public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
     [ObservableProperty]
     private bool _isDarkFieldAlignment;
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>> Items { get; init; } = [];
 
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
-    public LaserLineCentricityCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new LaserLineCentricityCacheItem());
+    public LaserPixelSizeCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new LaserPixelSizeCacheItem());
 }
 
-public sealed partial class LaserLineCentricityCacheItem : CalibrationCacheBase
+public sealed partial class LaserPixelSizeCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
-    /// <summary>
-    /// 选定特征的明场坐标
-    /// </summary>
+    [ObservableProperty]
+    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Grid_10um;
+
     [ObservableProperty]
     private Point _findPosition;
-
-    /// <summary>
-    /// 明场选定特征对应的stage机械坐标
-    /// </summary>
-    [ObservableProperty]
-    private Point _findBrightMachinePosition;
 
     [ObservableProperty]
     private int _xWidthPixel = 800;
 
     [ObservableProperty]
-    private string _brightTemplateFilePath = string.Empty;
+    private double _verifyResultYPixelSize;
 
     [ObservableProperty]
-    private string _brightTemplateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _templateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private Point _threshold;
+    private double _threshold;
 }

@@ -144,9 +144,9 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
     [ObservableProperty]
     private ObservableCollection<Position> _selectPositions =
     [
-        new Position { Number = "pos1", Value = new Point(-39118.185, -142953.168), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 },
-        new Position { Number = "pos2", Value = new Point(-39132.469, -142973.516), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 },
-        new Position { Number = "pos3", Value = new Point(-39215.956, -143125.986), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 }
+        new() { Number = "pos1", Value = new Point(-39118.185, -142953.168), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 },
+        new() { Number = "pos2", Value = new Point(-39132.469, -142973.516), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 },
+        new() { Number = "pos3", Value = new Point(-39215.956, -143125.986), StartEcs = 6000, EndEcs = 6700, Ecs = 6000 }
     ];
 
     [ObservableProperty]
