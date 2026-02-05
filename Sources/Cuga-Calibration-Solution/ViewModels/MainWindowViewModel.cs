@@ -439,8 +439,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                                     _dialogWindowProvider.ShowDialog("Export Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
                             }
 
-                            LoadCalibrationStatus();
-
                             break;
 
                         case CalibrationConstantsHelper.Import:
@@ -449,10 +447,13 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                                 var (isSuccess, message) = await _calibrationCacheProviderService.TryImportAsync(importPath, CancellationToken.None);
 
                                 if (isSuccess)
-                                    _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Information);
+                                    _dialogWindowProvider.ShowDialog(message);
                                 else
                                     _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
                             }
+
+                            LoadCalibrationStatus();
+
 
                             break;
                     }

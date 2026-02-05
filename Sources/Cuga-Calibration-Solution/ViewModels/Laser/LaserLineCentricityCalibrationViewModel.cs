@@ -736,8 +736,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 out _,
                 true,
                 Cache.Item.XWidthPixel,
-                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark,
-                null) == false)
+                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -839,8 +838,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
                 out var resultImageFilePath,
                 true,
                 Cache.Item.XWidthPixel,
-                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine,
-                null) == false)
+                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;

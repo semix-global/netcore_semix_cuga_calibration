@@ -397,8 +397,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     hazeBFPosition,
                     detectImageDirectory,
                     CalibratingItem.MappingWindowItem,
-                    cancellationToken,
-                    true);
+                    cancellationToken);
 
                 CalibratingItem.MappingWindowItem.CalculateHorizontalProjectMinPixels(Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexes);
 

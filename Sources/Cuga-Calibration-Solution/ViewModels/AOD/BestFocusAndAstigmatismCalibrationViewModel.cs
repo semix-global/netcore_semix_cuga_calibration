@@ -16,7 +16,6 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.LineCentricity;
-using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -623,8 +622,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
             var (interpolationX, interpolationY) = Interpolator.SplineInterpolation(
                 Vector<double>.Build.Dense([.. ecsBuffers.Select((t, i) => i)]),
                 Vector<double>.Build.Dense([.. ecsBuffers.Select(t => t.Ecs)]),
-                (Convert.ToInt32(bestFocusAndAstigmatismItemDto.LineScanRate / Cache.TraceBufferSamplingRate)),
-                3);
+                (Convert.ToInt32(bestFocusAndAstigmatismItemDto.LineScanRate / Cache.TraceBufferSamplingRate)));
 
             var ecsInterpolationBuffers = interpolationX.Index().Select(t => (Pixel: t.Index, ECS: interpolationY[t.Index])).ToList();
 
