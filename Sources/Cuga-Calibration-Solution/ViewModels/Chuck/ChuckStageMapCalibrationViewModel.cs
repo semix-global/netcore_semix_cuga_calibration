@@ -13,6 +13,7 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.XPixelSize;
+using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
@@ -22,7 +23,7 @@ using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Laser.PixelSize;
+
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
@@ -122,7 +123,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private ChuckGlobalScaleErrorDto _chuckGlobalScaleError = new();
 
     [ObservableProperty]
-    private LaserPixelSizeItemDto[] _laserPixelSizeItems = [];
+    private CIBYPixelSizeDTO[] _laserPixelSizeItems = [];
 
     [ObservableProperty]
     private LaserLineCentricityItemDto[] _laserLineCentricityItems = [];
@@ -236,7 +237,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         CIBXPixelSizeItems = cibXPixelSizeItems;
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPixelSizeItemDto>(out var laserPixelSizeItems, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBYPixelSizeDTO>(out var laserPixelSizeItems, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

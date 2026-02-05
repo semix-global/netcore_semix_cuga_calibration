@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.Laser.PixelSize.Children;
+﻿namespace CugaCalibration.Views.AutoFocus.GlobalFocusOffset.Children;
 
 public partial class Step0View
 {

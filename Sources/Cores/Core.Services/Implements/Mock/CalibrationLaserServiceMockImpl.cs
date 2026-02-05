@@ -538,15 +538,16 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
-        CalChipSiteModelEnum calChipSiteModelEnum,
-        int pmtId,
-        double? coefficient = null,
-        Point? point = null)
+    public SxExecuteRet<(double Ecs, double Motor, bool isAFServo)> RuntimeAfCalibration(
+           CalChipSiteModelEnum calChipSiteModelEnum,
+           ProductivityInformation productivityInformation,
+           int pmtId,
+           double? coefficient = null,
+           Point? point = null)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
+        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble(), true));
     }
 
     [Obsolete]

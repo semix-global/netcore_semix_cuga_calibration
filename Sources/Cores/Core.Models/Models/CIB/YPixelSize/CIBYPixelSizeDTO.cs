@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
@@ -7,13 +6,10 @@ using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Laser.PixelSize;
+namespace Core.Models.Models.CIB.YPixelSize;
 
-public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneable<LaserPixelSizeItemDto>, IAdaptTo<CalibrationLaserPixelSizeItem>
+public sealed partial class CIBYPixelSizeDTO : CalibrationDtoBase, ICloneable<CIBYPixelSizeDTO>, IAdaptTo<CalibrationLaserPixelSizeItem>
 {
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
-
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
@@ -24,7 +20,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
     private int _pmtId;
 
     [ObservableProperty]
-    private Point _findPosition;
+    private Point _findBFMachinePosition;
 
     [ObservableProperty]
     private double _yPixelSize;
@@ -33,20 +29,23 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
     private string _filePath = string.Empty;
 
     [ObservableProperty]
-    private string _originFilePath = string.Empty;
+    private string _drawImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private string _rawFilePath = string.Empty;
 
     #region Mapper
 
-    public LaserPixelSizeItemDto Clone() => new()
+    public CIBYPixelSizeDTO Clone() => new()
     {
-        OpticsIlluminationMode = OpticsIlluminationMode,
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         ProductivityInformation = ProductivityInformation.Clone(),
         PmtId = PmtId,
-        FindPosition = FindPosition,
+        FindBFMachinePosition = FindBFMachinePosition,
         YPixelSize = YPixelSize,
         FilePath = FilePath,
-        OriginFilePath = OriginFilePath,
+        DrawImageFilePath = DrawImageFilePath,
+        RawFilePath = RawFilePath,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -56,7 +55,7 @@ public sealed partial class LaserPixelSizeItemDto : CalibrationDtoBase, ICloneab
 
     public CalibrationLaserPixelSizeItem AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum = ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         PmtId = PmtId,
         YPixelSize = YPixelSize,

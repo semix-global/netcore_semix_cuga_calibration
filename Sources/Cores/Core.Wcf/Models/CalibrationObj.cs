@@ -1,4 +1,5 @@
 using Core.Wcf.Models.Ads;
+using Core.Wcf.Models.AutoFocus;
 using Core.Wcf.Models.Chuck;
 using Core.Wcf.Models.Laser;
 using Core.Wcf.Models.Microscope;
@@ -36,4 +37,10 @@ public sealed class CalibrationObj
     /// </summary>
     [Description(WcfConstantHelper.LaserNodeCalibrationName)]
     public CalibrationLaserObj CalibrationLaserObj { get; set; } = new CalibrationLaserObj();
+
+    /// <summary>
+    /// 暗场自动聚焦校准对象
+    /// </summary>
+    [Description(WcfConstantHelper.AutoFocusNodeCalibrationName)]
+    public CalibrationAutoFocusObj CalibrationAutoFocusObj { get; set; } = new CalibrationAutoFocusObj();
 }

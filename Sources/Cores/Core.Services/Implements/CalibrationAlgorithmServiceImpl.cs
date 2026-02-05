@@ -132,6 +132,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return new Size(xTuple.D, yTuple.D);
     }
 
+    [Obsolete]
     public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize)
     {
         var y = image.Image.GetHorizontalProjects();
@@ -143,6 +144,16 @@ public sealed class CalibrationAlgorithmServiceImpl(
         var mean = peaks.Skip(1).Select((t, i) => (double)t - peaks[i]).Average();
 
         return standardMaskSquareYSize / mean;
+    }
+
+    public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize, out HImage drawingImage)
+    {
+        _algorithm.DarkPixSizeCal(image.Image, 1, out var drawingImageObj, out var meanTuple);
+
+        using var _ = meanTuple;
+
+        drawingImage = new HImage(drawingImageObj);
+        return standardMaskSquareYSize / meanTuple.D;
     }
 
     public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, string templateFilePath, Rect rect, out HImage templateImage)

@@ -7,12 +7,13 @@ using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.CIB.XPixelSize;
+using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
@@ -40,7 +41,8 @@ public sealed class LaserViewModel(
     CalibrationSetting calibrationSetting,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
-    ICacheProvider cacheProvider) : ViewModelBase
+    ICacheProvider cacheProvider,
+    ApplicationCookie applicationCookie) : ViewModelBase
 {
     #region 服务
 
@@ -269,7 +271,7 @@ public sealed class LaserViewModel(
     }
 
     [Obsolete]
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(
+    public (double Ecs, double Motor) RuntimeAfCalibration(
         CIBConfiguration cibConfiguration,
         Point position,
         LaserLightInformation laserLightInformation,
@@ -290,10 +292,10 @@ public sealed class LaserViewModel(
         var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
         Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, applicationCookie.OILowProductivityInformation, pmtId, lightInformation?.Coefficient, point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
+        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.Motor);
         using var darkFieldImageDto = GetDarkFieldLineScanImage(
             calChipSiteModelEnum,
             position,
@@ -320,7 +322,7 @@ public sealed class LaserViewModel(
                     pmtId,
                     laserLightInformation,
                     ret.Anything.Ecs,
-                    ret.Anything.AfMotor,
+                    AfMotor = ret.Anything.Motor,
                     darkFieldImageDto.RawImageFilePath,
                     HtmlTab = new HtmlTab(new
                     {
@@ -330,72 +332,7 @@ public sealed class LaserViewModel(
             resultImageFilePath = rtfcResultImagePath;
         }
 
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public (double Ecs, double AfMotor) RuntimeAfCalibration(
-        CIBConfiguration cibConfiguration,
-        CIBInformation cibInformation,
-        Point position,
-        LaserLightInformation laserLightInformation,
-        ProductivityInformation productivityInformation,
-        out string resultImageFilePath,
-        bool isAppliedDefaultRtfcParam = true,
-        int pmtId = CalibrationConstantsHelper.MainPmtId,
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
-        string? saveImageFileDirectory = null,
-        Guid? logGuid = null,
-        string? logName = null
-    )
-    {
-        resultImageFilePath = string.Empty;
-        var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
-        Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
-
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, pmtId, lightInformation?.Coefficient, point);
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        var rtfcResult = ret.Anything;
-        afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.AfMotor);
-        using var darkFieldImageDto = GetDarkFieldLineScanImage(
-            opticsIlluminationModeEnum,
-            productivityInformation,
-            calChipSiteModelEnum,
-            stageCoordinateSystemEnum,
-            position,
-            (false, lightInformation),
-            false,
-            cibInformation,
-            cibConfiguration,
-            800); // 模板匹配只能通道3(1, 2特征不明显)
-
-        if (saveImageFileDirectory is not null)
-        {
-            var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
-            darkFieldImageDto.Image.Save(rtfcResultImagePath);
-
-            resultImageFilePath = rtfcResultImagePath;
-
-            if (logGuid is not null && logName is not null)
-                logger.LogHtmlInformation($"{logName} RTFC", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                {
-                    point,
-                    calChipSiteModelEnum,
-                    pmtId,
-                    laserLightInformation,
-                    ret.Anything.Ecs,
-                    ret.Anything.AfMotor,
-                    darkFieldImageDto.RawImageFilePath,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        RTFCResultImage = new HtmlImage(rtfcResultImagePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
-                    })
-                }), logGuid.Value.LoggingHtml());
-        }
-
-        return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess ? (ret.Anything.Ecs, ret.Anything.Motor) : throw new CugaException(ret.ErrorMsg);
     }
 
     [Obsolete]
@@ -456,7 +393,7 @@ public sealed class LaserViewModel(
     public double ReadDOECurrentAngle()
     {
         var ret = calibrationLaserService.ReadDOECurrentAngle();
-        return ret.IsSuccess && ret.Anything != 0 ? ret.Anything : throw new CugaException(ret.ErrorMsg + $"DOE pos is {ret.Anything}");
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public void SetDOEAngle(double angle)
@@ -560,7 +497,8 @@ public sealed class LaserViewModel(
                     break;
 
                 case StageCoordinateSystemEnum.Dark:
-                    stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, calChipSiteModelEnum);
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
+                    stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
                     break;
 
                 case StageCoordinateSystemEnum.Machine:
@@ -592,11 +530,13 @@ public sealed class LaserViewModel(
                     break;
 
                 case StageCoordinateSystemEnum.Dark:
-                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(position);
+                    stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
                     break;
 
                 case StageCoordinateSystemEnum.Machine:
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position);
+                    position = stageViewModel.MachineToDarkFieldPosition(position);
+                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
                     break;
 
                 default:
@@ -1342,9 +1282,8 @@ public sealed class LaserViewModel(
         resultAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
-            .SingleOrDefault(t => t.OpticsIlluminationMode == opticsIlluminationModeEnum
-                                  && t.ProductivityInformation.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
+        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
                                   && t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
                                   && t.PmtId == pmtId);
         if (ySize is null || ySize.IsOk == false)
@@ -1387,7 +1326,7 @@ public sealed class LaserViewModel(
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
-                        PmtId = darkFieldImageDto.PMTId,
+                        darkFieldImageDto.PMTId,
                         darkFieldImageDto.ChannelId,
                         darkFieldImageDto.Width,
                         XWidthPixel = xWidthPixel,
@@ -1476,7 +1415,6 @@ public sealed class LaserViewModel(
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
-    /// <param name="opticsIlluminationModeEnum"></param>
     /// <exception cref="AlgorithmException"></exception>
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
@@ -1496,18 +1434,15 @@ public sealed class LaserViewModel(
         out string resultImageFilePath,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum)
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum)
     {
         resultPosition = Point.Origin;
         resultScore = 0;
         resultAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
-            .SingleOrDefault(t => t.OpticsIlluminationMode == opticsIlluminationModeEnum
-                                  && t.ProductivityInformation.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
-                                  && t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
+        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation == productivityInformation
                                   && t.PmtId == pmtId);
         if (ySize is null || ySize.IsOk == false)
         {
@@ -1547,7 +1482,7 @@ public sealed class LaserViewModel(
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                     {
-                        PmtId = darkFieldImageDto.PMTId,
+                        darkFieldImageDto.PMTId,
                         darkFieldImageDto.ChannelId,
                         darkFieldImageDto.Width,
                         XWidthPixel = xWidthPixel,
@@ -1748,7 +1683,6 @@ public sealed class LaserViewModel(
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1761,7 +1695,7 @@ public sealed class LaserViewModel(
             false,
             cibConfiguration,
             productivityInformation,
-            opticsIlluminationModeEnum,
+            productivityInformation.OpticsIlluminationModeEnum,
             xWidthPixel,
             pmtId,
             stageCoordinateSystemEnum: stageCoordinateSystemEnum,
@@ -1784,8 +1718,7 @@ public sealed class LaserViewModel(
             out resultImageFilePath,
             isForward,
             xWidthPixel,
-            stageCoordinateSystemEnum,
-            opticsIlluminationModeEnum);
+            stageCoordinateSystemEnum);
     }
 
     /// <summary>
@@ -1860,7 +1793,6 @@ public sealed class LaserViewModel(
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
-    /// <param name="opticsIlluminationModeEnum"></param>
     /// <param name="laserLightInformation"></param>
     /// <param name="isAutoFocus"></param>
     /// <returns>是否成功</returns>
@@ -1875,7 +1807,6 @@ public sealed class LaserViewModel(
         out Point resultPosition,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1897,7 +1828,6 @@ public sealed class LaserViewModel(
             out _,
             isForward,
             xWidthPixel,
-            opticsIlluminationModeEnum: opticsIlluminationModeEnum,
             laserLightInformation: laserLightInformation,
             isAutoFocus: isAutoFocus);
     }
@@ -1983,7 +1913,6 @@ public sealed class LaserViewModel(
     /// <param name="resultImageFilePath">匹配后成功的[保存的匹配图片的路径]</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
-    /// <param name="opticsIlluminationModeEnum"></param>
     /// <param name="laserLightInformation"></param>
     /// <param name="isAutoFocus"></param>
     /// <returns>是否成功</returns>
@@ -2001,7 +1930,6 @@ public sealed class LaserViewModel(
         out string resultImageFilePath,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -2023,7 +1951,6 @@ public sealed class LaserViewModel(
             out resultImageFilePath,
             isForward,
             xWidthPixel,
-            opticsIlluminationModeEnum: opticsIlluminationModeEnum,
             laserLightInformation: laserLightInformation,
             isAutoFocus: isAutoFocus);
     }

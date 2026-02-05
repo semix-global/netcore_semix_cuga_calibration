@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.Laser.PixelSize.Children;
+﻿namespace CugaCalibration.Views.CIB.YPixelSize.Children;
 
 public sealed partial class Review
 {

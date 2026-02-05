@@ -287,12 +287,14 @@ public interface ICalibrationLaserService
     /// 自动聚焦
     /// </summary>
     /// <param name="calChipSiteModelEnum">CalChip模式</param>
+    /// <param name="productivityInformation">产率</param>
     /// <param name="pmtId">光斑ID</param>
     /// <param name="coefficient">波形功率系数(1表示100%, 0表示0%) null表示用cuga配置值</param>
     /// <param name="point">明场（暗场）位置 null表示用cuga配置值</param>
-    /// <returns>RTFC返回AfEcs和Af电机值</returns>
-    SxExecuteRet<(double Ecs, double AfMotor)> RuntimeAfCalibration(
+    /// <returns>RTFC返回Ecs、电机值、是否是AF伺服（True：AF /False：Relay）</returns>
+    SxExecuteRet<(double Ecs, double Motor, bool isAFServo)> RuntimeAfCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
+        ProductivityInformation productivityInformation,
         int pmtId,
         double? coefficient = null,
         Point? point = null);
