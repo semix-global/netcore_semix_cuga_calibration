@@ -37,7 +37,6 @@ public sealed partial class DarkFieldPmtDataDto : ObservableObject, ICloneable<D
         LineCount = LineCount,
         AvgData = AvgData,
         Data = [.. Data]
-
     };
 
     public CgPMTDataModel AdaptTo() => new()

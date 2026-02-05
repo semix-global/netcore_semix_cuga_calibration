@@ -9,6 +9,7 @@ using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
@@ -18,7 +19,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace CugaCalibration.ViewModels.Laser;
 

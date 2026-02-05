@@ -53,6 +53,7 @@ using CugaCalibration.ViewModels.Microscope;
 using CugaCalibration.ViewModels.Optics;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -66,7 +67,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using Local.SQL.DB.Providers.Models.Entities.DTO;
 using CIBYPixelSizeViewModel = CugaCalibration.ViewModels.CIB.CIBYPixelSizeViewModel;
 
 namespace CugaCalibration.ViewModels;

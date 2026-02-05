@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
-using Newtonsoft.Json;
 
 namespace Core.Models.Models.Ads.XGains;
 

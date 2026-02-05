@@ -1,4 +1,5 @@
 using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -8,7 +9,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using System.IO;
 using System.Text;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Core.Models.Models.Common.AODWaveform;
 

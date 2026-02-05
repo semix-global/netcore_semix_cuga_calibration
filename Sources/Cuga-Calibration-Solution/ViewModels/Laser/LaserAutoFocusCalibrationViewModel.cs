@@ -244,7 +244,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
             if (Cache.ThresholdIdealFMin >= Cache.ThresholdIdealFMax || Cache.ThresholdIdealNMin >= Cache.ThresholdIdealNMax)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{nameof(Cache.ThresholdIdealFMin)} >= {nameof(Cache.ThresholdIdealFMax)} || {nameof(Cache.ThresholdIdealNMin)} >= {nameof(Cache.ThresholdIdealNMax)}"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{nameof(Cache.ThresholdIdealFMin)} >= {nameof(Cache.ThresholdIdealFMax)} || {nameof(Cache.ThresholdIdealNMin)} >= {nameof(Cache.ThresholdIdealNMax)}"),
+                    HtmlLogUniqueId.LoggingHtml());
                 return false;
             }
 

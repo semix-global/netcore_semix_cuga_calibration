@@ -566,11 +566,13 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
         if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowTopPosition, Cache.LowMicroscopeLensInformation, Cache.LowBaseTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
                 "Low Magnification 1", out var lowPosition1, out _, out _, out _, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition1 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, Cache.HighBaseTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition1 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, Cache.HighBaseTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId,
+                Name,
                 "High Magnification 1", out var highPosition1, out var highScore1, out var highAngle1, out var highImageFilePath1, out _) == false) return false;
         if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowBottomPosition, Cache.LowMicroscopeLensInformation, Cache.LowBaseTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
                 "Low Magnification 2", out var lowPosition2, out _, out _, out _, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition2 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, Cache.HighBaseTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
+        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition2 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, Cache.HighBaseTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId,
+                Name,
                 "High Magnification 2", out var highPosition2, out var highScore2, out var highAngle2, out var highImageFilePath2, out _) == false) return false;
 
         chuckGantryDto.Position1 = highPosition1;

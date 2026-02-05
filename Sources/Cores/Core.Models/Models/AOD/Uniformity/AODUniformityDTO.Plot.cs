@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -9,7 +10,6 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -177,16 +177,19 @@ public partial class AODUniformityDTO
             var scatterLine = MappingScatterPlotControl.GetOrAddScatterLine("Origin", [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isNotLinearSplineMappingIndexes[t.Index]))]);
             scatterLine.MarkerSize = 10;
 
-            scatterLine = MappingScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {slope:0.######}x + {intercept:0.######} r^2 = {rSquared:0.######}", [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, yPredicted[t.Index]))]);
+            scatterLine = MappingScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {slope:0.######}x + {intercept:0.######} r^2 = {rSquared:0.######}",
+                [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, yPredicted[t.Index]))]);
             scatterLine.MarkerSize = 10;
 
             var isLinearSplineImageHorizontalProjectIndexes = Mappings.Where(t => t.IsNotLinearSpline == false).Select(t => t.ImageHorizontalProjectIndex).ToArray();
             var isLinearSplineLinearSplineMappingIndexes = Mappings.Where(t => t.IsNotLinearSpline == false).Select(t => t.LinearSplineMappingIndex).ToArray();
             var isLinearSplineMappingIndexes = Mappings.Where(t => t.IsNotLinearSpline == false).Select(t => t.MappingIndex).ToArray();
 
-            var scatterMarkers = MappingScatterPlotControl.GetOrAddScatterMarkers("Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineLinearSplineMappingIndexes[t.Index]))], Colors.DarkRed, MarkerShape.FilledSquare);
+            var scatterMarkers = MappingScatterPlotControl.GetOrAddScatterMarkers("Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineLinearSplineMappingIndexes[t.Index]))], Colors.DarkRed,
+                MarkerShape.FilledSquare);
             scatterMarkers.MarkerSize = 5;
-            scatterMarkers = MappingScatterPlotControl.GetOrAddScatterMarkers("Round Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineMappingIndexes[t.Index]))], Colors.Red, MarkerShape.FilledDiamond);
+            scatterMarkers = MappingScatterPlotControl.GetOrAddScatterMarkers("Round Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineMappingIndexes[t.Index]))], Colors.Red,
+                MarkerShape.FilledDiamond);
             scatterMarkers.MarkerSize = 5;
         }
         finally

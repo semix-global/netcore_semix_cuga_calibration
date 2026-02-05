@@ -14,6 +14,7 @@ using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -44,7 +45,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Core.Utilities.SourceGenerators.Attributes;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 

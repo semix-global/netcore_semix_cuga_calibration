@@ -9,6 +9,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -23,7 +24,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Reactive.Linq;
-using Core.Utilities.SourceGenerators.Attributes;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 

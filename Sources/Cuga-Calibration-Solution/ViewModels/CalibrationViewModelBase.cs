@@ -725,12 +725,14 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         {
             if (IsAutoCalibrate)
             {
-                if (AutoCalibrationStepIndex == AutoCalibrationStepList.Count - 1 || !result) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.AutoCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{(result ? "OK" : "Failed")}"));
+                if (AutoCalibrationStepIndex == AutoCalibrationStepList.Count - 1 || !result)
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.AutoCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{(result ? "OK" : "Failed")}"));
             }
             else
             {
                 UpdatePreviousNextStatus();
-                if (CalibrationStepIndex == CalibrationStepList.Count - 1 || !result) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.HandleCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{CalibrateHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
+                if (CalibrationStepIndex == CalibrationStepList.Count - 1 || !result)
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.HandleCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{CalibrateHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
             }
         }
     }

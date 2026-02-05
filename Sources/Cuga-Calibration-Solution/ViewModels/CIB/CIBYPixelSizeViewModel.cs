@@ -6,15 +6,11 @@ using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.Alignment;
-using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Focus;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -26,7 +22,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Text;
-using Core.Utilities.SourceGenerators.Attributes;
 
 namespace CugaCalibration.ViewModels.CIB;
 

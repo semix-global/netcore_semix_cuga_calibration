@@ -336,7 +336,8 @@ public sealed partial class CalibrationLaserServiceImpl(
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(List<Point> machinePositionList, int xWidthPixel, double xPixelSize, OpticsMagTypeEnum opticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum, OpticsIlluminationModeEnum opticsIlluminationModeEnum, int pmtId, StageCoordinateSystemEnum stageCoordinateSystemEnum, bool isAutoFocus)
+    public SxExecuteRet<List<List<DarkFieldImageDTO>>> GetChuckDarkFieldRowLineScanImageList(List<Point> machinePositionList, int xWidthPixel, double xPixelSize, OpticsMagTypeEnum opticsMagTypeEnum, StageSpeedEnum xStageSpeedEnum,
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum, int pmtId, StageCoordinateSystemEnum stageCoordinateSystemEnum, bool isAutoFocus)
     {
         throw new NotImplementedException();
     }

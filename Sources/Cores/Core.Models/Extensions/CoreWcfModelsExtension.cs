@@ -26,9 +26,6 @@ using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-
-
-
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
@@ -525,6 +522,7 @@ public static class CoreWcfModelsExtension
     #endregion
 
     #region Auto Focus
+
     public static bool IsOk(this GlobalFocusOffsetDTO[] result, out string errorMessage)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
@@ -536,5 +534,6 @@ public static class CoreWcfModelsExtension
 
         return isOk;
     }
+
     #endregion
 }

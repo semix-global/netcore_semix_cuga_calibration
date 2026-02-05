@@ -317,7 +317,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                 _cacheDatabaseProvider.ChangeDatabase(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource, CancellationToken.None);
 
                 if (_recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto) == false) calibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource = SelectRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
-                
+
                 ApplicationCookie.CalibrationRecipeDto = calibrationRecipeDto.Clone();
                 ApplicationCookie.CalibrationReviseRecipeDto = calibrationRecipeDto.Clone();
 

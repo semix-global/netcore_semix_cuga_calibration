@@ -9,6 +9,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -28,7 +29,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Core.Utilities.SourceGenerators.Attributes;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 

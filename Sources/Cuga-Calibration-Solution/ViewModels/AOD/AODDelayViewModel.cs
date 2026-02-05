@@ -424,7 +424,9 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     selectedReviewItem.ChirpAODDelay,
                     selectedReviewItem.MaxItem?.PMTValue,
                     selectedReviewItem.MaxItem?.RawImageFilePath,
-                    Image = string.IsNullOrWhiteSpace(selectedReviewItem.MaxItem?.ImageFilePath) ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.") : new HtmlImage(GuardUtils.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),
+                    Image = string.IsNullOrWhiteSpace(selectedReviewItem.MaxItem?.ImageFilePath)
+                        ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.")
+                        : new HtmlImage(GuardUtils.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),
                     ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 

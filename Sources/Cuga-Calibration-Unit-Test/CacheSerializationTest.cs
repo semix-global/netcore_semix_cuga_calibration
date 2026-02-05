@@ -1,14 +1,10 @@
-using System.Collections.Concurrent;
 using AwesomeAssertions;
 using Core.Models.Enums.Optics;
+using Core.Models.Helper;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.LineCentricity;
-
-using Newtonsoft.Json;
-using System.Windows;
-using Core.Models.Helper;
-using Core.Models.Models.Common.Cookies;
 using Core.Services;
 using Core.Utilities;
 using CugaCalibration.Core;
@@ -24,8 +20,11 @@ using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models;
 using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.WPF.MVVM;
+using Newtonsoft.Json;
 using SourceGenerator.AssemblyMetadata;
 using SourceGenerator.InjectHostDI;
+using System.Collections.Concurrent;
+using System.Windows;
 using Xunit;
 using Point = Net.Utilities.Models.Geometries.Point;
 
@@ -127,7 +126,8 @@ public sealed class CacheSerializationTest : IDisposable
 
         // Assert
         deserialized.Should().NotBeNull();
-        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items),
+            new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
 
         deserialized.Items.Should().NotBeNull();
         deserialized.Items.Should().HaveCount(2);
@@ -172,7 +172,8 @@ public sealed class CacheSerializationTest : IDisposable
 
         // Assert
         deserialized.Should().NotBeNull();
-        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items),
+            new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
 
         deserialized.Items.Should().NotBeNull();
         deserialized.Items.Should().HaveCount(2);

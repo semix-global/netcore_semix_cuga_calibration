@@ -379,7 +379,8 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     //if (magnificationInfos.Count == 1 || ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, resultPositionLow, highMagnificationInfo, Cache.GetTemplateFilePath(highMagnificationInfo), detectImageDirectory, HtmlLogUniqueId, Name, "High Magnification",
                     //        out resultPositionLow, out _, out _, out _, out _) == false) return;
 
-                    if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto.LensInformation), centricityItemMaxDto.LensInformation, Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
+                    if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto.LensInformation), centricityItemMaxDto.LensInformation,
+                            Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
                             out var maxMatchResultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false)
                     {
                         return false;

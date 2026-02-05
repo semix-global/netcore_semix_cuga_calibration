@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -35,7 +36,6 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Immutable;
 using System.IO;
-using Core.Utilities.SourceGenerators.Attributes;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
@@ -421,7 +421,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             {
                 var dswResultItem = GuardUtils.IsAssignableToType<DSWResultItem>(item);
 
-                var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) = StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Image.GetMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
+                var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) =
+                    StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Image.GetMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
                 dswResultItem.StrehlRatioX = strehlRatioX;
                 dswResultItem.StrehlRatioY = strehlRatioY;
 
@@ -632,7 +633,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     private void RefreshPlot()
     {
         var hazeOriginDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGray), nameof(HazeResultItem.MiddleAverageGray), nameof(HazeResultItem.EndAverageGray), nameof(HazeResultItem.StandardDeviation));
-        var hazeNormalizationDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGrayNormalization), nameof(HazeResultItem.MiddleAverageGrayNormalization), nameof(HazeResultItem.EndAverageGrayNormalization), nameof(HazeResultItem.StandardDeviationNormalization));
+        var hazeNormalizationDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGrayNormalization), nameof(HazeResultItem.MiddleAverageGrayNormalization), nameof(HazeResultItem.EndAverageGrayNormalization),
+            nameof(HazeResultItem.StandardDeviationNormalization));
         var dswOriginDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioX), nameof(DSWResultItem.StrehlRatioY));
         var dswNormalizationDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioXNormalization), nameof(DSWResultItem.StrehlRatioYNormalization));
 

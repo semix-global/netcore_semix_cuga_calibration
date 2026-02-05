@@ -23,7 +23,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 #if NET
 using Core.Services.Implements.GRPC;
 using Semix.GRPC.DTO;
-
 #else
 using Core.Services.Implements.WCF;
 using Semix.WcfTransfer.DTO;
@@ -572,11 +571,11 @@ public sealed class CalibrationLaserServiceMockImpl(
     }
 
     public SxExecuteRet<(double Ecs, double Motor, bool isAFServo)> RuntimeAfCalibration(
-           CalChipSiteModelEnum calChipSiteModelEnum,
-           ProductivityInformation productivityInformation,
-           int pmtId,
-           double? coefficient = null,
-           Point? point = null)
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        ProductivityInformation productivityInformation,
+        int pmtId,
+        double? coefficient = null,
+        Point? point = null)
     {
         Thread.Sleep(100);
 

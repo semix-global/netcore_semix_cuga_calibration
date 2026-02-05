@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniExcelLibs;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -25,7 +26,6 @@ using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections.ObjectModel;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis.AdsDiagonosis;
 

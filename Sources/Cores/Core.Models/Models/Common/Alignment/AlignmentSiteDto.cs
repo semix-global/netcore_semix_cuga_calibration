@@ -49,7 +49,6 @@ public sealed partial class AlignmentSiteDto : ObservableObject, ICloneable<Alig
         Template = Template?.Clone(),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         TemplateMatchScoreThreshold = TemplateMatchScoreThreshold
-
     };
 
     public C2MSiteDTO AdaptTo() => new()

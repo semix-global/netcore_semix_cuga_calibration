@@ -11,7 +11,7 @@ public partial class CalibrationRecipeInfoDto : ObservableObject, ICloneable<Cal
 {
     [ObservableProperty]
     private long _id;
-    
+
     [ObservableProperty]
     private string _recipeName = "Default";
 

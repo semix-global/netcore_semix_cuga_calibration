@@ -7,6 +7,7 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
+using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
@@ -24,7 +25,6 @@ using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
-using Core.Models.Models.Chuck.GlobalScaleError;
 
 namespace CugaCalibration.ViewModels.Chuck;
 
