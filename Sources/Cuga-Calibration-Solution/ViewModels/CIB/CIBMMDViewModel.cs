@@ -32,7 +32,9 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using MathNet.Numerics;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
+using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -799,7 +801,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     from itemItem in item.Items
                     from itemItemData in itemItem.Items.Where(t => t.Gain >= mmdConfiguration.FilterMinGain)
                     where double.IsNaN(itemItemData.PMTValue) == false
-                    select new Point3D(itemItemData.Gain, itemItem.MeasurePower, itemItemData.PMTValue))
+                    select new Point3D(itemItemData.Gain, Math.Log(itemItem.MeasurePower), itemItemData.PMTValue))
                 .ToList();
 
             htmlList.Add(new HtmlBullet(new
@@ -883,7 +885,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var xValidLogGainVector = aValidGainSubMatrix.QR().Solve(bValidVector);
 
             var xLogVector = Vector<double>.Build.Dense([.. xLogMeasurePowerVector, .. xValidLogGainVector]);
-            var gainRSquared = BoltzmannCurve.RSquared(aValidGainSubMatrix * xValidLogGainVector, bValidVector);
+            var gainRSquared = Fit.RSquared(aValidGainSubMatrix * xValidLogGainVector, bValidVector);
             var gainResidual = (aValidMatrix * xLogVector - bValidLogCurrentVector).L2Norm();
 
             item.GainRSquared = gainRSquared;
