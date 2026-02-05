@@ -101,6 +101,16 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetDelays(IReadOnlyList<CIBDelayDTO> delays);
 
     /// <summary>
+    /// 获取Gain实测关系
+    /// </summary>
+    /// <param name="cibInformations">CIB列表</param>
+    /// <param name="startGain">开始增益</param>
+    /// <param name="stepGain">增益步进</param>
+    /// <param name="stopGain">停止增益</param>
+    /// <returns>实测值</returns>
+    SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain);
+
+    /// <summary>
     /// 读取所有CIB的图片
     /// </summary>
     /// <param name="productivityInformation">产率</param>

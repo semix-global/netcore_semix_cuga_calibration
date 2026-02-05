@@ -12,14 +12,15 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
+using MiniExcelLibs;
 
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationCIBService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed class CalibrationCIBServiceMockImpl(
-    ICalibrationAlgorithmService calibrationAlgorithmService) : ICalibrationCIBService
+public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 {
     private readonly string _mockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw");
+    private readonly string _cibMMDGainDTOFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\CIBMMDGainRelationshipDTO.xlsx");
 
     public SxExecuteRet<bool> Connect()
     {
@@ -118,6 +119,23 @@ public sealed class CalibrationCIBServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain)
+    {
+        Thread.Sleep(100);
+
+        var values = MiniExcel.Query<CIBMMDGainRelationshipDTO>(_cibMMDGainDTOFilePath).ToArray();
+        var results = new CIBMMDGainRelationshipDTO[cibInformations.Count][];
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            var cibInformation = cibInformations[i];
+
+            results[i] = [..values.Select(t => t.Clone().WithCIBInformation(cibInformation))];
+        }
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
     }
 
     public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(

@@ -3,13 +3,14 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
+using Core.Models.Models.Common.DarkField;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace Core.Models.Models.CIB.MMD;
 
@@ -17,6 +18,9 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 {
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
+
+    [ObservableProperty]
+    private IReadOnlyList<CIBMMDGainRelationshipDTO> _gainRelationships = [];
 
     [ObservableProperty]
     private IReadOnlyList<CIBMMDDTOItem> _items = [];
@@ -50,9 +54,6 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 
     [ObservableProperty]
     private IReadOnlyList<Point> _fitLogGainPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _resultLogGainPoints = [];
 
     [ObservableProperty]
     private IReadOnlyList<Point> _logGainMul128U12BitPoints = [];
@@ -112,8 +113,6 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 
     partial void OnFitLogGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
-    partial void OnResultLogGainPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
     partial void OnLogGainMul128U12BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnGainS16BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
@@ -146,74 +145,56 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     {
         try
         {
-            ScatterPlotControl.Clear(1);
-            ScatterPlotControl.Clear(2);
-            ScatterPlotControl.Clear(3);
-            ScatterPlotControl.Clear(4);
-            ScatterPlotControl.Clear(5);
+            var scatterMarkerses = ScatterPlotControl.GetOrAddScatterMarkerses(0, Items.Count > 0 ? 1 : 0);
+            scatterMarkerses.ElementAtOrDefault(0)?.Update(
+                string.Empty,
+                [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))],
+                Constants.Category10.GetColor(0));
 
-            if (Items.Count > 0)
+            var temps = (from item in Items
+                    let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
+                    where itemItems.Length > 0
+                    select new
+                    {
+                        LegendText = $"{item.Coefficient:0.###}",
+                        Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
+                    }
+                ).ToArray();
+
+            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(1, temps.Length);
+
+            foreach (var (index, temp) in temps.Index())
             {
-                ScatterPlotControl.GetOrAddScatterMarkers(
-                    0,
-                    "Attenuator",
-                    [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))]);
-
-                foreach (var item in Items)
-                {
-                    var itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray();
-                    if (itemItems.Length > 0)
-                        ScatterPlotControl.GetOrAddScatterLine(
-                            1,
-                            $"{item.Coefficient:0.###}",
-                            [.. itemItems.Select(t => new Point(t.Gain, t.PMTValue))]);
-                }
+                scatterLines[index].Update(temp.LegendText, temp.Points, Constants.Category10.GetColor(index));
             }
 
-            if (GainPoints.Count > 0)
-                ScatterPlotControl.GetOrAddScatterLine(
-                    2,
-                    $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                    GainPoints);
+            scatterLines = ScatterPlotControl.GetOrAddScatterLines(2, GainPoints.Count > 0 ? 1 : 0);
+            scatterLines.ElementAtOrDefault(0)?.Update(
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                GainPoints,
+                Constants.Category10.GetColor(0));
 
-            if (OriginLogGainPoints.Count > 0)
-            {
-                ScatterPlotControl.GetOrAddScatterLine(
-                    3,
-                    $"Origin Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                    OriginLogGainPoints,
-                    Constants.Category10.GetColor(0));
-            }
+            scatterLines = ScatterPlotControl.GetOrAddScatterLines(3, (OriginLogGainPoints.Count > 0 ? 1 : 0) + (FitLogGainPoints.Count > 0 ? 1 : 0));
+            scatterLines.ElementAtOrDefault(0)?.Update(
+                $"Origin Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                OriginLogGainPoints,
+                Constants.Category10.GetColor(0));
+            scatterLines.ElementAtOrDefault(1)?.Update(
+                BoltzmannCurve.ToString(LogGainA1, LogGainA2, LogGainX0, LogGainDx, LogGainRSquared, "0.######"),
+                FitLogGainPoints,
+                Constants.Category10.GetColor(1));
 
-            if (FitLogGainPoints.Count > 0)
-            {
-                ScatterPlotControl.GetOrAddScatterLine(
-                    3,
-                    $"Fit Curve: y = {LogGainA2:0.######} + ({LogGainA1:0.######} - {LogGainA2:0.######}) / (1 + exp((x - {LogGainX0:0.######}) / {LogGainDx:0.######})) r^2 = {LogGainRSquared:0.######}",
-                    FitLogGainPoints,
-                    Constants.Category10.GetColor(1));
-            }
+            scatterLines = ScatterPlotControl.GetOrAddScatterLines(4, LogGainMul128U12BitPoints.Count > 0 ? 1 : 0);
+            scatterLines.ElementAtOrDefault(0)?.Update(
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                LogGainMul128U12BitPoints,
+                Constants.Category10.GetColor(0));
 
-            if (ResultLogGainPoints.Count > 0)
-            {
-                ScatterPlotControl.GetOrAddScatterLine(
-                    3,
-                    $"Result Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                    ResultLogGainPoints,
-                    Constants.Category10.GetColor(2));
-            }
-
-            if (LogGainMul128U12BitPoints.Count > 0)
-                ScatterPlotControl.GetOrAddScatterLine(
-                    4,
-                    $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                    LogGainMul128U12BitPoints);
-
-            if (GainS16BitPoints.Count > 0)
-                ScatterPlotControl.GetOrAddScatterLine(
-                    5,
-                    $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
-                    GainS16BitPoints);
+            scatterLines = ScatterPlotControl.GetOrAddScatterLines(5, GainS16BitPoints.Count > 0 ? 1 : 0);
+            scatterLines.ElementAtOrDefault(0)?.Update(
+                $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
+                GainS16BitPoints,
+                Constants.Category10.GetColor(0));
         }
         finally
         {
@@ -226,6 +207,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     public CIBMMDDTO Clone() => new()
     {
         CIBInformation = CIBInformation.Clone(),
+        GainRelationships = [..GainRelationships.Select(t => t.Clone())],
         Items = [.. Items.Select(t => t.Clone())],
         GainRSquared = GainRSquared,
         GainResidual = GainResidual,
@@ -237,7 +219,6 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
         LogGainDx = LogGainDx,
         LogGainRSquared = LogGainRSquared,
         FitLogGainPoints = [.. FitLogGainPoints],
-        ResultLogGainPoints = [.. ResultLogGainPoints],
         LogGainMul128U12BitPoints = [.. LogGainMul128U12BitPoints],
         GainS16BitPoints = [.. GainS16BitPoints],
         IsCalibrated = IsCalibrated,
