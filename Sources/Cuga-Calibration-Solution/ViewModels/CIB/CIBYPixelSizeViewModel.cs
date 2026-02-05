@@ -114,7 +114,6 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
         await Task.CompletedTask.ConfigureAwait(false);
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
-        ;
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();

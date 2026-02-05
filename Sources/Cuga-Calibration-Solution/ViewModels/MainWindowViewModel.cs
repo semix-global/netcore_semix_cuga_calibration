@@ -31,8 +31,6 @@ using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-
-
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
@@ -441,13 +439,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                                     _dialogWindowProvider.ShowDialog("Export Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
                             }
 
+                            LoadCalibrationStatus();
+
                             break;
 
                         case CalibrationConstantsHelper.Import:
                             if (_dialogWindowProvider.TryShowSelectFilePathDialog(".json", out var importPath) == true)
                             {
                                 var (isSuccess, message) = await _calibrationCacheProviderService.TryImportAsync(importPath, CancellationToken.None);
-                                
+
                                 if (isSuccess)
                                     _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Information);
                                 else

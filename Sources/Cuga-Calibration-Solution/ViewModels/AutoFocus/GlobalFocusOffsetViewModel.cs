@@ -271,7 +271,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
                 CalibratingItem = new GlobalFocusOffsetDTO
                 {
                     ProductivityInformation = Cache.ProductivityInformation,
-                    CalChipSiteModelEnum = Cache.CalChipSiteModelEnum,
+                    CalChipSiteModelEnum = Cache.CalChipSiteModelEnum
                 };
 
                 var rtfcResultDTO = await CIBViewModel.RuntimeAfCalibrationAsync(
@@ -331,7 +331,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
                         Cache.QualityThreshold,
                         Cache.Item.RTFCBrightFieldMachinePosition,
                         selectedReviewItem.CalChipSiteModelEnum,
-                        CalibrationRTFCResult = new HtmlQuote(selectedReviewItem.RuntimeAfCalibrationResultDTO.ToHtmlAnonymous()),
+                        CalibrationRTFCResult = new HtmlQuote(selectedReviewItem.RuntimeAfCalibrationResultDTO.ToHtmlAnonymous())
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
