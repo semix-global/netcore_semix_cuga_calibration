@@ -313,7 +313,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
         var time = Math.Abs(startPosition.X - endPosition.X) / productivityInformation.XSpeedValue;
-        var speedECS = Math.Abs(stopECS - startECS) / time * 1.097912 /* 丁宇提供的常数 */;
+        var speedECS = Math.Abs(stopECS - startECS) / time;
 
         var dfImgCalibrationRet = Invoke(new SxCollectImgParam
         {
