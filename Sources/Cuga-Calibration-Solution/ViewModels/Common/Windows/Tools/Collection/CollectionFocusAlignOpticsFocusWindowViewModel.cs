@@ -570,7 +570,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         isAutoFocus: false);
 
                     var resultList = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultType)));
-                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<string>.AddRange))).Invoke(resultList, [ObjectHelper.GetPropertyValue(Cache, cacheResultsPropertyName)]);
+                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.AddRange))).Invoke(resultList, [ObjectHelper.GetPropertyValue(Cache, cacheResultsPropertyName)]);
 
                     var result = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(resultType));
                     var resultItemList = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultItemType)));
@@ -591,10 +591,10 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         ObjectHelper.SetPropertyValue(resultItem, resultItemImageFilePathPropertyName, filePath);
                         await resultItemAction.Invoke(resultItem, darkFieldImageDto);
 
-                        GuardUtils.IsNotNullAndReturn(resultItemList.GetType().GetMethod(nameof(List<string>.Add))).Invoke(resultItemList, [resultItem]);
+                        GuardUtils.IsNotNullAndReturn(resultItemList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultItemList, [resultItem]);
                     }
 
-                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<string>.Add))).Invoke(resultList, [result]);
+                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultList, [result]);
                     ObjectHelper.SetPropertyValue(Cache, cacheResultsPropertyName, resultList);
 
                     RefreshPlot();
