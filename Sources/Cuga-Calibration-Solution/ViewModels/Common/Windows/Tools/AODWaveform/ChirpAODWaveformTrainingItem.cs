@@ -2,7 +2,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.ScottPlot.WPF.Plottables;
+using Net.Utilities.ScottPlot.WPF.WPF;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
@@ -68,7 +72,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     private IReadOnlyList<Point> _xStrehlRatioFitPoints = [];
 
     [ObservableProperty]
-    private Point _bestXStrehlRatio;
+    private Point _bestXStrehlRatioPoint;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -85,7 +89,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     private IReadOnlyList<Point> _yStrehlRatioFitPoints = [];
 
     [ObservableProperty]
-    private Point _bestYStrehlRatio;
+    private Point _bestYStrehlRatioPoint;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -102,22 +106,68 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     private IReadOnlyList<Point> _grayFitPoints = [];
 
     [ObservableProperty]
-    private Point _bestGray;
+    private Point _bestGrayPoint;
+
+    [ObservableProperty]
+    private IReadOnlyList<IReadOnlyList<Point>> _bestXStrehlRatioXPSFPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _bestXStrehlRatioXPSFFitPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<IReadOnlyList<Point>> _bestXStrehlRatioYPSFPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _bestXStrehlRatioYPSFFitPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<IReadOnlyList<Point>> _bestYStrehlRatioXPSFPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _bestYStrehlRatioXPSFFitPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<IReadOnlyList<Point>> _bestYStrehlRatioYPSFPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _bestYStrehlRatioYPSFFitPoints = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
     [property: LiteDB.BsonIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    private IScatterPlotControl _xStrehlRatioScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+    [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
+    private IScatterPlotControl _yStrehlRatioScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+    [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
+    private IScatterPlotControl _grayScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     public ChirpAODWaveformTrainingItem()
     {
-        ScatterPlotControl.Configure(new Columns(), 3);
+        XStrehlRatioScatterPlotControl.Configure(new Columns(), 3);
 
-        ScatterPlotControl.SetTitle(0, "X Strehl Ratio(Y: Strehl Ratio - X: px)");
-        ScatterPlotControl.SetTitle(1, "Y Strehl Ratio(Y: Strehl Ratio - X: px)");
-        ScatterPlotControl.SetTitle(2, "Gray(Y: Gray - X: px)");
+        XStrehlRatioScatterPlotControl.SetTitle(0, "X Strehl Ratio(Y: Strehl Ratio - X: px)");
+        XStrehlRatioScatterPlotControl.SetTitle(1, "X PSF(Y: Gray - X: px)");
+        XStrehlRatioScatterPlotControl.SetTitle(2, "Y PSF(Y: Gray - X: px)");
+
+        YStrehlRatioScatterPlotControl.Configure(new Columns(), 3);
+
+        YStrehlRatioScatterPlotControl.SetTitle(0, "Y Strehl Ratio(Y: Strehl Ratio - X: px)");
+        YStrehlRatioScatterPlotControl.SetTitle(1, "X PSF(Y: Gray - X: px)");
+        YStrehlRatioScatterPlotControl.SetTitle(2, "Y PSF(Y: Gray - X: px)");
+
+        GrayScatterPlotControl.SetTitle("Gray(Y: Gray - X: px)");
     }
 
     // ReSharper disable UnusedParameterInPartialMethod
@@ -126,19 +176,19 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
     partial void OnXStrehlRatioFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
-    partial void OnBestXStrehlRatioChanged(Point value) => RefreshPlot();
+    partial void OnBestXStrehlRatioPointChanged(Point value) => RefreshPlot();
 
     partial void OnYStrehlRatioPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnYStrehlRatioFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
-    partial void OnBestYStrehlRatioChanged(Point value) => RefreshPlot();
+    partial void OnBestYStrehlRatioPointChanged(Point value) => RefreshPlot();
 
     partial void OnGrayPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnGrayFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
-    partial void OnBestGrayChanged(Point value) => RefreshPlot();
+    partial void OnBestGrayPointChanged(Point value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
@@ -146,29 +196,76 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     {
         try
         {
-            Refresh(0, XStrehlRatioPoints, XStrehlRatioFitPoints, BestXStrehlRatio);
-            Refresh(1, YStrehlRatioPoints, YStrehlRatioFitPoints, BestYStrehlRatio);
-            Refresh(2, GrayPoints, GrayFitPoints, BestGray);
+            RefreshBase(XStrehlRatioScatterPlotControl, XStrehlRatioPoints, XStrehlRatioFitPoints, BestXStrehlRatioPoint);
+            Refresh(XStrehlRatioScatterPlotControl, 1, BestXStrehlRatioXPSFPoints, BestXStrehlRatioXPSFFitPoints);
+            Refresh(XStrehlRatioScatterPlotControl, 2, BestXStrehlRatioYPSFPoints, BestXStrehlRatioYPSFFitPoints);
+
+            RefreshBase(YStrehlRatioScatterPlotControl, YStrehlRatioPoints, YStrehlRatioFitPoints, BestYStrehlRatioPoint);
+            Refresh(YStrehlRatioScatterPlotControl, 1, BestYStrehlRatioXPSFPoints, BestYStrehlRatioXPSFFitPoints);
+            Refresh(YStrehlRatioScatterPlotControl, 2, BestYStrehlRatioYPSFPoints, BestYStrehlRatioYPSFFitPoints);
+
+            RefreshBase(GrayScatterPlotControl, GrayPoints, GrayFitPoints, BestGrayPoint);
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            XStrehlRatioScatterPlotControl.AutoScaleRefresh();
+            YStrehlRatioScatterPlotControl.AutoScaleRefresh();
+            GrayScatterPlotControl.AutoScaleRefresh();
 
-            foreach (var plot in ScatterPlotControl.Multiplot.GetPlots()) plot.Axes.SetLimitsY(0.1d, 0.3d);
+            XStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
+            YStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
+
+            foreach (var plot in XStrehlRatioScatterPlotControl.Multiplot.GetPlots().Skip(1).Concat(YStrehlRatioScatterPlotControl.Multiplot.GetPlots().Skip(1)))
+            {
+                var fitPoints = plot.GetPlottables().OfType<ScatterLine>().SingleOrDefault()?.ScatterSourcePoints.Points ?? [];
+
+                if (fitPoints.Count > 0)
+                {
+                    var xes = fitPoints.Select(t => t.X).ToArray();
+
+                    var max = xes.Max();
+                    var min = xes.Min();
+                    var length = max - min;
+                    var middle = (max + min) / 2d;
+
+                    plot.Axes.SetLimitsX(middle - length / 8d, middle + length / 8d);
+                }
+            }
         }
 
         return;
 
-        void Refresh(int plotIndex, IReadOnlyList<Point> points, IReadOnlyList<Point> fitPoints, Point bestPoint)
+        void RefreshBase(IScatterPlotControl scatterPlotControl, IReadOnlyList<Point> points, IReadOnlyList<Point> fitPoints, Point bestPoint)
         {
-            var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkerses(plotIndex, 2);
+            var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
 
             scatterMarkers[0].Update(string.Empty, points, Colors.Gray, MarkerShape.FilledCircle);
             scatterMarkers[1].Update(string.Empty, [bestPoint], Colors.Red, MarkerShape.FilledSquare);
             scatterMarkers[1].MarkerSize = 20;
 
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(plotIndex, 1);
+            var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, 1);
             scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
+            scatterLines[0].LineWidth = 2;
+            scatterLines[0].MarkerSize = 5;
+            scatterLines[0].MarkerColor = Colors.DarkGreen;
+        }
+
+        void Refresh(IScatterPlotControl scatterPlotControl, int plotIndex, IReadOnlyList<IReadOnlyList<Point>> points, IReadOnlyList<Point> fitPoints)
+        {
+            scatterPlotControl.Clear(plotIndex);
+
+            var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(plotIndex, points.Count);
+
+            foreach (var (index, temp) in points.Index())
+            {
+                scatterMarkers[index].Update(string.Empty, temp, Colors.Gray, MarkerShape.FilledCircle);
+            }
+
+            var scatterLines = scatterPlotControl.GetOrAddScatterLines(plotIndex, 1);
+            scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
+            scatterLines[0].LineWidth = 2;
+            scatterLines[0].MarkerSize = 5;
+            scatterLines[0].MarkerColor = Colors.DarkGreen;
         }
     }
 
@@ -184,7 +281,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
         P7Coefficient,
         P8Coefficient,
         RawImageFilePath,
-        BestYStrehlRatio
+        BestYStrehlRatioPoint
     };
 
     public bool Equals(ChirpAODWaveformTrainingItem? other) => ReferenceEquals(this, other) || (P3Coefficient.Equals(other?.P3Coefficient)
@@ -193,7 +290,8 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
                                                                                                 && P6Coefficient.Equals(other.P6Coefficient)
                                                                                                 && P7Coefficient.Equals(other.P7Coefficient)
                                                                                                 && P8Coefficient.Equals(other.P8Coefficient)
-                                                                                                && RawImageFilePath.Equals(other.RawImageFilePath));
+                                                                                                && RawImageFilePath.Equals(other.RawImageFilePath)
+                                                                                                && BestYStrehlRatioPoint.Equals(other.BestYStrehlRatioPoint));
 
     public override bool Equals(object? obj) => obj is ChirpAODWaveformTrainingItem other && Equals(other);
 

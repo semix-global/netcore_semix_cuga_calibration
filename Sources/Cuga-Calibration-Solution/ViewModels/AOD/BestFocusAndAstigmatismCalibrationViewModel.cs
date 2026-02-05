@@ -607,51 +607,54 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
             var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImageDto.Image);
             linerImage.Save(linearImageFilePath);
 
-            var inputDarkFieldImage = Cache.Item.CIBConfiguration is { IsAutoGainControl: true, CIBProfileMode: CIBProfileModeEnum.PMTLog }
+            var inputDarkFieldImage = Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog
                 ? linerImage
                 : darkFieldImageDto.Image;
 
             if (Cache.Item.AlgorithmImageQualityTypeEnum is not AlgorithmImageQualityTypeEnum.StrehlRatio)
                 throw new NotImplementedException("Only Strehl Ratio is implemented in this version.");
 
-            var resultPlots = CalibrationAlgorithmService.GetXYStrehlRatio(inputDarkFieldImage);
+            var (
+                xStrehlRatioPoints,
+                yStrehlRatioPoints,
+                grayPoints,
+                _,
+                _,
+                _,
+                _,
+                _,
+                _) = CalibrationAlgorithmService.GetXYStrehlRatios(
+                inputDarkFieldImage,
+                out var xStrehlRatioFitPoints,
+                out var yStrehlRatioFitPoints,
+                out var grayFitPoints,
+                out _,
+                out _,
+                out _,
+                out _);
+
+            var xBestFocusXPixel = xStrehlRatioFitPoints.Length > 0 ? xStrehlRatioFitPoints.Maxima(t => t.Y).First().X : 0;
+            var yBestFocusXPixel = yStrehlRatioFitPoints.Length > 0 ? yStrehlRatioFitPoints.Maxima(t => t.Y).First().X : 0;
 
             var timeSamplesCount = (bestFocusAndAstigmatismItemDto.TriggerEndIndex - bestFocusAndAstigmatismItemDto.TriggerStartIndex) + 1;
             var ecsBuffers = bestFocusAndAstigmatismItemDto.TraceBuffers.Skip(bestFocusAndAstigmatismItemDto.TriggerStartIndex).Take(timeSamplesCount).Select(t => (t.Trigger, t.Ecs)).ToList();
             // 用x采样率插值ECS buffer
             var (interpolationX, interpolationY) = Interpolator.SplineInterpolation(
-                Vector<double>.Build.Dense([.. ecsBuffers.Select((t, i) => i)]),
+                Vector<double>.Build.Dense([.. ecsBuffers.Select((_, i) => i)]),
                 Vector<double>.Build.Dense([.. ecsBuffers.Select(t => t.Ecs)]),
                 (Convert.ToInt32(bestFocusAndAstigmatismItemDto.LineScanRate / Cache.TraceBufferSamplingRate)));
 
             var ecsInterpolationBuffers = interpolationX.Index().Select(t => (Pixel: t.Index, ECS: interpolationY[t.Index])).ToList();
 
-            Point[] xFitPoints = [];
-            Point[] yFitPoints = [];
-            Point[] grayFitPoints = [];
-            try
-            {
-                xFitPoints = CalibrationAlgorithmService.SmoothStrehlFunction(resultPlots.Select(t => t.Position.X).ToArray(), resultPlots.Select(t => t.XStrehlRatio).ToArray());
-                yFitPoints = CalibrationAlgorithmService.SmoothStrehlFunction(resultPlots.Select(t => t.Position.X).ToArray(), resultPlots.Select(t => t.YStrehlRatio).ToArray());
-                grayFitPoints = CalibrationAlgorithmService.SmoothStrehlFunction(resultPlots.Select(t => t.Position.X).ToArray(), resultPlots.Select(t => t.GrayValue).ToArray());
-            }
-            catch (Exception ex)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Get XYStrehlRatio Failed.Error: {ex}"), HtmlLogUniqueId.LoggingHtml());
-            }
-
-            var xBestFocusXPixel = xFitPoints.Length > 0 ? xFitPoints.Maxima(t => t.Y).First().X : 0;
-            var yBestFocusXPixel = yFitPoints.Length > 0 ? yFitPoints.Maxima(t => t.Y).First().X : 0;
-
             channelItemDto.OriginFilePath = originImageFilePath;
             channelItemDto.LinearFilePath = linearImageFilePath;
             channelItemDto.ECSInterpolationBuffers = ecsInterpolationBuffers.AsReadOnly();
-            channelItemDto.Positions = resultPlots.Select(t => t.Position).ToList().AsReadOnly();
-            channelItemDto.XQualitys = resultPlots.Select(t => t.XStrehlRatio).ToList().AsReadOnly();
-            channelItemDto.YQualitys = resultPlots.Select(t => t.YStrehlRatio).ToList().AsReadOnly();
-            channelItemDto.GrayValues = resultPlots.Select(t => t.GrayValue).ToList().AsReadOnly();
-            channelItemDto.XFitPositions = xFitPoints;
-            channelItemDto.YFitPositions = yFitPoints;
+            channelItemDto.Positions = xStrehlRatioPoints.Select(t => new Point(t.X, 0d)).ToList().AsReadOnly();
+            channelItemDto.XQualitys = xStrehlRatioPoints.Select(t => t.Y).ToList().AsReadOnly();
+            channelItemDto.YQualitys = yStrehlRatioPoints.Select(t => t.Y).ToList().AsReadOnly();
+            channelItemDto.GrayValues = grayPoints.Select(t => t.Y).ToList().AsReadOnly();
+            channelItemDto.XFitPositions = xStrehlRatioFitPoints;
+            channelItemDto.YFitPositions = yStrehlRatioFitPoints;
             channelItemDto.GrayFitPositions = grayFitPoints;
 
             channelItemDto.XBestFocusEcs = xBestFocusXPixel >= 0 && xBestFocusXPixel < ecsInterpolationBuffers.Count ? ecsInterpolationBuffers[Convert.ToInt32(xBestFocusXPixel)].ECS : ecsInterpolationBuffers[0].ECS;
