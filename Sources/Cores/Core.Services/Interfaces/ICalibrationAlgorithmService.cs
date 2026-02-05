@@ -78,8 +78,17 @@ public interface ICalibrationAlgorithmService
     /// <param name="image">图片</param>
     /// <param name="standardMaskSquareYSize">标准掩膜方块的Y尺寸um</param>
     /// <returns>Y像素尺寸um</returns>
+    [Obsolete]
     double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize);
 
+    /// <summary>
+    /// 传入暗场图片获取Y像素尺寸um
+    /// </summary>
+    /// <param name="image">暗场图片</param>
+    /// <param name="standardMaskSquareYSize">标准掩膜方块的Y尺寸um</param>
+    /// <param name="drawingImage">结果可视化图像</param>
+    /// <returns>Y像素尺寸um</returns>
+    double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize, out HImage drawingImage);
     #endregion 尺寸
 
     #region 模板匹配

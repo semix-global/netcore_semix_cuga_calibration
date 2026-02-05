@@ -7,13 +7,13 @@ using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.CIB.XPixelSize;
+using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
@@ -1282,9 +1282,8 @@ public sealed class LaserViewModel(
         resultAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
-            .SingleOrDefault(t => t.OpticsIlluminationMode == opticsIlluminationModeEnum
-                                  && t.ProductivityInformation.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
+        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
                                   && t.ProductivityInformation.OpticsMagType == (int)yOpticsMagTypeEnum
                                   && t.PmtId == pmtId);
         if (ySize is null || ySize.IsOk == false)
@@ -1416,7 +1415,6 @@ public sealed class LaserViewModel(
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
     /// <param name="stageCoordinateSystemEnum">暗场采图坐标系系统</param>
-    /// <param name="opticsIlluminationModeEnum"></param>
     /// <exception cref="AlgorithmException"></exception>
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
@@ -1436,18 +1434,15 @@ public sealed class LaserViewModel(
         out string resultImageFilePath,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum)
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum)
     {
         resultPosition = Point.Origin;
         resultScore = 0;
         resultAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var ySize = cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>()
-            .SingleOrDefault(t => t.OpticsIlluminationMode == opticsIlluminationModeEnum
-                                  && t.ProductivityInformation.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
-                                  && t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
+        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation == productivityInformation
                                   && t.PmtId == pmtId);
         if (ySize is null || ySize.IsOk == false)
         {
@@ -1688,7 +1683,6 @@ public sealed class LaserViewModel(
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
         StageCoordinateSystemEnum stageCoordinateSystemEnum = CalibrationConstantsHelper.MainStageCoordinateSystemEnum,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1701,7 +1695,7 @@ public sealed class LaserViewModel(
             false,
             cibConfiguration,
             productivityInformation,
-            opticsIlluminationModeEnum,
+            productivityInformation.OpticsIlluminationModeEnum,
             xWidthPixel,
             pmtId,
             stageCoordinateSystemEnum: stageCoordinateSystemEnum,
@@ -1724,8 +1718,7 @@ public sealed class LaserViewModel(
             out resultImageFilePath,
             isForward,
             xWidthPixel,
-            stageCoordinateSystemEnum,
-            opticsIlluminationModeEnum);
+            stageCoordinateSystemEnum);
     }
 
     /// <summary>
@@ -1800,7 +1793,6 @@ public sealed class LaserViewModel(
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
-    /// <param name="opticsIlluminationModeEnum"></param>
     /// <param name="laserLightInformation"></param>
     /// <param name="isAutoFocus"></param>
     /// <returns>是否成功</returns>
@@ -1815,7 +1807,6 @@ public sealed class LaserViewModel(
         out Point resultPosition,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1837,7 +1828,6 @@ public sealed class LaserViewModel(
             out _,
             isForward,
             xWidthPixel,
-            opticsIlluminationModeEnum: opticsIlluminationModeEnum,
             laserLightInformation: laserLightInformation,
             isAutoFocus: isAutoFocus);
     }
@@ -1923,7 +1913,6 @@ public sealed class LaserViewModel(
     /// <param name="resultImageFilePath">匹配后成功的[保存的匹配图片的路径]</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="xWidthPixel">图片X像素宽度</param>
-    /// <param name="opticsIlluminationModeEnum"></param>
     /// <param name="laserLightInformation"></param>
     /// <param name="isAutoFocus"></param>
     /// <returns>是否成功</returns>
@@ -1941,7 +1930,6 @@ public sealed class LaserViewModel(
         out string resultImageFilePath,
         bool isForward = true,
         int xWidthPixel = CalibrationConstantsHelper.MainXWidthPixel,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum,
         LaserLightInformation? laserLightInformation = null,
         bool isAutoFocus = true)
     {
@@ -1963,7 +1951,6 @@ public sealed class LaserViewModel(
             out resultImageFilePath,
             isForward,
             xWidthPixel,
-            opticsIlluminationModeEnum: opticsIlluminationModeEnum,
             laserLightInformation: laserLightInformation,
             isAutoFocus: isAutoFocus);
     }
