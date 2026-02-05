@@ -7,6 +7,7 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
 using Core.Services.Interfaces;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -48,6 +49,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
     public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
+    [DefaultCache]
     [ObservableProperty]
     private ChirpAODWaveformTrainingCache _cache = new();
 

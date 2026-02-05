@@ -1,13 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.PMT;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.DarkField;
 
-public sealed partial class CIBDelayDTO : ObservableCacheBase, ICloneable<CIBDelayDTO>, IAdaptTo<CgPMTDelayModel>, IAdaptIn<CgPMTDelayModel, CIBDelayDTO>
+public sealed partial class CIBDelayDTO : ObservableObject, ICloneable<CIBDelayDTO>, IAdaptTo<CgPMTDelayModel>, IAdaptIn<CgPMTDelayModel, CIBDelayDTO>
 {
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
@@ -35,9 +34,7 @@ public sealed partial class CIBDelayDTO : ObservableCacheBase, ICloneable<CIBDel
         CIBInformation = CIBInformation.Clone(),
         PMTDelay = PMTDelay,
         SenseDelay = SenseDelay,
-        AGCDelay = AGCDelay,
-        Id = Id,
-        Expiration = Expiration
+        AGCDelay = AGCDelay
     };
 
     public CgPMTDelayModel AdaptTo() => new()

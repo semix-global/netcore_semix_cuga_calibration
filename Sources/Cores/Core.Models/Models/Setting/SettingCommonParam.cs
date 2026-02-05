@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Loggings;
 
@@ -9,7 +8,7 @@ namespace Core.Models.Models.Setting;
 /// <summary>
 /// 通用参数
 /// </summary>
-public sealed partial class SettingCommonParam : ObservableCacheBase, IAdaptIn<SettingCommonParam, SettingCommonParam>
+public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<SettingCommonParam, SettingCommonParam>
 {
     [ObservableProperty]
     private LogLevelEnum _minLogLevelEnum = LogLevelEnum.Info;

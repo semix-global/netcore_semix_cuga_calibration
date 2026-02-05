@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models;
 
@@ -7,7 +6,7 @@ namespace Core.Models.Models;
 /// 校准步骤
 /// </summary>
 [ObservableRecipient]
-public sealed partial class CalibrationItemStep : ObservableCacheBase
+public sealed partial class CalibrationItemStep : ObservableObject
 {
     private readonly bool _defaultIsNextEnable;
 

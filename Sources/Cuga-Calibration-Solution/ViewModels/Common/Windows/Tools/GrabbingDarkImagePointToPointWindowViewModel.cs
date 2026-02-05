@@ -88,7 +88,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                 foreach (var (index, darkFieldImageDto) in cropResultList.Select((t, i) => (i, t)))
                 {
                     using var _ = darkFieldImageDto;
-                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImagePointToPointWindowViewModel)}\\{positionList[index]}_row_scan.jpg";
+                    var filePath = $@"{options.Value.AppHomeDirectory}\Images\{nameof(GrabbingDarkImagePointToPointWindowViewModel)}\{positionList[index]}_row_scan.jpg";
                     darkFieldImageDto.Image.Save(filePath);
                     contextProvider.Send(() => DarkFieldRowScanImageList.Add(new DarkFieldCropImage
                     {
@@ -137,7 +137,7 @@ public partial class GrabbingDarkImagePointToPointWindowViewModel(
                         OpticsMagTypeEnum,
                         stageCoordinateSystemEnum: StageCoordinateSystemEnum);
 
-                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{resultPosition}.jpg";
+                    var filePath = $@"{options.Value.AppHomeDirectory}\Images\{nameof(GrabbingDarkImageWindowViewModel)}\{resultPosition}.jpg";
                     darkFieldImageDto.Image.Save(filePath);
                     contextProvider.Send(() =>
                     {

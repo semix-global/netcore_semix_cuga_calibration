@@ -1,12 +1,11 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 
-public sealed partial class WaferMapDto : ObservableCacheBase, ICloneable<WaferMapDto>
+public sealed partial class WaferMapDto : ObservableObject, ICloneable<WaferMapDto>
 {
     [ObservableProperty]
     private WaferMapDataDto _waferMapData = new();
@@ -25,7 +24,7 @@ public sealed partial class WaferMapDto : ObservableCacheBase, ICloneable<WaferM
 
     public void WaferMapInitialization(Point originDieBrightPosition)
     {
-        OriginDieDto = new()
+        OriginDieDto = new WaferMapDieItemDto
         {
             WaferPosition = originDieBrightPosition,
             IsInWafer = true

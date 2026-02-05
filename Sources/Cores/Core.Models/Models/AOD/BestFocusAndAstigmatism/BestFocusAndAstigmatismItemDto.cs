@@ -4,7 +4,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -173,7 +172,7 @@ public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable
     };
 }
 
-public partial class BestFocusAndAstigmatismItemDto : ObservableCacheBase, ICloneable<BestFocusAndAstigmatismItemDto>
+public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneable<BestFocusAndAstigmatismItemDto>
 {
     [ObservableProperty]
     private double _spectralDensity;
@@ -352,13 +351,11 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableCacheBase, IClon
         TriggerStartIndex = TriggerStartIndex,
         TriggerEndIndex = TriggerEndIndex,
         ChannelItems = ChannelItems.Select(t => t.Clone()).ToList().AsReadOnly(),
-        GenerateChirpAODWaveformParam = GenerateChirpAODWaveformParam.Clone(),
-        Id = Id,
-        Expiration = Expiration
+        GenerateChirpAODWaveformParam = GenerateChirpAODWaveformParam.Clone()
     };
 }
 
-public sealed partial class BestFocusAndAstigmatismChannelGroupItemDto : ObservableCacheBase
+public sealed partial class BestFocusAndAstigmatismChannelGroupItemDto : ObservableObject
 {
     [ObservableProperty]
     private int _channelId;
@@ -369,7 +366,7 @@ public sealed partial class BestFocusAndAstigmatismChannelGroupItemDto : Observa
     private IReadOnlyList<BestFocusAndAstigmatismChannelItemDto> _channelItems = [];
 }
 
-public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableCacheBase, ICloneable<BestFocusAndAstigmatismChannelItemDto>
+public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableObject, ICloneable<BestFocusAndAstigmatismChannelItemDto>
 {
     [ObservableProperty]
     private int _pmtId;
@@ -669,8 +666,6 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableCa
         GrayValues = GrayValues.ToList().AsReadOnly(),
         RawFilePath = RawFilePath,
         OriginFilePath = OriginFilePath,
-        LinearFilePath = LinearFilePath,
-        Id = Id,
-        Expiration = Expiration
+        LinearFilePath = LinearFilePath
     };
 }

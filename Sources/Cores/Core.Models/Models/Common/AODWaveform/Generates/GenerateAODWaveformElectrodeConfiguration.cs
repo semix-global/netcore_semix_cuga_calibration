@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -14,7 +13,7 @@ using Core.Models.Extensions;
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
-    ObservableCacheBase,
+    ObservableObject,
     IAdaptTo<AODWaveformGenerator1.AODWaveformOffsetConfiguration>,
     IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>,
     ICloneable<GenerateAODWaveformElectrodeConfiguration>

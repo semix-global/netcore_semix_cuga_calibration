@@ -5,6 +5,7 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
+using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.YPixelSize;
@@ -26,7 +27,7 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBYPixelSizeCacheItem>> Items { get; init; } = [];
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]

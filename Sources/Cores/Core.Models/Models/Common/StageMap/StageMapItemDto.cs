@@ -1,11 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.StageMap;
 
-public sealed partial class StageMapItemDto : ObservableCacheBase, ICloneable<StageMapItemDto>
+public sealed partial class StageMapItemDto : ObservableObject, ICloneable<StageMapItemDto>
 {
     [ObservableProperty]
     private int _row;
@@ -69,9 +68,7 @@ public sealed partial class StageMapItemDto : ObservableCacheBase, ICloneable<St
         TemplateImageFilePath = TemplateImageFilePath,
         TemplateScore = TemplateScore,
         TemplateAngle = TemplateAngle,
-        IsMatchOk = IsMatchOk,
-        Id = Id,
-        Expiration = Expiration
+        IsMatchOk = IsMatchOk
     };
 
     #endregion Mapper

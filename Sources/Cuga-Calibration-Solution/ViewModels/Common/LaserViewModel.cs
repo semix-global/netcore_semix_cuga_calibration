@@ -311,7 +311,7 @@ public sealed class LaserViewModel(
 
         if (saveImageFileDirectory is not null)
         {
-            var rtfcResultImagePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
+            var rtfcResultImagePath = $@"{saveImageFileDirectory}\RTFCThumb\logTitle\{calChipSiteModelEnum}Guid{logGuid}.jpg";
             darkFieldImageDto.Image.Save(rtfcResultImagePath);
 
             if (logGuid is not null && logName is not null)

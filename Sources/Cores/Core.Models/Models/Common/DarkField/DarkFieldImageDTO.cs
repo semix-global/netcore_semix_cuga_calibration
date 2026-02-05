@@ -1,7 +1,7 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HalconDotNet;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 
@@ -15,7 +15,7 @@ using Semix.WcfTransfer.DTO;
 namespace Core.Models.Models.Common.DarkField;
 
 public partial class DarkFieldRawScanImageDTO :
-    ObservableCacheBase,
+    ObservableObject,
     ICloneable<DarkFieldRawScanImageDTO>,
     IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldRawScanImageDTO>
 {
@@ -34,6 +34,15 @@ public partial class DarkFieldRawScanImageDTO :
     [ObservableProperty]
     private int _height;
 
+    partial void OnRawImageFilePathChanged(string value)
+    {
+        var result = Path.GetFullPath(value);
+
+        if (value == result) return;
+
+        RawImageFilePath = result;
+    }
+
     #region Mapper
 
     public DarkFieldRawScanImageDTO Clone() => new()
@@ -42,9 +51,7 @@ public partial class DarkFieldRawScanImageDTO :
         ChannelId = ChannelId,
         Width = Width,
         Height = Height,
-        RawImageFilePath = RawImageFilePath,
-        Id = Id,
-        Expiration = Expiration
+        RawImageFilePath = RawImageFilePath
     };
 
     public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj)
@@ -81,9 +88,7 @@ public sealed class DarkFieldImageDTO :
         Width = Width,
         Height = Height,
         RawImageFilePath = RawImageFilePath,
-        Image = Image.Copy(),
-        Id = Id,
-        Expiration = Expiration
+        Image = Image.Copy()
     };
 
     public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj)

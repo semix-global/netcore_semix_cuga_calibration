@@ -257,7 +257,7 @@ public partial class GrabbingDarkImageWindowViewModel(
                 foreach (var (i, darkFieldImageDto) in result.Select((t, i) => (i, t)))
                 {
                     using var _ = darkFieldImageDto;
-                    var filePath = $"{options.Value.AppHomeDirectory}\\Images\\{nameof(GrabbingDarkImageWindowViewModel)}\\{OpticsMagTypeEnum}\\{PmtId}-{i + 1}\\{LaserLightInformation}\\{CIBConfiguration.Gain}\\{htmlLogUniqueId}.jpg";
+                    var filePath = $@"{options.Value.AppHomeDirectory}\Images\{nameof(GrabbingDarkImageWindowViewModel)}\{OpticsMagTypeEnum}\{PmtId}-{i + 1}\{LaserLightInformation}\{CIBConfiguration.Gain}\{htmlLogUniqueId}.jpg";
                     darkFieldImageDto.Image.Save(filePath);
                     darkFieldImageList.Add(new DarkFieldImage
                     {

@@ -1,11 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.DarkField;
 
-public partial class DarkFieldRTFCDto : ObservableCacheBase
+public partial class DarkFieldRTFCDto : ObservableObject
 {
+    [ObservableProperty]
+    private long _id;
+
     [ObservableProperty]
     private int _pmtId;
 

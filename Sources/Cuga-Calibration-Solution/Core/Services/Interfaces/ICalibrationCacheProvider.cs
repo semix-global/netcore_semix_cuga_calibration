@@ -1,23 +1,14 @@
-using Core.Models.Models;
 using Local.NoSQL.DB.Providers.Interfaces;
 
 namespace CugaCalibration.Core.Services.Interfaces;
 
 public interface ICalibrationCacheProvider
 {
-    bool TrySave(string? filePath = null);
+    Task<bool> TrySaveAsync(string? filePath, CancellationToken cancellationToken);
 
-    bool TrySet<T>(T dto, CancellationToken cancellationToken) where T : class, ICacheItem, new();
+    Task<bool> TryExportAsync(string filePath, CancellationToken cancellationToken);
 
-    bool TrySetArray<T>(T[] dtoList, CancellationToken cancellationToken) where T : class, ICacheItem, new();
+    Task<(bool IsSuccess, string Message)> TryImportAsync(string filePath, CancellationToken cancellationToken);
 
-    bool TrySetDisable<T>(CancellationToken cancellationToken) where T : CalibrationDtoBase, new();
-
-    bool TrySetArrayDisable<T>(CancellationToken cancellationToken) where T : CalibrationDtoBase, new();
-
-    bool TrySetIsRequiredSelfCheck<T>(bool isRequiredSelfCheck, CancellationToken cancellationToken) where T : CalibrationDtoBase, new();
-
-    bool TrySetArrayIsRequiredSelfCheck<T>(bool isRequiredSelfCheck, CancellationToken cancellationToken) where T : CalibrationDtoBase, new();
-
-    bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name);
+    bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name, CancellationToken token);
 }

@@ -4,14 +4,10 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.Alignment;
-using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Focus;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -62,9 +58,11 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private GlobalFocusOffsetCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private GlobalFocusOffsetDTO[] _calibrations = [];
 
@@ -81,55 +79,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopeCalChip = microscopeCalChip;
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
@@ -316,7 +266,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
                 CalibratingItem = new GlobalFocusOffsetDTO
                 {
                     ProductivityInformation = Cache.ProductivityInformation,
-                    CalChipSiteModelEnum = Cache.CalChipSiteModelEnum,
+                    CalChipSiteModelEnum = Cache.CalChipSiteModelEnum
                 };
 
                 var rtfcResultDTO = await CIBViewModel.RuntimeAfCalibrationAsync(
@@ -376,7 +326,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
                         Cache.QualityThreshold,
                         Cache.Item.RTFCBrightFieldMachinePosition,
                         selectedReviewItem.CalChipSiteModelEnum,
-                        CalibrationRTFCResult = new HtmlQuote(selectedReviewItem.RuntimeAfCalibrationResultDTO.ToHtmlAnonymous()),
+                        CalibrationRTFCResult = new HtmlQuote(selectedReviewItem.RuntimeAfCalibrationResultDTO.ToHtmlAnonymous())
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);

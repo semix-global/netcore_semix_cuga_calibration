@@ -1,8 +1,12 @@
 using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Cookies;
 using Cuga.Data.DataStruct.DTO.Swath;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.WPF.MVVM;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 #if NET
 using Semix.GRPC.DTO;
@@ -14,8 +18,9 @@ using Core.Models.Extensions;
 
 namespace Core.Models.Models.Common.Pattern;
 
+[JsonConverter(typeof(ProductivityInformationConverter))]
 public sealed class ProductivityInformation :
-    ObservableCacheBase,
+    ObservableObject,
     IComparable,
     IComparable<ProductivityInformation>,
     IEquatable<ProductivityInformation>,
@@ -26,7 +31,7 @@ public sealed class ProductivityInformation :
 {
     public static readonly ProductivityInformation Default = new();
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -54,7 +59,7 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref field, value);
     } = -1;
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -64,7 +69,7 @@ public sealed class ProductivityInformation :
         set => SetProperty(ref field, value);
     } = -1;
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -74,7 +79,7 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref field, value);
     } = -1;
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -84,7 +89,7 @@ public sealed class ProductivityInformation :
         private set => SetProperty(ref field, value);
     } = -1;
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -97,7 +102,7 @@ public sealed class ProductivityInformation :
     /// <summary>
     /// KHz
     /// </summary>
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -110,7 +115,7 @@ public sealed class ProductivityInformation :
     /// <summary>
     /// um/s
     /// </summary>
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -179,8 +184,10 @@ public sealed class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out OpticsIlluminationModeEnum opticsIlluminationModeEnum, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double sampleRate, out double xSpeedValue)
-        => (name, opticsIlluminationModeEnum, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate, xSpeedValue) = (Name, OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate, XSpeedValue);
+    public void Deconstruct(out string name, out OpticsIlluminationModeEnum opticsIlluminationModeEnum, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double sampleRate,
+        out double xSpeedValue)
+        => (name, opticsIlluminationModeEnum, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate, xSpeedValue) =
+            (Name, OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate, XSpeedValue);
 
     #endregion Deconstruct
 
@@ -201,10 +208,21 @@ public sealed class ProductivityInformation :
             : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
     };
 
-    public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo, double originYPixel, double sampleRate, double xSpeedValue)
+    public ProductivityInformation AdaptIn(C2MProductivityInfo obj,
+        CgSwathSpeedInfo swathSpeedInfo,
+        double originYPixel,
+        double sampleRate,
+        double xSpeedValue
+#if NET
+            , OpticsIlluminationModeEnum opticsIlluminationModeEnum
+#endif
+
+    )
     {
         Name = obj.Name;
-#if NETFRAMEWORK
+#if NET
+        OpticsIlluminationModeEnum = opticsIlluminationModeEnum;
+#else
         OpticsIlluminationModeEnum = obj.NIOI.ToOpticsIlluminationModeEnum();
 #endif
         OpticsMagType = (int)obj.Mag;
@@ -234,4 +252,43 @@ public sealed class ProductivityInformation :
     };
 
     #endregion Mapper
+
+    private sealed class ProductivityInformationConverter : JsonConverter<ProductivityInformation?>
+    {
+        private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);
+
+        public override void WriteJson(JsonWriter writer, ProductivityInformation? value, JsonSerializer serializer)
+        {
+            value ??= Default;
+
+            writer.WriteStartObject();
+            writer.WritePropertyName(nameof(OpticsIlluminationModeEnum));
+            writer.WriteValue((int)value.OpticsIlluminationModeEnum);
+            writer.WritePropertyName(nameof(OpticsMagType));
+            writer.WriteValue(value.OpticsMagType);
+            writer.WritePropertyName(nameof(StageSpeedType));
+            writer.WriteValue(value.StageSpeedType);
+            writer.WriteEndObject();
+        }
+
+        public override ProductivityInformation ReadJson(JsonReader reader, Type objectType, ProductivityInformation? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return Default;
+
+            var jsonObject = JObject.Load(reader);
+
+            var opticsIlluminationModeEnum = (OpticsIlluminationModeEnum)(jsonObject[nameof(OpticsIlluminationModeEnum)]?.Value<int>() ?? (int)OpticsIlluminationModeEnum.OI);
+            var opticsMagType = jsonObject[nameof(OpticsMagType)]?.Value<int>() ?? Default.OpticsMagType;
+            var stageSpeedType = jsonObject[nameof(StageSpeedType)]?.Value<int>() ?? Default.StageSpeedType;
+
+            var temp = new ProductivityInformation
+            {
+                OpticsIlluminationModeEnum = opticsIlluminationModeEnum,
+                OpticsMagType = opticsMagType,
+                StageSpeedType = stageSpeedType
+            };
+
+            return ApplicationCookie.Value.ProductivityInformations.SingleOrDefault(t => t == temp, Default);
+        }
+    }
 }

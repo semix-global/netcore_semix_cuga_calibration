@@ -1,13 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Recipe.Template;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 
-public sealed partial class ReticleMarkItemDto : ObservableCacheBase, ICloneable<ReticleMarkItemDto>
+public sealed partial class ReticleMarkItemDto : ObservableObject, ICloneable<ReticleMarkItemDto>
 {
     [ObservableProperty]
     private int _maskIndex;

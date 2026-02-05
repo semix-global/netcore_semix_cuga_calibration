@@ -4,6 +4,8 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.AutoFocus;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.AutoFocus;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.AutoFocus.GlobalFocusOffset;
@@ -33,9 +35,9 @@ public sealed partial class GlobalFocusOffsetDTO : CalibrationDtoBase, ICloneabl
 
     public CalibrationGlobalFocusOffset AdaptTo() => new()
     {
-        CgNIOITypeEnum = ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         IsAFServo = RuntimeAfCalibrationResultDTO.IsAFServo,
         ECSValue = RuntimeAfCalibrationResultDTO.ECSValue,
         MotorValue = RuntimeAfCalibrationResultDTO.MotorValue,

@@ -5,7 +5,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Utilities;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
@@ -26,7 +25,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDtoItem>> Items { get; private init; } = [];
+    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDtoItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -136,7 +135,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
             cloneItems.GetOrAdd(item.Key, item.Value.Clone());
         }
 
-        return new()
+        return new MicroscopeCalChipDto
         {
             CalChipSiteModelEnum = CalChipSiteModelEnum,
             MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
@@ -191,7 +190,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     #endregion Mapper
 }
 
-public sealed partial class MicroscopeCalChipDtoItem : ObservableCacheBase, ICloneable<MicroscopeCalChipDtoItem>
+public sealed partial class MicroscopeCalChipDtoItem : ObservableObject, ICloneable<MicroscopeCalChipDtoItem>
 {
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum;

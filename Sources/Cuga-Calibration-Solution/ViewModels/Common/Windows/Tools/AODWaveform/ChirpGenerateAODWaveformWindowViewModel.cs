@@ -1,5 +1,6 @@
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -8,10 +9,19 @@ using Net.Utilities.WPF.Enums;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
+public sealed class ChirpGenerateAODWaveformCache : GenerateAODWaveformCache<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>;
+
 [IOCAppService(ServiceType = typeof(ChirpGenerateAODWaveformWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
+public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAODWaveformWindowViewModel<ChirpGenerateAODWaveformCache, GenerateChirpAODWaveformParam, ChirpAODWaveformProfile>
 {
     public override string Name => "Generate Chirp AOD Waveform";
+
+    [DefaultCache]
+    public override ChirpGenerateAODWaveformCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     protected override void LoadedElectrodeOffsetResult(CancellationToken cancellationToken)
     {

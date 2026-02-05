@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;
@@ -7,7 +6,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Wafer.WaferMap;
 
-public sealed partial class WaferMapDataDto : ObservableCacheBase, ICloneable<WaferMapDataDto>
+public sealed partial class WaferMapDataDto : ObservableValidator, ICloneable<WaferMapDataDto>
 {
     [ObservableProperty]
     [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Diameter: ")]

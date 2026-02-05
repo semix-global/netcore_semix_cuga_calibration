@@ -36,7 +36,7 @@ public sealed class CalibrationChuckObj
     /// <summary>
     /// AlignmentDegreeOffset校准对象
     /// </summary>
-    public CalibrationChuckAlignmentDegreeOffsetItem[] CalibrationChuckAlignmentDegreeOffsetItemList { get; set; } = Array.Empty<CalibrationChuckAlignmentDegreeOffsetItem>();
+    public CalibrationChuckAlignmentDegreeOffsetItem[] CalibrationChuckAlignmentDegreeOffsetItemList { get; set; } = [];
 
     /// <summary>
     /// Stage Map 校准对象

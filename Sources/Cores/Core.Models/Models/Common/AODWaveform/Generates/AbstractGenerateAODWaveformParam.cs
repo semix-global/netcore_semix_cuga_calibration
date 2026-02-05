@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -10,7 +9,7 @@ using System.IO;
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public abstract partial class AbstractGenerateAODWaveformParam :
-    ObservableCacheBase,
+    ObservableObject,
     IAdaptIn<AbstractGenerateAODWaveformParam, AbstractGenerateAODWaveformParam>
 {
     [ObservableProperty]

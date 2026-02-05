@@ -1,4 +1,5 @@
 using Core.Models.Models.Common.AODWaveform;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -13,6 +14,13 @@ public sealed class ChirpAODWaveformElectrodeInitializeWindowViewModel :
     AbstractAODWaveformElectrodeInitializeWindowViewModel<ChirpAODWaveformElectrodeInitializeCache, ChirpAODWaveformElectrodeInitializeItem, ChirpAODWaveformElectrodeInitializeResult>
 {
     public override string Name => "Chirp AOD Waveform Electrode Initialize";
+
+    [DefaultCache]
+    public override ChirpAODWaveformElectrodeInitializeCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     protected override async Task LoadedAsync()
     {

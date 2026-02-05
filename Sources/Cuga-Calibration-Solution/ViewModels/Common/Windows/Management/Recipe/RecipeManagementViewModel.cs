@@ -69,7 +69,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
         CalibrationSetting calibrationSetting)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _windowManagerService = windowManagerService;
         _contextProvider = contextProvider;
         _messenger = messenger;
@@ -316,7 +316,8 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
 
                 _cacheDatabaseProvider.ChangeDatabase(SelectRecipeInfoDto!.RecipeNosqlRecipeDbDataSource, CancellationToken.None);
 
-                _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
+                if (_recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto) == false) calibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource = SelectRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
+
                 ApplicationCookie.CalibrationRecipeDto = calibrationRecipeDto.Clone();
                 ApplicationCookie.CalibrationReviseRecipeDto = calibrationRecipeDto.Clone();
 

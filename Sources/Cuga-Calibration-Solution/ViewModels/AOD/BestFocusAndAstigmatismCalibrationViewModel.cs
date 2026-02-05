@@ -6,24 +6,17 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.BestFocusAndAstigmatism;
 using Core.Models.Models.AOD.Delay;
-using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.XPixelSize;
-using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Focus;
-using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
@@ -44,11 +37,10 @@ using System.IO;
 using System.Threading.Channels;
 using Interpolator = Core.Utilities.Interpolator;
 
-
 namespace CugaCalibration.ViewModels.AOD;
 
 [IOCAppService(ServiceType = typeof(BestFocusAndAstigmatismCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public partial class BestFocusAndAstigmatismCalibrationViewModel() : CalibrationViewModelBase
+public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -105,9 +97,11 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private BestFocusAndAstigmatismCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private BestFocusAndAstigmatismDTO[] _calibrations = [];
 
@@ -137,75 +131,9 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        LaserAodDelayItemList = CalibrationStatusService.GetCalibrations<AODDelayDTO>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out var laserAodDelayItemDtos, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserAodDelayItemList = laserAodDelayItemDtos;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBIlluminationProfileDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBXPixelSizeDTO>(out var laserXPixelSizeItemDtos, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserXPixelSizeItemList = laserXPixelSizeItemDtos;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBYPixelSizeDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserLineCentricityItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        LaserXPixelSizeItemList = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
 
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
@@ -234,7 +162,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
-        if (ApplicationCookie.CIBInformations.Contains(Cache.CIBInformation) == false) Cache.CIBInformation = ApplicationCookie.CIBInformations.First();
+        if (ApplicationCookie.CIBInformations.Contains(Cache.CIBInformation) == false) Cache.CIBInformation = ApplicationCookie.CIBInformations[0];
 
         if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
 
@@ -276,7 +204,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
         switch (CalibrationStepIndex)
         {
             case 1:
-                if (ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation) == false) Cache.Item.LaserLightInformation = ApplicationCookie.LaserLightInformations.First();
+                if (ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation) == false) Cache.Item.LaserLightInformation = ApplicationCookie.LaserLightInformations[0];
 
                 return true;
 
@@ -304,6 +232,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.ImageCollectionConfiguration.StartPoint);
                 return true;
+
             case 5:
                 {
                     Calibrations =
@@ -559,7 +488,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
                     }, cancellationToken));
                 }
 
-                #endregion
+                #endregion 消费者
 
                 #region 生产者
 
@@ -590,7 +519,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
                     }
                 }, cancellationToken);
 
-                #endregion
+                #endregion 生产者
 
                 // 等待所有任务完成
                 await Task.WhenAll(producerTask, Task.WhenAll(consumerTasks));
@@ -599,7 +528,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
                 //
                 // var listCol = CalibratingItem.Items.Select(t => 1 / t.SpectralDensity);
                 //
-                // var (k, b, _, _) = PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
+                // var (k, b, _, _) = PolynomialCurve.Fit1(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
                 //
                 // var resultItemDto = CalibratingItem.Items.Minima(t =>
                 //     Math.Abs(GuardUtils.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId)).XYBestFocusOffsetEcs)
@@ -693,8 +622,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
             var (interpolationX, interpolationY) = Interpolator.SplineInterpolation(
                 Vector<double>.Build.Dense([.. ecsBuffers.Select((t, i) => i)]),
                 Vector<double>.Build.Dense([.. ecsBuffers.Select(t => t.Ecs)]),
-                (Convert.ToInt32(bestFocusAndAstigmatismItemDto.LineScanRate / Cache.TraceBufferSamplingRate)),
-                3);
+                (Convert.ToInt32(bestFocusAndAstigmatismItemDto.LineScanRate / Cache.TraceBufferSamplingRate)));
 
             var ecsInterpolationBuffers = interpolationX.Index().Select(t => (Pixel: t.Index, ECS: interpolationY[t.Index])).ToList();
 
@@ -805,7 +733,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
 
     private void ClearCalibrationTemp()
     {
-        CalibratingItem = new()
+        CalibratingItem = new BestFocusAndAstigmatismDTO
         {
             ProductivityInformation = Cache.ProductivityInformation.Clone(),
             ApodizationModeEnum = Cache.ApodizationModeEnum
@@ -857,5 +785,5 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel() : Calibration
         return (generateChirpAODWaveformParam, chirpAODWaveformProfiles);
     }
 
-    #endregion
+    #endregion 算法
 }

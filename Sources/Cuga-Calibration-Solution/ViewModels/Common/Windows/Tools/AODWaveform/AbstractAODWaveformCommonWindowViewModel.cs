@@ -1,5 +1,4 @@
 using CommunityToolkit.Diagnostics;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
@@ -44,8 +43,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public ApplicationCookie ApplicationCookie { get; }
 
-    [ObservableProperty]
-    private TCache _cache = new();
+    public abstract TCache Cache { get; set; }
 
     public abstract string Name { get; }
 

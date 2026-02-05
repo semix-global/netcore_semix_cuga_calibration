@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Status;
 
-public sealed partial class OpticsMagTypeEnumCalibrationStatus : ObservableCacheBase
+public sealed partial class OpticsMagTypeEnumCalibrationStatus : ObservableObject
 {
     [ObservableProperty]
     private OpticsMagTypeEnum _opticsMagTypeEnum;

@@ -58,7 +58,7 @@
                 <Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="MenuItem">
                     <Setter Property="Header" Value="{Binding Name}" />
                     <Setter Property="Command" Value="{Binding DataContext.OpenToolMenuCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
-                    <Setter Property="CommandParameter" Value="{Binding Component}" />
+                    <Setter Property="CommandParameter" Value="{Binding .}" />
                     <Setter Property="ItemsSource" Value="{Binding ChildList}" />
                     <Setter Property="Padding" Value="8,3" />
                     <Style.Triggers>

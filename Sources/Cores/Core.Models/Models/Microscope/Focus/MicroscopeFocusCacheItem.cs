@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;
@@ -9,7 +8,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Focus;
 
-public sealed partial class MicroscopeFocusCacheItem : ObservableCacheBase, ICloneable<MicroscopeFocusCacheItem>
+public sealed partial class MicroscopeFocusCacheItem : ObservableValidator, ICloneable<MicroscopeFocusCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;

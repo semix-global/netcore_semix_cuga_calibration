@@ -1,6 +1,9 @@
+using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Recipe.Info;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using Core.Wcf.Models;
@@ -12,17 +15,23 @@ using CugaCalibration.Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
+using Newtonsoft.Json.Linq;
 using System.IO;
+using System.Text;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -30,6 +39,11 @@ namespace CugaCalibration.Core.Services.Implements;
 public class CalibrationCacheProviderServiceImpl(
     IOptions<ApplicationSetting> options,
     ICacheProvider cacheProvider,
+    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
+    ICacheProvider recipeCacheProvider,
+    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
+    ICacheDatabaseProvider recipeCacheDatabaseProvider,
+    ISysRecipeInformationService sysRecipeInformationService,
     ILogger<CalibrationCacheProviderServiceImpl> logger,
     IDialogWindowProvider dialogWindowProvider,
     ApplicationCookie applicationCookie,
@@ -37,144 +51,372 @@ public class CalibrationCacheProviderServiceImpl(
 {
     private readonly string _saveResultDirectory = Path.Combine(options.Value.AppHomeDirectory, "CalibrationResult");
 
-    public bool TrySave(string? filePath = null)
+    public async Task<bool> TrySaveAsync(string? filePath, CancellationToken cancellationToken)
     {
-        try
+        return await Task.Run(() =>
         {
-            var calibrationObj = new CalibrationObj
+            try
             {
-                CalibrationAdsObj = new CalibrationAdsObj(),
-                CalibrationMicroscopeObj = new CalibrationMicroscopeObj(),
-                CalibrationChuckObj = new CalibrationChuckObj(),
-                CalibrationLaserObj = new CalibrationLaserObj()
-            };
-
-            var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
-            var wcfObjProperties = calibrationObj.GetType().GetProperties();
-            foreach (var calibrationCategory in calibrationCategoryList)
-            {
-                var parentCalibrationRequiredCache = calibrationSetting.SettingRequiredCalibrationParamList.Single(t => t.Description == calibrationCategory.Description);
-                var wcfCategoryPropertyInfo = wcfObjProperties.Single(t => t.PropertyType == calibrationCategory.WcfCategoryType);
-                foreach (var calibrationCategoryItem in calibrationCategory.Items)
+                var calibrationObj = new CalibrationObj
                 {
-                    var childCalibrationRequiredCache = parentCalibrationRequiredCache.CategoryItems.Single(t => t.TypeInstance == calibrationCategoryItem.CalibrationDtoType);
-                    if (calibrationCategoryItem.IsArray)
-                    {
-                        var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType.GetElementType() == calibrationCategoryItem.WcfModelType);
-                        var dtoItems = cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType);
-                        if (dtoItems is null || dtoItems.Length == 0)
-                            dtoItems = [GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(calibrationCategoryItem.CalibrationDtoType))];
-                        var wcfItems = dtoItems.Select(t =>
-                        {
-                            var value = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(t, null));
-                            GuardUtils.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(value, childCalibrationRequiredCache.IsRequired);
-                            return value;
-                        }).ToArray();
+                    CalibrationAdsObj = new CalibrationAdsObj(),
+                    CalibrationMicroscopeObj = new CalibrationMicroscopeObj(),
+                    CalibrationChuckObj = new CalibrationChuckObj(),
+                    CalibrationLaserObj = new CalibrationLaserObj()
+                };
 
-                        var values = ObjectHelper.ConvertToArray(wcfItems, calibrationCategoryItem.WcfModelType);
-                        childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), values);
-                    }
-                    else
+                var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
+                var wcfObjProperties = calibrationObj.GetType().GetProperties();
+                foreach (var calibrationCategory in calibrationCategoryList)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var parentCalibrationRequiredCache = calibrationSetting.SettingRequiredCalibrationParamList.Single(t => t.Description == calibrationCategory.Description);
+                    var wcfCategoryPropertyInfo = wcfObjProperties.Single(t => t.PropertyType == calibrationCategory.WcfCategoryType);
+                    foreach (var calibrationCategoryItem in calibrationCategory.Items)
                     {
-                        var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType == calibrationCategoryItem.WcfModelType);
-                        var dto = cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType);
-                        var wcfModel = dto is not null ? calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null) : null;
-                        if (wcfModel is not null)
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var childCalibrationRequiredCache = parentCalibrationRequiredCache.CategoryItems.Single(t => t.TypeInstance == calibrationCategoryItem.CalibrationDtoType);
+                        if (calibrationCategoryItem.IsArray)
                         {
-                            GuardUtils.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
-                            childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), wcfModel);
+                            var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType.GetElementType() == calibrationCategoryItem.WcfModelType);
+                            var dtoItems = cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType);
+                            if (dtoItems is null || dtoItems.Length == 0)
+                                dtoItems = [GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(calibrationCategoryItem.CalibrationDtoType))];
+                            var wcfItems = dtoItems.Select(t =>
+                            {
+                                var value = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(t, null));
+                                GuardUtils.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(value, childCalibrationRequiredCache.IsRequired);
+                                return value;
+                            }).ToArray();
+
+                            var values = ObjectHelper.ConvertToArray(wcfItems, calibrationCategoryItem.WcfModelType);
+                            childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), values);
                         }
+                        else
+                        {
+                            var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType == calibrationCategoryItem.WcfModelType);
+                            var dto = cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType);
+                            var wcfModel = dto is not null ? calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null) : null;
+                            if (wcfModel is not null)
+                            {
+                                GuardUtils.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
+                                childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), wcfModel);
+                            }
+                        }
+                    }
+
+                    wcfCategoryPropertyInfo.SetValue(calibrationObj, wcfCategoryPropertyInfo.GetValue(calibrationObj));
+                }
+
+                FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, filePath ?? $"Result_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.dat"));
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    logger.LogWarning("Save Result Canceled");
+
+                    return false;
+                }
+
+                logger.LogError(ex, "Save Result Failed");
+
+                return false;
+            }
+        }, cancellationToken);
+    }
+
+    public async Task<bool> TryExportAsync(string filePath, CancellationToken cancellationToken)
+    {
+        return await Task.Run(async () =>
+        {
+            try
+            {
+                var defaultCaches = new JObject();
+                foreach (var cacheItem in CacheCollector.DefaultCaches)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var data = cacheItem.IsArray
+                        ? cacheProvider.GetOrDefaultArray(cacheItem.Type)
+                        : cacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
+
+                    Guard.IsNotNull(data);
+
+                    var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                    RemoveMetadata(jToken);
+
+                    defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
+                }
+
+                var recipesCaches = new JObject();
+
+                var originalRecipeDBPath = applicationCookie.CalibrationRecipeDto?.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
+                Guard.IsNotNullOrEmpty(originalRecipeDBPath);
+                try
+                {
+                    var recipes = await sysRecipeInformationService.GetAllAsync(cancellationToken);
+
+                    foreach (var recipeInfo in recipes.OrderBy(t => t.RecipeDbName))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        recipeCacheDatabaseProvider.ChangeDatabase(recipeInfo.RecipeNosqlRecipeDbDataSource, cancellationToken);
+
+                        var recipeCaches = new JObject();
+                        foreach (var cacheItem in CacheCollector.RecipeCaches)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            var data = cacheItem.IsArray
+                                ? recipeCacheProvider.GetOrDefaultArray(cacheItem.Type)
+                                : recipeCacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
+
+                            Guard.IsNotNull(data);
+
+                            var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                            RemoveMetadata(jToken);
+
+                            recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
+                        }
+
+                        recipesCaches[recipeInfo.RecipeDbName] = recipeCaches;
+                    }
+                }
+                finally
+                {
+                    recipeCacheDatabaseProvider.ChangeDatabase(originalRecipeDBPath, cancellationToken);
+                }
+
+                var exportData = new JObject
+                {
+                    // [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
+                    [nameof(CalibrationDtoBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
+                    [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer),
+                    [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer)
+                };
+
+                FileHelper.SerializeOperate(exportData, filePath);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    logger.LogWarning("Export Cache Canceled");
+
+                    return false;
+                }
+
+                logger.LogError(ex, "Export Cache Failed");
+
+                return false;
+            }
+        }, cancellationToken);
+
+        void RemoveMetadata(JToken jToken)
+        {
+            switch (jToken)
+            {
+                case JArray array:
+                    foreach (var item in array) RemoveMetadata(item);
+
+                    break;
+                case JObject obj:
+                    obj.Remove(nameof(ICacheItem.Id));
+                    obj.Remove(nameof(ICacheItem.Expiration));
+                    obj.Remove(nameof(ICacheItem.CreatedTime));
+                    obj.Remove(nameof(ICacheItem.ModifiedTime));
+                    obj.Remove(nameof(ICacheItem.IsDeleted));
+                    obj.Remove(nameof(ObservableValidator.HasErrors));
+                    obj.Remove(nameof(CalibrationDtoBase.CreatedUserId));
+
+                    break;
+            }
+        }
+    }
+
+    public async Task<(bool IsSuccess, string Message)> TryImportAsync(string filePath, CancellationToken cancellationToken)
+    {
+        return await Task.Run(async () =>
+        {
+            var defaultCacheSuccessCount = 0;
+            var defaultCacheFailCount = 0;
+            var recipeSuccessCount = 0;
+            var recipeFailCount = 0;
+
+            var messageBuilder = new StringBuilder();
+            var recipeSuccessBuilder = new StringBuilder();
+            var recipeFailBuilder = new StringBuilder();
+
+            try
+            {
+                var importData = JObject.Parse(File.ReadAllText(filePath));
+
+                messageBuilder.AppendLine("=== Default Cache Import ===");
+                var defaultCaches = GuardUtils.IsNotNullAndAssignableToType<JObject>(importData[nameof(CacheCollector.DefaultCaches)]);
+                foreach (var cacheItem in CacheCollector.DefaultCaches)
+                {
+                    try
+                    {
+                        if (defaultCaches.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false
+                            || jToken.Type == JTokenType.Null)
+                        {
+                            defaultCacheFailCount++;
+
+                            continue;
+                        }
+
+                        var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
+                        var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                        Guard.IsNotNull(data);
+
+                        if (cacheItem.IsArray) cacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, cancellationToken);
+                        else cacheProvider.Set(data, cacheItem.Type, cancellationToken);
+
+                        defaultCacheSuccessCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        defaultCacheFailCount++;
+                        logger.LogWarning(ex, "Failed to import default cache: {@TypeName}", cacheItem.Type.Name);
                     }
                 }
 
-                wcfCategoryPropertyInfo.SetValue(calibrationObj, wcfCategoryPropertyInfo.GetValue(calibrationObj));
+                messageBuilder.AppendLine($"✓ Success: {defaultCacheSuccessCount} items");
+                if (defaultCacheFailCount > 0) messageBuilder.AppendLine($"✗ Failed: {defaultCacheFailCount} items");
+
+                messageBuilder.AppendLine();
+                messageBuilder.AppendLine("=== Recipe Cache Import ===");
+                var recipesCaches = GuardUtils.IsNotNullAndAssignableToType<JObject>(importData[nameof(CacheCollector.RecipeCaches)]);
+
+                var originalRecipeDBPath = applicationCookie.CalibrationRecipeDto?.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
+                Guard.IsNotNullOrEmpty(originalRecipeDBPath);
+                try
+                {
+                    foreach (var (recipeName, recipeCachesToken) in recipesCaches)
+                    {
+                        try
+                        {
+                            Guard.IsNotNull(recipeName);
+                            var recipeCaches = GuardUtils.IsNotNullAndAssignableToType<JObject>(recipeCachesToken);
+
+                            var recipe = (await sysRecipeInformationService.GetByConditionAsync(new SysRecipeInformationDto { RecipeDbName = recipeName }, cancellationToken)).FirstOrDefault();
+
+                            var isNewRecipe = false;
+                            if (recipe is null)
+                            {
+                                recipe = new SysRecipeInformationDto
+                                {
+                                    RecipeDbName = recipeName,
+                                    DescribeInformation = $"Imported on {DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}",
+                                    RecipeNosqlRecipeDbDataSource = Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeName, new CalibrationRecipeInfoDto().RecipeDbName)
+                                };
+
+                                await sysRecipeInformationService.InsertAsync(recipe, cancellationToken);
+                                isNewRecipe = true;
+                            }
+
+                            recipeCacheDatabaseProvider.ChangeDatabase(recipe.RecipeNosqlRecipeDbDataSource, cancellationToken);
+
+                            var recipeCacheItemCount = 0;
+                            foreach (var cacheItem in CacheCollector.RecipeCaches)
+                            {
+                                if (recipeCaches.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false
+                                    || jToken.Type == JTokenType.Null) continue;
+
+                                var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
+                                var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                                Guard.IsNotNull(data);
+
+                                if (cacheItem.IsArray)
+                                {
+                                    recipeCacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, cancellationToken);
+                                }
+                                else
+                                {
+                                    recipeCacheProvider.Set(data, cacheItem.Type, cancellationToken);
+                                }
+
+                                recipeCacheItemCount++;
+                            }
+
+                            recipeSuccessCount++;
+                            recipeSuccessBuilder.AppendLine($"  • {recipeName} ({recipeCacheItemCount} items{(isNewRecipe ? ", new" : "")})");
+                        }
+                        catch (Exception ex)
+                        {
+                            recipeFailCount++;
+                            recipeFailBuilder.AppendLine($"  • {recipeName}: {ex.Message}");
+
+                            logger.LogError(ex, "Failed to import recipe cache: {@RecipeName}", recipeName);
+                        }
+                    }
+                }
+                finally
+                {
+                    recipeCacheDatabaseProvider.ChangeDatabase(originalRecipeDBPath, cancellationToken);
+                }
+
+                if (recipeSuccessCount > 0)
+                {
+                    messageBuilder.AppendLine($"✓ Successfully imported {recipeSuccessCount} recipes:");
+                    messageBuilder.Append(recipeSuccessBuilder);
+                }
+
+                if (recipeFailCount > 0)
+                {
+                    messageBuilder.AppendLine($"✗ Failed {recipeFailCount} recipes:");
+                    messageBuilder.Append(recipeFailBuilder);
+                }
+
+                messageBuilder.AppendLine();
+                var totalSuccess = defaultCacheSuccessCount + recipeSuccessCount;
+                var totalFail = defaultCacheFailCount + recipeFailCount;
+
+                if (totalFail == 0)
+                {
+                    messageBuilder.AppendLine($"✓ Import completed! {totalSuccess} items imported");
+
+                    return (true, messageBuilder.ToString());
+                }
+
+                if (totalSuccess > 0)
+                {
+                    messageBuilder.AppendLine($"⚠ Partial import success: {totalSuccess} items succeeded, {totalFail} items failed");
+
+                    return (true, messageBuilder.ToString());
+                }
+
+                messageBuilder.AppendLine($"✗ Import failed: All items failed");
+
+                return (false, messageBuilder.ToString());
             }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    logger.LogWarning("Import Cache Canceled");
+                    return (false, "Import canceled");
+                }
 
-            FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, filePath ?? $"Result_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.dat"));
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Save calibration result failed");
-            return false;
-        }
+                logger.LogError(ex, "Import Cache Failed");
+                return (false, $"Import failed: {ex.Message}");
+            }
+        }, cancellationToken);
     }
 
-    // todo:delete
-    public bool TrySet<T>(T dto, CancellationToken cancellationToken) where T : class, ICacheItem, new()
-    {
-        return InvokeSave(update =>
-        {
-            update(dto);
-            cacheProvider.Set(dto, cancellationToken);
-            return true;
-        }, typeof(T).Name);
-    }
-
-    // todo:delete
-    public bool TrySetArray<T>(T[] dtoList, CancellationToken cancellationToken) where T : class, ICacheItem, new()
-    {
-        return InvokeSave(update =>
-        {
-            foreach (var dto in dtoList) update(dto);
-
-            cacheProvider.SetArray(dtoList, cancellationToken);
-            return true;
-        }, typeof(T).Name);
-    }
-
-    public bool TrySetDisable<T>(CancellationToken cancellationToken) where T : CalibrationDtoBase, new()
-    {
-        var calibrationDtoBase = cacheProvider.GetOrDefault<T>();
-
-        calibrationDtoBase.IsCalibrated = calibrationDtoBase.IsVerified = false;
-
-        return TrySet(calibrationDtoBase, cancellationToken);
-    }
-
-    public bool TrySetArrayDisable<T>(CancellationToken cancellationToken) where T : CalibrationDtoBase, new()
-    {
-        var caches = cacheProvider.GetOrDefaultArray<T>();
-
-        foreach (var calibrationDtoBase in caches)
-        {
-            calibrationDtoBase.IsCalibrated = calibrationDtoBase.IsVerified = false;
-        }
-
-        return TrySetArray(caches, cancellationToken);
-    }
-
-    public bool TrySetIsRequiredSelfCheck<T>(bool isRequiredSelfCheck, CancellationToken cancellationToken) where T : CalibrationDtoBase, new()
-    {
-        var calibrationDtoBase = cacheProvider.GetOrDefault<T>();
-
-        if (calibrationDtoBase.IsRequiredSelfCheck == isRequiredSelfCheck) // 避免重复写入
-            return true;
-
-        calibrationDtoBase.IsRequiredSelfCheck = isRequiredSelfCheck;
-
-        return TrySet(calibrationDtoBase, cancellationToken);
-    }
-
-    public bool TrySetArrayIsRequiredSelfCheck<T>(bool isRequiredSelfCheck, CancellationToken cancellationToken) where T : CalibrationDtoBase, new()
-    {
-        var caches = cacheProvider.GetOrDefaultArray<T>();
-
-        if (caches.All(t => t.IsRequiredSelfCheck == isRequiredSelfCheck)) // 避免重复写入
-            return true;
-
-        foreach (var calibrationDtoBase in caches)
-        {
-            calibrationDtoBase.IsRequiredSelfCheck = isRequiredSelfCheck;
-        }
-
-        return TrySetArray(caches, cancellationToken);
-    }
-
-    public bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name)
+    public bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name, CancellationToken token)
     {
         while (true)
         {
+            if (token.IsCancellationRequested) return false;
+
             if (func(Update)) return true;
 
             dialogWindowProvider.TryShowDialog($"Save {name} Failed!", out var dialogResultEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
