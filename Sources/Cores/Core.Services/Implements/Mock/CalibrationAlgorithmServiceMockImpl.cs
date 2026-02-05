@@ -188,7 +188,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize, out HImage drawingImage)
     {
         drawingImage = image.Image.Copy();
-        return Random.NextDouble();
+        return Random.Shared.NextDouble();
     }
 
     public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, string templateFilePath, Rect rect, out HImage templateImage)
