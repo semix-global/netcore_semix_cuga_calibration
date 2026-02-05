@@ -8,13 +8,13 @@ using Core.Models.Models;
 using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Chuck.GlobalScaleError;
+using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.LineOrientationOffset;
-using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
@@ -94,7 +94,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     private LineOrientationOffsetItemDto[] _calibrations = [];
 
     [ObservableProperty]
-    private LaserPixelSizeItemDto[] _laserPixelSizes = [];
+    private CIBYPixelSizeDTO[] _laserPixelSizes = [];
 
     [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
@@ -180,7 +180,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserPixelSizeItemDto>(out var laserPixelSizes, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBYPixelSizeDTO>(out var laserPixelSizes, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

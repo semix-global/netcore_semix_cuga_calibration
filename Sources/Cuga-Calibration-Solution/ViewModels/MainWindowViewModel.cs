@@ -23,6 +23,7 @@ using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.CIB.XPixelSize;
+using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
@@ -31,7 +32,6 @@ using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Laser.PixelSize;
 using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
@@ -68,6 +68,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using CIBYPixelSizeViewModel = CugaCalibration.ViewModels.CIB.CIBYPixelSizeViewModel;
 
 namespace CugaCalibration.ViewModels;
 
@@ -594,8 +595,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserAutoFocusDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserBeamStabilizerCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserPixelSizeCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserPixelSizeItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserLineCentricityCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserLineOrientationOffsetCalibrationViewModel>();
@@ -616,6 +615,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsRelayViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsRelayDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBYPixelSizeViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>().IsOk(out _);
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBXPixelSizeViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>().IsOk(out _);
