@@ -26,7 +26,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDtoItem>> Items { get; private init; } = [];
+    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDtoItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]

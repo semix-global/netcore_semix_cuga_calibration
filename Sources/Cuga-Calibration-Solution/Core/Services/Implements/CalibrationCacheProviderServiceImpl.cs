@@ -160,7 +160,7 @@ public class CalibrationCacheProviderServiceImpl(
                 {
                     var recipes = await sysRecipeInformationService.GetAllAsync(cancellationToken);
 
-                    foreach (var recipeInfo in recipes)
+                    foreach (var recipeInfo in recipes.OrderBy(t => t.RecipeDbName))
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
@@ -193,7 +193,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                 var exportData = new JObject
                 {
-                    [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
+                    // [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
                     [nameof(CalibrationDtoBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
                     [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches),
                     [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches)

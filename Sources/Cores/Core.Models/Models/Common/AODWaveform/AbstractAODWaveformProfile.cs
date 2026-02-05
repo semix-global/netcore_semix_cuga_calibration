@@ -10,6 +10,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using System.IO;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Newtonsoft.Json;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
@@ -17,12 +18,14 @@ public abstract class AbstractAODWaveformProfile :
     ObservableObject,
     IAdaptIn<AbstractAODWaveformProfile, AbstractAODWaveformProfile>
 {
+    [JsonProperty]
     public OpticsAODElectrodeEnum OpticsAODElectrodeEnum
     {
         get;
         internal set => SetProperty(ref field, value);
     }
 
+    [JsonProperty]
     public string FilePath
     {
         get;
@@ -32,6 +35,7 @@ public abstract class AbstractAODWaveformProfile :
         }
     } = string.Empty;
 
+    [JsonProperty]
     public int ZeroSampleCount
     {
         get;
@@ -41,12 +45,14 @@ public abstract class AbstractAODWaveformProfile :
         }
     }
 
+    [JsonProperty]
     public double OffsetFrequency
     {
         get;
         internal set => SetProperty(ref field, value);
     }
 
+    [JsonProperty]
     public double OffsetFrequencyPeriodCoefficient
     {
         get;

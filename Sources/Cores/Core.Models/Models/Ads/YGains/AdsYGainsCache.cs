@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
+using Newtonsoft.Json;
 
 namespace Core.Models.Models.Ads.YGains;
 
@@ -10,6 +11,7 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase
     private bool _isPositive;
 
     [ObservableProperty]
+    [property: JsonProperty(ObjectCreationHandling = ObjectCreationHandling.Replace)]
     private List<double> _speedYValueList = [50, 100, 150, 200];
 
     [ObservableProperty]
