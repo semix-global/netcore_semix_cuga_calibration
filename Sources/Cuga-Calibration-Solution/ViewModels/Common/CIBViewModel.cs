@@ -123,6 +123,13 @@ public sealed class CIBViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain)
+    {
+        var ret = calibrationCIBService.GetCIBMMDGains(cibInformations, startGain, stepGain, stopGain);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,

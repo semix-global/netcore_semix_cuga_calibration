@@ -105,16 +105,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _maxValidFraction = 250000d;
 
     [ObservableProperty]
-    private double _minLogGain = 0.1;
-
-    [ObservableProperty]
-    private double _filterMinGain = -5;
-
-    [ObservableProperty]
-    private double _powerRate = 0.002;
-
-    [ObservableProperty]
-    private IReadOnlyList<GainConfiguration> _gainConfigurations = [];
+    private IReadOnlyList<MMDConfiguration> _mMDConfigurations = [];
 
     /********** 缓存的结果 **********/
 
@@ -174,6 +165,18 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     // ReSharper disable UnusedParameterInPartialMethod
 
+    partial void OnCIBInformationsChanged(IReadOnlyList<CIBInformation> value)
+    {
+        var oldMMDConfigurations = MMDConfigurations;
+
+        MMDConfigurations =
+        [
+            .. value
+                .OrderBy(t => t)
+                .Select(t => oldMMDConfigurations.SingleOrDefault(tt => tt.CIBInformation == t) ?? new MMDConfiguration { CIBInformation = t })
+        ];
+    }
+
     partial void OnMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnODFilterRatioChanged(double value) => RefreshPlot();
@@ -221,18 +224,15 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
         }
     }
 
-    public sealed class GainConfiguration
+    public sealed partial class MMDConfiguration : ObservableObject
     {
-        public double Gain { get; init; }
+        [ObservableProperty]
+        private CIBInformation _cIBInformation = CIBInformation.Default;
 
-        /// <summary>
-        /// 14bitSense值, 无符号位
-        /// </summary>
-        public int SenseU14Bit { get; init; }
+        [ObservableProperty]
+        private double _filterMinGain;
 
-        /// <summary>
-        /// 16位增益值, 有符号位
-        /// </summary>
-        public int GainS16Bit { get; init; }
+        [ObservableProperty]
+        private double _powerRate = 0.002;
     }
 }
