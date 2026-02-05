@@ -206,10 +206,21 @@ public sealed class ProductivityInformation :
             : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
     };
 
-    public ProductivityInformation AdaptIn(C2MProductivityInfo obj, CgSwathSpeedInfo swathSpeedInfo, double originYPixel, double sampleRate, double xSpeedValue)
+    public ProductivityInformation AdaptIn(C2MProductivityInfo obj,
+        CgSwathSpeedInfo swathSpeedInfo,
+        double originYPixel,
+        double sampleRate,
+        double xSpeedValue
+#if NET
+            , OpticsIlluminationModeEnum opticsIlluminationModeEnum
+#endif
+
+    )
     {
         Name = obj.Name;
-#if NETFRAMEWORK
+#if NET
+        OpticsIlluminationModeEnum = opticsIlluminationModeEnum;
+#else
         OpticsIlluminationModeEnum = obj.NIOI.ToOpticsIlluminationModeEnum();
 #endif
         OpticsMagType = (int)obj.Mag;

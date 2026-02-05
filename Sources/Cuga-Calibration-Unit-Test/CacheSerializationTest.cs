@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using AwesomeAssertions;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
@@ -5,7 +6,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.PixelSize;
 using Newtonsoft.Json;
-using System.Collections.Concurrent;
 using System.Windows;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
@@ -20,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models;
 using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.WPF.MVVM;
@@ -120,26 +121,32 @@ public sealed class CacheSerializationTest : IDisposable
         };
 
         // Act - 序列化和反序列化
-        var json = JsonConvert.SerializeObject(cache.Items);
-        var deserialized = JsonConvert.DeserializeObject<ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>>>(json);
+        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>>(cache.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+        var json = JsonConvert.SerializeObject(cache);
+        var deserialized = JsonConvert.DeserializeObject<LaserLineCentricityCache>(json);
 
         // Assert
         deserialized.Should().NotBeNull();
-        deserialized.Should().HaveCount(2);
+        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+
+        deserialized.Items.Should().NotBeNull();
+        deserialized.Items.Should().HaveCount(2);
 
         // 验证OI item
-        var oiItem = deserialized.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
+        var oiItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
         oiItem.Key.Item2.Should().Be(_oiProductivityInfo);
         oiItem.Value.XWidthPixel.Should().Be(1024);
         oiItem.Value.FindPosition.Should().Be(new Point(100.5, 200.5));
         oiItem.Value.Threshold.Should().Be(new Point(0.8, 0.9));
 
         // 验证NI item
-        var niItem = deserialized.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
+        var niItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
         niItem.Key.Item2.Should().Be(_niProductivityInfo);
         niItem.Value.XWidthPixel.Should().Be(2048);
         niItem.Value.FindPosition.Should().Be(new Point(150.0, 250.0));
         niItem.Value.Threshold.Should().Be(new Point(0.7, 0.85));
+
+        JsonConvert.SerializeObject(deserialized).Should().Be(json);
     }
 
     [Fact]
@@ -172,26 +179,32 @@ public sealed class CacheSerializationTest : IDisposable
         };
 
         // Act
-        var json = JsonConvert.SerializeObject(cache.Items);
-        var deserialized = JsonConvert.DeserializeObject<ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>>>(json);
+        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>>(cache.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+        var json = JsonConvert.SerializeObject(cache);
+        var deserialized = JsonConvert.DeserializeObject<LaserPixelSizeCache>(json);
 
         // Assert
         deserialized.Should().NotBeNull();
-        deserialized.Should().HaveCount(2);
+        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+
+        deserialized.Items.Should().NotBeNull();
+        deserialized.Items.Should().HaveCount(2);
 
         // 验证OI item
-        var oiItem = deserialized.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
+        var oiItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
         oiItem.Key.Item2.Should().Be(_oiProductivityInfo);
         oiItem.Value.XWidthPixel.Should().Be(2048);
         oiItem.Value.VerifyResultYPixelSize.Should().Be(1.25);
         oiItem.Value.Threshold.Should().Be(0.95);
 
         // 验证NI item
-        var niItem = deserialized.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
+        var niItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
         niItem.Key.Item2.Should().Be(_niProductivityInfo);
         niItem.Value.XWidthPixel.Should().Be(1024);
         niItem.Value.VerifyResultYPixelSize.Should().Be(1.50);
         niItem.Value.Threshold.Should().Be(0.90);
+
+        JsonConvert.SerializeObject(deserialized).Should().Be(json);
     }
 
     [Fact]
@@ -211,21 +224,27 @@ public sealed class CacheSerializationTest : IDisposable
         };
 
         // Act
-        var json = JsonConvert.SerializeObject(cache.Items);
-        var deserialized = JsonConvert.DeserializeObject<ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>>>(json);
+        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>>(cache.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+        var json = JsonConvert.SerializeObject(cache);
+        var deserialized = JsonConvert.DeserializeObject<ChuckAlignmentDegreeOffsetCache>(json);
 
         // Assert
         deserialized.Should().NotBeNull();
-        deserialized.Should().HaveCount(2);
+        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+
+        deserialized.Items.Should().NotBeNull();
+        deserialized.Items.Should().HaveCount(2);
 
         // 验证OI item
-        var oiItem = deserialized.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
+        var oiItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
         oiItem.Key.Item2.Should().Be(_oiProductivityInfo);
         oiItem.Value.XWidthPixel.Should().Be(512);
 
         // 验证NI item
-        var niItem = deserialized.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
+        var niItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
         niItem.Key.Item2.Should().Be(_niProductivityInfo);
         niItem.Value.XWidthPixel.Should().Be(1024);
+
+        JsonConvert.SerializeObject(deserialized).Should().Be(json);
     }
 }

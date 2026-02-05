@@ -10,6 +10,7 @@ using Semix.CoreLib;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -58,7 +59,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 508,
                 408,
-                445000),
+                445000
+#if NET
+                , OpticsIlluminationModeEnum.OI
+#endif
+            ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -77,7 +82,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 508,
                 408,
-                222500),
+                222500
+#if NET
+                , OpticsIlluminationModeEnum.OI
+#endif
+            ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -96,7 +105,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1008,
                 290,
-                175900),
+                175900
+#if NET
+                , OpticsIlluminationModeEnum.OI
+#endif
+            ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -115,7 +128,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1008,
                 290,
-                88060),
+                88060
+#if NET
+                , OpticsIlluminationModeEnum.OI
+#endif
+            ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -134,7 +151,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1500,
                 210,
-                87240),
+                87240
+#if NET
+                , OpticsIlluminationModeEnum.OI
+#endif
+            ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -153,7 +174,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1500,
                 210,
-                43600),
+                43600
+#if NET
+                , OpticsIlluminationModeEnum.OI
+#endif
+            ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -172,7 +197,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1160,
                 200,
-                40000),
+                40000
+#if NET
+                , OpticsIlluminationModeEnum.NI
+#endif
+            ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
                 {
@@ -191,7 +220,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1720,
                 200,
-                26880)
+                26880
+#if NET
+                , OpticsIlluminationModeEnum.NI
+#endif
+            )
         };
         Guard.IsTrue(productivityInformations.DistinctBy(t => t).Count() == productivityInformations.Length, "Productivity Information is not unique");
 
