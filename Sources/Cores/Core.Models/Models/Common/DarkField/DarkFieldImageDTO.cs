@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HalconDotNet;
@@ -32,6 +33,15 @@ public partial class DarkFieldRawScanImageDTO :
 
     [ObservableProperty]
     private int _height;
+
+    partial void OnRawImageFilePathChanged(string value)
+    {
+        var result = Path.GetFullPath(value);
+
+        if (value == result) return;
+
+        RawImageFilePath = result;
+    }
 
     #region Mapper
 
