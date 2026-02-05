@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using System.Collections.ObjectModel;
 
@@ -8,7 +7,7 @@ namespace Core.Models.Models.Setting;
 /// <summary>
 /// 暗场增益参数
 /// </summary>
-public sealed partial class SettingDarkFieldGainParam : ObservableCacheBase, IAdaptIn<SettingDarkFieldGainParam, SettingDarkFieldGainParam>
+public sealed partial class SettingDarkFieldGainParam : ObservableObject, IAdaptIn<SettingDarkFieldGainParam, SettingDarkFieldGainParam>
 {
     /// <summary>
     /// PMTId
@@ -78,7 +77,7 @@ public sealed partial class SettingDarkFieldGainParam : ObservableCacheBase, IAd
 /// <summary>
 /// 暗场波形功率以及电压
 /// </summary>
-public sealed partial class GainOfCoefficientParam : ObservableCacheBase, IAdaptIn<GainOfCoefficientParam, GainOfCoefficientParam>
+public sealed partial class GainOfCoefficientParam : ObservableObject, IAdaptIn<GainOfCoefficientParam, GainOfCoefficientParam>
 {
     /// <summary>
     /// 校准暗场波形功率系数

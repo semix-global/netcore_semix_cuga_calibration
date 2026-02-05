@@ -5,6 +5,12 @@ namespace Core.Models.Helper;
 
 public static class CalibrationConstantsHelper
 {
+    public const string Save = nameof(Save);
+
+    public const string Export = nameof(Export);
+
+    public const string Import = nameof(Import);
+
     /// <summary>
     /// 校准明场StageY轴长度
     /// </summary>

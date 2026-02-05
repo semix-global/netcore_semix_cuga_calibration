@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.Alignment;
 
@@ -7,7 +6,7 @@ namespace Core.Models.Models.Common.Alignment;
 /// 对准步骤
 /// </summary>
 [ObservableRecipient]
-public sealed partial class AlignmentItemStep : ObservableCacheBase
+public sealed partial class AlignmentItemStep : ObservableObject
 {
     private readonly bool _defaultIsNextEnable;
 

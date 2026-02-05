@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -45,9 +46,11 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private AdsPressureGainsCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private AdsPressureGainsDto _calibration = new();
 
@@ -61,10 +64,9 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsPressureGainsCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsPressureGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsPressureGainsDto>();
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -295,7 +297,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
         Calibration = dto.Clone();
         CacheProvider.Set(dto, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准
@@ -306,9 +308,9 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading" },
-            new() { StepName = "Pressure Gains" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "loading" },
+            new CalibrationItemStep { StepName = "Pressure Gains" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

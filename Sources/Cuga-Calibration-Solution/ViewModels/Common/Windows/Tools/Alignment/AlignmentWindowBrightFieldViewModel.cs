@@ -6,6 +6,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -47,6 +48,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     [ObservableProperty]
     private AlignmentParamWindowBrightFieldViewModel _alignmentParamWindowBrightFieldViewModel;
 
+    [RecipeCache]
     [ObservableProperty]
     private AlignmentCacheBrightField _cache = new();
 
@@ -118,7 +120,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         ApplicationCookie applicationCookie)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _logger = logger;
         _contextProvider = contextProvider;
         _alignmentParamWindowBrightFieldViewModel = alignmentParamWindowBrightFieldViewModel;

@@ -7,7 +7,8 @@ using System.Windows;
 
 namespace Core.Models.Models.Common.Status.Converts;
 
-public sealed class MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert : AbstractSingletonMultiConverterBase<MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert>
+public sealed class MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert : AbstractSingletonMultiConverterBase<
+    MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert>
 {
     public override object Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture)
         => values switch

@@ -1,4 +1,5 @@
 using Core.Models.Models.Common.AODWaveform;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -13,6 +14,13 @@ public sealed class PrescanAODWaveformElectrodeInitializeWindowViewModel :
     AbstractAODWaveformElectrodeInitializeWindowViewModel<PrescanAODWaveformElectrodeInitializeCache, PrescanAODWaveformElectrodeInitializeItem, PrescanAODWaveformElectrodeInitializeResult>
 {
     public override string Name => "Prescan AOD Waveform Electrode Initialize";
+
+    [DefaultCache]
+    public override PrescanAODWaveformElectrodeInitializeCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     protected override async Task LoadedAsync()
     {

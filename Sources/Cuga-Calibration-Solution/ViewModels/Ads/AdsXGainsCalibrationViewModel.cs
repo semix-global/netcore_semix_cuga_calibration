@@ -4,14 +4,15 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Common.Status;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -130,9 +131,11 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private AdsXGainsCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private AdsXGainsItemDto _calibration = new();
 
@@ -146,15 +149,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsXGainsCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsXGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsXGainsItemDto>();
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -897,7 +894,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     var X = Vector<double>.Build.DenseOfEnumerable(SpeedValueList);
                     var Y1 = Vector<double>.Build.DenseOfEnumerable(x1List);
                     var Y2 = Vector<double>.Build.DenseOfEnumerable(x2List);
-                    var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
+                    var (p0, p1, p2, _, yPredicted1) = PolynomialCurve.Fit2(X, Y1);
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
                         x1SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted1[i]));
@@ -908,7 +905,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     adsXGainsItemDto.SetX1P3(p0);
                     adsXGainsItemDto.SetX1Plots(x1PlotList);
                     adsXGainsItemDto.SetX1SmoothPlots(x1SmoothPlotList);
-                    var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
+                    var (p3, p4, p5, _, yPredicted2) = PolynomialCurve.Fit2(X, Y2);
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
                         x2SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted2[i]));
@@ -946,7 +943,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     var X = Vector<double>.Build.DenseOfEnumerable(SpeedValueList);
                     var Y1 = Vector<double>.Build.DenseOfEnumerable(x1List);
                     var Y2 = Vector<double>.Build.DenseOfEnumerable(x2List);
-                    var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
+                    var (p0, p1, p2, _, yPredicted1) = PolynomialCurve.Fit2(X, Y1);
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
                         x1SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted1[i]));
@@ -957,7 +954,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     adsXGainsItemDto.SetX1P3(p0);
                     adsXGainsItemDto.SetX1Plots(x1PlotList);
                     adsXGainsItemDto.SetX1SmoothPlots(x1SmoothPlotList);
-                    var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
+                    var (p3, p4, p5, _, yPredicted2) = PolynomialCurve.Fit2(X, Y2);
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
                         x2SmoothPlotList.Add(new Point(SpeedValueList[i], yPredicted2[i]));
@@ -980,8 +977,12 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     X2P2 = ResultAdsXGainsItemDto.PositiveX2P2,
                     X2P3 = ResultAdsXGainsItemDto.PositiveX2P3,
                     X1X2Plots = new HtmlPlot2DLinesChart([
-                        ("X1Plots", ResultAdsXGainsItemDto.PositiveX1Plots.ToArray()), ($"X1={ResultAdsXGainsItemDto.PositiveX1P1})*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX1P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX1P3)}", ResultAdsXGainsItemDto.PositiveX1SmoothPlots.ToArray()),
-                        ("X2Plots", ResultAdsXGainsItemDto.PositiveX2Plots.ToArray()), ($"X2={ResultAdsXGainsItemDto.PositiveX2P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX2P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX2P3)}", ResultAdsXGainsItemDto.PositiveX2SmoothPlots.ToArray())
+                        ("X1Plots", ResultAdsXGainsItemDto.PositiveX1Plots.ToArray()),
+                        ($"X1={ResultAdsXGainsItemDto.PositiveX1P1})*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX1P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX1P3)}",
+                            ResultAdsXGainsItemDto.PositiveX1SmoothPlots.ToArray()),
+                        ("X2Plots", ResultAdsXGainsItemDto.PositiveX2Plots.ToArray()),
+                        ($"X2={ResultAdsXGainsItemDto.PositiveX2P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX2P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.PositiveX2P3)}",
+                            ResultAdsXGainsItemDto.PositiveX2SmoothPlots.ToArray())
                     ], "X1X2Plots")
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -994,8 +995,12 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     X4P2 = ResultAdsXGainsItemDto.NegativeX4P2,
                     X4P3 = ResultAdsXGainsItemDto.NegativeX4P3,
                     X3X4Plots = new HtmlPlot2DLinesChart([
-                        ("X3Plots", ResultAdsXGainsItemDto.NegativeX3Plots.ToArray()), ($"X3={ResultAdsXGainsItemDto.NegativeX3P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX3P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX3P3)}", ResultAdsXGainsItemDto.NegativeX3SmoothPlots.ToArray()),
-                        ("X4Plots", ResultAdsXGainsItemDto.NegativeX4Plots.ToArray()), ($"X4={ResultAdsXGainsItemDto.NegativeX4P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX4P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX4P3)}", ResultAdsXGainsItemDto.NegativeX4SmoothPlots.ToArray())
+                        ("X3Plots", ResultAdsXGainsItemDto.NegativeX3Plots.ToArray()),
+                        ($"X3={ResultAdsXGainsItemDto.NegativeX3P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX3P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX3P3)}",
+                            ResultAdsXGainsItemDto.NegativeX3SmoothPlots.ToArray()),
+                        ("X4Plots", ResultAdsXGainsItemDto.NegativeX4Plots.ToArray()),
+                        ($"X4={ResultAdsXGainsItemDto.NegativeX4P1}*V^2{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX4P2)}*V{GetXPositiveAndNegativeString(ResultAdsXGainsItemDto.NegativeX4P3)}",
+                            ResultAdsXGainsItemDto.NegativeX4SmoothPlots.ToArray())
                     ], "X3X4Plots")
                 }), HtmlLogUniqueId.LoggingHtml());
             }
@@ -1282,7 +1287,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
                 if (adsXGainsHrpCacheItem.IsPositive)
                 {
-                    Logger.LogHtmlInformation(result ? $"V_{adsXGainsHrpCacheItem.SpeedXValue} X1_{adsXGainsHrpCacheItem.GetX1()} X2_{adsXGainsHrpCacheItem.GetX2()} OK" : $"V_{adsXGainsHrpCacheItem.SpeedXValue} X1_{adsXGainsHrpCacheItem.GetX1()} X2_{adsXGainsHrpCacheItem.GetX2()} Failed",
+                    Logger.LogHtmlInformation(
+                        result
+                            ? $"V_{adsXGainsHrpCacheItem.SpeedXValue} X1_{adsXGainsHrpCacheItem.GetX1()} X2_{adsXGainsHrpCacheItem.GetX2()} OK"
+                            : $"V_{adsXGainsHrpCacheItem.SpeedXValue} X1_{adsXGainsHrpCacheItem.GetX1()} X2_{adsXGainsHrpCacheItem.GetX2()} Failed",
                         HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             adsXGainsHrpCacheItem.SpeedXValue,
@@ -1301,7 +1309,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 }
                 else
                 {
-                    Logger.LogHtmlInformation(result ? $"V_{adsXGainsHrpCacheItem.SpeedXValue} X3_{adsXGainsHrpCacheItem.GetX1()} X4_{adsXGainsHrpCacheItem.GetX2()} OK" : $"V_{adsXGainsHrpCacheItem.SpeedXValue} X3_{adsXGainsHrpCacheItem.GetX1()} X4_{adsXGainsHrpCacheItem.GetX2()} Failed",
+                    Logger.LogHtmlInformation(
+                        result
+                            ? $"V_{adsXGainsHrpCacheItem.SpeedXValue} X3_{adsXGainsHrpCacheItem.GetX1()} X4_{adsXGainsHrpCacheItem.GetX2()} OK"
+                            : $"V_{adsXGainsHrpCacheItem.SpeedXValue} X3_{adsXGainsHrpCacheItem.GetX1()} X4_{adsXGainsHrpCacheItem.GetX2()} Failed",
                         HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             adsXGainsHrpCacheItem.SpeedXValue,
@@ -1329,7 +1340,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
+            if (repeatCount > 5) return (false, []);
             return await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
@@ -1531,7 +1542,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         Calibration = itemDto.Clone();
 
         CacheProvider.Set(Calibration, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()
@@ -1609,7 +1620,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
                 if (adsXGainsHrpCacheItem.IsPositive)
                 {
-                    Logger.LogHtmlInformation(result ? $"V_{adsXGainsHrpCacheItem.SpeedXValue} X1_{adsXGainsHrpCacheItem.GetX1()} X2_{adsXGainsHrpCacheItem.GetX2()} OK" : $"V_{adsXGainsHrpCacheItem.SpeedXValue} X1_{adsXGainsHrpCacheItem.GetX1()} X2_{adsXGainsHrpCacheItem.GetX2()} Failed",
+                    Logger.LogHtmlInformation(
+                        result
+                            ? $"V_{adsXGainsHrpCacheItem.SpeedXValue} X1_{adsXGainsHrpCacheItem.GetX1()} X2_{adsXGainsHrpCacheItem.GetX2()} OK"
+                            : $"V_{adsXGainsHrpCacheItem.SpeedXValue} X1_{adsXGainsHrpCacheItem.GetX1()} X2_{adsXGainsHrpCacheItem.GetX2()} Failed",
                         HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             adsXGainsHrpCacheItem.SpeedXValue,
@@ -1628,7 +1642,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 }
                 else
                 {
-                    Logger.LogHtmlInformation(result ? $"V_{adsXGainsHrpCacheItem.SpeedXValue} X3_{adsXGainsHrpCacheItem.GetX1()} X4_{adsXGainsHrpCacheItem.GetX2()} OK" : $"V_{adsXGainsHrpCacheItem.SpeedXValue} X3_{adsXGainsHrpCacheItem.GetX1()} X4_{adsXGainsHrpCacheItem.GetX2()} Failed",
+                    Logger.LogHtmlInformation(
+                        result
+                            ? $"V_{adsXGainsHrpCacheItem.SpeedXValue} X3_{adsXGainsHrpCacheItem.GetX1()} X4_{adsXGainsHrpCacheItem.GetX2()} OK"
+                            : $"V_{adsXGainsHrpCacheItem.SpeedXValue} X3_{adsXGainsHrpCacheItem.GetX1()} X4_{adsXGainsHrpCacheItem.GetX2()} Failed",
                         HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             adsXGainsHrpCacheItem.SpeedXValue,
@@ -1656,7 +1673,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
+            if (repeatCount > 5) return (false, []);
             return await GetHrpNewAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
@@ -1669,10 +1686,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "Loading" },
-            new() { StepName = "X Positive And Negative Gains" },
-            new() { StepName = "X Positive And Negative HPR" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "Loading" },
+            new CalibrationItemStep { StepName = "X Positive And Negative Gains" },
+            new CalibrationItemStep { StepName = "X Positive And Negative HPR" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 
@@ -1765,7 +1782,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         {
             try
             {
-                if (await VerifyCaibrationAsync(ReviewReviewItemDto!, cancellationToken) == false)
+                if (await VerifyCaibrationAsync(ReviewReviewItemDto, cancellationToken) == false)
                 {
                     DialogWindowProvider.ShowDialog($"Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;

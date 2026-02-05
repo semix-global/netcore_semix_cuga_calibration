@@ -1,5 +1,5 @@
-﻿using Local.NoSQL.DB.Providers.Bases;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public class AODWaveformCommonResult : ObservableCacheBase;
+public class AODWaveformCommonResult : ObservableObject;

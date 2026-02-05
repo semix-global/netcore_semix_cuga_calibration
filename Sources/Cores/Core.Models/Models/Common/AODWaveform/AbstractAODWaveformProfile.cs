@@ -1,6 +1,6 @@
 using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -13,7 +13,7 @@ using System.Text;
 namespace Core.Models.Models.Common.AODWaveform;
 
 public abstract class AbstractAODWaveformProfile :
-    ObservableCacheBase,
+    ObservableObject,
     IAdaptIn<AbstractAODWaveformProfile, AbstractAODWaveformProfile>
 {
     public OpticsAODElectrodeEnum OpticsAODElectrodeEnum

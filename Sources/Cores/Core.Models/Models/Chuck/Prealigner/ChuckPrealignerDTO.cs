@@ -3,7 +3,6 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -159,7 +158,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<
     #endregion Mapper
 }
 
-public sealed partial class ChuckPrealignerDTOItem : ObservableCacheBase, ICloneable<ChuckPrealignerDTOItem>
+public sealed partial class ChuckPrealignerDTOItem : ObservableObject, ICloneable<ChuckPrealignerDTOItem>
 {
     [ObservableProperty]
     private Point _offsetPosition;

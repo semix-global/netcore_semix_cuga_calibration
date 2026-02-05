@@ -5,20 +5,13 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.Alignment;
-using Core.Models.Models.AOD.Delay;
-using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.LineOrientationOffset;
-using Core.Models.Models.Laser.XYAstigmatism;
-using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -87,9 +80,11 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LineOrientationOffsetCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LineOrientationOffsetItemDto[] _calibrations = [];
 
@@ -118,82 +113,14 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopePixelSizeItems = microscopePixelSizeItems;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<ChuckGlobalScaleErrorDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserXYAstigmatismCalibrationItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBYPixelSizeDTO>(out var laserPixelSizes, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserPixelSizes = laserPixelSizes;
+        LaserPixelSizes = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LineOrientationOffsetCache>();
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
-
-        (var isHasCacheNew, Cache) = CacheProvider.TryGetOrDefault<LineOrientationOffsetCache>();
 
         Calibrations = CacheProvider.GetOrDefaultArray<LineOrientationOffsetItemDto>();
 
@@ -220,7 +147,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
 
-        if (isHasCacheNew == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -270,14 +197,17 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = false;
 
                 return true;
+
             case 3:
                 DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
                 IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
+
             case 4:
                 await AutomationRecipeInformationAsync(string.Empty);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.FindPosition);
                 return true;
+
             case 5:
                 return true;
 
@@ -426,7 +356,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
                                               t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
                                               t.ProductivityInformation == Cache.ProductivityInformation)
-                                          ?? new();
+                                          ?? new AlignmentCacheDarkField();
                 if (AlignmentCacheDarkField.IsOk)
                 {
                     // todo:改为oini后传参
@@ -955,11 +885,6 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     });
-
-    protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
-    {
-        return true;
-    }
 
     private void ClearCalibrationTemp()
     {

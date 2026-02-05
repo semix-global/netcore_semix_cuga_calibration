@@ -1,11 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Recipe.Template;
 
-public partial class RecipeTemplateDtoBase : ObservableCacheBase
+public partial class RecipeTemplateDtoBase : ObservableObject
 {
     [ObservableProperty]
     private int _templateId;

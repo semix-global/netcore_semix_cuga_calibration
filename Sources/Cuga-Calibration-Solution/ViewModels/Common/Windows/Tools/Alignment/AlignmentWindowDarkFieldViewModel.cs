@@ -9,6 +9,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -61,6 +62,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [ObservableProperty]
     private AlignmentCacheDarkField _cache = new();
 
+    [RecipeCache]
     [ObservableProperty]
     private AlignmentCacheDarkField[] _caches = [];
 
@@ -135,7 +137,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         ICalibrationCacheProvider calibrationCacheProvider)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _logger = logger;
         _contextProvider = contextProvider;
         _alignmentParamWindowDarkFieldViewModel = alignmentParamWindowDarkFieldViewModel;
@@ -413,7 +415,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
         _recipeCacheProvider.SetArray(Caches, cancellationToken);
         return true;
-    }, nameof(AlignmentCacheDarkField));
+    }, nameof(AlignmentCacheDarkField), cancellationToken);
 
     [RelayCommand(CanExecute = nameof(IsAdvancedEnable))]
     private Task AdvancedAsync()

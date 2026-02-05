@@ -76,7 +76,7 @@ public sealed partial class SplitImageWindowViewModel(
     {
         try
         {
-            recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\CZFP03-Slot25\\cache.db", cancellationToken);
+            recipeLiteDataBaseProvider.ChangeDatabase(@"D:\Nano\Cuga-Calibration\Database\CZFP03-Slot25\cache.db", cancellationToken);
 
             await CIBXPixelSizeViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await CIBXPixelSizeViewModel.CalibrateCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
@@ -134,7 +134,7 @@ public sealed partial class SplitImageWindowViewModel(
     {
         try
         {
-            recipeLiteDataBaseProvider.ChangeDatabase("D:\\Nano\\Cuga-Calibration\\Database\\CZFP03-Slot25\\cache.db", cancellationToken);
+            recipeLiteDataBaseProvider.ChangeDatabase(@"D:\Nano\Cuga-Calibration\Database\CZFP03-Slot25\cache.db", cancellationToken);
 
             await CIBXPixelSizeViewModel.LoadedCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);
             await CIBXPixelSizeViewModel.ReviewCommand.ExecuteAsync(cancellationToken).ConfigureAwait(true);

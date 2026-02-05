@@ -5,8 +5,8 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -64,12 +64,14 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private MicroscopeCentricityCache _cache = new();
 
     [ObservableProperty]
     private MicroscopeCentricityCacheItem _selectMicroscopeCentricityCacheItem = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private MicroscopeCentricityItemDto[] _calibrations = [];
 
@@ -89,37 +91,13 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopeCalChip = microscopeCalChip;
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
         SynchronizationContextProvider.Send(() =>
         {
             CalibrationStepList.Clear();
             CalibrationStepList.AddRange([
-                new() { StepName = "Select a location" },
+                new CalibrationItemStep { StepName = "Select a location" },
                 .. ApplicationCookie.MicroscopeLensInformations
                     .Select(t => t)
                     .OrderByDescending(t => t.ObjectiveMagnification)
@@ -127,7 +105,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     .Select(info => new CalibrationItemStep { StepName = info.LensName })
             ]);
         });
-        MicroscopePixelSizeItems = microscopePixelSizeItems;
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 
@@ -401,7 +379,8 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     //if (magnificationInfos.Count == 1 || ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, resultPositionLow, highMagnificationInfo, Cache.GetTemplateFilePath(highMagnificationInfo), detectImageDirectory, HtmlLogUniqueId, Name, "High Magnification",
                     //        out resultPositionLow, out _, out _, out _, out _) == false) return;
 
-                    if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto!.LensInformation), centricityItemMaxDto.LensInformation, Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
+                    if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto.LensInformation), centricityItemMaxDto.LensInformation,
+                            Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
                             out var maxMatchResultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false)
                     {
                         return false;
@@ -410,7 +389,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto.LensInformation.LensName].FindPosition = maxMatchResultPosition;
                 }
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto!.LensInformation.LensName].FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto.LensInformation.LensName].FindPosition, Cache.CalChipSiteModelEnum);
             }
             else
             {
@@ -601,13 +580,13 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         {
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
-                new() { StepName = "loading" },
+                new CalibrationItemStep { StepName = "loading" },
                 .. ApplicationCookie.MicroscopeLensInformations
                     .Select(t => t)
                     .OrderByDescending(t => t.ObjectiveMagnification)
                     .ThenByDescending(t => t.LensCode)
                     .Select(info => new CalibrationItemStep { StepName = info.LensName }),
-                new() { StepName = "Review" }
+                new CalibrationItemStep { StepName = "Review" }
             ]);
         });
     }

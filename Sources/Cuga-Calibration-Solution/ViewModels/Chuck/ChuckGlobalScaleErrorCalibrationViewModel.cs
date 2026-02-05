@@ -5,14 +5,11 @@ using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.Chuck.AutoFocus;
-using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -31,9 +28,7 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGlobalScaleErrorCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
-    IHostEnvironment hostEnvironment,
-    AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel) : CalibrationViewModelBase
+public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel, IHostEnvironment hostEnvironment) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -75,17 +70,16 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private ChuckGlobalScaleErrorCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private ChuckGlobalScaleErrorDto _calibration = new();
 
     [ObservableProperty]
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
-
-    [ObservableProperty]
-    private ChuckAutoFocusDto _chuckAutoFocus = new();
 
     [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
@@ -102,37 +96,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        MicroscopePixelSizeItems = microscopePixelSizeItems;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeCentricityItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGantryDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckGlobalScaleErrorCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>();
@@ -503,7 +467,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
             {
                 LowMicroscopeLensInformation = Cache.LowMicroscopeLensInformation,
                 HighMicroscopeLensInformation = Cache.HighMicroscopeLensInformation,
-                HighSiteMatchResult = new()
+                HighSiteMatchResult = new ChuckGlobalTemplateMatchDtoItem
                 {
                     LensInformation = Cache.HighMicroscopeLensInformation,
                     TopPosition = Cache.TopLowSitePosition,
@@ -654,17 +618,6 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
         RecipeCacheProvider.Set(Cache, cancellationToken);
     }) && EnableDependedCalibrationItems(cancellationToken);
 
-    protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
-    {
-        if (CalibrationStatusService.EnableDependGlobalScaleErrorCalibrations(false, cancellationToken, out var errorMsg) == false)
-        {
-            Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
-            return false;
-        }
-
-        return true;
-    }
-
     private void ClearCalibrationTemp()
     {
         SynchronizationContextProvider.Send(GlobalScaleErrorDtoItemDtoList.Clear);
@@ -702,7 +655,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
                 return false;
             }
 
-            #endregion
+            #endregion Scale
 
             Logger.LogHtmlInformation("Get Result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
@@ -811,9 +764,9 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading" },
-            new() { StepName = "Find Real Position" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "loading" },
+            new CalibrationItemStep { StepName = "Find Real Position" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

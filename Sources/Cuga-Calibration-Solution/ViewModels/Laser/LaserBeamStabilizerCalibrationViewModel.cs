@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Laser.BeamStabilizer;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -39,9 +40,11 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private LaserBeamStabilizerCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private LaserBeamStabilizerObjDto _calibration = new();
 
@@ -55,20 +58,14 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<LaserBeamStabilizerCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserBeamStabilizerCache>();
         Calibration = CacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>();
 
         Cache.Threshold = Cache.Threshold == 0 ? 25 : Cache.Threshold;
         FirstLaserBeamStabilizerObjDto = new LaserBeamStabilizerObjDto { Interval = 30 };
         SynchronizationContextProvider.Send(LaserBeamStabilizerObjDtoList.Clear);
 
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -330,7 +327,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
         Calibration = dto.Clone();
 
         CacheProvider.Set(dto, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     #endregion 校准

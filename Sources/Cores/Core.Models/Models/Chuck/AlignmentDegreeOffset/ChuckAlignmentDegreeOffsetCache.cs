@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
+using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
@@ -31,7 +32,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
 
     public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>> Items { get; init; } = [];
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]

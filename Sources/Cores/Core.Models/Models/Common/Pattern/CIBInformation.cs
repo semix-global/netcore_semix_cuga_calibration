@@ -1,10 +1,15 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Cookies;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.WPF.MVVM;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 
+[JsonConverter(typeof(CIBInformationConverter))]
 public sealed class CIBInformation :
     ObservableObject,
     IComparable<CIBInformation>,
@@ -117,4 +122,39 @@ public sealed class CIBInformation :
         PMTId,
         ChannelId
     };
+
+    private sealed class CIBInformationConverter : JsonConverter<CIBInformation?>
+    {
+        private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);
+
+        public override void WriteJson(JsonWriter writer, CIBInformation? value, JsonSerializer serializer)
+        {
+            value ??= Default;
+
+            writer.WriteStartObject();
+            writer.WritePropertyName(nameof(PMTId));
+            writer.WriteValue(value.PMTId);
+            writer.WritePropertyName(nameof(ChannelId));
+            writer.WriteValue(value.ChannelId);
+            writer.WriteEndObject();
+        }
+
+        public override CIBInformation ReadJson(JsonReader reader, Type objectType, CIBInformation? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return Default;
+
+            var jsonObject = JObject.Load(reader);
+
+            var pmtId = jsonObject[nameof(PMTId)]?.Value<int>() ?? -1;
+            var channelId = jsonObject[nameof(ChannelId)]?.Value<int>() ?? -1;
+
+            var temp = new CIBInformation
+            {
+                PMTId = pmtId,
+                ChannelId = channelId
+            };
+
+            return ApplicationCookie.Value.CIBInformations.SingleOrDefault(t => t == temp, Default);
+        }
+    }
 }

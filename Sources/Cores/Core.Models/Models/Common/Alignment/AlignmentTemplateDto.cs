@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -14,7 +13,7 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentTemplateDto : ObservableCacheBase, ICloneable<AlignmentTemplateDto>, IAdaptTo<C2MTemplateDTO>, IAdaptIn<C2MTemplateDTO, AlignmentTemplateDto>
+public sealed partial class AlignmentTemplateDto : ObservableObject, ICloneable<AlignmentTemplateDto>, IAdaptTo<C2MTemplateDTO>, IAdaptIn<C2MTemplateDTO, AlignmentTemplateDto>
 {
     /// <summary>
     /// 模板路径
@@ -40,9 +39,7 @@ public sealed partial class AlignmentTemplateDto : ObservableCacheBase, ICloneab
     {
         Name = Name,
         Thumb = [.. Thumb],
-        Size = Size,
-        Id = Id,
-        Expiration = Expiration
+        Size = Size
     };
 
     public C2MTemplateDTO AdaptTo() => new()
