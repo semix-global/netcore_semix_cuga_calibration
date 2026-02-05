@@ -446,10 +446,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                         case CalibrationConstantsHelper.Import:
                             if (_dialogWindowProvider.TryShowSelectFilePathDialog(".json", out var importPath) == true)
                             {
-                                if (await _calibrationCacheProviderService.TryImportAsync(importPath, CancellationToken.None))
-                                    _dialogWindowProvider.ShowDialog("Import Success.");
+                                var (isSuccess, message) = await _calibrationCacheProviderService.TryImportAsync(importPath, CancellationToken.None);
+                                
+                                if (isSuccess)
+                                    _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Information);
                                 else
-                                    _dialogWindowProvider.ShowDialog("Import Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                                    _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
                             }
 
                             break;

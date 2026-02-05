@@ -8,7 +8,7 @@ public interface ICalibrationCacheProvider
 
     Task<bool> TryExportAsync(string filePath, CancellationToken cancellationToken);
 
-    Task<bool> TryImportAsync(string filePath, CancellationToken cancellationToken);
+    Task<(bool IsSuccess, string Message)> TryImportAsync(string filePath, CancellationToken cancellationToken);
 
     bool InvokeSave(Func<Action<ICacheItem>, bool> func, string name, CancellationToken token);
 }

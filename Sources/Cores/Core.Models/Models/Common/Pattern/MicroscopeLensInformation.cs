@@ -146,12 +146,7 @@ public sealed class MicroscopeLensInformation :
 
         public override void WriteJson(JsonWriter writer, MicroscopeLensInformation? value, JsonSerializer serializer)
         {
-            if (value is null)
-            {
-                writer.WriteNull();
-
-                return;
-            }
+            value ??= Default;
 
             writer.WriteStartObject();
             writer.WritePropertyName(nameof(LensCode));

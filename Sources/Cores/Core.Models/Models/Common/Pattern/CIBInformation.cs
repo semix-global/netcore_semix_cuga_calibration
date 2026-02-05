@@ -129,12 +129,7 @@ public sealed class CIBInformation :
 
         public override void WriteJson(JsonWriter writer, CIBInformation? value, JsonSerializer serializer)
         {
-            if (value is null)
-            {
-                writer.WriteNull();
-
-                return;
-            }
+            value ??= Default;
 
             writer.WriteStartObject();
             writer.WritePropertyName(nameof(PMTId));

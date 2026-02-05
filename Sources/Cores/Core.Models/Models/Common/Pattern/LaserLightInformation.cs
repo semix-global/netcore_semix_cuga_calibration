@@ -130,12 +130,7 @@ public sealed class LaserLightInformation :
 
         public override void WriteJson(JsonWriter writer, LaserLightInformation? value, JsonSerializer serializer)
         {
-            if (value is null)
-            {
-                writer.WriteNull();
-
-                return;
-            }
+            value ??= Default;
 
             writer.WriteStartObject();
             writer.WritePropertyName(nameof(Level));
