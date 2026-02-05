@@ -124,7 +124,7 @@ public sealed class LaserLightInformation :
 
     #endregion Mapper
 
-    private sealed class LaserLightInformationConverter : JsonConverter<LaserLightInformation>
+    private sealed class LaserLightInformationConverter : JsonConverter<LaserLightInformation?>
     {
         private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);
 
@@ -133,6 +133,7 @@ public sealed class LaserLightInformation :
             if (value is null)
             {
                 writer.WriteNull();
+
                 return;
             }
 

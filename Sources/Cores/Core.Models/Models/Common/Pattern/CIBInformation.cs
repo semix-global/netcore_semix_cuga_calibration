@@ -123,7 +123,7 @@ public sealed class CIBInformation :
         ChannelId
     };
 
-    private sealed class CIBInformationConverter : JsonConverter<CIBInformation>
+    private sealed class CIBInformationConverter : JsonConverter<CIBInformation?>
     {
         private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);
 
@@ -132,6 +132,7 @@ public sealed class CIBInformation :
             if (value is null)
             {
                 writer.WriteNull();
+
                 return;
             }
 

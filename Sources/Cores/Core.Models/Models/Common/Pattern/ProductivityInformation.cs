@@ -240,7 +240,7 @@ public sealed class ProductivityInformation :
 
     #endregion Mapper
 
-    private sealed class ProductivityInformationConverter : JsonConverter<ProductivityInformation>
+    private sealed class ProductivityInformationConverter : JsonConverter<ProductivityInformation?>
     {
         private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);
 
@@ -249,6 +249,7 @@ public sealed class ProductivityInformation :
             if (value is null)
             {
                 writer.WriteNull();
+
                 return;
             }
 

@@ -141,7 +141,7 @@ public sealed class MicroscopeLensInformation :
 
     #endregion Mapper
 
-    private sealed class MicroscopeLensInformationConverter : JsonConverter<MicroscopeLensInformation>
+    private sealed class MicroscopeLensInformationConverter : JsonConverter<MicroscopeLensInformation?>
     {
         private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);
 
@@ -150,6 +150,7 @@ public sealed class MicroscopeLensInformation :
             if (value is null)
             {
                 writer.WriteNull();
+
                 return;
             }
 
