@@ -2,13 +2,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status.Interfaces;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Helpers.Helpers.Structs;
 using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;
 
-public partial class ProductivityInformationAndApodizationStatus : ObservableCacheBase, IStatus<ProductivityInformation>
+public partial class ProductivityInformationAndApodizationStatus : ObservableObject, IStatus<ProductivityInformation>
 {
     [ObservableProperty]
     private ProductivityInformation _selectedItem = ProductivityInformation.Default;
@@ -40,7 +39,7 @@ public partial class ProductivityInformationAndApodizationStatus : ObservableCac
     ];
 }
 
-public partial class OpticsApodizationModeStatus : ObservableCacheBase, IStatus<OpticsApodizationModeEnum>
+public partial class OpticsApodizationModeStatus : ObservableObject, IStatus<OpticsApodizationModeEnum>
 {
     [ObservableProperty]
     private OpticsApodizationModeEnum _selectedItem;

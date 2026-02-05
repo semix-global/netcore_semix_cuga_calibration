@@ -3,7 +3,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -122,7 +121,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
     #endregion Mapper
 }
 
-public sealed partial class ChuckGlobalTemplateMatchDtoItem : ObservableCacheBase, ICloneable<ChuckGlobalTemplateMatchDtoItem>
+public sealed partial class ChuckGlobalTemplateMatchDtoItem : ObservableObject, ICloneable<ChuckGlobalTemplateMatchDtoItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;

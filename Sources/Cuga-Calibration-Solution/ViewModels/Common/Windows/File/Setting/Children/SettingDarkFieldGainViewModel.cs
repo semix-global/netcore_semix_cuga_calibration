@@ -199,7 +199,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
                     await Task.Delay(300, cancellationToken).ConfigureAwait(false);
 
                     var pmtDataList = laserViewModel.GetCIBOfPMTDataList(CatchCount, pmtId, channelId);
-                    var result = Enumerable.Range(0, pmtDataList.First().Count)
+                    var result = Enumerable.Range(0, pmtDataList[0].Count)
                         .Select(t => pmtDataList.Select(tt => tt[t]).Average())
                         .ToList();
                     PlotList = [.. PlotList, new WpfPlotModel($"Gain: {gain}", [.. result.ToPoints()], (SettingDarkFieldGainParam.GainMin, SettingDarkFieldGainParam.GainMax, gain))];

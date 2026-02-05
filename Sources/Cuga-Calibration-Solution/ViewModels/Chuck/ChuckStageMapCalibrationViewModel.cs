@@ -5,12 +5,8 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.AOD.Alignment;
-using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Chuck.CenterAndTheta;
-using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
@@ -19,15 +15,9 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Laser.AutoFocus;
-using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Laser.OpticalPowerMeter;
-
-using Core.Models.Models.Laser.XYAstigmatism;
-using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -98,9 +88,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private ChuckStageMapCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private ChuckStageMapDto _calibration = new();
 
@@ -141,117 +133,15 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        ChuckCenter = CalibrationStatusService.GetCalibration<ChuckCenterAndThetaItemDto>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out var microscopePixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+        CIBXPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
 
-        MicroscopePixelSizeItems = microscopePixelSizeItems;
+        LaserPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeCentricityItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGantryDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGlobalScaleErrorDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterAndThetaItemDto>(out var chuckCenter, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        ChuckCenter = chuckCenter;
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckPrealignerDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODDelayDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AODAlignmentDTO>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserXYAstigmatismCalibrationItemDto>(out _, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBXPixelSizeDTO>(out var cibXPixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        CIBXPixelSizeItems = cibXPixelSizeItems;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBYPixelSizeDTO>(out var laserPixelSizeItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserPixelSizeItems = laserPixelSizeItems;
-
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserLineCentricityItemDto>(out var laserLineCentricityItems, out errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        LaserLineCentricityItems = laserLineCentricityItems;
+        LaserLineCentricityItems = CalibrationStatusService.GetCalibrations<LaserLineCentricityItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckStageMapDto>();
@@ -415,7 +305,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
                                               t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
                                               t.ProductivityInformation == Cache.ProductivityInformation)
-                                          ?? new();
+                                          ?? new AlignmentCacheDarkField();
                 if (AlignmentCacheDarkField.IsOk)
                 {
                     alignmentResultDto = StageViewModel.AlignmentDarkField(
@@ -554,7 +444,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         var laserLineCentricityItemDto = LaserLineCentricityItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
                                                                               && t.ProductivityInformation == Cache.ProductivityInformation);
-
 
         var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
             CalChipSiteModelEnum.ChuckModel,
@@ -740,11 +629,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 : ResultChuckStageMapDto.CalibrationDarkFieldStageMap;
 
             var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-            calibrationStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
-            calibrationStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
-            calibrationStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
-            calibrationStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
-            calibrationStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\Calibration\\{opticsMode}\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.IdealCsvFilePath = $@"{CsvFileDirectory}\Calibration\{opticsMode}\{middleFileDateTimeFormat}\Ideal_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.RealCsvFilePath = $@"{CsvFileDirectory}\Calibration\{opticsMode}\{middleFileDateTimeFormat}\Real_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.RealIsInWaferOkCsvFilePath = $@"{CsvFileDirectory}\Calibration\{opticsMode}\{middleFileDateTimeFormat}\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.RealIsMatchOkCsvFilePath = $@"{CsvFileDirectory}\Calibration\{opticsMode}\{middleFileDateTimeFormat}\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
+            calibrationStageMap.ErrorCsvFilePath = $@"{CsvFileDirectory}\Calibration\{opticsMode}\{middleFileDateTimeFormat}\Error_Guid({HtmlLogUniqueId}).csv";
             calibrationStageMap.SaveIdealCsv(calibrationStageMap.IdealCsvFilePath);
             calibrationStageMap.SaveRealCsv(calibrationStageMap.RealCsvFilePath);
             calibrationStageMap.SaveIsInWaferOkCsv(calibrationStageMap.RealIsInWaferOkCsvFilePath);
@@ -826,11 +715,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             OnPropertyChanged(nameof(ResultChuckStageMapDto.ExpandStageMapDto));
 
             var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-            ResultChuckStageMapDto.ExpandStageMapDto.IdealCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
-            ResultChuckStageMapDto.ExpandStageMapDto.RealCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
-            ResultChuckStageMapDto.ExpandStageMapDto.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
-            ResultChuckStageMapDto.ExpandStageMapDto.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
-            ResultChuckStageMapDto.ExpandStageMapDto.ErrorCsvFilePath = $"{CsvFileDirectory}\\Expand\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
+            ResultChuckStageMapDto.ExpandStageMapDto.IdealCsvFilePath = $@"{CsvFileDirectory}\Expand\{middleFileDateTimeFormat}\Ideal_Guid({HtmlLogUniqueId}).csv";
+            ResultChuckStageMapDto.ExpandStageMapDto.RealCsvFilePath = $@"{CsvFileDirectory}\Expand\{middleFileDateTimeFormat}\Real_Guid({HtmlLogUniqueId}).csv";
+            ResultChuckStageMapDto.ExpandStageMapDto.RealIsInWaferOkCsvFilePath = $@"{CsvFileDirectory}\Expand\{middleFileDateTimeFormat}\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
+            ResultChuckStageMapDto.ExpandStageMapDto.RealIsMatchOkCsvFilePath = $@"{CsvFileDirectory}\Expand\{middleFileDateTimeFormat}\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
+            ResultChuckStageMapDto.ExpandStageMapDto.ErrorCsvFilePath = $@"{CsvFileDirectory}\Expand\{middleFileDateTimeFormat}\Error_Guid({HtmlLogUniqueId}).csv";
             ResultChuckStageMapDto.ExpandStageMapDto.SaveIdealCsv(ResultChuckStageMapDto.ExpandStageMapDto.IdealCsvFilePath);
             ResultChuckStageMapDto.ExpandStageMapDto.SaveRealCsv(ResultChuckStageMapDto.ExpandStageMapDto.RealCsvFilePath);
             ResultChuckStageMapDto.ExpandStageMapDto.SaveIsInWaferOkCsv(ResultChuckStageMapDto.ExpandStageMapDto.RealIsInWaferOkCsvFilePath);
@@ -957,11 +846,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 DarkFieldGetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken, true);
 
                 var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-                ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
-                ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
-                ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
-                ReviewDto.VerifyDarkFieldStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
-                ReviewDto.VerifyDarkFieldStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\ReviewDarkField\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $@"{CsvFileDirectory}\ReviewDarkField\{middleFileDateTimeFormat}\Ideal_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath = $@"{CsvFileDirectory}\ReviewDarkField\{middleFileDateTimeFormat}\Real_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath = $@"{CsvFileDirectory}\ReviewDarkField\{middleFileDateTimeFormat}\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.RealIsMatchOkCsvFilePath = $@"{CsvFileDirectory}\ReviewDarkField\{middleFileDateTimeFormat}\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyDarkFieldStageMap.ErrorCsvFilePath = $@"{CsvFileDirectory}\ReviewDarkField\{middleFileDateTimeFormat}\Error_Guid({HtmlLogUniqueId}).csv";
                 ReviewDto.VerifyDarkFieldStageMap.SaveIdealCsv(ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath);
                 ReviewDto.VerifyDarkFieldStageMap.SaveRealCsv(ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath);
                 ReviewDto.VerifyDarkFieldStageMap.SaveIsInWaferOkCsv(ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath);
@@ -1037,11 +926,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 BrightFieldGetStageMap(ReviewDto.VerifyBrightFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap)), cancellationToken);
 
                 middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
-                ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Ideal_Guid({HtmlLogUniqueId}).csv";
-                ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Real_Guid({HtmlLogUniqueId}).csv";
-                ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
-                ReviewDto.VerifyBrightFieldStageMap.RealIsMatchOkCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
-                ReviewDto.VerifyBrightFieldStageMap.ErrorCsvFilePath = $"{CsvFileDirectory}\\ReviewBrightField\\{middleFileDateTimeFormat}\\Error_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath = $@"{CsvFileDirectory}\ReviewBrightField\{middleFileDateTimeFormat}\Ideal_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath = $@"{CsvFileDirectory}\ReviewBrightField\{middleFileDateTimeFormat}\Real_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath = $@"{CsvFileDirectory}\ReviewBrightField\{middleFileDateTimeFormat}\RealIsInWafer_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.RealIsMatchOkCsvFilePath = $@"{CsvFileDirectory}\ReviewBrightField\{middleFileDateTimeFormat}\RealIsMatchOk_Guid({HtmlLogUniqueId}).csv";
+                ReviewDto.VerifyBrightFieldStageMap.ErrorCsvFilePath = $@"{CsvFileDirectory}\ReviewBrightField\{middleFileDateTimeFormat}\Error_Guid({HtmlLogUniqueId}).csv";
                 ReviewDto.VerifyBrightFieldStageMap.SaveIdealCsv(ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath);
                 ReviewDto.VerifyBrightFieldStageMap.SaveRealCsv(ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath);
                 ReviewDto.VerifyBrightFieldStageMap.SaveIsInWaferOkCsv(ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath);
@@ -1495,23 +1384,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         RecipeCacheProvider.Set(Cache, cancellationToken);
     }) && EnableDependedCalibrationItems(cancellationToken);
 
-    protected override bool EnableDependedCalibrationItems(CancellationToken cancellationToken)
-    {
-        if (CalibrationStatusService.EnableDependBrightStageMapCalibrations(false, cancellationToken, out var errorMsg) == false)
-        {
-            Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
-            return false;
-        }
-
-        if (CalibrationStatusService.EnableDependDarkStageMapCalibrations(false, cancellationToken, out errorMsg) == false)
-        {
-            Logger.LogError("Toggle {@Name} Enable Status Failed!", errorMsg);
-            return false;
-        }
-
-        return true;
-    }
-
     #endregion 校准
 
     #region 自动化校准
@@ -1520,17 +1392,17 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading", StepIndex = 0 },
-            new() { StepName = "BF P5", StepIndex = 1 },
-            new() { StepName = "BF Find Start Point", StepIndex = 2 },
-            new() { StepName = "BF Param", StepIndex = 3 },
-            new() { StepName = "BF Stage Map", StepIndex = 4 },
-            new() { StepName = "DF P5", StepIndex = 5 },
-            new() { StepName = "DF Find Start Point", StepIndex = 6 },
-            new() { StepName = "DF Param", StepIndex = 7 },
-            new() { StepName = "DF Stage Map", StepIndex = 8 },
-            new() { StepName = "Expand To BF", StepIndex = 9 },
-            new() { StepName = "Review", StepIndex = 10 }
+            new CalibrationItemStep { StepName = "loading", StepIndex = 0 },
+            new CalibrationItemStep { StepName = "BF P5", StepIndex = 1 },
+            new CalibrationItemStep { StepName = "BF Find Start Point", StepIndex = 2 },
+            new CalibrationItemStep { StepName = "BF Param", StepIndex = 3 },
+            new CalibrationItemStep { StepName = "BF Stage Map", StepIndex = 4 },
+            new CalibrationItemStep { StepName = "DF P5", StepIndex = 5 },
+            new CalibrationItemStep { StepName = "DF Find Start Point", StepIndex = 6 },
+            new CalibrationItemStep { StepName = "DF Param", StepIndex = 7 },
+            new CalibrationItemStep { StepName = "DF Stage Map", StepIndex = 8 },
+            new CalibrationItemStep { StepName = "Expand To BF", StepIndex = 9 },
+            new CalibrationItemStep { StepName = "Review", StepIndex = 10 }
         ];
     }
 

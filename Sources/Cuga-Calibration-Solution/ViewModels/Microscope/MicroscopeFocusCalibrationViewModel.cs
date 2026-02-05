@@ -4,6 +4,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
@@ -71,12 +72,14 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private MicroscopeFocusCache _cache = new();
 
     [ObservableProperty]
     private MicroscopeFocusCacheItem _selectMicroscopeFocusCacheItem = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private MicroscopeFocusItemDto[] _calibrations = [];
 
@@ -89,12 +92,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-
-        if (CalibrationStatusService.GetAdsCalibrationIsOKStatus() == false)
-        {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
 
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
@@ -403,7 +400,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         ClearCalibrationTemp();
         var detectImageDirectory = ImageFileDirectory;
 
-        selectReviewItemDto!.IsVerified = false;
+        selectReviewItemDto.IsVerified = false;
         Cache.MicroscopeLensInformation = SelectReviewItemDto!.LensInformation;
 
         SelectMicroscopeFocusCacheItem = Cache.CurrentCalibrationCacheItem;
@@ -596,9 +593,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         {
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
-                new() { StepName = "loading" },
+                new CalibrationItemStep { StepName = "loading" },
                 .. ApplicationCookie.MicroscopeLensInformations.Select(info => new CalibrationItemStep { StepName = info.LensName }),
-                new() { StepName = "Review" }
+                new CalibrationItemStep { StepName = "Review" }
             ]);
         });
     }

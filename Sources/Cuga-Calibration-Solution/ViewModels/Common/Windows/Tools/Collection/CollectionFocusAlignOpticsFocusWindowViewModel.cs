@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Extensions;
 using Local.NoSQL.DB.Providers.Interfaces;
@@ -168,7 +169,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
     };
 }
 
-public sealed partial class HazeResult : ObservableCacheBase
+public sealed partial class HazeResult : ObservableObject
 {
     [ObservableProperty]
     private double _eCS;
@@ -177,7 +178,7 @@ public sealed partial class HazeResult : ObservableCacheBase
     private IReadOnlyList<HazeResultItem> _items = [];
 }
 
-public sealed partial class HazeResultItem : ObservableCacheBase
+public sealed partial class HazeResultItem : ObservableObject
 {
     [ObservableProperty]
     private int _channelId;
@@ -218,7 +219,7 @@ public sealed partial class HazeResultItem : ObservableCacheBase
     };
 }
 
-public sealed partial class DSWResult : ObservableCacheBase
+public sealed partial class DSWResult : ObservableObject
 {
     [ObservableProperty]
     private double _eCS;
@@ -227,7 +228,7 @@ public sealed partial class DSWResult : ObservableCacheBase
     private IReadOnlyList<DSWResultItem> _items = [];
 }
 
-public sealed partial class DSWResultItem : ObservableCacheBase
+public sealed partial class DSWResultItem : ObservableObject
 {
     [ObservableProperty]
     private int _channelId;
@@ -280,6 +281,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
     public Guid HtmlLogUniqueId { get; private set; }
 
+    [DefaultCache]
     [ObservableProperty]
     private CollectionFocusAlignOpticsFocusCache _cache = new();
 
@@ -419,7 +421,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             {
                 var dswResultItem = GuardUtils.IsAssignableToType<DSWResultItem>(item);
 
-                var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) = StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Image.GetMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
+                var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) =
+                    StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Image.GetMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
                 dswResultItem.StrehlRatioX = strehlRatioX;
                 dswResultItem.StrehlRatioY = strehlRatioY;
 
@@ -568,7 +571,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         isAutoFocus: false);
 
                     var resultList = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultType)));
-                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<string>.AddRange))).Invoke(resultList, [ObjectHelper.GetPropertyValue(Cache, cacheResultsPropertyName)]);
+                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.AddRange))).Invoke(resultList, [ObjectHelper.GetPropertyValue(Cache, cacheResultsPropertyName)]);
 
                     var result = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(resultType));
                     var resultItemList = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultItemType)));
@@ -589,10 +592,10 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         ObjectHelper.SetPropertyValue(resultItem, resultItemImageFilePathPropertyName, filePath);
                         await resultItemAction.Invoke(resultItem, darkFieldImageDto);
 
-                        GuardUtils.IsNotNullAndReturn(resultItemList.GetType().GetMethod(nameof(List<string>.Add))).Invoke(resultItemList, [resultItem]);
+                        GuardUtils.IsNotNullAndReturn(resultItemList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultItemList, [resultItem]);
                     }
 
-                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<string>.Add))).Invoke(resultList, [result]);
+                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultList, [result]);
                     ObjectHelper.SetPropertyValue(Cache, cacheResultsPropertyName, resultList);
 
                     RefreshPlot();
@@ -630,7 +633,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     private void RefreshPlot()
     {
         var hazeOriginDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGray), nameof(HazeResultItem.MiddleAverageGray), nameof(HazeResultItem.EndAverageGray), nameof(HazeResultItem.StandardDeviation));
-        var hazeNormalizationDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGrayNormalization), nameof(HazeResultItem.MiddleAverageGrayNormalization), nameof(HazeResultItem.EndAverageGrayNormalization), nameof(HazeResultItem.StandardDeviationNormalization));
+        var hazeNormalizationDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGrayNormalization), nameof(HazeResultItem.MiddleAverageGrayNormalization), nameof(HazeResultItem.EndAverageGrayNormalization),
+            nameof(HazeResultItem.StandardDeviationNormalization));
         var dswOriginDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioX), nameof(DSWResultItem.StrehlRatioY));
         var dswNormalizationDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioXNormalization), nameof(DSWResultItem.StrehlRatioYNormalization));
 

@@ -9,6 +9,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
 using HalconDotNet;
 using Local.NoSQL.DB.Providers.Bases;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -122,7 +123,7 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
     };
 }
 
-public sealed partial class OpticsObjectiveYAngleResult : ObservableCacheBase
+public sealed partial class OpticsObjectiveYAngleResult : ObservableObject
 {
     [ObservableProperty]
     private bool _isOk;
@@ -196,6 +197,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
     public Guid HtmlLogUniqueId { get; private set; }
 
+    [DefaultCache]
     [ObservableProperty]
     private OpticsObjectiveYAngleCache _cache = new();
 

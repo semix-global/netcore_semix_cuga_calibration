@@ -2,12 +2,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.YGains;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.NoSQL.DB.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -126,9 +127,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private AdsYGainsCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private AdsYGainsItemDto _calibration = new();
 
@@ -142,15 +145,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
-        {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        (var isHasCache, Cache) = CacheProvider.TryGetOrDefault<AdsYGainsCache>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsYGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsYGainsItemDto>();
-        if (isHasCache == false) CacheProvider.Set(Cache, cancellationToken);
+        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -688,7 +685,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                             {
                                                 y4Max = resultValue.y1;
                                                 y4Min = Cache.FindMinY;
-                                            } //y5Max = resultValue.y1 - 2; y5Min = Cache.FindMinY; 
+                                            } //y5Max = resultValue.y1 - 2; y5Min = Cache.FindMinY;
                                             else
                                             {
                                                 y4Min = resultValue.y1;
@@ -708,7 +705,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                             {
                                                 y4Max = resultValue.y1;
                                                 y4Min = Cache.FindMinY;
-                                            } //y5Max = resultValue.y1 - 2; 
+                                            } //y5Max = resultValue.y1 - 2;
                                         }
                                     }
                                     else
@@ -717,7 +714,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                                         if (resultValue.z1IsPositive == z4IsPositive)
                                         {
                                             y4Min = resultValue.y1;
-                                        } //y5Min = resultValue.y1 + 2; 
+                                        } //y5Min = resultValue.y1 + 2;
                                         else
                                         {
                                             y4Max = resultValue.y1;
@@ -1036,10 +1033,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     var Y1 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y1List);
                     var Y2 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y2List);
                     var Y3 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y3List);
-                    var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
-                    var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
-                    var (p6, p7, p8, _, yPredicted3) = PolynomialLeastSquares.Polynomial2Fit(X, Y3);
-
+                    var (p0, p1, p2, _, yPredicted1) = PolynomialCurve.Fit2(X, Y1);
+                    var (p3, p4, p5, _, yPredicted2) = PolynomialCurve.Fit2(X, Y2);
+                    var (p6, p7, p8, _, yPredicted3) = PolynomialCurve.Fit2(X, Y3);
 
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
@@ -1106,9 +1102,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     var Y2 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y2List);
                     var Y3 = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(y3List);
 
-                    var (p0, p1, p2, _, yPredicted1) = PolynomialLeastSquares.Polynomial2Fit(X, Y1);
-                    var (p3, p4, p5, _, yPredicted2) = PolynomialLeastSquares.Polynomial2Fit(X, Y2);
-                    var (p6, p7, p8, _, yPredicted3) = PolynomialLeastSquares.Polynomial2Fit(X, Y3);
+                    var (p0, p1, p2, _, yPredicted1) = PolynomialCurve.Fit2(X, Y1);
+                    var (p3, p4, p5, _, yPredicted2) = PolynomialCurve.Fit2(X, Y2);
+                    var (p6, p7, p8, _, yPredicted3) = PolynomialCurve.Fit2(X, Y3);
 
                     for (var i = 0; i < SpeedValueList.Count; i++)
                     {
@@ -1156,9 +1152,15 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     Y3P2 = ResultAdsYGainsItemDto.PositiveY3P2,
                     Y3P3 = ResultAdsYGainsItemDto.PositiveY3P3,
                     Y1X2Plots = new HtmlPlot2DLinesChart([
-                        ("Y1Plots", ResultAdsYGainsItemDto.PositiveY1Plots.ToArray()), ($"Y1={ResultAdsYGainsItemDto.PositiveY1P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY1P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY1P3)}", ResultAdsYGainsItemDto.PositiveY1SmoothPlots.ToArray()),
-                        ("Y2Plots", ResultAdsYGainsItemDto.PositiveY2Plots.ToArray()), ($"Y2={ResultAdsYGainsItemDto.PositiveY2P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY2P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY2P3)}", ResultAdsYGainsItemDto.PositiveY2SmoothPlots.ToArray()),
-                        ("Y3Plots", ResultAdsYGainsItemDto.PositiveY3Plots.ToArray()), ($"Y3={ResultAdsYGainsItemDto.PositiveY3P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY3P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY3P3)}", ResultAdsYGainsItemDto.PositiveY3SmoothPlots.ToArray())
+                        ("Y1Plots", ResultAdsYGainsItemDto.PositiveY1Plots.ToArray()),
+                        ($"Y1={ResultAdsYGainsItemDto.PositiveY1P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY1P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY1P3)}",
+                            ResultAdsYGainsItemDto.PositiveY1SmoothPlots.ToArray()),
+                        ("Y2Plots", ResultAdsYGainsItemDto.PositiveY2Plots.ToArray()),
+                        ($"Y2={ResultAdsYGainsItemDto.PositiveY2P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY2P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY2P3)}",
+                            ResultAdsYGainsItemDto.PositiveY2SmoothPlots.ToArray()),
+                        ("Y3Plots", ResultAdsYGainsItemDto.PositiveY3Plots.ToArray()),
+                        ($"Y3={ResultAdsYGainsItemDto.PositiveY3P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY3P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.PositiveY3P3)}",
+                            ResultAdsYGainsItemDto.PositiveY3SmoothPlots.ToArray())
                     ], "Y1X2Y3Plots")
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -1174,9 +1176,15 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     Y6P2 = ResultAdsYGainsItemDto.NegativeY6P2,
                     Y6P3 = ResultAdsYGainsItemDto.NegativeY6P3,
                     Y4X5Plots = new HtmlPlot2DLinesChart([
-                        ("Y4Plots", ResultAdsYGainsItemDto.NegativeY4Plots.ToArray()), ($"Y4={ResultAdsYGainsItemDto.NegativeY4P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY4P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY4P3)}", ResultAdsYGainsItemDto.NegativeY4SmoothPlots.ToArray()),
-                        ("Y5Plots", ResultAdsYGainsItemDto.NegativeY5Plots.ToArray()), ($"Y5={ResultAdsYGainsItemDto.NegativeY5P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY5P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY5P3)}", ResultAdsYGainsItemDto.NegativeY5SmoothPlots.ToArray()),
-                        ("Y6Plots", ResultAdsYGainsItemDto.NegativeY6Plots.ToArray()), ($"Y6={ResultAdsYGainsItemDto.NegativeY6P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY6P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY6P3)}", ResultAdsYGainsItemDto.NegativeY6SmoothPlots.ToArray())
+                        ("Y4Plots", ResultAdsYGainsItemDto.NegativeY4Plots.ToArray()),
+                        ($"Y4={ResultAdsYGainsItemDto.NegativeY4P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY4P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY4P3)}",
+                            ResultAdsYGainsItemDto.NegativeY4SmoothPlots.ToArray()),
+                        ("Y5Plots", ResultAdsYGainsItemDto.NegativeY5Plots.ToArray()),
+                        ($"Y5={ResultAdsYGainsItemDto.NegativeY5P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY5P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY5P3)}",
+                            ResultAdsYGainsItemDto.NegativeY5SmoothPlots.ToArray()),
+                        ("Y6Plots", ResultAdsYGainsItemDto.NegativeY6Plots.ToArray()),
+                        ($"Y6={ResultAdsYGainsItemDto.NegativeY6P1}*V^2{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY6P2)}*V{GetYPositiveAndNegativeString(ResultAdsYGainsItemDto.NegativeY6P3)}",
+                            ResultAdsYGainsItemDto.NegativeY6SmoothPlots.ToArray())
                     ], "Y4X5Y6Plots")
                 }), HtmlLogUniqueId.LoggingHtml());
             }
@@ -1478,7 +1486,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 transBuffer = await task.ConfigureAwait(false);
             }
 
-
             if (repeatCount > 5) return (false, transBuffer);
             if (transBuffer.Count <= 0) return await GetZ1Z2Z3CurveAsync(adsYGainsCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
 
@@ -1562,7 +1569,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 if (adsYGainsItemDto.IsPositive)
                 {
                     Logger.LogHtmlInformation(
-                        result ? $"V_{adsYGainsItemDto.SpeedYValue} Y1_{adsYGainsItemDto.GetAdsY1().ToString()} Y2_{adsYGainsItemDto.GetAdsY2().ToString()} Y3_{adsYGainsItemDto.GetAdsY3().ToString()} OK" : $"V_{adsYGainsItemDto.SpeedYValue} Y1_{adsYGainsItemDto.GetAdsY1().ToString()} Y2_{adsYGainsItemDto.GetAdsY2().ToString()} Y3_{adsYGainsItemDto.GetAdsY3().ToString()} Failed",
+                        result
+                            ? $"V_{adsYGainsItemDto.SpeedYValue} Y1_{adsYGainsItemDto.GetAdsY1().ToString()} Y2_{adsYGainsItemDto.GetAdsY2().ToString()} Y3_{adsYGainsItemDto.GetAdsY3().ToString()} OK"
+                            : $"V_{adsYGainsItemDto.SpeedYValue} Y1_{adsYGainsItemDto.GetAdsY1().ToString()} Y2_{adsYGainsItemDto.GetAdsY2().ToString()} Y3_{adsYGainsItemDto.GetAdsY3().ToString()} Failed",
                         HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             adsYGainsItemDto.SpeedYValue,
@@ -1590,7 +1599,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 else
                 {
                     Logger.LogHtmlInformation(
-                        result ? $"V_{adsYGainsItemDto.SpeedYValue} Y4_{adsYGainsItemDto.GetAdsY1().ToString()} Y5_{adsYGainsItemDto.GetAdsY2().ToString()} Y6_{adsYGainsItemDto.GetAdsY3().ToString()} OK" : $"V_{adsYGainsItemDto.SpeedYValue} Y4_{adsYGainsItemDto.GetAdsY1().ToString()} Y5_{adsYGainsItemDto.GetAdsY2().ToString()} Y6_{adsYGainsItemDto.GetAdsY3().ToString()} Failed",
+                        result
+                            ? $"V_{adsYGainsItemDto.SpeedYValue} Y4_{adsYGainsItemDto.GetAdsY1().ToString()} Y5_{adsYGainsItemDto.GetAdsY2().ToString()} Y6_{adsYGainsItemDto.GetAdsY3().ToString()} OK"
+                            : $"V_{adsYGainsItemDto.SpeedYValue} Y4_{adsYGainsItemDto.GetAdsY1().ToString()} Y5_{adsYGainsItemDto.GetAdsY2().ToString()} Y6_{adsYGainsItemDto.GetAdsY3().ToString()} Failed",
                         HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             adsYGainsItemDto.SpeedYValue,
@@ -1624,7 +1635,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
+            if (repeatCount > 5) return (false, []);
             return await GetHrpAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
@@ -1637,7 +1648,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         Calibration = itemDto.Clone();
 
         CacheProvider.Set(Calibration, cancellationToken);
-        CacheProvider.Set(Cache, cancellationToken);
+        RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 
     private void ClearCalibrationTemp()
@@ -1810,7 +1821,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         }
     }
 
-    private async Task<(int y1, int y2, int y3, double Z1, double Z2, double Z3, bool z1IsPositive, bool z2IsPositive, bool z3IsPositive)> DichotomyFindY1Y2Y3Async(bool isPositive, double speedValue, int index, int minY1, int maxY1, int minY2, int maxY2, int minY3, int maxY3, CancellationToken cancellationToken)
+    private async Task<(int y1, int y2, int y3, double Z1, double Z2, double Z3, bool z1IsPositive, bool z2IsPositive, bool z3IsPositive)> DichotomyFindY1Y2Y3Async(bool isPositive, double speedValue, int index, int minY1, int maxY1, int minY2, int maxY2, int minY3,
+        int maxY3, CancellationToken cancellationToken)
     {
         var z1IsPositive = false;
         var z2IsPositive = false;
@@ -1910,7 +1922,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 if (adsYGainsItemDto.IsPositive)
                 {
                     Logger.LogHtmlInformation(
-                        result ? $"V_{adsYGainsItemDto.SpeedYValue} Y1_{adsYGainsItemDto.GetAdsY1().ToString()} Y2_{adsYGainsItemDto.GetAdsY2().ToString()} Y3_{adsYGainsItemDto.GetAdsY3().ToString()} OK" : $"V_{adsYGainsItemDto.SpeedYValue} Y1_{adsYGainsItemDto.GetAdsY1().ToString()} Y2_{adsYGainsItemDto.GetAdsY2().ToString()} Y3_{adsYGainsItemDto.GetAdsY3().ToString()} Failed",
+                        result
+                            ? $"V_{adsYGainsItemDto.SpeedYValue} Y1_{adsYGainsItemDto.GetAdsY1().ToString()} Y2_{adsYGainsItemDto.GetAdsY2().ToString()} Y3_{adsYGainsItemDto.GetAdsY3().ToString()} OK"
+                            : $"V_{adsYGainsItemDto.SpeedYValue} Y1_{adsYGainsItemDto.GetAdsY1().ToString()} Y2_{adsYGainsItemDto.GetAdsY2().ToString()} Y3_{adsYGainsItemDto.GetAdsY3().ToString()} Failed",
                         HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             adsYGainsItemDto.SpeedYValue,
@@ -1938,7 +1952,9 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 else
                 {
                     Logger.LogHtmlInformation(
-                        result ? $"V_{adsYGainsItemDto.SpeedYValue} Y4_{adsYGainsItemDto.GetAdsY1().ToString()} Y5_{adsYGainsItemDto.GetAdsY2().ToString()} Y6_{adsYGainsItemDto.GetAdsY3().ToString()} OK" : $"V_{adsYGainsItemDto.SpeedYValue} Y4_{adsYGainsItemDto.GetAdsY1().ToString()} Y5_{adsYGainsItemDto.GetAdsY2().ToString()} Y6_{adsYGainsItemDto.GetAdsY3().ToString()} Failed",
+                        result
+                            ? $"V_{adsYGainsItemDto.SpeedYValue} Y4_{adsYGainsItemDto.GetAdsY1().ToString()} Y5_{adsYGainsItemDto.GetAdsY2().ToString()} Y6_{adsYGainsItemDto.GetAdsY3().ToString()} OK"
+                            : $"V_{adsYGainsItemDto.SpeedYValue} Y4_{adsYGainsItemDto.GetAdsY1().ToString()} Y5_{adsYGainsItemDto.GetAdsY2().ToString()} Y6_{adsYGainsItemDto.GetAdsY3().ToString()} Failed",
                         HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             adsYGainsItemDto.SpeedYValue,
@@ -1972,7 +1988,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
+            if (repeatCount > 5) return (false, []);
             return await GetHrpNewAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
@@ -2004,10 +2020,10 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "Loading" },
-            new() { StepName = "Y Positive And Negative Gains" },
-            new() { StepName = "Y Positive And Negative HPR" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "Loading" },
+            new CalibrationItemStep { StepName = "Y Positive And Negative Gains" },
+            new CalibrationItemStep { StepName = "Y Positive And Negative HPR" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

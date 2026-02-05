@@ -89,6 +89,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="drawingImage">结果可视化图像</param>
     /// <returns>Y像素尺寸um</returns>
     double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize, out HImage drawingImage);
+
     #endregion 尺寸
 
     #region 模板匹配
@@ -199,7 +200,8 @@ public interface ICalibrationAlgorithmService
     /// <param name="shinyWaferImage">傅里叶相机的ShinyWafer图片</param>
     /// <param name="rotateAngle">图像旋转角度 符号为正：逆时针 符号为负：顺时针</param>
     /// <returns>(结果绘图图像,D型光斑像素直径长度,D型光斑图像水平夹角,D型光斑中心坐标，反射光光斑中心坐标)</returns>
-    (HImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(HImage hazeImage, HImage shinyWaferImage, double rotateAngle);
+    (HImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(HImage hazeImage, HImage shinyWaferImage,
+        double rotateAngle);
 
     #endregion 暗场
 

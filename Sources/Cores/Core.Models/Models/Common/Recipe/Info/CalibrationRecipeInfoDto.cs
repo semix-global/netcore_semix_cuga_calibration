@@ -2,14 +2,16 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Recipe.Info;
 
-public partial class CalibrationRecipeInfoDto : ObservableCacheBase, ICloneable<CalibrationRecipeInfoDto>, IAdaptTo<SysRecipeInformationDto>, IAdaptIn<SysRecipeInformationDto, CalibrationRecipeInfoDto>
+public partial class CalibrationRecipeInfoDto : ObservableObject, ICloneable<CalibrationRecipeInfoDto>, IAdaptTo<SysRecipeInformationDto>, IAdaptIn<SysRecipeInformationDto, CalibrationRecipeInfoDto>
 {
+    [ObservableProperty]
+    private long _id;
+
     [ObservableProperty]
     private string _recipeName = "Default";
 

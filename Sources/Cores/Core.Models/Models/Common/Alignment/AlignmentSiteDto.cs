@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
 using Core.Models.Models.Setting;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -16,7 +15,7 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentSiteDto : ObservableCacheBase, ICloneable<AlignmentSiteDto>, IAdaptTo<C2MSiteDTO>, IAdaptIn<C2MSiteDTO, AlignmentSiteDto>
+public sealed partial class AlignmentSiteDto : ObservableObject, ICloneable<AlignmentSiteDto>, IAdaptTo<C2MSiteDTO>, IAdaptIn<C2MSiteDTO, AlignmentSiteDto>
 {
     [ObservableProperty]
     private Point _location;
@@ -49,9 +48,7 @@ public sealed partial class AlignmentSiteDto : ObservableCacheBase, ICloneable<A
         Location = Location,
         Template = Template?.Clone(),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        TemplateMatchScoreThreshold = TemplateMatchScoreThreshold,
-        Id = Id,
-        Expiration = Expiration
+        TemplateMatchScoreThreshold = TemplateMatchScoreThreshold
     };
 
     public C2MSiteDTO AdaptTo() => new()

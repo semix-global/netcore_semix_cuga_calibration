@@ -14,7 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniExcelLibs;
-using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -477,7 +477,7 @@ public partial class AdsCenterOfMassDiagnosisViewModel(
             var listRow = plotList.Select(t => Cache.IsFindX ? t.StartPosition.X : t.StartPosition.Y).ToList();
             var listCol = plotList.Select(t => isGetDeltaX ? t.DeltaX : t.DeltaY).ToList();
 
-            var (fitLineK, fitLineB, _, _) = PolynomialLeastSquares.Polynomial1Fit(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
+            var (fitLineK, fitLineB, _, _) = PolynomialCurve.Fit1(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
             fitFuncList.AddRange(listRow.Select(t => new Point(t, fitLineK * t + fitLineB)));
 
             var isSuccess = fitLineK != 0;

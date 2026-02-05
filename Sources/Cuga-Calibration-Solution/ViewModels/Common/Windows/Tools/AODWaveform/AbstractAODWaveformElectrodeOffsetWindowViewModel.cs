@@ -64,7 +64,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode4OffsetFrequencyPeriodParam, Cache.Electrode4Weights).ConfigureAwait(false);
 
                     cancellationToken.ThrowIfCancellationRequested();
-                    await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode3OffsetFrequencyPeriodParam, Cache.Electrode3Weights).ConfigureAwait(false);
+                    await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode3OffsetFrequencyPeriodParam,
+                        Cache.Electrode3Weights).ConfigureAwait(false);
 
                     isSuccess = Cache.ElectrodeConfigurationResults.Count == OpticsAODElectrodeEnums.Count;
                 }
@@ -95,7 +96,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
 
                     var fileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyPeriod.Electrodes)}";
-                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N})"),
+                        HtmlLogUniqueId.LoggingHtml());
                     Logger.LogHtmlInformation($"{aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
                     try
                     {
@@ -254,7 +256,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
 
                         var fileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyPeriod.Electrodes)}";
-                        Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N})"),
+                            HtmlLogUniqueId.LoggingHtml());
                         Logger.LogHtmlInformation($"{aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
                         try
                         {
@@ -404,7 +407,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     var aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId = Guid.NewGuid();
 
                     var fileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyUniformity.Electrodes)}";
-                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyUniformity.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyUniformity.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId:N})"),
+                        HtmlLogUniqueId.LoggingHtml());
                     Logger.LogHtmlInformation($"{aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId.LoggingHtml());
                     try
                     {
@@ -417,7 +421,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                             Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId.LoggingHtml());
 
-                            var amplitudes = GenerateUtils.LinearContainsEdgeRange(electrodeFrequencyUniformityParams[0].StartAmplitude, electrodeFrequencyUniformityParams[0].StepAmplitude, electrodeFrequencyUniformityParams[0].StopAmplitude).AsEnumerable().Reverse().ToArray();
+                            var amplitudes = GenerateUtils.LinearContainsEdgeRange(electrodeFrequencyUniformityParams[0].StartAmplitude, electrodeFrequencyUniformityParams[0].StepAmplitude, electrodeFrequencyUniformityParams[0].StopAmplitude).AsEnumerable()
+                                .Reverse().ToArray();
                             Guard.IsNotEmpty(amplitudes);
                             foreach (var amplitude in amplitudes)
                             {

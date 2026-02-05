@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Cuga.Data.DataStruct.Stage;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -14,7 +13,7 @@ namespace Core.Models.Models.Common.StageMap;
 /// <summary>
 /// StageMap坐标(笛卡尔坐标系)
 /// </summary>
-public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageMapDto>, IAdaptTo<Wcf.Models.Chuck.StageMap>
+public sealed partial class StageMapDto : ObservableObject, ICloneable<StageMapDto>, IAdaptTo<Wcf.Models.Chuck.StageMap>
 {
     [ObservableProperty]
     private StageMapItemDto[][] _idealStageMapItemMatrix = [];
@@ -424,9 +423,7 @@ public sealed partial class StageMapDto : ObservableCacheBase, ICloneable<StageM
         IdealCsvFilePath = IdealCsvFilePath,
         RealCsvFilePath = RealCsvFilePath,
         RealIsMatchOkCsvFilePath = RealIsMatchOkCsvFilePath,
-        ErrorCsvFilePath = ErrorCsvFilePath,
-        Id = Id,
-        Expiration = Expiration
+        ErrorCsvFilePath = ErrorCsvFilePath
     };
 
     public Wcf.Models.Chuck.StageMap AdaptTo() => new()

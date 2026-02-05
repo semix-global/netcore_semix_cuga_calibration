@@ -3,7 +3,6 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Enums.Maths;
@@ -122,7 +121,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     } = 1;
 }
 
-public sealed partial class MicroscopeCalChipCacheItem : ObservableCacheBase
+public sealed partial class MicroscopeCalChipCacheItem : ObservableValidator
 {
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum;

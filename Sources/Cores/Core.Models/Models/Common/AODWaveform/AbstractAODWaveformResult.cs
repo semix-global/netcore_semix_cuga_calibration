@@ -1,9 +1,9 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.AODWaveform;
 
-public abstract class AbstractAODWaveformResult : ObservableCacheBase
+public abstract class AbstractAODWaveformResult : ObservableObject
 {
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
     private string _filePath = string.Empty;

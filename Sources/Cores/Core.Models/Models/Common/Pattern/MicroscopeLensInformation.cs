@@ -1,14 +1,19 @@
 using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Cookies;
 using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
+using Net.Utilities.WPF.MVVM;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Core.Models.Models.Common.Pattern;
 
+[JsonConverter(typeof(MicroscopeLensInformationConverter))]
 public sealed class MicroscopeLensInformation :
-    ObservableCacheBase,
+    ObservableObject,
     IComparable,
     IComparable<MicroscopeLensInformation>,
     IEquatable<MicroscopeLensInformation>,
@@ -19,7 +24,7 @@ public sealed class MicroscopeLensInformation :
 {
     public static readonly MicroscopeLensInformation Default = new();
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -35,7 +40,7 @@ public sealed class MicroscopeLensInformation :
         private set => SetProperty(ref field, value);
     } = -1;
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [LiteDB.BsonIgnore]
@@ -134,4 +139,32 @@ public sealed class MicroscopeLensInformation :
     };
 
     #endregion Mapper
+
+    private sealed class MicroscopeLensInformationConverter : JsonConverter<MicroscopeLensInformation?>
+    {
+        private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);
+
+        public override void WriteJson(JsonWriter writer, MicroscopeLensInformation? value, JsonSerializer serializer)
+        {
+            value ??= Default;
+
+            writer.WriteStartObject();
+            writer.WritePropertyName(nameof(LensCode));
+            writer.WriteValue(value.LensCode);
+            writer.WriteEndObject();
+        }
+
+        public override MicroscopeLensInformation ReadJson(JsonReader reader, Type objectType, MicroscopeLensInformation? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return Default;
+
+            var jsonObject = JObject.Load(reader);
+
+            var lensCode = jsonObject[nameof(LensCode)]?.Value<int>() ?? Default.LensCode;
+
+            var temp = new MicroscopeLensInformation { LensCode = lensCode };
+
+            return ApplicationCookie.Value.MicroscopeLensInformations.SingleOrDefault(t => t == temp, Default);
+        }
+    }
 }

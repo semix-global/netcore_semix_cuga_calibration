@@ -1,10 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Local.NoSQL.DB.Providers.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyWeightParam : ObservableCacheBase
+public sealed partial class AODWaveformElectrodeOffsetFrequencyWeightParam : ObservableObject
 {
     [ObservableProperty]
     private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;

@@ -7,7 +7,6 @@ using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
-using Core.Models.Models.Chuck.AutoFocus;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
@@ -27,8 +26,6 @@ using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-
-using Core.Models.Models.Laser.XYAstigmatism;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
@@ -214,18 +211,6 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this ChuckAutoFocusDto result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.IsOk;
-
-        if (isOk == false)
-            errorMessage = "Chuck Auto Focus is Empty";
-
-        return isOk;
-    }
-
     public static bool IsOk(this ChuckGlobalScaleErrorDto result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -312,19 +297,6 @@ public static class CoreWcfModelsExtension
 
         if (isOk == false)
             errorMessage = "Laser Line Orientation Offset is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this LaserXYAstigmatismCalibrationItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.Length == applicationCookie.NIProductivityInformations.Count && result.All(t => t.IsOk);
-
-        if (isOk == false)
-            errorMessage = "Laser XY Astigmatism is Empty";
 
         return isOk;
     }
@@ -550,6 +522,7 @@ public static class CoreWcfModelsExtension
     #endregion
 
     #region Auto Focus
+
     public static bool IsOk(this GlobalFocusOffsetDTO[] result, out string errorMessage)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
@@ -561,5 +534,6 @@ public static class CoreWcfModelsExtension
 
         return isOk;
     }
+
     #endregion
 }

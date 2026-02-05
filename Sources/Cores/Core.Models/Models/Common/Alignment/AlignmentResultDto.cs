@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -14,7 +13,7 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentResultDto : ObservableCacheBase, ICloneable<AlignmentResultDto>, IAdaptTo<C2MAlignResult>, IAdaptIn<C2MAlignResult, AlignmentResultDto>
+public sealed partial class AlignmentResultDto : ObservableObject, ICloneable<AlignmentResultDto>, IAdaptTo<C2MAlignResult>, IAdaptIn<C2MAlignResult, AlignmentResultDto>
 {
     /// <summary>
     /// 对准旋转的角度
@@ -40,9 +39,7 @@ public sealed partial class AlignmentResultDto : ObservableCacheBase, ICloneable
     {
         Degrees = Degrees,
         MarkPoint1 = MarkPoint1,
-        MarkPoint2 = MarkPoint2,
-        Id = Id,
-        Expiration = Expiration
+        MarkPoint2 = MarkPoint2
     };
 
     public C2MAlignResult AdaptTo() => new()

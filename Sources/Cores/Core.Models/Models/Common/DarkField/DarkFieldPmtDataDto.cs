@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 #if NET
@@ -12,7 +11,7 @@ using Cuga.Data.DataStruct.PMT;
 
 namespace Core.Models.Models.Common.DarkField;
 
-public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneable<DarkFieldPmtDataDto>, IAdaptTo<CgPMTDataModel>, IAdaptIn<CgPMTDataModel, DarkFieldPmtDataDto>
+public sealed partial class DarkFieldPmtDataDto : ObservableObject, ICloneable<DarkFieldPmtDataDto>, IAdaptTo<CgPMTDataModel>, IAdaptIn<CgPMTDataModel, DarkFieldPmtDataDto>
 {
     [ObservableProperty]
     private int _pmtId;
@@ -37,9 +36,7 @@ public sealed partial class DarkFieldPmtDataDto : ObservableCacheBase, ICloneabl
         Channel = Channel,
         LineCount = LineCount,
         AvgData = AvgData,
-        Data = [.. Data],
-        Id = Id,
-        Expiration = Expiration
+        Data = [.. Data]
     };
 
     public CgPMTDataModel AdaptTo() => new()

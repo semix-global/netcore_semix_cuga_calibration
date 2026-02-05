@@ -13,7 +13,7 @@ public sealed class CalibrationMicroscopeObj
     /// <summary>
     /// Focus校准对象列表
     /// </summary>
-    public CalibrationMicroscopeFocusItem[] CalibrationMicroscopeFocusItemList { get; set; } = Array.Empty<CalibrationMicroscopeFocusItem>();
+    public CalibrationMicroscopeFocusItem[] CalibrationMicroscopeFocusItemList { get; set; } = [];
 
     /// <summary>
     /// Cal Chip校准对象
@@ -23,12 +23,12 @@ public sealed class CalibrationMicroscopeObj
     /// <summary>
     /// PixelSize校准对象列表
     /// </summary>
-    public CalibrationMicroscopePixelSizeItem[] CalibrationMicroscopePixelSizeItemList { get; set; } = Array.Empty<CalibrationMicroscopePixelSizeItem>();
+    public CalibrationMicroscopePixelSizeItem[] CalibrationMicroscopePixelSizeItemList { get; set; } = [];
 
     /// <summary>
     /// Centricity校准对象列表
     /// </summary>
-    public CalibrationMicroscopeCentricityItem[] CalibrationMicroscopeCentricityItemList { get; set; } = Array.Empty<CalibrationMicroscopeCentricityItem>();
+    public CalibrationMicroscopeCentricityItem[] CalibrationMicroscopeCentricityItemList { get; set; } = [];
 }
 
 /// <summary>
