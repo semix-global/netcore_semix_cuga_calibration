@@ -268,47 +268,26 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MaxValidFraction}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Min LogGain: "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.MinLogGain}" />
-                                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                            VerticalAlignment="Top"
-                                                            Spacing="10">
-                                        <Button Content="Import"
-                                                Command="{Binding ImportGainConfigurationCommand}"
-                                                hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                                Style="{StaticResource ButtonInfo}" />
-                                        <ToggleButton x:Name="ToggleButtonGainConfigurations"
-                                                      Content="Gain Configurations"
-                                                      HorizontalAlignment="Left"
-                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                        <Popup Width="800"
-                                               Height="800"
-                                               StaysOpen="False"
-                                               PlacementTarget="{Binding ElementName=ToggleButtonGainConfigurations}"
-                                               Placement="Right"
-                                               AllowsTransparency="True"
-                                               PopupAnimation="Slide"
-                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonGainConfigurations, Mode=TwoWay}">
-                                            <Border Style="{StaticResource BorderRegion}">
-                                                <DataGrid hc:DataGridAttach.ShowRowNumber="True"
-                                                          Style="{StaticResource DataGrid.Small}"
-                                                          HeadersVisibility="All"
-                                                          RowHeaderWidth="60"
-                                                          AutoGenerateColumns="False"
-                                                          ItemsSource="{Binding Cache.GainConfigurations}">
-                                                    <DataGrid.Columns>
-                                                        <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
-                                                        <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
-                                                        <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
-                                                    </DataGrid.Columns>
-                                                </DataGrid>
-                                            </Border>
-                                        </Popup>
-                                    </hc:UniformSpacingPanel>
+                                    <Expander Header="MMD Configurations"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                                                      Style="{StaticResource DataGrid.Small}"
+                                                      HeadersVisibility="All"
+                                                      RowHeaderWidth="60"
+                                                      AutoGenerateColumns="False"
+                                                      ItemsSource="{Binding Cache.MMDConfigurations}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="CIB"
+                                                                        Binding="{Binding CIBInformation}"
+                                                                        IsReadOnly="True" />
+                                                    <DataGridTextColumn Header="Filter Min Gain(V)" Binding="{Binding FilterMinGain, StringFormat='0.######'}" />
+                                                    <DataGridTextColumn Header="Power Rate" Binding="{Binding PowerRate, StringFormat='0.######'}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </Border>
+                                    </Expander>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </Expander>
@@ -401,8 +380,6 @@
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
-                                    <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
-                                    <Setter Property="FontWeight" Value="Bold" />
                                     <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -420,6 +397,40 @@
                             <GridViewColumn Header="Gain RSquared" DisplayMemberBinding="{Binding GainRSquared, StringFormat='0.###'}" />
                             <GridViewColumn Header="Gain Residual" DisplayMemberBinding="{Binding GainResidual, StringFormat='0.###'}" />
                             <GridViewColumn Header="LogGain RSquared" DisplayMemberBinding="{Binding LogGainRSquared, StringFormat='0.###'}" />
+                            <GridViewColumn Header="RelationShip">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
+                                        <Grid>
+                                            <ToggleButton x:Name="ToggleButtonCalibratingsGainRelationships"
+                                                          Content="Profiles"
+                                                          Margin="0,2"
+                                                          HorizontalAlignment="Left"
+                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                            <Popup Width="800"
+                                                   Height="800"
+                                                   StaysOpen="False"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonCalibratingsGainRelationships}"
+                                                   Placement="Right"
+                                                   AllowsTransparency="True"
+                                                   PopupAnimation="Slide"
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonCalibratingsGainRelationships, Mode=TwoWay}">
+                                                <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="All"
+                                                          RowHeaderWidth="60"
+                                                          AutoGenerateColumns="False"
+                                                          ItemsSource="{Binding GainRelationships}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="Gain(V)" Binding="{Binding Gain, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="SenseU14Bit" Binding="{Binding SenseU14Bit}" />
+                                                        <DataGridTextColumn Header="GainS16Bit" Binding="{Binding GainS16Bit}" />
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </Popup>
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>

@@ -67,7 +67,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using CIBYPixelSizeViewModel = CugaCalibration.ViewModels.CIB.CIBYPixelSizeViewModel;
 
 namespace CugaCalibration.ViewModels;
 
