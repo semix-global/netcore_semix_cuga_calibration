@@ -74,39 +74,153 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (mtfX.D, mtfY.D);
     }
 
-    public (Point Position, double XMTF, double YMTF, double GrayValue)[] MultiModulationTransferFunction(HImage image)
+    public (
+        Point[] XStrehlRatioPoints,
+        Point[] YStrehlRatioPoints,
+        Point[] GrayPoints,
+        Point BestXStrehlRatioPoint,
+        Point[][] BestXStrehlRatioXPSFPoints,
+        Point[][] BestXStrehlRatioYPSFPoints,
+        Point BestYStrehlRatioPoint,
+        Point[][] BestYStrehlRatioXPSFPoints,
+        Point[][] BestYStrehlRatioYPSFPoints) GetXYStrehlRatios(
+            HImage image,
+            out Point[] xStrehlRatioFitPoints,
+            out Point[] yStrehlRatioFitPoints,
+            out Point[] grayFitPoints,
+            out Point[] bestXStrehlRatioXPSFFitPoints,
+            out Point[] bestXStrehlRatioYPSFFitPoints,
+            out Point[] bestYStrehlRatioXPSFFitPoints,
+            out Point[] bestYStrehlRatioYPSFFitPoints)
     {
-        throw new NotImplementedException();
-    }
+        _algorithm.STLR(
+            image,
+            out var xTuple,
+            out var xStrehlRatioTuple,
+            out var yStrehlRatioTuple,
+            out var grayTuple,
+            out var fitXTuple,
+            out var xStrehlRatioFitTuple,
+            out var yStrehlRatioFitTuple,
+            out var grayFitRatioTuple);
 
-    public (Point Position, double XStrehlRatio, double YStrehlRatio, double GrayValue)[] GetXYStrehlRatio(HImage image)
-    {
-        _algorithm.STLR_HQ(image, out var xTuple, out var yTuple, out var xStrehlRatioTuple, out var yStrehlRatioTuple, out var grayValue);
+        using var _0 = xTuple;
+        using var _1 = xStrehlRatioTuple;
+        using var _2 = yStrehlRatioTuple;
+        using var _3 = grayTuple;
+        using var _4 = fitXTuple;
+        using var _5 = xStrehlRatioFitTuple;
+        using var _6 = yStrehlRatioFitTuple;
+        using var _7 = grayFitRatioTuple;
+
+        xStrehlRatioFitPoints =
+        [
+            .. Enumerable.Range(0, fitXTuple.Length)
+                .Select(t => new Point(fitXTuple[t].D, xStrehlRatioFitTuple[t].D))
+        ];
+
+        yStrehlRatioFitPoints =
+        [
+            .. Enumerable.Range(0, fitXTuple.Length)
+                .Select(t => new Point(fitXTuple[t].D, yStrehlRatioFitTuple[t].D))
+        ];
+
+        grayFitPoints =
+        [
+            .. Enumerable.Range(0, fitXTuple.Length)
+                .Select(t => new Point(fitXTuple[t].D, grayFitRatioTuple[t].D))
+        ];
+
+        _algorithm.StackPointLiner(
+            image,
+            fitXTuple,
+            xStrehlRatioFitTuple,
+            out var bestXStrehlRatioXPSFList,
+            out var bestXStrehlRatioYPSFList,
+            out var bestXStrehlRatioFitXTuple,
+            out var bestXStrehlRatioXPSFFitTuple,
+            out var bestXStrehlRatioYPSFFitTuple);
+
+        using var _8 = bestXStrehlRatioFitXTuple;
+        using var _9 = bestXStrehlRatioXPSFFitTuple;
+        using var _10 = bestXStrehlRatioYPSFFitTuple;
+
+        bestXStrehlRatioXPSFFitPoints =
+        [
+            .. Enumerable.Range(0, bestXStrehlRatioXPSFFitTuple.Length)
+                .Select(t => new Point(t, bestXStrehlRatioXPSFFitTuple[t].D))
+        ];
+        bestXStrehlRatioYPSFFitPoints =
+        [
+            .. Enumerable.Range(0, bestXStrehlRatioYPSFFitTuple.Length)
+                .Select(t => new Point(t, bestXStrehlRatioYPSFFitTuple[t].D))
+        ];
+
+        _algorithm.StackPointLiner(
+            image, 
+            fitXTuple,
+            yStrehlRatioFitTuple,
+            out var bestYStrehlRatioXPSFList,             
+            out var bestYStrehlRatioYPSFList,
+            out var bestYStrehlRatioFitXTuple,
+            out var bestYStrehlRatioXPSFFitTuple,                       
+            out var bestYStrehlRatioYPSFFitTuple);
+
+        using var _11 = bestYStrehlRatioFitXTuple;
+        using var _12 = bestYStrehlRatioXPSFFitTuple;
+        using var _13 = bestYStrehlRatioYPSFFitTuple;
+
+        bestYStrehlRatioXPSFFitPoints =
+        [
+            .. Enumerable.Range(0, bestYStrehlRatioXPSFFitTuple.Length)
+                .Select(t => new Point(t, bestYStrehlRatioXPSFFitTuple[t].D))
+        ];
+        bestYStrehlRatioYPSFFitPoints =
+        [
+            .. Enumerable.Range(0, bestYStrehlRatioYPSFFitTuple.Length)
+                .Select(t => new Point(t, bestYStrehlRatioYPSFFitTuple[t].D))
+        ];
 
         return (
-        [
-            .. Enumerable.Range(0, xTuple.Length)
-                .Select(i =>
-                (
-                    new Point(xTuple[i].D, yTuple[i].D),
-                    xStrehlRatioTuple[i].D,
-                    yStrehlRatioTuple[i].D,
-                    grayValue[i].D
-                ))
-        ]);
-    }
-
-    public Point[] SmoothStrehlFunction(double[] xPositions, double[] strehlRatios)
-    {
-        _algorithm.SmoothFunction(xPositions, strehlRatios, out var strehlSmoothPointXTuple, out var strehlSmoothPointYTuple);
-        return (
-        [
-            .. Enumerable.Range(0, strehlSmoothPointXTuple.Length)
-                .Select(i =>
-                (
-                    new Point(strehlSmoothPointXTuple[i].D, strehlSmoothPointYTuple[i].D)
-                ))
-        ]);
+            [
+                .. Enumerable.Range(0, xTuple.Length)
+                    .Select(t => new Point(xTuple[t].D, xStrehlRatioTuple[t].D))
+            ],
+            [
+                .. Enumerable.Range(0, xTuple.Length)
+                    .Select(t => new Point(xTuple[t].D, yStrehlRatioTuple[t].D))
+            ],
+            [
+                .. Enumerable.Range(0, xTuple.Length)
+                    .Select(t => new Point(xTuple[t].D, grayTuple[t].D))
+            ],
+            xStrehlRatioFitPoints.Single(t => Equals(t.X, bestXStrehlRatioFitXTuple.D)),
+            [
+                ..bestXStrehlRatioXPSFList.Select<double[], Point[]>(t =>
+                [
+                    .. t.Index().Select(tt => new Point(tt.Index, tt.Item))
+                ])
+            ],
+            [
+                ..bestXStrehlRatioYPSFList.Select<double[], Point[]>(t =>
+                [
+                    .. t.Index().Select(tt => new Point(tt.Index, tt.Item))
+                ])
+            ],
+            yStrehlRatioFitPoints.Single(t => Equals(t.X, bestYStrehlRatioFitXTuple.D)),
+            [
+                ..bestYStrehlRatioXPSFList.Select<double[], Point[]>(t =>
+                [
+                    .. t.Index().Select(tt => new Point(tt.Index, tt.Item))
+                ])
+            ],
+            [
+                ..bestYStrehlRatioYPSFList.Select<double[], Point[]>(t =>
+                [
+                    .. t.Index().Select(tt => new Point(tt.Index, tt.Item))
+                ])
+            ]
+        );
     }
 
     public (double Width, double Height) GetLightQuality(HImage image, Rect roiRect)

@@ -43,7 +43,76 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private bool _isConfirmBestYStrehlRatioResult = true;
 
     [ObservableProperty]
-    private double _stepPCoefficient = 0.01;
+    private double _p3Coefficient;
+
+    [ObservableProperty]
+    private double _p4Coefficient;
+
+    [ObservableProperty]
+    private double _p5Coefficient;
+
+    [ObservableProperty]
+    private double _p6Coefficient;
+
+    [ObservableProperty]
+    private double _p7Coefficient;
+
+    [ObservableProperty]
+    private double _p8Coefficient;
+
+    [ObservableProperty]
+    private double _startP3Coefficient;
+
+    [ObservableProperty]
+    private double _stepP3Coefficient = 0.02;
+
+    [ObservableProperty]
+    private double _stopP3Coefficient;
+
+    [ObservableProperty]
+    private double _startP4Coefficient;
+
+    [ObservableProperty]
+    private double _stepP4Coefficient = 0.02;
+
+    [ObservableProperty]
+    private double _stopP4Coefficient;
+
+    [ObservableProperty]
+    private double _startP5Coefficient;
+
+    [ObservableProperty]
+    private double _stepP5Coefficient = 0.001;
+
+    [ObservableProperty]
+    private double _stopP5Coefficient;
+
+    [ObservableProperty]
+    private double _startP6Coefficient;
+
+    [ObservableProperty]
+    private double _stepP6Coefficient = 0.001;
+
+    [ObservableProperty]
+    private double _stopP6Coefficient;
+
+    [ObservableProperty]
+    private double _startP7Coefficient;
+
+    [ObservableProperty]
+    private double _stepP7Coefficient = 0.0001;
+
+    [ObservableProperty]
+    private double _stopP7Coefficient;
+
+    [ObservableProperty]
+    private double _startP8Coefficient;
+
+    [ObservableProperty]
+    private double _stepP8Coefficient = 0.0001;
+
+    [ObservableProperty]
+    private double _stopP8Coefficient;
 
     [ObservableProperty]
     private int _retryTimes = 10;
@@ -59,7 +128,23 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private ChirpAODWaveformTrainingItem _item = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];
+
+    partial void OnItemChanged(ChirpAODWaveformTrainingItem? value)
+    {
+        if (value is null) return;
+
+        P3Coefficient = value.P3Coefficient;
+        P4Coefficient = value.P4Coefficient;
+        P5Coefficient = value.P5Coefficient;
+        P6Coefficient = value.P6Coefficient;
+        P7Coefficient = value.P7Coefficient;
+        P8Coefficient = value.P8Coefficient;
+    }
 
     public object ToHtmlAnonymous() => new
     {
@@ -74,7 +159,30 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
         CenterECS,
         RangeECS,
         IsConfirmBestYStrehlRatioResult,
-        StepPCoefficient,
+        P3Coefficient,
+        P4Coefficient,
+        P5Coefficient,
+        P6Coefficient,
+        P7Coefficient,
+        P8Coefficient,
+        StartP3Coefficient,
+        StepP3Coefficient,
+        StopP3Coefficient,
+        StartP4Coefficient,
+        StepP4Coefficient,
+        StopP4Coefficient,
+        StartP5Coefficient,
+        StepP5Coefficient,
+        StopP5Coefficient,
+        StartP6Coefficient,
+        StepP6Coefficient,
+        StopP6Coefficient,
+        StartP7Coefficient,
+        StepP7Coefficient,
+        StopP7Coefficient,
+        StartP8Coefficient,
+        StepP8Coefficient,
+        StopP8Coefficient,
         RetryTimes
     };
 }
