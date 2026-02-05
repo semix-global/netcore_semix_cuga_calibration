@@ -12,8 +12,8 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.XYAstigmatism;
+
+
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.Core.Services.Interfaces;
@@ -148,7 +148,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         ChuckCenter = CalibrationStatusService.GetCalibration<ChuckCenterAndThetaItemDto>();
 
-        LaserPixelSizes = CalibrationStatusService.GetCalibrations<LaserPixelSizeItemDto>();
+        LaserPixelSizes = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();

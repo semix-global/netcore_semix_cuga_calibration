@@ -27,8 +27,8 @@ using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 
-using Core.Models.Models.Laser.XYAstigmatism;
-using Core.Models.Models.Laser.PixelSize;
+
+
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
@@ -300,34 +300,6 @@ public static class CoreWcfModelsExtension
 
         if (isOk == false)
             errorMessage = "Laser Line Orientation Offset is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this LaserXYAstigmatismCalibrationItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.Length == applicationCookie.NIProductivityInformations.Count && result.All(t => t.IsOk);
-
-        if (isOk == false)
-            errorMessage = "Laser XY Astigmatism is Empty";
-
-        return isOk;
-    }
-
-    public static bool IsOk(this LaserPixelSizeItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.OpticsIlluminationMode == CalibrationConstantsHelper.MainOpticsIlluminationModeEnum
-                                               && t.PmtId == CalibrationConstantsHelper.MainPmtId
-                                               && t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
-
-        if (isOk == false)
-            errorMessage = "Laser Pixel Size is Empty";
 
         return isOk;
     }

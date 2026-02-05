@@ -4,7 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.LineCentricity;
-using Core.Models.Models.Laser.PixelSize;
+
 using Newtonsoft.Json;
 using System.Windows;
 using Core.Models.Helper;
@@ -145,64 +145,6 @@ public sealed class CacheSerializationTest : IDisposable
         niItem.Value.XWidthPixel.Should().Be(2048);
         niItem.Value.FindPosition.Should().Be(new Point(150.0, 250.0));
         niItem.Value.Threshold.Should().Be(new Point(0.7, 0.85));
-
-        JsonConvert.SerializeObject(deserialized).Should().Be(json);
-    }
-
-    [Fact]
-    public void LaserPixelSizeCacheSerialization_ShouldBeConsistent()
-    {
-        // Arrange - 创建包含多个items的Cache
-        var oiCacheItem = new LaserPixelSizeCacheItem
-        {
-            XWidthPixel = 2048,
-            FindPosition = new Point(150.0, 250.0),
-            VerifyResultYPixelSize = 1.25,
-            Threshold = 0.95
-        };
-
-        var niCacheItem = new LaserPixelSizeCacheItem
-        {
-            XWidthPixel = 1024,
-            FindPosition = new Point(200.0, 300.0),
-            VerifyResultYPixelSize = 1.50,
-            Threshold = 0.90
-        };
-
-        var cache = new LaserPixelSizeCache
-        {
-            Items =
-            [
-                new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>((OpticsIlluminationModeEnum.OI, _oiProductivityInfo), oiCacheItem),
-                new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>((OpticsIlluminationModeEnum.NI, _niProductivityInfo), niCacheItem)
-            ]
-        };
-
-        // Act
-        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>>(cache.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
-        var json = JsonConvert.SerializeObject(cache);
-        var deserialized = JsonConvert.DeserializeObject<LaserPixelSizeCache>(json);
-
-        // Assert
-        deserialized.Should().NotBeNull();
-        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserPixelSizeCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
-
-        deserialized.Items.Should().NotBeNull();
-        deserialized.Items.Should().HaveCount(2);
-
-        // 验证OI item
-        var oiItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
-        oiItem.Key.Item2.Should().Be(_oiProductivityInfo);
-        oiItem.Value.XWidthPixel.Should().Be(2048);
-        oiItem.Value.VerifyResultYPixelSize.Should().Be(1.25);
-        oiItem.Value.Threshold.Should().Be(0.95);
-
-        // 验证NI item
-        var niItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
-        niItem.Key.Item2.Should().Be(_niProductivityInfo);
-        niItem.Value.XWidthPixel.Should().Be(1024);
-        niItem.Value.VerifyResultYPixelSize.Should().Be(1.50);
-        niItem.Value.Threshold.Should().Be(0.90);
 
         JsonConvert.SerializeObject(deserialized).Should().Be(json);
     }

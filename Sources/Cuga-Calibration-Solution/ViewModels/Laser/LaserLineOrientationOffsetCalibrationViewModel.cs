@@ -13,8 +13,8 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.LineOrientationOffset;
-using Core.Models.Models.Laser.PixelSize;
-using Core.Models.Models.Laser.XYAstigmatism;
+
+
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
@@ -122,7 +122,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
         MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
-        LaserPixelSizes = CalibrationStatusService.GetCalibrations<LaserPixelSizeItemDto>();
+        LaserPixelSizes = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LineOrientationOffsetCache>();
 
