@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;

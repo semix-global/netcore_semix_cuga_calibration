@@ -22,7 +22,6 @@ using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -691,7 +690,7 @@ public sealed partial class LaserDOEAngleCalibrationViewModel(CalibrationSetting
             AfOffsetPoints = [];
         });
         ResultLaserDOEAngleDto = null;
-        LaserDOEAngleDto = new();
+        LaserDOEAngleDto = new LaserDOEAngleDto();
         SelectLaserDOEAngleDto = null;
     }
 

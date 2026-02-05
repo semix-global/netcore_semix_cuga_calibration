@@ -137,7 +137,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         ICalibrationCacheProvider calibrationCacheProvider)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _logger = logger;
         _contextProvider = contextProvider;
         _alignmentParamWindowDarkFieldViewModel = alignmentParamWindowDarkFieldViewModel;

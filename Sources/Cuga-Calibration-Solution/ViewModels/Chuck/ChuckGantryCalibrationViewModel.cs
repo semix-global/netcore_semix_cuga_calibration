@@ -610,9 +610,9 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading" },
-            new() { StepName = "Calibration" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "loading" },
+            new CalibrationItemStep { StepName = "Calibration" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

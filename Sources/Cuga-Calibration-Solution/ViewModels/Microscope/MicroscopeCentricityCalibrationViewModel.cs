@@ -97,7 +97,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         {
             CalibrationStepList.Clear();
             CalibrationStepList.AddRange([
-                new() { StepName = "Select a location" },
+                new CalibrationItemStep { StepName = "Select a location" },
                 .. ApplicationCookie.MicroscopeLensInformations
                     .Select(t => t)
                     .OrderByDescending(t => t.ObjectiveMagnification)
@@ -379,7 +379,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     //if (magnificationInfos.Count == 1 || ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, resultPositionLow, highMagnificationInfo, Cache.GetTemplateFilePath(highMagnificationInfo), detectImageDirectory, HtmlLogUniqueId, Name, "High Magnification",
                     //        out resultPositionLow, out _, out _, out _, out _) == false) return;
 
-                    if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto!.LensInformation), centricityItemMaxDto.LensInformation, Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
+                    if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.GetFindPosition(centricityItemMaxDto.LensInformation), centricityItemMaxDto.LensInformation, Cache.GetTemplateFilePath(centricityItemMaxDto.LensInformation), detectImageDirectory, HtmlLogUniqueId, Name, "Max Magnification",
                             out var maxMatchResultPosition, out _, out _, out _, out _, Cache.CalChipSiteModelEnum) == false)
                     {
                         return false;
@@ -388,7 +388,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto.LensInformation.LensName].FindPosition = maxMatchResultPosition;
                 }
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto!.LensInformation.LensName].FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.MicroscopeCentricityCacheItemDic[centricityItemMaxDto.LensInformation.LensName].FindPosition, Cache.CalChipSiteModelEnum);
             }
             else
             {
@@ -579,13 +579,13 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         {
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
-                new() { StepName = "loading" },
+                new CalibrationItemStep { StepName = "loading" },
                 .. ApplicationCookie.MicroscopeLensInformations
                     .Select(t => t)
                     .OrderByDescending(t => t.ObjectiveMagnification)
                     .ThenByDescending(t => t.LensCode)
                     .Select(info => new CalibrationItemStep { StepName = info.LensName }),
-                new() { StepName = "Review" }
+                new CalibrationItemStep { StepName = "Review" }
             ]);
         });
     }

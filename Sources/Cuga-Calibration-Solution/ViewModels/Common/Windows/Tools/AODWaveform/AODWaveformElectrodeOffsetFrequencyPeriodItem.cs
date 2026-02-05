@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;

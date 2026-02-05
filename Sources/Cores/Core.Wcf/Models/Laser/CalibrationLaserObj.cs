@@ -26,37 +26,37 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 台面功率计校准对象
     /// </summary>
-    public CalibrationLaserOpticalPower[] CalibrationLaserOpticalPowerList { get; set; } = Array.Empty<CalibrationLaserOpticalPower>();
+    public CalibrationLaserOpticalPower[] CalibrationLaserOpticalPowerList { get; set; } = [];
 
     /// <summary>
     /// Attenuator校准对象
     /// </summary>
-    public CalibrationAttenuatorObj[] CalibrationAttenuatorList { get; set; } = Array.Empty<CalibrationAttenuatorObj>();
+    public CalibrationAttenuatorObj[] CalibrationAttenuatorList { get; set; } = [];
 
     /// <summary>
     /// AOD延迟时间校准对象列表
     /// </summary>
-    public CalibrationLaserAodDelayItem[] CalibrationLaserAodDelayItemList { get; set; } = Array.Empty<CalibrationLaserAodDelayItem>();
+    public CalibrationLaserAodDelayItem[] CalibrationLaserAodDelayItemList { get; set; } = [];
 
     /// <summary>
     /// 暗场相机的Y像素尺寸校准对象列表
     /// </summary>
-    public CalibrationLaserPixelSizeItem[] CalibrationLaserPixelSizeItemList { get; set; } = Array.Empty<CalibrationLaserPixelSizeItem>();
+    public CalibrationLaserPixelSizeItem[] CalibrationLaserPixelSizeItemList { get; set; } = [];
 
     /// <summary>
     /// XPixelSizer校准对象
     /// </summary>
-    public CalibrationLaserXPixelSizeItem[] CalibrationLaserXPixelSizeList { get; set; } = Array.Empty<CalibrationLaserXPixelSizeItem>();
+    public CalibrationLaserXPixelSizeItem[] CalibrationLaserXPixelSizeList { get; set; } = [];
 
     /// <summary>
     /// 暗场相机的光斑中心校准对象列表
     /// </summary>
-    public CalibrationLaserLineCentricityItem[] CalibrationLaserLineCentricityItemList { get; set; } = Array.Empty<CalibrationLaserLineCentricityItem>();
+    public CalibrationLaserLineCentricityItem[] CalibrationLaserLineCentricityItemList { get; set; } = [];
 
     /// <summary>
     /// 暗场相机的Swath扫描正反向误差校准对象列表
     /// </summary>
-    public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = Array.Empty<CalibrationLaserLineOrientationOffsetItem>();
+    public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = [];
 
     /// <summary>
     /// 暗场DOE角度校准对象
@@ -66,37 +66,37 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// CIB MMD 校准对象列表
     /// </summary>
-    public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = Array.Empty<CalibrationLaserCIBMMDItem>();
+    public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = [];
 
     /// <summary>
     /// CIB Light Matching 校准对象列表
     /// </summary>
-    public CalibrationLaserCIBLightMatchingItem[] CalibrationLaserCIBLightMatchingItems { get; set; } = Array.Empty<CalibrationLaserCIBLightMatchingItem>();
+    public CalibrationLaserCIBLightMatchingItem[] CalibrationLaserCIBLightMatchingItems { get; set; } = [];
 
     /// <summary>
     /// CIB Illumination Profile 校准对象列表
     /// </summary>
-    public CalibrationLaserCIBIlluminationProfileItem[] CalibrationLaserCIBIlluminationProfileItems { get; set; } = Array.Empty<CalibrationLaserCIBIlluminationProfileItem>();
+    public CalibrationLaserCIBIlluminationProfileItem[] CalibrationLaserCIBIlluminationProfileItems { get; set; } = [];
 
     /// <summary>
     /// CIB XTC 校准对象列表
     /// </summary>
-    public CalibrationLaserCIBXTCItem[] CalibrationLaserCIBXTCItems { get; set; } = Array.Empty<CalibrationLaserCIBXTCItem>();
+    public CalibrationLaserCIBXTCItem[] CalibrationLaserCIBXTCItems { get; set; } = [];
 
     /// <summary>
     /// AOD Uniformitiy 校准对象列表
     /// </summary>
-    public CalibrationLaserAODUniformityItem[] CalibrationLaserAODUniformityItems { get; set; } = Array.Empty<CalibrationLaserAODUniformityItem>();
+    public CalibrationLaserAODUniformityItem[] CalibrationLaserAODUniformityItems { get; set; } = [];
 
     /// <summary>
     /// Optics Relay 校准对象列表
     /// </summary>
-    public CalibrationOpticsRelay[] CalibrationOpticsRelays { get; set; } = Array.Empty<CalibrationOpticsRelay>();
+    public CalibrationOpticsRelay[] CalibrationOpticsRelays { get; set; } = [];
 
     /// <summary>
     /// Optics INC 校准对象列表
     /// </summary>
-    public CalibrationOpticsINC[] CalibrationOpticsINCs { get; set; } = Array.Empty<CalibrationOpticsINC>();
+    public CalibrationOpticsINC[] CalibrationOpticsINCs { get; set; } = [];
 }
 
 /// <summary>

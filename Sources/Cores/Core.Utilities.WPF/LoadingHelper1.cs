@@ -2,7 +2,6 @@
 using HandyControl.Data;
 using HandyControl.Interactivity;
 using Net.Utilities.WPF.Helper;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;

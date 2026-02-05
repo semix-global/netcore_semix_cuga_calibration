@@ -1326,7 +1326,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
+            if (repeatCount > 5) return (false, []);
             return await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
@@ -1653,7 +1653,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
+            if (repeatCount > 5) return (false, []);
             return await GetHrpNewAsync(adsXGainsHrpCacheItem, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
@@ -1666,10 +1666,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "Loading" },
-            new() { StepName = "X Positive And Negative Gains" },
-            new() { StepName = "X Positive And Negative HPR" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "Loading" },
+            new CalibrationItemStep { StepName = "X Positive And Negative Gains" },
+            new CalibrationItemStep { StepName = "X Positive And Negative HPR" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 
@@ -1762,7 +1762,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         {
             try
             {
-                if (await VerifyCaibrationAsync(ReviewReviewItemDto!, cancellationToken) == false)
+                if (await VerifyCaibrationAsync(ReviewReviewItemDto, cancellationToken) == false)
                 {
                     DialogWindowProvider.ShowDialog($"Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;

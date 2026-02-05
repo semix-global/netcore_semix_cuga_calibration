@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Utilities;
 using Humanizer;
-using Local.NoSQL.DB.Providers.Bases;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;

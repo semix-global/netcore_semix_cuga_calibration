@@ -467,7 +467,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
             {
                 LowMicroscopeLensInformation = Cache.LowMicroscopeLensInformation,
                 HighMicroscopeLensInformation = Cache.HighMicroscopeLensInformation,
-                HighSiteMatchResult = new()
+                HighSiteMatchResult = new ChuckGlobalTemplateMatchDtoItem
                 {
                     LensInformation = Cache.HighMicroscopeLensInformation,
                     TopPosition = Cache.TopLowSitePosition,
@@ -764,9 +764,9 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading" },
-            new() { StepName = "Find Real Position" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "loading" },
+            new CalibrationItemStep { StepName = "Find Real Position" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

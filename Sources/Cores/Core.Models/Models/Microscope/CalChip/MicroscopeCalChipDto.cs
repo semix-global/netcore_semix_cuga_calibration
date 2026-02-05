@@ -5,7 +5,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Utilities;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
@@ -136,7 +135,7 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
             cloneItems.GetOrAdd(item.Key, item.Value.Clone());
         }
 
-        return new()
+        return new MicroscopeCalChipDto
         {
             CalChipSiteModelEnum = CalChipSiteModelEnum,
             MicroscopeLensInformation = MicroscopeLensInformation.Clone(),

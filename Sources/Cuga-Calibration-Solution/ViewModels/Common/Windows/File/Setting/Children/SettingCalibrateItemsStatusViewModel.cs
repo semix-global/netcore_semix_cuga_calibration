@@ -240,7 +240,7 @@ public partial class CalibrationCategoryItem : ObservableObject
         else
         {
             if (Type is not null)
-                cacheProvider.Set(Activator.CreateInstance(Type) ?? new(), Type, cancellationToken);
+                cacheProvider.Set(Activator.CreateInstance(Type) ?? new object(), Type, cancellationToken);
         }
     }
 }

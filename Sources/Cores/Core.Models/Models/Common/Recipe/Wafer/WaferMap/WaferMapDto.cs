@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -25,7 +24,7 @@ public sealed partial class WaferMapDto : ObservableObject, ICloneable<WaferMapD
 
     public void WaferMapInitialization(Point originDieBrightPosition)
     {
-        OriginDieDto = new()
+        OriginDieDto = new WaferMapDieItemDto
         {
             WaferPosition = originDieBrightPosition,
             IsInWafer = true

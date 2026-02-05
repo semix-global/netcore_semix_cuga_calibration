@@ -140,7 +140,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         logger.LogHtmlInformation("Save Wafer Center Thumb Images", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
         for (var i = 0; i < bitmapMemoryBytes.Count; i++)
         {
-            var waferCenterThumbPath = $"{ImageFileDirectory}\\WaferCenterThumb\\WaferCenterThumb{i + 1}_Guid{HtmlLogUniqueId}.jpg";
+            var waferCenterThumbPath = $@"{ImageFileDirectory}\WaferCenterThumb\WaferCenterThumb{i + 1}_Guid{HtmlLogUniqueId}.jpg";
             var waferCenterThumbBitmapSource = BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(bitmapMemoryBytes[i]);
             BitmapSourceHelper.Save(waferCenterThumbBitmapSource, waferCenterThumbPath);
             logger.LogHtmlInformation($"Find center edge image {i}", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new

@@ -241,7 +241,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
             AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
                                           t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
                                           t.ProductivityInformation == Cache.ProductivityInformation)
-                                      ?? new();
+                                      ?? new AlignmentCacheDarkField();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation

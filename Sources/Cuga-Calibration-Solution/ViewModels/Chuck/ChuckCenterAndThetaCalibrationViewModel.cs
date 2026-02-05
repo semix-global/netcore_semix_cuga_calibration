@@ -24,6 +24,7 @@ using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
+using Core.Models.Models.Chuck.GlobalScaleError;
 
 namespace CugaCalibration.ViewModels.Chuck;
 
@@ -451,7 +452,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 LowMicroscopeLensInformation = Cache.LowMicroscopeLensInformation,
                 HighMicroscopeLensInformation = Cache.HighMicroscopeLensInformation,
                 AppliedScaleT = 1d,
-                PositiveMatchResult = new()
+                PositiveMatchResult = new ChuckGlobalTemplateMatchDtoItem
                 {
                     LensInformation = Cache.HighMicroscopeLensInformation,
                     TopPosition = Cache.TopLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
@@ -459,7 +460,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     LeftPosition = Cache.LeftLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
                     RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle)
                 },
-                NegativeMatchResult = new()
+                NegativeMatchResult = new ChuckGlobalTemplateMatchDtoItem
                 {
                     LensInformation = Cache.HighMicroscopeLensInformation,
                     TopPosition = Cache.TopLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
@@ -873,10 +874,10 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading" },
-            new() { StepName = "Find Positive Point" },
-            new() { StepName = "Find Negative Point" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "loading" },
+            new CalibrationItemStep { StepName = "Find Positive Point" },
+            new CalibrationItemStep { StepName = "Find Negative Point" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

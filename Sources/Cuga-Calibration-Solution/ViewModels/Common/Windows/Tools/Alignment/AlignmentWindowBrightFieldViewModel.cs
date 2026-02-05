@@ -120,7 +120,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         ApplicationCookie applicationCookie)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _logger = logger;
         _contextProvider = contextProvider;
         _alignmentParamWindowBrightFieldViewModel = alignmentParamWindowBrightFieldViewModel;

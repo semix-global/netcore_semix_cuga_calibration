@@ -69,7 +69,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
         CalibrationSetting calibrationSetting)
     {
         _dialogWindowProvider = dialogWindowProvider;
-        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey)!;
+        _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _windowManagerService = windowManagerService;
         _contextProvider = contextProvider;
         _messenger = messenger;

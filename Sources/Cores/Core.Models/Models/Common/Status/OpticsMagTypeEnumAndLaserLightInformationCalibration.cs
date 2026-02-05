@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;

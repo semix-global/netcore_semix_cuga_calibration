@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;

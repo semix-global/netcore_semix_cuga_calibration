@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;

@@ -806,7 +806,7 @@ public sealed partial class RecipeSettingViewModel(
 
             var (maskDto, directoryName) = GetSelectReticleMaskListInfo(obj.ToString());
 
-            maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\BrightField\\Ncc\\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+            maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath = $@"{TemplateFileDirectory}\{directoryName}\BrightField\Ncc\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var templateFilePath = maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath;
 
             microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation);
@@ -850,7 +850,7 @@ public sealed partial class RecipeSettingViewModel(
                 stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
             using var _ = darkFieldImageDto;
 
-            var templateFilePath = $"{TemplateFileDirectory}\\{directoryName}\\DarkField\\Ncc\\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum}_{Guid.NewGuid()}";
+            var templateFilePath = $@"{TemplateFileDirectory}\{directoryName}\DarkField\Ncc\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum}_{Guid.NewGuid()}";
             var templateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
 
             darkFieldImageDto.Image.Save(templateImageFilePath);

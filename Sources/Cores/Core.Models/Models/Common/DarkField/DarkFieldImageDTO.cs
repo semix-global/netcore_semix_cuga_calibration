@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HalconDotNet;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 

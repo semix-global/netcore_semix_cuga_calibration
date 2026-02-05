@@ -25,7 +25,6 @@ using Local.NoSQL.DB.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
-using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
@@ -330,7 +329,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
             AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
                                           t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
                                           t.ProductivityInformation == Cache.ProductivityInformation)
-                                      ?? new();
+                                      ?? new AlignmentCacheDarkField();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation
@@ -943,14 +942,14 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading" },
+            new CalibrationItemStep { StepName = "loading" },
             ..CalibrationStatuses.SelectMany(
                 calibrationStatus => calibrationStatus.ProductivityInformationStatusList,
                 (calibrationStatus, productivityInformations) => new CalibrationItemStep
                 {
                     StepName = $"{calibrationStatus.SelectedItem.ToDescriptionOrString()} {productivityInformations.SelectedItem}"
                 }),
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

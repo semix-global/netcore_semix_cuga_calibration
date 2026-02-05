@@ -400,7 +400,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         ClearCalibrationTemp();
         var detectImageDirectory = ImageFileDirectory;
 
-        selectReviewItemDto!.IsVerified = false;
+        selectReviewItemDto.IsVerified = false;
         Cache.MicroscopeLensInformation = SelectReviewItemDto!.LensInformation;
 
         SelectMicroscopeFocusCacheItem = Cache.CurrentCalibrationCacheItem;
@@ -593,9 +593,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         {
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
-                new() { StepName = "loading" },
+                new CalibrationItemStep { StepName = "loading" },
                 .. ApplicationCookie.MicroscopeLensInformations.Select(info => new CalibrationItemStep { StepName = info.LensName }),
-                new() { StepName = "Review" }
+                new CalibrationItemStep { StepName = "Review" }
             ]);
         });
     }

@@ -1619,7 +1619,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
+            if (repeatCount > 5) return (false, []);
             return await GetHrpAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
@@ -1967,7 +1967,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, new List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>());
+            if (repeatCount > 5) return (false, []);
             return await GetHrpNewAsync(adsYGainsItemDto, cancellationToken, repeatCount++).ConfigureAwait(false);
         }
     }
@@ -1999,10 +1999,10 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "Loading" },
-            new() { StepName = "Y Positive And Negative Gains" },
-            new() { StepName = "Y Positive And Negative HPR" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "Loading" },
+            new CalibrationItemStep { StepName = "Y Positive And Negative Gains" },
+            new CalibrationItemStep { StepName = "Y Positive And Negative HPR" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

@@ -167,7 +167,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
-        if (ApplicationCookie.CIBInformations.Contains(Cache.CIBInformation) == false) Cache.CIBInformation = ApplicationCookie.CIBInformations.First();
+        if (ApplicationCookie.CIBInformations.Contains(Cache.CIBInformation) == false) Cache.CIBInformation = ApplicationCookie.CIBInformations[0];
 
         if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
 
@@ -209,7 +209,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
         switch (CalibrationStepIndex)
         {
             case 1:
-                if (ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation) == false) Cache.Item.LaserLightInformation = ApplicationCookie.LaserLightInformations.First();
+                if (ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation) == false) Cache.Item.LaserLightInformation = ApplicationCookie.LaserLightInformations[0];
 
                 return true;
 
@@ -739,7 +739,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
 
     private void ClearCalibrationTemp()
     {
-        CalibratingItem = new()
+        CalibratingItem = new BestFocusAndAstigmatismDTO
         {
             ProductivityInformation = Cache.ProductivityInformation.Clone(),
             ApodizationModeEnum = Cache.ApodizationModeEnum

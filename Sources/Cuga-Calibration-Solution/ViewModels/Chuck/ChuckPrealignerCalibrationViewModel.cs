@@ -242,7 +242,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 Cache.WaferCenterThumb8 = bitmapMemoryBytes[7];
                 for (var i = 0; i < bitmapMemoryBytes.Count; i++)
                 {
-                    var waferCenterThumbPath = $"{ImageFileDirectory}\\WaferCenterThumb\\WaferCenterThumb{i + 1}_Guid{HtmlLogUniqueId}.jpg";
+                    var waferCenterThumbPath = $@"{ImageFileDirectory}\WaferCenterThumb\WaferCenterThumb{i + 1}_Guid{HtmlLogUniqueId}.jpg";
                     var waferCenterThumbBitmapSource = BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(bitmapMemoryBytes[i]);
                     BitmapSourceHelper.Save(waferCenterThumbBitmapSource, waferCenterThumbPath);
                     Logger.LogHtmlInformation($"Find center edge image {i}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new

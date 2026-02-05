@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 using Core.Models.Models.Common.Recipe.Wafer.WaferMap;
-using Local.NoSQL.DB.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WaferMap.WPF.Documents;

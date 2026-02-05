@@ -323,7 +323,7 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
             AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
                                           t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
                                           t.ProductivityInformation == Cache.ProductivityInformation)
-                                      ?? new();
+                                      ?? new AlignmentCacheDarkField();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
@@ -723,14 +723,14 @@ public sealed partial class LaserPixelSizeCalibrationViewModel(
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading" },
+            new CalibrationItemStep { StepName = "loading" },
             ..CalibrationStatuses.SelectMany(
                 calibrationStatus => calibrationStatus.ProductivityInformationStatusList,
                 (calibrationStatus, productivityInformations) => new CalibrationItemStep
                 {
                     StepName = $"{calibrationStatus.SelectedItem.ToDescriptionOrString()} {productivityInformations.SelectedItem}"
                 }),
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

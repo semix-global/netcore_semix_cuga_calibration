@@ -700,7 +700,7 @@ public sealed partial class CalibrationLaserServiceImpl(
                                 End = Convert.ToInt32(zMotionParam.Value.zEnd),
                                 Vel = Convert.ToInt32(zMotionParam.Value.zSpeed)
                             }
-                            : new()
+                            : new SxZParam()
                     })),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxExecuteRet<List<M2CImgSysCollectImgDTO>>>(nameof(stageCoordinateSystemEnum))
             };

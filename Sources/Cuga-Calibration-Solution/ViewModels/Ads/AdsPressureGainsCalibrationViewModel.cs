@@ -308,9 +308,9 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
     {
         AutoCalibrationStepList =
         [
-            new() { StepName = "loading" },
-            new() { StepName = "Pressure Gains" },
-            new() { StepName = "Review" }
+            new CalibrationItemStep { StepName = "loading" },
+            new CalibrationItemStep { StepName = "Pressure Gains" },
+            new CalibrationItemStep { StepName = "Review" }
         ];
     }
 

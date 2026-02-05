@@ -112,7 +112,7 @@ public sealed partial class MainWindowViewModel(
                     ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
                     ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints())
                 ], "test"),
-                Image = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", "test", [new HtmlImageCrossOverlay(true)])
+                Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", "test", [new HtmlImageCrossOverlay(true)])
             }), guid.LoggingHtml());
 
             logger.LogHtmlInformation("Action Times1", HtmlHeaderLevelEnum.Header3, guid.LoggingHtml());
@@ -141,7 +141,7 @@ public sealed partial class MainWindowViewModel(
                         ("y", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
                         ("z", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints())
                     ], "test"),
-                    Image = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(random.NextDouble() > 0.5)])
+                    Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(random.NextDouble() > 0.5)])
                 }), guid.LoggingHtml());
             }
 
@@ -173,7 +173,7 @@ public sealed partial class MainWindowViewModel(
                         ("s", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints(), 8),
                         ("a", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints(), 7)
                     ], "test"),
-                    Image = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(random.NextDouble() > 0.5)])
+                    Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(random.NextDouble() > 0.5)])
                 }), guid.LoggingHtml());
             }
 
@@ -203,7 +203,7 @@ public sealed partial class MainWindowViewModel(
                         ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
                         ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints())
                     ], "test"),
-                    Image = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }),
                 new HtmlBullet(new
                 {
@@ -217,7 +217,7 @@ public sealed partial class MainWindowViewModel(
                         ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
                         ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints())
                     ], "test"),
-                    Image = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             ]), guid.LoggingHtml());
 
@@ -260,67 +260,67 @@ public sealed partial class MainWindowViewModel(
 
         logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
-            Image = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", "test")
+            Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", "test")
         }), guid.LoggingHtml());
 
         logger.LogHtmlInformation("Tab", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
             Download1 = new HtmlDownload(File.ReadAllBytes($"{AppDomain.CurrentDomain.BaseDirectory}\\NLog.config"), "NLog.config"),
-            Download2 = new HtmlDownload(File.ReadAllBytes($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg"), "test.jpg"),
+            Download2 = new HtmlDownload(File.ReadAllBytes($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg"), "test.jpg"),
             HtmlTab = new HtmlTab(new
             {
-                test0 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", description: "test"),
-                test1 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", description: "test"),
-                test2 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                test3 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                test4 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays: []),
-                test5 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays: []),
-                test6 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test0 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test"),
+                test1 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test1.jpg", description: "test"),
+                test2 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                test3 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test1.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                test4 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays: []),
+                test5 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test1.jpg", htmlImageOverlays: []),
+                test6 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d)),
                     new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test7 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
+                test7 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test1.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(257 / 5d, 257 / 5d)),
                     new HtmlImageRectangleOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test8 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test8 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test9 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
+                test9 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test1.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(257 / 5d, 257 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test10 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test10 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test11 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
+                test11 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test1.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test12 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test12 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test13 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
+                test13 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test1.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(257 - 1, 257 - 1), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(257 - 1, 257 - 1), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test14 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test14 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test15 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test1.jpg", htmlImageOverlays:
+                test15 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test1.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(257 / 2d, 257 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(257 / 2d, 257 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
@@ -330,61 +330,61 @@ public sealed partial class MainWindowViewModel(
         logger.LogHtmlInformation("Tab", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
             Download1 = new HtmlDownload(File.ReadAllBytes($"{AppDomain.CurrentDomain.BaseDirectory}\\NLog.config"), "NLog.config"),
-            Download2 = new HtmlDownload(File.ReadAllBytes($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg"), "test.jpg"),
+            Download2 = new HtmlDownload(File.ReadAllBytes($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg"), "test.jpg"),
             HtmlTab = new HtmlTab(new
             {
-                test0 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", description: "test"),
-                test1 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", description: "test"),
-                test2 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                test3 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                test4 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays: []),
-                test5 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays: []),
-                test6 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test0 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test"),
+                test1 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test2.png", description: "test"),
+                test2 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                test3 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test2.png", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                test4 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays: []),
+                test5 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test2.png", htmlImageOverlays: []),
+                test6 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d)),
                     new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test7 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
+                test7 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test2.png", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(1009 / 5d, 1437 / 5d)),
                     new HtmlImageRectangleOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test8 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test8 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(2448 / 5d, 2048 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test9 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
+                test9 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test2.png", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(1009 / 5d, 1437 / 5d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test10 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test10 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test11 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
+                test11 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test2.png", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(0, 0), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test12 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test12 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(2448 - 1, 2048 - 1), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test13 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
+                test13 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test2.png", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(1009 - 1, 1437 - 1), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(1009 - 1, 1437 - 1), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test14 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test.jpg", htmlImageOverlays:
+                test14 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(2448 / 2d, 2048 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
                 ]),
-                test15 = new HtmlImage($"{AppDomain.CurrentDomain.BaseDirectory}\\Assets\\Data\\test2.png", htmlImageOverlays:
+                test15 = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test2.png", htmlImageOverlays:
                 [
                     new HtmlImageCrossOverlay(new Point(1009 / 2d, 1437 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100)),
                     new HtmlImageRectangleOverlay(new Point(1009 / 2d, 1437 / 2d), new Net.Utilities.Models.Geometries.Size(100, 100))
@@ -530,9 +530,9 @@ public sealed partial class MainWindowViewModel(
     {
         cacheProvider.SetArray<AdsXGainsItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<AdsYGainsItemDto>([], CancellationToken.None);
-        cacheProvider.Set<ChuckGlobalScaleErrorDto>(new(), CancellationToken.None);
-        cacheProvider.Set<LaserAutoFocusDto>(new(), CancellationToken.None);
-        cacheProvider.Set<LaserBeamStabilizerObjDto>(new(), CancellationToken.None);
+        cacheProvider.Set<ChuckGlobalScaleErrorDto>(new ChuckGlobalScaleErrorDto(), CancellationToken.None);
+        cacheProvider.Set<LaserAutoFocusDto>(new LaserAutoFocusDto(), CancellationToken.None);
+        cacheProvider.Set<LaserBeamStabilizerObjDto>(new LaserBeamStabilizerObjDto(), CancellationToken.None);
         cacheProvider.SetArray<LaserOpticalPowerMeterDTO>([], CancellationToken.None);
         cacheProvider.SetArray<LaserAttenuatorDTO>([], CancellationToken.None);
         cacheProvider.SetArray<AODDelayDTO>([], CancellationToken.None);

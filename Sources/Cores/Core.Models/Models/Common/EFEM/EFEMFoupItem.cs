@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.EFEM;
-using Local.NoSQL.DB.Providers.Bases;
 
 namespace Core.Models.Models.Common.EFEM;
 

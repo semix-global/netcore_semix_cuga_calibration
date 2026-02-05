@@ -363,7 +363,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
                                               t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
                                               t.ProductivityInformation == Cache.ProductivityInformation)
-                                          ?? new();
+                                          ?? new AlignmentCacheDarkField();
                 if (AlignmentCacheDarkField.IsOk)
                 {
                     // todo:改为oini后传参

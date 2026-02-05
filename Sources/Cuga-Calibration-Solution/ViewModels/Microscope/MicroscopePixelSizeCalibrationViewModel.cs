@@ -489,9 +489,9 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         {
             AutoCalibrationStepList.Clear();
             AutoCalibrationStepList.AddRange([
-                new() { StepName = "loading" },
+                new CalibrationItemStep { StepName = "loading" },
                 .. ApplicationCookie.MicroscopeLensInformations.Select(info => new CalibrationItemStep { StepName = info.LensName }),
-                new() { StepName = "Review" }
+                new CalibrationItemStep { StepName = "Review" }
             ]);
         });
     }
