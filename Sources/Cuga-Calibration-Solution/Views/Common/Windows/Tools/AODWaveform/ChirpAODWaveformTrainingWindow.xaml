@@ -220,6 +220,12 @@
                                                 Command="{Binding ContinueCommand}"
                                                 Style="{StaticResource ButtonDefault}" />
                                     </hc:UniformSpacingPanel>
+                                    <hc:NumericUpDown hc:TitleElement.Title="P2"
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      IsEnabled="{Binding TrainingP2Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
+                                                      Value="{Binding Cache.P2Coefficient}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="P3"
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
@@ -256,6 +262,51 @@
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       IsEnabled="{Binding TrainingP8Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
                                                       Value="{Binding Cache.P8Coefficient}" />
+                                    <Expander Header="P2"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StartP2Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StepP2Coefficient}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StopP2Coefficient}" />
+                                                <hc:UniformSpacingPanel Spacing="10">
+                                                    <Button Content="Action"
+                                                            Command="{Binding TrainingP2Command}"
+                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                            Style="{StaticResource ButtonPrimary.Loading}">
+                                                        <Button.IsEnabled>
+                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                                <Binding Path="TrainingP2Command.IsRunning" />
+                                                                <Binding Path="TrainingP3Command.IsRunning" />
+                                                                <Binding Path="TrainingP4Command.IsRunning" />
+                                                                <Binding Path="TrainingP5Command.IsRunning" />
+                                                                <Binding Path="TrainingP6Command.IsRunning" />
+                                                                <Binding Path="TrainingP7Command.IsRunning" />
+                                                                <Binding Path="TrainingP8Command.IsRunning" />
+                                                            </MultiBinding>
+                                                        </Button.IsEnabled>
+                                                    </Button>
+                                                    <Button Content="Cancel"
+                                                            Command="{Binding TrainingP2CancelCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                            Style="{StaticResource ButtonWarning}" />
+                                                </hc:UniformSpacingPanel>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                     <Expander Header="P3"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
@@ -283,6 +334,7 @@
                                                             Style="{StaticResource ButtonPrimary.Loading}">
                                                         <Button.IsEnabled>
                                                             <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                                <Binding Path="TrainingP2Command.IsRunning" />
                                                                 <Binding Path="TrainingP3Command.IsRunning" />
                                                                 <Binding Path="TrainingP4Command.IsRunning" />
                                                                 <Binding Path="TrainingP5Command.IsRunning" />
@@ -327,6 +379,7 @@
                                                             Style="{StaticResource ButtonPrimary.Loading}">
                                                         <Button.IsEnabled>
                                                             <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                                <Binding Path="TrainingP2Command.IsRunning" />
                                                                 <Binding Path="TrainingP3Command.IsRunning" />
                                                                 <Binding Path="TrainingP4Command.IsRunning" />
                                                                 <Binding Path="TrainingP5Command.IsRunning" />
@@ -371,6 +424,7 @@
                                                             Style="{StaticResource ButtonPrimary.Loading}">
                                                         <Button.IsEnabled>
                                                             <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                                <Binding Path="TrainingP2Command.IsRunning" />
                                                                 <Binding Path="TrainingP3Command.IsRunning" />
                                                                 <Binding Path="TrainingP4Command.IsRunning" />
                                                                 <Binding Path="TrainingP5Command.IsRunning" />
@@ -415,6 +469,7 @@
                                                             Style="{StaticResource ButtonPrimary.Loading}">
                                                         <Button.IsEnabled>
                                                             <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                                <Binding Path="TrainingP2Command.IsRunning" />
                                                                 <Binding Path="TrainingP3Command.IsRunning" />
                                                                 <Binding Path="TrainingP4Command.IsRunning" />
                                                                 <Binding Path="TrainingP5Command.IsRunning" />
@@ -459,6 +514,7 @@
                                                             Style="{StaticResource ButtonPrimary.Loading}">
                                                         <Button.IsEnabled>
                                                             <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                                <Binding Path="TrainingP2Command.IsRunning" />
                                                                 <Binding Path="TrainingP3Command.IsRunning" />
                                                                 <Binding Path="TrainingP4Command.IsRunning" />
                                                                 <Binding Path="TrainingP5Command.IsRunning" />
@@ -503,6 +559,7 @@
                                                             Style="{StaticResource ButtonPrimary.Loading}">
                                                         <Button.IsEnabled>
                                                             <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                                <Binding Path="TrainingP2Command.IsRunning" />
                                                                 <Binding Path="TrainingP3Command.IsRunning" />
                                                                 <Binding Path="TrainingP4Command.IsRunning" />
                                                                 <Binding Path="TrainingP5Command.IsRunning" />
@@ -541,6 +598,9 @@
                                 <TextBlock>
                                     <Run Text="[Best] Y Strehl: " />
                                     <Run Text="{Binding Cache.Item.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                                    <Run Text=", " />
+                                    <Run Text="P2: " />
+                                    <Run Text="{Binding Cache.Item.P2Coefficient, StringFormat='0.######'}" />
                                     <Run Text=", " />
                                     <Run Text="P3: " />
                                     <Run Text="{Binding Cache.Item.P3Coefficient, StringFormat='0.######'}" />
@@ -593,6 +653,7 @@
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                                        <GridViewColumn Header="P2 Coefficient" DisplayMemberBinding="{Binding P2Coefficient, StringFormat='0.######'}" />
                                         <GridViewColumn Header="P3 Coefficient" DisplayMemberBinding="{Binding P3Coefficient, StringFormat='0.######'}" />
                                         <GridViewColumn Header="P4 Coefficient" DisplayMemberBinding="{Binding P4Coefficient, StringFormat='0.######'}" />
                                         <GridViewColumn Header="P5 Coefficient" DisplayMemberBinding="{Binding P5Coefficient, StringFormat='0.######'}" />
@@ -677,6 +738,11 @@
                                             <Run Text="{Binding Cache.Item.RawImageFilePath}" />
                                         </Hyperlink>
                                     </TextBlock>
+                                    <TextBox Text="{Binding Cache.Item.P2Coefficient}"
+                                             hc:TitleElement.Title="P2:"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             IsReadOnly="True"
+                                             Style="{StaticResource TextBoxExtend}" />
                                     <TextBox Text="{Binding Cache.Item.P3Coefficient}"
                                              hc:TitleElement.Title="P3:"
                                              hc:TitleElement.TitlePlacement="Left"

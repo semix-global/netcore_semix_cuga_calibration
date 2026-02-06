@@ -49,6 +49,9 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
 
     [ObservableProperty]
+    private double _p2CompensationCoefficient;
+
+    [ObservableProperty]
     private double _p3CompensationCoefficient;
 
     [ObservableProperty]
@@ -173,6 +176,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         BandWidth = 0d;
         CenterFrequency = frequency;
         foreach (var electrodeConfiguration in ElectrodeConfigurations) electrodeConfiguration.UniformityConfigurations = [];
+        P2CompensationCoefficient = 0d;
         P3CompensationCoefficient = 0d;
         P4CompensationCoefficient = 0d;
         P5CompensationCoefficient = 0d;
@@ -195,6 +199,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         ZeroSampleCount = obj.ZeroSampleCount;
         EndpointSampleCount = obj.EndpointSampleCount;
         ElectrodeConfigurations = [.. obj.ElectrodeConfigurations.Select(t => t.Clone())];
+        P2CompensationCoefficient = obj.P2CompensationCoefficient;
         P3CompensationCoefficient = obj.P3CompensationCoefficient;
         P4CompensationCoefficient = obj.P4CompensationCoefficient;
         P5CompensationCoefficient = obj.P5CompensationCoefficient;
@@ -235,6 +240,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         ZeroSampleCount,
         EndpointSampleCount,
         ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())]),
+        P2CompensationCoefficient,
         P3CompensationCoefficient,
         P4CompensationCoefficient,
         P5CompensationCoefficient,

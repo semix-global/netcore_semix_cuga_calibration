@@ -37,6 +37,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
+        P2CompensationCoefficient = P2CompensationCoefficient,
         P3CompensationCoefficient = P3CompensationCoefficient,
         P4CompensationCoefficient = P4CompensationCoefficient,
         P5CompensationCoefficient = P5CompensationCoefficient,
