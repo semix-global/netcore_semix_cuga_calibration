@@ -6,7 +6,7 @@ public interface ICalibrationCacheProvider
 {
     Task<bool> TrySaveAsync(string? filePath, CancellationToken cancellationToken);
 
-    Task<bool> TryExportAsync(string filePath, CancellationToken cancellationToken);
+    Task<(bool IsSuccess, string Message)> TryExportAsync(string filePath, CancellationToken cancellationToken);
 
     Task<(bool IsSuccess, string Message)> TryImportAsync(string filePath, CancellationToken cancellationToken);
 

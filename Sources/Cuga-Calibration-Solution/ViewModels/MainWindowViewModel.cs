@@ -67,6 +67,8 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
 
 namespace CugaCalibration.ViewModels;
 
@@ -432,10 +434,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                         case CalibrationConstantsHelper.Export:
                             if (_dialogWindowProvider.TryShowSaveFilePathDialog(".json", out var exportPath) == true)
                             {
-                                if (await _calibrationCacheProviderService.TryExportAsync(exportPath, CancellationToken.None))
-                                    _dialogWindowProvider.ShowDialog("Export Success.");
+                                var (isSuccess, message) = await _calibrationCacheProviderService.TryExportAsync(exportPath, CancellationToken.None);
+                                if (isSuccess)
+                                    _dialogWindowProvider.ShowDialog(message);
                                 else
-                                    _dialogWindowProvider.ShowDialog("Export Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                                    _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
                             }
 
                             break;
