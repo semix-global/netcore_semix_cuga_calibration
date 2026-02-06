@@ -157,13 +157,13 @@ public sealed class CalibrationAlgorithmServiceImpl(
         ];
 
         _algorithm.StackPointLiner(
-            image, 
+            image,
             fitXTuple,
             yStrehlRatioFitTuple,
-            out var bestYStrehlRatioXPSFList,             
+            out var bestYStrehlRatioXPSFList,
             out var bestYStrehlRatioYPSFList,
             out var bestYStrehlRatioFitXTuple,
-            out var bestYStrehlRatioXPSFFitTuple,                       
+            out var bestYStrehlRatioXPSFFitTuple,
             out var bestYStrehlRatioYPSFFitTuple);
 
         using var _11 = bestYStrehlRatioFitXTuple;

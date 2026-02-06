@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Helper;
@@ -9,8 +11,6 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
-using Core.Models.Models.Common.DarkField;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace Core.Models.Models.CIB.MMD;
 
@@ -152,13 +152,13 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
                 Constants.Category10.GetColor(0));
 
             var temps = (from item in Items
-                    let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
-                    where itemItems.Length > 0
-                    select new
-                    {
-                        LegendText = $"{item.Coefficient:0.###}",
-                        Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
-                    }
+                         let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
+                         where itemItems.Length > 0
+                         select new
+                         {
+                             LegendText = $"{item.Coefficient:0.###}",
+                             Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
+                         }
                 ).ToArray();
 
             var scatterLines = ScatterPlotControl.GetOrAddScatterLines(1, temps.Length);
@@ -207,7 +207,7 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     public CIBMMDDTO Clone() => new()
     {
         CIBInformation = CIBInformation.Clone(),
-        GainRelationships = [..GainRelationships.Select(t => t.Clone())],
+        GainRelationships = [.. GainRelationships.Select(t => t.Clone())],
         Items = [.. Items.Select(t => t.Clone())],
         GainRSquared = GainRSquared,
         GainResidual = GainResidual,
