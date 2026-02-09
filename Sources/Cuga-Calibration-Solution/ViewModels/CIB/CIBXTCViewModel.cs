@@ -241,11 +241,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             {
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
-                Cache.Item.LaserLightInformation
+                Cache.Item.LaserLightInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
-                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
+                   && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
         });
     }
 
@@ -342,7 +344,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
                         (false, CalChipSiteModelEnum.HazeModel),
-                        (true, null),
+                        (false, Cache.Item.CIBConfiguration),
                         (true, null),
                         false,
                         cancellationToken);
@@ -449,7 +451,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         cibInformations,
                         Cache.Item.ImageWidth,
                         (true, null),
-                        (true, null),
+                        (false, Cache.Item.CIBConfiguration),
                         (true, null),
                         false,
                         cancellationToken);

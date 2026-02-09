@@ -388,23 +388,6 @@ public sealed class LaserViewModel(
         return true;
     }
 
-    #region DOE
-
-    public double ReadDOECurrentAngle()
-    {
-        var ret = calibrationLaserService.ReadDOECurrentAngle();
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetDOEAngle(double angle)
-    {
-        var ret = calibrationLaserService.SetDOEAngle(angle);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    #endregion DOE
-
     [Obsolete]
     public List<DarkFieldImageDTO> GetDarkFieldLineScanImageList(
         CalChipSiteModelEnum calChipSiteModelEnum,

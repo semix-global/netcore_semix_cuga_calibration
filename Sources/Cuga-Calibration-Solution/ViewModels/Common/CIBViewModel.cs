@@ -6,6 +6,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.AutoFocus;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -24,6 +25,7 @@ public sealed class CIBViewModel(
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
     LaserViewModel laserViewModel,
+    CalibrationSetting calibrationSetting,
     ICalibrationCIBService calibrationCIBService,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ICalibrationLaserService calibrationLaserService) : ViewModelBase
@@ -444,26 +446,25 @@ public sealed class CIBViewModel(
     }
 
     public async Task<RuntimeAfCalibrationResultDTO> RuntimeAfCalibrationAsync(
-        CIBConfiguration cibConfiguration,
-        CIBInformation cibInformation,
-        Point position,
-        LaserLightInformation laserLightInformation,
-        ProductivityInformation productivityInformation,
-        CancellationToken cancellationToken,
-        bool isAppliedDefaultRtfcParam = true,
-        int pmtId = CalibrationConstantsHelper.MainPmtId,
-        int xXWidthPixel = 800,
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
-        string? saveImageFileDirectory = null,
-        Guid? logGuid = null,
-        string? logName = null
-    )
+       CIBConfiguration cibConfiguration,
+       CIBInformation cibInformation,
+       Point position,
+       LaserLightInformation laserLightInformation,
+       ProductivityInformation productivityInformation,
+       CancellationToken cancellationToken,
+       bool isAppliedDefaultRtfcParam = true,
+       int xXWidthPixel = 800,
+       CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
+       StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
+       string? saveImageFileDirectory = null,
+       Guid? logGuid = null,
+       string? logName = null
+   )
     {
         var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
         Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, productivityInformation, pmtId, lightInformation?.Coefficient, point);
+        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, productivityInformation, cibInformation.PMTId, lightInformation?.Coefficient, point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         if (ret.Anything.isAFServo)
@@ -472,10 +473,13 @@ public sealed class CIBViewModel(
             ThrowHelper.ThrowNotSupportedException("Relay Servo is not supported.");
         //opticsViewModel.SetRelayMotorAbsoluteValue(productivityInformation.OpticsIlluminationModeEnum, ret.Anything.Motor);
 
+        var (_, yDirection) = stageViewModel.GetMachineDirection();
+        var verifyPosition = new Point
+            (position.X, position.Y + yDirection * ((cibInformation.PMTId - CalibrationConstantsHelper.MainPmtId) * calibrationSetting.SettingCommonParam.PMTInterval));
         var darkFieldImageDto = await GetPMTImageAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
-            position,
+            verifyPosition,
             cibInformation,
             xXWidthPixel,
             (false, calChipSiteModelEnum),
@@ -496,7 +500,7 @@ public sealed class CIBViewModel(
                 {
                     point,
                     calChipSiteModelEnum,
-                    pmtId,
+                    cibInformation,
                     laserLightInformation,
                     ret.Anything.Ecs,
                     ret.Anything.Motor,
@@ -514,6 +518,7 @@ public sealed class CIBViewModel(
             ECSValue = ret.Anything.Ecs,
             MotorValue = ret.Anything.Motor,
             DarkFieldFilePath = rtfcVerifyImageFilePath,
+            RawImageFilePath = darkFieldImageDto.RawImageFilePath,
             DarkFieldQuality = quality
         };
 

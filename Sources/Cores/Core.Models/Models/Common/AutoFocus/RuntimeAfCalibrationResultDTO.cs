@@ -19,6 +19,9 @@ public sealed partial class RuntimeAfCalibrationResultDTO : ObservableCacheBase,
     private double _darkFieldQuality;
 
     [ObservableProperty]
+    private string _rawImageFilePath = string.Empty;
+
+    [ObservableProperty]
     private string _darkFieldFilePath = string.Empty;
 
     public RuntimeAfCalibrationResultDTO Clone() => new()
@@ -27,6 +30,7 @@ public sealed partial class RuntimeAfCalibrationResultDTO : ObservableCacheBase,
         ECSValue = ECSValue,
         MotorValue = MotorValue,
         DarkFieldQuality = DarkFieldQuality,
+        RawImageFilePath = RawImageFilePath,
         DarkFieldFilePath = DarkFieldFilePath,
         Id = Id,
         Expiration = Expiration
@@ -38,6 +42,7 @@ public sealed partial class RuntimeAfCalibrationResultDTO : ObservableCacheBase,
         ECSValue,
         MotorValue,
         DarkFieldQuality,
-        DarkFieldFilePath
+        DarkFieldFilePath,
+        RawImageFilePath
     };
 }
