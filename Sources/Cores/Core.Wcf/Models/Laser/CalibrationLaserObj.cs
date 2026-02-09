@@ -84,7 +84,7 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserCIBXTCItem[] CalibrationLaserCIBXTCItems { get; set; } = [];
 
     /// <summary>
-    /// AOD Uniformitiy 校准对象列表
+    /// AOD Uniformity 校准对象列表
     /// </summary>
     public CalibrationLaserAODUniformityItem[] CalibrationLaserAODUniformityItems { get; set; } = [];
 
@@ -385,12 +385,17 @@ public sealed class CalibrationLaserLineOrientationOffsetItem : CalibrationBase
 }
 
 /// <summary>
-/// DOE角度校准
+/// 暗场散光校准
 /// </summary>
 [Serializable]
-public sealed class CalibrationLaserDOEAngle : CalibrationBase
+public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
 {
-    public double DOEAngle { get; set; }
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public CalibrationChirpAODWaveformResult[] ChirpAODWaveformResultList { get; set; }
 }
 
 /// <summary>
@@ -725,4 +730,18 @@ public sealed class CalibrationOpticsINC : CalibrationBase
     /// INC电机位置, **需要下发Optics Motor硬件**
     /// </summary>
     public double? INCMotorAbsoluteValue { get; set; }
+}
+
+/// <summary>
+/// DOE角度校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserDOEAngle : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    public double DOEAngle { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using Core.Models.Enums.Optics;
+using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.Optics;
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
@@ -88,4 +89,40 @@ public sealed class OpticsViewModel(
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
+
+    #region DOE
+
+    /// <summary>
+    /// 获取DOE电机行程范围
+    /// </summary>
+    /// <returns>(DOE起点位置mm，DOE终点位置mm，DOE控制精度mm）</returns>
+    public (double StartPos, double EndPos, double Accuracy) GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        var ret = calibrationOpticsService.GetDOEMotorRouteRange(opticsIlluminationModeEnum);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public double GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        var ret = calibrationOpticsService.GetDOEMotorAbsoluteValue(opticsIlluminationModeEnum);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        var (startPos, endPos, _) = GetDOEMotorRouteRange(opticsIlluminationModeEnum);
+        Guard.IsBetween(ret.Anything, startPos, endPos, "DOE Motor Position");
+
+        return ret.Anything;
+    }
+
+    public void SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        var (startPos, endPos, _) = GetDOEMotorRouteRange(opticsIlluminationModeEnum);
+        Guard.IsBetween(value, startPos, endPos, "DOE Motor Position");
+
+        var ret = calibrationOpticsService.SetDOEMotorAbsoluteValue(opticsIlluminationModeEnum, value);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    #endregion DOE
 }

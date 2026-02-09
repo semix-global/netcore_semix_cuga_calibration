@@ -11,7 +11,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
-using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
 using HalconDotNet;
@@ -910,21 +909,5 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         return SxExecuteRetHelper.CreateSuccess(splitImagesAllChannels);
-    }
-
-    public SxExecuteRet<double> ReadDOECurrentAngle()
-    {
-        var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(CgCommonType.OI_DOE));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
-
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
-    }
-
-    public SxExecuteRet<bool> SetDOEAngle(double angle)
-    {
-        var sxExecuteRet = Invoke(() => Service?.OpticCommonMove(CgCommonType.OI_DOE, angle));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
     }
 }

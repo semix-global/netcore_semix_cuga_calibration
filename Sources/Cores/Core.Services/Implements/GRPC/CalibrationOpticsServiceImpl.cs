@@ -1,4 +1,4 @@
-﻿using Core.Models.Enums.Optics;
+using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
@@ -79,5 +79,20 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        throw new NotImplementedException();
     }
 }

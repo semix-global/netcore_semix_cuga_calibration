@@ -5,6 +5,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
+using MiniExcelLibs;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -12,7 +13,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
-using MiniExcelLibs;
 
 namespace Core.Services.Implements.Mock;
 
@@ -132,7 +132,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         {
             var cibInformation = cibInformations[i];
 
-            results[i] = [..values.Select(t => t.Clone().WithCIBInformation(cibInformation))];
+            results[i] = [.. values.Select(t => t.Clone().WithCIBInformation(cibInformation))];
         }
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);

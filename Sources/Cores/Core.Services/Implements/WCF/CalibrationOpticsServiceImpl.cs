@@ -150,4 +150,46 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
+
+    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        var motorType = opticsIlluminationModeEnum switch
+        {
+            OpticsIlluminationModeEnum.OI => CgCommonType.OI_DOE,
+            OpticsIlluminationModeEnum.NI => CgCommonType.NI_DOE,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+        };
+        var sxExecuteRet = Invoke(() => Service?.GetOpticRange(motorType));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, (0d, 0d, 0d));
+
+        return SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.min, sxExecuteRet.Anything.max, 0.001));
+    }
+
+    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        var motorType = opticsIlluminationModeEnum switch
+        {
+            OpticsIlluminationModeEnum.OI => CgCommonType.OI_DOE,
+            OpticsIlluminationModeEnum.NI => CgCommonType.NI_DOE,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+        };
+        var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(motorType));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        var motorType = opticsIlluminationModeEnum switch
+        {
+            OpticsIlluminationModeEnum.OI => CgCommonType.OI_DOE,
+            OpticsIlluminationModeEnum.NI => CgCommonType.NI_DOE,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+        };
+        var sxExecuteRet = Invoke(() => Service?.OpticCommonMove(motorType, value));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
 }

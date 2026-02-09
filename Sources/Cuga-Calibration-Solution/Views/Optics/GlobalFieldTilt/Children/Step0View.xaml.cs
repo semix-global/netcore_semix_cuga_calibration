@@ -1,4 +1,4 @@
-namespace CugaCalibration.Views.Laser.DOEAngle.Children;
+namespace CugaCalibration.Views.Optics.GlobalFieldTilt.Children;
 
 public partial class Step0View
 {

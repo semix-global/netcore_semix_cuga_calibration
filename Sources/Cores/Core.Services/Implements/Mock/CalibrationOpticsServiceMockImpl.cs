@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
@@ -298,6 +298,21 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 
         _currentOpticsPolarizationModeEnum = opticsPolarizationModeEnum;
 
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        return SxExecuteRetHelper.CreateSuccess((0d, 20d, 1d));
+    }
+
+    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        return SxExecuteRetHelper.CreateSuccess(5d);
+    }
+
+    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 }

@@ -44,9 +44,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public double GetDarkFieldQuality(HImage image)
     {
-        using var scaleImage = image.ScaleImageTo8Bit();
-        // 适应彩色和灰度图像, 方差越大, 说明图像越清晰
-        _algorithm.DarkLaplaceDefinition(scaleImage, out var meanTuple);
+        _algorithm.DarkLaplaceDefinition(image, out var meanTuple);
         using var _ = meanTuple;
 
         return meanTuple.D;
@@ -157,13 +155,13 @@ public sealed class CalibrationAlgorithmServiceImpl(
         ];
 
         _algorithm.StackPointLiner(
-            image, 
+            image,
             fitXTuple,
             yStrehlRatioFitTuple,
-            out var bestYStrehlRatioXPSFList,             
+            out var bestYStrehlRatioXPSFList,
             out var bestYStrehlRatioYPSFList,
             out var bestYStrehlRatioFitXTuple,
-            out var bestYStrehlRatioXPSFFitTuple,                       
+            out var bestYStrehlRatioXPSFFitTuple,
             out var bestYStrehlRatioYPSFFitTuple);
 
         using var _11 = bestYStrehlRatioFitXTuple;

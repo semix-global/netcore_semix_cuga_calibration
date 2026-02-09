@@ -42,6 +42,9 @@ public sealed partial class CIBXTCCacheItem : CalibrationCacheBase
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    private CIBConfiguration _cIBConfiguration = new();
+
+    [ObservableProperty]
     private Point _hazeFindBFMachinePosition;
 
     [ObservableProperty]
