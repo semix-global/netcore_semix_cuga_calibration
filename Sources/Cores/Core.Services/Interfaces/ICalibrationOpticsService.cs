@@ -82,6 +82,7 @@ public interface ICalibrationOpticsService
     SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
 
     #region DOE
+
     /// <summary>
     /// 获取DOE电机行程范围
     /// <param name="opticsIlluminationModeEnum">照明方式</param>

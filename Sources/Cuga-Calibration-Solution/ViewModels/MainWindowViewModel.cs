@@ -277,7 +277,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             }
 
             CalibrationStepIndex = 0;
-            foreach (var (spaceName, name) in selectReviewList)
+            foreach (var (spaceName, _) in selectReviewList)
             {
                 AutoCalibrationIsRunning = false;
                 var abstractCalibrationViewModel = HostApplication.GetRequiredService<CalibrationViewModelBase>(spaceName);
@@ -325,7 +325,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             }
 
             CalibrationStepIndex = 0;
-            foreach (var (spaceName, name) in selectReviewList)
+            foreach (var (spaceName, _) in selectReviewList)
             {
                 AutoCalibrationIsRunning = false;
                 IsEnable = false;
@@ -389,7 +389,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     {
         CalibrationStepList.Clear();
         CalibrationStepIndex = -1;
-        foreach (var (spaceName, name) in selectReviewList)
+        foreach (var (_, name) in selectReviewList)
         {
             var calibrationItem = new CalibrationItemStep { StepName = name };
             CalibrationStepList.Add(calibrationItem);
@@ -432,10 +432,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                         case CalibrationConstantsHelper.Export:
                             if (_dialogWindowProvider.TryShowSaveFilePathDialog(".json", out var exportPath) == true)
                             {
-                                if (await _calibrationCacheProviderService.TryExportAsync(exportPath, CancellationToken.None))
-                                    _dialogWindowProvider.ShowDialog("Export Success.");
+                                var (isSuccess, message) = await _calibrationCacheProviderService.TryExportAsync(exportPath, CancellationToken.None);
+                                if (isSuccess)
+                                    _dialogWindowProvider.ShowDialog(message);
                                 else
-                                    _dialogWindowProvider.ShowDialog("Export Failed.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                                    _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
                             }
 
                             break;

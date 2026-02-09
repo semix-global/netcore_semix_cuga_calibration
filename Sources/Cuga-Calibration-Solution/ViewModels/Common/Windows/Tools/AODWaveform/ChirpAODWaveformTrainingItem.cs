@@ -35,6 +35,9 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 
     [ObservableProperty]
+    private double _p2Coefficient;
+
+    [ObservableProperty]
     private double _p3Coefficient;
 
     [ObservableProperty]
@@ -272,6 +275,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
         ProductivityInformation,
         LaserLightInformation,
         CIBInformation,
+        P2Coefficient,
         P3Coefficient,
         P4Coefficient,
         P5Coefficient,
@@ -282,7 +286,8 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
         BestYStrehlRatioPoint
     };
 
-    public bool Equals(ChirpAODWaveformTrainingItem? other) => ReferenceEquals(this, other) || (P3Coefficient.Equals(other?.P3Coefficient)
+    public bool Equals(ChirpAODWaveformTrainingItem? other) => ReferenceEquals(this, other) || (P2Coefficient.Equals(other?.P2Coefficient)
+                                                                                                && P3Coefficient.Equals(other.P3Coefficient)
                                                                                                 && P4Coefficient.Equals(other.P4Coefficient)
                                                                                                 && P5Coefficient.Equals(other.P5Coefficient)
                                                                                                 && P6Coefficient.Equals(other.P6Coefficient)
@@ -293,5 +298,5 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
     public override bool Equals(object? obj) => obj is ChirpAODWaveformTrainingItem other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(P3Coefficient, P4Coefficient, P5Coefficient, P6Coefficient, P7Coefficient, P8Coefficient, RawImageFilePath);
+    public override int GetHashCode() => HashCode.Combine(P2Coefficient, P3Coefficient, P4Coefficient, P5Coefficient, P6Coefficient, P7Coefficient, P8Coefficient, RawImageFilePath);
 }

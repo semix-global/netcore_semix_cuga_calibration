@@ -103,7 +103,7 @@ public static class StrehlRatioUtility
         var length = datas.Length;
         if (length == 0)
             throw new Exception("unvalid datas !");
-        GetGaussianParameters(datas, out double a, out double b, out double c, out double sigma);
+        GetGaussianParameters(datas, out _, out _, out _, out double sigma);
         var phy_sigma = sigma * scale;
         var phy_sigma_corrected = phy_sigma - cylinder_diameter / 4;
         var phy_sigma_ideal = idealSpot_diameter / 4;

@@ -117,6 +117,9 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private async Task TrainingP2Async(CancellationToken cancellationToken) => await TrainingPAsync(2, Cache.StartP2Coefficient, Cache.StepP2Coefficient, Cache.StopP2Coefficient, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private async Task TrainingP3Async(CancellationToken cancellationToken) => await TrainingPAsync(3, Cache.StartP3Coefficient, Cache.StepP3Coefficient, Cache.StopP3Coefficient, cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -158,6 +161,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     logger.LogHtmlInformation($"P{p}: {val:0.######}", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
                     var currentItem = await CatchImagesAsync(
+                        p == 2 ? val : Cache.P2Coefficient,
                         p == 3 ? val : Cache.P3Coefficient,
                         p == 4 ? val : Cache.P4Coefficient,
                         p == 5 ? val : Cache.P5Coefficient,
@@ -228,6 +232,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     }
 
     private async Task<ChirpAODWaveformTrainingItem> CatchImagesAsync(
+        double p2Coefficient,
         double p3Coefficient,
         double p4Coefficient,
         double p5Coefficient,
@@ -242,6 +247,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             ProductivityInformation = Cache.ProductivityInformation,
             LaserLightInformation = Cache.LaserLightInformation,
             CIBInformation = Cache.CIBInformation,
+            P2Coefficient = p2Coefficient,
             P3Coefficient = p3Coefficient,
             P4Coefficient = p4Coefficient,
             P5Coefficient = p5Coefficient,
@@ -266,6 +272,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+            Cache.GenerateChirpAODWaveformParam.P2CompensationCoefficient = item.P2Coefficient;
             Cache.GenerateChirpAODWaveformParam.P3CompensationCoefficient = item.P3Coefficient;
             Cache.GenerateChirpAODWaveformParam.P4CompensationCoefficient = item.P4Coefficient;
             Cache.GenerateChirpAODWaveformParam.P5CompensationCoefficient = item.P5Coefficient;
@@ -374,6 +381,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     {
         try
         {
+            TrainingP2CancelCommand.Execute(null);
             TrainingP3CancelCommand.Execute(null);
             TrainingP4CancelCommand.Execute(null);
             TrainingP5CancelCommand.Execute(null);

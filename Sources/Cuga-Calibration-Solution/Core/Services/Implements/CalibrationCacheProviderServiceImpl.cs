@@ -130,30 +130,47 @@ public class CalibrationCacheProviderServiceImpl(
         }, cancellationToken);
     }
 
-    public async Task<bool> TryExportAsync(string filePath, CancellationToken cancellationToken)
+    public async Task<(bool IsSuccess, string Message)> TryExportAsync(string filePath, CancellationToken cancellationToken)
     {
         return await Task.Run(async () =>
         {
+            var defaultCaches = new JObject();
+            var recipesCaches = new JObject();
+            var messageBuilder = new StringBuilder();
+            var isOverallSuccess = true;
+
             try
             {
-                var defaultCaches = new JObject();
+                messageBuilder.AppendLine("=== Default Cache Export ===");
                 foreach (var cacheItem in CacheCollector.DefaultCaches)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var data = cacheItem.IsArray
-                        ? cacheProvider.GetOrDefaultArray(cacheItem.Type)
-                        : cacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
+                    try
+                    {
+                        var data = cacheItem.IsArray
+                            ? cacheProvider.GetOrDefaultArray(cacheItem.Type)
+                            : cacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
 
-                    Guard.IsNotNull(data);
+                        Guard.IsNotNull(data);
 
-                    var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
-                    RemoveMetadata(jToken);
+                        var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                        RemoveMetadata(jToken);
 
-                    defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
+                        defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
+
+                        var count = cacheItem.IsArray ? ((Array)data).Length : 1;
+                        messageBuilder.AppendLine($"  [Success] {cacheItem.Type.Name} ({count} items)");
+                    }
+                    catch (Exception ex)
+                    {
+                        isOverallSuccess = false;
+                        messageBuilder.AppendLine($"  [Failed] {cacheItem.Type.Name}: {ex.Message}");
+                        logger.LogError(ex, "Failed to export default cache: {@TypeName}", cacheItem.Type.Name);
+                    }
                 }
 
-                var recipesCaches = new JObject();
+                messageBuilder.AppendLine();
 
                 var originalRecipeDBPath = applicationCookie.CalibrationRecipeDto?.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
                 Guard.IsNotNullOrEmpty(originalRecipeDBPath);
@@ -164,6 +181,7 @@ public class CalibrationCacheProviderServiceImpl(
                     foreach (var recipeInfo in recipes.OrderBy(t => t.RecipeDbName))
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+                        messageBuilder.AppendLine($"=== Recipe: {recipeInfo.RecipeDbName} ===");
 
                         recipeCacheDatabaseProvider.ChangeDatabase(recipeInfo.RecipeNosqlRecipeDbDataSource, cancellationToken);
 
@@ -172,19 +190,32 @@ public class CalibrationCacheProviderServiceImpl(
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            var data = cacheItem.IsArray
-                                ? recipeCacheProvider.GetOrDefaultArray(cacheItem.Type)
-                                : recipeCacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
+                            try
+                            {
+                                var data = cacheItem.IsArray
+                                    ? recipeCacheProvider.GetOrDefaultArray(cacheItem.Type)
+                                    : recipeCacheProvider.GetOrDefault(cacheItem.Type) ?? Activator.CreateInstance(cacheItem.Type);
 
-                            Guard.IsNotNull(data);
+                                Guard.IsNotNull(data);
 
-                            var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
-                            RemoveMetadata(jToken);
+                                var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                                RemoveMetadata(jToken);
 
-                            recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
+                                recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
+
+                                var count = cacheItem.IsArray ? ((Array)data).Length : 1;
+                                messageBuilder.AppendLine($"  [Success] {cacheItem.Type.Name} ({count} items)");
+                            }
+                            catch (Exception ex)
+                            {
+                                isOverallSuccess = false;
+                                messageBuilder.AppendLine($"  [Failed] {cacheItem.Type.Name}: {ex.Message}");
+                                logger.LogError(ex, "Failed to export recipe cache: {@RecipeName} - {@TypeName}", recipeInfo.RecipeDbName, cacheItem.Type.Name);
+                            }
                         }
 
                         recipesCaches[recipeInfo.RecipeDbName] = recipeCaches;
+                        messageBuilder.AppendLine();
                     }
                 }
                 finally
@@ -194,7 +225,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                 var exportData = new JObject
                 {
-                    // [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
+                    [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
                     [nameof(CalibrationDtoBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
                     [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer),
                     [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer)
@@ -202,20 +233,21 @@ public class CalibrationCacheProviderServiceImpl(
 
                 FileHelper.SerializeOperate(exportData, filePath);
 
-                return true;
+                var finalMessage = isOverallSuccess ? "Export completed successfully" : "Export completed with errors";
+                messageBuilder.Insert(0, finalMessage + Environment.NewLine + Environment.NewLine);
+
+                return (isOverallSuccess, messageBuilder.ToString());
             }
             catch (Exception ex)
             {
                 if (ex is OperationCanceledException)
                 {
                     logger.LogWarning("Export Cache Canceled");
-
-                    return false;
+                    return (false, "Export canceled");
                 }
 
                 logger.LogError(ex, "Export Cache Failed");
-
-                return false;
+                return (false, $"Export failed: {ex.Message}");
             }
         }, cancellationToken);
 
@@ -236,6 +268,8 @@ public class CalibrationCacheProviderServiceImpl(
                     obj.Remove(nameof(ObservableValidator.HasErrors));
                     obj.Remove(nameof(CalibrationDtoBase.CreatedUserId));
 
+                    foreach (var property in obj.Properties()) RemoveMetadata(property.Value);
+
                     break;
             }
         }
@@ -245,19 +279,14 @@ public class CalibrationCacheProviderServiceImpl(
     {
         return await Task.Run(async () =>
         {
-            var defaultCacheSuccessCount = 0;
-            var defaultCacheFailCount = 0;
-            var recipeSuccessCount = 0;
-            var recipeFailCount = 0;
-
             var messageBuilder = new StringBuilder();
-            var recipeSuccessBuilder = new StringBuilder();
-            var recipeFailBuilder = new StringBuilder();
+            var isOverallSuccess = true;
 
             try
             {
                 var importData = JObject.Parse(File.ReadAllText(filePath));
 
+                // Import Default Caches
                 messageBuilder.AppendLine("=== Default Cache Import ===");
                 var defaultCaches = GuardUtils.IsNotNullAndAssignableToType<JObject>(importData[nameof(CacheCollector.DefaultCaches)]);
                 foreach (var cacheItem in CacheCollector.DefaultCaches)
@@ -267,8 +296,8 @@ public class CalibrationCacheProviderServiceImpl(
                         if (defaultCaches.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false
                             || jToken.Type == JTokenType.Null)
                         {
-                            defaultCacheFailCount++;
-
+                            isOverallSuccess = false;
+                            messageBuilder.AppendLine($"  [Failed] {cacheItem.Type.Name}: Data not found in file");
                             continue;
                         }
 
@@ -276,23 +305,32 @@ public class CalibrationCacheProviderServiceImpl(
                         var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
                         Guard.IsNotNull(data);
 
-                        if (cacheItem.IsArray) cacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, cancellationToken);
-                        else cacheProvider.Set(data, cacheItem.Type, cancellationToken);
+                        int count;
+                        if (cacheItem.IsArray)
+                        {
+                            var array = ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray();
+                            cacheProvider.SetArray(array, cacheItem.Type, cancellationToken);
+                            count = array.Length;
+                        }
+                        else
+                        {
+                            cacheProvider.Set(data, cacheItem.Type, cancellationToken);
+                            count = 1;
+                        }
 
-                        defaultCacheSuccessCount++;
+                        messageBuilder.AppendLine($"  [Success] {cacheItem.Type.Name} ({count} items)");
                     }
                     catch (Exception ex)
                     {
-                        defaultCacheFailCount++;
+                        isOverallSuccess = false;
+                        messageBuilder.AppendLine($"  [Failed] {cacheItem.Type.Name}: {ex.Message}");
                         logger.LogWarning(ex, "Failed to import default cache: {@TypeName}", cacheItem.Type.Name);
                     }
                 }
 
-                messageBuilder.AppendLine($"✓ Success: {defaultCacheSuccessCount} items");
-                if (defaultCacheFailCount > 0) messageBuilder.AppendLine($"✗ Failed: {defaultCacheFailCount} items");
-
                 messageBuilder.AppendLine();
-                messageBuilder.AppendLine("=== Recipe Cache Import ===");
+
+                // Import Recipe Caches
                 var recipesCaches = GuardUtils.IsNotNullAndAssignableToType<JObject>(importData[nameof(CacheCollector.RecipeCaches)]);
 
                 var originalRecipeDBPath = applicationCookie.CalibrationRecipeDto?.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
@@ -301,6 +339,7 @@ public class CalibrationCacheProviderServiceImpl(
                 {
                     foreach (var (recipeName, recipeCachesToken) in recipesCaches)
                     {
+                        messageBuilder.AppendLine($"=== Recipe: {recipeName} ===");
                         try
                         {
                             Guard.IsNotNull(recipeName);
@@ -324,38 +363,52 @@ public class CalibrationCacheProviderServiceImpl(
 
                             recipeCacheDatabaseProvider.ChangeDatabase(recipe.RecipeNosqlRecipeDbDataSource, cancellationToken);
 
-                            var recipeCacheItemCount = 0;
                             foreach (var cacheItem in CacheCollector.RecipeCaches)
                             {
-                                if (recipeCaches.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false
-                                    || jToken.Type == JTokenType.Null) continue;
-
-                                var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
-                                var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
-                                Guard.IsNotNull(data);
-
-                                if (cacheItem.IsArray)
+                                try
                                 {
-                                    recipeCacheProvider.SetArray(ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray(), cacheItem.Type, cancellationToken);
-                                }
-                                else
-                                {
-                                    recipeCacheProvider.Set(data, cacheItem.Type, cancellationToken);
-                                }
+                                    if (recipeCaches.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false
+                                        || jToken.Type == JTokenType.Null)
+                                    {
+                                        continue;
+                                    }
 
-                                recipeCacheItemCount++;
+                                    var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
+                                    var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                                    Guard.IsNotNull(data);
+
+                                    int count;
+                                    if (cacheItem.IsArray)
+                                    {
+                                        var array = ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray();
+                                        recipeCacheProvider.SetArray(array, cacheItem.Type, cancellationToken);
+                                        count = array.Length;
+                                    }
+                                    else
+                                    {
+                                        recipeCacheProvider.Set(data, cacheItem.Type, cancellationToken);
+                                        count = 1;
+                                    }
+
+                                    var newInfo = isNewRecipe ? " [NEW]" : "";
+                                    messageBuilder.AppendLine($"  [Success] {cacheItem.Type.Name} ({count} items){newInfo}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    isOverallSuccess = false;
+                                    messageBuilder.AppendLine($"  [Failed] {cacheItem.Type.Name}: {ex.Message}");
+                                    logger.LogError(ex, "Failed to import recipe cache: {@RecipeName} - {@TypeName}", recipeName, cacheItem.Type.Name);
+                                }
                             }
-
-                            recipeSuccessCount++;
-                            recipeSuccessBuilder.AppendLine($"  • {recipeName} ({recipeCacheItemCount} items{(isNewRecipe ? ", new" : "")})");
                         }
                         catch (Exception ex)
                         {
-                            recipeFailCount++;
-                            recipeFailBuilder.AppendLine($"  • {recipeName}: {ex.Message}");
-
-                            logger.LogError(ex, "Failed to import recipe cache: {@RecipeName}", recipeName);
+                            isOverallSuccess = false;
+                            messageBuilder.AppendLine($"  [Failed] Recipe Setup: {ex.Message}");
+                            logger.LogError(ex, "Failed to import recipe: {@RecipeName}", recipeName);
                         }
+
+                        messageBuilder.AppendLine();
                     }
                 }
                 finally
@@ -363,39 +416,10 @@ public class CalibrationCacheProviderServiceImpl(
                     recipeCacheDatabaseProvider.ChangeDatabase(originalRecipeDBPath, cancellationToken);
                 }
 
-                if (recipeSuccessCount > 0)
-                {
-                    messageBuilder.AppendLine($"✓ Successfully imported {recipeSuccessCount} recipes:");
-                    messageBuilder.Append(recipeSuccessBuilder);
-                }
+                var finalMessage = isOverallSuccess ? "Import completed successfully" : "Import completed with errors";
+                messageBuilder.Insert(0, finalMessage + Environment.NewLine + Environment.NewLine);
 
-                if (recipeFailCount > 0)
-                {
-                    messageBuilder.AppendLine($"✗ Failed {recipeFailCount} recipes:");
-                    messageBuilder.Append(recipeFailBuilder);
-                }
-
-                messageBuilder.AppendLine();
-                var totalSuccess = defaultCacheSuccessCount + recipeSuccessCount;
-                var totalFail = defaultCacheFailCount + recipeFailCount;
-
-                if (totalFail == 0)
-                {
-                    messageBuilder.AppendLine($"✓ Import completed! {totalSuccess} items imported");
-
-                    return (true, messageBuilder.ToString());
-                }
-
-                if (totalSuccess > 0)
-                {
-                    messageBuilder.AppendLine($"⚠ Partial import success: {totalSuccess} items succeeded, {totalFail} items failed");
-
-                    return (true, messageBuilder.ToString());
-                }
-
-                messageBuilder.AppendLine($"✗ Import failed: All items failed");
-
-                return (false, messageBuilder.ToString());
+                return (isOverallSuccess, messageBuilder.ToString());
             }
             catch (Exception ex)
             {
