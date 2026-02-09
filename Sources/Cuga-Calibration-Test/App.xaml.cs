@@ -3,7 +3,7 @@ using Core.Services;
 using Core.Utilities;
 using CugaCalibration.Core;
 using CugaCalibrationTest.Views;
-using Local.NoSQL.DB.Providers;
+using Local.SQL.Cache.Providers;
 using Local.SQL.DB.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

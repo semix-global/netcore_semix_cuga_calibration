@@ -20,7 +20,7 @@
         <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.5.1-preview3.30-xuan" />
         <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.5.1-preview3.30-xuan" />
 
-        <PackageReference Include="Local.NoSQL.DB.Providers" VersionOverride="2.5.1-preview3.30-xuan" />
+        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.5.1-preview3.30-xuan" />
         <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.5.1-preview3.30-xuan" />
     </ItemGroup>
 

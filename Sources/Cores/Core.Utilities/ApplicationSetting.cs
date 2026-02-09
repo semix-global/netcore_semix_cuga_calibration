@@ -1,4 +1,4 @@
-using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Interfaces;
 using Net.Utilities.Models;
 
 namespace Core.Utilities;

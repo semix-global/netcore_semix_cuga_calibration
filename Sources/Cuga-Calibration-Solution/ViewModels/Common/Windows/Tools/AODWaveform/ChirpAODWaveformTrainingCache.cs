@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 
@@ -133,7 +133,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
+
     private ChirpAODWaveformTrainingItem _selectedItem = new();
 
     [ObservableProperty]
@@ -143,7 +143,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
+
     private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];
 
     partial void OnItemChanged(ChirpAODWaveformTrainingItem? value)

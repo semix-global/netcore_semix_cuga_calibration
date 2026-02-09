@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
+using Local.SQL.Cache.Providers.Bases;
 
 namespace Core.Models.Models.Common.Alignment;
 

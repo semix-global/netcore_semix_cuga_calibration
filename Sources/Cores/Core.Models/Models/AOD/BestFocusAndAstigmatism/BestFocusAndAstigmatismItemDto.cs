@@ -43,7 +43,7 @@ public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
+
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
@@ -180,7 +180,7 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     [ObservableProperty]
     private IReadOnlyList<BestFocusAndAstigmatismChannelItemDto> _channelItems = [];
 
@@ -190,21 +190,21 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     [ObservableProperty]
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     [ObservableProperty]
     private IReadOnlyList<(double Trigger, double XMachinePosition, double Ecs)> _traceBuffers = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     [ObservableProperty]
     private IReadOnlyList<double> _eCSInterpolationBuffers = [];
 
@@ -229,7 +229,7 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
+
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
@@ -242,11 +242,11 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
         ScatterPlotControl.SetTitle(1, "(TraceBuffer)(Y: ecs - X: x position(mm))");
     }
 
-    [LiteDB.BsonIgnore]
+
     public BestFocusAndAstigmatismChannelItemDto? SingleOrDefaultChannelItem(int pmtId, int channelId)
         => ChannelItems.SingleOrDefault(t => t.PmtId == pmtId && t.ChannelId == channelId);
 
-    [LiteDB.BsonIgnore]
+
     public IReadOnlyList<BestFocusAndAstigmatismChannelGroupItemDto> ChannelGroupItemDtoList
         =>
         [
@@ -394,7 +394,7 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableOb
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     [ObservableProperty]
     private IReadOnlyList<(int XPixel, double ECS)> _eCSInterpolationBuffers = [];
 
@@ -460,7 +460,7 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableOb
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
+
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     public BestFocusAndAstigmatismChannelItemDto()

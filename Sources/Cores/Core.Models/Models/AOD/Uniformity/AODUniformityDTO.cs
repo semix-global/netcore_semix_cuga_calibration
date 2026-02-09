@@ -35,7 +35,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
@@ -110,7 +110,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         [property: Newtonsoft.Json.JsonIgnore]
         [property: System.Text.Json.Serialization.JsonIgnore]
         [property: System.Xml.Serialization.XmlIgnore]
-        [property: LiteDB.BsonIgnore]
+
         private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 
         [ObservableProperty]
@@ -239,7 +239,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
-        [LiteDB.BsonIgnore]
+
         public int MappingIndex => (int)Math.Round(LinearSplineMappingIndex, MidpointRounding.AwayFromZero);
 
         [ObservableProperty]
