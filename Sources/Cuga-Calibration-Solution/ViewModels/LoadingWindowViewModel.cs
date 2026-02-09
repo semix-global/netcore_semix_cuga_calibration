@@ -98,50 +98,6 @@ public sealed partial class LoadingWindowViewModel(
                 microscopeViewModel.CgMicroscopeLensToMicroscopeLensInfo
             );
 
-            BsonMapper.Global.RegisterType<ProductivityInformation>(t => new BsonDocument
-            {
-                [nameof(ProductivityInformation.OpticsIlluminationModeEnum)] = (int)t.OpticsIlluminationModeEnum,
-                [nameof(ProductivityInformation.OpticsMagType)] = t.OpticsMagType,
-                [nameof(ProductivityInformation.StageSpeedType)] = t.StageSpeedType
-            },
-                t =>
-                {
-                    try
-                    {
-                        if (t is null || t.IsNull) return ProductivityInformation.Default;
-
-                        var opticsIlluminationMode = t[nameof(ProductivityInformation.OpticsIlluminationModeEnum)];
-                        var opticsIlluminationModeEnum = opticsIlluminationMode.IsNull
-                            ? OpticsIlluminationModeEnum.OI
-                            : (OpticsIlluminationModeEnum)(int)opticsIlluminationMode;
-
-                        var opticsMagType = t[nameof(ProductivityInformation.OpticsMagType)];
-                        var stageSpeedType = t[nameof(ProductivityInformation.StageSpeedType)];
-
-                        return applicationCookie.ProductivityInformations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
-                                                                                                && tt.OpticsMagType == opticsMagType
-                                                                                                && tt.StageSpeedType == stageSpeedType, ProductivityInformation.Default);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "{@Name}: Connecting Failed", nameof(LoadingWindowViewModel));
-                        return ProductivityInformation.Default;
-                    }
-                });
-
-            BsonMapper.Global.RegisterType<MicroscopeLensInformation>(t => new BsonDocument
-            {
-                [nameof(MicroscopeLensInformation.LensCode)] = t.LensCode
-            },
-                t =>
-                {
-                    if (t is null || t.IsNull) return MicroscopeLensInformation.Default;
-
-                    int lensCode = t[nameof(MicroscopeLensInformation.LensCode)];
-
-                    return applicationCookie.MicroscopeLensInformations.SingleOrDefault(tt => tt.LensCode == lensCode, MicroscopeLensInformation.Default);
-                });
-
             contextProvider.Send(() => CloseView(true));
 
             await Task.Delay(300).ConfigureAwait(false);

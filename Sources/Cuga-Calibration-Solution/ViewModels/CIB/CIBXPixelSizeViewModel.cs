@@ -954,7 +954,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         {
             await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-            using var image = TempRawImageFactory.CreateImage(buffer, sizeI);
+            using var image = RawImageFactory.CreateImage(buffer, sizeI);
 
             var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, image, templateId, out var matchPoint, out _, out var score, out _);
 

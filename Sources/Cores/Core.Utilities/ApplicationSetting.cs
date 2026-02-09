@@ -26,11 +26,6 @@ public sealed record ApplicationSetting : BaseApplicationSetting, ICacheConfigur
     public string NosqlDbDataSourceDirectory { get; init; } = string.Empty;
 
     /// <summary>
-    /// 配方LiteDB数据库链接字符串
-    /// </summary>
-    public string NosqlRecipeDbDataSource { get; init; } = string.Empty;
-
-    /// <summary>
     /// 缓存最大存档天数
     /// </summary>
     public int CacheMaxArchiveDays { get; init; }

@@ -25,6 +25,8 @@ using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.IO;
+using Core.Models.Models.Common.Recipe.Info;
+using Local.SQL.Cache.Providers.Helpers;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 
@@ -91,23 +93,16 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
             var resultList = await _sysRecipeInformationService.GetAllAsync().ConfigureAwait(false);
             if (resultList.Count == 0)
             {
-                _cacheDatabaseProvider.ChangeDatabase(_options.Value.NosqlDbDataSource, CancellationToken.None);
+                var calibrationRecipeInfoDto = new CalibrationRecipeInfoDto();
 
-                _recipeCacheProvider.TryGetOrDefault<CalibrationRecipeDto>(out var calibrationRecipeDto);
-
-                var defaultRecipeInfo = calibrationRecipeDto.CalibrationRecipeInfoDto.AdaptTo();
-
-                var backupFilePath = Path.Combine(_options.Value.NosqlDbDataSourceDirectory, defaultRecipeInfo.RecipeDbName, Path.GetFileName(_options.Value.NosqlDbDataSource));
-
-                if (System.IO.File.Exists(backupFilePath) == false)
+                var recipe = new SysRecipeInformationDto
                 {
-                    DirectoryHelper.CreateDirectoryIfNotExists(Path.GetDirectoryName(backupFilePath));
-                    System.IO.File.Copy(_options.Value.NosqlDbDataSource, backupFilePath);
-                }
-
-                defaultRecipeInfo.RecipeNosqlRecipeDbDataSource = backupFilePath;
-
-                await _sysRecipeInformationService.InsertAsync(defaultRecipeInfo).ConfigureAwait(false);
+                    RecipeDbName = calibrationRecipeInfoDto.RecipeName,
+                    DescribeInformation = calibrationRecipeInfoDto.DescribeName,
+                    RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(_options.Value.NosqlDbDataSourceDirectory, calibrationRecipeInfoDto.RecipeName, calibrationRecipeInfoDto.RecipeDbName))
+                };
+                
+                await _sysRecipeInformationService.InsertAsync(recipe, CancellationToken.None).ConfigureAwait(false);
 
                 resultList = await _sysRecipeInformationService.GetAllAsync().ConfigureAwait(false);
             }

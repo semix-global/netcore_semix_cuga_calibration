@@ -32,6 +32,8 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text;
+using Local.SQL.Cache.Providers.Helpers;
+using Net.Utilities.Mapper.Serializations;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -354,7 +356,7 @@ public class CalibrationCacheProviderServiceImpl(
                                 {
                                     RecipeDbName = recipeName,
                                     DescribeInformation = $"Imported on {DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}",
-                                    RecipeNosqlRecipeDbDataSource = Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeName, new CalibrationRecipeInfoDto().RecipeDbName)
+                                    RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeName, new CalibrationRecipeInfoDto().RecipeDbName))
                                 };
 
                                 await sysRecipeInformationService.InsertAsync(recipe, cancellationToken);

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using Net.Utilities.Helpers.Helpers;
 
 namespace Core.Utilities.WPF;
 
@@ -99,7 +100,7 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
 
         var listBox = GuardUtils.IsNotNullAndAssignableToType<ListBox>(sender);
 
-        BindableSelectedItems = ObjectHelper1.ConvertToArray(listBox.SelectedItems, Type);
+        BindableSelectedItems = ObjectHelper.ConvertToArray(listBox.SelectedItems, Type);
 
         GuardUtils.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemsProperty)).UpdateSource();
     }
