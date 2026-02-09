@@ -131,9 +131,9 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        LaserAodDelayItemList = CalibrationStatusService.GetCalibrations<AODDelayDTO>();
+        await LoadDependsAsync(cancellationToken);
 
-        LaserXPixelSizeItemList = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
+        LaserAodDelayItemList = CalibrationStatusService.GetCalibrations<AODDelayDTO>();
 
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();

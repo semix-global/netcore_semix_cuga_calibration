@@ -106,6 +106,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+        await LoadDependsAsync(cancellationToken);
+
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserAutoFocusCache>();

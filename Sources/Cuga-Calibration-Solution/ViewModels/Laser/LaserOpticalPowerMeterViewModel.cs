@@ -79,6 +79,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+        await LoadDependsAsync(cancellationToken);
+
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 

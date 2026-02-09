@@ -107,8 +107,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        await LoadDependsAsync(cancellationToken);
 
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
         LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();
 
         if (CalibratingStatuses.Count == 0)

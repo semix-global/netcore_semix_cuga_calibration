@@ -113,8 +113,9 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        await LoadDependsAsync(cancellationToken);
 
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
         LaserPixelSizes = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LineOrientationOffsetCache>();
