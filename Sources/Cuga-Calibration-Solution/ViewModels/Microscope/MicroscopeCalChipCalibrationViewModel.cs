@@ -120,7 +120,7 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        await LoadDependsAsync(cancellationToken);
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
         Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
