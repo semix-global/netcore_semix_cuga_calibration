@@ -131,7 +131,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         LaserAodDelayItemList = CalibrationStatusService.GetCalibrations<AODDelayDTO>();
 

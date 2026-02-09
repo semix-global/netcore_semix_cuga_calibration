@@ -5,7 +5,7 @@ namespace CugaCalibration.ViewModels.Ads;
 
 public sealed partial class AdsYGainsCalibrationViewModel
 {
-    protected async Task<bool> LoadDependsAsync(CancellationToken cancellationToken)
+    private bool LoadDepends()
     {
         if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
         {

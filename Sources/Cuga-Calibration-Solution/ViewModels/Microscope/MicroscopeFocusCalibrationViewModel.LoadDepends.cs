@@ -7,7 +7,7 @@ namespace CugaCalibration.ViewModels.Microscope;
 
 public sealed partial class MicroscopeFocusCalibrationViewModel
 {
-    protected async Task<bool> LoadDependsAsync(CancellationToken cancellationToken)
+    private bool LoadDepends()
     {
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
         {

@@ -91,7 +91,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
         MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();

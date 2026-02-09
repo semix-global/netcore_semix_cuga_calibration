@@ -149,7 +149,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsXGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsXGainsItemDto>();
@@ -1115,7 +1115,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     };
                     adsXGainsHrpCacheItem.SetX1(GetXValue(adsXGainsItemDto.GetX1P1(), adsXGainsItemDto.GetX1P2(), adsXGainsItemDto.GetX1P3(), speedvalueItem));
                     adsXGainsHrpCacheItem.SetX2(GetXValue(adsXGainsItemDto.GetX2P1(), adsXGainsItemDto.GetX2P2(), adsXGainsItemDto.GetX2P3(), speedvalueItem));
-                    (resultTemp, var transBuffer) = await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken).ConfigureAwait(false);
+                    (resultTemp, _) = await GetHrpAsync(adsXGainsHrpCacheItem, cancellationToken).ConfigureAwait(false);
                     if (adsXGainsItemDto.IsPositive) SynchronizationContextProvider.Send(() => PositiveAdsXGainsHrpCacheItemList.Add(adsXGainsHrpCacheItem));
                     else SynchronizationContextProvider.Send(() => NegativeAdsXGainsHrpCacheItemList.Add(adsXGainsHrpCacheItem));
                     if (resultTemp == false) break;
@@ -1224,8 +1224,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
             var XSpeedList = transBuffer[6];
             var speedChangedList = XSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsXGainsCacheItem.SpeedXValue, 2) > 0.5);
-            var xSpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
-            var xSpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
 
             return (true, transBuffer);
         }
@@ -1267,7 +1265,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 var XSpeedList = transBuffer.Select(t => t.xSpeed).ToList();
                 if (XSpeedList.Count == 0 && XSpeedList is null) return (false, transBuffer);
                 var speedChangedList = XSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsXGainsHrpCacheItem.SpeedXValue, 2) > 0.5);
-                var xSpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
                 var xSpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
 
                 var heightList = transBuffer.Select(t => t.Height).Take(xSpeedEndIndex).ToList();
@@ -1472,7 +1469,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     {
         var sgolayfiltListZ = MovMeanFilter.Smooth(501, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(PonitZ));
 
-        var x = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
+        Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
 
         List<double> smoothZ = [.. sgolayfiltListZ];
         smoothZ = smoothZ.Take(endIndex).ToList();
@@ -1600,7 +1597,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 if (XSpeedList.Count == 0 && XSpeedList is null)
                     return (false, transBuffer);
                 var speedChangedList = XSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsXGainsHrpCacheItem.SpeedXValue, 2) > 0.5);
-                var xSpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
                 var xSpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
 
                 var heightList = transBuffer.Select(t => t.Height).Take(xSpeedEndIndex).ToList();

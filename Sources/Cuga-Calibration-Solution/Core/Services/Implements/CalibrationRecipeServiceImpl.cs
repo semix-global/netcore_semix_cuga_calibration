@@ -81,7 +81,6 @@ public class CalibrationRecipeServiceImpl(
         {
             var originalWaferDto = applicationCookie.CalibrationRecipeDto!.WaferDto;
             originalWaferDto.WaferMapDataToWaferMapCanvasDocument();
-            var waferCenterBrightFieldPosition = originalWaferDto.WaferCenterWaferPosition!.Value;
             var waferDto = originalWaferDto.Clone();
             waferDto.WaferMapDataToWaferMapCanvasDocument();
             var offsetPosition = Point.Origin;

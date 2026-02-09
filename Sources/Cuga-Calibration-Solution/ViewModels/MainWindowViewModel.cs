@@ -277,7 +277,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             }
 
             CalibrationStepIndex = 0;
-            foreach (var (spaceName, name) in selectReviewList)
+            foreach (var (spaceName, _) in selectReviewList)
             {
                 AutoCalibrationIsRunning = false;
                 var abstractCalibrationViewModel = HostApplication.GetRequiredService<CalibrationViewModelBase>(spaceName);
@@ -325,7 +325,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             }
 
             CalibrationStepIndex = 0;
-            foreach (var (spaceName, name) in selectReviewList)
+            foreach (var (spaceName, _) in selectReviewList)
             {
                 AutoCalibrationIsRunning = false;
                 IsEnable = false;
@@ -389,7 +389,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     {
         CalibrationStepList.Clear();
         CalibrationStepIndex = -1;
-        foreach (var (spaceName, name) in selectReviewList)
+        foreach (var (_, name) in selectReviewList)
         {
             var calibrationItem = new CalibrationItemStep { StepName = name };
             CalibrationStepList.Add(calibrationItem);

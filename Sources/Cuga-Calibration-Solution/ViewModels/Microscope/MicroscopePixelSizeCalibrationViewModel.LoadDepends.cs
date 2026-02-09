@@ -9,7 +9,7 @@ namespace CugaCalibration.ViewModels.Microscope;
 
 public sealed partial class MicroscopePixelSizeCalibrationViewModel
 {
-    protected async Task<bool> LoadDependsAsync(CancellationToken cancellationToken)
+    private bool LoadDepends()
     {
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
         {
@@ -35,7 +35,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out var microscopeCalChip, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

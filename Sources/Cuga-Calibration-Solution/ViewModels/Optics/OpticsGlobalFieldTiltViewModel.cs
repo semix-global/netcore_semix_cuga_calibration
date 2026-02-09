@@ -115,7 +115,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
@@ -737,7 +737,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     try
                     {
                         var (
-                            xStrehlRatioPoints,
+                            _,
                             _,
                             _,
                             _,
@@ -747,7 +747,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                             _,
                             _) = CalibrationAlgorithmService.GetXYStrehlRatios(
                             inputDarkFieldImage,
-                            out var xStrehlRatioFitPoints,
+                            out _,
                             out var _,
                             out var _,
                             out _,

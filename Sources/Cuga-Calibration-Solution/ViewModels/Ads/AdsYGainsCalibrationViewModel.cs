@@ -145,7 +145,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsYGainsCache>();
         Calibration = CacheProvider.GetOrDefault<AdsYGainsItemDto>();
@@ -1314,7 +1314,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     adsYGainsHrpCacheItem.SetAdsY1(GetYValue(adsYGainsItemDto.GetY1P1(), adsYGainsItemDto.GetY1P2(), adsYGainsItemDto.GetY1P3(), speedvalueItem));
                     adsYGainsHrpCacheItem.SetAdsY2(GetYValue(adsYGainsItemDto.GetY2P1(), adsYGainsItemDto.GetY2P2(), adsYGainsItemDto.GetY2P3(), speedvalueItem));
                     adsYGainsHrpCacheItem.SetAdsY3(GetYValue(adsYGainsItemDto.GetY3P1(), adsYGainsItemDto.GetY3P2(), adsYGainsItemDto.GetY3P3(), speedvalueItem));
-                    (resultTemp, var transBuffer) = await GetHrpAsync(adsYGainsHrpCacheItem, cancellationToken).ConfigureAwait(false);
+                    (resultTemp, _) = await GetHrpAsync(adsYGainsHrpCacheItem, cancellationToken).ConfigureAwait(false);
                     if (adsYGainsItemDto.IsPositive) SynchronizationContextProvider.Send(() => PositiveAdsYGainsHrpCacheItemList.Add(adsYGainsHrpCacheItem));
                     else SynchronizationContextProvider.Send(() => NegativeAdsYGainsHrpCacheItemList.Add(adsYGainsHrpCacheItem));
                     if (resultTemp == false) break;
@@ -1416,7 +1416,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     {
         var sgolayfiltListZ = MovMeanFilter.Smooth(501, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(PonitZ));
 
-        var x = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
+        MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
 
         List<double> smoothZ = [.. sgolayfiltListZ];
         smoothZ = smoothZ.Take(pointEnd).ToList();
@@ -1501,8 +1501,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
             var YSpeedList = transBuffer[7];
             var speedChangedList = YSpeedList.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / adsYGainsCacheItem.SpeedYValue, 2) > 0.5);
-            var ySpeedStartIndex = Convert.ToInt32(speedChangedList.First().X);
-            var ySpeedEndIndex = Convert.ToInt32(speedChangedList.Last().X);
 
             return (true, transBuffer);
         }
