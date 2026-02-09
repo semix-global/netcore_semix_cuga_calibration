@@ -43,6 +43,9 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private bool _isConfirmBestYStrehlRatioResult = true;
 
     [ObservableProperty]
+    private double _p2Coefficient;
+
+    [ObservableProperty]
     private double _p3Coefficient;
 
     [ObservableProperty]
@@ -59,6 +62,15 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
 
     [ObservableProperty]
     private double _p8Coefficient;
+
+    [ObservableProperty]
+    private double _startP2Coefficient;
+
+    [ObservableProperty]
+    private double _stepP2Coefficient = 0.02;
+
+    [ObservableProperty]
+    private double _stopP2Coefficient;
 
     [ObservableProperty]
     private double _startP3Coefficient;
@@ -138,6 +150,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     {
         if (value is null) return;
 
+        P2Coefficient = value.P2Coefficient;
         P3Coefficient = value.P3Coefficient;
         P4Coefficient = value.P4Coefficient;
         P5Coefficient = value.P5Coefficient;
@@ -159,12 +172,16 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
         CenterECS,
         RangeECS,
         IsConfirmBestYStrehlRatioResult,
+        P2Coefficient,
         P3Coefficient,
         P4Coefficient,
         P5Coefficient,
         P6Coefficient,
         P7Coefficient,
         P8Coefficient,
+        StartP2Coefficient,
+        StepP2Coefficient,
+        StopP2Coefficient,
         StartP3Coefficient,
         StepP3Coefficient,
         StopP3Coefficient,

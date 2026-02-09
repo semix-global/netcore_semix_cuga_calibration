@@ -446,20 +446,20 @@ public sealed class CIBViewModel(
     }
 
     public async Task<RuntimeAfCalibrationResultDTO> RuntimeAfCalibrationAsync(
-       CIBConfiguration cibConfiguration,
-       CIBInformation cibInformation,
-       Point position,
-       LaserLightInformation laserLightInformation,
-       ProductivityInformation productivityInformation,
-       CancellationToken cancellationToken,
-       bool isAppliedDefaultRtfcParam = true,
-       int xXWidthPixel = 800,
-       CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
-       StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
-       string? saveImageFileDirectory = null,
-       Guid? logGuid = null,
-       string? logName = null
-   )
+        CIBConfiguration cibConfiguration,
+        CIBInformation cibInformation,
+        Point position,
+        LaserLightInformation laserLightInformation,
+        ProductivityInformation productivityInformation,
+        CancellationToken cancellationToken,
+        bool isAppliedDefaultRtfcParam = true,
+        int xXWidthPixel = 800,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
+        string? saveImageFileDirectory = null,
+        Guid? logGuid = null,
+        string? logName = null
+    )
     {
         var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
         Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;

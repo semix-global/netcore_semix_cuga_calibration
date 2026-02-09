@@ -140,7 +140,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
         MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
@@ -904,7 +904,7 @@ public sealed partial class LaserLineCentricityCalibrationViewModel(
 
         var pmtYErrorCoordinatess = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.Y)).ToArray();
-        var (polynomialY, rSquaredYError, yPredictedYError) = PolynomialCurve.FitN(
+        var (polynomialY, rSquaredYError, _) = PolynomialCurve.FitN(
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinatess.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinatess.Select(t => t.Y)),
             1);

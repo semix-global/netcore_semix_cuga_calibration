@@ -13,6 +13,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.Relay;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -75,9 +76,11 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private GlobalFieldTiltCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private GlobalFieldTiltDTO[] _calibrations = [];
 
@@ -112,7 +115,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
@@ -521,6 +524,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     selectedReviewItem.IsVerified = true;
                     continue;
                 }
+
                 ;
 
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
@@ -615,6 +619,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     }
                 }
             }
+
             Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
             var result = SelectedReviewItems.All(t => t.IsOk);
@@ -732,7 +737,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     try
                     {
                         var (
-                            xStrehlRatioPoints,
+                            _,
                             _,
                             _,
                             _,
@@ -742,7 +747,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                             _,
                             _) = CalibrationAlgorithmService.GetXYStrehlRatios(
                             inputDarkFieldImage,
-                            out var xStrehlRatioFitPoints,
+                            out _,
                             out var _,
                             out var _,
                             out _,
@@ -754,6 +759,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Get XYStrehlRatio Failed.Error: {ex}"), HtmlLogUniqueId.LoggingHtml());
                     }
+
                     bestFocusChannelItems.XQualitys = [.. xQualityPoints];
                     bestFocusChannelItems.XFitPositions = xFitPoints;
 

@@ -397,8 +397,8 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
             }
 
             SelectPositions[j].Ecs = (int)MotorEcs;
-            var nscMax = nscIntervalVector.Maximum();
-            var nscMin = nscIntervalVector.Minimum();
+            nscIntervalVector.Maximum();
+            nscIntervalVector.Minimum();
         }
     }
 

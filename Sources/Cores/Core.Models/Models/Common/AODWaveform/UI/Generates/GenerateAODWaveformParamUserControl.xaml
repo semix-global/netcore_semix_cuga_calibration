@@ -316,6 +316,11 @@
                           Visibility="{Binding IsVisibleCompensation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <TextBox Text="{Binding P2CompensationCoefficient}"
+                                     hc:TitleElement.Title="P2 Compensation: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
+                                     Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding P3CompensationCoefficient}"
                                      hc:TitleElement.Title="P3 Compensation: "
                                      hc:TitleElement.TitlePlacement="Left"

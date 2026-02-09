@@ -6,7 +6,6 @@
              xmlns:optics="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"

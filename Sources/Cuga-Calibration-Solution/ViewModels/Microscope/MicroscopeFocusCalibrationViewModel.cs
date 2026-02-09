@@ -93,7 +93,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeFocusCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();

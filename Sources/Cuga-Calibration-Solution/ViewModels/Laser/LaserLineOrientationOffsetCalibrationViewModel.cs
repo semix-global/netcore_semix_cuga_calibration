@@ -113,7 +113,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        await LoadDependsAsync(cancellationToken);
+        if (LoadDepends() == false) return false;
 
         MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
         LaserPixelSizes = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();

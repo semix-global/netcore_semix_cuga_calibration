@@ -17,7 +17,6 @@ using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 using HalconDotNet;
-using HAlgorithm;
 using Local.NoSQL.DB.Providers.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
@@ -447,7 +446,6 @@ public sealed partial class MainWindowViewModel(
         }
         catch (Exception)
         {
-            Algorithm _algorithm = new();
             // _algorithm.DarkPixelSizeCalculate(image, new HTuple(10), out var pixelSize);
             pixelY = "error";
         }

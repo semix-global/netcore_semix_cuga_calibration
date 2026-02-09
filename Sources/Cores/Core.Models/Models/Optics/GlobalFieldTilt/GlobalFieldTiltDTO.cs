@@ -294,7 +294,6 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
 
         private void RefreshPlot()
         {
-
             ScatterPlotControl.GetOrAddScatterMarkers(
                 0,
                 "X Quality",
