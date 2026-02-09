@@ -4,5 +4,7 @@ public enum AlgorithmImageQualityTypeEnum
 {
     MTF,
 
-    StrehlRatio
+    StrehlRatio,
+
+    Laplace
 }

@@ -429,21 +429,4 @@ public interface ICalibrationLaserService
         bool isAutoFocus);
 
     #endregion 暗场采图
-
-    #region DOE
-
-    /// <summary>
-    /// 读取DOE当前角度值
-    /// </summary>
-    /// <returns>返回角度</returns>
-    SxExecuteRet<double> ReadDOECurrentAngle();
-
-    /// <summary>
-    /// 下发DOE旋转角度
-    /// </summary>
-    /// <param name="angle">角度</param>
-    /// <returns>返回是否下发成功</returns>
-    SxExecuteRet<bool> SetDOEAngle(double angle);
-
-    #endregion DOE
 }

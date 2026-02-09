@@ -22,7 +22,6 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.DOEAngle;
 using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -30,6 +29,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
@@ -301,16 +301,6 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserDOEAngleDto result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Laser DOE Angle is Empty";
-
-        return isOk;
-    }
-
     #endregion Laser
 
     public static bool IsOk(this CalibrationSetting result, out string errorMessage)
@@ -375,6 +365,16 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
 
         errorMessage = isOk ? string.Empty : "Optics Relay is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this GlobalFieldTiltDTO result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var isOk = result.IsOk;
+        if (isOk == false) errorMessage = "Global Field Tilt is Empty";
 
         return isOk;
     }

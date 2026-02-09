@@ -1,4 +1,4 @@
-﻿using Core.Models.Enums.Optics;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Semix.CoreLib;
 
@@ -80,4 +80,29 @@ public interface ICalibrationOpticsService
     /// <param name="opticsPolarizationModeEnum">偏振</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
+
+    #region DOE
+    /// <summary>
+    /// 获取DOE电机行程范围
+    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// </summary>
+    /// <returns>(DOE起点位置mm，DOE终点位置mm，DOE控制精度mm）</returns>
+    SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
+
+    /// <summary>
+    /// 读取DOE电机绝对值
+    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// </summary>
+    /// <returns>返回电机位置</returns>
+    SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
+
+    /// <summary>
+    /// 下发DOE电机绝对位置
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// <param name="value">电机位置</param>
+    /// <returns>返回是否下发成功</returns>
+    SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
+
+    #endregion DOE
 }
