@@ -122,6 +122,8 @@ public sealed partial class MicroscopeCalChipCalibrationViewModel(
 
         await LoadDependsAsync(cancellationToken);
 
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
         Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDto>();
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();

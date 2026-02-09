@@ -32,6 +32,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
 using System.Text;
+using Core.Utilities.SourceGenerators.Attributes;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -75,9 +76,11 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private GlobalFieldTiltCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private GlobalFieldTiltDTO[] _calibrations = [];
 
