@@ -169,6 +169,7 @@ public class CalibrationCacheProviderServiceImpl(
                         logger.LogError(ex, "Failed to export default cache: {@TypeName}", cacheItem.Type.Name);
                     }
                 }
+
                 messageBuilder.AppendLine();
 
                 var originalRecipeDBPath = applicationCookie.CalibrationRecipeDto?.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
@@ -224,7 +225,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                 var exportData = new JObject
                 {
-                    // [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
+                    [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
                     [nameof(CalibrationDtoBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
                     [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer),
                     [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer)
@@ -266,6 +267,8 @@ public class CalibrationCacheProviderServiceImpl(
                     obj.Remove(nameof(ICacheItem.IsDeleted));
                     obj.Remove(nameof(ObservableValidator.HasErrors));
                     obj.Remove(nameof(CalibrationDtoBase.CreatedUserId));
+
+                    foreach (var property in obj.Properties()) RemoveMetadata(property.Value);
 
                     break;
             }
@@ -324,6 +327,7 @@ public class CalibrationCacheProviderServiceImpl(
                         logger.LogWarning(ex, "Failed to import default cache: {@TypeName}", cacheItem.Type.Name);
                     }
                 }
+
                 messageBuilder.AppendLine();
 
                 // Import Recipe Caches
@@ -366,7 +370,7 @@ public class CalibrationCacheProviderServiceImpl(
                                     if (recipeCaches.TryGetValue(cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false), out var jToken) == false
                                         || jToken.Type == JTokenType.Null)
                                     {
-                                         continue;
+                                        continue;
                                     }
 
                                     var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
@@ -403,6 +407,7 @@ public class CalibrationCacheProviderServiceImpl(
                             messageBuilder.AppendLine($"  [Failed] Recipe Setup: {ex.Message}");
                             logger.LogError(ex, "Failed to import recipe: {@RecipeName}", recipeName);
                         }
+
                         messageBuilder.AppendLine();
                     }
                 }
