@@ -27,11 +27,6 @@ using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Net.Utilities.WPF.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CugaCalibration.ViewModels.Laser;
 

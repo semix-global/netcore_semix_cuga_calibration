@@ -18,11 +18,6 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Net.Utilities.WPF.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CugaCalibration.ViewModels.AOD;
 
@@ -142,7 +137,7 @@ public sealed partial class AODDelayViewModel
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
-        } 
+        }
 
         return true;
     }

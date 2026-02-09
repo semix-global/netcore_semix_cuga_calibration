@@ -13,11 +13,6 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Net.Utilities.WPF.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CugaCalibration.ViewModels.Optics;
 
@@ -107,7 +102,7 @@ public sealed partial class OpticsRelayViewModel
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
-        }  
+        }
 
         return true;
     }

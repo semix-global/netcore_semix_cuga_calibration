@@ -67,8 +67,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 
 namespace CugaCalibration.ViewModels;
 

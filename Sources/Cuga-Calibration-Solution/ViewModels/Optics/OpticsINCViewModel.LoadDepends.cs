@@ -15,11 +15,6 @@ using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Optics.Relay;
 using Net.Utilities.WPF.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CugaCalibration.ViewModels.Optics;
 
@@ -121,7 +116,7 @@ public sealed partial class OpticsINCViewModel
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
-        }  
+        }
 
         return true;
     }

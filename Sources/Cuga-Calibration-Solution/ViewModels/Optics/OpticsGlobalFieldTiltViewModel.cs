@@ -13,6 +13,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.Relay;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Humanizer;
 using Local.NoSQL.DB.Providers.Extensions;
@@ -32,7 +33,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
 using System.Text;
-using Core.Utilities.SourceGenerators.Attributes;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -524,6 +524,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     selectedReviewItem.IsVerified = true;
                     continue;
                 }
+
                 ;
 
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
@@ -618,6 +619,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     }
                 }
             }
+
             Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
             var result = SelectedReviewItems.All(t => t.IsOk);
@@ -757,6 +759,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     {
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Get XYStrehlRatio Failed.Error: {ex}"), HtmlLogUniqueId.LoggingHtml());
                     }
+
                     bestFocusChannelItems.XQualitys = [.. xQualityPoints];
                     bestFocusChannelItems.XFitPositions = xFitPoints;
 

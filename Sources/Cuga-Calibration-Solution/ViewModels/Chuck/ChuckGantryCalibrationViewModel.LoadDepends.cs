@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
@@ -6,19 +5,12 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
-using Local.NoSQL.DB.Providers.Extensions;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.WPF.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CugaCalibration.ViewModels.Chuck;
 
 public sealed partial class ChuckGantryCalibrationViewModel
-{  
+{
     protected async Task<bool> LoadDependsAsync(CancellationToken cancellationToken)
     {
         if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)

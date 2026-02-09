@@ -108,7 +108,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     .Select(info => new CalibrationItemStep { StepName = info.LensName })
             ]);
         });
-  
+
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 
