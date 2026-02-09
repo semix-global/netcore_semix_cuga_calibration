@@ -96,6 +96,8 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+        await LoadDependsAsync(cancellationToken);
+
         MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckCenterAndThetaCache>();

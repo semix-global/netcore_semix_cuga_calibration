@@ -89,6 +89,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+        await LoadDependsAsync(cancellationToken);
+
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
 
         if (CalibratingStatuses.Count == 0)

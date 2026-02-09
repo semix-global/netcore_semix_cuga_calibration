@@ -91,7 +91,10 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+        await LoadDependsAsync(cancellationToken);
+
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
         SynchronizationContextProvider.Send(() =>
         {
@@ -105,7 +108,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                     .Select(info => new CalibrationItemStep { StepName = info.LensName })
             ]);
         });
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+  
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 
