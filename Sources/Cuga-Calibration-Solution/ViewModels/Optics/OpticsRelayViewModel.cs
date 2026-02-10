@@ -9,7 +9,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.Relay;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
-using Local.NoSQL.DB.Providers.Extensions;
+using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Halcon.Extensions;

@@ -1,8 +1,8 @@
 using Core.Models.Extensions;
 using Core.Models.Models;
 using CugaCalibration.Core.Services.Interfaces;
-using Local.NoSQL.DB.Providers.Extensions;
-using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Extensions;
+using Local.SQL.Cache.Providers.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 

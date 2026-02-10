@@ -51,7 +51,6 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDtoBase, ICloneable<
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
@@ -125,21 +124,18 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
     [ObservableProperty]
     private IReadOnlyList<Point> _originPoints = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
     [ObservableProperty]
     private IReadOnlyList<Point> _fitPoints = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
     [ObservableProperty]
     private IReadOnlyList<Item> _bestFocusChannelItems = [];
 
@@ -178,7 +174,6 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
@@ -280,7 +275,6 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
         [property: Newtonsoft.Json.JsonIgnore]
         [property: System.Text.Json.Serialization.JsonIgnore]
         [property: System.Xml.Serialization.XmlIgnore]
-        [property: LiteDB.BsonIgnore]
         private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
         public Item()

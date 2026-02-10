@@ -30,37 +30,37 @@ public sealed partial class MicroscopeCalChipDto : CalibrationDtoBase, ICloneabl
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public MicroscopeCalChipDtoItem CurrentItem => Items.GetOrAdd(CalChipSiteModelEnum, new MicroscopeCalChipDtoItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public MicroscopeCalChipDtoItem ChuckItem => Items.Get(CalChipSiteModelEnum.ChuckModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public MicroscopeCalChipDtoItem DswItem => Items.Get(CalChipSiteModelEnum.DswModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public MicroscopeCalChipDtoItem HazeItem => Items.Get(CalChipSiteModelEnum.HazeModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public MicroscopeCalChipDtoItem ShinyWaferItem => Items.Get(CalChipSiteModelEnum.ShinyWaferModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public MicroscopeCalChipDtoItem UndefineWaferItem => Items.Get(CalChipSiteModelEnum.UndefinedModel);
 
     public double DswToChuckAfEcsValue

@@ -3,7 +3,7 @@ using Core.Services;
 using Core.Utilities;
 using CugaCalibration.Core;
 using CugaCalibration.Views;
-using Local.NoSQL.DB.Providers;
+using Local.SQL.Cache.Providers;
 using Local.SQL.DB.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -38,15 +38,19 @@ public sealed partial class App
         try
         {
             var app = new App();
-            var host = Host.CreateDefaultBuilder(args)
+
+#pragma warning disable IDE0079
+#pragma warning disable IDISP004
+
+            using var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((context, services) =>
                 {
                     services
                         .Configure<ApplicationSetting>(context.Configuration.GetSection(BaseApplicationSetting.AppSetting))
                         .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationSolutionAssemblyMetadata.Version, app, context.HostingEnvironment)
                         .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
-                        .AddNoSQLDBContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                        .AddKeyedNoSQLDBContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                        .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                        .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                         .AddScottPlotServices()
                         .AddCoreService(context.HostingEnvironment)
                         .AddApplication(context.HostingEnvironment);
@@ -61,14 +65,21 @@ public sealed partial class App
                 .Build()
                 .ConfigureHostApplication();
 
+#pragma warning restore IDISP004
+#pragma warning restore IDE0079
+
             app.InitializeComponent();
             app.MainWindow = HostApplication.GetRequiredService<MainWindow>();
             app.MainWindow.Visibility = Visibility.Visible;
+
+            // ReSharper disable AccessToDisposedClosure
+
             app.Startup += async (_, _) =>
             {
                 TaskScheduler.UnobservedTaskException += TaskSchedulerOmUnobservedTaskException; // Task线程内未捕获异常处理事件
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException; // 非UI线程未捕获异常处理事件
                 app.DispatcherUnhandledException += AppOnDispatcherUnhandledException; // UI线程未捕获异常处理事件
+
                 await host.StartAsync().ConfigureAwait(false);
             };
             app.Exit += async (_, _) =>
@@ -76,8 +87,12 @@ public sealed partial class App
                 app.DispatcherUnhandledException -= AppOnDispatcherUnhandledException; // UI线程未捕获异常处理事件
                 TaskScheduler.UnobservedTaskException -= TaskSchedulerOmUnobservedTaskException; // Task线程内未捕获异常处理事件
                 AppDomain.CurrentDomain.UnhandledException -= CurrentDomainOnUnhandledException; // 非UI线程未捕获异常处理事件
+
                 await host.StopAsync().ConfigureAwait(false);
             };
+
+            // ReSharper restore AccessToDisposedClosure
+
             app.Run();
         }
         catch (Exception ex)

@@ -47,7 +47,7 @@ public sealed partial class LaserLineCentricityCache : CalibrationCacheBase
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public LaserLineCentricityCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new LaserLineCentricityCacheItem());
 }
 

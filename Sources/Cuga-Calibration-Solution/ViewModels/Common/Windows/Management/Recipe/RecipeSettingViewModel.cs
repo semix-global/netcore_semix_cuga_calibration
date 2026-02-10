@@ -10,6 +10,7 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
+using Core.Models.Models.Common.Recipe.Info;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
@@ -18,8 +19,9 @@ using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.NoSQL.DB.Providers.Extensions;
-using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Extensions;
+using Local.SQL.Cache.Providers.Helpers;
+using Local.SQL.Cache.Providers.Interfaces;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -293,7 +295,7 @@ public sealed partial class RecipeSettingViewModel(
         {
             var initialDbDirectoryPath = Path.Combine(options.Value.NosqlDbDataSourceDirectory, CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeName);
             var newPath = FolderHelper.GenerateIndexedDirectoryPath(initialDbDirectoryPath, options.Value.NosqlDbDataSourceDirectory);
-            CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource = Path.Combine(newPath, Path.GetFileName(options.Value.NosqlDbDataSource));
+            CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(newPath, new CalibrationRecipeInfoDto().RecipeDbName));
             CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeName = new DirectoryInfo(newPath).Name;
             SelectRecipeDtoBackup = CalibrationRecipeDto.Clone();
             await SaveAsync().ConfigureAwait(false);
@@ -338,7 +340,7 @@ public sealed partial class RecipeSettingViewModel(
                 return;
             }
 
-            recipeInfo.RecipeNosqlRecipeDbDataSource = Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeInfo.RecipeName, recipeInfo.RecipeDbName);
+            recipeInfo.RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeInfo.RecipeName, recipeInfo.RecipeDbName));
 
             // 写入sqlLite数据库
             var recipeInfoEntityDto = recipeInfo.AdaptTo();

@@ -23,7 +23,7 @@ public sealed partial class GlobalFocusOffsetCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public GlobalFocusOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, new GlobalFocusOffsetCacheItem());
 
     /// <summary>

@@ -23,7 +23,7 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public LaserOpticalPowerMeterCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserOpticalPowerMeterCacheItem());
 }
 

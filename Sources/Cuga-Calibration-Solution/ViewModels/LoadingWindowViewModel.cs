@@ -1,12 +1,10 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using CugaCalibration.ViewModels.Common;
-using LiteDB;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -97,50 +95,6 @@ public sealed partial class LoadingWindowViewModel(
                 microscopeLensInformation => microscopeLensInformation.AdaptTo().LensCode,
                 microscopeViewModel.CgMicroscopeLensToMicroscopeLensInfo
             );
-
-            BsonMapper.Global.RegisterType<ProductivityInformation>(t => new BsonDocument
-            {
-                [nameof(ProductivityInformation.OpticsIlluminationModeEnum)] = (int)t.OpticsIlluminationModeEnum,
-                [nameof(ProductivityInformation.OpticsMagType)] = t.OpticsMagType,
-                [nameof(ProductivityInformation.StageSpeedType)] = t.StageSpeedType
-            },
-                t =>
-                {
-                    try
-                    {
-                        if (t is null || t.IsNull) return ProductivityInformation.Default;
-
-                        var opticsIlluminationMode = t[nameof(ProductivityInformation.OpticsIlluminationModeEnum)];
-                        var opticsIlluminationModeEnum = opticsIlluminationMode.IsNull
-                            ? OpticsIlluminationModeEnum.OI
-                            : (OpticsIlluminationModeEnum)(int)opticsIlluminationMode;
-
-                        var opticsMagType = t[nameof(ProductivityInformation.OpticsMagType)];
-                        var stageSpeedType = t[nameof(ProductivityInformation.StageSpeedType)];
-
-                        return applicationCookie.ProductivityInformations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == opticsIlluminationModeEnum
-                                                                                                && tt.OpticsMagType == opticsMagType
-                                                                                                && tt.StageSpeedType == stageSpeedType, ProductivityInformation.Default);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "{@Name}: Connecting Failed", nameof(LoadingWindowViewModel));
-                        return ProductivityInformation.Default;
-                    }
-                });
-
-            BsonMapper.Global.RegisterType<MicroscopeLensInformation>(t => new BsonDocument
-            {
-                [nameof(MicroscopeLensInformation.LensCode)] = t.LensCode
-            },
-                t =>
-                {
-                    if (t is null || t.IsNull) return MicroscopeLensInformation.Default;
-
-                    int lensCode = t[nameof(MicroscopeLensInformation.LensCode)];
-
-                    return applicationCookie.MicroscopeLensInformations.SingleOrDefault(tt => tt.LensCode == lensCode, MicroscopeLensInformation.Default);
-                });
 
             contextProvider.Send(() => CloseView(true));
 

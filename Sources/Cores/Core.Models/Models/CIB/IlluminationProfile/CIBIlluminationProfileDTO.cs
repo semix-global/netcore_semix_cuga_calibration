@@ -49,7 +49,6 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private ConcurrentBag<KeyValuePair<CIBInformation, IScatterPlotControl>> _scatterPlotControls = [];
 
 #pragma warning restore CS0657

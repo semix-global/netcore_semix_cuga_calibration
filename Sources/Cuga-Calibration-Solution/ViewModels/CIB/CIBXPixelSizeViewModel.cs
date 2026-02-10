@@ -14,7 +14,7 @@ using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using HalconDotNet;
-using Local.NoSQL.DB.Providers.Extensions;
+using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -954,7 +954,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         {
             await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-            using var image = TempRawImageFactory.CreateImage(buffer, sizeI);
+            using var image = RawImageFactory.CreateImage(buffer, sizeI);
 
             var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, image, templateId, out var matchPoint, out _, out var score, out _);
 
