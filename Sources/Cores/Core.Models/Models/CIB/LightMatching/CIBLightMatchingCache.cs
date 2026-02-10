@@ -33,13 +33,13 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double CalibratingHazeThreshold => HazeThreshold * CalibratingThresholdRangeRatio;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double CalibratingSilicaSphereThreshold => SilicaSphereThreshold * CalibratingThresholdRangeRatio;
 
     [ObservableProperty]
@@ -55,7 +55,7 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public CIBLightMatchingCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBLightMatchingCacheItem());
 }
 

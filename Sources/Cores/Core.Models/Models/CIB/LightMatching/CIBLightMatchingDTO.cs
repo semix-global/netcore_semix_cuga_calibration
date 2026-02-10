@@ -54,7 +54,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> _scatterPlotControls = [];
 
 #pragma warning restore CS0657
@@ -316,7 +315,7 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double DigitalGainPlusMultiplicativeFactors => DigitalGain + MultiplicativeFactors;
 
     partial void OnHazeItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
@@ -396,7 +395,6 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
         [ObservableProperty]
         [property: System.Text.Json.Serialization.JsonIgnore]
         [property: System.Xml.Serialization.XmlIgnore]
-        [property: LiteDB.BsonIgnore]
         private IReadOnlyList<Point> _histogram = [];
 
         public Item Clone() => new()

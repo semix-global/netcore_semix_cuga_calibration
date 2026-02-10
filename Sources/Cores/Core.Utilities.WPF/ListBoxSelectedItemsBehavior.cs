@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using Microsoft.Xaml.Behaviors;
+using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models;
 using System.Collections;
 using System.ComponentModel;
@@ -99,7 +100,7 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
 
         var listBox = GuardUtils.IsNotNullAndAssignableToType<ListBox>(sender);
 
-        BindableSelectedItems = ObjectHelper1.ConvertToArray(listBox.SelectedItems, Type);
+        BindableSelectedItems = ObjectHelper.ConvertToArray(listBox.SelectedItems, Type);
 
         GuardUtils.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemsProperty)).UpdateSource();
     }

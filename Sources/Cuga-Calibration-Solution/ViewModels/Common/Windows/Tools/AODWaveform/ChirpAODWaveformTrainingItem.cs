@@ -62,14 +62,12 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _xStrehlRatioPoints = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _xStrehlRatioFitPoints = [];
 
     [ObservableProperty]
@@ -79,14 +77,12 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _yStrehlRatioPoints = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _yStrehlRatioFitPoints = [];
 
     [ObservableProperty]
@@ -96,14 +92,12 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _grayPoints = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IReadOnlyList<Point> _grayFitPoints = [];
 
     [ObservableProperty]
@@ -137,21 +131,18 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _xStrehlRatioScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _yStrehlRatioScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    [property: LiteDB.BsonIgnore]
     private IScatterPlotControl _grayScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     public ChirpAODWaveformTrainingItem()

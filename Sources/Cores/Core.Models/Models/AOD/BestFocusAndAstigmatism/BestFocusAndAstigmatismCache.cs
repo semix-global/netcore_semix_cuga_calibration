@@ -32,7 +32,7 @@ public partial class BestFocusAndAstigmatismCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public BestFocusAndAstigmatismCacheItem Item => Items.GetOrAdd((ProductivityInformation, ApodizationModeEnum), new BestFocusAndAstigmatismCacheItem());
 
     [ObservableProperty]

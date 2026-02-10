@@ -29,7 +29,7 @@ public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public GlobalFieldTiltCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new GlobalFieldTiltCacheItem());
 
     [ObservableProperty]

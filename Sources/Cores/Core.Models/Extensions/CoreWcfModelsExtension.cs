@@ -33,7 +33,7 @@ using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
-using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Interfaces;
 using Net.Utilities.WPF.MVVM;
 
 namespace Core.Models.Extensions;

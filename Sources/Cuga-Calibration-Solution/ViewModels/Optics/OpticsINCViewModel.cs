@@ -8,7 +8,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.INC;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.NoSQL.DB.Providers.Extensions;
+using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;

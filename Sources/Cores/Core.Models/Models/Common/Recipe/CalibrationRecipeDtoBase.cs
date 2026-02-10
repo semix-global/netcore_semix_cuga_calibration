@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Local.NoSQL.DB.Providers.Bases;
+using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 
 namespace Core.Models.Models.Common.Recipe;
