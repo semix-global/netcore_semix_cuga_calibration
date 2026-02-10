@@ -61,7 +61,7 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 暗场DOE角度校准对象
     /// </summary>
-    public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
+    public CalibrationLaserDOEAngle[] CalibrationLaserDoeAngle { get; set; } = [];
 
     /// <summary>
     /// CIB MMD 校准对象列表
