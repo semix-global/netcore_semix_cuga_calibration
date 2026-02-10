@@ -9,14 +9,15 @@ using Core.Services;
 using Core.Utilities;
 using CugaCalibration.Core;
 using CugaCalibration.ViewModels.Common;
-using Local.NoSQL.DB.Providers;
-using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.Cache.Providers;
+using Local.SQL.Cache.Providers.Interfaces;
 using Local.SQL.DB.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Helpers.Helpers;
+using Net.Utilities.Mapper.Serializations;
 using Net.Utilities.Models;
 using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.WPF.MVVM;
@@ -36,14 +37,17 @@ namespace CugaCalibrationUnitTest;
 public sealed class CacheSerializationTest : IDisposable
 {
     private static readonly Application Application = new();
+
+    private readonly IHost _host;
     private readonly ProductivityInformation _oiProductivityInfo;
     private readonly ProductivityInformation _niProductivityInfo;
 
     public CacheSerializationTest()
     {
+#pragma warning disable IDE0079
 #pragma warning disable IDISP004
 
-        Host.CreateDefaultBuilder()
+        _host = Host.CreateDefaultBuilder()
             .ConfigureLogging(logging => logging.ClearProviders())
             .ConfigureServices((context, services) =>
             {
@@ -51,8 +55,8 @@ public sealed class CacheSerializationTest : IDisposable
                     .Configure<ApplicationSetting>(context.Configuration.GetSection(BaseApplicationSetting.AppSetting))
                     .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationTestAssemblyMetadata.Version, Application, context.HostingEnvironment)
                     .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
-                    .AddNoSQLDBContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                    .AddKeyedNoSQLDBContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddScottPlotServices()
                     .AddCoreService(context.HostingEnvironment)
                     .AddApplication(context.HostingEnvironment)
@@ -63,6 +67,7 @@ public sealed class CacheSerializationTest : IDisposable
             .ConfigureHostApplication();
 
 #pragma warning restore IDISP004
+#pragma warning restore IDE0079
 
         var microscopeLensInformations = HostApplication.GetRequiredService<MicroscopeViewModel>().GetMicroscopeLensInformations();
         var laserLightInformations = HostApplication.GetRequiredService<LaserViewModel>().GetLaserLightInformations();
@@ -84,6 +89,7 @@ public sealed class CacheSerializationTest : IDisposable
         HostApplication.GetRequiredService<IFreeSql>().Dispose();
         HostApplication.GetRequiredService<ICacheProvider>().Dispose();
         HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey).Dispose();
+        _host.Dispose();
     }
 
     [Fact]

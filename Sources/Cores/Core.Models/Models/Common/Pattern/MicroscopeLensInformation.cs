@@ -27,7 +27,7 @@ public sealed class MicroscopeLensInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public string LensName
     {
         get;
@@ -43,7 +43,7 @@ public sealed class MicroscopeLensInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double ObjectiveMagnification
     {
         get;

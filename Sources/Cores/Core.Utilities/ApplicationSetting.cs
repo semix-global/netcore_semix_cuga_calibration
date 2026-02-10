@@ -1,4 +1,4 @@
-using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Interfaces;
 using Net.Utilities.Models;
 
 namespace Core.Utilities;
@@ -24,11 +24,6 @@ public sealed record ApplicationSetting : BaseApplicationSetting, ICacheConfigur
     /// 配方LiteDB数据库主路径
     /// </summary>
     public string NosqlDbDataSourceDirectory { get; init; } = string.Empty;
-
-    /// <summary>
-    /// 配方LiteDB数据库链接字符串
-    /// </summary>
-    public string NosqlRecipeDbDataSource { get; init; } = string.Empty;
 
     /// <summary>
     /// 缓存最大存档天数

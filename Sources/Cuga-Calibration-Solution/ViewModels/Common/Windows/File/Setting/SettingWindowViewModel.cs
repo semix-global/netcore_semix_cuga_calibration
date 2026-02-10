@@ -3,9 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
-using Local.NoSQL.DB.Providers.Extensions;
-using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Extensions;
+using Local.SQL.Cache.Providers.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.Enums;
@@ -19,7 +20,10 @@ namespace CugaCalibration.ViewModels.Common.Windows.File.Setting;
 public sealed partial class SettingWindowViewModel : ViewModelBase
 {
     private readonly IDialogWindowProvider _dialogWindowProvider;
+
+    [DefaultCache]
     private readonly CalibrationSetting _calibrationSetting;
+
     private readonly ICacheProvider _cacheProvider;
 
     [ObservableProperty]

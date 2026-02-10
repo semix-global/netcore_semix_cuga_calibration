@@ -30,7 +30,7 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public CIBYPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBYPixelSizeCacheItem());
 }
 

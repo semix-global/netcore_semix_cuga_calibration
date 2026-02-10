@@ -26,13 +26,13 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double CalibrateThresholdMin => 1 - CalibrateThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double CalibrateThresholdMax => 1 + CalibrateThreshold;
 
     [ObservableProperty]
@@ -42,13 +42,13 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double ReviewThresholdMin => 1 - ReviewThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
     public ConcurrentBag<KeyValuePair<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>> Items { get; init; } = [];
@@ -56,7 +56,7 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public AODUniformityCacheItem Item => Items.GetOrAdd((ProductivityInformation, LaserLightInformation), new AODUniformityCacheItem());
 }
 

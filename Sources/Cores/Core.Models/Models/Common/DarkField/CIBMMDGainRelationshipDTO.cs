@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Local.NoSQL.DB.Providers.Bases;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 #if NETFRAMEWORK

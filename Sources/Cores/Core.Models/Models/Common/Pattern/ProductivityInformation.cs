@@ -34,7 +34,7 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public string Name
     {
         get;
@@ -62,7 +62,7 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double XPixelSize
     {
         get;
@@ -72,7 +72,7 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double YPixelSize
     {
         get;
@@ -82,7 +82,7 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public int YPixel
     {
         get;
@@ -92,7 +92,7 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public int OriginYPixel
     {
         get;
@@ -105,7 +105,7 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double SampleRate
     {
         get;
@@ -118,7 +118,7 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public double XSpeedValue
     {
         get;

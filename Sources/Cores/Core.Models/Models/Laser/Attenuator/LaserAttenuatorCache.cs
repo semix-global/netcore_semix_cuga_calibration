@@ -19,7 +19,7 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    [LiteDB.BsonIgnore]
+
     public LaserAttenuatorCacheItem Item => Items.GetOrAdd(ProductivityInformation, new LaserAttenuatorCacheItem());
 }
 

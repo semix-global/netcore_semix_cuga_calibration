@@ -12,8 +12,9 @@ using Core.Wcf.Models.Chuck;
 using Core.Wcf.Models.Laser;
 using Core.Wcf.Models.Microscope;
 using CugaCalibration.Core.Services.Interfaces;
-using Local.NoSQL.DB.Providers.Extensions;
-using Local.NoSQL.DB.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Extensions;
+using Local.SQL.Cache.Providers.Helpers;
+using Local.SQL.Cache.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
@@ -26,6 +27,7 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Mapper.Serializations;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -354,7 +356,7 @@ public class CalibrationCacheProviderServiceImpl(
                                 {
                                     RecipeDbName = recipeName,
                                     DescribeInformation = $"Imported on {DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}",
-                                    RecipeNosqlRecipeDbDataSource = Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeName, new CalibrationRecipeInfoDto().RecipeDbName)
+                                    RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeName, new CalibrationRecipeInfoDto().RecipeDbName))
                                 };
 
                                 await sysRecipeInformationService.InsertAsync(recipe, cancellationToken);

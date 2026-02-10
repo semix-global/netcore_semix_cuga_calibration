@@ -7,7 +7,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.NoSQL.DB.Providers.Extensions;
+using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;

@@ -14,7 +14,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
-using Local.NoSQL.DB.Providers.Extensions;
+using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
