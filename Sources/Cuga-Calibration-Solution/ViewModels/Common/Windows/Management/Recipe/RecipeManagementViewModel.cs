@@ -6,9 +6,11 @@ using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Recipe;
+using Core.Models.Models.Common.Recipe.Info;
 using Core.Models.Models.Setting;
 using Core.Utilities;
 using Local.SQL.Cache.Providers.Extensions;
+using Local.SQL.Cache.Providers.Helpers;
 using Local.SQL.Cache.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
@@ -25,8 +27,6 @@ using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.IO;
-using Core.Models.Models.Common.Recipe.Info;
-using Local.SQL.Cache.Providers.Helpers;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
 
@@ -101,7 +101,7 @@ public sealed partial class RecipeManagementViewModel : ViewModelBase, IRecipien
                     DescribeInformation = calibrationRecipeInfoDto.DescribeName,
                     RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(_options.Value.NosqlDbDataSourceDirectory, calibrationRecipeInfoDto.RecipeName, calibrationRecipeInfoDto.RecipeDbName))
                 };
-                
+
                 await _sysRecipeInformationService.InsertAsync(recipe, CancellationToken.None).ConfigureAwait(false);
 
                 resultList = await _sysRecipeInformationService.GetAllAsync().ConfigureAwait(false);

@@ -110,7 +110,6 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         [property: Newtonsoft.Json.JsonIgnore]
         [property: System.Text.Json.Serialization.JsonIgnore]
         [property: System.Xml.Serialization.XmlIgnore]
-
         private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
 
         [ObservableProperty]

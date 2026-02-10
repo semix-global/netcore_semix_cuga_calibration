@@ -160,7 +160,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     // ReSharper disable UnusedParameterInPartialMethod

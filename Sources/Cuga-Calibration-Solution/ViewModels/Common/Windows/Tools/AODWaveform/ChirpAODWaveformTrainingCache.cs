@@ -133,7 +133,6 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-
     private ChirpAODWaveformTrainingItem _selectedItem = new();
 
     [ObservableProperty]
@@ -143,7 +142,6 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-
     private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];
 
     partial void OnItemChanged(ChirpAODWaveformTrainingItem? value)

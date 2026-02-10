@@ -54,7 +54,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-
     private ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> _scatterPlotControls = [];
 
 #pragma warning restore CS0657
@@ -396,7 +395,6 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
         [ObservableProperty]
         [property: System.Text.Json.Serialization.JsonIgnore]
         [property: System.Xml.Serialization.XmlIgnore]
-
         private IReadOnlyList<Point> _histogram = [];
 
         public Item Clone() => new()
