@@ -20,10 +20,10 @@ namespace CugaCalibration.ViewModels.Common.Windows.File.Setting;
 public sealed partial class SettingWindowViewModel : ViewModelBase
 {
     private readonly IDialogWindowProvider _dialogWindowProvider;
-    
+
     [DefaultCache]
     private readonly CalibrationSetting _calibrationSetting;
-    
+
     private readonly ICacheProvider _cacheProvider;
 
     [ObservableProperty]
