@@ -1,12 +1,14 @@
 using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.CIB;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Semix.WcfTransfer.DTO;
 
@@ -16,8 +18,7 @@ namespace Core.Models.Models.Common.DarkField;
 
 public partial class DarkFieldRawScanImageDTO :
     ObservableObject,
-    ICloneable<DarkFieldRawScanImageDTO>,
-    IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldRawScanImageDTO>
+    ICloneable<DarkFieldRawScanImageDTO>
 {
     [ObservableProperty]
     private int _pMTId;
@@ -33,6 +34,9 @@ public partial class DarkFieldRawScanImageDTO :
 
     [ObservableProperty]
     private int _height;
+
+    [ObservableProperty]
+    private CIBProfileModeEnum _cIBProfileModeEnum;
 
     partial void OnRawImageFilePathChanged(string value)
     {
@@ -51,10 +55,11 @@ public partial class DarkFieldRawScanImageDTO :
         ChannelId = ChannelId,
         Width = Width,
         Height = Height,
-        RawImageFilePath = RawImageFilePath
+        RawImageFilePath = RawImageFilePath,
+        CIBProfileModeEnum = CIBProfileModeEnum
     };
 
-    public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj)
+    public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBProfileModeEnum cibProfileModeEnum)
     {
         Guard.IsNotNull(obj);
 
@@ -63,6 +68,8 @@ public partial class DarkFieldRawScanImageDTO :
         Width = obj.ImgWidth;
         Height = obj.ImgHeight;
         RawImageFilePath = obj.Url;
+
+        CIBProfileModeEnum = cibProfileModeEnum;
 
         return this;
     }
@@ -73,7 +80,6 @@ public partial class DarkFieldRawScanImageDTO :
 public sealed class DarkFieldImageDTO :
     DarkFieldRawScanImageDTO,
     ICloneable<DarkFieldImageDTO>,
-    IAdaptIn<M2CImgSysCollectImgDTO, DarkFieldImageDTO>,
     IAdaptIn<DarkFieldRawScanImageDTO, DarkFieldImageDTO>,
     IDisposable
 {
@@ -88,10 +94,11 @@ public sealed class DarkFieldImageDTO :
         Width = Width,
         Height = Height,
         RawImageFilePath = RawImageFilePath,
+        CIBProfileModeEnum = CIBProfileModeEnum,
         Image = Image.Copy()
     };
 
-    public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj)
+    public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBProfileModeEnum cibProfileModeEnum)
     {
         Guard.IsNotNull(obj);
 
@@ -100,6 +107,8 @@ public sealed class DarkFieldImageDTO :
         Width = obj.ImgWidth;
         Height = obj.ImgHeight;
         RawImageFilePath = obj.Url;
+
+        CIBProfileModeEnum = cibProfileModeEnum;
 
         return this;
     }
@@ -113,6 +122,7 @@ public sealed class DarkFieldImageDTO :
         Width = obj.Width;
         Height = obj.Height;
         RawImageFilePath = obj.RawImageFilePath;
+        CIBProfileModeEnum = obj.CIBProfileModeEnum;
 
         return this;
     }

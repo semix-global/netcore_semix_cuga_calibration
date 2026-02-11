@@ -548,7 +548,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         {
             var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
             var image = RawImageFactory.CreateImage(bytes);
-            result.Add(new DarkFieldImageDTO { Image = image }.AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldImageDTO { Image = image }.AdaptIn(m2CImgSysCollectImgDto, CIBProfileModeEnum.PMTVoltage));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -592,7 +592,7 @@ public sealed partial class CalibrationLaserServiceImpl(
         {
             var bytes = File.ReadAllBytes(m2CImgSysCollectImgDto.Url);
             var image = RawImageFactory.CreateImage(bytes);
-            result.Add(new DarkFieldImageDTO { Image = image }.AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldImageDTO { Image = image }.AdaptIn(m2CImgSysCollectImgDto, CIBProfileModeEnum.PMTVoltage));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -652,7 +652,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            result.Add(new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto, CIBProfileModeEnum.PMTVoltage));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
@@ -719,7 +719,7 @@ public sealed partial class CalibrationLaserServiceImpl(
 
         foreach (var m2CImgSysCollectImgDto in darkFieldImagesRet.Anything)
         {
-            result.Add(new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto));
+            result.Add(new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDto, CIBProfileModeEnum.PMTVoltage));
         }
 
         return SxExecuteRetHelper.CreateSuccess(result);
