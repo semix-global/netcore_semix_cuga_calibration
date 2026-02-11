@@ -4,6 +4,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
@@ -313,6 +314,27 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 
     public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
     {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val)
+    {
+        Thread.Sleep(100);
+
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 }

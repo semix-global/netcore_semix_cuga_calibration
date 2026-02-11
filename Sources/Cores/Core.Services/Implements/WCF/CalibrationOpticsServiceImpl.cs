@@ -192,4 +192,31 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
+
+    public SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetPolarization(type.ToCgPolarizationTypeEnum()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetNDF(ch.ToCgChannelTypeEnum(), type.ToCgNDFTypeEnum()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetNDFRotary(ch.ToCgChannelTypeEnum(), val));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
 }
