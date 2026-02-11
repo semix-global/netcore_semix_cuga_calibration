@@ -56,29 +56,62 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
 
     public SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, [.. cibInformations.Select(t => (enable ? 0x00_01_00_00 : 0x00_00_00_00, t.PMTId, t.ChannelId))]));
+        var setValue = enable ? 0x00_01_00_00 : 0x00_00_00_00;
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, [.. cibInformations.Select(t => (setValue, t.PMTId, t.ChannelId))]));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+        var sxExecuteRetReadCIBReg = Invoke(() => Service?.ReadCIBReg(PMTRegEnum.DcAgc));
+        if (sxExecuteRetReadCIBReg.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetReadCIBReg.Msg, false);
+
+        foreach (var cibInformation in cibInformations)
+        {
+            var cibReg = sxExecuteRetReadCIBReg.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+
+            if (cibReg.Value != setValue) return SxExecuteRetHelper.CreateError($"Set AGC {(enable ? "Enable" : "Disable")} Failed for PMTId:{cibInformation.PMTId} ChannelId:{cibInformation.ChannelId}", false);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.CibProfile, [.. cibInformations.Select(t => (cibProfileModeEnum.ToCIBProfileMode(), t.PMTId, t.ChannelId))]));
+        var setValue = cibProfileModeEnum.ToCIBProfileMode();
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.CibProfile, [.. cibInformations.Select(t => (setValue, t.PMTId, t.ChannelId))]));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+        var sxExecuteRetReadCIBReg = Invoke(() => Service?.ReadCIBReg(PMTRegEnum.CibProfile));
+        if (sxExecuteRetReadCIBReg.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetReadCIBReg.Msg, false);
+
+        foreach (var cibInformation in cibInformations)
+        {
+            var cibReg = sxExecuteRetReadCIBReg.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+
+            if (cibReg.Value != setValue) return SxExecuteRetHelper.CreateError($"Set Profile Mode {cibProfileModeEnum} Failed for PMTId:{cibInformation.PMTId} ChannelId:{cibInformation.ChannelId}", false);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.L0k, [.. cibInformations.Select(t => (enable ? 1 : 0, t.PMTId, t.ChannelId))]));
+        var setValue = enable ? 1 : 0;
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.L0k, [.. cibInformations.Select(t => (setValue, t.PMTId, t.ChannelId))]));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+        var sxExecuteRetReadCIBReg = Invoke(() => Service?.ReadCIBReg(PMTRegEnum.L0k));
+        if (sxExecuteRetReadCIBReg.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetReadCIBReg.Msg, false);
+
+        foreach (var cibInformation in cibInformations)
+        {
+            var cibReg = sxExecuteRetReadCIBReg.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+
+            if (cibReg.Value != setValue) return SxExecuteRetHelper.CreateError($"Set L0K {(enable ? "Enable" : "Disable")} Failed for PMTId:{cibInformation.PMTId} ChannelId:{cibInformation.ChannelId}", false);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
@@ -90,43 +123,12 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableMarkMode(IReadOnlyList<CIBInformation> cibInformations, bool enable)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.MarkMode, [.. cibInformations.Select(t => (enable ? 1 : 0, t.PMTId, t.ChannelId))]));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
     {
-        var logGainMul128Bytes = new List<byte>();
-        foreach (var compArray in logGainMul128U12Bits
-                     .Select(t => (int)t)
-                     .Select(BitConverter.GetBytes))
-        {
-            logGainMul128Bytes.Add(0);
-            logGainMul128Bytes.Add(0);
-            logGainMul128Bytes.Add(compArray[1]);
-            logGainMul128Bytes.Add(compArray[0]);
-        }
-
-        var gainS16BitBytes = new List<byte>();
-        foreach (var compArray in gainS16Bits
-                     .Select(t => (int)t)
-                     .Select(BitConverter.GetBytes))
-        {
-            gainS16BitBytes.Add(0);
-            gainS16BitBytes.Add(0);
-            gainS16BitBytes.Add(compArray[1]);
-            gainS16BitBytes.Add(compArray[0]);
-        }
-
-        var sxExecuteRet = Invoke(() => Service?.SendCIBWave(logGainMul128Bytes, CgCIBWaveType.Sense, cibInformation.PMTId, cibInformation.ChannelId));
+        var sxExecuteRet = Invoke(() => Service?.SendCIBWave([..logGainMul128U12Bits], CgCIBWaveType.Sense, cibInformation.PMTId, cibInformation.ChannelId));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        sxExecuteRet = Invoke(() => Service?.SendCIBWave(gainS16BitBytes, CgCIBWaveType.IG, cibInformation.PMTId, cibInformation.ChannelId));
+        sxExecuteRet = Invoke(() => Service?.SendCIBWave([..gainS16Bits], CgCIBWaveType.IG, cibInformation.PMTId, cibInformation.ChannelId));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
         sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.MaxGain, [(Convert.ToInt32(logGainMul128U12Bits.Max()), cibInformation.PMTId, cibInformation.ChannelId)]));

@@ -74,13 +74,6 @@ public sealed class CIBViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableMarkMode(IReadOnlyList<CIBInformation> cibInformations, bool enable)
-    {
-        var ret = calibrationCIBService.ToggleEnableMarkMode(cibInformations, enable);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
     public void SetCIBConfiguration(IReadOnlyList<CIBInformation> cibInformations, CIBConfiguration cIbConfiguration)
     {
         ToggleEnableAGC(cibInformations, cIbConfiguration.IsAutoGainControl);

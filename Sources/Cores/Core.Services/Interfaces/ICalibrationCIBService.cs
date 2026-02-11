@@ -54,14 +54,6 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain);
 
     /// <summary>
-    /// 切换Mark模式
-    /// </summary>
-    /// <param name="cibInformations">CIB信息列表</param>
-    /// <param name="enable">是否Mark模式</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableMarkMode(IReadOnlyList<CIBInformation> cibInformations, bool enable);
-
-    /// <summary>
     /// 设置MMD
     /// </summary>
     /// <param name="cibInformation">CIB信息</param>
