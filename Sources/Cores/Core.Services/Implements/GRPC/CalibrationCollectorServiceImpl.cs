@@ -1,6 +1,7 @@
-﻿using Core.Models.Enums.Collector;
+using Core.Models.Enums.Collector;
 using Core.Models.Helper;
 using Core.Services.Interfaces;
+using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;

@@ -95,4 +95,21 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
     {
         throw new NotImplementedException();
     }
+
+    public SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val)
+    {
+        throw new NotImplementedException();
+    }
 }
