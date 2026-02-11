@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.Laser.LineCentricity.Children;
+namespace CugaCalibration.Views.CIB.LineCentricity.Children;
 
 public sealed partial class Step1View
 {

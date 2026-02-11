@@ -8,6 +8,7 @@ using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
@@ -15,7 +16,6 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -118,7 +118,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private CIBYPixelSizeDTO[] _laserPixelSizeItems = [];
 
     [ObservableProperty]
-    private LaserLineCentricityItemDto[] _laserLineCentricityItems = [];
+    private CIBLineCentricityDTO[] _laserLineCentricityItems = [];
 
     [ObservableProperty]
     private CIBXPixelSizeDTO[] _cIBXPixelSizeItems = [];
@@ -143,7 +143,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         LaserPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
 
-        LaserLineCentricityItems = CalibrationStatusService.GetCalibrations<LaserLineCentricityItemDto>();
+        LaserLineCentricityItems = CalibrationStatusService.GetCalibrations<CIBLineCentricityDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckStageMapDto>();
@@ -487,7 +487,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         Cache.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
         Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = HostEnvironment.IsDevelopment()
-            ? laserLineCentricityItemDto.DarkMachineCenterPosition
+            ? laserLineCentricityItemDto.DFMachineCenterPosition
             : centerPosition;
         return true;
     }
@@ -558,9 +558,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         ResultChuckStageMapDto.CalibrationDarkFieldStageMap = new StageMapDto(Cache.RowNumber, Cache.ColumnNumber, Cache.RowCellHeight, Cache.ColumnCellWidth);
         ResultChuckStageMapDto.CalibrationDarkFieldStageMap.GenerateByCenterPosition(
             HostEnvironment.IsDevelopment()
-                ? laserLineCentricityItemDto.DarkMachineCenterPosition
+                ? laserLineCentricityItemDto.DFMachineCenterPosition
                 : Cache.DarkFieldFirstStageMapPosition,
-            laserLineCentricityItemDto.DarkMachineCenterPosition,
+            laserLineCentricityItemDto.DFMachineCenterPosition,
             Cache.WaferDiameter);
 
         OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationDarkFieldStageMap));

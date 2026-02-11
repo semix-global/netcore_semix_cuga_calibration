@@ -8,14 +8,13 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.AOD.BestFocusAndAstigmatism;
 using Core.Models.Models.AOD.Delay;
+using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Laser.LineCentricity;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Extensions;
@@ -162,18 +161,13 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
                 })
         ];
 
-        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
-
-        if (ApplicationCookie.CIBInformations.Contains(Cache.CIBInformation) == false) Cache.CIBInformation = ApplicationCookie.CIBInformations[0];
-
         if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
 
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
 
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
-
-        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
         return true;
     }
@@ -682,9 +676,8 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
     {
         var (generateChirpAODWaveformParam, chirpAODWaveformProfiles) = GenerateAndSendChirpAodWave(spectralDensity, cancellationToken);
 
-        var isAppliedLineCentricityResult = CacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>()
+        var isAppliedLineCentricityResult = CacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>()
             .SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation
-                                  && t.OpticsIlluminationMode == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                   && t is { PmtId: CalibrationConstantsHelper.MainPmtId, IsOk: true }) is not null;
 
         var time = Cache.Item.ImageCollectionConfiguration.XUniformTime + 10d;

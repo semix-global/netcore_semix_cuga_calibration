@@ -1,6 +1,5 @@
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
-using Cuga.Data.DataStruct.Optics;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;

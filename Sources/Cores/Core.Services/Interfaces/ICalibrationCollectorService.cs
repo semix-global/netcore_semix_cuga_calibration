@@ -1,5 +1,4 @@
 using Core.Models.Enums.Collector;
-using Cuga.Data.DataStruct.Optics;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;

@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.AODWaveform;
@@ -13,7 +14,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Laser.LineCentricity;
+
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
@@ -901,13 +902,12 @@ public sealed class LaserViewModel(
         var pmtEnableItems = pmtIdList.Where(t => t.Enabled).ToList();
         if (isAppliedLineCentricityResult)
         {
-            var lineCentricityItemDtos = cacheProvider.GetOrDefaultArray<LaserLineCentricityItemDto>();
+            var lineCentricityItemDtos = cacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
             Guard.IsTrue(pmtEnableItems.All(t => lineCentricityItemDtos.SingleOrDefault(o => o.PmtId == t.Id
                                                                                              && o.ProductivityInformation == productivityInformation
-                                                                                             && o.OpticsIlluminationMode == productivityInformation.OpticsIlluminationModeEnum
                                                                                              && o.IsOk) != null), nameof(lineCentricityItemDtos)
             );
-            lineCentricityOffsets = applicationCookieService.GetLineCentricityMachineOffsetList(lineCentricityItemDtos, productivityInformation.OpticsIlluminationModeEnum, productivityInformation);
+            lineCentricityOffsets = applicationCookieService.GetLineCentricityMachineOffsetList(lineCentricityItemDtos, productivityInformation);
         }
 
         foreach (var (pmt, yOffset) in pmtEnableItems

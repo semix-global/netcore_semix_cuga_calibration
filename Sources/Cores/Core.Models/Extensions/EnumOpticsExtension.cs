@@ -164,7 +164,7 @@ public static class EnumOpticsExtension
         };
     }
 
-   extension(OpticsNDFTypeEnum @this)
+    extension(OpticsNDFTypeEnum @this)
     {
         public CgNDFTypeEnum ToCgNDFTypeEnum() => @this switch
         {

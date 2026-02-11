@@ -8,8 +8,9 @@
              xmlns:childrenView="clr-namespace:CugaCalibration.Views.Laser.LineOrientationOffset.Children"
              xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:cib="clr-namespace:CugaCalibration.ViewModels.CIB"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserLineCentricityCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=cib:CIBLineCentricityViewModel}"
              d:DesignHeight="900"
              d:DesignWidth="1920"
              mc:Ignorable="d">

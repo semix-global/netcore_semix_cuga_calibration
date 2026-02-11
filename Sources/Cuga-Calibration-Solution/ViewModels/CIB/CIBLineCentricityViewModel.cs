@@ -3,30 +3,37 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Chuck.CenterAndTheta;
+using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Core.Models.Models.Microscope.PixelSize;
+using CugaCalibration.Core.Services.Interfaces;
+using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Extensions;
+using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
+using System.IO;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.CIB;
 
-[IOCAppService(ServiceType = typeof(CIBYPixelSizeViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(CIBLineCentricityViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService applicationCookieService) : CalibrationViewModelBase
 {
     #region 属性
 
@@ -40,7 +47,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
         new() { StepName = "Image Param" },
         new() { StepName = "Alignment" },
         new() { StepName = "Find Position" },
-        new() { StepName = "Y Pixel Size" }
+        new() { StepName = "Line Centricity" }
     ];
 
     #region 界面相关
@@ -48,7 +55,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBYPixelSizeDTO> _calibratingItems = [];
+    private IReadOnlyList<CIBLineCentricityDTO> _calibratingItems = [];
 
     [ObservableProperty]
     private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
@@ -58,10 +65,10 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<CIBYPixelSizeDTO> _reviews = [];
+    private IReadOnlyList<CIBLineCentricityDTO> _reviews = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBYPixelSizeDTO> _selectedReviewItems = [];
+    private IReadOnlyList<CIBLineCentricityDTO> _selectedReviewItems = [];
 
     #endregion Review
 
@@ -69,19 +76,26 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
 
     #region 缓存
 
-    [RecipeCache]
     [ObservableProperty]
-    private CIBYPixelSizeCache _cache = new();
+    private CIBLineCentricityCache _cache = new();
 
-    [DefaultCache]
     [ObservableProperty]
-    private CIBYPixelSizeDTO[] _calibrations = [];
+    private CIBLineCentricityDTO[] _calibrations = [];
 
     [ObservableProperty]
     private MicroscopeCalChipDto _microscopeCalChip = new();
 
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
+    private ChuckCenterAndThetaItemDto _chuckCenter = new();
+
+    [ObservableProperty]
+    private CIBYPixelSizeDTO[] _laserPixelSizes = [];
+
+    [ObservableProperty]
+    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
@@ -91,6 +105,9 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
 
     [ObservableProperty]
     private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+
+    [ObservableProperty]
+    private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
 
     [ObservableProperty]
     private AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowBrightFieldViewModel>();
@@ -110,22 +127,21 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
-
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBYPixelSizeCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineCentricityCache>();
+
+        Calibrations = CacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
 
         if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
+            CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
         Calibrations =
         [
             .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibratingStatuses
@@ -359,15 +375,80 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-            Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.Item.FindBFMachinePosition
+                Cache.ProductivityInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
+                Cache.Item.ImageWidth
             }), HtmlLogUniqueId.LoggingHtml());
+
+            Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+
+            Cache.Item.BrightTemplateFilePath = Path.Combine(TemplateFileDirectory, Cache.Item.MicroscopeLensInformation.LensName, Guid.NewGuid().ToString());
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum);
+            if (generateTemplateHigh == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
+
+            Cache.Item.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.BrightTemplateFilePath);
+
+            var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Bright,
+                StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
+                Cache.Item.CIBInformation,
+                Cache.Item.ImageWidth,
+                (false, Cache.CalChipSiteModelEnum),
+                (false, Cache.Item.CIBConfiguration),
+                (false, Cache.Item.LaserLightInformation),
+                false,
+                cancellationToken);
+
+            using var _ = darkFieldImageDto;
+
+            var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.Item.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}.jpg");
+            Cache.Item.TemplateFilePath = $"{originImageFilePath}_Template";
+            darkFieldImageDto.Image.Save(originImageFilePath);
+
+            Guard.IsTrue(Cache.AlgorithmTemplateTypeEnum != AlgorithmTemplateTypeEnum.Projection);
+
+            CreateDarkImageTemplateWindowViewModel.ImageFilePath = originImageFilePath;
+            CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
+            CreateDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            CreateDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum = Cache.AlgorithmTemplateSizeEnum;
+
+            Guard.IsTrue(WindowManagerService.ShowDialog(CreateDarkImageTemplateWindowViewModel) == true, nameof(CreateDarkImageTemplateWindowViewModel));
+
+            Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);
+
+            Logger.LogHtmlInformation("TemplateImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache.AlgorithmTemplateTypeEnum,
+                Cache.AlgorithmTemplateSizeEnum,
+                Cache.Item.FindBFMachinePosition,
+                BFTemplateFilePath = Cache.Item.BrightTemplateFilePath,
+                DFTemplateFilePath = Cache.Item.TemplateFilePath,
+                BFHtmlTab = new HtmlTab(new
+                {
+                    TemplateImage = new HtmlImage(Cache.Item.BrightTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                }),
+                DFHtmlTab = new HtmlTab(new
+                {
+                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -389,6 +470,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth,
+                Cache.PmtInterval,
                 Cache.AlgorithmTemplateTypeEnum,
                 Cache.AlgorithmTemplateSizeEnum,
                 Cache.Item.FindBFMachinePosition,
@@ -400,36 +482,34 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                 .Where(t => t.Enabled)
                 .OrderBy(t => t.Id)
                 .Select(t =>
-                    new CIBYPixelSizeDTO()
+                    new CIBLineCentricityDTO()
                     {
+                        MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation,
                         ProductivityInformation = Cache.ProductivityInformation,
                         PmtId = t.Id,
-                        FindBFMachinePosition = Cache.Item.FindBFMachinePosition + (Vector)new Point(0, yDirection * (t.Id - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval),
+                        FindDFMachinePosition = StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)) + (Vector)new Point(0, yDirection * (t.Id - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval),
                         FilePath = detectImageDirectory,
                         RawFilePath = detectImageDirectory
                     }).ToList();
 
             Guard.IsNotEmpty(CalibratingItems);
 
-            Logger.LogHtmlInformation("Get Y Pixel Size", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Get Line Centricity", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
             foreach (var item in CalibratingItems)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await GetYPixelSizeAsync(item, cancellationToken);
-                item.IsCalibrated = true;
+                item.IsCalibrated = await GetLineCentricityAsync(item, cancellationToken);
             }
 
             Guard.IsTrue(Save(CalibratingItems, cancellationToken));
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            if (CalibratingItems.Count > 3)
             {
-                PmtYPixelSize = new HtmlPlot2DLinesChart(
-                    [
-                        ("PMT Y Pixel Size(Y:um,X:PMT ID)", [..CalibratingItems.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize))])
-                    ],
-                    "PMT Y Pixel Size")
-            }), HtmlLogUniqueId.LoggingHtml());
+                var calibrationOffsets = applicationCookieService.GetLineCentricityMachineOffsetList([.. CalibratingItems], Cache.ProductivityInformation);
+                LineCentricityOffsetsFit(calibrationOffsets);
+            }
+
             return true;
         });
     }
@@ -453,6 +533,10 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
             }
 
             Cache.ProductivityInformation = productiveGroups.First().Key;
+
+            var centerLineCentricityDTO = Reviews.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation
+                                                             && t.PmtId == CalibrationConstantsHelper.MainPmtId);
+            Guard.IsNotNull(centerLineCentricityDTO);
 
             if (Cache.Item.IsDarkFieldAlignment == false)
             {
@@ -494,6 +578,33 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                     opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
             }
 
+            var detectImageDirectory = ImageFileDirectory;
+
+            var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
+
+            if (ReviewViewModel.TryGetMatchPosition(
+                    Cache.Item.AlgorithmTemplateTypeEnum,
+                    MicroscopePixelSizeItems,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
+                    Cache.Item.MicroscopeLensInformation,
+                    Cache.Item.BrightTemplateFilePath,
+                    detectImageDirectory,
+                    HtmlLogUniqueId,
+                    Name,
+                    string.Empty,
+                    out var resultPosition,
+                    out _,
+                    out _,
+                    out _,
+                    out _,
+                    Cache.CalChipSiteModelEnum) == false) return false;
+
+            var bfToDfMachinePositionOffset = centerLineCentricityDTO.FindDFMachinePosition - Cache.Item.FindBFMachinePosition;
+            var bfMatchResultMachinePosition = StageViewModel.GetMachineStagePosition();
+            var ideaCenterDFMachinePosition = bfMatchResultMachinePosition + bfToDfMachinePositionOffset;
+
+            var calibrationOffsets = applicationCookieService.GetLineCentricityMachineOffsetList(Calibrations, Cache.ProductivityInformation);
+
             var errorMessageStringBuilder = new StringBuilder();
 
             foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.PmtId))
@@ -509,8 +620,6 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                 }
 
                 Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-                var detectImageDirectory = ImageFileDirectory;
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
@@ -531,22 +640,39 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
 
                 Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    selectedReviewItem.YPixelSize,
-                    selectedReviewItem.FindBFMachinePosition
+                    selectedReviewItem.DFMachineCenterPosition
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                var verifyItem = selectedReviewItem.Clone();
-                await GetYPixelSizeAsync(verifyItem, cancellationToken);
+                selectedReviewItem.IsVerified = false;
 
-                var error = selectedReviewItem.YPixelSize - verifyItem.YPixelSize;
-                var isOk = Math.Abs(error) < Cache.Threshold;
+                var verifyItem = selectedReviewItem.Clone();
+                verifyItem.RawFilePath = detectImageDirectory;
+                verifyItem.FilePath = detectImageDirectory;
+
+                var calibrationOffset = calibrationOffsets.Single(t => t.Pmt == verifyItem.PmtId).Offset;
+
+                var ideaDFMachinePosition = new Point(ideaCenterDFMachinePosition.X, ideaCenterDFMachinePosition.Y + yDirection * Cache.PmtInterval * (verifyItem.PmtId - CalibrationConstantsHelper.MainPmtId))
+                                 + (Vector)new Point(xDirection * calibrationOffset.X, yDirection * calibrationOffset.Y);
+
+                verifyItem.FindDFMachinePosition = ideaDFMachinePosition;
+
+                await GetLineCentricityAsync(verifyItem, cancellationToken);
+                selectedReviewItem.FilePath = verifyItem.FilePath;
+                selectedReviewItem.DFMatchPositionOffset = verifyItem.DFMatchPositionOffset;
+
+                var error = verifyItem.DFMatchPositionOffset;
+                var isOk = Math.Abs(error.X) < Cache.Threshold.X
+                        && Math.Abs(error.Y) < Cache.Threshold.Y;
 
                 var htmlQuote = new HtmlQuote(new
                 {
-                    Cache.Threshold,
-                    CalibrationPixelSize = selectedReviewItem.YPixelSize,
-                    VerifyPixelSize = verifyItem.YPixelSize,
-                    ErrorPixelSize = error
+                    CalibrationBFMachinePosition = Cache.Item.FindBFMachinePosition,
+                    VerifyBFMachinePosition = bfMatchResultMachinePosition,
+                    CalibrationLineCentricity = selectedReviewItem.DFMachineCenterPosition,
+                    VerifyLineCentricity = verifyItem.DFMachineCenterPosition,
+                    calibrationOffset,
+                    ideaDFMachinePosition,
+                    VerifyOffset = error
                 });
 
                 if (isOk)
@@ -557,7 +683,6 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                 }
 
-                if (isOk) selectedReviewItem.YPixelSize = verifyItem.YPixelSize;
                 selectedReviewItem.IsVerified = isOk;
             }
 
@@ -576,47 +701,66 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
-    private async Task GetYPixelSizeAsync(CIBYPixelSizeDTO cibYPixelSizeDTO, CancellationToken cancellationToken)
+    private async Task<bool> GetLineCentricityAsync(CIBLineCentricityDTO cibLineCentricityDTO, CancellationToken cancellationToken)
     {
+        Logger.LogHtmlInformation($"PMT ID :{cibLineCentricityDTO.PmtId}", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
+
+        Guard.IsNotEqualTo(ChuckCenter.NewBFCenterStagePosition, Point.Origin);
+
         using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-            Cache.ProductivityInformation,
-            StageCoordinateSystemEnum.Dark,
-            StageViewModel.MachineToBrightFieldPosition(cibYPixelSizeDTO.FindBFMachinePosition),
-            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibYPixelSizeDTO.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
-            Cache.Item.ImageWidth,
-            (false, Cache.CalChipSiteModelEnum),
-            (false, Cache.Item.CIBConfiguration),
-            (false, Cache.Item.LaserLightInformation),
-            false,
-            cancellationToken);
+                                Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Dark,
+                               StageViewModel.MachineToDarkFieldPosition(cibLineCentricityDTO.FindDFMachinePosition),
+                                ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibLineCentricityDTO.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
+                                Cache.Item.ImageWidth,
+                                (false, Cache.CalChipSiteModelEnum),
+                                (false, Cache.Item.CIBConfiguration),
+                                (false, Cache.Item.LaserLightInformation),
+                                false,
+                                cancellationToken);
 
-        var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, out var drawImageObj);
-        cibYPixelSizeDTO.YPixelSize = yPixelSize;
-
-        cibYPixelSizeDTO.FilePath = $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_Guid({HtmlLogUniqueId}).jpg";
-        cibYPixelSizeDTO.DrawImageFilePath = $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_DrawImage_Guid({HtmlLogUniqueId}).jpg";
-        cibYPixelSizeDTO.RawFilePath = darkFieldImage.RawImageFilePath;
-
-        using var _ = drawImageObj;
-        darkFieldImage.Image.Save(cibYPixelSizeDTO.FilePath);
-        drawImageObj.Save(cibYPixelSizeDTO.DrawImageFilePath);
-
-        Logger.LogHtmlInformation($"Get Y Pixel Size Success:PMT ID {cibYPixelSizeDTO.PmtId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+        if (LaserViewModel.TryGetMatchPosition(
+                Cache.AlgorithmTemplateTypeEnum,
+                darkFieldImage,
+                cibLineCentricityDTO.PmtId,
+                cibLineCentricityDTO.FindDFMachinePosition,
+                Cache.Item.TemplateFilePath,
+                Cache.Item.TemplateImageFilePath,
+                HtmlLogUniqueId,
+                string.Empty,
+                $"PMT {cibLineCentricityDTO.PmtId}",
+                Cache.ProductivityInformation,
+                out var position,
+                out _,
+                out _,
+                out var resultImageFilePath,
+                xWidthPixel: Cache.Item.ImageWidth,
+                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine) == false)
         {
-            cibYPixelSizeDTO.PmtId,
-            cibYPixelSizeDTO.ProductivityInformation,
-            cibYPixelSizeDTO.FindBFMachinePosition,
-            cibYPixelSizeDTO.YPixelSize,
-            OriginFilePath = cibYPixelSizeDTO.RawFilePath,
-            HtmlTab = new HtmlTab(new
-            {
-                DrawImage = new HtmlImage(cibYPixelSizeDTO.DrawImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)]),
-                Image = new HtmlImage(cibYPixelSizeDTO.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
-            })
+            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
+            return false;
+        }
+
+        cibLineCentricityDTO.RawFilePath = darkFieldImage.RawImageFilePath;
+        cibLineCentricityDTO.FilePath = resultImageFilePath;
+        cibLineCentricityDTO.DFMatchPositionOffset = position - (Vector)cibLineCentricityDTO.FindDFMachinePosition;
+        cibLineCentricityDTO.FindDFMachinePosition = position;
+        var machineOffset = cibLineCentricityDTO.FindDFMachinePosition - Cache.Item.FindBFMachinePosition; // 明暗场offset(暗-明)
+        cibLineCentricityDTO.DFMachineCenterPosition = ChuckCenter.NewBFCenterStagePosition + machineOffset;
+
+        Logger.LogHtmlInformation($"Success: {cibLineCentricityDTO.PmtId}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            cibLineCentricityDTO.PmtId,
+            cibLineCentricityDTO.FindDFMachinePosition,
+            cibLineCentricityDTO.DFMatchPositionOffset,
+            ForwardFindDFMachinePosition = cibLineCentricityDTO.FindDFMachinePosition,
+            ForwardDFMachineCenterPosition = cibLineCentricityDTO.DFMachineCenterPosition
         }), HtmlLogUniqueId.LoggingHtml());
+
+        return true;
     }
 
-    private bool Save(IReadOnlyList<CIBYPixelSizeDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<CIBLineCentricityDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
 
@@ -633,6 +777,43 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
     });
+
+    private void LineCentricityOffsetsFit(IReadOnlyCollection<(int Pmt, Point offsets)> results)
+    {
+        var pmtXErrorCoordinates = results.OrderBy(t => t.Pmt)
+            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.X)).ToArray();
+
+        var (slopeXError, interceptXError, rSquaredXError, _) = PolynomialCurve.Fit1(
+            Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinates.Select(t => t.X)),
+            Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinates.Select(t => t.Y)));
+
+        var pmtXErrorTitle = $"y ={slopeXError:0.######}x + {interceptXError:0.######} r^2 = {rSquaredXError:0.######} angle = {MathUtils.RadianAngleToDegreeAngle(Math.Atan(slopeXError))}";
+
+        var pmtYErrorCoordinates = results.OrderBy(t => t.Pmt)
+            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.Y)).ToArray();
+
+        var (slopeYError, interceptYError, rSquaredYError, _) = PolynomialCurve.Fit1(
+           Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.X)),
+           Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.Y)));
+
+        var pmtYErrorTitle = $"y ={slopeYError:0.######}x + {interceptYError:0.######} r^2 = {rSquaredYError:0.######} angle = {MathUtils.RadianAngleToDegreeAngle(Math.Atan(slopeYError))}";
+
+        Logger.LogHtmlInformation("Calibration OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+        {
+            PmtXErrors = new HtmlPlot2DLinesChart(
+                [
+                    ("PMT X Errors(Y:um,X:PMT ID(um))", pmtXErrorCoordinates),
+                    (pmtXErrorTitle, pmtXErrorCoordinates.Select(t => new Point(t.X, slopeXError * t.X + interceptXError)).ToArray())
+                ],
+                "PMT X Errors"),
+            PmtYErrors = new HtmlPlot2DLinesChart(
+                [
+                    ("PMT Y Errors(Y:um,X:PMT ID(um))", pmtYErrorCoordinates),
+                    (pmtYErrorTitle, pmtYErrorCoordinates.Select(t => new Point(t.X, slopeYError * t.X + interceptYError)).ToArray())
+                ],
+                "PMT Y Errors")
+        }), HtmlLogUniqueId.LoggingHtml());
+    }
 
     #endregion 校准
 }

@@ -4,7 +4,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;

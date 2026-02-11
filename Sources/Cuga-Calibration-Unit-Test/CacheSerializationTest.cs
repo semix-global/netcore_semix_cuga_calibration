@@ -2,9 +2,9 @@ using AwesomeAssertions;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
+using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Laser.LineCentricity;
 using Core.Services;
 using Core.Utilities;
 using CugaCalibration.Core;
@@ -96,61 +96,53 @@ public sealed class CacheSerializationTest : IDisposable
     public void LaserLineCentricityCacheSerialization_ShouldBeConsistent()
     {
         // Arrange - 创建包含多个items的Cache
-        var oiCacheItem = new LaserLineCentricityCacheItem
+        var oiCacheItem = new CIBLineCentricityCacheItem
         {
-            XWidthPixel = 1024,
-            FindPosition = new Point(100.5, 200.5),
-            FindBrightMachinePosition = new Point(300.0, 400.0),
-            Threshold = new Point(0.8, 0.9),
+            ImageWidth = 1024,
+            FindBFMachinePosition = new Point(100.5, 200.5),
             BrightTemplateFilePath = @"C:\Test\OI_bright.tpl",
             TemplateFilePath = @"C:\Test\OI_template.tpl"
         };
 
-        var niCacheItem = new LaserLineCentricityCacheItem
+        var niCacheItem = new CIBLineCentricityCacheItem
         {
-            XWidthPixel = 2048,
-            FindPosition = new Point(150.0, 250.0),
-            FindBrightMachinePosition = new Point(350.0, 450.0),
-            Threshold = new Point(0.7, 0.85),
+            ImageWidth = 2048,
+            FindBFMachinePosition = new Point(150.0, 250.0),
             BrightTemplateFilePath = @"C:\Test\NI_bright.tpl",
             TemplateFilePath = @"C:\Test\NI_template.tpl"
         };
 
-        var cache = new LaserLineCentricityCache
+        var cache = new CIBLineCentricityCache
         {
             Items =
             [
-                new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>((OpticsIlluminationModeEnum.OI, _oiProductivityInfo), oiCacheItem),
-                new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>((OpticsIlluminationModeEnum.NI, _niProductivityInfo), niCacheItem)
+                new KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>(_oiProductivityInfo, oiCacheItem),
+                new KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>(_niProductivityInfo, niCacheItem)
             ]
         };
 
         // Act - 序列化和反序列化
-        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>>(cache.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentBag<KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>>(cache.Items.OrderBy(t => t.Key)));
         var json = JsonConvert.SerializeObject(cache);
-        var deserialized = JsonConvert.DeserializeObject<LaserLineCentricityCache>(json);
+        var deserialized = JsonConvert.DeserializeObject<CIBLineCentricityCache>(json);
 
         // Assert
         deserialized.Should().NotBeNull();
         ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items),
-            new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), LaserLineCentricityCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+            new ConcurrentBag<KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>>(deserialized.Items.OrderBy(t => t.Key)));
 
         deserialized.Items.Should().NotBeNull();
         deserialized.Items.Should().HaveCount(2);
 
         // 验证OI item
-        var oiItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
-        oiItem.Key.Item2.Should().Be(_oiProductivityInfo);
-        oiItem.Value.XWidthPixel.Should().Be(1024);
-        oiItem.Value.FindPosition.Should().Be(new Point(100.5, 200.5));
-        oiItem.Value.Threshold.Should().Be(new Point(0.8, 0.9));
+        var oiItem = deserialized.Items.Single(i => i.Key == _oiProductivityInfo);
+        oiItem.Value.ImageWidth.Should().Be(1024);
+        oiItem.Value.FindBFMachinePosition.Should().Be(new Point(100.5, 200.5));
 
         // 验证NI item
-        var niItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
-        niItem.Key.Item2.Should().Be(_niProductivityInfo);
-        niItem.Value.XWidthPixel.Should().Be(2048);
-        niItem.Value.FindPosition.Should().Be(new Point(150.0, 250.0));
-        niItem.Value.Threshold.Should().Be(new Point(0.7, 0.85));
+        var niItem = deserialized.Items.Single(i => i.Key == _niProductivityInfo);
+        niItem.Value.ImageWidth.Should().Be(2048);
+        niItem.Value.FindBFMachinePosition.Should().Be(new Point(150.0, 250.0));
 
         JsonConvert.SerializeObject(deserialized).Should().Be(json);
     }
