@@ -1,8 +1,8 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Helper;
+using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Laser.LineCentricity;
+
 using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
@@ -145,13 +145,13 @@ public sealed class ApplicationCookieServiceImpl(
         }
     }
 
-    public IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(IReadOnlyCollection<LaserLineCentricityItemDto> result, OpticsIlluminationModeEnum opticsIlluminationModeEnum, ProductivityInformation productivityInformation)
+    public IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(IReadOnlyCollection<CIBLineCentricityDTO> result, ProductivityInformation productivityInformation)
     {
         var (xDirection, yDirection) = calibrationStageServiceImpl.GetMachineDirection().Anything;
 
-        var cache = GuardUtils.IsNotNullAndReturn(cacheProvider.GetOrDefault<LaserLineCentricityCache>());
+        var cache = GuardUtils.IsNotNullAndReturn(cacheProvider.GetOrDefault<CIBLineCentricityCache>());
 
-        var resultList = result.Where(t => t.OpticsIlluminationMode == opticsIlluminationModeEnum && t.ProductivityInformation == productivityInformation)
+        var resultList = result.Where(t => t.ProductivityInformation == productivityInformation)
             .OrderBy(t => t.PmtId)
             .ToList();
 
@@ -160,7 +160,7 @@ public sealed class ApplicationCookieServiceImpl(
         var offsetList = resultList.OrderBy(t => t.PmtId)
             .Select(t =>
             {
-                var centerOffset = t.DarkMachineCenterPosition - (Vector)centerItemDto.DarkMachineCenterPosition;
+                var centerOffset = t.DFMachineCenterPosition - (Vector)centerItemDto.DFMachineCenterPosition;
                 return (t.PmtId, new Point(xDirection * centerOffset.X, yDirection * centerOffset.Y) - (Vector)new Point(0, cache.PmtInterval * (t.PmtId - CalibrationConstantsHelper.MainPmtId)));
             })
             .ToList();

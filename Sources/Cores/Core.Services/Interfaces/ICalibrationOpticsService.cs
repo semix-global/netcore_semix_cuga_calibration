@@ -106,4 +106,27 @@ public interface ICalibrationOpticsService
     SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
 
     #endregion DOE
+
+    #region  CollectPolarization
+    /// <summary>
+    /// 设置照明偏振模式
+    /// </summary>
+    /// <param name="OpticsPolarizationModeEnum">照明偏振</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type);
+
+    /// <summary>
+    /// 设置采集偏振某个通道偏振类型，例如P或者S
+    /// </summary>
+    /// <param name="collectorPolarizationModeEnum">偏振</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type);
+
+    /// <summary>
+    /// 设置采集偏振某个通道NDF电机角度
+    /// </summary>
+    /// <param name="collectorPolarizationModeEnum">偏振</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val);
+    #endregion  CollectPolarization
 }

@@ -315,4 +315,25 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
+
+    public SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
 }

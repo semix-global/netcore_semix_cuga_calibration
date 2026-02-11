@@ -1,0 +1,129 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Optics.CollectPolarization.Children.Step3View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=viewModels:CollectionPolarizationViewModel}"
+             d:DesignHeight="800"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <!--#region Left-->
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Collect Polarization Calibration Step 4: "
+                           Status="{Binding CalibrationStepList[3].StepName}"
+                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Find S Polarization Position Of CH2 NDF: "
+                           Color="{StaticResource SuccessBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="1. Set Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:NumericUpDown x:Name="MotorAngleMinNumeric"
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.Title="Angle Min: "
+                                      hc:InfoElement.Necessary="True"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.Placeholder="Input Motor Rotate Angle Value"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.FindAngleMin}" />
+                    <hc:NumericUpDown x:Name="MotorAngleMaxNumeric"
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.Title="Angle Max: "
+                                      hc:InfoElement.Necessary="True"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.Placeholder="Input Motor Rotate Angle Value"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      Minimum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.FindAngleMax}" />
+                    <hc:NumericUpDown x:Name="MotorAngleIntervalNumeric"
+                                      hc:TitleElement.TitleWidth="180"
+                                      hc:InfoElement.Title="Angle Interval: "
+                                      hc:InfoElement.Necessary="True"
+                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:InfoElement.Placeholder="Input Motor Rotate Angle Value"
+                                      hc:InfoElement.ShowClearButton="True"
+                                      Minimum="1"
+                                      Maximum="100"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.FindAngleInterval}" />
+                </hc:UniformSpacingPanel>
+            </Border>
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="2. Find Motor Value"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <TextBox Text="{Binding Cache.PolarizationPositionNDFSCH2, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:InfoElement.Title="Find Motor Position: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                            VerticalAlignment="Top"
+                                            Spacing="10">
+                        <Button x:Name="ActionButton"
+                                Content="Action"
+                                Command="{Binding Step3Command}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button x:Name="CancelButton"
+                                Content="Cancel"
+                                Command="{Binding Step3CancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                Style="{StaticResource ButtonWarning}" />
+                    </hc:UniformSpacingPanel>
+                </hc:UniformSpacingPanel>
+            </Border>
+        </hc:UniformSpacingPanel>
+        <!--#endregion-->
+
+        <GridSplitter Grid.Column="1" Width="5" />
+
+        <!--#region Right-->
+        <GroupBox Grid.Column="2" Header="Plot">
+            <Grid>
+                <wpf:WpfPlot Margin="5">
+                    <i:Interaction.Behaviors>
+                        <behaviors:WpfPlotMultiBehavior Title="S Polarization Position Curve Of CH2 NDF"
+                                                        Plot0Title="NDFSListCH2"
+                                                        Plot0Color="{x:Static scottPlot:Colors.Green}"
+                                                        Plot0="{Binding Cache.PolarizationPositionNDFSListCH2}" />
+                    </i:Interaction.Behaviors>
+                </wpf:WpfPlot>
+            </Grid>
+        </GroupBox>
+        <!--#endregion-->
+    </Grid>
+</UserControl>
+

@@ -185,7 +185,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
 
             case 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindBFMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -216,7 +216,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                 return true;
 
             case 3:
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindBFMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -239,22 +239,6 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
     #endregion 控制校准业务
 
     #region 校准
-
-    [RelayCommand]
-    private Task ConfigStepActionAsync()
-    {
-        return InvokeCalibrateAsync(() =>
-        {
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                IsAutoGain = Cache.Item.CIBConfiguration.IsAutoGainControl,
-                DcGainVoltage = Cache.Item.CIBConfiguration.Gain,
-                IsL0k = Cache.Item.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.Item.CIBConfiguration.CIBProfileMode
-            }), HtmlLogUniqueId.LoggingHtml());
-            return true;
-        });
-    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)

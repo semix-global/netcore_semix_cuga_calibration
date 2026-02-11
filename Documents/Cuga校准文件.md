@@ -1667,3 +1667,45 @@ public sealed class CalibrationGlobalFocusOffset : CalibrationBase
      public double MotorValue { get; set; }
 }
 ```
+
+## 采集偏振校准: `CollectionPolarization`
+```csharp
+/// <summary>
+/// 采集偏振校准, CollectionPolarization校准下发Cuga参数
+/// </summary>
+[Serializable]
+public sealed class CalibrationCollectionPolarization : CalibrationBase
+{
+    /// <summary>
+    /// CH1通道NDF电机的S偏振位置, **需要记录**
+    /// </summary> 
+    public double PolarizationPositionNDFSCH1 { get; set; }
+
+    /// <summary>
+    /// CH2通道NDF电机的S偏振位置, **需要记录**
+    /// </summary> 
+    public double PolarizationPositionNDFSCH2 { get; set; }
+
+    /// <summary>
+    /// CH3通道NDF电机的S偏振位置, **需要记录**
+    /// </summary> 
+    public double PolarizationPositionNDFSCH3 { get; set; }
+
+    /// <summary>
+    /// CH1通道NDF电机的P偏振位置, **需要记录**
+    /// </summary> 
+    public double PolarizationPositionNDFPCH1 { get; set; }
+
+    /// <summary>
+    /// CH2通道NDF电机的P偏振位置, **需要记录**
+    /// </summary> 
+    public double PolarizationPositionNDFPCH2 { get; set; }
+
+    /// <summary>
+    /// CH3通道NDF电机的P偏振位置, **需要记录**
+    /// </summary> 
+    public double PolarizationPositionNDFPCH3 { get; set; }
+}
+```
+
+
