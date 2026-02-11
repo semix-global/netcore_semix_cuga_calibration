@@ -14,6 +14,7 @@ using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.LightMatching;
+using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.XTC;
@@ -22,7 +23,6 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.LineCentricity;
 using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
@@ -272,21 +272,6 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LaserLineCentricityItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.OpticsIlluminationMode == CalibrationConstantsHelper.MainOpticsIlluminationModeEnum
-                                               && t.PmtId == CalibrationConstantsHelper.MainPmtId
-                                               && t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
-
-        if (isOk == false)
-            errorMessage = "Laser Line Centricity is Empty";
-
-        return isOk;
-    }
-
     public static bool IsOk(this LineOrientationOffsetItemDto[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
@@ -398,11 +383,25 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB Y Pixel Size is Empty";
 
         return isOk;
+    }
+
+    public static bool IsOk(this CIBLineCentricityDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB  Line Centricity is Empty";
+
+        return isOk;
+
     }
 
     public static bool IsOk(this AODAlignmentDTO[] result, out string errorMessage)

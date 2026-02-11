@@ -4,8 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Laser.LineCentricity;
 using Core.Services.Implements;
 using Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Extensions;
@@ -201,7 +201,7 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
         if (_cacheProvider.TryGetOrDefault<ChuckCenterAndThetaItemDto>(out var chuckCenter) == false) return;
         if (_recipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>(out var cache) == false) return;
 
-        if (_cacheProvider.TryGetOrDefaultArray<LaserLineCentricityItemDto>(out var laserLineCentricityItems) == false) return;
+        if (_cacheProvider.TryGetOrDefaultArray<CIBLineCentricityDTO>(out var laserLineCentricityItems) == false) return;
 
         if (df is not null)
         {
@@ -209,8 +209,8 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
                                                                                   && t.ProductivityInformation == cache.ProductivityInformation);
 
             var ellipse = wpfPlot.Plot.Add.Circle(
-                laserLineCentricityItemDto.DarkMachineCenterPosition.X,
-                laserLineCentricityItemDto.DarkMachineCenterPosition.Y,
+                laserLineCentricityItemDto.DFMachineCenterPosition.X,
+                laserLineCentricityItemDto.DFMachineCenterPosition.Y,
                 cache.DarkFieldWaferDiameter / 2d);
             ellipse.LineColor = Colors.DarkRed;
             ellipse.LineWidth = 2;

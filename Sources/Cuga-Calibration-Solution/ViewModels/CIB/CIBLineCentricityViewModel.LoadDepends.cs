@@ -28,9 +28,9 @@ using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Net.Utilities.WPF.Enums;
 
-namespace CugaCalibration.ViewModels.Laser;
+namespace CugaCalibration.ViewModels.CIB;
 
-public sealed partial class LaserLineCentricityCalibrationViewModel
+public sealed partial class CIBLineCentricityViewModel
 {
     private bool LoadDepends()
     {

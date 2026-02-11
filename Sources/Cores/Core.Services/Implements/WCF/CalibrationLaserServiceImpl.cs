@@ -12,8 +12,6 @@ using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Cuga.Data.DataStruct.Basic;
-using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
 using HalconDotNet;
@@ -495,7 +493,7 @@ public sealed partial class CalibrationLaserServiceImpl(
             if (laserLightInformationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor, bool isAFServo)>(laserLightInformationRet.ErrorMsg);
             level = Convert.ToUInt16(laserLightInformationRet.Anything.Level);
         }
-   
+
         var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(
         productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
         productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),

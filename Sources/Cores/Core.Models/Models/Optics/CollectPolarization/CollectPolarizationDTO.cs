@@ -1,20 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace Core.Models.Models.Optics.CollectPolarization;
 
 
 public sealed partial class CollectPolarizationDTO : CalibrationDtoBase, ICloneable<CollectPolarizationDTO>, IAdaptTo<CalibrationCollectionPolarization>
-{   
+{
     [ObservableProperty]
     private double _polarizationPositionNDFSCH1 = 0;
 

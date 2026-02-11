@@ -1,5 +1,4 @@
-namespace CugaCalibration.Views.Optics.CollectPolarization.Children;
-
+﻿namespace CugaCalibration.Views.CIB.LineCentricity.Children;
 
 public sealed partial class Step0View
 {
@@ -8,6 +7,3 @@ public sealed partial class Step0View
         InitializeComponent();
     }
 }
-
-
-

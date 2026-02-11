@@ -1,17 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.DataAnnotations;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace Core.Models.Models.Optics.CollectPolarization;
