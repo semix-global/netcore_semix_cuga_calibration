@@ -18,6 +18,7 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Core.Services.Implements.WCF;
 
@@ -54,65 +55,17 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>(cibInformations);
     }
 
-    public SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
-    {
-        var setValue = enable ? 0x00_01_00_00 : 0x00_00_00_00;
+    public SxExecuteRet<IReadOnlyList<bool>> GetAGC(IReadOnlyList<CIBInformation> cibInformations) => ReadRegister(cibInformations, PMTRegEnum.DcAgc, value => value == 0x00_01_00_00);
 
-        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.DcAgc, [.. cibInformations.Select(t => (setValue, t.PMTId, t.ChannelId))]));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+    public SxExecuteRet<bool> SetAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable) => WriteRegister(cibInformations, PMTRegEnum.DcAgc, enable ? 0x00_01_00_00 : 0x00_00_00_00);
 
-        var sxExecuteRetReadCIBReg = Invoke(() => Service?.ReadCIBReg(PMTRegEnum.DcAgc));
-        if (sxExecuteRetReadCIBReg.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetReadCIBReg.Msg, false);
+    public SxExecuteRet<IReadOnlyList<CIBProfileModeEnum>> GetCIBProfileModeEnum(IReadOnlyList<CIBInformation> cibInformations) => ReadRegister(cibInformations, PMTRegEnum.CibProfile, value => value.ToCIBProfileModeEnum());
 
-        foreach (var cibInformation in cibInformations)
-        {
-            var cibReg = sxExecuteRetReadCIBReg.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+    public SxExecuteRet<bool> SetCIBProfileModeEnum(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum) => WriteRegister(cibInformations, PMTRegEnum.CibProfile, cibProfileModeEnum.ToCIBProfileMode());
 
-            if (cibReg.Value != setValue) return SxExecuteRetHelper.CreateError($"Set AGC {(enable ? "Enable" : "Disable")} Failed for PMTId:{cibInformation.PMTId} ChannelId:{cibInformation.ChannelId}", false);
-        }
+    public SxExecuteRet<IReadOnlyList<bool>> GetL0K(IReadOnlyList<CIBInformation> cibInformations) => ReadRegister(cibInformations, PMTRegEnum.L0k, value => value == 1);
 
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
-    {
-        var setValue = cibProfileModeEnum.ToCIBProfileMode();
-
-        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.CibProfile, [.. cibInformations.Select(t => (setValue, t.PMTId, t.ChannelId))]));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
-
-        var sxExecuteRetReadCIBReg = Invoke(() => Service?.ReadCIBReg(PMTRegEnum.CibProfile));
-        if (sxExecuteRetReadCIBReg.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetReadCIBReg.Msg, false);
-
-        foreach (var cibInformation in cibInformations)
-        {
-            var cibReg = sxExecuteRetReadCIBReg.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
-
-            if (cibReg.Value != setValue) return SxExecuteRetHelper.CreateError($"Set Profile Mode {cibProfileModeEnum} Failed for PMTId:{cibInformation.PMTId} ChannelId:{cibInformation.ChannelId}", false);
-        }
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
-    {
-        var setValue = enable ? 1 : 0;
-
-        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.L0k, [.. cibInformations.Select(t => (setValue, t.PMTId, t.ChannelId))]));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
-
-        var sxExecuteRetReadCIBReg = Invoke(() => Service?.ReadCIBReg(PMTRegEnum.L0k));
-        if (sxExecuteRetReadCIBReg.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetReadCIBReg.Msg, false);
-
-        foreach (var cibInformation in cibInformations)
-        {
-            var cibReg = sxExecuteRetReadCIBReg.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
-
-            if (cibReg.Value != setValue) return SxExecuteRetHelper.CreateError($"Set L0K {(enable ? "Enable" : "Disable")} Failed for PMTId:{cibInformation.PMTId} ChannelId:{cibInformation.ChannelId}", false);
-        }
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable) => WriteRegister(cibInformations, PMTRegEnum.L0k, enable ? 1 : 0);
 
     public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
     {
@@ -216,7 +169,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
     {
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
-        var dfImgCalibrationRet = Invoke(new SxCollectImgParam
+        var dfImgCalibrationRet = GetPMTImages(new SxCollectImgParam
         {
             Type = pmtIds.Length > 1 ? SxCollectImgType.Using : SxCollectImgType.Normal,
             Mag = productivityInformation.AdaptTo().Mag,
@@ -265,7 +218,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
     {
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
-        var dfImgCalibrationRet = Invoke(new SxCollectImgParam
+        var dfImgCalibrationRet = GetPMTImages(new SxCollectImgParam
         {
             Type = pmtIds.Length > 1 ? SxCollectImgType.Using : SxCollectImgType.Normal,
             Mag = productivityInformation.AdaptTo().Mag,
@@ -317,7 +270,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         var time = Math.Abs(startPosition.X - endPosition.X) / productivityInformation.XSpeedValue;
         var speedECS = Math.Abs(stopECS - startECS) / time;
 
-        var dfImgCalibrationRet = Invoke(new SxCollectImgParam
+        var dfImgCalibrationRet = GetPMTImages(new SxCollectImgParam
         {
             Type = pmtIds.Length > 1 ? SxCollectImgType.Using : SxCollectImgType.Normal,
             Mag = productivityInformation.AdaptTo().Mag,
@@ -360,7 +313,49 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(result);
     }
 
-    private SxExecuteRet<IReadOnlyList<M2CImgSysCollectImgDTO>> Invoke(SxCollectImgParam sxCollectImgParam)
+    private SxExecuteRet<IReadOnlyList<T>> ReadRegister<T>(
+        IReadOnlyList<CIBInformation> cibInformations,
+        PMTRegEnum pmtRegEnum,
+        Func<int, T> valueConverter)
+    {
+        var readResult = Invoke(() => Service?.ReadCIBReg(pmtRegEnum));
+        if (readResult.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<T>>(readResult.Msg, []);
+
+        var result = new T[cibInformations.Count];
+
+        foreach (var (index, cibInformation) in cibInformations.Index())
+        {
+            var cibRegister = readResult.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+
+            result[index] = valueConverter(cibRegister.Value);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<T>>(result);
+    }
+
+    private SxExecuteRet<bool> WriteRegister(
+        IReadOnlyList<CIBInformation> cibInformations,
+        PMTRegEnum pmtRegEnum,
+        int setValue,
+        [CallerMemberName] string name = "")
+    {
+        var writeResult = Invoke(() => Service?.SetPmtDiffDataCommon(pmtRegEnum, [.. cibInformations.Select(t => (setValue, t.PMTId, t.ChannelId))]));
+        if (writeResult.IsSuccess == false) return SxExecuteRetHelper.CreateError(writeResult.Msg, false);
+
+        var readResult = Invoke(() => Service?.ReadCIBReg(pmtRegEnum));
+        if (readResult.IsSuccess == false) return SxExecuteRetHelper.CreateError(readResult.Msg, false);
+
+        foreach (var cibInformation in cibInformations)
+        {
+            var cibReg = readResult.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+
+            if (cibReg.Value != setValue) return SxExecuteRetHelper.CreateError($"{name} {setValue:x8} Failed for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", false);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    private SxExecuteRet<IReadOnlyList<M2CImgSysCollectImgDTO>> GetPMTImages(SxCollectImgParam sxCollectImgParam)
     {
         SxExecuteRet<List<M2CImgSysCollectImgDTO>> dfImgCalibrationRet;
 

@@ -48,21 +48,21 @@ public sealed class CIBViewModel(
 
     public void ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
-        var ret = calibrationCIBService.ToggleEnableAGC(cibInformations, enable);
+        var ret = calibrationCIBService.SetAGC(cibInformations, enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public void ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
     {
-        var ret = calibrationCIBService.ToggleProfileMode(cibInformations, cibProfileModeEnum);
+        var ret = calibrationCIBService.SetCIBProfileModeEnum(cibInformations, cibProfileModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public void ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
-        var ret = calibrationCIBService.ToggleEnableL0K(cibInformations, enable);
+        var ret = calibrationCIBService.SetL0K(cibInformations, enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
