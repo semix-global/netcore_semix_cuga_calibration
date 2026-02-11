@@ -102,7 +102,6 @@ public sealed class CalibrationLaserObj
     /// 采集偏振校准, CollectionPolarization对象数据
     /// </summary>
     public CalibrationCollectionPolarization CalibrationCollectionPolarization { get; set; } = new CalibrationCollectionPolarization();
-
 }
 
 /// <summary>
@@ -788,4 +787,3 @@ public sealed class CalibrationCollectionPolarization : CalibrationBase
     /// </summary> 
     public double PolarizationPositionNDFPCH3 { get; set; }
 }
-

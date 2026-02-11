@@ -10,7 +10,6 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
@@ -495,13 +494,13 @@ public sealed partial class CalibrationLaserServiceImpl(
         }
 
         var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(
-        productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
-        productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
-        calChipSiteModelEnum.ToCgCalChipType(),
-        Convert.ToUInt16(pmtId),
-        level,
-        point?.ToCgPoint()
+            productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+            productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+            productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+            calChipSiteModelEnum.ToCgCalChipType(),
+            Convert.ToUInt16(pmtId),
+            level,
+            point?.ToCgPoint()
         ));
 
         return sxExecuteRet.IsSuccess == false

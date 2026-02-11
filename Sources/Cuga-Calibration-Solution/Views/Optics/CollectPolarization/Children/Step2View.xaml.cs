@@ -1,6 +1,5 @@
 namespace CugaCalibration.Views.Optics.CollectPolarization.Children;
 
-
 public sealed partial class Step2View
 {
     public Step2View()
@@ -8,6 +7,3 @@ public sealed partial class Step2View
         InitializeComponent();
     }
 }
-
-
-

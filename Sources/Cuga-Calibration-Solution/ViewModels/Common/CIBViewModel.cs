@@ -2,14 +2,12 @@ using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AutoFocus;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
