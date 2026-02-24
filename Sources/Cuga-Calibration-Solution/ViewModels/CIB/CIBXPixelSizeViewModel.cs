@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -955,8 +956,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             using var image = RawImageFactory.CreateImage(buffer, sizeI);
+            using var resultImage = Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog ? image.RAW12BitsPerPixelLogToLinear() : image.Clone();
 
-            var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, image, templateId, out var matchPoint, out _, out var score, out _);
+            var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, resultImage, templateId, out var matchPoint, out _, out var score, out _);
 
             itemItem.IsMatchOk = isMathOk;
             itemItem.MatchPoint = new Point(itemItem.IsMatchOk ? startPixel + matchPoint.X : startPixel, matchPoint.Y);
@@ -967,7 +969,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var title = itemItem.IsMatchOk ? $"{itemItem.MatchPoint.X:0.###}px" : $"{startPixel}px";
 
                 itemItem.ImageFilePath = Path.Combine(detectImageDirectory, Path.GetFileNameWithoutExtension(Cache.Item.TemplateImageFilePath), $"{startPixel}_{Guid.NewGuid():N}.jpg");
-                image.Save(itemItem.ImageFilePath);
+                resultImage.Save(itemItem.ImageFilePath);
 
                 var bullet = new HtmlBullet(new
                 {
