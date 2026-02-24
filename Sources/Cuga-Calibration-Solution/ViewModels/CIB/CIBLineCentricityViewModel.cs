@@ -130,7 +130,9 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-
+        ChuckCenter = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
+        MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
+        LaserPixelSizes = CacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>();
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineCentricityCache>();
 
         Calibrations = CacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
@@ -518,6 +520,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     {
         await InvokeVerifyAsync(async () =>
         {
+            MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
             if (SelectedReviewItems.Count == 0)
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
