@@ -478,16 +478,15 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             }), HtmlLogUniqueId.LoggingHtml());
 
             var (_, yDirection) = StageViewModel.GetMachineDirection();
-            CalibratingItems = CalibrationSetting.SettingPmtConfigParam.PmtConfigList
-                .Where(t => t.Enabled)
-                .OrderBy(t => t.Id)
+            CalibratingItems = ApplicationCookie.CIBInformationPMTIds
+                .OrderBy(t => t)
                 .Select(t =>
                     new CIBLineCentricityDTO()
                     {
                         MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation,
                         ProductivityInformation = Cache.ProductivityInformation,
-                        PmtId = t.Id,
-                        FindDFMachinePosition = StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)) + (Vector)new Point(0, yDirection * (t.Id - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval),
+                        PmtId = t,
+                        FindDFMachinePosition = StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)) + (Vector)new Point(0, yDirection * (t - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval),
                         FilePath = detectImageDirectory,
                         RawFilePath = detectImageDirectory
                     }).ToList();
