@@ -18,7 +18,7 @@ using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
 using System.Runtime.CompilerServices;
-using HalconDotNet;
+using Core.Utilities;
 
 namespace Core.Services.Implements.WCF;
 
@@ -55,7 +55,7 @@ public sealed class CalibrationCIBServiceImpl(ICalibrationAlgorithmService calib
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>(cibInformations);
     }
 
-    public SxExecuteRet<IReadOnlyList<bool>> GetAGC(IReadOnlyList<CIBInformation> cibInformations) => ReadRegister(cibInformations, PMTRegEnum.DcAgc, value => value == 0x00_01_00_00);
+    public SxExecuteRet<IReadOnlyList<bool>> GetAGC(IReadOnlyList<CIBInformation> cibInformations) => ReadRegister(cibInformations, PMTRegEnum.DcAgc, value => value == 1);
 
     public SxExecuteRet<bool> SetAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable) => WriteRegister(cibInformations, PMTRegEnum.DcAgc, enable ? 0x00_01_00_00 : 0x00_00_00_00);
 
@@ -207,7 +207,7 @@ public sealed class CalibrationCIBServiceImpl(ICalibrationAlgorithmService calib
                 var rawBytes = File.ReadAllBytes(t.RawImageFilePath);
 
                 using var image = RawImageFactory.CreateImage(rawBytes);
-                var resultImage = t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog ? calibrationAlgorithmService.DarkFieldRawImageToLinearImage(image) : image.Clone();
+                var resultImage = t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog ? image.RAW12BitsPerPixelLogToLinear() : image.Clone();
 
                 return new DarkFieldImageDTO { Image = resultImage }.AdaptIn(t);
             }, cancellationToken))))
@@ -301,7 +301,7 @@ public sealed class CalibrationCIBServiceImpl(ICalibrationAlgorithmService calib
                 var rawBytes = File.ReadAllBytes(t.RawImageFilePath);
 
                 using var image = RawImageFactory.CreateImage(rawBytes);
-                var resultImage = t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog ? calibrationAlgorithmService.DarkFieldRawImageToLinearImage(image) : image.Clone();
+                var resultImage = t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog ? image.RAW12BitsPerPixelLogToLinear() : image.Clone();
 
                 return new DarkFieldImageDTO { Image = resultImage }.AdaptIn(t);
             }, cancellationToken))))
@@ -339,7 +339,14 @@ public sealed class CalibrationCIBServiceImpl(ICalibrationAlgorithmService calib
             var cibRegisters = readCIBRegRet.Anything.Where(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId).ToArray();
             if (cibRegisters.Length != 1) return SxExecuteRetHelper.CreateError($"{name} Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", false);
 
-            if (cibRegisters[0].Value != setValue) return SxExecuteRetHelper.CreateError($"{name} {setValue:x8} Failed for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", false);
+            if (pmtRegEnum == PMTRegEnum.DcAgc)
+            {
+                if (cibRegisters[0].Value != (setValue == 0x00_01_00_00 ? 1 : 0)) return SxExecuteRetHelper.CreateError($"{name} {setValue:x8} Failed for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", false);
+            }
+            else
+            {
+                if (cibRegisters[0].Value != setValue) return SxExecuteRetHelper.CreateError($"{name} {setValue:x8} Failed for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", false);
+            }
         }
 
         return SxExecuteRetHelper.CreateSuccess(true);
