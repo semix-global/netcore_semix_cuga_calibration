@@ -144,11 +144,20 @@ public sealed class CalibrationCIBServiceImpl(ICalibrationAlgorithmService calib
 
             foreach (var (gainIndex, gain) in gains.Index())
             {
+                /*
+                 * 范围[-14, 14]归一化数据需要转换为16-bit整数格式进行传输[DSP、FPGA、DAC数字信号转换为模拟信号] // todo: 建议写到cuga里面 [-14, 14] 这个太魔法值了
+                 * 16-bit PCM(脉冲编码调制)格式: Int16 范围 [-32768, 32767]
+                 *
+                 * 归一化映射:
+                 *   -1.0 → -32768 (0x8000) Math.Pow(2d, 15d) - 1
+                 *    0.0 → 0      (0x0000)
+                 *   +1.0 → +32767 (0x7FFF) -Math.Pow(2d, 15d)
+                 */
                 cibmmdGains[gainIndex] = new CIBMMDGainRelationshipDTO()
                     .WithCIBInformation(cibInformation)
                     .WithGain(gain)
                     .WithSenseU14Bit(Convert.ToInt32(cgDcSenseRelationalModel.AvgSense[gainIndex].sense))
-                    .WithGainS16Bit(cgDcSenseRelationalModel.AvgSense[gainIndex].dc);
+                    .WithGainS16Bit((short)Math.Clamp(Math.Round(gain / 14d * Math.Pow(2d, 15d), MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue));
             }
 
             results[cibInformationIndex] = cibmmdGains;
