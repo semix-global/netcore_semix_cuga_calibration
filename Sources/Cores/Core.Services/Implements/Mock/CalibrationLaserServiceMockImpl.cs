@@ -16,8 +16,6 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationLaserServiceMockImpl(
     ICalibrationConfigService calibrationConfigService) : ICalibrationLaserService
 {
-    private static readonly Random Random = new();
-
     private Point _curPosition = new(0, 0);
     private double _coefficient = 1;
 
@@ -32,7 +30,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
-        _curPosition = new Point(Random.Next(240, 300), Random.Next(240, 300));
+        _curPosition = new Point(Random.Shared.Next(240, 300), Random.Shared.Next(240, 300));
 
         return SxExecuteRetHelper.CreateSuccess((_curPosition, _curPosition));
     }
@@ -41,7 +39,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
-        _curPosition = new Point(Random.Next(240, 300), Random.Next(240, 300));
+        _curPosition = new Point(Random.Shared.Next(240, 300), Random.Shared.Next(240, 300));
 
         return SxExecuteRetHelper.CreateSuccess((_curPosition, _curPosition));
     }
@@ -57,7 +55,7 @@ public sealed class CalibrationLaserServiceMockImpl(
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(30, 60) * _coefficient));
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Shared.Next(30, 60) * _coefficient));
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()

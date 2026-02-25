@@ -23,7 +23,7 @@ using System.Runtime.CompilerServices;
 namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationCIBService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationCIBServiceImpl(ICalibrationAlgorithmService calibrationAlgorithmService) : BaseService<ICgCalibrationService>, ICalibrationCIBService
+public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationService>, ICalibrationCIBService
 {
     public SxExecuteRet<bool> Connect()
     {
@@ -306,6 +306,28 @@ public sealed class CalibrationCIBServiceImpl(ICalibrationAlgorithmService calib
                 return new DarkFieldImageDTO { Image = resultImage }.AdaptIn(t);
             }, cancellationToken))))
             : SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getPMTImagesRet.Msg, []);
+    }
+
+    public SxExecuteRet<(double ECS, double Motor, bool isAFServo)> RuntimeAFCalibration(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        ProductivityInformation productivityInformation,
+        CIBInformation cibInformation,
+        Point? bfPosition = null,
+        LaserLightInformation? laserLightInformation = null)
+    {
+        var sxExecuteRet = Invoke(() => Service!.RuntimeAutofocusCalibration(
+            productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+            productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+            productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+            calChipSiteModelEnum.ToCgCalChipType(),
+            Convert.ToUInt16(cibInformation.PMTId),
+            laserLightInformation is not null ? Convert.ToUInt16(laserLightInformation.Level) : null,
+            bfPosition?.ToCgPoint()
+        ));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<(double Ecs, double AfMotor, bool isAFServo)>(sxExecuteRet.Msg)
+            : SxExecuteRetHelper.CreateSuccess<(double Ecs, double AfMotor, bool isAFServo)>((sxExecuteRet.Anything.Ecs, sxExecuteRet.Anything.Offset, true));
     }
 
     private SxExecuteRet<IReadOnlyList<T>> ReadRegister<T>(IReadOnlyList<CIBInformation> cibInformations, PMTRegEnum pmtRegEnum, Func<int, T> valueConverter, [CallerMemberName] string name = "")

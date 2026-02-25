@@ -243,4 +243,16 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
     }
+
+    public SxExecuteRet<(double ECS, double Motor, bool isAFServo)> RuntimeAFCalibration(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        ProductivityInformation productivityInformation, 
+        CIBInformation cibInformation, 
+        Point? bfPosition = null, 
+        LaserLightInformation? laserLightInformation = null)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess((Random.Shared.NextDouble(), Random.Shared.NextDouble(), true));
+    }
 }

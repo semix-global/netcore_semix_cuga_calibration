@@ -190,4 +190,20 @@ public interface ICalibrationCIBService
         double stopECS,
         bool isForward,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 自动聚焦
+    /// </summary>
+    /// <param name="calChipSiteModelEnum">CalChip模式</param>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="cibInformation">CIB</param>
+    /// <param name="bfPosition">明场中心位置 null表示用cuga配置值</param>
+    /// <param name="laserLightInformation">光强 null表示用cuga配置值</param>
+    /// <returns>RTFC返回ECS、电机值、是否是AF伺服(True: AF / False: Relay)</returns>
+    SxExecuteRet<(double ECS, double Motor, bool isAFServo)> RuntimeAFCalibration(
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        ProductivityInformation productivityInformation,
+        CIBInformation cibInformation,
+        Point? bfPosition = null,
+        LaserLightInformation? laserLightInformation = null);
 }
