@@ -121,7 +121,9 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-
+        
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        
         if (LoadDepends() == false) return false;
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
@@ -129,6 +131,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
         ChuckCenter = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
         MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
+        
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineCentricityCache>();
 
         Calibrations = CacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
