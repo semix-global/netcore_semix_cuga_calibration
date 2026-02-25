@@ -92,9 +92,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     private ChuckCenterAndThetaItemDto _chuckCenter = new();
 
     [ObservableProperty]
-    private CIBYPixelSizeDTO[] _laserPixelSizes = [];
-
-    [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
@@ -132,7 +129,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
         ChuckCenter = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
         MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
-        LaserPixelSizes = CacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>();
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineCentricityCache>();
 
         Calibrations = CacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
@@ -520,7 +516,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     {
         await InvokeVerifyAsync(async () =>
         {
-            MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
             if (SelectedReviewItems.Count == 0)
             {
                 DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -594,7 +589,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                     HtmlLogUniqueId,
                     Name,
                     string.Empty,
-                    out var resultPosition,
+                    out _,
                     out _,
                     out _,
                     out _,
