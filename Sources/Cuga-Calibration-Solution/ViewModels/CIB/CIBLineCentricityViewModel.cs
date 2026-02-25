@@ -7,7 +7,6 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.CIB.LineCentricity;
-using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
@@ -92,9 +91,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     private ChuckCenterAndThetaItemDto _chuckCenter = new();
 
     [ObservableProperty]
-    private CIBYPixelSizeDTO[] _laserPixelSizes = [];
-
-    [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
@@ -125,11 +121,15 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+
         if (LoadDepends() == false) return false;
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
+        ChuckCenter = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
+        MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineCentricityCache>();
 
@@ -478,16 +478,15 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             }), HtmlLogUniqueId.LoggingHtml());
 
             var (_, yDirection) = StageViewModel.GetMachineDirection();
-            CalibratingItems = CalibrationSetting.SettingPmtConfigParam.PmtConfigList
-                .Where(t => t.Enabled)
-                .OrderBy(t => t.Id)
+            CalibratingItems = ApplicationCookie.CIBInformationPMTIds
+                .OrderBy(t => t)
                 .Select(t =>
                     new CIBLineCentricityDTO()
                     {
                         MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation,
                         ProductivityInformation = Cache.ProductivityInformation,
-                        PmtId = t.Id,
-                        FindDFMachinePosition = StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)) + (Vector)new Point(0, yDirection * (t.Id - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval),
+                        PmtId = t,
+                        FindDFMachinePosition = StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)) + (Vector)new Point(0, yDirection * (t - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval),
                         FilePath = detectImageDirectory,
                         RawFilePath = detectImageDirectory
                     }).ToList();
@@ -535,7 +534,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             Cache.ProductivityInformation = productiveGroups.First().Key;
 
             var centerLineCentricityDTO = Reviews.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation
-                                                             && t.PmtId == CalibrationConstantsHelper.MainPmtId);
+                                                                       && t.PmtId == CalibrationConstantsHelper.MainPmtId);
             Guard.IsNotNull(centerLineCentricityDTO);
 
             if (Cache.Item.IsDarkFieldAlignment == false)
@@ -592,7 +591,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                     HtmlLogUniqueId,
                     Name,
                     string.Empty,
-                    out var resultPosition,
+                    out _,
                     out _,
                     out _,
                     out _,
@@ -652,7 +651,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 var calibrationOffset = calibrationOffsets.Single(t => t.Pmt == verifyItem.PmtId).Offset;
 
                 var ideaDFMachinePosition = new Point(ideaCenterDFMachinePosition.X, ideaCenterDFMachinePosition.Y + yDirection * Cache.PmtInterval * (verifyItem.PmtId - CalibrationConstantsHelper.MainPmtId))
-                                 + (Vector)new Point(xDirection * calibrationOffset.X, yDirection * calibrationOffset.Y);
+                                            + (Vector)new Point(xDirection * calibrationOffset.X, yDirection * calibrationOffset.Y);
 
                 verifyItem.FindDFMachinePosition = ideaDFMachinePosition;
 
@@ -662,7 +661,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
                 var error = verifyItem.DFMatchPositionOffset;
                 var isOk = Math.Abs(error.X) < Cache.Threshold.X
-                        && Math.Abs(error.Y) < Cache.Threshold.Y;
+                           && Math.Abs(error.Y) < Cache.Threshold.Y;
 
                 var htmlQuote = new HtmlQuote(new
                 {
@@ -708,16 +707,16 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         Guard.IsNotEqualTo(ChuckCenter.NewBFCenterStagePosition, Point.Origin);
 
         using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                                Cache.ProductivityInformation,
-                                StageCoordinateSystemEnum.Dark,
-                               StageViewModel.MachineToDarkFieldPosition(cibLineCentricityDTO.FindDFMachinePosition),
-                                ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibLineCentricityDTO.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
-                                Cache.Item.ImageWidth,
-                                (false, Cache.CalChipSiteModelEnum),
-                                (false, Cache.Item.CIBConfiguration),
-                                (false, Cache.Item.LaserLightInformation),
-                                false,
-                                cancellationToken);
+            Cache.ProductivityInformation,
+            StageCoordinateSystemEnum.Dark,
+            StageViewModel.MachineToDarkFieldPosition(cibLineCentricityDTO.FindDFMachinePosition),
+            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibLineCentricityDTO.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
+            Cache.Item.ImageWidth,
+            (false, Cache.CalChipSiteModelEnum),
+            (false, Cache.Item.CIBConfiguration),
+            (false, Cache.Item.LaserLightInformation),
+            false,
+            cancellationToken);
 
         if (LaserViewModel.TryGetMatchPosition(
                 Cache.AlgorithmTemplateTypeEnum,
@@ -793,8 +792,8 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.Y)).ToArray();
 
         var (slopeYError, interceptYError, rSquaredYError, _) = PolynomialCurve.Fit1(
-           Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.X)),
-           Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.Y)));
+            Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.X)),
+            Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.Y)));
 
         var pmtYErrorTitle = $"y ={slopeYError:0.######}x + {interceptYError:0.######} r^2 = {rSquaredYError:0.######} angle = {MathUtils.RadianAngleToDegreeAngle(Math.Atan(slopeYError))}";
 

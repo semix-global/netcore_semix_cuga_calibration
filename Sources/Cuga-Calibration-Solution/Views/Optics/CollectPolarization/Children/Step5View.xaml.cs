@@ -7,6 +7,3 @@ public sealed partial class Step5View
         InitializeComponent();
     }
 }
-
-
-

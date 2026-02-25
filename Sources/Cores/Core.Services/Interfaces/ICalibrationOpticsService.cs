@@ -107,7 +107,8 @@ public interface ICalibrationOpticsService
 
     #endregion DOE
 
-    #region  CollectPolarization
+    #region CollectPolarization
+
     /// <summary>
     /// 设置照明偏振模式
     /// </summary>
@@ -128,5 +129,6 @@ public interface ICalibrationOpticsService
     /// <param name="collectorPolarizationModeEnum">偏振</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val);
-    #endregion  CollectPolarization
+
+    #endregion CollectPolarization
 }

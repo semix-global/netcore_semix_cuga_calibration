@@ -7,6 +7,9 @@ public sealed partial class AdsYGainsCalibrationViewModel
 {
     private bool LoadDepends()
     {
+        if (ApplicationCookie.SysUser.IsAdmin) return true;
+
+        if (ApplicationCookie.SysUser.IsAdmin) return true;
         if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);

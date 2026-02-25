@@ -89,6 +89,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
         MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckPrealignerCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckPrealignerDTO>();
 
@@ -97,6 +99,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
+        Cache.AlgorithmWaferTypeEnum = AlignmentCacheBrightField.AlgorithmWaferTypeEnum;
         return true;
     }
 

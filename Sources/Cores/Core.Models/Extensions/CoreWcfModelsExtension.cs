@@ -401,7 +401,6 @@ public static class CoreWcfModelsExtension
         errorMessage = isOk ? string.Empty : "CIB  Line Centricity is Empty";
 
         return isOk;
-
     }
 
     public static bool IsOk(this AODAlignmentDTO[] result, out string errorMessage)

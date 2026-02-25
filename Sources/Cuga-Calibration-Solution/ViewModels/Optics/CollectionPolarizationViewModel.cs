@@ -23,14 +23,16 @@ using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibration.ViewModels.Optics;
 
-
 [IOCAppService(ServiceType = typeof(CollectionPolarizationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting, ICalibrationFourierService calibrationFlourierService,
+public sealed partial class CollectionPolarizationViewModel(
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    CalibrationSetting calibrationSetting,
+    ICalibrationFourierService calibrationFlourierService,
     ICalibrationOpticsService calibrationOpticService,
     ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
 {
     #region 界面相关
+
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Haze Wafer Position" },
@@ -42,6 +44,7 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
         new() { StepName = "Get P Polarization Position Of CH2" },
         new() { StepName = "Get P Polarization Position Of CH3" }
     ];
+
     #endregion 界面相关
 
     #region 缓存
@@ -60,7 +63,7 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
     [ObservableProperty]
     private CollectPolarizationDTO _calibration = new();
 
-    #endregion 缓存   
+    #endregion 缓存
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
@@ -141,7 +144,8 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
-        Cache.HazeWaferPosition = Cache.HazeWaferPosition != Point.Origin ? Cache.HazeWaferPosition
+        Cache.HazeWaferPosition = Cache.HazeWaferPosition != Point.Origin
+            ? Cache.HazeWaferPosition
             : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
 
         StageViewModel.SetAbsoluteStageTheta(0);
@@ -192,16 +196,16 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
             foreach (double i in angleArray)
             {
                 using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                ApplicationCookie.OILowProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                CIBInfor,
-                Cache.ImageWidth,
-                (false, CalChipSiteModelEnum.HazeModel),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
-                false,
-                cancellationToken);
+                    ApplicationCookie.OILowProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
+                    CIBInfor,
+                    Cache.ImageWidth,
+                    (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.CIBConfiguration),
+                    (false, Cache.LaserLightInformation),
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -243,23 +247,23 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
             calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH2_NDF, OpticsNDFTypeEnum.S);
 
             double[] angleArray = Generate.LinearRange(
-            Cache.FindAngleMin,
-            Cache.FindAngleInterval,
-            Cache.FindAngleMax);
+                Cache.FindAngleMin,
+                Cache.FindAngleInterval,
+                Cache.FindAngleMax);
 
             foreach (double i in angleArray)
             {
                 using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                ApplicationCookie.OILowProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                CIBInfor,
-                Cache.ImageWidth,
-                (false, CalChipSiteModelEnum.HazeModel),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
-                false,
-                cancellationToken);
+                    ApplicationCookie.OILowProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
+                    CIBInfor,
+                    Cache.ImageWidth,
+                    (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.CIBConfiguration),
+                    (false, Cache.LaserLightInformation),
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -301,23 +305,23 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
             calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH3_NDF, OpticsNDFTypeEnum.S);
 
             double[] angleArray = Generate.LinearRange(
-            Cache.FindAngleMin,
-            Cache.FindAngleInterval,
-            Cache.FindAngleMax);
+                Cache.FindAngleMin,
+                Cache.FindAngleInterval,
+                Cache.FindAngleMax);
 
             foreach (double i in angleArray)
             {
                 using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                ApplicationCookie.OILowProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                CIBInfor,
-                Cache.ImageWidth,
-                (false, CalChipSiteModelEnum.HazeModel),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
-                false,
-                cancellationToken);
+                    ApplicationCookie.OILowProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
+                    CIBInfor,
+                    Cache.ImageWidth,
+                    (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.CIBConfiguration),
+                    (false, Cache.LaserLightInformation),
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -360,23 +364,23 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
             calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH1_NDF, OpticsNDFTypeEnum.P);
 
             double[] angleArray = Generate.LinearRange(
-            Cache.FindAngleMin,
-            Cache.FindAngleInterval,
-            Cache.FindAngleMax);
+                Cache.FindAngleMin,
+                Cache.FindAngleInterval,
+                Cache.FindAngleMax);
 
             foreach (double i in angleArray)
             {
                 using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                ApplicationCookie.OILowProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                CIBInfor,
-                Cache.ImageWidth,
-                (false, CalChipSiteModelEnum.HazeModel),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
-                false,
-                cancellationToken);
+                    ApplicationCookie.OILowProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
+                    CIBInfor,
+                    Cache.ImageWidth,
+                    (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.CIBConfiguration),
+                    (false, Cache.LaserLightInformation),
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -418,23 +422,23 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
             calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH2_NDF, OpticsNDFTypeEnum.P);
 
             double[] angleArray = Generate.LinearRange(
-            Cache.FindAngleMin,
-            Cache.FindAngleInterval,
-            Cache.FindAngleMax);
+                Cache.FindAngleMin,
+                Cache.FindAngleInterval,
+                Cache.FindAngleMax);
 
             foreach (double i in angleArray)
             {
                 using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                ApplicationCookie.OILowProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                CIBInfor,
-                Cache.ImageWidth,
-                (false, CalChipSiteModelEnum.HazeModel),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
-                false,
-                cancellationToken);
+                    ApplicationCookie.OILowProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
+                    CIBInfor,
+                    Cache.ImageWidth,
+                    (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.CIBConfiguration),
+                    (false, Cache.LaserLightInformation),
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -476,23 +480,23 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
             calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH3_NDF, OpticsNDFTypeEnum.P);
 
             double[] angleArray = Generate.LinearRange(
-            Cache.FindAngleMin,
-            Cache.FindAngleInterval,
-            Cache.FindAngleMax);
+                Cache.FindAngleMin,
+                Cache.FindAngleInterval,
+                Cache.FindAngleMax);
 
             foreach (double i in angleArray)
             {
                 using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                ApplicationCookie.OILowProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                CIBInfor,
-                Cache.ImageWidth,
-                (false, CalChipSiteModelEnum.HazeModel),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
-                false,
-                cancellationToken);
+                    ApplicationCookie.OILowProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
+                    CIBInfor,
+                    Cache.ImageWidth,
+                    (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.CIBConfiguration),
+                    (false, Cache.LaserLightInformation),
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -542,4 +546,3 @@ public sealed partial class CollectionPolarizationViewModel(ICalibrationAlgorith
         RecipeCacheProvider.Set(Cache, cancellationToken);
     });
 }
-

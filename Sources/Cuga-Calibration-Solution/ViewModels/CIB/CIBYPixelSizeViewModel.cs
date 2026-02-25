@@ -396,15 +396,14 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             var (_, yDirection) = StageViewModel.GetMachineDirection();
-            CalibratingItems = CalibrationSetting.SettingPmtConfigParam.PmtConfigList
-                .Where(t => t.Enabled)
-                .OrderBy(t => t.Id)
+            CalibratingItems = ApplicationCookie.CIBInformationPMTIds
+                .OrderBy(t => t)
                 .Select(t =>
-                    new CIBYPixelSizeDTO()
+                    new CIBYPixelSizeDTO
                     {
                         ProductivityInformation = Cache.ProductivityInformation,
-                        PmtId = t.Id,
-                        FindBFMachinePosition = Cache.Item.FindBFMachinePosition + (Vector)new Point(0, yDirection * (t.Id - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval),
+                        PmtId = t,
+                        FindBFMachinePosition = Cache.Item.FindBFMachinePosition + (Vector)new Point(0, yDirection * (t - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval),
                         FilePath = detectImageDirectory,
                         RawFilePath = detectImageDirectory
                     }).ToList();

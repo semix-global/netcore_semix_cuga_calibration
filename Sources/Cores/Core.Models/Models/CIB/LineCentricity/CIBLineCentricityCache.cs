@@ -69,5 +69,4 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private string _templateImageFilePath = string.Empty;
-
 }
