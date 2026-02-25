@@ -12,6 +12,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
+using System.Collections.Concurrent;
 using System.IO;
 
 namespace Core.Services.Implements.Mock;
@@ -21,6 +22,10 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 {
     private readonly string _mockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw");
     private readonly string _cibMMDGainDTOFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\CIBMMDGainRelationshipDTO.xlsx");
+
+    private readonly ConcurrentDictionary<CIBInformation, bool> _agcStatusStore = new();
+    private readonly ConcurrentDictionary<CIBInformation, CIBProfileModeEnum> _profileModeStore = new();
+    private readonly ConcurrentDictionary<CIBInformation, bool> _l0KStatusStore = new();
 
     public SxExecuteRet<bool> Connect()
     {
@@ -44,35 +49,55 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBInformation>>([.. cibInformations.OrderBy(t => t)]);
     }
 
-    public SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    public SxExecuteRet<IReadOnlyList<bool>> GetAGC(IReadOnlyList<CIBInformation> cibInformations)
     {
         Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<bool>>([.. cibInformations.Select(c => _agcStatusStore.GetOrAdd(c, false))]);
+    }
+
+    public SxExecuteRet<bool> SetAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    {
+        Thread.Sleep(100);
+
+        foreach (var cibInformation in cibInformations) _agcStatusStore[cibInformation] = enable;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
+    public SxExecuteRet<IReadOnlyList<CIBProfileModeEnum>> GetCIBProfileModeEnum(IReadOnlyList<CIBInformation> cibInformations)
     {
         Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBProfileModeEnum>>([.. cibInformations.Select(c => _profileModeStore.GetOrAdd(c, CIBProfileModeEnum.PMTVoltage))]);
+    }
+
+    public SxExecuteRet<bool> SetCIBProfileModeEnum(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
+    {
+        Thread.Sleep(100);
+
+        foreach (var cibInformation in cibInformations) _profileModeStore[cibInformation] = cibProfileModeEnum;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    public SxExecuteRet<IReadOnlyList<bool>> GetL0K(IReadOnlyList<CIBInformation> cibInformations)
     {
         Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<bool>>([.. cibInformations.Select(c => _l0KStatusStore.GetOrAdd(c, false))]);
+    }
+
+    public SxExecuteRet<bool> SetL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    {
+        Thread.Sleep(100);
+
+        foreach (var cibInformation in cibInformations) _l0KStatusStore[cibInformation] = enable;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableMarkMode(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
         Thread.Sleep(100);
 
@@ -158,7 +183,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
             var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            results[i] = new DarkFieldImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image };
+            results[i] = new DarkFieldImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, Image = image };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
@@ -183,11 +208,10 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         {
             var cibInformation = cibInformations[i];
 
-
             var (size, _, _) = RawImageFactory.GetSize(binaryReader);
             var sizeI = (SizeI)size;
 
-            results[i] = new DarkFieldRawScanImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = _mockImageFilePath };
+            results[i] = new DarkFieldRawScanImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = sizeI.Width, Height = sizeI.Height, RawImageFilePath = _mockImageFilePath, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results));
@@ -214,7 +238,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
             var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            results[i] = new DarkFieldImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, Image = image };
+            results[i] = new DarkFieldImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, Image = image };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));

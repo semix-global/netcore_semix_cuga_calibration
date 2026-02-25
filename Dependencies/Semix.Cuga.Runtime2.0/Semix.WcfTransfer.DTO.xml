@@ -151,6 +151,11 @@
             false返回对象M2CImgSysCollectImgDTO集合   图像url对象
             </summary>
         </member>
+        <member name="P:Semix.WcfTransfer.DTO.SxCollectImgParam.IsPixel">
+            <summary>
+            扫描宽度是否为像素
+            </summary>
+        </member>
         <member name="T:Semix.WcfTransfer.DTO.SxErrorData">
             <summary>
             错误信息

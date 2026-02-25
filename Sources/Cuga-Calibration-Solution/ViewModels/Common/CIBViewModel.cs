@@ -2,14 +2,12 @@ using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AutoFocus;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -50,21 +48,21 @@ public sealed class CIBViewModel(
 
     public void ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
-        var ret = calibrationCIBService.ToggleEnableAGC(cibInformations, enable);
+        var ret = calibrationCIBService.SetAGC(cibInformations, enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public void ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
     {
-        var ret = calibrationCIBService.ToggleProfileMode(cibInformations, cibProfileModeEnum);
+        var ret = calibrationCIBService.SetCIBProfileModeEnum(cibInformations, cibProfileModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public void ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
-        var ret = calibrationCIBService.ToggleEnableL0K(cibInformations, enable);
+        var ret = calibrationCIBService.SetL0K(cibInformations, enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -72,13 +70,6 @@ public sealed class CIBViewModel(
     public void SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
     {
         var ret = calibrationCIBService.SetGain(cibInformations, gain);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void ToggleEnableMarkMode(IReadOnlyList<CIBInformation> cibInformations, bool enable)
-    {
-        var ret = calibrationCIBService.ToggleEnableMarkMode(cibInformations, enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

@@ -22,28 +22,49 @@ public interface ICalibrationCIBService
     SxExecuteRet<IReadOnlyList<CIBInformation>> GetCIBInformations();
 
     /// <summary>
-    /// 切换自动增益 Auto Gain Control
+    /// 获取AGC状态
     /// </summary>
     /// <param name="cibInformations">CIB信息列表</param>
-    /// <param name="enable">是否自动增益</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable);
+    /// <returns>是否启用</returns>
+    SxExecuteRet<IReadOnlyList<bool>> GetAGC(IReadOnlyList<CIBInformation> cibInformations);
 
     /// <summary>
-    /// 切换Log反差模式
+    /// 设置AGC状态
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="enable">是否启用AGC</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable);
+
+    /// <summary>
+    /// 获取ProfileMode状态
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <returns>CIBProfileModeEnum</returns>
+    SxExecuteRet<IReadOnlyList<CIBProfileModeEnum>> GetCIBProfileModeEnum(IReadOnlyList<CIBInformation> cibInformations);
+
+    /// <summary>
+    /// 设置ProfileMode
     /// </summary>
     /// <param name="cibInformations">CIB信息列表</param>
     /// <param name="cibProfileModeEnum">数据显示模式</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum);
+    SxExecuteRet<bool> SetCIBProfileModeEnum(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum);
 
     /// <summary>
-    /// 切换所有PMT L0K
+    /// 获取L0K状态
     /// </summary>
     /// <param name="cibInformations">CIB信息列表</param>
-    /// <param name="enable">是否自动L0k</param>
+    /// <returns>是否启用</returns>
+    SxExecuteRet<IReadOnlyList<bool>> GetL0K(IReadOnlyList<CIBInformation> cibInformations);
+
+    /// <summary>
+    /// 设置L0K状态
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="enable">是否启用L0K</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable);
+    SxExecuteRet<bool> SetL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable);
 
     /// <summary>
     /// 设置增益
@@ -52,14 +73,6 @@ public interface ICalibrationCIBService
     /// <param name="gain">增益</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain);
-
-    /// <summary>
-    /// 切换Mark模式
-    /// </summary>
-    /// <param name="cibInformations">CIB信息列表</param>
-    /// <param name="enable">是否Mark模式</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableMarkMode(IReadOnlyList<CIBInformation> cibInformations, bool enable);
 
     /// <summary>
     /// 设置MMD
