@@ -6,6 +6,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
@@ -18,7 +19,6 @@ using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Core.Utilities;
 
 namespace Core.Services.Implements.WCF;
 
@@ -78,10 +78,10 @@ public sealed class CalibrationCIBServiceImpl(ICalibrationAlgorithmService calib
 
     public SxExecuteRet<bool> SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
     {
-        var sxExecuteRet = Invoke(() => Service?.SendCIBWave([..logGainMul128U12Bits], CgCIBWaveType.Sense, cibInformation.PMTId, cibInformation.ChannelId));
+        var sxExecuteRet = Invoke(() => Service?.SendCIBWave([.. logGainMul128U12Bits], CgCIBWaveType.Sense, cibInformation.PMTId, cibInformation.ChannelId));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
-        sxExecuteRet = Invoke(() => Service?.SendCIBWave([..gainS16Bits], CgCIBWaveType.IG, cibInformation.PMTId, cibInformation.ChannelId));
+        sxExecuteRet = Invoke(() => Service?.SendCIBWave([.. gainS16Bits], CgCIBWaveType.IG, cibInformation.PMTId, cibInformation.ChannelId));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
         sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.MaxGain, [(Convert.ToInt32(logGainMul128U12Bits.Max()), cibInformation.PMTId, cibInformation.ChannelId)]));

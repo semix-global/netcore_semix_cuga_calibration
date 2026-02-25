@@ -130,7 +130,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-        
+
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBXPixelSizeCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>();
 

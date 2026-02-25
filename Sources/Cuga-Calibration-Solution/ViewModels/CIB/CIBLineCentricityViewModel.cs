@@ -7,7 +7,6 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.CIB.LineCentricity;
-using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
@@ -17,8 +16,8 @@ using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
@@ -121,9 +120,9 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        
+
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
-        
+
         if (LoadDepends() == false) return false;
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
@@ -131,7 +130,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
         ChuckCenter = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
         MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
-        
+
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineCentricityCache>();
 
         Calibrations = CacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();

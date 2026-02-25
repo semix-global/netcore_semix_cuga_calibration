@@ -53,7 +53,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<bool>>([..cibInformations.Select(c => _agcStatusStore.GetOrAdd(c, false))]);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<bool>>([.. cibInformations.Select(c => _agcStatusStore.GetOrAdd(c, false))]);
     }
 
     public SxExecuteRet<bool> SetAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
@@ -69,7 +69,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBProfileModeEnum>>([..cibInformations.Select(c => _profileModeStore.GetOrAdd(c, CIBProfileModeEnum.PMTVoltage))]);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<CIBProfileModeEnum>>([.. cibInformations.Select(c => _profileModeStore.GetOrAdd(c, CIBProfileModeEnum.PMTVoltage))]);
     }
 
     public SxExecuteRet<bool> SetCIBProfileModeEnum(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
@@ -85,7 +85,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<bool>>([..cibInformations.Select(c => _l0KStatusStore.GetOrAdd(c, false))]);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<bool>>([.. cibInformations.Select(c => _l0KStatusStore.GetOrAdd(c, false))]);
     }
 
     public SxExecuteRet<bool> SetL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
