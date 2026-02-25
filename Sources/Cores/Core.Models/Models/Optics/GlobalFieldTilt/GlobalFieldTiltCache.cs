@@ -39,7 +39,7 @@ public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase
     private bool _isDarkFieldAlignment;
 
     [ObservableProperty]
-    private ObservableCollection<PmtConfigParam> _pmtConfigList = [];
+    private IReadOnlyList<int> _pMTIds = [];
 
     /// <summary>
     /// um/ecs

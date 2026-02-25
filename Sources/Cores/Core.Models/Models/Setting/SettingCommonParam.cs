@@ -28,28 +28,6 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
     [ObservableProperty]
     private double _measurePowerMeasurementMinValue = 0.1;
 
-    #region 校准状态控制
-
-    /// <summary>
-    /// 依赖关系使能
-    /// </summary>
-    [ObservableProperty]
-    private bool _dependencyEnable;
-
-    /// <summary>
-    /// 前置条件使能
-    /// </summary>
-    [ObservableProperty]
-    private bool _prerequisitesEnable;
-
-    /// <summary>
-    /// 是否是Debug环境
-    /// </summary>
-    [ObservableProperty]
-    private bool _isDebugEnvironment;
-
-    #endregion 校准状态控制
-
     #region Mapper
 
     public SettingCommonParam AdaptIn(SettingCommonParam obj)
@@ -60,9 +38,6 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
         MainLaserLightInformation = obj.MainLaserLightInformation;
         PMTInterval = obj.PMTInterval;
         MeasurePowerMeasurementMinValue = obj.MeasurePowerMeasurementMinValue;
-        DependencyEnable = obj.DependencyEnable;
-        PrerequisitesEnable = obj.PrerequisitesEnable;
-        IsDebugEnvironment = obj.IsDebugEnvironment;
 
         return this;
     }
