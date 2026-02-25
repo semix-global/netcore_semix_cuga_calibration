@@ -515,7 +515,7 @@ public static class AODWaveformGenerator1
              * 16-bit PCM(脉冲编码调制)格式: Int16 范围 [-32768, 32767]
              *
              * 归一化映射:
-             *   -1.0 → -32768 (0x8000) Math.Pow(2d, 15d) -1
+             *   -1.0 → -32768 (0x8000) Math.Pow(2d, 15d) - 1
              *    0.0 → 0      (0x0000)
              *   +1.0 → +32767 (0x7FFF) -Math.Pow(2d, 15d)
              */

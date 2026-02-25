@@ -5,7 +5,6 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Optics.CollectPolarization;
 
-
 public sealed partial class CollectPolarizationCache : CalibrationCacheBase
 {
     [ObservableProperty]

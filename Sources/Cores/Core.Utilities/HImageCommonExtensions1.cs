@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;
-using System.Runtime.InteropServices;
 
 namespace Core.Utilities;
 
@@ -98,61 +97,101 @@ public static class HImageCommonExtensions1
             return results;
         }
 
-        public short[,] GetMatrix()
+        /// <summary>
+        /// 将 RAW Log图像转换为线性化图像. 先进行均值滤波(3×3), 再通过反向指数变换将灰度值映射到 12bit 范围
+        /// </summary>
+        /// <returns>线性化后的HImage</returns>
+        public HImage RAW12BitsPerPixelLogToLinear()
         {
-            using var gray = @this.ToGray();
+            Guard.IsEqualTo(@this.GetBitsPerPixel(), 16);
 
-            var pointer = gray.GetImagePointer1(out string type, out int width, out int height);
-            if (width <= 0 || height <= 0) ThrowHelper.ThrowArgumentOutOfRangeException(nameof(@this));
+            using var meanImage = @this.MeanImage(3, 3);
 
-            var length = checked(width * height);
+            var (width, height) = (SizeI)meanImage.GetSize();
 
-            short[] pixels = type switch
+            using var region = meanImage.GetDomain();
+            region.GetRegionPoints(out var rowsHTuple, out var columnsHTuple);
+
+            using var _0 = rowsHTuple;
+            using var _1 = columnsHTuple;
+
+            using var grayValHTuple = meanImage.GetGrayval(rowsHTuple, columnsHTuple);
+
+            // 2 ^ (gray / 128) -> [0, 4095]
+            using var divHTuple = grayValHTuple / 128d;
+            using var exp2HTuple = divHTuple.TupleExp2();
+            using var exp2MaxHTuple = exp2HTuple.TupleMax();
+            using var scaleHTuple = exp2MaxHTuple / 4095d;
+            using var exp2DivHTuple = exp2HTuple / scaleHTuple;
+
+            var result = new HImage("int2", width, height);
+            result.SetGrayval(rowsHTuple, columnsHTuple, exp2DivHTuple);
+
+            return result;
+        }
+
+        /// <summary>
+        /// 获取 16位HImage 指定行的灰度值数组
+        /// </summary>
+        /// <param name="row">行索引（从 0 开始）</param>
+        /// <returns>该行所有像素的灰度值 ushort[width]</returns>
+        public unsafe ushort[] RAW16BitsPerPixelGetRow(int row)
+        {
+            Guard.IsEqualTo(@this.GetBitsPerPixel(), 16);
+
+            var (width, height) = (SizeI)@this.GetSize();
+            Guard.IsInRange(row, 0, height - 1);
+
+            var totalBytes = width * sizeof(ushort);
+
+            var result = new ushort[width];
+            fixed (ushort* dst = result) Buffer.MemoryCopy((ushort*)@this.GetImagePointer().ToPointer() + row * width, dst, totalBytes, totalBytes);
+
+            return result;
+        }
+
+        /// <summary>
+        /// 获取 16位HImage 指定列的灰度值数组
+        /// </summary>
+        /// <param name="col">列索引（从 0 开始）</param>
+        /// <returns>该列所有像素的灰度值 ushort[height]</returns>
+        public unsafe ushort[] RAW16BitsPerPixelGetColumn(int col)
+        {
+            Guard.IsEqualTo(@this.GetBitsPerPixel(), 16);
+
+            var (width, height) = (SizeI)@this.GetSize();
+
+            Guard.IsInRange(col, 0, width - 1);
+
+            var src = (ushort*)@this.GetImagePointer() + col;
+
+            var result = new ushort[height];
+
+            for (var row = 0; row < height; row++)
             {
-                "int2" => CopyInt2(pointer, length),
-                "uint2" => CopyUInt2(pointer, length),
-                "byte" => CopyByte(pointer, length),
-                _ => throw new NotSupportedException($"Unsupported image type: {type}")
-            };
-
-            var matrix = new short[height, width];
-            var index = 0;
-            for (var y = 0; y < height; y++)
-            {
-                for (var x = 0; x < width; x++)
-                {
-                    matrix[y, x] = pixels[index++];
-                }
+                result[row] = *src;
+                src += width;
             }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 将 16位HImage 转换为 ushort[,] 矩阵
+        /// </summary>
+        /// <returns>灰度值矩阵 ushort[height, width]</returns>
+        public unsafe ushort[,] RAW16BitsPerPixelToMatrix()
+        {
+            Guard.IsEqualTo(@this.GetBitsPerPixel(), 16);
+
+            var (width, height) = (SizeI)@this.GetSize();
+
+            var totalBytes = width * height * sizeof(ushort);
+
+            var matrix = new ushort[height, width];
+            fixed (ushort* dst = matrix) Buffer.MemoryCopy((ushort*)@this.GetImagePointer().ToPointer(), dst, totalBytes, totalBytes);
 
             return matrix;
-
-            static short[] CopyInt2(IntPtr pointer, int length)
-            {
-                var pixels = new short[length];
-                Marshal.Copy(pointer, pixels, 0, length);
-                return pixels;
-            }
-
-            static short[] CopyUInt2(IntPtr pointer, int length)
-            {
-                var bytes = new byte[checked(length * 2)];
-                Marshal.Copy(pointer, bytes, 0, bytes.Length);
-                var unsigned = new ushort[length];
-                Buffer.BlockCopy(bytes, 0, unsigned, 0, bytes.Length);
-                var pixels = new short[length];
-                for (var i = 0; i < length; i++) pixels[i] = unchecked((short)unsigned[i]);
-                return pixels;
-            }
-
-            static short[] CopyByte(IntPtr pointer, int length)
-            {
-                var bytes = new byte[length];
-                Marshal.Copy(pointer, bytes, 0, length);
-                var pixels = new short[length];
-                for (var i = 0; i < length; i++) pixels[i] = bytes[i];
-                return pixels;
-            }
         }
     }
 }

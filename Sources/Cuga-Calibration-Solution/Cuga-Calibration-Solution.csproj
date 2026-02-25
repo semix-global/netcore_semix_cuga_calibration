@@ -29,6 +29,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
     <ItemGroup>
         <Reference Include="HAlgorithm">
             <HintPath>..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
@@ -54,29 +55,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformCommon*.cs">
-            <DependentUpon>AbstractAODWaveformCommonWindowViewModel.cs</DependentUpon>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveform*.cs">
+            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(AODWaveform(?:Common|ElectrodeOffset|ElectrodeInitialize)).*', 'Abstract$1WindowViewModel.cs'))</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformElectrodeOffset*.cs">
-            <DependentUpon>AbstractAODWaveformElectrodeOffsetWindowViewModel.cs</DependentUpon>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveform*.cs">
+            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^((?:Chirp|Prescan)AODWaveform(?:ElectrodeOffset|ElectrodeInitialize|Training)).*', '$1WindowViewModel.cs'))</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveformElectrodeInitialize*.cs">
-            <DependentUpon>AbstractAODWaveformElectrodeInitializeWindowViewModel.cs</DependentUpon>
-        </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveformElectrodeOffset*.cs">
-            <DependentUpon>ChirpAODWaveformElectrodeOffsetWindowViewModel.cs</DependentUpon>
-        </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveformElectrodeInitialize*.cs">
-            <DependentUpon>ChirpAODWaveformElectrodeInitializeWindowViewModel.cs</DependentUpon>
-        </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveformElectrodeOffset*.cs">
-            <DependentUpon>PrescanAODWaveformElectrodeOffsetWindowViewModel.cs</DependentUpon>
-        </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveformElectrodeInitialize*.cs">
-            <DependentUpon>PrescanAODWaveformElectrodeInitializeWindowViewModel.cs</DependentUpon>
-        </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveformTraining*.cs">
-            <DependentUpon>ChirpAODWaveformTrainingWindowViewModel.cs</DependentUpon>
+        <Compile Update="ViewModels\*\*.LoadDepends.cs">
+            <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.LoadDepends', '.cs'))</DependentUpon>
         </Compile>
     </ItemGroup>
 

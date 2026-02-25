@@ -15,6 +15,8 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel
 {
     private bool LoadDepends()
     {
+        if (ApplicationCookie.SysUser.IsAdmin) return true;
+
         if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
