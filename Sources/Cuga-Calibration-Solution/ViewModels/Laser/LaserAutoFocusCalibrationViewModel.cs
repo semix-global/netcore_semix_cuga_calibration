@@ -94,7 +94,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     private LaserAutoFocusDto _calibration = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     #endregion 缓存
 
@@ -108,7 +108,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<LaserAutoFocusDto>();

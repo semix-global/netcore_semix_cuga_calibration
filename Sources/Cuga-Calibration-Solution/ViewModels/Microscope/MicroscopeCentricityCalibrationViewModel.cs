@@ -76,7 +76,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     private MicroscopeCentricityItemDto[] _calibrations = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
@@ -93,7 +93,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
         MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
         SynchronizationContextProvider.Send(() =>

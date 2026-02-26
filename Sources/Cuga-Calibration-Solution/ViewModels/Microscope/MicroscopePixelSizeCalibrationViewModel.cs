@@ -84,7 +84,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     private MicroscopePixelSizeCacheItem _selectMicroscopePixelSizeCacheItem = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -102,7 +102,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();

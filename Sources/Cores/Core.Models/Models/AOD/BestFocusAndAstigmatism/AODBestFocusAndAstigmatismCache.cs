@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
-public partial class BestFocusAndAstigmatismCache : CalibrationCacheBase
+public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -27,13 +27,13 @@ public partial class BestFocusAndAstigmatismCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsApodizationModeEnum _apodizationModeEnum;
 
-    public ConcurrentBag<KeyValuePair<(ProductivityInformation, OpticsApodizationModeEnum), BestFocusAndAstigmatismCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
 
-    public BestFocusAndAstigmatismCacheItem Item => Items.GetOrAdd((ProductivityInformation, ApodizationModeEnum), new BestFocusAndAstigmatismCacheItem());
+    public AODBestFocusAndAstigmatismCacheItem Item => Items.GetOrAdd((ProductivityInformation, ApodizationModeEnum), new AODBestFocusAndAstigmatismCacheItem());
 
     [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um
@@ -54,7 +54,7 @@ public partial class BestFocusAndAstigmatismCache : CalibrationCacheBase
     private double _traceBufferSamplingRate = 1d;
 }
 
-public partial class BestFocusAndAstigmatismCacheItem : CalibrationCacheBase
+public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private bool _isMultiPMTOnceCollection = true;

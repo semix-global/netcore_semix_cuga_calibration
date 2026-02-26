@@ -4,172 +4,134 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:focus="clr-namespace:Core.Models.Models.Microscope.Focus;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
-             d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipCalibrationViewModel}"
-             d:DesignHeight="800"
-             d:DesignWidth="1200"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:calchip="clr-namespace:Core.Models.Models.Microscope.CalChip;assembly=Core.Models"
+             d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipViewModel}"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="380" />
+            <ColumnDefinition Width="430" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat={}Cal Chip Step {0}:}"
-                           Status="{Binding CalibrationStepName}"
-                           Color="{StaticResource InfoBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="High Microscope Magnification: "
-                           Status="{Binding Cache.LowMicroscopeLensInformation.LensName}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="CalChip Mode: "
-                           Status="{Binding Cache.CalChipSiteModelEnum}"
-                           Color="{StaticResource SuccessBrush}" />
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat={}Cal Chip Step {0}:}"
+                               Status="{Binding CalibrationStepName}"
+                               Color="{StaticResource InfoBrush}" />
+                    <hc:Shield DockPanel.Dock="Bottom"
+                               Subject="High Microscope Magnification: "
+                               Status="{Binding Cache.LowMicroscopeLensInformation.LensName}"
+                               Color="{StaticResource SuccessBrush}" />
+                    <hc:Shield DockPanel.Dock="Bottom"
+                               Subject="CalChip Mode: "
+                               Status="{Binding Cache.CalChipSiteModelEnum}"
+                               Color="{StaticResource SuccessBrush}" />
+                    <hc:Shield DockPanel.Dock="Bottom"
+                               Subject="Low Microscope Magnification: "
+                               Status="{Binding Cache.LowMicroscopeLensInformation}"
+                               Color="{StaticResource SuccessBrush}" />
+                </hc:UniformSpacingPanel>
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="1. Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:SearchBar x:Name="QualitySearchBar"
-                                  Text="{Binding ReviewViewModel.Quality, Mode=OneWay, StringFormat={}{0:f3}}"
-                                  Command="{Binding ReviewViewModel.GetQualityCommand}"
-                                  hc:TitleElement.TitleWidth="180"
-                                  hc:TitleElement.Title="Quality: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  IsReadOnly="True"
-                                  Style="{StaticResource SearchBarExtend}" />
-                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
-                                      hc:TitleElement.Title="Z Limit Min: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.FindFocusMin}" />
-                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
-                                      hc:TitleElement.Title="Z Limit Max: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.FindFocusMax}" />
-                    <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
-                                      hc:TitleElement.Title="Z Limit Interval: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.Item.FindFocusInterval}" />
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="2. Ecs Center Position"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding Cache.Item.CenterPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.Title="Position(um): "
-                             hc:TitleElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.BrightFieldMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.Title="Bright Machine Position(um): "
-                             hc:TitleElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.DarkFieldMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.Title="Dark Machine Position(um): "
-                             hc:TitleElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
-                    <StackPanel>
-                        <TextBlock Text="3. Find Esc"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.BrightFieldQuality, StringFormat={}{0:f3}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.Title="Find Focus Max Quality: "
-                             hc:TitleElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.EcsValue, StringFormat={}{0:f3}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.Title="Find Focus Max Ecs: "
-                             hc:TitleElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}"
-                             IsReadOnly="True" />
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.AfEcsValue, StringFormat={}{0:f3}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.Title="Rtfc Af Ecs: "
-                             hc:TitleElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}"
-                             IsReadOnly="True" />
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.AfMotorValue, StringFormat={}{0:f3}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.Title="Rtfc Af Motor: "
-                             hc:TitleElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}"
-                             IsReadOnly="True" />
-                    <TextBox Text="{Binding ResultMicroscopeCalChipDto.CurrentItem.DarkFieldQuality, StringFormat={}{0:f3}}"
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.Title="Rtfc Quality: "
-                             hc:TitleElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button x:Name="ActionButton"
-                                Content="Action"
-                                Command="{Binding Step1CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button x:Name="CancelButton"
-                                Content="Cancel"
-                                Command="{Binding Step1CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="1. Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                          hc:TitleElement.Title="Start ECS: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StartECS}" />
+                        <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                          hc:TitleElement.Title="Stop ECS: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StopECS}" />
+                        <hc:NumericUpDown hc:TitleElement.TitleWidth="180"
+                                          hc:TitleElement.Title="Step ECS: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StepECS}" />
+                        <StackPanel>
+                            <TextBlock Text="2. Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.CurrentItem.BrightFieldMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.TitleWidth="180"
+                                 hc:TitleElement.Title="Bright Machine Position(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 IsReadOnly="True"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.CurrentItem.EcsValue, StringFormat={}{0:f3}}"
+                                 hc:TitleElement.TitleWidth="180"
+                                 hc:TitleElement.Title="Best Focus Ecs: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 IsReadOnly="True" />
+                        <TextBox Text="{Binding CalibratingItem.CurrentItem.Quality, StringFormat={}{0:f3}}"
+                                 hc:TitleElement.TitleWidth="180"
+                                 hc:TitleElement.Title="Best Focus Quality: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 IsReadOnly="True"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button x:Name="ActionButton"
+                                    Content="Action"
+                                    Command="{Binding Step1Command}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button x:Name="CancelButton"
+                                    Content="Cancel"
+                                    Command="{Binding Step1CancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
-        </hc:UniformSpacingPanel>
-        <!--#endregion-->
-
+        </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
 
-        <!--#region Right-->
-        <Grid Grid.Column="2">
-            <GroupBox Header="History">
-                <ListView d:SelectedIndex="0"
-                          ItemsSource="{Binding MicroscopeFocusItemDtoList}"
+        <GroupBox Grid.Column="2" Header="History">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="2*" />
+                </Grid.RowDefinitions>
+                <ListView x:Name="ListView"
+                          ItemsSource="{Binding CalibratingItem.Items}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectedMicroscopeFocusItemDto, Mode=OneWay}">
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <b:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </b:Interaction.Behaviors>
@@ -192,62 +154,53 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="100"
-                                            Header="Index"
-                                            DisplayMemberBinding="{Binding Index}" />
-                            <GridViewColumn Width="200"
-                                            Header="Magnification"
-                                            DisplayMemberBinding="{Binding LensInformation.LensName, Converter={StaticResource EnumDescriptionConverter}}" />
-                            <GridViewColumn Width="200"
-                                            Header="FindPosition"
-                                            DisplayMemberBinding="{Binding FindPosition, Converter={StaticResource PointToStringConverter}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Ecs"
-                                            DisplayMemberBinding="{Binding EcsValue, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="100"
-                                            Header="Quality"
-                                            DisplayMemberBinding="{Binding Quality, StringFormat={}{0:f3}}" />
-                            <GridViewColumn Width="200" Header="Action Review">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <hc:ButtonGroup>
-                                            <Button Content="Image"
-                                                    Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding FilePath}"
-                                                    d:DataContext="{d:DesignInstance Type=focus:MicroscopeFocusItemDto}" />
-                                        </hc:ButtonGroup>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
+                            <GridViewColumn Header="FindPosition" DisplayMemberBinding="{Binding BrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
+                            <GridViewColumn Header="Ecs" DisplayMemberBinding="{Binding EcsValue, StringFormat={}{0:f3}}" />
+                            <GridViewColumn Header="Quality" DisplayMemberBinding="{Binding Quality, StringFormat={}{0:f3}}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
-            </GroupBox>
-            <ToggleButton x:Name="ToggleButton"
-                          Content="Function Image"
-                          Margin="3.5"
-                          HorizontalAlignment="Right"
-                          VerticalAlignment="Top"
-                          hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                          Style="{StaticResource ToggleButtonDefault.Small}" />
-            <Popup StaysOpen="False"
-                   PlacementTarget="{Binding ElementName=ToggleButton}"
-                   Placement="Top"
-                   AllowsTransparency="True"
-                   PopupAnimation="Slide"
-                   IsOpen="{Binding IsChecked, ElementName=ToggleButton, Mode=TwoWay}">
-                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                    <wpf:WpfPlot Width="500" Height="400">
-                        <b:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Focus"
-                                                            Plot0Title="Quality"
-                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                            Plot0="{Binding EcsPoints}" />
-                        </b:Interaction.Behaviors>
-                    </wpf:WpfPlot>
+                <GridSplitter Grid.Row="1" Height="5" />
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                    <TabControl>
+                        <TabItem Header="Plots">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Images">
+                            <ListBox Margin="5" ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type calchip:MicroscopeCalChipDTOItem}">
+                                        <Border Width="300"
+                                                Height="300"
+                                                Style="{StaticResource BorderRegion}">
+                                            <hc:SimplePanel>
+                                                <view:CanvasView AxisColor="Red"
+                                                                 BackgroundColor="#0A0A0A"
+                                                                 BackgroundImage="{Binding FilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 Interactive="True"
+                                                                 ShowAxes="False"
+                                                                 ShowCursor="False"
+                                                                 ShowGrid="False" />
+                                                <TextBlock Text="{Binding EcsValue, StringFormat='0.###'}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           Foreground="Yellow" />
+                                            </hc:SimplePanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </TabItem>
+                    </TabControl>
                 </Border>
-            </Popup>
-        </Grid>
-        <!--#endregion-->
+            </Grid>
+        </GroupBox>
     </Grid>
 </UserControl>

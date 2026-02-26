@@ -457,7 +457,14 @@ public sealed class CIBViewModel(
     )
     {
         var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
-        Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel ? null : position;
+        Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel
+            ? null
+            : stageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => stageViewModel.DarkFieldToMachinePosition(position),
+                StageCoordinateSystemEnum.Machine => position,
+                _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum)),
+            };
 
         var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, productivityInformation, cibInformation.PMTId, lightInformation?.Coefficient, point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
@@ -477,7 +484,7 @@ public sealed class CIBViewModel(
             verifyPosition,
             cibInformation,
             xXWidthPixel,
-            (false, calChipSiteModelEnum),
+            (true, null),
             (false, cibConfiguration),
             (false, laserLightInformation),
             false,
@@ -510,6 +517,8 @@ public sealed class CIBViewModel(
 
         var rtfcResult = new RuntimeAfCalibrationResultDTO
         {
+            CalChipSiteModelEnum = calChipSiteModelEnum,
+            ProductivityInformation = productivityInformation.Clone(),
             ECSValue = ret.Anything.Ecs,
             MotorValue = ret.Anything.Motor,
             DarkFieldFilePath = rtfcVerifyImageFilePath,

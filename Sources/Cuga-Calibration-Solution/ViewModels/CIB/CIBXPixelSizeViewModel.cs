@@ -101,7 +101,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     private CIBXPixelSizeCache _cache = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
@@ -122,7 +122,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];

@@ -6,7 +6,7 @@ using Net.Utilities.WPF.Enums;
 
 namespace CugaCalibration.ViewModels.Microscope;
 
-public sealed partial class MicroscopeCalChipCalibrationViewModel
+public sealed partial class MicroscopeCalChipViewModel
 {
     private bool LoadDepends()
     {

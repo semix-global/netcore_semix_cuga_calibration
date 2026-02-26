@@ -13,14 +13,19 @@ public class CalibrationAutoFocusObj
     /// <summary>
     /// GFO校准对象列表
     /// </summary>
-    public CalibrationGlobalFocusOffset[] CalibrationGlobalFocusOffsets { get; set; } = Array.Empty<CalibrationGlobalFocusOffset>();
+    public CalibrationAutoFocusGlobalFocusOffset[] CalibrationAutoFocusGlobalFocusOffsets { get; set; } = [];
+
+    /// <summary>
+    /// CalChipFocusOffset校准对象列表
+    /// </summary>
+    public CalibrationAutoFocusCalChipFocusOffset CalibrationAutoFocusCalChipFocusOffset { get; set; } = new();
 }
 
 /// <summary>
 /// 暗场CalChip DSW焦点位置校准对象
 /// </summary>
 [Serializable]
-public sealed class CalibrationGlobalFocusOffset : CalibrationBase
+public sealed class CalibrationAutoFocusGlobalFocusOffset : CalibrationBase
 {
     /// <summary>
     /// 入射方式
@@ -51,4 +56,61 @@ public sealed class CalibrationGlobalFocusOffset : CalibrationBase
     /// 电机值, **Cuga内部使用**
     /// </summary>
     public double MotorValue { get; set; }
+}
+
+/// <summary>
+/// 暗场Cal Chip焦点位置校准对象
+/// </summary>
+[Serializable]
+public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**
+    /// </summary>
+    public bool IsAFServo { get; set; }
+
+    /// <summary>
+    /// Chuck暗场最佳Ecs
+    /// </summary>
+    public double ChuckEcsValue { get; set; }
+
+    /// <summary>
+    /// Chuck暗场电机值
+    /// </summary>
+    public double ChuckMotorValue { get; set; }
+
+    /// <summary>
+    /// Dsw暗场最佳Ecs
+    /// </summary>
+    public double DswEcsValue { get; set; }
+
+    /// <summary>
+    /// Dsw暗场电机值
+    /// </summary>
+    public double DswMotorValue { get; set; }
+
+    /// <summary>
+    /// Haze暗场最佳Ecs
+    /// </summary>
+    public double HazeEcsValue { get; set; }
+
+    /// <summary>
+    /// Haze暗场电机值
+    /// </summary>
+    public double HazeMotorValue { get; set; }
 }

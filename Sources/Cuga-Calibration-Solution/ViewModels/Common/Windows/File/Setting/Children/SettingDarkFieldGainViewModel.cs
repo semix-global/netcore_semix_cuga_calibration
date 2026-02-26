@@ -98,7 +98,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
                 if (coefficient is null) return;
 
                 var microscopeCalChipCache = cacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-                var microscopeCalChipDto = cacheProvider.GetOrDefault<MicroscopeCalChipDto>();
+                var microscopeCalChipDto = cacheProvider.GetOrDefault<MicroscopeCalChipDTO>();
 
                 if (microscopeCalChipDto.IsOk(out var errorMessage) == false)
                 {
@@ -108,7 +108,7 @@ public sealed partial class SettingDarkFieldGainViewModel(
 
                 var (isSuccess, gain) = await AutoPmtGainAsync(
                     coefficient.Value,
-                    microscopeCalChipCache.Items.Single(t => t.Key == CalChipSiteModelEnum.HazeModel).Value.CenterPosition,
+                    microscopeCalChipCache.Items.Single(t => t.Key == CalChipSiteModelEnum.HazeModel).Value.CenterMachinePosition,
                     CalChipSiteModelEnum.HazeModel,
                     ProductivityInformation,
                     Guid.NewGuid(),

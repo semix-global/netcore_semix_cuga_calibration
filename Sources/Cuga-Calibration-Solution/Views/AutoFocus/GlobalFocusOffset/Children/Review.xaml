@@ -10,7 +10,7 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:globalFocusOffset="clr-namespace:Core.Models.Models.AutoFocus.GlobalFocusOffset;assembly=Core.Models"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             d:DataContext="{d:DesignInstance Type=autoFocus:GlobalFocusOffsetViewModel}"
+             d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusGlobalFocusOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -79,7 +79,7 @@
                           SelectionMode="Extended">
                     <b:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type globalFocusOffset:GlobalFocusOffsetDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type globalFocusOffset:AutoFocusGlobalFocusOffsetDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </b:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -130,7 +130,7 @@
                                     </ItemsPanelTemplate>
                                 </ListBox.ItemsPanel>
                                 <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type globalFocusOffset:GlobalFocusOffsetDTO}">
+                                    <DataTemplate DataType="{x:Type globalFocusOffset:AutoFocusGlobalFocusOffsetDTO}">
                                         <Border Width="300"
                                                 Height="300"
                                                 Style="{StaticResource BorderRegion}">
