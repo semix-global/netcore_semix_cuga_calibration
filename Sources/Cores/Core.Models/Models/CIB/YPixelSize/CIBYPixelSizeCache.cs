@@ -43,7 +43,7 @@ public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    private int _cIBChannelId = 3;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

@@ -82,7 +82,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     private CIBLineCentricityDTO[] _calibrations = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
@@ -121,7 +121,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         if (LoadDepends() == false) return false;
 

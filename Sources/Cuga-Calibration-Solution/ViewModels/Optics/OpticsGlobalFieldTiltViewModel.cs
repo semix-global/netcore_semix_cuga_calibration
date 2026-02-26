@@ -85,7 +85,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
     private GlobalFieldTiltDTO[] _calibrations = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
@@ -117,7 +117,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
@@ -524,8 +524,6 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     selectedReviewItem.IsVerified = true;
                     continue;
                 }
-
-                ;
 
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
 

@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using HalconDotNet;
+using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;
 
@@ -105,27 +106,26 @@ public static class HImageCommonExtensions1
         {
             Guard.IsEqualTo(@this.GetBitsPerPixel(), 16);
 
-            using var meanImage = @this.MeanImage(3, 3);
+            var algorithm = new Algorithm();
+            algorithm.InvertTransformPatchImage128(@this, out var linearImage);
+            using var _ = linearImage;
 
-            var (width, height) = (SizeI)meanImage.GetSize();
-
-            using var region = meanImage.GetDomain();
-            region.GetRegionPoints(out var rowsHTuple, out var columnsHTuple);
+            HOperatorSet.GetImageSize(linearImage, out var width, out var height);
+            HOperatorSet.GetDomain(linearImage, out var region);
+            HOperatorSet.GetRegionPoints(region, out var rowsHTuple, out var columnsHTuple);
 
             using var _0 = rowsHTuple;
             using var _1 = columnsHTuple;
 
-            using var grayValHTuple = meanImage.GetGrayval(rowsHTuple, columnsHTuple);
+            HOperatorSet.GetGrayval(linearImage, rowsHTuple, columnsHTuple, out var grayValHTuple);
 
-            // 2 ^ (gray / 128) -> [0, 4095]
-            using var divHTuple = grayValHTuple / 128d;
-            using var exp2HTuple = divHTuple.TupleExp2();
-            using var exp2MaxHTuple = exp2HTuple.TupleMax();
-            using var scaleHTuple = exp2MaxHTuple / 4095d;
-            using var exp2DivHTuple = exp2HTuple / scaleHTuple;
+            var result = new HImage("uint2", width, height);
+            result.SetGrayval(rowsHTuple, columnsHTuple, grayValHTuple);
 
-            var result = new HImage("int2", width, height);
-            result.SetGrayval(rowsHTuple, columnsHTuple, exp2DivHTuple);
+            width.Dispose();
+            height.Dispose();
+            region.Dispose();
+            grayValHTuple.Dispose();
 
             return result;
         }

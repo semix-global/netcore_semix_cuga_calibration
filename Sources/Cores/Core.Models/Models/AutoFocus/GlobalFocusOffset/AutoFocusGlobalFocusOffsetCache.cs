@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AutoFocus.GlobalFocusOffset;
 
-public sealed partial class GlobalFocusOffsetCache : CalibrationCacheBase
+public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -18,13 +18,13 @@ public sealed partial class GlobalFocusOffsetCache : CalibrationCacheBase
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, GlobalFocusOffsetCacheItem>> Items { get; init; } = [];
+    public ConcurrentBag<KeyValuePair<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
 
-    public GlobalFocusOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, new GlobalFocusOffsetCacheItem());
+    public AutoFocusGlobalFocusOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, new AutoFocusGlobalFocusOffsetCacheItem());
 
     /// <summary>
     /// 电机值cuga当前配置位置，防呆用
@@ -49,7 +49,7 @@ public sealed partial class GlobalFocusOffsetCache : CalibrationCacheBase
     } = 1;
 }
 
-public sealed partial class GlobalFocusOffsetCacheItem : CalibrationCacheBase
+public sealed partial class AutoFocusGlobalFocusOffsetCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -67,5 +67,5 @@ public sealed partial class GlobalFocusOffsetCacheItem : CalibrationCacheBase
     private Point _rTFCBrightFieldMachinePosition = Point.Origin;
 
     [ObservableProperty]
-    private double _imageWidth = 1000;
+    private int _imageWidth = 1000;
 }

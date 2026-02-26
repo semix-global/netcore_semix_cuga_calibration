@@ -132,6 +132,8 @@ public sealed partial class StageViewModel(
 
     public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point) => SetMachineAbsoluteStageXyByNotAutoFocus(point, CalChipSiteModelEnum.ChuckModel);
 
+    public void SetCalChipMachineAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum) => SetMachineAbsoluteStageXyByNotAutoFocus(point, calChipSiteModelEnum);
+
     public void SetMachineAbsoluteStageXyByFixedSpeed(Point point)
     {
         afViewModel.ToggleBrightFieldEnable(false);

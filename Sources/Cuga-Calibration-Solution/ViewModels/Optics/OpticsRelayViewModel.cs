@@ -77,7 +77,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     private OpticsRelayDTO[] _calibrations = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     #endregion 缓存
 
@@ -91,7 +91,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses =

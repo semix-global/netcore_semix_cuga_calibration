@@ -12,7 +12,7 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:bestFocusAndAstigmatism="clr-namespace:Core.Models.Models.AOD.BestFocusAndAstigmatism;assembly=Core.Models"
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:BestFocusAndAstigmatismCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODBestFocusAndAstigmatismViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -329,7 +329,7 @@
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectedCalibratingItem}">
+                          SelectedItem="{Binding SelectedCalibratingDTOItem}">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </i:Interaction.Behaviors>
@@ -358,7 +358,7 @@
                             <GridViewColumn Header="Spectral Density" DisplayMemberBinding="{Binding SpectralDensity, StringFormat='0.###'}" />
                             <GridViewColumn Header="Waveform Profiles">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:BestFocusAndAstigmatismItemDto}">
+                                    <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:AODBestFocusAndAstigmatismDTOItem}">
                                         <Grid>
                                             <ToggleButton x:Name="ToggleButtonAODWaveformProfiles"
                                                           Content="Profiles"
@@ -431,7 +431,7 @@
                                       ScrollViewer.HorizontalScrollBarVisibility="Auto">
                                 <i:Interaction.Behaviors>
                                     <behaviors:ListBoxScrollToCurrentBehavior />
-                                    <wpf:ListBoxSelectedItemsBehavior Type="{x:Type bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelItemDto}" BindableSelectedItems="{Binding DataContext.SelectedCalibratingChannelItems, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <wpf:ListBoxSelectedItemsBehavior Type="{x:Type bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelDTOItem}" BindableSelectedItems="{Binding DataContext.SelectedCalibratingChannelItems, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                                 </i:Interaction.Behaviors>
                                 <ListView.ItemContainerStyle>
                                     <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -464,7 +464,7 @@
                                                         <Button Content="Origin"
                                                                 Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding OriginFilePath}"
-                                                                d:DataContext="{d:DesignInstance Type=bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelItemDto}" />
+                                                                d:DataContext="{d:DesignInstance Type=bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelDTOItem}" />
                                                     </hc:ButtonGroup>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
@@ -489,7 +489,7 @@
                         </DataTemplate>
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
-                        <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelItemDto}">
+                        <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelDTOItem}">
                             <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
                         </DataTemplate>
                     </TabControl.ContentTemplate>

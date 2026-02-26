@@ -12,6 +12,7 @@ using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.AOD.Uniformity;
+using Core.Models.Models.AutoFocus.CalChipFocusOffset;
 using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -595,8 +596,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 var calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeFocusCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeCalChipCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<MicroscopeCalChipDto>().IsOk(out _);
+                calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeCalChipViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<MicroscopeCalChipDTO>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopePixelSizeCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeCentricityCalibrationViewModel>();
@@ -669,8 +670,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 #endregion
 
-                calibrationItem = _applicationCookieService.FindCalibrationItem<GlobalFocusOffsetViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<GlobalFocusOffsetDTO>().IsOk(out _);
+                calibrationItem = _applicationCookieService.FindCalibrationItem<AutoFocusGlobalFocusOffsetViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AutoFocusGlobalFocusOffsetDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<AutoFocusCalChipFocusOffsetViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AutoFocusCalChipFocusOffsetDTO>().IsOk(out _);
             }
             catch (Exception ex)
             {

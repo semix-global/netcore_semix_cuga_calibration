@@ -41,7 +41,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(um/pix): "
                                           hc:TitleElement.TitleWidth="160"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
