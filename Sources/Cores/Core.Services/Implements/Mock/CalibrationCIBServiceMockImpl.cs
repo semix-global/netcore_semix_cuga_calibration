@@ -166,7 +166,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
     public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
+        Point centerPosition,
         IReadOnlyList<CIBInformation> cibInformations,
         int imageWidth,
         bool isForward,
@@ -189,11 +189,34 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
     }
 
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
+        ProductivityInformation productivityInformation, 
+        StageCoordinateSystemEnum stageCoordinateSystemEnum, 
+        IReadOnlyList<Point> centerPositions,
+        CIBInformation cibInformation, 
+        int imageWidth,
+        bool isAutoFocus,
+        CancellationToken cancellationToken)
+    {
+        var bytes = File.ReadAllBytes(_mockImageFilePath);
+
+        var results = new DarkFieldImageDTO[centerPositions.Count];
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            var image = RawImageFactory.CreateImage(bytes);
+            var size = (SizeI)image.GetSize();
+            results[i] = new DarkFieldImageDTO { PMTId = cibInformation.PMTId, ChannelId = cibInformation.ChannelId, Width = size.Width, Height = size.Height, RawImageFilePath = _mockImageFilePath, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, Image = image };
+        }
+
+        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
+    }
+
     public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
-        Point endPosition,
+        Point stopPosition,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
@@ -221,7 +244,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
-        Point endPosition,
+        Point stopPosition,
         IReadOnlyList<CIBInformation> cibInformations,
         double startECS,
         double stopECS,
@@ -248,7 +271,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         CalChipSiteModelEnum calChipSiteModelEnum,
         ProductivityInformation productivityInformation, 
         CIBInformation cibInformation, 
-        Point? bfPosition = null, 
+        Point? centerMachinePosition = null, 
         LaserLightInformation? laserLightInformation = null)
     {
         Thread.Sleep(100);

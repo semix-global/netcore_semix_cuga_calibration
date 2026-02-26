@@ -23,10 +23,13 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
     private LaserLightInformation _mainLaserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private double _pMTInterval = 320;
+    private double _pMTInterval = 320d;
 
     [ObservableProperty]
-    private double _measurePowerMeasurementMinValue = 0.1;
+    private int _mainPMTId = 8;
+
+    [ObservableProperty]
+    private double _measurePowerMeasurementMinValue = 0.1d;
 
     #region Mapper
 

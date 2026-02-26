@@ -124,11 +124,11 @@ public interface ICalibrationCIBService
     SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain);
 
     /// <summary>
-    /// 读取所有CIB的图片
+    /// 读取所有CIB的图片: X 采[单位置]短图
     /// </summary>
     /// <param name="productivityInformation">产率</param>
     /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
-    /// <param name="position">中心位置</param>
+    /// <param name="centerPosition">中心位置</param>
     /// <param name="cibInformations">CIB列表</param>
     /// <param name="imageWidth">图片宽度</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
@@ -138,7 +138,7 @@ public interface ICalibrationCIBService
     Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
+        Point centerPosition,
         IReadOnlyList<CIBInformation> cibInformations,
         int imageWidth,
         bool isForward,
@@ -146,12 +146,32 @@ public interface ICalibrationCIBService
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// 读取所有CIB的图片
+    /// 读取所有CIB的图片: X 采[单位置]短图
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
+    /// <param name="centerPositions">多个中心位置</param>
+    /// <param name="cibInformation">CIB</param>
+    /// <param name="imageWidth">图片宽度</param>
+    /// <param name="isAutoFocus">是否自动聚焦</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>多个中心位置对应的图片</returns>
+    Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        IReadOnlyList<Point> centerPositions,
+        CIBInformation cibInformation,
+        int imageWidth,
+        bool isAutoFocus,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// 读取所有CIB的图片: X 采[单位置]长图
     /// </summary>
     /// <param name="productivityInformation">产率</param>
     /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
     /// <param name="startPosition">起点位置</param>
-    /// <param name="endPosition">终点位置</param>
+    /// <param name="stopPosition">终点位置</param>
     /// <param name="cibInformations">CIB列表</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
@@ -161,19 +181,19 @@ public interface ICalibrationCIBService
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
-        Point endPosition,
+        Point stopPosition,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// 读取所有CIB的图片
+    /// 读取所有CIB的图片: X/Z 同步采[单位置]短图
     /// </summary>
     /// <param name="productivityInformation">产率</param>
     /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
     /// <param name="startPosition">起点位置</param>
-    /// <param name="endPosition">终点位置</param>
+    /// <param name="stopPosition">终点位置</param>
     /// <param name="cibInformations">CIB列表</param>
     /// <param name="startECS">ECS起点</param>
     /// <param name="stopECS">ECS终点</param>
@@ -184,7 +204,7 @@ public interface ICalibrationCIBService
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
-        Point endPosition,
+        Point stopPosition,
         IReadOnlyList<CIBInformation> cibInformations,
         double startECS,
         double stopECS,
@@ -197,13 +217,13 @@ public interface ICalibrationCIBService
     /// <param name="calChipSiteModelEnum">CalChip模式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="cibInformation">CIB</param>
-    /// <param name="bfPosition">明场中心位置 null表示用cuga配置值</param>
+    /// <param name="centerMachinePosition">机械位置 null表示用cuga配置值</param>
     /// <param name="laserLightInformation">光强 null表示用cuga配置值</param>
     /// <returns>RTFC返回ECS、电机值、是否是AF伺服(True: AF / False: Relay)</returns>
     SxExecuteRet<(double ECS, double Motor, bool isAFServo)> RuntimeAFCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
         ProductivityInformation productivityInformation,
         CIBInformation cibInformation,
-        Point? bfPosition = null,
+        Point? centerMachinePosition = null,
         LaserLightInformation? laserLightInformation = null);
 }
