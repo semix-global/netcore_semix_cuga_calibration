@@ -38,15 +38,15 @@ using Interpolator = Core.Utilities.Interpolator;
 
 namespace CugaCalibration.ViewModels.AOD;
 
-[IOCAppService(ServiceType = typeof(BestFocusAndAstigmatismCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(AODBestFocusAndAstigmatismViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationViewModelBase
 {
     #region 属性
 
     private string ChirpFileDirectory => Path.Combine(
         AppHomeDirectory,
         "Chirp",
-        nameof(BestFocusAndAstigmatismCalibrationViewModel),
+        nameof(AODBestFocusAndAstigmatismViewModel),
         DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName),
         DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
@@ -69,26 +69,26 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
     #region Calibrate
 
     [ObservableProperty]
-    private BestFocusAndAstigmatismDTO _calibratingItem = new();
+    private AODBestFocusAndAstigmatismDTO _calibratingItem = new();
 
     [ObservableProperty]
     private IReadOnlyList<ProductivityInformationAndApodizationStatus> _calibrationStatuses = [];
 
     [ObservableProperty]
-    private BestFocusAndAstigmatismItemDto _selectedCalibratingItem = new();
+    private AODBestFocusAndAstigmatismDTOItem _selectedCalibratingDTOItem = new();
 
     [ObservableProperty]
-    private IReadOnlyCollection<BestFocusAndAstigmatismChannelItemDto> _selectedCalibratingChannelItems = [];
+    private IReadOnlyCollection<BestFocusAndAstigmatismChannelDTOItem> _selectedCalibratingChannelItems = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<BestFocusAndAstigmatismDTO> _reviews = [];
+    private ObservableCollection<AODBestFocusAndAstigmatismDTO> _reviews = [];
 
     [ObservableProperty]
-    private BestFocusAndAstigmatismDTO? _selectReviewItemDto;
+    private AODBestFocusAndAstigmatismDTO? _selectReviewItemDto;
 
     #endregion Review
 
@@ -98,15 +98,15 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
 
     [RecipeCache]
     [ObservableProperty]
-    private BestFocusAndAstigmatismCache _cache = new();
+    private AODBestFocusAndAstigmatismCache _cache = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private BestFocusAndAstigmatismDTO[] _calibrations = [];
+    private AODBestFocusAndAstigmatismDTO[] _calibrations = [];
 
-    private AODDelayDTO[] LaserAodDelayItemList { get; set; } = [];
+    private AODDelayDTO[] AODDelays { get; set; } = [];
 
-    private CIBXPixelSizeDTO[] LaserXPixelSizeItemList { get; set; } = [];
+    private CIBXPixelSizeDTO[] CIBXPixelSizes { get; set; } = [];
 
     [ObservableProperty]
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
@@ -132,15 +132,15 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
 
         if (LoadDepends() == false) return false;
 
-        LaserAodDelayItemList = CalibrationStatusService.GetCalibrations<AODDelayDTO>();
+        AODDelays = CalibrationStatusService.GetCalibrations<AODDelayDTO>();
 
-        LaserXPixelSizeItemList = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
+        CIBXPixelSizes = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
 
         AlignmentCacheDarkField = RecipeCacheProvider.GetOrDefault<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<BestFocusAndAstigmatismCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<BestFocusAndAstigmatismDTO>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODBestFocusAndAstigmatismCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<AODBestFocusAndAstigmatismDTO>();
 
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses = ProductivityInformationAndApodizationStatus.CreateList(ApplicationCookie.OpticsMagTypeProductivityInformations);
@@ -455,7 +455,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 // 创建一个Channel用于实现生产者-消费者模式
-                var channel = Channel.CreateUnbounded<(int index, BestFocusAndAstigmatismItemDto bestFocusAndAstigmatismItemDto)>();
+                var channel = Channel.CreateUnbounded<(int index, AODBestFocusAndAstigmatismDTOItem bestFocusAndAstigmatismItemDto)>();
 
                 #region 消费者
 
@@ -582,10 +582,10 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
         //迭代，根据拟合一次函数，首次输入ecsX，得到F0下发，后续迭代代入deltaEcs，频率变化率根据斜率改变deltaRateChange，得到新的F下发
     }
 
-    private void GetMultiPMTBestFocusAndAstigmatism(CancellationToken cancellationToken, BestFocusAndAstigmatismItemDto bestFocusAndAstigmatismItemDto, int index = 0)
+    private void GetMultiPMTBestFocusAndAstigmatism(CancellationToken cancellationToken, AODBestFocusAndAstigmatismDTOItem aodBestFocusAndAstigmatismDTOItem, int index = 0)
     {
         // 处理当前批次的图像数据
-        foreach (var channelItemDto in bestFocusAndAstigmatismItemDto.ChannelItems)
+        foreach (var channelItemDto in aodBestFocusAndAstigmatismDTOItem.ChannelItems)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -632,13 +632,13 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
             var xBestFocusXPixel = xStrehlRatioFitPoints.Length > 0 ? xStrehlRatioFitPoints.Maxima(t => t.Y).First().X : 0;
             var yBestFocusXPixel = yStrehlRatioFitPoints.Length > 0 ? yStrehlRatioFitPoints.Maxima(t => t.Y).First().X : 0;
 
-            var timeSamplesCount = (bestFocusAndAstigmatismItemDto.TriggerEndIndex - bestFocusAndAstigmatismItemDto.TriggerStartIndex) + 1;
-            var ecsBuffers = bestFocusAndAstigmatismItemDto.TraceBuffers.Skip(bestFocusAndAstigmatismItemDto.TriggerStartIndex).Take(timeSamplesCount).Select(t => (t.Trigger, t.Ecs)).ToList();
+            var timeSamplesCount = (aodBestFocusAndAstigmatismDTOItem.TriggerEndIndex - aodBestFocusAndAstigmatismDTOItem.TriggerStartIndex) + 1;
+            var ecsBuffers = aodBestFocusAndAstigmatismDTOItem.TraceBuffers.Skip(aodBestFocusAndAstigmatismDTOItem.TriggerStartIndex).Take(timeSamplesCount).Select(t => (t.Trigger, t.Ecs)).ToList();
             // 用x采样率插值ECS buffer
             var (interpolationX, interpolationY) = Interpolator.SplineInterpolation(
                 Vector<double>.Build.Dense([.. ecsBuffers.Select((_, i) => i)]),
                 Vector<double>.Build.Dense([.. ecsBuffers.Select(t => t.Ecs)]),
-                (Convert.ToInt32(bestFocusAndAstigmatismItemDto.LineScanRate / Cache.TraceBufferSamplingRate)));
+                (Convert.ToInt32(aodBestFocusAndAstigmatismDTOItem.LineScanRate / Cache.TraceBufferSamplingRate)));
 
             var ecsInterpolationBuffers = interpolationX.Index().Select(t => (Pixel: t.Index, ECS: interpolationY[t.Index])).ToList();
 
@@ -657,11 +657,11 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
             channelItemDto.YBestFocusEcs = yBestFocusXPixel >= 0 && yBestFocusXPixel < ecsInterpolationBuffers.Count ? ecsInterpolationBuffers[Convert.ToInt32(yBestFocusXPixel)].ECS : ecsInterpolationBuffers[0].ECS;
         }
 
-        Logger.LogHtmlInformation($"spectralDensity: {bestFocusAndAstigmatismItemDto.SpectralDensity} Times: {index}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+        Logger.LogHtmlInformation($"spectralDensity: {aodBestFocusAndAstigmatismDTOItem.SpectralDensity} Times: {index}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
         {
-            Result = new HtmlQuote(bestFocusAndAstigmatismItemDto.ToFlatnessHtmlAnonymous()),
+            Result = new HtmlQuote(aodBestFocusAndAstigmatismDTOItem.ToFlatnessHtmlAnonymous()),
             Details = new HtmlContainer([
-                    ..bestFocusAndAstigmatismItemDto.ChannelGroupItemDtoList.Select(t =>
+                    ..aodBestFocusAndAstigmatismDTOItem.ChannelGroupItemDtoList.Select(t =>
                         new HtmlExpand(t.ChannelName,
                             new HtmlTable([
                                 ..t.ChannelItems
@@ -672,7 +672,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
-    private async Task<BestFocusAndAstigmatismItemDto> GetMultiPMTDarkFieldLineScanImageListAsync(double spectralDensity, CancellationToken cancellationToken)
+    private async Task<AODBestFocusAndAstigmatismDTOItem> GetMultiPMTDarkFieldLineScanImageListAsync(double spectralDensity, CancellationToken cancellationToken)
     {
         var (generateChirpAODWaveformParam, chirpAODWaveformProfiles) = GenerateAndSendChirpAodWave(spectralDensity, cancellationToken);
 
@@ -708,7 +708,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
 
         var traceBuffers = await task.ConfigureAwait(false);
 
-        var bestFocusAndAstigmatismItemDto = new BestFocusAndAstigmatismItemDto
+        var bestFocusAndAstigmatismItemDto = new AODBestFocusAndAstigmatismDTOItem
         {
             SpectralDensity = spectralDensity,
             GenerateChirpAODWaveformParam = generateChirpAODWaveformParam,
@@ -716,7 +716,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
             TraceBuffers = traceBuffers,
             ChannelItems =
             [
-                ..darkFieldImageDtoList.Select(t => new BestFocusAndAstigmatismChannelItemDto
+                ..darkFieldImageDtoList.Select(t => new BestFocusAndAstigmatismChannelDTOItem
                 {
                     PmtId = t.PMTId,
                     ChannelId = t.ChannelId,
@@ -731,7 +731,7 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
 
     private void ClearCalibrationTemp()
     {
-        CalibratingItem = new BestFocusAndAstigmatismDTO
+        CalibratingItem = new AODBestFocusAndAstigmatismDTO
         {
             ProductivityInformation = Cache.ProductivityInformation.Clone(),
             ApodizationModeEnum = Cache.ApodizationModeEnum
@@ -739,14 +739,14 @@ public sealed partial class BestFocusAndAstigmatismCalibrationViewModel : Calibr
         SynchronizationContextProvider.Send(CalibratingItem.Items.Clear);
     }
 
-    private void AddCalibrationTemp(BestFocusAndAstigmatismItemDto itemDto)
+    private void AddCalibrationTemp(AODBestFocusAndAstigmatismDTOItem dtoItem)
     {
-        SynchronizationContextProvider.Send(() => CalibratingItem.Items = [.. CalibratingItem.Items, itemDto]);
+        SynchronizationContextProvider.Send(() => CalibratingItem.Items = [.. CalibratingItem.Items, dtoItem]);
 
-        SelectedCalibratingItem = itemDto.Clone();
+        SelectedCalibratingDTOItem = dtoItem.Clone();
     }
 
-    private bool Save(BestFocusAndAstigmatismDTO item, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(AODBestFocusAndAstigmatismDTO item, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(item);
         update(Cache);

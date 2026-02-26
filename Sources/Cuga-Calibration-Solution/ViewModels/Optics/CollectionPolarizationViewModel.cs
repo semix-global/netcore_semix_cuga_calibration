@@ -53,7 +53,7 @@ public sealed partial class CollectionPolarizationViewModel(
     private CollectPolarizationDTO _resultCollectItemDto = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     [RecipeCache]
     [ObservableProperty]
@@ -72,7 +72,7 @@ public sealed partial class CollectionPolarizationViewModel(
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CollectPolarizationCache>();
         Calibration = CacheProvider.GetOrDefault<CollectPolarizationDTO>();

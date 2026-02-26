@@ -10,7 +10,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.AutoFocus.GlobalFocusOffset;
 
-public sealed partial class GlobalFocusOffsetDTO : CalibrationDtoBase, ICloneable<GlobalFocusOffsetDTO>, IAdaptTo<CalibrationGlobalFocusOffset>
+public sealed partial class AutoFocusGlobalFocusOffsetDTO : CalibrationDtoBase, ICloneable<AutoFocusGlobalFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusGlobalFocusOffset>
 {
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
@@ -21,7 +21,7 @@ public sealed partial class GlobalFocusOffsetDTO : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private RuntimeAfCalibrationResultDTO _runtimeAfCalibrationResultDTO = new();
 
-    public GlobalFocusOffsetDTO Clone() => new()
+    public AutoFocusGlobalFocusOffsetDTO Clone() => new()
     {
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
@@ -33,7 +33,7 @@ public sealed partial class GlobalFocusOffsetDTO : CalibrationDtoBase, ICloneabl
         IsRequiredSelfCheck = IsRequiredSelfCheck
     };
 
-    public CalibrationGlobalFocusOffset AdaptTo() => new()
+    public CalibrationAutoFocusGlobalFocusOffset AdaptTo() => new()
     {
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,

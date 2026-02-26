@@ -1,11 +1,22 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Stage;
+using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.AutoFocus;
 
 public sealed partial class RuntimeAfCalibrationResultDTO : ObservableCacheBase, ICloneable<RuntimeAfCalibrationResultDTO>
 {
+    public static readonly RuntimeAfCalibrationResultDTO Default = new();
+
+    [ObservableProperty]
+    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+
+    [ObservableProperty]
+    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
     [ObservableProperty]
     private bool _isAFServo = true;
 
@@ -26,6 +37,8 @@ public sealed partial class RuntimeAfCalibrationResultDTO : ObservableCacheBase,
 
     public RuntimeAfCalibrationResultDTO Clone() => new()
     {
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
         IsAFServo = IsAFServo,
         ECSValue = ECSValue,
         MotorValue = MotorValue,
@@ -42,7 +55,7 @@ public sealed partial class RuntimeAfCalibrationResultDTO : ObservableCacheBase,
         ECSValue,
         MotorValue,
         DarkFieldQuality,
-        DarkFieldFilePath,
-        RawImageFilePath
+        RawImageFilePath,
+        Image = new HtmlImage(DarkFieldFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
     };
 }

@@ -8,7 +8,7 @@
              xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             d:DataContext="{d:DesignInstance Type=autoFocus:GlobalFocusOffsetViewModel}"
+             d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusGlobalFocusOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">

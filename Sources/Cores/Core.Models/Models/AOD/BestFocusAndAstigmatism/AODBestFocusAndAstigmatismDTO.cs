@@ -19,7 +19,7 @@ using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
-public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable<BestFocusAndAstigmatismDTO>
+public partial class AODBestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable<AODBestFocusAndAstigmatismDTO>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -34,7 +34,7 @@ public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable
     private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
 
     [ObservableProperty]
-    private ObservableCollection<BestFocusAndAstigmatismItemDto> _items = [];
+    private ObservableCollection<AODBestFocusAndAstigmatismDTOItem> _items = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -48,7 +48,7 @@ public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    public BestFocusAndAstigmatismDTO()
+    public AODBestFocusAndAstigmatismDTO()
     {
         var customGrid = new CustomGrid();
         ScatterPlotControl.Configure(customGrid, 3,
@@ -64,7 +64,7 @@ public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable
         ScatterPlotControl.SetTitle(2, "(XY Focus Offset)(Y: mm/MHz - X: XY Focus Offset(ecs))");
     }
 
-    partial void OnItemsChanged(ObservableCollection<BestFocusAndAstigmatismItemDto>? oldValue, ObservableCollection<BestFocusAndAstigmatismItemDto> newValue)
+    partial void OnItemsChanged(ObservableCollection<AODBestFocusAndAstigmatismDTOItem>? oldValue, ObservableCollection<AODBestFocusAndAstigmatismDTOItem> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -156,7 +156,7 @@ public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable
         Plot = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
     };
 
-    public BestFocusAndAstigmatismDTO Clone() => new()
+    public AODBestFocusAndAstigmatismDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         ApodizationModeEnum = ApodizationModeEnum,
@@ -171,7 +171,7 @@ public partial class BestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable
     };
 }
 
-public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneable<BestFocusAndAstigmatismItemDto>
+public partial class AODBestFocusAndAstigmatismDTOItem : ObservableObject, ICloneable<AODBestFocusAndAstigmatismDTOItem>
 {
     [ObservableProperty]
     private double _spectralDensity;
@@ -180,7 +180,7 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     [ObservableProperty]
-    private IReadOnlyList<BestFocusAndAstigmatismChannelItemDto> _channelItems = [];
+    private IReadOnlyList<BestFocusAndAstigmatismChannelDTOItem> _channelItems = [];
 
     [ObservableProperty]
     private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
@@ -229,7 +229,7 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    public BestFocusAndAstigmatismItemDto()
+    public AODBestFocusAndAstigmatismDTOItem()
     {
         ScatterPlotControl.Configure(totalPlotCount: 2);
         ScatterPlotControl.SetTitle(0, "(TraceBuffer)(Y: value - X: times(ms))");
@@ -237,7 +237,7 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
     }
 
 
-    public BestFocusAndAstigmatismChannelItemDto? SingleOrDefaultChannelItem(int pmtId, int channelId)
+    public BestFocusAndAstigmatismChannelDTOItem? SingleOrDefaultChannelItem(int pmtId, int channelId)
         => ChannelItems.SingleOrDefault(t => t.PmtId == pmtId && t.ChannelId == channelId);
 
 
@@ -336,7 +336,7 @@ public partial class BestFocusAndAstigmatismItemDto : ObservableObject, ICloneab
         ChirpAODWaveformProfiles = new HtmlTable([.. ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
     };
 
-    public BestFocusAndAstigmatismItemDto Clone() => new()
+    public AODBestFocusAndAstigmatismDTOItem Clone() => new()
     {
         SpectralDensity = SpectralDensity,
         TraceBuffers = [.. TraceBuffers],
@@ -357,10 +357,10 @@ public sealed partial class BestFocusAndAstigmatismChannelGroupItemDto : Observa
     public string ChannelName => $"Channel{ChannelId}";
 
     [ObservableProperty]
-    private IReadOnlyList<BestFocusAndAstigmatismChannelItemDto> _channelItems = [];
+    private IReadOnlyList<BestFocusAndAstigmatismChannelDTOItem> _channelItems = [];
 }
 
-public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableObject, ICloneable<BestFocusAndAstigmatismChannelItemDto>
+public sealed partial class BestFocusAndAstigmatismChannelDTOItem : ObservableObject, ICloneable<BestFocusAndAstigmatismChannelDTOItem>
 {
     [ObservableProperty]
     private int _pmtId;
@@ -455,7 +455,7 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableOb
     [property: System.Xml.Serialization.XmlIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
-    public BestFocusAndAstigmatismChannelItemDto()
+    public BestFocusAndAstigmatismChannelDTOItem()
     {
         var customGrid = new CustomGrid();
         ScatterPlotControl.Configure(customGrid, 4,
@@ -643,7 +643,7 @@ public sealed partial class BestFocusAndAstigmatismChannelItemDto : ObservableOb
         })
     };
 
-    public BestFocusAndAstigmatismChannelItemDto Clone() => new()
+    public BestFocusAndAstigmatismChannelDTOItem Clone() => new()
     {
         PmtId = PmtId,
         ChannelId = ChannelId,

@@ -9,7 +9,7 @@
              xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
-             d:DataContext="{d:DesignInstance Type=viewModels:BestFocusAndAstigmatismCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:AODBestFocusAndAstigmatismViewModel}"
              d:DesignHeight="900"
              d:DesignWidth="1920"
              mc:Ignorable="d">

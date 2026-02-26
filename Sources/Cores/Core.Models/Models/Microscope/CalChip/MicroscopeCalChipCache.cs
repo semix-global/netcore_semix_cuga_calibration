@@ -23,12 +23,6 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    [ObservableProperty]
-    private bool _isSkipRtfc;
-
-    [ObservableProperty]
-    private MicroscopeCalChipCacheItem[] _microscopeCalChipCacheItems = [];
-
     public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
@@ -37,8 +31,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 
     public MicroscopeCalChipCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, new MicroscopeCalChipCacheItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
-    [ObservableProperty]
-    private Point _chuckPosition = Point.Origin;
+    #region  DSW Alignment
 
     /// <summary>
     /// 晶圆类型
@@ -79,6 +72,8 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [ObservableProperty]
     private AlignmentSiteDto _highSite2 = new();
 
+    #endregion
+
     [ObservableProperty]
     private string _lowSiteTemplateFilePath = string.Empty;
 
@@ -89,32 +84,13 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private double _dSWAlignmentVerifyThreshold;
 
     [ObservableProperty]
-    private string _verifyBrightFieldResultError = string.Empty;
-
-    [ObservableProperty]
-    private string _verifyDarkFieldResultError = string.Empty;
-
-    /// <summary>
-    /// 校准 chuck、dsw、haze rtfc输出的af offset和校准结果的差值需小于该阈值 
-    /// </summary>
-    [ObservableProperty]
-    private double _afMotorOffsetThreshold;
+    private string _verifyQualityError = string.Empty;
 
     /// <summary>
     /// BF verify清晰度得分和校准结果的清晰度差值需小于该阈值
     /// </summary>
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "BfQualityThreshold: ")]
-    public double BfQualityThreshold
-    {
-        get;
-        set => SetProperty(ref field, value, validate: true);
-    } = 1;
-
-    /// <summary>
-    /// DF verify清晰度得分和校准结果的清晰度差值需小于该阈值
-    /// </summary>
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "DfQualityThreshold: ")]
-    public double DfQualityThreshold
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = $"{nameof(QualityThreshold)}: ")]
+    public double QualityThreshold
     {
         get;
         set => SetProperty(ref field, value, validate: true);
@@ -126,22 +102,22 @@ public sealed partial class MicroscopeCalChipCacheItem : ObservableValidator
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum;
 
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMin: ")]
-    public double FindFocusMin
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = $"{nameof(StartECS)}: ")]
+    public double StartECS
     {
         get;
         set => SetProperty(ref field, value, validate: true);
     } = 1;
 
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusMax: ")]
-    public double FindFocusMax
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = $"{nameof(StopECS)}: ")]
+    public double StopECS
     {
         get;
         set => SetProperty(ref field, value, validate: true);
     } = 1;
 
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "FindFocusInterval: ")]
-    public double FindFocusInterval
+    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = $"{nameof(StepECS)}: ")]
+    public double StepECS
     {
         get;
         set => SetProperty(ref field, value, validate: true);
@@ -150,14 +126,14 @@ public sealed partial class MicroscopeCalChipCacheItem : ObservableValidator
     #region Position
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CenterPosition))]
-    private Point _leftTopPosition;
+    [NotifyPropertyChangedFor(nameof(CenterMachinePosition))]
+    private Point _leftTopMachinePosition;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CenterPosition))]
-    private Point _rightBottomPosition;
+    [NotifyPropertyChangedFor(nameof(CenterMachinePosition))]
+    private Point _rightBottomMachinePosition;
 
-    public Point CenterPosition => (LeftTopPosition + (Vector)RightBottomPosition) / 2;
+    public Point CenterMachinePosition => (LeftTopMachinePosition + (Vector)RightBottomMachinePosition) / 2;
 
     #endregion Position
 }

@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Common.Status;
@@ -19,8 +18,8 @@ using System.Text;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 
-[IOCAppService(ServiceType = typeof(GlobalFocusOffsetViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBase
+[IOCAppService(ServiceType = typeof(AutoFocusGlobalFocusOffsetViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -41,7 +40,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
     #region Calibrate
 
     [ObservableProperty]
-    private GlobalFocusOffsetDTO _calibratingItem = new();
+    private AutoFocusGlobalFocusOffsetDTO _calibratingItem = new();
 
     [ObservableProperty]
     private IReadOnlyList<ProductivityInformationStatus> _calibrationStatuses = [];
@@ -49,10 +48,10 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<GlobalFocusOffsetDTO> _reviews = [];
+    private IReadOnlyList<AutoFocusGlobalFocusOffsetDTO> _reviews = [];
 
     [ObservableProperty]
-    private IReadOnlyList<GlobalFocusOffsetDTO> _selectedReviewItems = [];
+    private IReadOnlyList<AutoFocusGlobalFocusOffsetDTO> _selectedReviewItems = [];
 
     #endregion 界面相关
 
@@ -60,14 +59,14 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
 
     [RecipeCache]
     [ObservableProperty]
-    private GlobalFocusOffsetCache _cache = new();
+    private AutoFocusGlobalFocusOffsetCache _cache = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private GlobalFocusOffsetDTO[] _calibrations = [];
+    private AutoFocusGlobalFocusOffsetDTO[] _calibrations = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     #endregion 缓存
 
@@ -79,13 +78,15 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        if (LoadDepends() == false) return false;
+
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<GlobalFocusOffsetCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<GlobalFocusOffsetDTO>();
+        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AutoFocusGlobalFocusOffsetCache>();
+        Calibrations = CacheProvider.GetOrDefaultArray<AutoFocusGlobalFocusOffsetDTO>();
 
         Calibrations =
         [
@@ -138,7 +139,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
                 Cache.OriginRelayMotor = OpticsViewModel.GetRelayMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum);
                 return true;
             case 1:
-                Cache.Item.RTFCBrightFieldMachinePosition = MicroscopeCalChip.DSWDarkFieldMachineAffinePosition;
+                Cache.Item.RTFCBrightFieldMachinePosition = MicroscopeCalChip.DSWBrightFieldMachineAffinePosition;
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition));
@@ -263,7 +264,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
 
             try
             {
-                CalibratingItem = new GlobalFocusOffsetDTO
+                CalibratingItem = new AutoFocusGlobalFocusOffsetDTO
                 {
                     ProductivityInformation = Cache.ProductivityInformation,
                     CalChipSiteModelEnum = Cache.CalChipSiteModelEnum
@@ -277,6 +278,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
                     Cache.ProductivityInformation,
                     cancellationToken,
                     isAppliedDefaultRtfcParam: false,
+                    xXWidthPixel: Cache.Item.ImageWidth,
                     calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
                     stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine,
                     saveImageFileDirectory: detectImageDirectory,
@@ -347,8 +349,8 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
                         StageCoordinateSystemEnum.Machine,
                         StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition)),
                         Cache.Item.CIBInformation,
-                        CalibrationConstantsHelper.MainXWidthPixel,
-                        (false, Cache.CalChipSiteModelEnum),
+                        Cache.Item.ImageWidth,
+                        (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,
@@ -402,7 +404,7 @@ public sealed partial class GlobalFocusOffsetViewModel : CalibrationViewModelBas
         }).ConfigureAwait(false);
     }
 
-    private bool Save(IReadOnlyList<GlobalFocusOffsetDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<AutoFocusGlobalFocusOffsetDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
 

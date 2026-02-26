@@ -61,13 +61,13 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </b:Interaction.Behaviors>
                         </ComboBox>
-                        <ComboBox hc:TitleElement.Title="CIB Information: "
+                        <ComboBox hc:TitleElement.Title="Channel ID: "
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="190"
                                   Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                                  ItemsSource="{Binding ApplicationCookie.CIBInformationChannelIds}">
                             <b:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBChannelId}" />
                             </b:Interaction.Behaviors>
                         </ComboBox>
                         <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />

@@ -285,7 +285,10 @@ public sealed class AfViewModel(
         ToggleBrightFieldEnable(false);
         ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
 
-        SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, ecs);
+        if (calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
+            SetSensorDarkFieldChuckStandardEcsValue(ecs);
+        else
+            SetSensorDarkFieldCalChipStandardEcsValue(calChipSiteModelEnum, ecs);
         SetDarkFieldAutoFocusMotorAbsoluteValue(offsetMotor);
     }
 

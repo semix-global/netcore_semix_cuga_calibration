@@ -78,7 +78,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
     private CIBYPixelSizeDTO[] _calibrations = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
@@ -110,7 +110,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
@@ -265,12 +265,13 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
+                Cache.Item.CIBChannelId,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
                    && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
-                   && ApplicationCookie.CIBInformations.Contains(Cache.Item.CIBInformation);
+                   && ApplicationCookie.CIBInformationChannelIds.Contains(Cache.Item.CIBChannelId);
         });
     }
 
@@ -384,7 +385,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
-                Cache.Item.CIBInformation,
+                Cache.Item.CIBChannelId,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
@@ -517,7 +518,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                     Cache.Item.MicroscopeLensInformation,
                     Cache.Item.LaserLightInformation,
                     CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                    Cache.Item.CIBInformation,
+                    Cache.Item.CIBChannelId,
                     Cache.Item.IsDarkFieldAlignment,
                     AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                     Cache.Item.ImageWidth,
@@ -581,7 +582,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
             Cache.ProductivityInformation,
             StageCoordinateSystemEnum.Dark,
             StageViewModel.MachineToBrightFieldPosition(cibYPixelSizeDTO.FindBFMachinePosition),
-            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibYPixelSizeDTO.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
+            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibYPixelSizeDTO.PmtId && t.ChannelId == Cache.Item.CIBChannelId),
             Cache.Item.ImageWidth,
             (false, Cache.CalChipSiteModelEnum),
             (false, Cache.Item.CIBConfiguration),

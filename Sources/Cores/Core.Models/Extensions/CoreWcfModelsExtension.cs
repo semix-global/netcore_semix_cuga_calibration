@@ -5,6 +5,7 @@ using Core.Models.Models.Ads.YGains;
 using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.AOD.Uniformity;
+using Core.Models.Models.AutoFocus.CalChipFocusOffset;
 using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -101,7 +102,7 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this MicroscopeCalChipDto result, out string errorMessage)
+    public static bool IsOk(this MicroscopeCalChipDTO result, out string errorMessage)
     {
         errorMessage = string.Empty;
         var lensInformationList = HostApplication.GetRequiredService<ApplicationCookie>().MicroscopeLensInformations;
@@ -115,7 +116,7 @@ public static class CoreWcfModelsExtension
         if (lensChanged)
         {
             var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
-            cacheProvider.Set(new MicroscopeCalChipDto(), CancellationToken.None);
+            cacheProvider.Set(new MicroscopeCalChipDTO(), CancellationToken.None);
         }
 
         return isOk;
@@ -521,7 +522,7 @@ public static class CoreWcfModelsExtension
 
     #region Auto Focus
 
-    public static bool IsOk(this GlobalFocusOffsetDTO[] result, out string errorMessage)
+    public static bool IsOk(this AutoFocusGlobalFocusOffsetDTO[] result, out string errorMessage)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
@@ -529,6 +530,17 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Global Focus Offset is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this AutoFocusCalChipFocusOffsetDTO result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOk = applicationCookie.ProductivityInformations.Contains(result.ProductivityInformation) && result.IsOk;
+
+        errorMessage = isOk ? string.Empty : "Cal Chip Focus Offset is Empty";
 
         return isOk;
     }

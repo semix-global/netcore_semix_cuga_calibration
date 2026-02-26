@@ -210,7 +210,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
     [RelayCommand]
     private void RefreshBFMachinePosition()
     {
-        if (cacheProvider.TryGetOrDefault<MicroscopeCalChipDto>(out var microscopeCalChip))
+        if (cacheProvider.TryGetOrDefault<MicroscopeCalChipDTO>(out var microscopeCalChip))
         {
             if (microscopeCalChip.IsOk)
             {

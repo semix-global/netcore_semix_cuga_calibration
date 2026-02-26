@@ -9,7 +9,7 @@
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             d:DataContext="{d:DesignInstance Type=autoFocus:GlobalFocusOffsetViewModel}"
+             d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusGlobalFocusOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">

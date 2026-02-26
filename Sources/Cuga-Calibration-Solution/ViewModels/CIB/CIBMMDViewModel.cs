@@ -92,7 +92,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     private CIBMMDDTO[] _calibrations = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDto _microscopeCalChip = new();
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     [ObservableProperty]
     private IReadOnlyList<LaserOpticalPowerMeterDTO> _laserOpticalPowerMeters = [];
@@ -109,7 +109,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDto>();
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
         LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();
 
         if (CalibratingStatuses.Count == 0)

@@ -25,7 +25,7 @@ using Net.Utilities.WPF.Enums;
 
 namespace CugaCalibration.ViewModels.AOD;
 
-public partial class BestFocusAndAstigmatismCalibrationViewModel
+public partial class AODBestFocusAndAstigmatismViewModel
 {
     private bool LoadDepends()
     {
@@ -55,7 +55,7 @@ public partial class BestFocusAndAstigmatismCalibrationViewModel
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
