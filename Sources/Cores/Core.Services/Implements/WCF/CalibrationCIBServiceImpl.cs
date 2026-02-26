@@ -220,6 +220,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         IReadOnlyList<Point> centerPositions,
         CIBInformation cibInformation,
         int imageWidth,
+        bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken)
     {
@@ -230,20 +231,6 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             || (isIncreasing == false && isDecreasing == false)) // 检查x是否递增
             return ThrowHelper.ThrowArgumentException<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>>(nameof(centerPositions), "Center positions must have the same Y value and X values must be either increasing or decreasing.");
 
-        var extendWidth = imageWidth * productivityInformation.XPixelSize / 2d;
-
-        var startPositionList = new List<SxPointD>();
-        var stopPositionList = new List<SxPointD>();
-
-        foreach (var machinePoint in centerPositions)
-        {
-            var startPoint = new Point(machinePoint.X - extendWidth, machinePoint.Y).ToSxPointD();
-            var endPoint = new Point(machinePoint.X + extendWidth, machinePoint.Y).ToSxPointD();
-
-            startPositionList.Add(isIncreasing ? startPoint : endPoint);
-            stopPositionList.Add(isIncreasing ? endPoint : startPoint);
-        }
-
         var getDFImgCalibrationRet = GetDFImgCalibration(new SxCollectImgParam
         {
             Type = SxCollectImgType.Normal,
@@ -251,13 +238,13 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             Speed = productivityInformation.AdaptTo().Speed,
             NIOI = productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(),
             CoordinateSystem = stageCoordinateSystemEnum.ToSxCollectImgCoordinateSystemEnum(),
-            CollectMode = SxCollectMode.PTP,
+            CollectMode = SxCollectMode.PW,
             PMTId = cibInformation.PMTId,
-            StartPoint = startPositionList,
-            EndPoint = stopPositionList,
+            Width = imageWidth,
+            StartPoint = [..centerPositions.Select(t => t.ToSxPointD())],
             IsSingle = true,
             AF = isAutoFocus ? 0 : 1,
-            IsForward = true,
+            IsForward = isForward,
             IsCalibration = true, /*为true时不下发波形*/
             ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
         });

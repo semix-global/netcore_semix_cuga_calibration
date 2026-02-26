@@ -195,6 +195,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         IReadOnlyList<Point> centerPositions,
         CIBInformation cibInformation, 
         int imageWidth,
+        bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken)
     {

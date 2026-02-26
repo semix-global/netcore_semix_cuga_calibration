@@ -103,7 +103,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, IReadOnlyList<Point> centerPositions, CIBInformation cibInformation, int imageWidth, bool isAutoFocus, CancellationToken cancellationToken)
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, IReadOnlyList<Point> centerPositions, CIBInformation cibInformation, int imageWidth, bool isForward, bool isAutoFocus, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

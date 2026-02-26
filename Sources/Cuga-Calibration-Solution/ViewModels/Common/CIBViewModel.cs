@@ -210,7 +210,7 @@ public sealed class CIBViewModel(
 
     #endregion
 
-    #region X 采[单位置]短图
+    #region X 采[多位置]短图
 
     public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
@@ -223,6 +223,7 @@ public sealed class CIBViewModel(
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
+        bool isForward = true,
         bool isAutoFocus = true)
         => await GetPMTImagesAsync(
             productivityInformation,
@@ -241,6 +242,7 @@ public sealed class CIBViewModel(
                     centerPositions,
                     cibInformation,
                     imageWidth,
+                    isForward,
                     isAutoFocus,
                     cancellationToken);
 
