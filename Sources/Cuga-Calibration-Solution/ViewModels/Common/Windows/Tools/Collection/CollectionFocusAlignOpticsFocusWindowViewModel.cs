@@ -36,6 +36,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Immutable;
 using System.IO;
+using Core.Models.Models.Setting;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
@@ -260,11 +261,11 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     IServiceProvider serviceProvider,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
-    LaserViewModel laserViewModel,
     CIBViewModel cibViewModel,
     IOptions<ApplicationSetting> options,
     CreateRoiWindowViewModel createRoiWindowViewModel,
     ApplicationCookie applicationCookie,
+    CalibrationSetting calibrationSetting,
     ICacheProvider cacheProvider,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
@@ -311,12 +312,12 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         await InvokeAsync(
             "Step1 Haze",
             CalChipSiteModelEnum.HazeModel,
-            () => { },
+            () => Task.CompletedTask,
             (item, darkFieldImageDto) =>
             {
                 var hazeResultItem = GuardUtils.IsAssignableToType<HazeResultItem>(item);
 
-                var matrix = Matrix<double>.Build.DenseOfArray<ushort>(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix(), null);
+                var matrix = Matrix<double>.Build.DenseOfArray(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix(), null);
 
                 var baseSize = matrix.RowCount / 3;
                 var remainder = matrix.RowCount % 3;
@@ -382,20 +383,19 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
         await InvokeAsync(
             "Step1 DSW",
             CalChipSiteModelEnum.DswModel,
-            () =>
+            async () =>
             {
-                var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
-                    CalChipSiteModelEnum.DswModel,
+                var darkFieldImageDto = await cibViewModel.GetPMTImageAsync(
+                    Cache.ProductivityInformation,
+                    StageCoordinateSystemEnum.Bright,
                     Cache.DSWBrightFieldPosition,
+                    Cache.ImageWidthPixel,
+                    ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == calibrationSetting.SettingCommonParam.MainChannelId),
+                    (false, CalChipSiteModelEnum.DswModel),
+                    (false, Cache.DSWCIBConfiguration),
                     (false, Cache.DSWLaserLightInformation),
                     false,
-                    Cache.DSWCIBConfiguration,
-                    Cache.ProductivityInformation,
-                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum,
-                    xWidthPixel: Cache.ImageWidthPixel,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
-                    pmtId: Cache.PmtId,
-                    isAutoFocus: true);
+                    cancellationToken);
                 using var _ = darkFieldImageDto;
 
                 var filePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
@@ -489,7 +489,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     private async Task InvokeAsync(
         string stepName,
         CalChipSiteModelEnum calChipSiteModelEnum,
-        Action beforeAction,
+        Func<Task> beforeAction,
         Func<object, DarkFieldImageDTO, Task> resultItemAction,
         Func<Task> finallyAction,
         CancellationToken cancellationToken)
@@ -505,7 +505,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             var isSuccess = false;
             try
             {
-                beforeAction.Invoke();
+                await beforeAction.Invoke();
 
                 var name = calChipSiteModelEnum switch
                 {
@@ -557,18 +557,17 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     afViewModel.SetSensorEcsValue(ecs);
                     await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
 
-                    var darkFieldImageDtos = laserViewModel.GetDarkFieldLineScanImageList(
-                        calChipSiteModelEnum,
+                    var darkFieldImageDtos = await cibViewModel.GetPMTImagesAsync(
+                        Cache.ProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
                         brightFieldPosition,
                         Cache.ImageWidthPixel,
-                        Cache.ProductivityInformation,
-                        Cache.ProductivityInformation.OpticsIlluminationModeEnum,
-                        Cache.PmtId,
-                        StageCoordinateSystemEnum.Dark,
-                        cibConfiguration,
+                        [..ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PmtId)],
+                        (false, calChipSiteModelEnum),
+                        (false, cibConfiguration),
                         (false, laserLightInformation),
                         false,
-                        isAutoFocus: false);
+                        cancellationToken);
 
                     var resultList = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultType)));
                     GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.AddRange))).Invoke(resultList, [ObjectHelper.GetPropertyValue(Cache, cacheResultsPropertyName)]);

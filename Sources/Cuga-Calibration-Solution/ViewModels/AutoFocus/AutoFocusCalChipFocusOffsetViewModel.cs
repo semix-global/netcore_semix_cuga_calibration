@@ -240,19 +240,18 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
             try
             {
-                var rtfcResultDTO = await CIBViewModel.RuntimeAfCalibrationAsync(
-                    Cache.Item.CIBConfiguration,
-                    Cache.CIBInformation,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
-                    Cache.Item.LaserLightInformation,
+                var rtfcResultDTO = await CIBViewModel.RuntimeAFCalibrationAsync(
                     Cache.ProductivityInformation,
-                    cancellationToken,
-                    isAppliedDefaultRtfcParam: false,
-                    calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
-                    saveImageFileDirectory: detectImageDirectory,
-                    logGuid: HtmlLogUniqueId,
-                    logName: Cache.CalChipSiteModelEnum.ToDescriptionOrString());
+                    Cache.CalChipSiteModelEnum,
+                    StageCoordinateSystemEnum.Bright,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
+                    Cache.CIBInformation,
+                    800,
+                    Cache.Item.CIBConfiguration,
+                    Cache.Item.LaserLightInformation,
+                    detectImageDirectory,
+                    HtmlLogUniqueId,
+                    cancellationToken);
 
                 switch (Cache.CalChipSiteModelEnum)
                 {

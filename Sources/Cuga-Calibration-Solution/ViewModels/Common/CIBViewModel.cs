@@ -397,6 +397,56 @@ public sealed class CIBViewModel(
         return darkFieldImages.Single();
     }
 
+    public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesByOffsetAsync(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point startPosition,
+        Point stopPosition,
+        double startECS,
+        double stopECS,
+        IReadOnlyList<CIBInformation> cibInformations,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
+        (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
+        bool isCustomChirpAODWaveform,
+        CancellationToken cancellationToken,
+        bool isForward = true)
+    {
+        var resulList = new List<DarkFieldImageDTO>();
+
+        foreach (var currentCIBInformations in cibInformations
+                     .GroupBy(t => t.PMTId)
+                     .Select(gg => gg.ToArray()))
+        {
+            var currentStartPosition = GetCIBInformationPosition(
+                stageCoordinateSystemEnum,
+                currentCIBInformations[0],
+                startPosition);
+
+            var currentStopPosition = GetCIBInformationPosition(
+                stageCoordinateSystemEnum,
+                currentCIBInformations[0],
+                stopPosition);
+
+            resulList.AddRange(await GetPMTImagesAsync(
+                productivityInformation,
+                stageCoordinateSystemEnum,
+                currentStartPosition,
+                currentStopPosition,
+                startECS,
+                stopECS,
+                currentCIBInformations,
+                customCalChip,
+                customCIBConfiguration,
+                customPrescanAODWaveform,
+                isCustomChirpAODWaveform,
+                cancellationToken,
+                isForward));
+        }
+
+        return resulList;
+    }
+
     #endregion
 
     private async Task<T> GetPMTImagesAsync<T>(
@@ -506,9 +556,9 @@ public sealed class CIBViewModel(
     #region 坐标转换
 
     public Vector GetCIBInformationOffset(
-        MicroscopeLensInformation microscopeLensInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBInformation cibInformation,
+        MicroscopeLensInformation? microscopeLensInformation = null,
         bool isLineCentricityOffset = true)
     {
         var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
@@ -529,7 +579,9 @@ public sealed class CIBViewModel(
         }
 
         var cartesianOffset = cartesianCIBLineCentricityOffset
-                              + microscopeViewModel.GetMicroscopeLensInformationOffset(centerCIBLineCentricity?.MicroscopeLensInformation ?? microscopeLensInformation, microscopeLensInformation);
+                              + (microscopeLensInformation is not null
+                                  ? microscopeViewModel.GetMicroscopeLensInformationOffset(centerCIBLineCentricity?.MicroscopeLensInformation ?? microscopeLensInformation, microscopeLensInformation)
+                                  : Vector.Zero);
 
         if (cibInformation.PMTId == calibrationSetting.SettingCommonParam.MainPMTId && centerCIBLineCentricity?.MicroscopeLensInformation == microscopeLensInformation)
             Guard.IsTrue(cartesianOffset == Vector.Zero);
@@ -543,10 +595,10 @@ public sealed class CIBViewModel(
     }
 
     public Point GetCIBInformationPosition(
-        MicroscopeLensInformation microscopeLensInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBInformation cibInformation,
-        Point position) => position + GetCIBInformationOffset(microscopeLensInformation, stageCoordinateSystemEnum, cibInformation, false);
+        Point position,
+        MicroscopeLensInformation? microscopeLensInformation = null) => position + GetCIBInformationOffset(stageCoordinateSystemEnum, cibInformation, microscopeLensInformation, false);
 
     #endregion
 

@@ -115,7 +115,7 @@ public class CalibrationRecipeServiceImpl(
             maskInfo = reticleMaskDto.MicrosocpeReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
                             && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
                 );
             return true;
         }
@@ -136,7 +136,7 @@ public class CalibrationRecipeServiceImpl(
             maskInfo = reticleMaskDto.ChuckReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
                             && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
                 );
             return true;
         }
@@ -174,9 +174,9 @@ public class CalibrationRecipeServiceImpl(
             maskInfo = reticleMaskDto.LaserReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
                             && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType
+                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType
                                                           && (stageSpeedEnum is null || t.RecipeDarkFieldTemplateDto.StageSpeedEnum == stageSpeedEnum)
-                                                          && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
+                                                          && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
                 );
 
             return true;

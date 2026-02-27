@@ -186,10 +186,10 @@ public partial class GrabbingDarkImageWindowViewModel(
                              .Select(gg => gg.OrderByDescending(t => t).ToArray()))
                 {
                     var currentStartPosition = cibViewModel.GetCIBInformationPosition(
-                        microscopeViewModel.GetCurrentMicroscopeLensInformation(),
                         StageCoordinateSystemEnum,
                         cibInformations[0],
-                        startPosition);
+                        startPosition, 
+                        microscopeViewModel.GetCurrentMicroscopeLensInformation());
 
                     var darkFieldRawScanImages = (IReadOnlyList<DarkFieldRawScanImageDTO>)[];
 

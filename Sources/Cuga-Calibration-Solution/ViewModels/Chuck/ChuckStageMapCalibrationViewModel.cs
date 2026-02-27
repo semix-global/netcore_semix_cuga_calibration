@@ -447,16 +447,17 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         var laserLineCentricityItemDto = LaserLineCentricityItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
                                                                               && t.ProductivityInformation == Cache.ProductivityInformation);
 
-        var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
-            CalChipSiteModelEnum.ChuckModel,
+        var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
+            Cache.ProductivityInformation,
+            StageCoordinateSystemEnum.Bright,
             brightFieldPosition,
+            Cache.XWidthPixel,
+            ApplicationCookie.CIBInformations.Single(t => t.PMTId == CalibrationSetting.SettingCommonParam.MainPMTId && t.ChannelId == CalibrationSetting.SettingCommonParam.MainChannelId),
+            (false, CalChipSiteModelEnum.ChuckModel),
+            (false, Cache.CIBConfiguration),
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
-            Cache.CIBConfiguration,
-            Cache.ProductivityInformation,
-            Cache.OpticsIlluminationModeEnum,
-            Cache.XWidthPixel,
-            stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+            CancellationToken.None);
         var detectImageDirectory = ImageFileDirectory;
         using var image = darkFieldImageDto;
 
@@ -569,7 +570,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             var (isSuccess, errorMessage) = Cache.Step3Verify();
             if (isSuccess == false)
@@ -623,7 +624,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 //    RtfcEcs = ecs,
                 //    RtfcHeight = height,
                 //}), HtmlLogUniqueId.LoggingHtml());
-                DarkFieldGetStageMap(ResultChuckStageMapDto.CalibrationDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationDarkFieldStageMap)), cancellationToken);
+                await DarkFieldGetStageMapAsync(ResultChuckStageMapDto.CalibrationDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationDarkFieldStageMap)), cancellationToken);
             }
 
             var calibrationStageMap = Cache.IsDarkField == false
@@ -845,7 +846,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                DarkFieldGetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken, true);
+                await DarkFieldGetStageMapAsync(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken, true);
 
                 var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                 ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $@"{CsvFileDirectory}\ReviewDarkField\{middleFileDateTimeFormat}\Ideal_Guid({HtmlLogUniqueId}).csv";
@@ -1117,7 +1118,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         }
     }
 
-    private void DarkFieldGetStageMap(StageMapDto stageMapDto, string detectImageDirectory, Action notifyAction, CancellationToken cancellationToken, bool isReview = false)
+    private async Task DarkFieldGetStageMapAsync(StageMapDto stageMapDto, string detectImageDirectory, Action notifyAction, CancellationToken cancellationToken, bool isReview = false)
     {
         if (isReview) Guard.IsNotNull(ReviewDto);
 
@@ -1203,24 +1204,24 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, strings) + Environment.NewLine + string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
                 }
 
-                var darkImageRepeatList = new List<List<DarkFieldImageDTO>>();
+                var darkImageRepeatList = new List<IReadOnlyList<DarkFieldImageDTO>>();
                 foreach (var _ in Enumerable.Range(1, Cache.RepeatCount))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
                     try
                     {
-                        var rowDarkFieldImageDtoList = LaserViewModel.GetChuckDarkFieldRowLineScanImage(
+                        var rowDarkFieldImageDtoList = await CIBViewModel.GetPMTImagesAsync(
+                            Cache.ProductivityInformation,
+                            StageCoordinateSystemEnum.Machine,
                             points,
+                            Cache.XWidthPixel,
+                            ApplicationCookie.CIBInformations.Single(t => t.PMTId == CalibrationSetting.SettingCommonParam.MainPMTId && t.ChannelId == CalibrationSetting.SettingCommonParam.MainChannelId),
+                            (false, CalChipSiteModelEnum.ChuckModel),
+                            (false, Cache.CIBConfiguration),
                             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                             false,
-                            Cache.CIBConfiguration,
-                            Cache.ProductivityInformation,
-                            Cache.OpticsIlluminationModeEnum,
-                            Cache.XWidthPixel,
-                            CalibrationConstantsHelper.MainPmtId,
-                            CalibrationConstantsHelper.MainChannelId,
-                            StageCoordinateSystemEnum.Machine);
+                            cancellationToken);
                         if (isInWaferRowList.Count != rowDarkFieldImageDtoList.Count)
                         {
                             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Get Dark Field ChuckRow Line Scan Image List Failed!"), HtmlLogUniqueId.LoggingHtml());
@@ -1340,9 +1341,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 var plotDicGroup = (from kvp in plotDic
-                                    group kvp.Value by kvp.Key.RepeatIndex
+                    group kvp.Value by kvp.Key.RepeatIndex
                     into g
-                                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
                 if (plotDicGroup.Count == 0)
                     continue;
 

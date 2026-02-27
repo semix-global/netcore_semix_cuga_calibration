@@ -710,29 +710,26 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             StageCoordinateSystemEnum.Dark,
             StageViewModel.MachineToDarkFieldPosition(cibLineCentricityDTO.FindDFMachinePosition),
             Cache.Item.ImageWidth,
-            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibLineCentricityDTO.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
+            Cache.Item.CIBInformation,
             (false, Cache.CalChipSiteModelEnum),
             (false, Cache.Item.CIBConfiguration),
             (false, Cache.Item.LaserLightInformation),
             false, cancellationToken);
 
-        if (LaserViewModel.TryGetMatchPosition(
+        if (CIBViewModel.TryGetMatchPosition(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Machine,
+                cibLineCentricityDTO.FindDFMachinePosition,
+                Cache.Item.CIBInformation,
                 Cache.AlgorithmTemplateTypeEnum,
                 darkFieldImage,
-                cibLineCentricityDTO.PmtId,
-                cibLineCentricityDTO.FindDFMachinePosition,
                 Cache.Item.TemplateFilePath,
                 Cache.Item.TemplateImageFilePath,
                 HtmlLogUniqueId,
-                string.Empty,
-                $"PMT {cibLineCentricityDTO.PmtId}",
-                Cache.ProductivityInformation,
                 out var position,
                 out _,
                 out _,
-                out var resultImageFilePath,
-                xWidthPixel: Cache.Item.ImageWidth,
-                stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine) == false)
+                out var resultImageFilePath) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;

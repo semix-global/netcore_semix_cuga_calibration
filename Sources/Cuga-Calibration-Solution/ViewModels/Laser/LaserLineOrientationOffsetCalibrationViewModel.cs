@@ -499,15 +499,15 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     private async Task<bool> Step4CalibrateActionAsync(CancellationToken cancellationToken)
     {
         var result = false;
-        await InvokeCalibrateAsync(() =>
+        await InvokeCalibrateAsync(async () =>
         {
-            result = Step4CalibrateAction();
+            result = await Step4CalibrateActionAsync();
             return result;
         });
         return result;
     }
 
-    private bool Step4CalibrateAction()
+    private async Task<bool> Step4CalibrateActionAsync()
     {
         if (Cache.FindPosition.ToOriginLength >= Cache.WaferDiameter / 2)
         {
@@ -515,17 +515,17 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             return false;
         }
 
-        var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
-            CalChipSiteModelEnum.ChuckModel,
+        var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
+            Cache.ProductivityInformation,
+            StageCoordinateSystemEnum.Bright,
             Cache.FindPosition,
+            Cache.XWidthPixel,
+            ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == CalibrationSetting.SettingCommonParam.MainChannelId),
+            (false, CalChipSiteModelEnum.ChuckModel),
+            (false, Cache.CIBConfiguration),
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
-            Cache.CIBConfiguration,
-            Cache.ProductivityInformation,
-            Cache.OpticsIlluminationModeEnum,
-            xWidthPixel: Cache.XWidthPixel,
-            pmtId: Cache.PmtId,
-            stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+            CancellationToken.None);
 
         var detectImageDirectory = ImageFileDirectory;
         using var _ = darkFieldImageDto;
@@ -584,7 +584,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
 
     private Task<bool> Step5CalibrateAsync(CancellationToken cancellationToken)
     {
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             ClearCalibrationTemp();
 
@@ -651,11 +651,9 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 pmtList.Add(pmt);
             }
 
-            var pmtConfig = CalibrationSetting.SettingPmtConfigParam.PmtConfigList;
-
-            if (pmtConfig
-                    .Where(t => t.Enabled)
-                    .All(t => LaserPixelSizes.Any(dto => dto.ProductivityInformation == Cache.ProductivityInformation && dto.PmtId == t.Id && dto.IsOk)) == false)
+            if (ApplicationCookie.CIBInformationPMTIds
+                    .OrderBy(t => t)
+                    .All(t => LaserPixelSizes.Any(dto => dto.ProductivityInformation == Cache.ProductivityInformation && dto.PmtId == t && dto.IsOk)) == false)
             {
                 DialogWindowProvider.ShowDialog("Missing pixel size for PMT configuration! Please check the pixel size calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
@@ -664,9 +662,9 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             foreach (var lineOrientationOffsetItemDto in pmtList)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (pmtConfig.Count == 0 || pmtConfig.Single(t => t.Id == lineOrientationOffsetItemDto.PmtId).Enabled)
+                if (ApplicationCookie.CIBInformationPMTIds.SingleOrDefault(t => t == lineOrientationOffsetItemDto.PmtId, -1) == -1)
                 {
-                    if (GetLineOrientationOffset(lineOrientationOffsetItemDto) == false) return false;
+                    if (await GetLineOrientationOffsetAsync(lineOrientationOffsetItemDto) == false) return false;
                 }
             }
 
@@ -679,7 +677,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
     {
         var result = true;
 
-        await InvokeVerifyAsync(() =>
+        await InvokeVerifyAsync(async () =>
         {
             if (SelectReviewList.Count == 0)
             {
@@ -687,12 +685,12 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 return false;
             }
 
-            if (VerifyCalibration(cancellationToken) == false) result = false;
+            if (await VerifyCalibrationAsync(cancellationToken) == false) result = false;
             return result;
         }).ConfigureAwait(false);
     }
 
-    private bool VerifyCalibration(CancellationToken cancellationToken)
+    private async Task<bool> VerifyCalibrationAsync(CancellationToken cancellationToken)
     {
         ClearCalibrationTemp();
         var detectImageDirectory = ImageFileDirectory;
@@ -722,7 +720,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             lineOrientationOffsetItemDto.ReverseFilePath = detectImageDirectory + "Reverse";
             lineOrientationOffsetItemDto.TemplateFilePath = templateFileDirectory;
 
-            if (GetLineOrientationOffset(lineOrientationOffsetItemDto, true) == false) return false;
+            if (await GetLineOrientationOffsetAsync(lineOrientationOffsetItemDto, true) == false) return false;
 
             var result = lineOrientationOffsetItemDto.Offset.ToOriginLength < Cache.Threshold.ToOriginLength;
             verifyResultList.Add(result);
@@ -756,7 +754,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         return selectListAllResult;
     }
 
-    private bool GetLineOrientationOffset(LineOrientationOffsetItemDto lineOrientationOffsetItemDto, bool isVerify = false)
+    private async Task<bool> GetLineOrientationOffsetAsync(LineOrientationOffsetItemDto lineOrientationOffsetItemDto, bool isVerify = false)
     {
         Logger.LogHtmlInformation($"PMT ID :{lineOrientationOffsetItemDto.PmtId}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
@@ -764,7 +762,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             .Select(t => new Point(Cache.StartPosition.X + t * Cache.ColumnCellWidth, lineOrientationOffsetItemDto.StartPosition.Y))
             .ToList();
 
-        if (GetMatchResult(lineOrientationOffsetItemDto, true) == false)
+        if (await GetMatchResultAsync(lineOrientationOffsetItemDto, true) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Try Template Match To Offset Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -777,7 +775,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
             lineOrientationOffsetItemDto.EndPosition += (Vector)new Point(lineOrientationOffsetItemDto.Offset.X * xDirection, lineOrientationOffsetItemDto.Offset.Y * yDirection);
         }
 
-        if (GetMatchResult(lineOrientationOffsetItemDto, false) == false)
+        if (await GetMatchResultAsync(lineOrientationOffsetItemDto, false) == false)
         {
             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Try Template Match To Offset Failed!"), HtmlLogUniqueId.LoggingHtml());
             return false;
@@ -800,7 +798,7 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
         SynchronizationContextProvider.Send(() => ResultLaserLineOrientationOffsetDtoList.Add(lineOrientationOffsetItemDto));
         return true;
 
-        bool GetMatchResult(LineOrientationOffsetItemDto lineOrientationOffsetDto, bool isForward)
+        async Task<bool> GetMatchResultAsync(LineOrientationOffsetItemDto lineOrientationOffsetDto, bool isForward)
         {
             var points = pegTriggerPoint.Select(t => t).ToArray();
             if (isForward == false) points = [.. points.AsEnumerable().Reverse()];
@@ -815,40 +813,37 @@ public sealed partial class LaserLineOrientationOffsetCalibrationViewModel(
                 MachinePoint = new HtmlTable([.. points.Select((t, i) => new { i, t })])
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var rowDarkFieldImageDtoList = LaserViewModel.GetChuckDarkFieldRowLineScanImage(
+            var rowDarkFieldImageDtoList = await CIBViewModel.GetPMTImagesAsync(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Machine,
                 machinePoints,
+                Cache.XWidthPixel,
+                ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == CalibrationSetting.SettingCommonParam.MainChannelId),
+                (false, CalChipSiteModelEnum.ChuckModel),
+                (false, Cache.CIBConfiguration),
                 (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                 false,
-                Cache.CIBConfiguration,
-                Cache.ProductivityInformation,
-                Cache.OpticsIlluminationModeEnum,
-                xWidthPixel: Cache.XWidthPixel,
-                CalibrationConstantsHelper.MainPmtId,
-                CalibrationConstantsHelper.MainChannelId,
-                StageCoordinateSystemEnum.Machine);
+                CancellationToken.None);
 
             var findPosition = points.Select((t, i) => (Index: i, Point: t))
                 .Minima(t => Math.Abs((t.Point.X - lineOrientationOffsetDto.FindPosition.X)))
                 .First();
             var darkFieldImageDto = isForward ? rowDarkFieldImageDtoList[findPosition.Index] : rowDarkFieldImageDtoList[^findPosition.Index];
 
-            if (LaserViewModel.TryGetMatchPosition(
+            if (CIBViewModel.TryGetMatchPosition(
+                    Cache.ProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    findPosition.Point,
+                    ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == CalibrationSetting.SettingCommonParam.MainChannelId),
                     Cache.AlgorithmTemplateTypeEnum,
                     darkFieldImageDto,
-                    lineOrientationOffsetDto.PmtId,
-                    findPosition.Point,
                     Cache.TemplateFilePath,
                     isForward ? lineOrientationOffsetDto.ForwardFilePath : lineOrientationOffsetDto.ReverseFilePath,
                     HtmlLogUniqueId,
-                    string.Empty,
-                    $"{lineOrientationOffsetDto.PmtId} {(isForward ? "Forward" : "Reverse")}",
-                    Cache.ProductivityInformation,
                     out var position,
                     out _,
                     out _,
-                    out var resultImageFilePath,
-                    xWidthPixel: Cache.XWidthPixel,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Dark) == false)
+                    out var resultImageFilePath) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 return false;

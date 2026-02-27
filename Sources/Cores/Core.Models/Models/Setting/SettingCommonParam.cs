@@ -27,6 +27,9 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
 
     [ObservableProperty]
     private int _mainPMTId = 8;
+    
+    [ObservableProperty]
+    private int _mainChannelId = 3;
 
     [ObservableProperty]
     private double _measurePowerMeasurementMinValue = 0.1d;
@@ -41,6 +44,7 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
         MainLaserLightInformation = obj.MainLaserLightInformation.Clone();
         PMTInterval = obj.PMTInterval;
         MainPMTId = obj.MainPMTId;
+        MainChannelId = obj.MainChannelId;
         MeasurePowerMeasurementMinValue = obj.MeasurePowerMeasurementMinValue;
 
         return this;
