@@ -531,6 +531,9 @@ public sealed class CIBViewModel(
         var cartesianOffset = cartesianCIBLineCentricityOffset
                               + microscopeViewModel.GetMicroscopeLensInformationOffset(centerCIBLineCentricity?.MicroscopeLensInformation ?? microscopeLensInformation, microscopeLensInformation);
 
+        if (cibInformation.PMTId == calibrationSetting.SettingCommonParam.MainPMTId && centerCIBLineCentricity?.MicroscopeLensInformation == microscopeLensInformation)
+            Guard.IsTrue(cartesianOffset == Vector.Zero);
+
         return stageCoordinateSystemEnum switch
         {
             StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => cartesianOffset,

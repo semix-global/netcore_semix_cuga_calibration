@@ -1,13 +1,14 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:multiValueConverters="clr-namespace:Core.Utilities.WPF.Converters.MultiValueConverters"
+                    xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
                     xmlns:converters="clr-namespace:Core.Utilities.WPF.Converters"
-                    xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF">
+                    xmlns:multiValueConverters="clr-namespace:Core.Utilities.WPF.Converters.MultiValueConverters">
     <converters:DoublesToStringConverter x:Key="DoublesToStringConverter" />
     <converters:IntsToStringConverter x:Key="IntsToStringConverter" />
     <converters:DoubleToGridLengthConverter x:Key="DoubleToGridLengthConverter" />
     <converters:PointYToStringConverter x:Key="PointYToStringConverter" />
     <converters:PointXToStringConverter x:Key="PointXToStringConverter" />
+    <converters:StringToBitmapImageDrawableConverter x:Key="StringToBitmapImageDrawableConverter" />
     <converters:ScatterPlotControlToTitleConverter x:Key="ScatterPlotControlToTitleConverter" />
     <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanAllConverter" />
     <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanNegationAllConverter" IsNegation="True" />
