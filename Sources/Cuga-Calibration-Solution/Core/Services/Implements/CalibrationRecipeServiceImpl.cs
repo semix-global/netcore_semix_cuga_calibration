@@ -107,7 +107,7 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
+    public bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, out ReticleMarkItemDto maskInfo)
     {
         try
         {
@@ -128,7 +128,7 @@ public class CalibrationRecipeServiceImpl(
     }
 
     [Obsolete]
-    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
+    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, out ReticleMarkItemDto maskInfo)
     {
         try
         {
@@ -166,7 +166,7 @@ public class CalibrationRecipeServiceImpl(
     }
 
     [Obsolete]
-    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo)
+    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, int? stageSpeedEnum, out ReticleMarkItemDto maskInfo)
     {
         try
         {

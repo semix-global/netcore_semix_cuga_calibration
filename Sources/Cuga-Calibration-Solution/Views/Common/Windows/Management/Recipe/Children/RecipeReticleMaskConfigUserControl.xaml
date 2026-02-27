@@ -109,30 +109,7 @@
                                 <GridViewColumn Width="700" Header="Dark Template">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <hc:UniformSpacingPanel Orientation="Horizontal">
-                                                <hc:ComboBox Margin="5"
-                                                             hc:InfoElement.TitlePlacement="Left"
-                                                             hc:InfoElement.Title="Optics Type: "
-                                                             SelectedItem="{Binding RecipeDarkFieldTemplateDto.OpticsMagTypeEnum}"
-                                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type opticsEnum:OpticsMagTypeEnum}}}">
-                                                    <hc:ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        </DataTemplate>
-                                                    </hc:ComboBox.ItemTemplate>
-                                                </hc:ComboBox>
-                                                <hc:ComboBox Margin="5"
-                                                             hc:InfoElement.TitlePlacement="Left"
-                                                             hc:InfoElement.Title="Stage Speed: "
-                                                             SelectedItem="{Binding RecipeDarkFieldTemplateDto.StageSpeedEnum}"
-                                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stageSpeedEnum:StageSpeedEnum}}}">
-                                                    <hc:ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        </DataTemplate>
-                                                    </hc:ComboBox.ItemTemplate>
-                                                </hc:ComboBox>
-                                            </hc:UniformSpacingPanel>
+                                            <hc:UniformSpacingPanel Orientation="Horizontal" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

@@ -40,7 +40,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibAdsService>,
 
     public SxExecuteRet<bool> SetSensorXSpeedFeedForwardValue(bool isPositive, (double X1, double X2) value)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetXSpeedFeed(new SxParamObj<(CgSpeedLevelType speed, bool isPositive, (ushort X1, ushort X2) value)>((StageSpeedEnum.Low.ToCgSpeedLevelType(), isPositive, (Convert.ToUInt16(value.X1), Convert.ToUInt16(value.X2))))));
+        var sxExecuteRet = Invoke(() => Service?.SetXSpeedFeed(new SxParamObj<(CgSpeedLevelType speed, bool isPositive, (ushort X1, ushort X2) value)>((CgSpeedLevelType.Low, isPositive, (Convert.ToUInt16(value.X1), Convert.ToUInt16(value.X2))))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -61,7 +61,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibAdsService>,
     public SxExecuteRet<bool> SetSensorYSpeedFeedForwardValue(bool isPositive, (double Y1, double Y2, double Y3) value)
     {
         var sxExecuteRet = Invoke(() =>
-            Service?.SetYSpeedFeed(new SxParamObj<(CgSpeedLevelType speed, bool isPositive, (ushort Y1, ushort Y2, ushort Y3) value)>((StageSpeedEnum.Low.ToCgSpeedLevelType(), isPositive,
+            Service?.SetYSpeedFeed(new SxParamObj<(CgSpeedLevelType speed, bool isPositive, (ushort Y1, ushort Y2, ushort Y3) value)>((CgSpeedLevelType.Low, isPositive,
                 (Convert.ToUInt16(value.Y1), Convert.ToUInt16(value.Y2), Convert.ToUInt16(value.Y3))))));
 
         return sxExecuteRet.IsSuccess == false

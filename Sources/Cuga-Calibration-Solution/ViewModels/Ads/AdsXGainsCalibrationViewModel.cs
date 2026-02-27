@@ -86,22 +86,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     [ObservableProperty]
     private AdsXGainsItemDto _resultAdsXGainsItemDto = new();
 
-    [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus> _calibrationStatusList =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus
-        {
-            OpticsMagTypeEnum = t,
-            StageSpeedEnumCalibrationStatusList = [..EnumHelper.Enums<StageSpeedEnum>().Select(tt => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = tt, IsCalibrated = false })]
-        })
-    ];
-
-    [ObservableProperty]
-    private ObservableCollection<StageSpeedEnumCalibrationStatus> _calibrationStatusListItem =
-    [
-        .. EnumHelper.Enums<StageSpeedEnum>().Select(t => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = t, IsCalibrated = false })
-    ];
-
     private List<(double x1, double x2)> defaultXList = [];
 
     private bool IsX1Stop = false;

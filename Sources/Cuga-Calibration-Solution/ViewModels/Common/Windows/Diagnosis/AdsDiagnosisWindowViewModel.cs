@@ -26,14 +26,10 @@ public sealed partial class AdsDiagnosisWindowViewModel : ViewModelBase, IRecipi
     [ObservableProperty]
     private AdsGainsDiagnosisViewModel? _adsGainsDiagnosisViewModel;
 
-    [ObservableProperty]
-    private AdsCenterOfMassDiagnosisViewModel? _adsCenterOfMassDiagnosisViewModel;
-
     public AdsDiagnosisWindowViewModel()
     {
         _messenger = HostApplication.GetRequiredService<IMessenger>();
         ActiveItem = AdsGainsDiagnosisViewModel = HostApplication.GetRequiredService<AdsGainsDiagnosisViewModel>();
-        AdsCenterOfMassDiagnosisViewModel = HostApplication.GetRequiredService<AdsCenterOfMassDiagnosisViewModel>();
         _messenger.RegisterAll(this);
     }
 
@@ -53,10 +49,6 @@ public sealed partial class AdsDiagnosisWindowViewModel : ViewModelBase, IRecipi
             case "Y Gains":
                 AdsGainsDiagnosisViewModel!.IsX = false;
                 ActiveItem = AdsGainsDiagnosisViewModel;
-                break;
-
-            case "CenterOfMass":
-                ActiveItem = AdsCenterOfMassDiagnosisViewModel;
                 break;
 
             default:

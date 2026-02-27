@@ -46,40 +46,50 @@
                 <ScrollViewer>
                     <Border>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                            <hc:ComboBox hc:TitleElement.Title="Low Microscope: "
-                                         hc:TitleElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="200"
-                                         ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                            <ComboBox hc:TitleElement.Title="Low Microscope: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
+                                      Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                                 </i:Interaction.Behaviors>
-                            </hc:ComboBox>
-                            <hc:ComboBox hc:TitleElement.Title="High Microscope: "
-                                         hc:TitleElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="200"
-                                         ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                            </ComboBox>
+                            <ComboBox hc:TitleElement.Title="High Microscope: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
+                                      Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                                 </i:Interaction.Behaviors>
-                            </hc:ComboBox>
-                            <hc:ComboBox hc:TitleElement.Title="Light Information: "
-                                         hc:TitleElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="200"
-                                         ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                            </ComboBox>
+                            <ComboBox hc:TitleElement.Title="Light Information: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
+                                      Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainLaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                 </i:Interaction.Behaviors>
-                            </hc:ComboBox>
+                            </ComboBox>
                             <hc:NumericUpDown hc:TitleElement.Title="PMT Interval(um): "
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding CalibrationSetting.SettingCommonParam.PMTInterval}" />
-                            <hc:ComboBox hc:TitleElement.Title="Main PMTId: "
-                                         hc:TitleElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="200"
-                                         SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainPMTId}"
-                                         ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}" />
+                            <ComboBox hc:TitleElement.Title="Main PMT Id: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainPMTId}"
+                                      ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
+                                      Style="{StaticResource ComboBoxExtend}" />
+                            <ComboBox hc:TitleElement.Title="Main Channel Id: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainChannelId}"
+                                      ItemsSource="{Binding ApplicationCookie.CIBInformationChannelIds}"
+                                      Style="{StaticResource ComboBoxExtend}" />
                             <hc:NumericUpDown hc:TitleElement.Title="Measure Power Min Value(mW): "
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"

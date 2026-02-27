@@ -45,47 +45,12 @@ public static class EnumOpticsExtension
 
     extension(CgMagTypeEnum @this)
     {
-        public OpticsMagTypeEnum ToOpticsMagTypeEnum() => @this switch
-        {
-            CgMagTypeEnum.Low => OpticsMagTypeEnum.Low,
-            CgMagTypeEnum.Mid => OpticsMagTypeEnum.Middle,
-            CgMagTypeEnum.High => OpticsMagTypeEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsMagTypeEnum>(nameof(@this))
-        };
-
         public SxMAGEnum ToSxMagEnum() => @this switch
         {
             CgMagTypeEnum.Low => SxMAGEnum.Low,
             CgMagTypeEnum.Mid => SxMAGEnum.Mid,
             CgMagTypeEnum.High => SxMAGEnum.High,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(@this))
-        };
-    }
-
-    extension(OpticsMagTypeEnum @this)
-    {
-        public CgMagTypeEnum ToCgMagTypeEnum() => @this switch
-        {
-            OpticsMagTypeEnum.Low => CgMagTypeEnum.Low,
-            OpticsMagTypeEnum.Middle => CgMagTypeEnum.Mid,
-            OpticsMagTypeEnum.High => CgMagTypeEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgMagTypeEnum>(nameof(@this))
-        };
-
-        public SxMAGEnum ToSxMagEnum() => @this switch
-        {
-            OpticsMagTypeEnum.Low => SxMAGEnum.Low,
-            OpticsMagTypeEnum.Middle => SxMAGEnum.Mid,
-            OpticsMagTypeEnum.High => SxMAGEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(@this))
-        };
-
-        public ESxLevelEnum ToESxLevelEnum() => @this switch
-        {
-            OpticsMagTypeEnum.Low => ESxLevelEnum.Low,
-            OpticsMagTypeEnum.Middle => ESxLevelEnum.Mid,
-            OpticsMagTypeEnum.High => ESxLevelEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<ESxLevelEnum>(nameof(@this))
         };
     }
 
@@ -97,14 +62,6 @@ public static class EnumOpticsExtension
             SxMAGEnum.Mid => CgMagTypeEnum.Mid,
             SxMAGEnum.High => CgMagTypeEnum.High,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgMagTypeEnum>(nameof(@this))
-        };
-
-        public OpticsMagTypeEnum ToOpticsMagTypeEnum() => @this switch
-        {
-            SxMAGEnum.Low => OpticsMagTypeEnum.Low,
-            SxMAGEnum.Mid => OpticsMagTypeEnum.Middle,
-            SxMAGEnum.High => OpticsMagTypeEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsMagTypeEnum>(nameof(@this))
         };
 
         public ESxLevelEnum ToESxLevelEnum() => @this switch
