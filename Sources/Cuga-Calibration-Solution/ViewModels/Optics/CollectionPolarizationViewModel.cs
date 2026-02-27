@@ -199,13 +199,12 @@ public sealed partial class CollectionPolarizationViewModel(
                     ApplicationCookie.OILowProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    CIBInfor,
                     Cache.ImageWidth,
+                    CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
+                    false, cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -257,13 +256,12 @@ public sealed partial class CollectionPolarizationViewModel(
                     ApplicationCookie.OILowProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    CIBInfor,
                     Cache.ImageWidth,
+                    CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
+                    false, cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -315,13 +313,12 @@ public sealed partial class CollectionPolarizationViewModel(
                     ApplicationCookie.OILowProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    CIBInfor,
                     Cache.ImageWidth,
+                    CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
+                    false, cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -374,13 +371,12 @@ public sealed partial class CollectionPolarizationViewModel(
                     ApplicationCookie.OILowProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    CIBInfor,
                     Cache.ImageWidth,
+                    CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
+                    false, cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -432,13 +428,12 @@ public sealed partial class CollectionPolarizationViewModel(
                     ApplicationCookie.OILowProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    CIBInfor,
                     Cache.ImageWidth,
+                    CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
+                    false, cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -490,13 +485,12 @@ public sealed partial class CollectionPolarizationViewModel(
                     ApplicationCookie.OILowProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    CIBInfor,
                     Cache.ImageWidth,
+                    CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
+                    false, cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;

@@ -348,13 +348,12 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                         globalFocusOffsetDTO.ProductivityInformation,
                         StageCoordinateSystemEnum.Machine,
                         StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition)),
-                        Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
+                        Cache.Item.CIBInformation,
                         (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
-                        false,
-                        cancellationToken);
+                        false, cancellationToken);
 
                     var darkFieldFilePath = $"{ImageFileDirectory}\\Verify_({globalFocusOffsetDTO.ProductivityInformation})_Guid({HtmlLogUniqueId}).jpg";
                     darkFieldImageDto.Image.Save(darkFieldFilePath);

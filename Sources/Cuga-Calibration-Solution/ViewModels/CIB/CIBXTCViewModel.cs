@@ -343,13 +343,12 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
                         hazeBFPosition,
-                        Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
+                        Cache.Item.CIBInformation,
                         (false, CalChipSiteModelEnum.HazeModel),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
-                        false,
-                        cancellationToken);
+                        false, cancellationToken);
 
                     var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);
@@ -450,13 +449,12 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
                         hazeBFPosition,
-                        cibInformations,
                         Cache.Item.ImageWidth,
+                        cibInformations,
                         (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
-                        false,
-                        cancellationToken);
+                        false, cancellationToken);
 
                     Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 

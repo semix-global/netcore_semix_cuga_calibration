@@ -143,9 +143,9 @@ public sealed class CIBViewModel(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
-        IReadOnlyList<CIBInformation> cibInformations,
         int imageWidth,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        IReadOnlyList<CIBInformation> cibInformations,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -167,8 +167,8 @@ public sealed class CIBViewModel(
                     productivityInformation,
                     stageCoordinateSystemEnum,
                     centerPosition,
-                    cibInformations,
                     imageWidth,
+                    cibInformations,
                     isForward,
                     isAutoFocus,
                     cancellationToken);
@@ -181,9 +181,9 @@ public sealed class CIBViewModel(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
-        CIBInformation cibInformation,
         int imageWidth,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        CIBInformation cibInformation,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -195,15 +195,14 @@ public sealed class CIBViewModel(
             productivityInformation,
             stageCoordinateSystemEnum,
             centerPosition,
-            [cibInformation],
             imageWidth,
+            [cibInformation],
             customCalChip,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
             cancellationToken,
-            isForward,
-            isAutoFocus);
+            isForward, isAutoFocus);
 
         return darkFieldImages.Single();
     }
@@ -216,9 +215,9 @@ public sealed class CIBViewModel(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         IReadOnlyList<Point> centerPositions,
-        CIBInformation cibInformation,
         int imageWidth,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        CIBInformation cibInformation,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -239,8 +238,8 @@ public sealed class CIBViewModel(
                     productivityInformation,
                     stageCoordinateSystemEnum,
                     centerPositions,
-                    cibInformation,
                     imageWidth,
+                    cibInformation,
                     isAutoFocus,
                     cancellationToken);
 
@@ -258,7 +257,7 @@ public sealed class CIBViewModel(
         Point startPosition,
         Point stopPosition,
         IReadOnlyList<CIBInformation> cibInformations,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -296,7 +295,7 @@ public sealed class CIBViewModel(
         Point startPosition,
         Point stopPosition,
         CIBInformation cibInformation,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -330,13 +329,13 @@ public sealed class CIBViewModel(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
         Point stopPosition,
+        double startECS,
+        double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
-        double startECS,
-        double stopECS,
         CancellationToken cancellationToken,
         bool isForward = true)
         => await GetPMTImagesAsync(
@@ -355,9 +354,9 @@ public sealed class CIBViewModel(
                     stageCoordinateSystemEnum,
                     startPosition,
                     stopPosition,
-                    cibInformations,
                     startECS,
                     stopECS,
+                    cibInformations,
                     isForward,
                     cancellationToken);
 
@@ -370,13 +369,13 @@ public sealed class CIBViewModel(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
         Point stopPosition,
+        double startECS,
+        double stopECS,
         CIBInformation cibInformation,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
-        double startECS,
-        double stopECS,
         CancellationToken cancellationToken,
         bool isForward = true)
     {
@@ -385,13 +384,13 @@ public sealed class CIBViewModel(
             stageCoordinateSystemEnum,
             startPosition,
             stopPosition,
+            startECS,
+            stopECS,
             [cibInformation],
             customCalChip,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
-            startECS,
-            stopECS,
             cancellationToken,
             isForward);
 
@@ -405,7 +404,7 @@ public sealed class CIBViewModel(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
         IReadOnlyList<CIBInformation> cibInformations,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -415,22 +414,22 @@ public sealed class CIBViewModel(
         {
             if (customCalChip.IsCustom == false)
             {
-                Guard.IsNotNull(customCalChip.calChipSiteModelEnum);
+                Guard.IsNotNull(customCalChip.CalChipSiteModelEnum);
 
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centerPosition, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
@@ -441,7 +440,7 @@ public sealed class CIBViewModel(
                 }
             }
             else
-                Guard.IsNull(customCalChip.calChipSiteModelEnum);
+                Guard.IsNull(customCalChip.CalChipSiteModelEnum);
 
             if (customCIBConfiguration.IsCustom == false)
             {
@@ -472,22 +471,22 @@ public sealed class CIBViewModel(
         {
             if (customCalChip.IsCustom == false)
             {
-                Guard.IsNotNull(customCalChip.calChipSiteModelEnum);
+                Guard.IsNotNull(customCalChip.CalChipSiteModelEnum);
 
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centerPosition, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
@@ -498,9 +497,7 @@ public sealed class CIBViewModel(
                 }
             }
             else
-                Guard.IsNull(customCalChip.calChipSiteModelEnum);
-
-            SetCIBConfiguration(cibInformations, new CIBConfiguration { IsAutoGainControl = true, CIBProfileMode = CIBProfileModeEnum.PMTLog });
+                Guard.IsNull(customCalChip.CalChipSiteModelEnum);
         }
     }
 
@@ -588,13 +585,12 @@ public sealed class CIBViewModel(
             productivityInformation,
             StageCoordinateSystemEnum.Machine,
             centerMachinePosition,
-            cibInformation,
             imageWidth,
+            cibInformation,
             (true, null),
             (false, cibConfiguration),
             (false, laserLightInformation),
-            false,
-            cancellationToken);
+            false, cancellationToken);
 
         var quality = calibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 

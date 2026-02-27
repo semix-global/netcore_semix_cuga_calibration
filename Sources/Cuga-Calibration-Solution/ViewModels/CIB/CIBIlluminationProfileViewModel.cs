@@ -353,13 +353,12 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     Cache.ProductivityInformation,
                                     StageCoordinateSystemEnum.Dark,
                                     hazeBFPosition,
-                                    cibInformations,
                                     Cache.Item.ImageWidth,
+                                    cibInformations,
                                     (true, null),
                                     (true, null),
                                     (false, Cache.Item.LaserLightInformation),
-                                    false,
-                                    cancellationToken);
+                                    false, cancellationToken);
 
                                 Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 

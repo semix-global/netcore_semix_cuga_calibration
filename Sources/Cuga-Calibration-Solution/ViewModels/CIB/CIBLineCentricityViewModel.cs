@@ -406,13 +406,12 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Bright,
                 StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition),
-                Cache.Item.CIBInformation,
                 Cache.Item.ImageWidth,
+                Cache.Item.CIBInformation,
                 (false, Cache.CalChipSiteModelEnum),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
-                false,
-                cancellationToken);
+                false, cancellationToken);
 
             using var _ = darkFieldImageDto;
 
@@ -710,13 +709,12 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             Cache.ProductivityInformation,
             StageCoordinateSystemEnum.Dark,
             StageViewModel.MachineToDarkFieldPosition(cibLineCentricityDTO.FindDFMachinePosition),
-            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibLineCentricityDTO.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
             Cache.Item.ImageWidth,
+            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibLineCentricityDTO.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
             (false, Cache.CalChipSiteModelEnum),
             (false, Cache.Item.CIBConfiguration),
             (false, Cache.Item.LaserLightInformation),
-            false,
-            cancellationToken);
+            false, cancellationToken);
 
         if (LaserViewModel.TryGetMatchPosition(
                 Cache.AlgorithmTemplateTypeEnum,

@@ -419,14 +419,13 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                                 Cache.Item.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
                                 dswBFPosition,
-                                Cache.Item.CIBInformation,
                                 Cache.Item.ImageWidth,
+                                Cache.Item.CIBInformation,
                                 (false, CalChipSiteModelEnum.DswModel),
                                 (false, Cache.Item.CIBConfiguration),
                                 (false, Cache.Item.LaserLightInformation),
                                 false,
-                                cancellationToken,
-                                isAutoFocus: false);
+                                cancellationToken, isAutoFocus: false);
 
                             var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
 

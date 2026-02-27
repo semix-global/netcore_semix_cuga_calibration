@@ -170,8 +170,8 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
-        IReadOnlyList<CIBInformation> cibInformations,
         int imageWidth,
+        IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken)
@@ -218,8 +218,8 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         IReadOnlyList<Point> centerPositions,
-        CIBInformation cibInformation,
         int imageWidth,
+        CIBInformation cibInformation,
         bool isAutoFocus,
         CancellationToken cancellationToken)
     {
@@ -319,9 +319,9 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
         Point stopPosition,
-        IReadOnlyList<CIBInformation> cibInformations,
         double startECS,
         double stopECS,
+        IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         CancellationToken cancellationToken)
     {

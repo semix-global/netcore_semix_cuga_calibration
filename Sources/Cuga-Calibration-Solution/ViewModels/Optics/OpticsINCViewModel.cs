@@ -315,13 +315,12 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
                         hazeBFPosition,
-                        Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
+                        Cache.Item.CIBInformation,
                         (false, CalChipSiteModelEnum.HazeModel),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
-                        false,
-                        cancellationToken);
+                        false, cancellationToken);
 
                     var imageFilePath = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);

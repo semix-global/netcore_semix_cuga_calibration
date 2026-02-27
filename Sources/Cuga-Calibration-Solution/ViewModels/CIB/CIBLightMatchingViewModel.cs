@@ -425,13 +425,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         Cache.ProductivityInformation,
                                         StageCoordinateSystemEnum.Dark,
                                         hazeBFPosition,
-                                        cibInformations,
                                         Cache.Item.ImageWidth,
+                                        cibInformations,
                                         (true, null),
                                         (true, null),
                                         (false, Cache.Item.LaserLightInformation),
-                                        false,
-                                        cancellationToken);
+                                        false, cancellationToken);
 
                                     Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
@@ -597,13 +596,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         Cache.ProductivityInformation,
                                         StageCoordinateSystemEnum.Dark,
                                         silicaSphereBFPosition,
-                                        cibInformations,
                                         Cache.Item.ImageWidth,
+                                        cibInformations,
                                         (true, null),
                                         (true, null),
                                         (false, Cache.Item.LaserLightInformation),
-                                        false,
-                                        cancellationToken);
+                                        false, cancellationToken);
 
                                     Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 

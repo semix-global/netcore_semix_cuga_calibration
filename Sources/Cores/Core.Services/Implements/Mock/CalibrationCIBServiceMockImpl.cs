@@ -167,8 +167,8 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
-        IReadOnlyList<CIBInformation> cibInformations,
         int imageWidth,
+        IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken)
@@ -190,11 +190,11 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
     }
 
     public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
-        ProductivityInformation productivityInformation, 
-        StageCoordinateSystemEnum stageCoordinateSystemEnum, 
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
         IReadOnlyList<Point> centerPositions,
-        CIBInformation cibInformation, 
         int imageWidth,
+        CIBInformation cibInformation,
         bool isAutoFocus,
         CancellationToken cancellationToken)
     {
@@ -245,9 +245,9 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
         Point stopPosition,
-        IReadOnlyList<CIBInformation> cibInformations,
         double startECS,
         double stopECS,
+        IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         CancellationToken cancellationToken)
     {
@@ -269,9 +269,9 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
     public SxExecuteRet<(double ECS, double Motor, bool isAFServo)> RuntimeAFCalibration(
         CalChipSiteModelEnum calChipSiteModelEnum,
-        ProductivityInformation productivityInformation, 
-        CIBInformation cibInformation, 
-        Point? centerMachinePosition = null, 
+        ProductivityInformation productivityInformation,
+        CIBInformation cibInformation,
+        Point? centerMachinePosition = null,
         LaserLightInformation? laserLightInformation = null)
     {
         Thread.Sleep(100);

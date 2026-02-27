@@ -582,13 +582,12 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
             Cache.ProductivityInformation,
             StageCoordinateSystemEnum.Dark,
             StageViewModel.MachineToBrightFieldPosition(cibYPixelSizeDTO.FindBFMachinePosition),
-            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibYPixelSizeDTO.PmtId && t.ChannelId == Cache.Item.CIBChannelId),
             Cache.Item.ImageWidth,
+            ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibYPixelSizeDTO.PmtId && t.ChannelId == Cache.Item.CIBChannelId),
             (false, Cache.CalChipSiteModelEnum),
             (false, Cache.Item.CIBConfiguration),
             (false, Cache.Item.LaserLightInformation),
-            false,
-            cancellationToken);
+            false, cancellationToken);
 
         var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, out var drawImageObj);
         cibYPixelSizeDTO.YPixelSize = yPixelSize;

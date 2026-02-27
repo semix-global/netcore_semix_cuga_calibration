@@ -339,13 +339,12 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
                         hazeBFPosition,
-                        Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
+                        Cache.Item.CIBInformation,
                         (false, CalChipSiteModelEnum.HazeModel),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
-                        false,
-                        cancellationToken);
+                        false, cancellationToken);
 
                     var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.PrescanFrequency:0.###}MHz", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);

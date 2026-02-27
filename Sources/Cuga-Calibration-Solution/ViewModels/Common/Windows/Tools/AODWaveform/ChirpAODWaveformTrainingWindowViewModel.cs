@@ -297,15 +297,9 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 StageCoordinateSystemEnum.Dark,
                 startPositon,
                 startPositon + new Vector(Cache.ScanLength, 0),
-                item.CIBInformation,
-                (true, null),
-                (false, Cache.CIBConfiguration),
-                (true, null),
-                true,
                 Cache.CenterECS - Cache.RangeECS,
                 Cache.CenterECS + Cache.RangeECS,
-                cancellationToken
-            );
+                item.CIBInformation, (true, null), (false, Cache.CIBConfiguration), (true, null), true, cancellationToken);
 
             item.RawImageFilePath = darkFieldImage.RawImageFilePath;
 

@@ -563,13 +563,12 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                         Cache.Item.ProductivityInformation,
                         StageCoordinateSystemEnum.Bright,
                         verifyPosition,
-                        ApplicationCookie.CIBInformations.Single(t => t.PMTId == item.Id && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                         1000,
+                        ApplicationCookie.CIBInformations.Single(t => t.PMTId == item.Id && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                         (false, Cache.CalChipSiteModelEnum),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
-                        false,
-                        cancellationToken);
+                        false, cancellationToken);
                     var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
                     var imageFilePath = $@"{ImageFileDirectory}\Verify\{selectedReviewItem.OpticsIlluminationModeEnum}_PMT{item.Id}_Guid{HtmlLogUniqueId.LoggingHtml()}.jpg";
@@ -823,14 +822,13 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                             Cache.Item.ProductivityInformation,
                             StageCoordinateSystemEnum.Dark,
                             findPosition,
-                            ApplicationCookie.CIBInformations.Single(t => t.PMTId == pmt.Id && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                             Cache.Item.ImageWidth,
+                            ApplicationCookie.CIBInformations.Single(t => t.PMTId == pmt.Id && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                             (false, Cache.CalChipSiteModelEnum),
                             (false, Cache.Item.CIBConfiguration),
                             (false, Cache.Item.LaserLightInformation),
                             false,
-                            cancellationToken,
-                            isAutoFocus: false);
+                            cancellationToken, isAutoFocus: false);
 
                         var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
 
