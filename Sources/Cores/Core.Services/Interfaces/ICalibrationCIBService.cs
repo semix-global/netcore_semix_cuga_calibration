@@ -153,7 +153,6 @@ public interface ICalibrationCIBService
     /// <param name="centerPositions">多个中心位置</param>
     /// <param name="cibInformation">CIB</param>
     /// <param name="imageWidth">图片宽度</param>
-    /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>多个中心位置对应的图片</returns>
@@ -163,7 +162,6 @@ public interface ICalibrationCIBService
         IReadOnlyList<Point> centerPositions,
         CIBInformation cibInformation,
         int imageWidth,
-        bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken);
 

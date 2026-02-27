@@ -220,7 +220,6 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         IReadOnlyList<Point> centerPositions,
         CIBInformation cibInformation,
         int imageWidth,
-        bool isForward,
         bool isAutoFocus,
         CancellationToken cancellationToken)
     {
@@ -244,7 +243,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             StartPoint = [..centerPositions.Select(t => t.ToSxPointD())],
             IsSingle = true,
             AF = isAutoFocus ? 0 : 1,
-            IsForward = isForward,
+            IsForward = isIncreasing,
             IsCalibration = true, /*为true时不下发波形*/
             ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
         });

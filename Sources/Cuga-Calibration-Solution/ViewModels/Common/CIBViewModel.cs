@@ -223,7 +223,6 @@ public sealed class CIBViewModel(
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
-        bool isForward = true,
         bool isAutoFocus = true)
         => await GetPMTImagesAsync(
             productivityInformation,
@@ -242,7 +241,6 @@ public sealed class CIBViewModel(
                     centerPositions,
                     cibInformation,
                     imageWidth,
-                    isForward,
                     isAutoFocus,
                     cancellationToken);
 
