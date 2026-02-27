@@ -120,11 +120,10 @@
                                     <Expander IsExpanded="False"
                                               ExpandDirection="Down"
                                               Header="PMT Config">
-                                        <ListBox
-                                            Height="200"
-                                            ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
-                                            ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
-                                            SelectionMode="Extended">
+                                        <ListBox Height="200"
+                                                 ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                                                 ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
+                                                 SelectionMode="Extended">
                                             <i:Interaction.Behaviors>
                                                 <behaviors:ListBoxSelectedItemsCIBInformationStatusBehavior BindableSelectedItems="{Binding Cache.PMTIds}" />
                                             </i:Interaction.Behaviors>

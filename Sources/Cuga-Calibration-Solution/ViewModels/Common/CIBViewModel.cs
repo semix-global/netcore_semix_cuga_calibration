@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
@@ -25,6 +24,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common;
 

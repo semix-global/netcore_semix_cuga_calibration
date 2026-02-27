@@ -15,8 +15,8 @@ using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
-using System.Collections.ObjectModel;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 

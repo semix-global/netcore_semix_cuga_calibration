@@ -5,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Bases;
@@ -36,7 +37,6 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Immutable;
 using System.IO;
-using Core.Models.Models.Setting;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
@@ -562,7 +562,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         StageCoordinateSystemEnum.Dark,
                         brightFieldPosition,
                         Cache.ImageWidthPixel,
-                        [..ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PmtId)],
+                        [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PmtId)],
                         (false, calChipSiteModelEnum),
                         (false, cibConfiguration),
                         (false, laserLightInformation),

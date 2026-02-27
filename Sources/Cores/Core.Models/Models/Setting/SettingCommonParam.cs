@@ -27,7 +27,7 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
 
     [ObservableProperty]
     private int _mainPMTId = 8;
-    
+
     [ObservableProperty]
     private int _mainChannelId = 3;
 

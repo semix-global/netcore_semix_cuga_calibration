@@ -240,7 +240,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             CollectMode = SxCollectMode.PW,
             PMTId = cibInformation.PMTId,
             Width = imageWidth,
-            StartPoint = [..centerPositions.Select(t => t.ToSxPointD())],
+            StartPoint = [.. centerPositions.Select(t => t.ToSxPointD())],
             IsSingle = true,
             AF = isAutoFocus ? 0 : 1,
             IsForward = isIncreasing,

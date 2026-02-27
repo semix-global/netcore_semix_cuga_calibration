@@ -31,7 +31,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
 
     public MicroscopeCalChipCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, new MicroscopeCalChipCacheItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
-    #region  DSW Alignment
+    #region DSW Alignment
 
     /// <summary>
     /// 晶圆类型
