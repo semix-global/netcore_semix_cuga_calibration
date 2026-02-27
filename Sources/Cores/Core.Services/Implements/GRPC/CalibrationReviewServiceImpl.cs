@@ -39,7 +39,14 @@ public sealed class CalibrationReviewServiceImpl : BaseService<ICgCalibReviewSer
         if (bytes.IsSuccess == false || size.IsSuccess == false || channels.IsSuccess == false) return SxExecuteRetHelper.CreateError(bytes.ErrorMsg, HalconFactory.EmptyHImage);
 
         var (width, height) = (SizeI)size.Anything;
+        
+#pragma warning disable IDE0079
+#pragma warning disable IDISP004
+        
         return SxExecuteRetHelper.CreateSuccess(HalconFactory.CreateImage(bytes.Anything, width, height, channels.Anything, channels.Anything * 8));
+        
+#pragma warning restore IDISP004
+#pragma warning restore IDE0079
     }
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()

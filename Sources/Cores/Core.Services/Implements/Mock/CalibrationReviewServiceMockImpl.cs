@@ -14,7 +14,7 @@ using Size = Net.Utilities.Models.Geometries.Size;
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationReviewService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed class CalibrationReviewServiceMockImpl(ISynchronizationContextProvider contextProvider) : ICalibrationReviewService
+public sealed class CalibrationReviewServiceMockImpl : ICalibrationReviewService
 {
     private static readonly Random Random = new();
 
@@ -33,7 +33,13 @@ public sealed class CalibrationReviewServiceMockImpl(ISynchronizationContextProv
     {
         using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(Width, Height, 10, Random);
 
+#pragma warning disable IDE0079
+#pragma warning disable IDISP004
+        
         return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
+        
+#pragma warning restore IDISP004
+#pragma warning restore IDE0079
     }
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()

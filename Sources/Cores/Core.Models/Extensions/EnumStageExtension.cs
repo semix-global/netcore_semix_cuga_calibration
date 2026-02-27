@@ -1,9 +1,6 @@
 using Core.Models.Enums.Stage;
 using Cuga.Data.DataStruct.DTO.Swath;
 using CommunityToolkit.Diagnostics;
-using Core.Models.Enums.ADS;
-using Cuga.Data.DataStruct.ADS;
-
 
 #if NET
 using Cuga.Data.DataStruct.Basic;

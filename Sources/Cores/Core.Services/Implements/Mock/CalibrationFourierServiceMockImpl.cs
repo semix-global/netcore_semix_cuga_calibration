@@ -25,6 +25,12 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
     {
         using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(2048, 2044, 10, Random);
 
+#pragma warning disable IDE0079
+#pragma warning disable IDISP004
+        
         return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
+        
+#pragma warning restore IDISP004
+#pragma warning restore IDE0079
     }
 }
