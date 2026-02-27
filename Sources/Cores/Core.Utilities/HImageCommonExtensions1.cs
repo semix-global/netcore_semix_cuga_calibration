@@ -99,37 +99,38 @@ public static class HImageCommonExtensions1
         }
 
         /// <summary>
-        /// 将 RAW Log图像转换为线性化图像. 先进行均值滤波(3×3), 再通过反向指数变换将灰度值映射到 12bit 范围
+        /// 将 RAW Log图像转换为线性化图像. 去1500底噪，转int后通过反向指数变换将灰度值映射到 12bit 范围
         /// </summary>
         /// <returns>线性化后的HImage</returns>
         public HImage RAW12BitsPerPixelLogToLinear()
         {
             Guard.IsEqualTo(@this.GetBitsPerPixel(), 16);
 
-            var algorithm = new Algorithm();
-            algorithm.InvertTransformPatchImage128(@this, out var linearImage);
-            using var _ = linearImage;
+            var (width, height) = (SizeI)@this.GetSize();
 
-            HOperatorSet.GetImageSize(linearImage, out var width, out var height);
-            HOperatorSet.GetDomain(linearImage, out var region);
-            HOperatorSet.GetRegionPoints(region, out var rowsHTuple, out var columnsHTuple);
+            using var region = @this.GetDomain();
+            region.GetRegionPoints(out var rowsHTuple, out var columnsHTuple);
 
-            using var _0 = rowsHTuple;
-            using var _1 = columnsHTuple;
+            using var _01 = rowsHTuple;
+            using var _11 = columnsHTuple;
 
-            HOperatorSet.GetGrayval(linearImage, rowsHTuple, columnsHTuple, out var grayValHTuple);
+            using var grayValHTuple = @this.GetGrayval(rowsHTuple, columnsHTuple);
+
+            // 2 ^ ((gray - 1500) / 128) -> [0, 4095]
+            using var subHTuple = grayValHTuple - 1500d;
+            using var divHTuple = subHTuple / 128d;
+            using var exp2HTuple = divHTuple.TupleExp2();
+            using var exp2MaxHTuple = exp2HTuple.TupleMax();
+            using var scaleHTuple = exp2MaxHTuple / 4095d;
+            using var exp2DivHTuple = exp2HTuple / scaleHTuple;
+            using var intTuple = exp2DivHTuple.TupleInt();
 
             var result = new HImage("uint2", width, height);
-            result.SetGrayval(rowsHTuple, columnsHTuple, grayValHTuple);
-
-            width.Dispose();
-            height.Dispose();
-            region.Dispose();
-            grayValHTuple.Dispose();
+            result.SetGrayval(rowsHTuple, columnsHTuple, intTuple);
 
             return result;
         }
-
+        
         /// <summary>
         /// 获取 16位HImage 指定行的灰度值数组
         /// </summary>

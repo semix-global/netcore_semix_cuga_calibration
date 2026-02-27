@@ -53,4 +53,10 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="HAlgorithm">
+        <HintPath>..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
