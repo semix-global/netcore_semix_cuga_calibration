@@ -587,7 +587,8 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
             (false, Cache.CalChipSiteModelEnum),
             (false, Cache.Item.CIBConfiguration),
             (false, Cache.Item.LaserLightInformation),
-            false, cancellationToken);
+            false,
+            cancellationToken);
 
         var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, out var drawImageObj);
         cibYPixelSizeDTO.YPixelSize = yPixelSize;

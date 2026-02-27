@@ -202,7 +202,8 @@ public sealed class CIBViewModel(
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
             cancellationToken,
-            isForward, isAutoFocus);
+            isForward,
+            isAutoFocus);
 
         return darkFieldImages.Single();
     }
@@ -598,7 +599,12 @@ public sealed class CIBViewModel(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         CIBInformation cibInformation,
         Point position,
-        MicroscopeLensInformation? microscopeLensInformation = null) => position + GetCIBInformationOffset(stageCoordinateSystemEnum, cibInformation, microscopeLensInformation, false);
+        MicroscopeLensInformation? microscopeLensInformation = null)
+        => position + GetCIBInformationOffset(
+            stageCoordinateSystemEnum,
+            cibInformation,
+            microscopeLensInformation,
+            false);
 
     #endregion
 
@@ -607,8 +613,8 @@ public sealed class CIBViewModel(
         CalChipSiteModelEnum calChipSiteModelEnum,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
-        CIBInformation cibInformation,
         int imageWidth,
+        CIBInformation cibInformation,
         CIBConfiguration cibConfiguration,
         LaserLightInformation laserLightInformation,
         string saveResultImageFileDirectory,
@@ -645,7 +651,8 @@ public sealed class CIBViewModel(
             (true, null),
             (false, cibConfiguration),
             (false, laserLightInformation),
-            false, cancellationToken);
+            false,
+            cancellationToken);
 
         var quality = calibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 

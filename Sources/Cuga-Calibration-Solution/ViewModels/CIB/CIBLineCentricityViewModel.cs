@@ -411,7 +411,8 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 (false, Cache.CalChipSiteModelEnum),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
-                false, cancellationToken);
+                false,
+                cancellationToken);
 
             using var _ = darkFieldImageDto;
 
@@ -714,7 +715,8 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             (false, Cache.CalChipSiteModelEnum),
             (false, Cache.Item.CIBConfiguration),
             (false, Cache.Item.LaserLightInformation),
-            false, cancellationToken);
+            false,
+            cancellationToken);
 
         if (CIBViewModel.TryGetMatchPosition(
                 Cache.ProductivityInformation,

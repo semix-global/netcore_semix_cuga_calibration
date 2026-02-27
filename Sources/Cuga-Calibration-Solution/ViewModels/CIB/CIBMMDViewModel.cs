@@ -593,7 +593,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 (true, null),
                                 (true, null),
                                 (true, null),
-                                true, cancellationToken);
+                                true,
+                                cancellationToken);
 
                             Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
                             await Task.WhenAll(cibPMTImages.Index().Select(t => Task.Run(() =>

@@ -530,8 +530,8 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     Cache.CalChipSiteModelEnum,
                     StageCoordinateSystemEnum.Machine,
                     StageViewModel.DarkFieldToMachinePosition(Cache.Item.FindPosition),
-                    Cache.Item.CIBInformation,
                     800,
+                    Cache.Item.CIBInformation,
                     Cache.Item.CIBConfiguration,
                     Cache.Item.LaserLightInformation,
                     detectImageDirectory,
@@ -552,7 +552,8 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                         (false, Cache.CalChipSiteModelEnum),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
-                        false, cancellationToken);
+                        false,
+                        cancellationToken);
                     var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
                     var imageFilePath = $@"{ImageFileDirectory}\Verify\{selectedReviewItem.OpticsIlluminationModeEnum}_PMT{pmtId}_Guid{HtmlLogUniqueId.LoggingHtml()}.jpg";
@@ -818,7 +819,8 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                             (false, Cache.Item.CIBConfiguration),
                             (false, Cache.Item.LaserLightInformation),
                             false,
-                            cancellationToken, isAutoFocus: false);
+                            cancellationToken,
+                            isAutoFocus: false);
 
                         var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
 

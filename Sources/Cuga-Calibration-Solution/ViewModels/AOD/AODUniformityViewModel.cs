@@ -718,7 +718,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
-                        false, cancellationToken);
+                        false,
+                        cancellationToken);
 
                     Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
@@ -982,7 +983,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             (false, CalChipSiteModelEnum.HazeModel),
             (false, Cache.Item.CIBConfiguration),
             (true, null),
-            false, cancellationToken);
+            false,
+            cancellationToken);
 
         var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
         darkFieldImage.Image.Save(imageFilePath);

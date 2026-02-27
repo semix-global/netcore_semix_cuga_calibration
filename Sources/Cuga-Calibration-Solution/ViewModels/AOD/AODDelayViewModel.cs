@@ -353,7 +353,8 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                             (false, CalChipSiteModelEnum.HazeModel),
                             (false, Cache.Item.CIBConfiguration),
                             (true, null),
-                            true, cancellationToken);
+                            true,
+                            cancellationToken);
 
                         var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.AODDelay:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImage.Image.Save(imageFilePath);

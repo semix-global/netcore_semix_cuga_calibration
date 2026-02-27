@@ -408,7 +408,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 (false, Cache.CalChipSiteModelEnum),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
-                false, cancellationToken);
+                false,
+                cancellationToken);
 
             using var _ = darkFieldImageDto;
 

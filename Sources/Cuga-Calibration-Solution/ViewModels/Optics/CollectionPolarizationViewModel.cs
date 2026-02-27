@@ -204,7 +204,8 @@ public sealed partial class CollectionPolarizationViewModel(
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false, cancellationToken);
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -261,7 +262,8 @@ public sealed partial class CollectionPolarizationViewModel(
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false, cancellationToken);
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -318,7 +320,8 @@ public sealed partial class CollectionPolarizationViewModel(
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false, cancellationToken);
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -376,7 +379,8 @@ public sealed partial class CollectionPolarizationViewModel(
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false, cancellationToken);
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -433,7 +437,8 @@ public sealed partial class CollectionPolarizationViewModel(
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false, cancellationToken);
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;
@@ -490,7 +495,8 @@ public sealed partial class CollectionPolarizationViewModel(
                     (false, CalChipSiteModelEnum.HazeModel),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
-                    false, cancellationToken);
+                    false,
+                    cancellationToken);
 
                 if (darkFieldImage == null)
                     continue;

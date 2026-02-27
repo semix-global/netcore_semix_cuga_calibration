@@ -344,7 +344,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                         (false, CalChipSiteModelEnum.HazeModel),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
-                        false, cancellationToken);
+                        false,
+                        cancellationToken);
 
                     var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.PrescanFrequency:0.###}MHz", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);

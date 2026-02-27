@@ -245,8 +245,8 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                     Cache.CalChipSiteModelEnum,
                     StageCoordinateSystemEnum.Bright,
                     StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
-                    Cache.CIBInformation,
                     800,
+                    Cache.CIBInformation,
                     Cache.Item.CIBConfiguration,
                     Cache.Item.LaserLightInformation,
                     detectImageDirectory,
@@ -366,7 +366,8 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                         (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
-                        false, cancellationToken);
+                        false,
+                        cancellationToken);
 
                     var darkFieldFilePath = $"{ImageFileDirectory}\\Verify_({calChipSiteModelEnum})_Guid({HtmlLogUniqueId}).jpg";
                     darkFieldImageDto.Image.Save(darkFieldFilePath);

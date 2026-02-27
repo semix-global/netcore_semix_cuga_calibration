@@ -425,7 +425,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                                 (false, Cache.Item.CIBConfiguration),
                                 (false, Cache.Item.LaserLightInformation),
                                 false,
-                                cancellationToken, isAutoFocus: false);
+                                cancellationToken,
+                                isAutoFocus: false);
 
                             var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
 

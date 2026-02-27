@@ -430,7 +430,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         (true, null),
                                         (true, null),
                                         (false, Cache.Item.LaserLightInformation),
-                                        false, cancellationToken);
+                                        false,
+                                        cancellationToken);
 
                                     Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
@@ -601,7 +602,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         (true, null),
                                         (true, null),
                                         (false, Cache.Item.LaserLightInformation),
-                                        false, cancellationToken);
+                                        false,
+                                        cancellationToken);
 
                                     Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
