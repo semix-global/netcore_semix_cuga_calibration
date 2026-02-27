@@ -4,10 +4,8 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
 using Net.Utilities.Helpers.Extensions;
 using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 

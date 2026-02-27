@@ -1,6 +1,5 @@
 using AwesomeAssertions;
 using Core.Models.Models.Common.DarkField;
-using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;

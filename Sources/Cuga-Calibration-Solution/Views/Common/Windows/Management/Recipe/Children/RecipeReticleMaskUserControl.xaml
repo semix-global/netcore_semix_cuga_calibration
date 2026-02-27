@@ -8,8 +8,6 @@
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:dependencyHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             xmlns:opticsEnum="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
-             xmlns:stageSpeedEnum="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              xmlns:waferEnum="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"

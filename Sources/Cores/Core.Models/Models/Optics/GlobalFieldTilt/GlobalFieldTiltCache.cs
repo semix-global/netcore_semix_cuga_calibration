@@ -4,11 +4,9 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Optics.GlobalFieldTilt;
 
