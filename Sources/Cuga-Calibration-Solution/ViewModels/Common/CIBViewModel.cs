@@ -605,6 +605,8 @@ public sealed class CIBViewModel(
 
         var rtfcResult = new RuntimeAfCalibrationResultDTO
         {
+            CalChipSiteModelEnum = calChipSiteModelEnum,
+            ProductivityInformation = productivityInformation.Clone(),
             ECSValue = ret.Anything.ECS,
             MotorValue = ret.Anything.Motor,
             DarkFieldFilePath = verifyImageFilePath,
