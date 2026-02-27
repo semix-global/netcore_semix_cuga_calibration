@@ -75,6 +75,11 @@
                                               hc:TitleElement.TitleWidth="200"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding CalibrationSetting.SettingCommonParam.PMTInterval}" />
+                            <hc:ComboBox hc:TitleElement.Title="Main PMTId: "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="200"
+                                         SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainPMTId}"
+                                         ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}" />
                             <hc:NumericUpDown hc:TitleElement.Title="Measure Power Min Value(mW): "
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"

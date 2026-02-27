@@ -161,6 +161,8 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 })
         ];
 
+        if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
+
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
@@ -258,6 +260,20 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
     #region 校准
 
+    [RelayCommand]
+    private void ChangeAllSelection(object isSelectAll)
+    {
+        try
+        {
+            var isEnabled = Convert.ToBoolean(isSelectAll);
+            foreach (var t in Cache.PmtConfigList) t.Enabled = isEnabled;
+        }
+        catch
+        {
+            ThrowHelper.ThrowArgumentException("Command Parameter Convert to Boolean Invalid!");
+        }
+    }
+
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
@@ -298,7 +314,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 Cache.Item.LaserLightInformation,
                 AstigmatisPMTId = Cache.CIBInformation.PMTId,
                 AstigmatismChannelId = Cache.CIBInformation.ChannelId,
-                Cache.PMTIds,
+                PMTEnableList = new HtmlTable([.. Cache.PmtConfigList.Select(t => (t.Id, t.Enabled))]),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 

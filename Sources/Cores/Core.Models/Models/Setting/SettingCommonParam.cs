@@ -36,10 +36,11 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
     public SettingCommonParam AdaptIn(SettingCommonParam obj)
     {
         MinLogLevelEnum = obj.MinLogLevelEnum;
-        LowMicroscopeLensInformation = obj.LowMicroscopeLensInformation;
-        HighMicroscopeLensInformation = obj.HighMicroscopeLensInformation;
-        MainLaserLightInformation = obj.MainLaserLightInformation;
+        LowMicroscopeLensInformation = obj.LowMicroscopeLensInformation.Clone();
+        HighMicroscopeLensInformation = obj.HighMicroscopeLensInformation.Clone();
+        MainLaserLightInformation = obj.MainLaserLightInformation.Clone();
         PMTInterval = obj.PMTInterval;
+        MainPMTId = obj.MainPMTId;
         MeasurePowerMeasurementMinValue = obj.MeasurePowerMeasurementMinValue;
 
         return this;
