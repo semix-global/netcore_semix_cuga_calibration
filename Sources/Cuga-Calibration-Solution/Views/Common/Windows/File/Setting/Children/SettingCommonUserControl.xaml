@@ -78,18 +78,15 @@
                                               hc:TitleElement.TitleWidth="200"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding CalibrationSetting.SettingCommonParam.PMTInterval}" />
-                            <ComboBox hc:TitleElement.Title="Main PMT Id: "
+                            <ComboBox hc:TitleElement.Title="Main CIB Information: "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="200"
-                                      SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainPMTId}"
-                                      ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
-                                      Style="{StaticResource ComboBoxExtend}" />
-                            <ComboBox hc:TitleElement.Title="Main Channel Id: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="200"
-                                      SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainChannelId}"
-                                      ItemsSource="{Binding ApplicationCookie.CIBInformationChannelIds}"
-                                      Style="{StaticResource ComboBoxExtend}" />
+                                      ItemsSource="{Binding ApplicationCookie.CIBInformations}"
+                                      Style="{StaticResource ComboBoxExtend}">
+                                <i:Interaction.Behaviors>
+                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainCIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                </i:Interaction.Behaviors>
+                            </ComboBox>
                             <hc:NumericUpDown hc:TitleElement.Title="Measure Power Min Value(mW): "
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"

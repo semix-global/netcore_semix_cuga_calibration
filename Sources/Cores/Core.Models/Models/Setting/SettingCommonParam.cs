@@ -26,10 +26,7 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
     private double _pMTInterval = 320d;
 
     [ObservableProperty]
-    private int _mainPMTId = 8;
-
-    [ObservableProperty]
-    private int _mainChannelId = 3;
+    private CIBInformation _mainCIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
     private double _measurePowerMeasurementMinValue = 0.1d;
@@ -43,8 +40,7 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
         HighMicroscopeLensInformation = obj.HighMicroscopeLensInformation.Clone();
         MainLaserLightInformation = obj.MainLaserLightInformation.Clone();
         PMTInterval = obj.PMTInterval;
-        MainPMTId = obj.MainPMTId;
-        MainChannelId = obj.MainChannelId;
+        MainCIBInformation = obj.MainCIBInformation.Clone();
         MeasurePowerMeasurementMinValue = obj.MeasurePowerMeasurementMinValue;
 
         return this;

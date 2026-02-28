@@ -6,6 +6,7 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Chuck;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
@@ -27,46 +28,59 @@ public partial class GrabbingDarkImageWindowViewModel(
     LaserViewModel laserViewModel,
     StageViewModel stageViewModel,
     CIBViewModel cibViewModel,
+    CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie) : ViewModelBase
 {
     [ObservableProperty]
     private ApplicationCookie _applicationCookie = applicationCookie;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    private ProductivityInformation _productivityInformation = applicationCookie.OIHighProductivityInformation.Clone();
 
     [ObservableProperty]
-    private StageCoordinateSystemEnum _stageCoordinateSystemEnum;
+    private StageCoordinateSystemEnum _stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
 
     [ObservableProperty]
-    private int _imageWidth;
+    private int _imageWidth = 800;
 
     [ObservableProperty]
-    private double _scanLength;
+    private double _scanLength = 5100;
 
     [ObservableProperty]
-    private int _columnCount;
+    private int _columnCount = 5;
 
     [ObservableProperty]
-    private double _columnWidth;
+    private double _columnWidth = 15300;
+
+    [ObservableProperty]
+    private double _startECS = 6000;
+
+    [ObservableProperty]
+    private double _stopECS = 7000;
 
     [ObservableProperty]
     private IReadOnlyList<CIBInformation> _cIBInformations = [];
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum;
+    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    private LaserLightInformation _laserLightInformation = calibrationSetting.SettingCommonParam.MainLaserLightInformation.Clone();
 
     [ObservableProperty]
     private bool _isForward = true;
 
     [ObservableProperty]
-    private double _eCS;
+    private bool _isAutoFocus = true;
+
+    [ObservableProperty]
+    private double _eCS = 6000;
+
+    [ObservableProperty]
+    private bool _isKeepOrigin;
 
     [ObservableProperty]
     private string _prescanAODWaveformResultFilePath = string.Empty;
@@ -144,13 +158,260 @@ public partial class GrabbingDarkImageWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task GetPMTImagesAsync(CancellationToken cancellationToken)
+    private Task GetPMTImagesByWidthAsync(CancellationToken cancellationToken) =>
+        InvokeGetPMTImagesAsync("Width", async () =>
+        {
+            if (IsAutoFocus == false)
+            {
+                afViewModel.ToggleBrightFieldEnable(false);
+                afViewModel.SetSensorEcsValue(ECS);
+            }
+
+            var startPosition = StageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright => stageViewModel.GetBrightFieldStagePosition(),
+                StageCoordinateSystemEnum.Dark => stageViewModel.GetDarkFieldStagePosition(),
+                StageCoordinateSystemEnum.Machine => stageViewModel.GetMachineStagePosition(),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
+            };
+
+            var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+            foreach (var cibInformations in CIBInformations
+                         .GroupBy(t => t.PMTId)
+                         .OrderBy(t => t.Key)
+                         .Select(gg => gg.OrderByDescending(t => t).ToArray()))
+            {
+                var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                    StageCoordinateSystemEnum,
+                    cibInformations[0],
+                    startPosition,
+                    microscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+                var darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
+                    ProductivityInformation,
+                    StageCoordinateSystemEnum,
+                    currentStartPosition,
+                    ImageWidth,
+                    cibInformations,
+                    (false, CalChipSiteModelEnum),
+                    (false, CIBConfiguration),
+                    (true, null),
+                    true,
+                    cancellationToken,
+                    IsForward,
+                    IsAutoFocus,
+                    IsKeepOrigin);
+
+                foreach (var darkFieldImage in darkFieldRawScanImages)
+                {
+                    using var _ = darkFieldImage;
+                }
+
+                resultList.Add(darkFieldRawScanImages);
+            }
+
+            Results = resultList;
+        }, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task GetPMTImagesByPTPAsync(CancellationToken cancellationToken) =>
+        InvokeGetPMTImagesAsync("PTP", async () =>
+        {
+            if (IsAutoFocus == false)
+            {
+                afViewModel.ToggleBrightFieldEnable(false);
+                afViewModel.SetSensorEcsValue(ECS);
+            }
+
+            var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+            var startPosition = StageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright => stageViewModel.GetBrightFieldStagePosition(),
+                StageCoordinateSystemEnum.Dark => stageViewModel.GetDarkFieldStagePosition(),
+                StageCoordinateSystemEnum.Machine => stageViewModel.GetMachineStagePosition(),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
+            };
+
+            var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+            foreach (var cibInformations in CIBInformations
+                         .GroupBy(t => t.PMTId)
+                         .OrderBy(t => t.Key)
+                         .Select(gg => gg.OrderByDescending(t => t).ToArray()))
+            {
+                var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                    StageCoordinateSystemEnum,
+                    cibInformations[0],
+                    startPosition,
+                    microscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+                var currentStopPosition = StageCoordinateSystemEnum switch
+                {
+                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => currentStartPosition + new Vector(ScanLength, 0),
+                    StageCoordinateSystemEnum.Machine => currentStartPosition + new Vector(xDirection * ScanLength, yDirection * 0),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
+                };
+
+                var darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
+                    ProductivityInformation,
+                    StageCoordinateSystemEnum,
+                    currentStartPosition,
+                    currentStopPosition,
+                    cibInformations,
+                    (false, CalChipSiteModelEnum),
+                    (false, CIBConfiguration),
+                    (true, null),
+                    true,
+                    cancellationToken,
+                    IsForward,
+                    IsAutoFocus,
+                    IsKeepOrigin);
+
+                foreach (var darkFieldImage in darkFieldRawScanImages)
+                {
+                    using var _ = darkFieldImage as DarkFieldImageDTO;
+                }
+
+                resultList.Add(darkFieldRawScanImages);
+            }
+
+            Results = resultList;
+        }, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task GetPMTImagesByPEGAsync(CancellationToken cancellationToken) =>
+        InvokeGetPMTImagesAsync("PEG", async () =>
+        {
+            if (IsAutoFocus == false)
+            {
+                afViewModel.ToggleBrightFieldEnable(false);
+                afViewModel.SetSensorEcsValue(ECS);
+            }
+
+            var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+            var startPosition = StageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright => stageViewModel.GetBrightFieldStagePosition(),
+                StageCoordinateSystemEnum.Dark => stageViewModel.GetDarkFieldStagePosition(),
+                StageCoordinateSystemEnum.Machine => stageViewModel.GetMachineStagePosition(),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
+            };
+
+            var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+            foreach (var cibInformations in CIBInformations
+                         .GroupBy(t => t.PMTId)
+                         .OrderBy(t => t.Key)
+                         .Select(gg => gg.OrderByDescending(t => t).ToArray()))
+            {
+                Guard.IsEqualTo(cibInformations.Length, 1);
+
+                var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                    StageCoordinateSystemEnum,
+                    cibInformations[0],
+                    startPosition,
+                    microscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+                var positions = Enumerable.Range(0, ColumnCount)
+                    .Select(t => StageCoordinateSystemEnum switch
+                    {
+                        StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => currentStartPosition + new Vector(t * ColumnWidth, 0),
+                        StageCoordinateSystemEnum.Machine => currentStartPosition + new Vector(xDirection * t * ColumnWidth, yDirection * 0),
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
+                    }).ToArray();
+
+                var darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
+                    ProductivityInformation,
+                    StageCoordinateSystemEnum,
+                    positions,
+                    ImageWidth,
+                    cibInformations[0],
+                    (false, CalChipSiteModelEnum),
+                    (false, CIBConfiguration),
+                    (true, null),
+                    true,
+                    cancellationToken,
+                    IsAutoFocus,
+                    IsKeepOrigin);
+
+                foreach (var darkFieldImage in darkFieldRawScanImages)
+                {
+                    using var _ = darkFieldImage;
+                }
+
+                resultList.Add(darkFieldRawScanImages);
+            }
+
+            Results = resultList;
+        }, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task GetPMTImagesByXZSyncAsync(CancellationToken cancellationToken) =>
+        InvokeGetPMTImagesAsync("XZSync", async () =>
+        {
+            var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+            var startPosition = StageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright => stageViewModel.GetBrightFieldStagePosition(),
+                StageCoordinateSystemEnum.Dark => stageViewModel.GetDarkFieldStagePosition(),
+                StageCoordinateSystemEnum.Machine => stageViewModel.GetMachineStagePosition(),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
+            };
+
+            var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+            foreach (var cibInformations in CIBInformations
+                         .GroupBy(t => t.PMTId)
+                         .OrderBy(t => t.Key)
+                         .Select(gg => gg.OrderByDescending(t => t).ToArray()))
+            {
+                var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                    StageCoordinateSystemEnum,
+                    cibInformations[0],
+                    startPosition,
+                    microscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+                var currentStopPosition = StageCoordinateSystemEnum switch
+                {
+                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => currentStartPosition + new Vector(ScanLength, 0),
+                    StageCoordinateSystemEnum.Machine => currentStartPosition + new Vector(xDirection * ScanLength, yDirection * 0),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
+                };
+
+                var darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
+                    ProductivityInformation,
+                    StageCoordinateSystemEnum,
+                    currentStartPosition,
+                    currentStopPosition,
+                    StartECS,
+                    StopECS,
+                    cibInformations,
+                    (false, CalChipSiteModelEnum),
+                    (false, CIBConfiguration),
+                    (true, null),
+                    true,
+                    cancellationToken,
+                    IsForward,
+                    IsKeepOrigin);
+
+                foreach (var darkFieldImage in darkFieldRawScanImages)
+                {
+                    using var _ = darkFieldImage;
+                }
+
+                resultList.Add(darkFieldRawScanImages);
+            }
+
+            Results = resultList;
+        }, cancellationToken);
+
+    private async Task InvokeGetPMTImagesAsync(
+        string modeName,
+        Func<Task> action,
+        CancellationToken cancellationToken)
     {
         await Task.Run(async () =>
         {
             try
             {
-                if (dialogWindowProvider.TryShowDialog("Grabbing Image Please confirm Param.", out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return;
+                if (dialogWindowProvider.TryShowDialog($"Grabbing Image By {modeName}, Please confirm Param.", out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return;
 
                 if (PrescanAODWaveformProfiles.Count > 0)
                 {
@@ -163,134 +424,17 @@ public partial class GrabbingDarkImageWindowViewModel(
                 if (ChirpAODWaveformProfiles.Count > 0) laserViewModel.SetChirpAODWaveProfiles(ProductivityInformation.OpticsIlluminationModeEnum, ChirpAODWaveformProfiles);
                 else laserViewModel.SetChirpAODWaveProfile(ProductivityInformation);
 
-                var isAutoFocus = ECS == 0;
-                if (isAutoFocus == false)
-                {
-                    afViewModel.ToggleBrightFieldEnable(false);
-                    afViewModel.SetSensorEcsValue(ECS);
-                }
+                await action();
 
-                var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
-                var startPosition = StageCoordinateSystemEnum switch
-                {
-                    StageCoordinateSystemEnum.Bright => stageViewModel.GetBrightFieldStagePosition(),
-                    StageCoordinateSystemEnum.Dark => stageViewModel.GetDarkFieldStagePosition(),
-                    StageCoordinateSystemEnum.Machine => stageViewModel.GetMachineStagePosition(),
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
-                };
-
-                var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
-                foreach (var cibInformations in CIBInformations
-                             .GroupBy(t => t.PMTId)
-                             .OrderBy(t => t.Key)
-                             .Select(gg => gg.OrderByDescending(t => t).ToArray()))
-                {
-                    var currentStartPosition = cibViewModel.GetCIBInformationPosition(
-                        StageCoordinateSystemEnum,
-                        cibInformations[0],
-                        startPosition,
-                        microscopeViewModel.GetCurrentMicroscopeLensInformation());
-
-                    var darkFieldRawScanImages = (IReadOnlyList<DarkFieldRawScanImageDTO>)[];
-
-                    switch (ImageWidth, ScanLength, ColumnCount, ColumnWidth)
-                    {
-                        case ( > 0, 0, 0, 0):
-                            darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
-                                ProductivityInformation,
-                                StageCoordinateSystemEnum,
-                                currentStartPosition,
-                                ImageWidth,
-                                cibInformations,
-                                (false, CalChipSiteModelEnum),
-                                (false, CIBConfiguration),
-                                (true, null),
-                                true,
-                                cancellationToken,
-                                IsForward,
-                                isAutoFocus);
-
-                            break;
-
-                        case (0, > 0, 0, 0):
-                            var currentStopPosition = StageCoordinateSystemEnum switch
-                            {
-                                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => currentStartPosition + new Vector(ScanLength, 0),
-                                StageCoordinateSystemEnum.Machine => currentStartPosition + new Vector(xDirection * ScanLength, yDirection * 0),
-                                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
-                            };
-
-                            darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
-                                ProductivityInformation,
-                                StageCoordinateSystemEnum,
-                                currentStartPosition,
-                                currentStopPosition,
-                                cibInformations,
-                                (false, CalChipSiteModelEnum),
-                                (false, CIBConfiguration),
-                                (true, null),
-                                true,
-                                cancellationToken,
-                                IsForward,
-                                isAutoFocus);
-
-                            break;
-
-                        case ( > 0, 0, > 0, > 0):
-                            Guard.IsEqualTo(cibInformations.Length, 1);
-
-                            var positions = Enumerable.Range(0, ColumnCount)
-                                .Select(t => StageCoordinateSystemEnum switch
-                                {
-                                    StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => currentStartPosition + new Vector(t * ColumnWidth, 0),
-                                    StageCoordinateSystemEnum.Machine => currentStartPosition + new Vector(xDirection * t * ColumnWidth, yDirection * 0),
-                                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
-                                }).ToArray();
-
-                            darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
-                                ProductivityInformation,
-                                StageCoordinateSystemEnum,
-                                positions,
-                                ImageWidth,
-                                cibInformations[0],
-                                (false, CalChipSiteModelEnum),
-                                (false, CIBConfiguration),
-                                (true, null),
-                                true,
-                                cancellationToken,
-                                isAutoFocus);
-
-                            break;
-
-                        default:
-                            ThrowHelper.ThrowArgumentOutOfRangeException($"""
-                                                                          Invalid Param Combination
-                                                                          ImageWidth: {ImageWidth}
-                                                                          ScanLength: {ScanLength}
-                                                                          ColumnCount: {ColumnCount}
-                                                                          ColumnWidth: {ColumnWidth}
-                                                                          """);
-
-                            break;
-                    }
-
-                    foreach (var darkFieldImage in darkFieldRawScanImages)
-                    {
-                        using var _ = darkFieldImage as DarkFieldImageDTO;
-                    }
-
-                    resultList.Add(darkFieldRawScanImages);
-                }
-
-                Results = resultList;
+                dialogWindowProvider.ShowDialog($"Grabbing Image By {modeName} Completed.");
             }
             catch (Exception ex)
             {
                 dialogWindowProvider.ShowDialog($"""
-                                                 Get PMT Images Failed
+                                                 Get PMT Images By {modeName} Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogError(ex, "Get PMT Images");
+                logger.LogError(ex, "Get PMT Images By {ModeName}", modeName);
             }
         }, cancellationToken).ConfigureAwait(false);
     }

@@ -581,7 +581,7 @@ public sealed class CIBViewModel(
 
         var cibLineCentricities = cacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
 
-        var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.PmtId == calibrationSetting.SettingCommonParam.MainPMTId);
+        var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.PmtId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId);
         var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.PmtId == cibInformation.PMTId);
 
         var cartesianCIBLineCentricityOffset = Vector.Zero;
@@ -599,7 +599,7 @@ public sealed class CIBViewModel(
                                   ? microscopeViewModel.GetMicroscopeLensInformationOffset(centerCIBLineCentricity?.MicroscopeLensInformation ?? microscopeLensInformation, microscopeLensInformation)
                                   : Vector.Zero);
 
-        if (cibInformation.PMTId == calibrationSetting.SettingCommonParam.MainPMTId && centerCIBLineCentricity?.MicroscopeLensInformation == microscopeLensInformation)
+        if (cibInformation.PMTId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId && centerCIBLineCentricity?.MicroscopeLensInformation == microscopeLensInformation)
             Guard.IsTrue(cartesianOffset == Vector.Zero);
 
         return stageCoordinateSystemEnum switch

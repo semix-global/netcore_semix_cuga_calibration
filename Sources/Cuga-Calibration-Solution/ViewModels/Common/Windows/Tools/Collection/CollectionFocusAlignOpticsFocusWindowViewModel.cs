@@ -390,7 +390,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     StageCoordinateSystemEnum.Bright,
                     Cache.DSWBrightFieldPosition,
                     Cache.ImageWidthPixel,
-                    ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == calibrationSetting.SettingCommonParam.MainChannelId),
+                    ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == calibrationSetting.SettingCommonParam.MainCIBInformation.ChannelId),
                     (false, CalChipSiteModelEnum.DswModel),
                     (false, Cache.DSWCIBConfiguration),
                     (false, Cache.DSWLaserLightInformation),

@@ -184,7 +184,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
             var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            results[i] = new DarkFieldImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, Image = image };
+            results[i] = new DarkFieldImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, Image = image, ImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
@@ -208,7 +208,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         {
             var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            results[i] = new DarkFieldImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, Image = image };
+            results[i] = new DarkFieldImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, Image = image, ImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
@@ -264,7 +264,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
             var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            results[i] = new DarkFieldImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, Image = image };
+            results[i] = new DarkFieldImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, CIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, Image = image, ImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));

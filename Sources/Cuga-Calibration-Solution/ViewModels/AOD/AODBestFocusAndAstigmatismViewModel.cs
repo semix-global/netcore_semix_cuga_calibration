@@ -574,17 +574,15 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
             var bytes = File.ReadAllBytes(channelItemDto.RawFilePath);
-            var image = RawImageFactory.CreateImage(bytes);
+            using var image = RawImageFactory.CreateImage(bytes);
+            image.Save(originImageFilePath);
 
-            using var darkFieldImageDto = new DarkFieldImageDTO { Image = image };
-            darkFieldImageDto.Image.Save(originImageFilePath);
-
-            var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImageDto.Image);
+            var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(image);
             linerImage.Save(linearImageFilePath);
 
             var inputDarkFieldImage = Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog
                 ? linerImage
-                : darkFieldImageDto.Image;
+                : image;
 
             if (Cache.Item.AlgorithmImageQualityTypeEnum is not AlgorithmImageQualityTypeEnum.StrehlRatio)
                 throw new NotImplementedException("Only Strehl Ratio is implemented in this version.");

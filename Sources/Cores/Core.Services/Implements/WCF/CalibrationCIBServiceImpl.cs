@@ -214,7 +214,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
                         ? image.RAW12BitsPerPixelLogToLinear()
                         : image.Clone();
 
-                return new DarkFieldImageDTO { Image = resultImage }.AdaptIn(t);
+                return new DarkFieldImageDTO { Image = resultImage, ImageCIBProfileModeEnum = isKeepOrigin ? t.CIBProfileModeEnum : CIBProfileModeEnum.PMTVoltage }.AdaptIn(t);
             }, cancellationToken))))
             : SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getPMTImagesRet.Msg, []);
     }
@@ -281,7 +281,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
                     ? image.RAW12BitsPerPixelLogToLinear()
                     : image.Clone();
 
-            result[index] = new DarkFieldImageDTO { Image = resultImage }.AdaptIn(m2CImgSysCollectImgDTO, getCIBProfileModeEnumRet.Anything[0]);
+            result[index] = new DarkFieldImageDTO { Image = resultImage, ImageCIBProfileModeEnum = isKeepOrigin ? getCIBProfileModeEnumRet.Anything[0] : CIBProfileModeEnum.PMTVoltage }.AdaptIn(m2CImgSysCollectImgDTO, getCIBProfileModeEnumRet.Anything[0]);
 
             return SxExecuteRetHelper.CreateSuccess(true);
         }, cancellationToken)));
@@ -385,7 +385,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
                         ? image.RAW12BitsPerPixelLogToLinear()
                         : image.Clone();
 
-                return new DarkFieldImageDTO { Image = resultImage }.AdaptIn(t);
+                return new DarkFieldImageDTO { Image = resultImage, ImageCIBProfileModeEnum = isKeepOrigin ? t.CIBProfileModeEnum : CIBProfileModeEnum.PMTVoltage }.AdaptIn(t);
             }, cancellationToken))))
             : SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getPMTImagesRet.Msg, []);
     }

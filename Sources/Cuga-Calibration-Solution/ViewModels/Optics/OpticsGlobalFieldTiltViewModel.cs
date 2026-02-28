@@ -703,12 +703,10 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
                 var bytes = File.ReadAllBytes(bestFocusChannelItems.RawFilePath);
-                var image = RawImageFactory.CreateImage(bytes);
+                using var image = RawImageFactory.CreateImage(bytes);
+                image.Save(originImageFilePath);
 
-                using var darkFieldImageDto = new DarkFieldImageDTO { Image = image };
-                darkFieldImageDto.Image.Save(originImageFilePath);
-
-                var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImageDto.Image);
+                var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(image);
                 linerImage.Save(linearImageFilePath);
 
                 bestFocusChannelItems.FilePath = originImageFilePath;
@@ -718,7 +716,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 {
                     var inputDarkFieldImage = Cache.Item.CIBConfiguration is { IsAutoGainControl: true, CIBProfileMode: CIBProfileModeEnum.PMTLog }
                         ? linerImage
-                        : darkFieldImageDto.Image;
+                        : image;
 
                     Point[] xFitPoints = [];
                     Point[] xQualityPoints = [];
