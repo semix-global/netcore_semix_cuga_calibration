@@ -27,6 +27,12 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
     [ObservableProperty]
     private double _nb;
 
+    [ObservableProperty]
+    private double _lowCoefficient = 0.6d;
+
+    [ObservableProperty]
+    private double _highCoefficient = 1.5d;
+
     #endregion Current
 
     #region NSC
@@ -80,6 +86,21 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
 
     [ObservableProperty]
     private double _ecsMotorPositionRelationIntercept;
+
+    [ObservableProperty]
+    private double _ecsMotorPositionRelationRSquare;
+
+    [ObservableProperty]
+    private double _minAFMotorAbsoluteValue;
+
+    [ObservableProperty]
+    private double _maxAFMotorAbsoluteValue;
+
+    [ObservableProperty]
+    private Point[] _eCSMotorOrigins = [];
+
+    [ObservableProperty]
+    private Point[] _fitECSMotorOrigins = [];
 
     #endregion NSC Profile
 
@@ -138,6 +159,8 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         CurrentB = CurrentB,
         Fb = Fb,
         Nb = Nb,
+        LowCoefficient = LowCoefficient,
+        HighCoefficient = HighCoefficient,
         IsNscUseMaxValue = IsNscUseMaxValue,
         IsNscUsePositiveSlope = IsNscUsePositiveSlope,
         OriginalSymmetryRatio = OriginalSymmetryRatio,
@@ -158,20 +181,28 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         IsRequiredSelfCheck = IsRequiredSelfCheck,
         EcsMotorPositionRelationSlope = EcsMotorPositionRelationSlope,
         EcsMotorPositionRelationIntercept = EcsMotorPositionRelationIntercept,
+        EcsMotorPositionRelationRSquare = EcsMotorPositionRelationRSquare,
+        MinAFMotorAbsoluteValue = MinAFMotorAbsoluteValue,
+        MaxAFMotorAbsoluteValue = MaxAFMotorAbsoluteValue,
+        ECSMotorOrigins = [..ECSMotorOrigins],
+        FitECSMotorOrigins = [..FitECSMotorOrigins],
         Id = Id,
         Expiration = Expiration
     };
 
     public CalibrationLaserAutoFocus AdaptTo() => new()
     {
-        CurrentA = CurrentA,
-        CurrentB = CurrentB,
+        MiddleCurrentA = CurrentA,
+        MiddleCurrentB = CurrentB,
+        LowCoefficient = LowCoefficient,
+        HighCoefficient = HighCoefficient,
         NscGain = NscGain,
+        Slope = EcsMotorPositionRelationSlope,
+        MinAFMotorAbsoluteValue = MinAFMotorAbsoluteValue,
+        MaxAFMotorAbsoluteValue = MaxAFMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredCalibrate = IsRequiredSelfCheck,
-        EcsMotorPositionRelationSlope = EcsMotorPositionRelationSlope,
-        EcsMotorPositionRelationIntercept = EcsMotorPositionRelationIntercept
+        IsRequiredCalibrate = IsRequiredSelfCheck
     };
 
     #endregion Mapper

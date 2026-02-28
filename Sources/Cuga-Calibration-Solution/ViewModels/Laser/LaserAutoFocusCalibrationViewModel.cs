@@ -7,8 +7,10 @@ using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -378,6 +380,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                         ResultLaserAutoFocusDto.Fb = BBrightnessSelected.Fb;
                         ResultLaserAutoFocusDto.Nb = BBrightnessSelected.Nb;
                         ResultLaserAutoFocusDto.CurrentB = BBrightnessSelected.CurrentB;
+                        ResultLaserAutoFocusDto.LowCoefficient = Cache.LowCoefficient;
+                        ResultLaserAutoFocusDto.HighCoefficient = Cache.HighCoefficient;
 
                         Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
@@ -895,12 +899,95 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step4CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        await InvokeCalibrateAsync(() =>
+        await InvokeCalibrateAsync(async () =>
         {
             Guard.IsNotNull(ResultLaserAutoFocusDto);
             Guard.IsNotNull(Cache);
 
-            return true;
+            var (originOffset, originGain) = AfViewModel.GetSensorNscCompensation();
+            var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
+            var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
+            var originPosition = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
+
+            ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope = 0;
+            ResultLaserAutoFocusDto.EcsMotorPositionRelationIntercept = 0;
+            ResultLaserAutoFocusDto.EcsMotorPositionRelationRSquare = 0;
+            ResultLaserAutoFocusDto.ECSMotorOrigins = [];
+            ResultLaserAutoFocusDto.FitECSMotorOrigins = [];
+
+            StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+
+            try
+            {
+                var afMotorAbsoluteValues = Generate.LinearRange(Cache.StartAFMotorAbsoluteValue, Cache.StepAFMotorAbsoluteValue, Cache.StopAFMotorAbsoluteValue);
+                var closestIndex = afMotorAbsoluteValues
+                    .Index()
+                    .OrderBy(x => Math.Abs(x.Item - originPosition))
+                    .First()
+                    .Index;
+
+                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(originPosition);
+                AfViewModel.ToggleDarkFieldEnable(true);
+
+                foreach (var position in afMotorAbsoluteValues.AsSpan()[closestIndex..].ToArray())
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(position);
+
+                    await Task.Delay(3600, cancellationToken);
+
+                    var point0 = new Point(position, AfViewModel.GetSensorAverageEcsValue());
+
+                    ResultLaserAutoFocusDto.ECSMotorOrigins = [.. ((IReadOnlyList<Point>)[.. ResultLaserAutoFocusDto.ECSMotorOrigins, point0]).OrderBy(t => t.X)];
+                }
+
+                AfViewModel.ToggleBrightFieldEnable(false);
+                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(originPosition);
+                AfViewModel.ToggleDarkFieldEnable(true);
+
+                foreach (var position in afMotorAbsoluteValues.AsSpan()[..closestIndex].ToArray().AsEnumerable().Reverse().ToArray())
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(position);
+
+                    await Task.Delay(3600, cancellationToken);
+
+                    var point0 = new Point(position, AfViewModel.GetSensorAverageEcsValue());
+
+                    ResultLaserAutoFocusDto.ECSMotorOrigins = [.. ((IReadOnlyList<Point>)[.. ResultLaserAutoFocusDto.ECSMotorOrigins, point0]).OrderBy(t => t.X)];
+                }
+
+                var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
+                    Vector<double>.Build.Dense([.. ResultLaserAutoFocusDto.ECSMotorOrigins.Select(t => t.X)]),
+                    Vector<double>.Build.Dense([.. ResultLaserAutoFocusDto.ECSMotorOrigins.Select(t => t.Y)]));
+
+                ResultLaserAutoFocusDto.FitECSMotorOrigins = [.. ResultLaserAutoFocusDto.FitECSMotorOrigins.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
+
+                ResultLaserAutoFocusDto.MinAFMotorAbsoluteValue = ResultLaserAutoFocusDto.FitECSMotorOrigins[0].X;
+                ResultLaserAutoFocusDto.MaxAFMotorAbsoluteValue = ResultLaserAutoFocusDto.FitECSMotorOrigins[^1].X;
+                ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope = slope;
+                ResultLaserAutoFocusDto.EcsMotorPositionRelationIntercept = intercept;
+                ResultLaserAutoFocusDto.EcsMotorPositionRelationRSquare = rSquared;
+
+                Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                {
+                    ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope,
+                    ResultLaserAutoFocusDto.EcsMotorPositionRelationIntercept,
+                    ResultLaserAutoFocusDto.EcsMotorPositionRelationRSquare,
+                    TraceBufferList = new HtmlPlot2DLinesChart([("Position", ResultLaserAutoFocusDto.ECSMotorOrigins), ($"Fit{PolynomialCurve.ToString1(slope, intercept, rSquared, "0.###")}", ResultLaserAutoFocusDto.FitECSMotorOrigins)], string.Empty)
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                return true;
+            }
+            finally
+            {
+                AfViewModel.SetSensorNscCompensation(originOffset, originGain);
+                AfViewModel.SetSensorCurrentValue(true, originCurrentAValue);
+                AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
+                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(originPosition);
+            }
         }).ConfigureAwait(false);
     }
 
