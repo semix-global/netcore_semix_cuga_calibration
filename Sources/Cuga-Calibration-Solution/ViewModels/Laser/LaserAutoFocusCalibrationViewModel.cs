@@ -126,7 +126,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+        // MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         Cache.FindPosition = GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
         StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
 
