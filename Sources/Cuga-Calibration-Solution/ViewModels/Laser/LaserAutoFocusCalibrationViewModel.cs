@@ -976,6 +976,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope,
                     ResultLaserAutoFocusDto.EcsMotorPositionRelationIntercept,
                     ResultLaserAutoFocusDto.EcsMotorPositionRelationRSquare,
+                    ResultLaserAutoFocusDto.MinAFMotorAbsoluteValue,
+                    ResultLaserAutoFocusDto.MaxAFMotorAbsoluteValue,
                     TraceBufferList = new HtmlPlot2DLinesChart([("Position", ResultLaserAutoFocusDto.ECSMotorOrigins), ($"Fit{PolynomialCurve.ToString1(slope, intercept, rSquared, "0.###")}", ResultLaserAutoFocusDto.FitECSMotorOrigins)], string.Empty)
                 }), HtmlLogUniqueId.LoggingHtml());
 
