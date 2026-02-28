@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Laser.AutoFocus;
@@ -388,6 +389,11 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                             ResultLaserAutoFocusDto.Fb,
                             ResultLaserAutoFocusDto.Nb,
                             ResultLaserAutoFocusDto.CurrentB,
+                            ResultLaserAutoFocusDto.LowCoefficient,
+                            LowCurrentA = ResultLaserAutoFocusDto.LowCoefficient * ResultLaserAutoFocusDto.CurrentA,
+                            LowCurrentB = ResultLaserAutoFocusDto.LowCoefficient * ResultLaserAutoFocusDto.CurrentB,
+                            HighCurrentA = ResultLaserAutoFocusDto.HighCoefficient * ResultLaserAutoFocusDto.CurrentA,
+                            HighCurrentB = ResultLaserAutoFocusDto.HighCoefficient * ResultLaserAutoFocusDto.CurrentB,
                             BBrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessFList)], string.Empty),
                             BBrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, BBrightnessNList)], string.Empty)
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -907,7 +913,6 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             var (originOffset, originGain) = AfViewModel.GetSensorNscCompensation();
             var originCurrentAValue = AfViewModel.GetSensorCurrentValue(true);
             var originCurrentBValue = AfViewModel.GetSensorCurrentValue(false);
-            var originPosition = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
 
             ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope = 0;
             ResultLaserAutoFocusDto.EcsMotorPositionRelationIntercept = 0;
@@ -916,7 +921,22 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             ResultLaserAutoFocusDto.FitECSMotorOrigins = [];
 
             StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+            var originPosition = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
 
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                originOffset,
+                originGain,
+                originCurrentAValue,
+                originCurrentBValue,
+                originPosition,
+                Cache.MicroscopeLensInformation.LensName,
+                Cache.FindPosition,
+                Cache.StartAFMotorAbsoluteValue,
+                Cache.StepAFMotorAbsoluteValue, 
+                Cache.StopAFMotorAbsoluteValue
+            }), HtmlLogUniqueId.LoggingHtml());
+            
             try
             {
                 var afMotorAbsoluteValues = Generate.LinearRange(Cache.StartAFMotorAbsoluteValue, Cache.StepAFMotorAbsoluteValue, Cache.StopAFMotorAbsoluteValue);
@@ -963,7 +983,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     Vector<double>.Build.Dense([.. ResultLaserAutoFocusDto.ECSMotorOrigins.Select(t => t.X)]),
                     Vector<double>.Build.Dense([.. ResultLaserAutoFocusDto.ECSMotorOrigins.Select(t => t.Y)]));
 
-                ResultLaserAutoFocusDto.FitECSMotorOrigins = [.. ResultLaserAutoFocusDto.FitECSMotorOrigins.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
+                ResultLaserAutoFocusDto.FitECSMotorOrigins = [.. ResultLaserAutoFocusDto.ECSMotorOrigins.Index().Select(t => new Point(t.Item.X, yPredicted[t.Index]))];
 
                 ResultLaserAutoFocusDto.MinAFMotorAbsoluteValue = ResultLaserAutoFocusDto.FitECSMotorOrigins[0].X;
                 ResultLaserAutoFocusDto.MaxAFMotorAbsoluteValue = ResultLaserAutoFocusDto.FitECSMotorOrigins[^1].X;
