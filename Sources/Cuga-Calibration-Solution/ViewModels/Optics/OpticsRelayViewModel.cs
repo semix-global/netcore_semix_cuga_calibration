@@ -460,6 +460,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     CalibratingItem.Intercept,
                     CalibratingItem.RSquared,
                     CalibratingItem.RelayMotorRatio,
+                    CalibratingItem.MinRelayMotorAbsoluteValue,
+                    CalibratingItem.MaxRelayMotorAbsoluteValue,
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -524,6 +526,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     selectedReviewItem.Intercept,
                     selectedReviewItem.RSquared,
                     selectedReviewItem.RelayMotorRatio,
+                    selectedReviewItem.MinRelayMotorAbsoluteValue,
+                    selectedReviewItem.MaxRelayMotorAbsoluteValue,
                     selectedReviewItem.IsVerified,
                     SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });

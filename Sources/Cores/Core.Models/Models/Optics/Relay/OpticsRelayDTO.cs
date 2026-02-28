@@ -154,7 +154,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
         FitRelayPoints = [.. FitRelayPoints],
         RelayMotorRatio = RelayMotorRatio,
         MinRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
-        MaxRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
+        MaxRelayMotorAbsoluteValue = MaxRelayMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -167,7 +167,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
         Slope = Slope,
         MinRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
-        MaxRelayMotorAbsoluteValue = MinRelayMotorAbsoluteValue,
+        MaxRelayMotorAbsoluteValue = MaxRelayMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
