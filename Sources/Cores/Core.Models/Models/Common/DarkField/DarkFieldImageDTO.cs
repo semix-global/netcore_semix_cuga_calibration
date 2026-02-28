@@ -2,15 +2,15 @@ using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
+using Core.Models.Models.Common.Pattern;
 using HalconDotNet;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
 #else
 using Semix.WcfTransfer.DTO;
-
 #endif
 
 namespace Core.Models.Models.Common.DarkField;
@@ -20,22 +20,19 @@ public partial class DarkFieldRawScanImageDTO :
     ICloneable<DarkFieldRawScanImageDTO>
 {
     [ObservableProperty]
-    private int _pMTId;
+    private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private int _channelId;
-
-    [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private int _width;
-
-    [ObservableProperty]
-    private int _height;
+    private SizeI _size;
 
     [ObservableProperty]
     private CIBProfileModeEnum _cIBProfileModeEnum;
+
+    [ObservableProperty]
+    private bool _isForward;
+
+    [ObservableProperty]
+    private string _rawImageFilePath = string.Empty;
 
     partial void OnRawImageFilePathChanged(string value)
     {
@@ -50,25 +47,22 @@ public partial class DarkFieldRawScanImageDTO :
 
     public DarkFieldRawScanImageDTO Clone() => new()
     {
-        PMTId = PMTId,
-        ChannelId = ChannelId,
-        Width = Width,
-        Height = Height,
-        RawImageFilePath = RawImageFilePath,
-        CIBProfileModeEnum = CIBProfileModeEnum
+        CIBInformation = CIBInformation.Clone(),
+        Size = Size,
+        CIBProfileModeEnum = CIBProfileModeEnum,
+        IsForward = IsForward,
+        RawImageFilePath = RawImageFilePath
     };
 
     public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBProfileModeEnum cibProfileModeEnum)
     {
         Guard.IsNotNull(obj);
 
-        PMTId = obj.PMTId;
-        ChannelId = obj.Channel;
-        Width = obj.ImgWidth;
-        Height = obj.ImgHeight;
-        RawImageFilePath = obj.Url;
-
+        CIBInformation = CIBInformation.Default.Clone().AdaptIn((obj.PMTId, obj.Channel, true));
+        Size = new SizeI(obj.ImgWidth, obj.ImgHeight);
         CIBProfileModeEnum = cibProfileModeEnum;
+        IsForward = obj.Dir > 0;
+        RawImageFilePath = obj.Url;
 
         return this;
     }
@@ -82,32 +76,25 @@ public sealed class DarkFieldImageDTO :
     IAdaptIn<DarkFieldRawScanImageDTO, DarkFieldImageDTO>,
     IDisposable
 {
+    [System.Text.Json.Serialization.JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     public required HImage Image { get; init; }
 
     #region Mapper
 
     public new DarkFieldImageDTO Clone() => new()
     {
-        PMTId = PMTId,
-        ChannelId = ChannelId,
-        Width = Width,
-        Height = Height,
-        RawImageFilePath = RawImageFilePath,
+        CIBInformation = CIBInformation.Clone(),
+        Size = Size,
         CIBProfileModeEnum = CIBProfileModeEnum,
-        Image = Image.Copy()
+        IsForward = IsForward,
+        RawImageFilePath = RawImageFilePath,
+        Image = Image.Clone()
     };
 
     public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBProfileModeEnum cibProfileModeEnum)
     {
-        Guard.IsNotNull(obj);
-
-        PMTId = obj.PMTId;
-        ChannelId = obj.Channel;
-        Width = obj.ImgWidth;
-        Height = obj.ImgHeight;
-        RawImageFilePath = obj.Url;
-
-        CIBProfileModeEnum = cibProfileModeEnum;
+        base.AdaptIn(obj, cibProfileModeEnum);
 
         return this;
     }
@@ -116,12 +103,11 @@ public sealed class DarkFieldImageDTO :
     {
         Guard.IsNotNull(obj);
 
-        PMTId = obj.PMTId;
-        ChannelId = obj.ChannelId;
-        Width = obj.Width;
-        Height = obj.Height;
-        RawImageFilePath = obj.RawImageFilePath;
+        CIBInformation = obj.CIBInformation.Clone();
+        Size = obj.Size;
         CIBProfileModeEnum = obj.CIBProfileModeEnum;
+        IsForward = obj.IsForward;
+        RawImageFilePath = obj.RawImageFilePath;
 
         return this;
     }

@@ -308,10 +308,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             item.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
-            using var image = Cache.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog
-                ? calibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImage.Image)
-                : darkFieldImage.Image.Copy();
-
             var (
                 xStrehlRatioPoints,
                 yStrehlRatioPoints,
@@ -322,7 +318,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 bestYStrehlRatioPoint,
                 bestYStrehlRatioXPSFPoints,
                 bestYStrehlRatioYPSFPoints) = calibrationAlgorithmService.GetXYStrehlRatios(
-                image,
+                darkFieldImage.Image,
                 out var xStrehlRatioFitPoints,
                 out var yStrehlRatioFitPoints,
                 out var grayFitPoints,

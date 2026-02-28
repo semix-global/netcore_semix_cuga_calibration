@@ -90,27 +90,30 @@
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate DataType="{x:Type darkField:DarkFieldRawScanImageDTO}">
                                                     <Border Width="300"
-                                                            Height="300"
+                                                            Height="350"
                                                             Style="{StaticResource BorderRegion}">
                                                         <Grid>
                                                             <Grid.RowDefinitions>
-                                                                <RowDefinition Height="Auto" />
+                                                                <RowDefinition Height="50" />
                                                                 <RowDefinition Height="*" />
                                                             </Grid.RowDefinitions>
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="Auto" />
-                                                                    <ColumnDefinition Width="*" />
-                                                                </Grid.ColumnDefinitions>
-                                                                <TextBlock Text="Raw File Path: "
+                                                            <ScrollViewer x:Name="ScrollViewer"
+                                                                          HorizontalScrollBarVisibility="Disabled"
+                                                                          VerticalScrollBarVisibility="Auto">
+                                                                <i:Interaction.Triggers>
+                                                                    <i:EventTrigger EventName="Loaded">
+                                                                        <i:CallMethodAction TargetObject="{Binding ElementName=ScrollViewer}" MethodName="ScrollToEnd" />
+                                                                    </i:EventTrigger>
+                                                                </i:Interaction.Triggers>
+                                                                <TextBlock TextWrapping="Wrap"
                                                                            HorizontalAlignment="Left"
-                                                                           VerticalAlignment="Center" />
-                                                                <TextBlock Grid.Column="1" TextWrapping="Wrap">
+                                                                           VerticalAlignment="Bottom"
+                                                                           ToolTip="{Binding .}">
                                                                     <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
                                                                         <Run Text="{Binding RawImageFilePath}" />
                                                                     </Hyperlink>
                                                                 </TextBlock>
-                                                            </Grid>
+                                                            </ScrollViewer>
                                                             <wpfImageViewer:ImageViewerCanvas Grid.Row="1"
                                                                                               BitmapImageDrawable="{Binding RawImageFilePath, Converter={StaticResource StringToBitmapImageDrawableConverter}}"
                                                                                               IsShowCrossLine="True"

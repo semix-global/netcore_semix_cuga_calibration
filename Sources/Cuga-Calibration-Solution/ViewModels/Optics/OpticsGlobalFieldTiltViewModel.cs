@@ -687,10 +687,10 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
             globalFieldTiltDTOItem.BestFocusChannelItems =
             [
-                ..darkFieldImageDtoList.Where(t => t.ChannelId == Cache.Item.CIBInformation.ChannelId).Select(t => new GlobalFieldTiltDTOItem.Item()
+                ..darkFieldImageDtoList.Where(t => t.CIBInformation.ChannelId == Cache.Item.CIBInformation.ChannelId).Select(t => new GlobalFieldTiltDTOItem.Item()
                 {
-                    PmtId = t.PMTId,
-                    ChannelId = t.ChannelId,
+                    PmtId = t.CIBInformation.PMTId,
+                    ChannelId = t.CIBInformation.ChannelId,
                     RawFilePath = t.RawImageFilePath
                 })
             ];

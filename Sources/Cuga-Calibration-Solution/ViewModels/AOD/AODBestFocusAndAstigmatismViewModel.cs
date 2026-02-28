@@ -701,14 +701,14 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             [
                 ..darkFieldImageDtoList.Select(t => new BestFocusAndAstigmatismChannelDTOItem
                 {
-                    PmtId = t.PMTId,
-                    ChannelId = t.ChannelId,
+                    PmtId = t.CIBInformation.PMTId,
+                    ChannelId = t.CIBInformation.ChannelId,
                     RawFilePath = t.RawImageFilePath
                 })
             ]
         };
         // todo:改成读cuga配置
-        bestFocusAndAstigmatismItemDto.LineScanRate = (double)darkFieldImageDtoList.First().Width / (bestFocusAndAstigmatismItemDto.TriggerEndIndex - bestFocusAndAstigmatismItemDto.TriggerStartIndex + 1);
+        bestFocusAndAstigmatismItemDto.LineScanRate = (double)darkFieldImageDtoList.First().Size.Width / (bestFocusAndAstigmatismItemDto.TriggerEndIndex - bestFocusAndAstigmatismItemDto.TriggerStartIndex + 1);
         return bestFocusAndAstigmatismItemDto;
     }
 

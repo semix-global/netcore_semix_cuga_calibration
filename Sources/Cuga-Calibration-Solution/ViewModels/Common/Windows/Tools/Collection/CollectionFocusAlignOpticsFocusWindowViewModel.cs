@@ -587,7 +587,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
                         var resultItem = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(resultItemType));
 
-                        ObjectHelper.SetPropertyValue(resultItem, resultItemImageChannelIdPropertyName, darkFieldImageDto.ChannelId);
+                        ObjectHelper.SetPropertyValue(resultItem, resultItemImageChannelIdPropertyName, darkFieldImageDto.CIBInformation.ChannelId);
                         ObjectHelper.SetPropertyValue(resultItem, resultItemImageFilePathPropertyName, filePath);
                         await resultItemAction.Invoke(resultItem, darkFieldImageDto);
 
