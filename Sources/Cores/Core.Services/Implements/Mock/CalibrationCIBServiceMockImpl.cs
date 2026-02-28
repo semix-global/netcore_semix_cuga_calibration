@@ -171,6 +171,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
+        bool isKeepOrigin,
         CancellationToken cancellationToken)
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
@@ -196,6 +197,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         int imageWidth,
         CIBInformation cibInformation,
         bool isAutoFocus,
+        bool isKeepOrigin,
         CancellationToken cancellationToken)
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
@@ -249,6 +251,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
+        bool isKeepOrigin,
         CancellationToken cancellationToken)
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);

@@ -133,6 +133,7 @@ public interface ICalibrationCIBService
     /// <param name="cibInformations">CIB列表</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
+    /// <param name="isKeepOrigin">是否返回原图(跳过转换为线性图)</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>CIB对应的图片</returns>
     Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
@@ -143,6 +144,7 @@ public interface ICalibrationCIBService
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
+        bool isKeepOrigin,
         CancellationToken cancellationToken);
 
     /// <summary>
@@ -154,6 +156,7 @@ public interface ICalibrationCIBService
     /// <param name="imageWidth">图片宽度</param>
     /// <param name="cibInformation">CIB</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
+    /// <param name="isKeepOrigin">是否返回原图(跳过转换为线性图)</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>多个中心位置对应的图片</returns>
     Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
@@ -163,6 +166,7 @@ public interface ICalibrationCIBService
         int imageWidth,
         CIBInformation cibInformation,
         bool isAutoFocus,
+        bool isKeepOrigin,
         CancellationToken cancellationToken);
 
     /// <summary>
@@ -198,6 +202,7 @@ public interface ICalibrationCIBService
     /// <param name="stopECS">ECS终点</param>
     /// <param name="cibInformations">CIB列表</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
+    /// <param name="isKeepOrigin">是否返回原图(跳过转换为线性图)</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>CIB对应的图片</returns>
     Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
@@ -209,6 +214,7 @@ public interface ICalibrationCIBService
         double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
+        bool isKeepOrigin,
         CancellationToken cancellationToken);
 
     /// <summary>

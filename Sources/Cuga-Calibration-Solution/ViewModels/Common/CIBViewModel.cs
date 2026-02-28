@@ -151,7 +151,8 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true)
+        bool isAutoFocus = true,
+        bool isKeepOrigin = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -171,6 +172,7 @@ public sealed class CIBViewModel(
                     cibInformations,
                     isForward,
                     isAutoFocus,
+                    isKeepOrigin,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -189,7 +191,8 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true)
+        bool isAutoFocus = true,
+        bool isKeepOrigin = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -202,8 +205,9 @@ public sealed class CIBViewModel(
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
             cancellationToken,
-            isForward,
-            isAutoFocus);
+            isForward: isForward,
+            isAutoFocus: isAutoFocus,
+            isKeepOrigin: isKeepOrigin);
 
         return darkFieldImages.Single();
     }
@@ -223,7 +227,8 @@ public sealed class CIBViewModel(
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
-        bool isAutoFocus = true)
+        bool isAutoFocus = true,
+        bool isKeepOrigin = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -242,6 +247,7 @@ public sealed class CIBViewModel(
                     imageWidth,
                     cibInformation,
                     isAutoFocus,
+                    isKeepOrigin,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -264,7 +270,8 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true)
+        bool isAutoFocus = true,
+        bool isKeepOrigin = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -302,7 +309,8 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true)
+        bool isAutoFocus = true,
+        bool isKeepOrigin = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -315,8 +323,9 @@ public sealed class CIBViewModel(
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
             cancellationToken,
-            isForward,
-            isAutoFocus);
+            isForward: isForward,
+            isAutoFocus: isAutoFocus,
+            isKeepOrigin: isKeepOrigin);
 
         return darkFieldImages.Single();
     }
@@ -338,7 +347,8 @@ public sealed class CIBViewModel(
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
-        bool isForward = true)
+        bool isForward = true,
+        bool isKeepOrigin = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -359,6 +369,7 @@ public sealed class CIBViewModel(
                     stopECS,
                     cibInformations,
                     isForward,
+                    isKeepOrigin,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -378,7 +389,8 @@ public sealed class CIBViewModel(
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
-        bool isForward = true)
+        bool isForward = true,
+        bool isKeepOrigin = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -393,7 +405,8 @@ public sealed class CIBViewModel(
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
             cancellationToken,
-            isForward);
+            isForward: isForward,
+            isKeepOrigin: isKeepOrigin);
 
         return darkFieldImages.Single();
     }
@@ -411,7 +424,8 @@ public sealed class CIBViewModel(
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
-        bool isForward = true)
+        bool isForward = true,
+        bool isKeepOrigin = false)
     {
         var resulList = new List<DarkFieldImageDTO>();
 
@@ -442,7 +456,8 @@ public sealed class CIBViewModel(
                 customPrescanAODWaveform,
                 isCustomChirpAODWaveform,
                 cancellationToken,
-                isForward));
+                isForward: isForward,
+                isKeepOrigin: isKeepOrigin));
         }
 
         return resulList;

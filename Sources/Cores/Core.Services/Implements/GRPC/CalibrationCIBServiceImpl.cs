@@ -98,12 +98,12 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point centerPosition, int imageWidth, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, CancellationToken cancellationToken)
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point centerPosition, int imageWidth, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, bool isKeepOrigin, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, IReadOnlyList<Point> centerPositions, int imageWidth, CIBInformation cibInformation, bool isAutoFocus, CancellationToken cancellationToken)
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, IReadOnlyList<Point> centerPositions, int imageWidth, CIBInformation cibInformation, bool isAutoFocus, bool isKeepOrigin, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
@@ -113,7 +113,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point startPosition, Point stopPosition, double startECS, double stopECS, IReadOnlyList<CIBInformation> cibInformations, bool isForward, CancellationToken cancellationToken)
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point startPosition, Point stopPosition, double startECS, double stopECS, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isKeepOrigin, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

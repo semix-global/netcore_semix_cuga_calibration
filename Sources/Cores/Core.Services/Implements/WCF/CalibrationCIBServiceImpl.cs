@@ -174,6 +174,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
+        bool isKeepOrigin,
         CancellationToken cancellationToken)
     {
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
@@ -207,7 +208,11 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
                 var rawBytes = File.ReadAllBytes(t.RawImageFilePath);
 
                 using var image = RawImageFactory.CreateImage(rawBytes);
-                var resultImage = t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog ? image.RAW12BitsPerPixelLogToLinear() : image.Clone();
+                var resultImage = isKeepOrigin
+                    ? image.CopyImage()
+                    : t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog
+                        ? image.RAW12BitsPerPixelLogToLinear()
+                        : image.Clone();
 
                 return new DarkFieldImageDTO { Image = resultImage }.AdaptIn(t);
             }, cancellationToken))))
@@ -221,6 +226,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         int imageWidth,
         CIBInformation cibInformation,
         bool isAutoFocus,
+        bool isKeepOrigin,
         CancellationToken cancellationToken)
     {
         var isIncreasing = centerPositions.Select(t => t.X).IsIncreasing(true);
@@ -269,7 +275,12 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDTO.Url);
             using var image = RawImageFactory.CreateImage(rawBytes);
 
-            var resultImage = getCIBProfileModeEnumRet.Anything[0] == CIBProfileModeEnum.PMTLog ? image.RAW12BitsPerPixelLogToLinear() : image.Clone();
+            var resultImage = isKeepOrigin
+                ? image.CopyImage()
+                : getCIBProfileModeEnumRet.Anything[0] == CIBProfileModeEnum.PMTLog
+                    ? image.RAW12BitsPerPixelLogToLinear()
+                    : image.Clone();
+
             result[index] = new DarkFieldImageDTO { Image = resultImage }.AdaptIn(m2CImgSysCollectImgDTO, getCIBProfileModeEnumRet.Anything[0]);
 
             return SxExecuteRetHelper.CreateSuccess(true);
@@ -323,6 +334,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
+        bool isKeepOrigin,
         CancellationToken cancellationToken)
     {
         Guard.IsLessThan(startECS, stopECS);
@@ -367,7 +379,11 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
                 var rawBytes = File.ReadAllBytes(t.RawImageFilePath);
 
                 using var image = RawImageFactory.CreateImage(rawBytes);
-                var resultImage = t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog ? image.RAW12BitsPerPixelLogToLinear() : image.Clone();
+                var resultImage = isKeepOrigin
+                    ? image.CopyImage()
+                    : t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog
+                        ? image.RAW12BitsPerPixelLogToLinear()
+                        : image.Clone();
 
                 return new DarkFieldImageDTO { Image = resultImage }.AdaptIn(t);
             }, cancellationToken))))
