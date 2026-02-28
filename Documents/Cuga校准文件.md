@@ -394,7 +394,7 @@ public sealed class CalibrationMicroscopeFocusItem : CalibrationBase
 }
 ```
 
-## 2.2. Cal Chip4个耳朵自动聚焦校准: `CalibrationMicroscopeCalChip`
+## ==2.2.== Cal Chip4个耳朵自动聚焦校准: `CalibrationMicroscopeCalChip`
 
 ```csharp
 /// <summary>
@@ -409,24 +409,14 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
 
     /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Chuck暗场Af最佳Ecs
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW对准角度
     /// </summary>
-    public double ChuckAfEcsValue { get; set; }
+    public double DSWAlignmentDegree { get; set; }
 
     /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Chuck暗场Af电机值
-    /// </summary>
-    public double ChuckAfMotorValue { get; set; }
-
-    /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW明场中心的机械位置(绝对位置), **需要下发AF硬件**
+    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW明场中心根据对准角度放射变化后的机械位置(绝对位置), **需要下发AF硬件**
     /// </summary>
     public CgPoint DswBrightFieldMachinePosition { get; set; }
-
-    /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW暗场中心的机械位置(绝对位置), **需要下发AF硬件**
-    /// </summary>
-    public CgPoint DswDarkFieldMachinePosition { get; set; }
 
     /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW最佳清晰高度(绝对ECS), **需要下发AF硬件**
@@ -434,24 +424,9 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     public double DswEcsValue { get; set; }
 
     /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Dsw暗场Af最佳Ecs
-    /// </summary>
-    public double DswAfEcsValue { get; set; }
-
-    /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Dsw暗场Af电机值
-    /// </summary>
-    public double DswAfMotorValue { get; set; }
-
-    /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Undefined明场中心的机械位置(绝对位置), **需要下发AF硬件**
     /// </summary>
     public CgPoint UndefinedBrightFieldMachinePosition { get; set; }
-
-    /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Undefined暗场中心的机械位置(绝对位置), **需要下发AF硬件**
-    /// </summary>
-    public CgPoint UndefinedDarkFieldMachinePosition { get; set; }
 
     /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Undefined最佳清晰高度(绝对ECS), **需要下发AF硬件**
@@ -464,34 +439,14 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     public CgPoint HazeBrightFieldMachinePosition { get; set; }
 
     /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Haze暗场中心的机械位置(绝对位置), **需要下发AF硬件**
-    /// </summary>
-    public CgPoint HazeDarkFieldMachinePosition { get; set; }
-
-    /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Haze最佳清晰高度(绝对ECS), **需要下发AF硬件**
     /// </summary>
     public double HazeEcsValue { get; set; }
 
     /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Haze暗场Af最佳Ecs
-    /// </summary>
-    public double HazeAfEcsValue { get; set; }
-
-    /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, Haze暗场Af电机值
-    /// </summary>
-    public double HazeAfMotorValue { get; set; }
-
-    /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, ShinyWafer明场中心的机械位置(绝对位置), **需要下发AF硬件**
     /// </summary>
     public CgPoint ShinyWaferBrightFieldMachinePosition { get; set; }
-
-    /// <summary>
-    /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, ShinyWafer暗场中心的机械位置(绝对位置), **需要下发AF硬件**
-    /// </summary>
-    public CgPoint ShinyWaferDarkFieldMachinePosition { get; set; }
 
     /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, ShinyWafer最佳清晰高度(绝对ECS), **需要下发AF硬件**
@@ -827,91 +782,86 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 台面功率计校准对象
     /// </summary>
-    public CalibrationLaserOpticalPower[] CalibrationLaserOpticalPowerList { get; set; } = Array.Empty<CalibrationLaserOpticalPower>();
+    public CalibrationLaserOpticalPower[] CalibrationLaserOpticalPowerList { get; set; } = [];
 
     /// <summary>
     /// Attenuator校准对象
     /// </summary>
-    public CalibrationAttenuatorObj[] CalibrationAttenuatorList { get; set; } = Array.Empty<CalibrationAttenuatorObj>();
+    public CalibrationAttenuatorObj[] CalibrationAttenuatorList { get; set; } = [];
 
     /// <summary>
     /// AOD延迟时间校准对象列表
     /// </summary>
-    public CalibrationLaserAodDelayItem[] CalibrationLaserAodDelayItemList { get; set; } = Array.Empty<CalibrationLaserAodDelayItem>();
-
-    /// <summary>
-    /// 均匀性校准对象
-    /// </summary>
-    public CalibrationLaserIlluminationProfileItem[] CalibrationLaserIlluminationProfileItemList { get; set; } = Array.Empty<CalibrationLaserIlluminationProfileItem>();
-
-    /// <summary>
-    /// XTC
-    /// </summary>
-    public CalibrationLaserXTCCalibrationItem[] CalibrationLaserXtcCalibrationItemList { get; set; } = Array.Empty<CalibrationLaserXTCCalibrationItem>();
-
-    /// <summary>
-    /// AGC延迟时间校准对象列表
-    /// </summary>
-    public CalibrationLaserPmtAgcDelayItem[] CalibrationLaserPmtAgcDelayItemList { get; set; } = Array.Empty<CalibrationLaserPmtAgcDelayItem>();
+    public CalibrationLaserAodDelayItem[] CalibrationLaserAodDelayItemList { get; set; } = [];
 
     /// <summary>
     /// 暗场相机的Y像素尺寸校准对象列表
     /// </summary>
-    public CalibrationLaserPixelSizeItem[] CalibrationLaserPixelSizeItemList { get; set; } = Array.Empty<CalibrationLaserPixelSizeItem>();
+    public CalibrationLaserPixelSizeItem[] CalibrationLaserPixelSizeItemList { get; set; } = [];
 
     /// <summary>
     /// XPixelSizer校准对象
     /// </summary>
-    public CalibrationLaserXPixelSizeItem[] CalibrationLaserXPixelSizeList { get; set; } = Array.Empty<CalibrationLaserXPixelSizeItem>();
+    public CalibrationLaserXPixelSizeItem[] CalibrationLaserXPixelSizeList { get; set; } = [];
 
     /// <summary>
     /// 暗场相机的光斑中心校准对象列表
     /// </summary>
-    public CalibrationLaserLineCentricityItem[] CalibrationLaserLineCentricityItemList { get; set; } = Array.Empty<CalibrationLaserLineCentricityItem>();
+    public CalibrationLaserLineCentricityItem[] CalibrationLaserLineCentricityItemList { get; set; } = [];
 
     /// <summary>
     /// 暗场相机的Swath扫描正反向误差校准对象列表
     /// </summary>
-    public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = Array.Empty<CalibrationLaserLineOrientationOffsetItem>();
-
-    /// <summary>
-    /// 暗场AOD散光校准对象列表
-    /// </summary>
-    public CalibrationLaserXYAstigmatismItem[] CalibrationLaserXYAstigmatismItemList { get; set; } = Array.Empty<CalibrationLaserXYAstigmatismItem>();
+    public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = [];
 
     /// <summary>
     /// 暗场DOE角度校准对象
     /// </summary>
-    public CalibrationLaserDOEAngle CalibrationLaserDoeAngle { get; set; } = new();
+    public CalibrationLaserDOEAngle[] CalibrationLaserDoeAngleItems { get; set; } = [];
 
     /// <summary>
     /// CIB MMD 校准对象列表
     /// </summary>
-    public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = Array.Empty<CalibrationLaserCIBMMDItem>();
+    public CalibrationLaserCIBMMDItem[] CalibrationLaserCIBMMDItems { get; set; } = [];
 
     /// <summary>
     /// CIB Light Matching 校准对象列表
     /// </summary>
-    public CalibrationLaserCIBLightMatchingItem[] CalibrationLaserCIBLightMatchingItems { get; set; } = Array.Empty<CalibrationLaserCIBLightMatchingItem>();
+    public CalibrationLaserCIBLightMatchingItem[] CalibrationLaserCIBLightMatchingItems { get; set; } = [];
 
     /// <summary>
     /// CIB Illumination Profile 校准对象列表
     /// </summary>
-    public CalibrationLaserCIBIlluminationProfileItem[] CalibrationLaserCIBIlluminationProfileItems { get; set; } = Array.Empty<CalibrationLaserCIBIlluminationProfileItem>();
+    public CalibrationLaserCIBIlluminationProfileItem[] CalibrationLaserCIBIlluminationProfileItems { get; set; } = [];
+
+    /// <summary>
+    /// CIB XTC 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBXTCItem[] CalibrationLaserCIBXTCItems { get; set; } = [];
+
+    /// <summary>
+    /// AOD Uniformity 校准对象列表
+    /// </summary>
+    public CalibrationLaserAODUniformityItem[] CalibrationLaserAODUniformityItems { get; set; } = [];
 
     /// <summary>
     /// Optics Relay 校准对象列表
     /// </summary>
-    public CalibrationOpticsRelay[] CalibrationOpticsRelays { get; set; } = Array.Empty<CalibrationOpticsRelay>();
+    public CalibrationOpticsRelay[] CalibrationOpticsRelays { get; set; } = [];
 
     /// <summary>
     /// Optics INC 校准对象列表
     /// </summary>
-    public CalibrationOpticsINC[] CalibrationOpticsINCs { get; set; } = Array.Empty<CalibrationOpticsINC>();
+    public CalibrationOpticsINC[] CalibrationOpticsINCs { get; set; } = [];
+
+    /// <summary>
+    /// 采集偏振校准, CollectionPolarization对象数据
+    /// </summary>
+    public CalibrationCollectionPolarization CalibrationCollectionPolarization { get; set; } = new CalibrationCollectionPolarization();
 }
 ```
 
-## 4.1. 自动聚焦校准: `CalibrationLaserAutoFocus`
+## ==4.1.== 自动聚焦校准: `CalibrationLaserAutoFocus`
 
 ```csharp
 /// <summary>
@@ -921,19 +871,64 @@ public sealed class CalibrationLaserObj
 public sealed class CalibrationLaserAutoFocus : CalibrationBase
 {
     /// <summary>
-    /// A路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// 中档: A路灯的电流值(绝对电流值), **需要下发AF硬件**
     /// </summary>
-    public double CurrentA { get; set; }
+    public double MiddleCurrentA { get; set; }
 
     /// <summary>
-    /// B路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// 中档: B路灯的电流值(绝对电流值), **需要下发AF硬件**
     /// </summary>
-    public double CurrentB { get; set; }
+    public double MiddleCurrentB { get; set; }
+
+    /// <summary>
+    /// 低档系数
+    /// </summary>
+    public double LowCoefficient { get; set; } = 0.6d;
+
+    /// <summary>
+    /// 高档系数
+    /// </summary>
+    public double HighCoefficient { get; set; } = 1.5d;
+
+    /// <summary>
+    /// 低档: A路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// </summary>
+    public double LowCurrentA => LowCoefficient * MiddleCurrentA;
+
+    /// <summary>
+    /// 低档: B路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// </summary>
+    public double LowCurrentB => LowCoefficient * MiddleCurrentB;
+
+    /// <summary>
+    /// 高档: A路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// </summary>
+    public double HighCurrentA => HighCoefficient * MiddleCurrentA;
+
+    /// <summary>
+    /// 高档: B路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// </summary>
+    public double HighCurrentB => HighCoefficient * MiddleCurrentB;
 
     /// <summary>
     /// Nsc 增益归一化, **需要下发AF硬件** 【需要 * 1000下发】
     /// </summary>
     public double NscGain { get; set; }
+
+    /// <summary>
+    /// 斜率(ECS/mm), **Cuga内部使用**
+    /// </summary>
+    public double Slope { get; set; }
+
+    /// <summary>
+    /// AF 工作范围 最小值, **Cuga内部使用**
+    /// </summary>
+    public double MinAFMotorAbsoluteValue { get; set; }
+
+    /// <summary>
+    /// AF 工作范围 最大值, **Cuga内部使用**
+    /// </summary>
+    public double MaxAFMotorAbsoluteValue { get; set; }
 }
 ```
 
@@ -1606,69 +1601,8 @@ public sealed class CalibrationOpticsINC : CalibrationBase
 }
 ```
 
-# 5. 自动聚焦: `CalibrationAutoFocusObj`
+## ==4.18.== 采集偏振校准: `CollectionPolarization`
 
----
-
-```csharp
-/// <summary>
-/// AutoFocus校准对象
-/// </summary>
-[Serializable]
-public sealed class CalibrationAutoFocusObj
-{
-    /// <summary>
-    /// GFO校准对象列表
-    /// </summary>
-    public CalibrationGlobalFocusOffset[] CalibrationGlobalFocusOffsets { get; set; } = Array.Empty<CalibrationGlobalFocusOffset>();
-}
-```
-
-## 1.1. 暗场焦点位置校准: `CalibrationGlobalFocusOffset`
-> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
-> 
-> 个数： OI 3 * 3 = 9 NI 2 * 1 = 2
-
-```csharp
-/// <summary>
-/// 暗场CalChip DSW焦点位置校准对象
-/// </summary>
-[Serializable]
-public sealed class CalibrationGlobalFocusOffset : CalibrationBase
-{
-    /// <summary>
-    /// 入射方式
-    /// </summary>
-    public CgNIOIType CgNIOITypeEnum { get; set; }
-
-    /// <summary>
-    /// Mag类型
-    /// </summary>
-    public CgMagTypeEnum CgMagTypeEnum { get; set; }
-
-    /// <summary>
-    /// 速度
-    /// </summary>
-    public CgSpeedLevelType Speed { get; set; }
-
-    /// <summary>
-    /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**
-    /// </summary>
-    public bool IsAFServo { get; set; }
-
-    /// <summary>
-    /// 焦点ECS, **Cuga内部使用**
-    /// </summary>
-    public double ECSValue { get; set; }
-
-    /// <summary>
-    /// 电机值, **Cuga内部使用**
-    /// </summary>
-     public double MotorValue { get; set; }
-}
-```
-
-## 采集偏振校准: `CollectionPolarization`
 ```csharp
 /// <summary>
 /// 采集偏振校准, CollectionPolarization校准下发Cuga参数
@@ -1708,4 +1642,133 @@ public sealed class CalibrationCollectionPolarization : CalibrationBase
 }
 ```
 
+
+
+# 5. 自动聚焦: `CalibrationAutoFocusObj`
+
+---
+
+```csharp
+/// <summary>
+/// AutoFocus校准对象
+/// </summary>
+[Serializable]
+public sealed class CalibrationAutoFocusObj
+{
+    /// <summary>
+    /// GFO校准对象列表
+    /// </summary>
+    public CalibrationAutoFocusGlobalFocusOffset[] CalibrationAutoFocusGlobalFocusOffsets { get; set; } = [];
+
+    /// <summary>
+    /// CalChipFocusOffset校准对象列表
+    /// </summary>
+    public CalibrationAutoFocusCalChipFocusOffset CalibrationAutoFocusCalChipFocusOffset { get; set; } = new();
+}
+```
+
+## ==5.1.== 暗场焦点位置校准: `CalibrationGlobalFocusOffset`
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
+> 
+> 个数： OI 3 * 3 = 9 NI 2 * 1 = 2
+
+```csharp
+/// <summary>
+/// 暗场CalChip DSW焦点位置校准对象
+/// </summary>
+[Serializable]
+public sealed class CalibrationAutoFocusGlobalFocusOffset : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**
+    /// </summary>
+    public bool IsAFServo { get; set; }
+
+    /// <summary>
+    /// 焦点ECS, **Cuga内部使用**
+    /// </summary>
+    public double ECSValue { get; set; }
+
+     /// <summary>
+    /// 电机值, **Cuga内部使用**
+    /// </summary>
+    public double MotorValue { get; set; }
+}
+```
+
+## ==5.2.== 暗场`CalChip`校准: `CalibrationAutoFocusCalChipFocusOffset`
+```csharp
+/// <summary>
+/// 暗场Cal Chip焦点位置校准对象
+/// </summary>
+[Serializable]
+public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**
+    /// </summary>
+    public bool IsAFServo { get; set; }
+
+   /// <summary>
+    /// Chuck暗场最佳Ecs
+    /// </summary>
+    public double ChuckEcsValue { get; set; }
+
+    /// <summary>
+    /// Chuck暗场电机值
+    /// </summary>
+    public double ChuckMotorValue { get; set; }
+
+    /// <summary>
+    /// Dsw暗场最佳Ecs
+    /// </summary>
+    public double DswEcsValue { get; set; }
+
+    /// <summary>
+    /// Dsw暗场电机值
+    /// </summary>
+    public double DswMotorValue { get; set; }
+
+    /// <summary>
+    /// Haze暗场最佳Ecs
+    /// </summary>
+    public double HazeEcsValue { get; set; }
+
+    /// <summary>
+    /// Haze暗场电机值
+    /// </summary>
+    public double HazeMotorValue { get; set; }
+}
+
+```
 
