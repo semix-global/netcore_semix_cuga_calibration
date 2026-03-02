@@ -59,7 +59,7 @@ public partial class GrabbingDarkImageWindowViewModel(
     private double _stopECS = 7000;
 
     [ObservableProperty]
-    private IReadOnlyList<CIBInformation> _cIBInformations = [];
+    private IReadOnlyList<CIBInformation> _cIBInformations = [calibrationSetting.SettingCommonParam.MainCIBInformation];
 
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
@@ -188,19 +188,19 @@ public partial class GrabbingDarkImageWindowViewModel(
                     microscopeViewModel.GetCurrentMicroscopeLensInformation());
 
                 var darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
-                    ProductivityInformation,
-                    StageCoordinateSystemEnum,
-                    currentStartPosition,
-                    ImageWidth,
-                    cibInformations,
-                    (false, CalChipSiteModelEnum),
-                    (false, CIBConfiguration),
-                    (true, null),
-                    true,
-                    cancellationToken,
-                    IsForward,
-                    IsAutoFocus,
-                    IsKeepOrigin);
+                    productivityInformation: ProductivityInformation,
+                    stageCoordinateSystemEnum: StageCoordinateSystemEnum,
+                    centerPosition: currentStartPosition,
+                    imageWidth: ImageWidth,
+                    cibInformations: cibInformations,
+                    customCalChip: (false, CalChipSiteModelEnum),
+                    customCIBConfiguration: (false, CIBConfiguration),
+                    customPrescanAODWaveform: (true, null),
+                    isCustomChirpAODWaveform: true,
+                    cancellationToken: cancellationToken,
+                    isForward: IsForward,
+                    isAutoFocus: IsAutoFocus,
+                    isKeepOrigin: IsKeepOrigin);
 
                 foreach (var darkFieldImage in darkFieldRawScanImages)
                 {
@@ -252,19 +252,19 @@ public partial class GrabbingDarkImageWindowViewModel(
                 };
 
                 var darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
-                    ProductivityInformation,
-                    StageCoordinateSystemEnum,
-                    currentStartPosition,
-                    currentStopPosition,
-                    cibInformations,
-                    (false, CalChipSiteModelEnum),
-                    (false, CIBConfiguration),
-                    (true, null),
-                    true,
-                    cancellationToken,
-                    IsForward,
-                    IsAutoFocus,
-                    IsKeepOrigin);
+                    productivityInformation: ProductivityInformation,
+                    stageCoordinateSystemEnum: StageCoordinateSystemEnum,
+                    startPosition: currentStartPosition,
+                    stopPosition: currentStopPosition,
+                    cibInformations: cibInformations,
+                    customCalChip: (false, CalChipSiteModelEnum),
+                    customCIBConfiguration: (false, CIBConfiguration),
+                    customPrescanAODWaveform: (true, null),
+                    isCustomChirpAODWaveform: true,
+                    cancellationToken: cancellationToken,
+                    isForward: IsForward,
+                    isAutoFocus: IsAutoFocus,
+                    isKeepOrigin: IsKeepOrigin);
 
                 foreach (var darkFieldImage in darkFieldRawScanImages)
                 {
@@ -319,18 +319,18 @@ public partial class GrabbingDarkImageWindowViewModel(
                     }).ToArray();
 
                 var darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
-                    ProductivityInformation,
-                    StageCoordinateSystemEnum,
-                    positions,
-                    ImageWidth,
-                    cibInformations[0],
-                    (false, CalChipSiteModelEnum),
-                    (false, CIBConfiguration),
-                    (true, null),
-                    true,
-                    cancellationToken,
-                    IsAutoFocus,
-                    IsKeepOrigin);
+                    productivityInformation: ProductivityInformation,
+                    stageCoordinateSystemEnum: StageCoordinateSystemEnum,
+                    centerPositions: positions,
+                    imageWidth: ImageWidth,
+                    cibInformation: cibInformations[0],
+                    customCalChip: (false, CalChipSiteModelEnum),
+                    customCIBConfiguration: (false, CIBConfiguration),
+                    customPrescanAODWaveform: (true, null),
+                    isCustomChirpAODWaveform: true,
+                    cancellationToken: cancellationToken,
+                    isAutoFocus: IsAutoFocus,
+                    isKeepOrigin: IsKeepOrigin);
 
                 foreach (var darkFieldImage in darkFieldRawScanImages)
                 {

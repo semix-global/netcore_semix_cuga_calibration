@@ -96,8 +96,7 @@
                                                             <RowDefinition Height="50" />
                                                             <RowDefinition Height="*" />
                                                         </Grid.RowDefinitions>
-                                                        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                                                      VerticalScrollBarVisibility="Auto">
+                                                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                                             <i:Interaction.Triggers>
                                                                 <i:EventTrigger EventName="Loaded">
                                                                     <i:CallMethodAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}}" MethodName="ScrollToEnd" />
@@ -189,7 +188,13 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <cibMode:CibGrabModeTypeUserControl DataContext="{Binding CIBConfiguration}" />
+                            <Expander Header="CIB"
+                                      IsExpanded="False"
+                                      ExpandDirection="Down">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <cibMode:CibGrabModeTypeUserControl DataContext="{Binding CIBConfiguration}" />
+                                </Border>
+                            </Expander>
                             <ComboBox hc:TitleElement.Title="Laser Light Information: "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="160"
@@ -210,279 +215,270 @@
                                               Background="{StaticResource DangerBrush}"
                                               Style="{StaticResource ToggleButtonSwitch}" />
                             </StackPanel>
-                            <Separator />
-                            <TextBox Text="{Binding PrescanAODWaveformResultFilePath}"
-                                     Height="50"
-                                     TextWrapping="Wrap"
-                                     hc:TitleElement.Title="Prescan File Path: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
-                                     Background="LightGray"
-                                     IsReadOnly="True"
-                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <hc:UniformSpacingPanel Spacing="10">
-                                <Button Content="Prescan"
-                                        Command="{Binding ChangedPrescanAODWaveformProfilesCommand}"
-                                        hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
-                                <Button Content="Clear"
-                                        Command="{Binding ClearPrescanAODWaveformProfilesCommand}"
-                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}" />
-                                <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
-                                              Content="Profiles"
-                                              Margin="0,5"
-                                              HorizontalAlignment="Left"
-                                              hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                <Popup Width="800"
-                                       Height="800"
-                                       AllowsTransparency="True"
-                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}"
-                                       Placement="Right"
-                                       PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
-                                       PopupAnimation="Slide"
-                                       StaysOpen="False">
-                                    <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
-                                        <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
-                                    </Border>
-                                </Popup>
-                            </hc:UniformSpacingPanel>
-                            <TextBox Text="{Binding ChirpAODWaveformResultFilePath}"
-                                     Height="50"
-                                     TextWrapping="Wrap"
-                                     hc:TitleElement.Title="Chirp File Path: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
-                                     Background="LightGray"
-                                     IsReadOnly="True"
-                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <hc:UniformSpacingPanel Spacing="10">
-                                <Button Content="Chirp"
-                                        Command="{Binding ChangedChirpAODWaveformProfilesCommand}"
-                                        hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
-                                <Button Content="Clear"
-                                        Command="{Binding ClearChirpAODWaveformProfilesCommand}"
-                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}" />
-                                <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
-                                              Content="Profiles"
-                                              Margin="0,5"
-                                              HorizontalAlignment="Left"
-                                              hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                <Popup Width="800"
-                                       Height="800"
-                                       AllowsTransparency="True"
-                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}"
-                                       Placement="Right"
-                                       PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
-                                       PopupAnimation="Slide"
-                                       StaysOpen="False">
-                                    <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
-                                        <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
-                                    </Border>
-                                </Popup>
-                            </hc:UniformSpacingPanel>
-                            <Separator />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Keep Origin: "
+                                           Width="160"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Center" />
+                                <ToggleButton IsChecked="{Binding IsKeepOrigin}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Background="{StaticResource DangerBrush}"
+                                              Style="{StaticResource ToggleButtonSwitch}" />
+                            </StackPanel>
+                            <Expander Header="AOD Waveform Profiles"
+                                      IsExpanded="False"
+                                      ExpandDirection="Down">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <TextBox Text="{Binding PrescanAODWaveformResultFilePath}"
+                                                 Height="50"
+                                                 TextWrapping="Wrap"
+                                                 hc:TitleElement.Title="Prescan File Path: "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="150"
+                                                 Background="LightGray"
+                                                 IsReadOnly="True"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <hc:UniformSpacingPanel Spacing="10">
+                                            <Button Content="Prescan"
+                                                    Command="{Binding ChangedPrescanAODWaveformProfilesCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
+                                            <Button Content="Clear"
+                                                    Command="{Binding ClearPrescanAODWaveformProfilesCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}" />
+                                            <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                                          Content="Profiles"
+                                                          Margin="0,5"
+                                                          HorizontalAlignment="Left"
+                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                            <Popup Width="800"
+                                                   Height="800"
+                                                   AllowsTransparency="True"
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}"
+                                                   Placement="Right"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                                                   PopupAnimation="Slide"
+                                                   StaysOpen="False">
+                                                <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                                                    <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                </Border>
+                                            </Popup>
+                                        </hc:UniformSpacingPanel>
+                                        <TextBox Text="{Binding ChirpAODWaveformResultFilePath}"
+                                                 Height="50"
+                                                 TextWrapping="Wrap"
+                                                 hc:TitleElement.Title="Chirp File Path: "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="150"
+                                                 Background="LightGray"
+                                                 IsReadOnly="True"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <hc:UniformSpacingPanel Spacing="10">
+                                            <Button Content="Chirp"
+                                                    Command="{Binding ChangedChirpAODWaveformProfilesCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
+                                            <Button Content="Clear"
+                                                    Command="{Binding ClearChirpAODWaveformProfilesCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}" />
+                                            <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
+                                                          Content="Profiles"
+                                                          Margin="0,5"
+                                                          HorizontalAlignment="Left"
+                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                            <Popup Width="800"
+                                                   Height="800"
+                                                   AllowsTransparency="True"
+                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}"
+                                                   Placement="Right"
+                                                   PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
+                                                   PopupAnimation="Slide"
+                                                   StaysOpen="False">
+                                                <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                                                    <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                </Border>
+                                            </Popup>
+                                        </hc:UniformSpacingPanel>
+                                    </hc:UniformSpacingPanel>
+                                </Border>
+                            </Expander>
                             <TabControl>
                                 <TabItem Header="Width">
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2" Margin="0,5">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Auto Focus: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding IsAutoFocus}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource DangerBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
-                                        <hc:NumericUpDown hc:TitleElement.Title="ECS: "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ECS}" />
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Keep Origin: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding IsKeepOrigin}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource DangerBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
-                                        <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ImageWidth}" />
-                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                VerticalAlignment="Top"
-                                                                Spacing="10">
-                                            <Button Content="Action"
-                                                    Command="{Binding GetPMTImagesByWidthCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                                            <Button Content="Cancel"
-                                                    Command="{Binding GetPMTImagesByWidthCancelCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                    Style="{StaticResource ButtonWarning}" />
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Auto Focus: "
+                                                                   Width="160"
+                                                                   HorizontalAlignment="Left"
+                                                                   VerticalAlignment="Center" />
+                                                        <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                                      HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"
+                                                                      Background="{StaticResource DangerBrush}"
+                                                                      Style="{StaticResource ToggleButtonSwitch}" />
+                                                    </StackPanel>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="ECS: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="160"
+                                                                      Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding ECS}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                            <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding ImageWidth}" />
+                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                    VerticalAlignment="Top"
+                                                                    Spacing="10">
+                                                <Button Content="Action"
+                                                        Command="{Binding GetPMTImagesByWidthCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                        Style="{StaticResource ButtonPrimary.Loading}" />
+                                                <Button Content="Cancel"
+                                                        Command="{Binding GetPMTImagesByWidthCancelCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                        Style="{StaticResource ButtonWarning}" />
+                                            </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
-                                    </hc:UniformSpacingPanel>
+                                    </Border>
                                 </TabItem>
                                 <TabItem Header="PTP">
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2" Margin="0,5">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Auto Focus: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding IsAutoFocus}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource DangerBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
-                                        <Border Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                                            <hc:NumericUpDown hc:TitleElement.Title="ECS: "
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Auto Focus: "
+                                                                   Width="160"
+                                                                   HorizontalAlignment="Left"
+                                                                   VerticalAlignment="Center" />
+                                                        <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                                      HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"
+                                                                      Background="{StaticResource DangerBrush}"
+                                                                      Style="{StaticResource ToggleButtonSwitch}" />
+                                                    </StackPanel>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="ECS: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="160"
+                                                                      Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding ECS}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                            <hc:NumericUpDown hc:TitleElement.Title="PTP Length(um): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ECS}" />
-                                        </Border>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Keep Origin: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding IsKeepOrigin}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource DangerBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
-                                        <hc:NumericUpDown hc:TitleElement.Title="PTP Length(um): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ScanLength}" />
-                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                VerticalAlignment="Top"
-                                                                Spacing="10">
-                                            <Button Content="Action"
-                                                    Command="{Binding GetPMTImagesByPTPCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                                            <Button Content="Cancel"
-                                                    Command="{Binding GetPMTImagesByPTPCancelCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                    Style="{StaticResource ButtonWarning}" />
+                                                              Value="{Binding ScanLength}" />
+                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                    VerticalAlignment="Top"
+                                                                    Spacing="10">
+                                                <Button Content="Action"
+                                                        Command="{Binding GetPMTImagesByPTPCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                        Style="{StaticResource ButtonPrimary.Loading}" />
+                                                <Button Content="Cancel"
+                                                        Command="{Binding GetPMTImagesByPTPCancelCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                        Style="{StaticResource ButtonWarning}" />
+                                            </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
-                                    </hc:UniformSpacingPanel>
+                                    </Border>
                                 </TabItem>
                                 <TabItem Header="PEG">
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2" Margin="0,5">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Auto Focus: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding IsAutoFocus}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource DangerBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
-                                        <Border Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                                            <hc:NumericUpDown hc:TitleElement.Title="ECS: "
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Auto Focus: "
+                                                                   Width="160"
+                                                                   HorizontalAlignment="Left"
+                                                                   VerticalAlignment="Center" />
+                                                        <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                                      HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"
+                                                                      Background="{StaticResource DangerBrush}"
+                                                                      Style="{StaticResource ToggleButtonSwitch}" />
+                                                    </StackPanel>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="ECS: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="160"
+                                                                      Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding ECS}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                            <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ECS}" />
-                                        </Border>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Keep Origin: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding IsKeepOrigin}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource DangerBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
-                                        <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ImageWidth}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="PEG Column Count: "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ColumnCount}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="PEG Column Width(um): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ColumnWidth}" />
-                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                VerticalAlignment="Top"
-                                                                Spacing="10">
-                                            <Button Content="Action"
-                                                    Command="{Binding GetPMTImagesByPEGCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                                            <Button Content="Cancel"
-                                                    Command="{Binding GetPMTImagesByPEGCancelCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                    Style="{StaticResource ButtonWarning}" />
+                                                              Value="{Binding ImageWidth}" />
+                                            <hc:NumericUpDown hc:TitleElement.Title="PEG Column Count: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding ColumnCount}" />
+                                            <hc:NumericUpDown hc:TitleElement.Title="PEG Column Width(um): "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding ColumnWidth}" />
+                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                    VerticalAlignment="Top"
+                                                                    Spacing="10">
+                                                <Button Content="Action"
+                                                        Command="{Binding GetPMTImagesByPEGCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                        Style="{StaticResource ButtonPrimary.Loading}" />
+                                                <Button Content="Cancel"
+                                                        Command="{Binding GetPMTImagesByPEGCancelCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                        Style="{StaticResource ButtonWarning}" />
+                                            </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
-                                    </hc:UniformSpacingPanel>
+                                    </Border>
                                 </TabItem>
                                 <TabItem Header="XZ Sync">
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2" Margin="0,5">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Keep Origin: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding IsKeepOrigin}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource DangerBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
-                                        <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ScanLength}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Start ECS: "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding StartECS}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Stop ECS: "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding StopECS}" />
-                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                VerticalAlignment="Top"
-                                                                Spacing="10">
-                                            <Button Content="Action"
-                                                    Command="{Binding GetPMTImagesByXZSyncCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                                            <Button Content="Cancel"
-                                                    Command="{Binding GetPMTImagesByXZSyncCancelCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                    Style="{StaticResource ButtonWarning}" />
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding ScanLength}" />
+                                            <hc:NumericUpDown hc:TitleElement.Title="Start ECS: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding StartECS}" />
+                                            <hc:NumericUpDown hc:TitleElement.Title="Stop ECS: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding StopECS}" />
+                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                    VerticalAlignment="Top"
+                                                                    Spacing="10">
+                                                <Button Content="Action"
+                                                        Command="{Binding GetPMTImagesByXZSyncCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                        Style="{StaticResource ButtonPrimary.Loading}" />
+                                                <Button Content="Cancel"
+                                                        Command="{Binding GetPMTImagesByXZSyncCancelCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                        Style="{StaticResource ButtonWarning}" />
+                                            </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
-                                    </hc:UniformSpacingPanel>
+                                    </Border>
                                 </TabItem>
                             </TabControl>
                         </hc:UniformSpacingPanel>
