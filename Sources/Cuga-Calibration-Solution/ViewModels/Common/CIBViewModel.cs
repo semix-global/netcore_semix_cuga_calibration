@@ -585,6 +585,7 @@ public sealed class CIBViewModel(
         var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.PmtId == cibInformation.PMTId);
 
         var cartesianCIBLineCentricityOffset = Vector.Zero;
+
         if (centerCIBLineCentricity is not null && currentCIBLineCentricity is not null)
         {
             var offset = currentCIBLineCentricity.DFMachineCenterPosition - centerCIBLineCentricity.DFMachineCenterPosition;
@@ -595,7 +596,7 @@ public sealed class CIBViewModel(
         }
 
         var cartesianOffset = cartesianCIBLineCentricityOffset
-                              + (microscopeLensInformation is not null
+                              - (microscopeLensInformation is not null
                                   ? microscopeViewModel.GetMicroscopeLensInformationOffset(centerCIBLineCentricity?.MicroscopeLensInformation ?? microscopeLensInformation, microscopeLensInformation)
                                   : Vector.Zero);
 

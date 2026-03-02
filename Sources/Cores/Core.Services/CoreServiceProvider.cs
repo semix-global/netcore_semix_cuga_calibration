@@ -1,4 +1,5 @@
 using Core.Models.Models.Setting;
+using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +16,11 @@ public static class CoreServiceProvider
         services.AddSingleton(sp =>
         {
             var cacheProvider = sp.GetRequiredService<ICacheProvider>();
-            return cacheProvider.Get<CalibrationSetting>() ?? new CalibrationSetting();
+            if(cacheProvider.TryGetOrDefault<CalibrationSetting>(out var calibrationSetting)==false)
+            {
+                return new CalibrationSetting();
+            }
+            return calibrationSetting;
         });
 
         return services;
