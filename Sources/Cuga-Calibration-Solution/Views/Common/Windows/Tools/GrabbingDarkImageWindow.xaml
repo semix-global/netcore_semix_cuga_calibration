@@ -14,6 +14,7 @@
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            xmlns:wpfImageViewer="clr-namespace:Net.Utilities.ImageViewer.WPF;assembly=Net.Utilities.ImageViewer.WPF"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:GrabbingDarkImageWindowViewModel}"
@@ -172,6 +173,7 @@
                                          ItemsSource="{Binding ApplicationCookie.CIBInformations}"
                                          SelectionMode="Extended">
                                     <i:Interaction.Behaviors>
+                                        <behaviors:ListBoxScrollToCurrentBehavior />
                                         <wpf:ListBoxSelectedItemsBehavior Type="{x:Type pattern:CIBInformation}" BindableSelectedItems="{Binding CIBInformations}" />
                                     </i:Interaction.Behaviors>
                                 </ListBox>
@@ -308,27 +310,23 @@
                                 <TabItem Header="Width">
                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="Auto Focus: "
-                                                                   Width="160"
-                                                                   HorizontalAlignment="Left"
-                                                                   VerticalAlignment="Center" />
-                                                        <ToggleButton IsChecked="{Binding IsAutoFocus}"
-                                                                      HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"
-                                                                      Background="{StaticResource DangerBrush}"
-                                                                      Style="{StaticResource ToggleButtonSwitch}" />
-                                                    </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="ECS: "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="160"
-                                                                      Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding ECS}" />
-                                                </hc:UniformSpacingPanel>
-                                            </Border>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Auto Focus: "
+                                                           Width="160"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center" />
+                                                <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                              HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"
+                                                              Background="{StaticResource DangerBrush}"
+                                                              Style="{StaticResource ToggleButtonSwitch}" />
+                                            </StackPanel>
+                                            <hc:NumericUpDown hc:TitleElement.Title="ECS: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding ECS}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
@@ -352,27 +350,23 @@
                                 <TabItem Header="PTP">
                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="Auto Focus: "
-                                                                   Width="160"
-                                                                   HorizontalAlignment="Left"
-                                                                   VerticalAlignment="Center" />
-                                                        <ToggleButton IsChecked="{Binding IsAutoFocus}"
-                                                                      HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"
-                                                                      Background="{StaticResource DangerBrush}"
-                                                                      Style="{StaticResource ToggleButtonSwitch}" />
-                                                    </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="ECS: "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="160"
-                                                                      Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding ECS}" />
-                                                </hc:UniformSpacingPanel>
-                                            </Border>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Auto Focus: "
+                                                           Width="160"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center" />
+                                                <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                              HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"
+                                                              Background="{StaticResource DangerBrush}"
+                                                              Style="{StaticResource ToggleButtonSwitch}" />
+                                            </StackPanel>
+                                            <hc:NumericUpDown hc:TitleElement.Title="ECS: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding ECS}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="PTP Length(um): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
@@ -396,27 +390,23 @@
                                 <TabItem Header="PEG">
                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="Auto Focus: "
-                                                                   Width="160"
-                                                                   HorizontalAlignment="Left"
-                                                                   VerticalAlignment="Center" />
-                                                        <ToggleButton IsChecked="{Binding IsAutoFocus}"
-                                                                      HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"
-                                                                      Background="{StaticResource DangerBrush}"
-                                                                      Style="{StaticResource ToggleButtonSwitch}" />
-                                                    </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="ECS: "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="160"
-                                                                      Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding ECS}" />
-                                                </hc:UniformSpacingPanel>
-                                            </Border>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Auto Focus: "
+                                                           Width="160"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center" />
+                                                <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                              HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"
+                                                              Background="{StaticResource DangerBrush}"
+                                                              Style="{StaticResource ToggleButtonSwitch}" />
+                                            </StackPanel>
+                                            <hc:NumericUpDown hc:TitleElement.Title="ECS: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                              Value="{Binding ECS}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"

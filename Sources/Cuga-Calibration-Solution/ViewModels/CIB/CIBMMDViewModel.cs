@@ -226,12 +226,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     {
         try
         {
-            /*if (item.IsOk == false)
+            if (item.IsCalibrated == false)
             {
-                DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is OK Failed!");
+                DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is Calibrated Failed!");
 
                 return;
-            }*/
+            }
 
             CIBViewModel.SetMMD(
                 item.CIBInformation,
