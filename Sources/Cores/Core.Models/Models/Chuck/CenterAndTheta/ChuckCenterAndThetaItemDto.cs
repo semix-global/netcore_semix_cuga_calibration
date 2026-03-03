@@ -4,8 +4,6 @@ using Core.Models.Extensions;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
-using Cuga.Data.DataStruct.Microscope.Enums;
-using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -191,7 +189,7 @@ public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICl
 
     public CalibrationChuckCenterAndThetaObj AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
+        CgMicroscopeLens = HighMicroscopeLensInformation.AdaptTo().LensCode,
         NewBFCenterStagePosition = NewBFCenterStagePosition.ToCgPoint(),
         ScaleT = AppliedScaleT,
         IsCalibrated = IsCalibrated,

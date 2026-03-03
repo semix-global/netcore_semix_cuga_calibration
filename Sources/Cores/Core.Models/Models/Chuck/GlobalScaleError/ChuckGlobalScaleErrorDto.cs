@@ -2,8 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
-using Cuga.Data.DataStruct.Microscope.Enums;
-using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -110,7 +108,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 
     public CalibrationChuckGlobalScaleError AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
+        CgMicroscopeLens = HighMicroscopeLensInformation.AdaptTo().LensCode,
         ScaleX = AppliedScaleXY.X,
         ScaleY = AppliedScaleXY.Y,
         IsCalibrated = IsCalibrated,

@@ -1,8 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
-using Cuga.Data.DataStruct.Microscope.Enums;
-using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -73,7 +71,7 @@ public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<Chuc
 
     public CalibrationChuckGantry AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
+        CgMicroscopeLens = HighMicroscopeLensInformation.AdaptTo().LensCode,
         Offset = Offset,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

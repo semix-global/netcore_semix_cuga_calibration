@@ -1,14 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
-using Cuga.Data.DataStruct.Microscope.Enums;
-using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Focus;
 
-public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>, IAdaptIn<CalibrationMicroscopeFocusItem, MicroscopeFocusItemDto>
+public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
 {
     [ObservableProperty]
     private int _index;
@@ -55,22 +53,12 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
 
     public CalibrationMicroscopeFocusItem AdaptTo() => new()
     {
-        CgMicroscopeLens = LensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(LensInformation),
+        CgMicroscopeLens = LensInformation.AdaptTo().LensCode,
         EcsValue = EcsValue,
         MicroscopeVoltage = MicroscopeVoltage,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
-    };
-
-    public MicroscopeFocusItemDto AdaptIn(CalibrationMicroscopeFocusItem obj) => new()
-    {
-        LensInformation = CustomerAdaptToMapper.Mapper<CgMicroscopeLens, MicroscopeLensInformation>(obj.CgMicroscopeLens),
-        EcsValue = obj.EcsValue,
-        MicroscopeVoltage = obj.MicroscopeVoltage,
-        IsCalibrated = obj.IsCalibrated,
-        IsVerified = obj.IsVerified,
-        IsRequiredSelfCheck = obj.IsRequiredCalibrate
     };
 
     #endregion Mapper

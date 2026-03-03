@@ -58,35 +58,6 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
-                        <Expander Header="AF"
-                                  IsExpanded="False"
-                                  ExpandDirection="Down">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:NumericUpDown hc:TitleElement.Title="AF Offset Motor(mm): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.AFOffsetMotor}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="AF ECS: "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.AFECS}" />
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="AF Enable: "
-                                                   Width="200"
-                                                   HorizontalAlignment="Left"
-                                                   VerticalAlignment="Center" />
-                                        <ToggleButton IsChecked="{Binding Cache.IsAFEnable}"
-                                                      HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"
-                                                      Background="{StaticResource DangerBrush}"
-                                                      Style="{StaticResource ToggleButtonSwitch}" />
-                                    </StackPanel>
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </Expander>
                         <Expander Header="Prescan AOD Waveform"
                                   IsExpanded="False"
                                   ExpandDirection="Down">

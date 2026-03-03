@@ -590,10 +590,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             {
                 if (IsLoadingOk == false) return;
 
-                var calibrationSetting = _cacheProvider.GetOrDefault<CalibrationSetting>();
-                var isCalibrationSettingChanged = calibrationSetting.IsOk(out _);
-                if (isCalibrationSettingChanged) CalibrationSetting.AdaptIn(calibrationSetting);
-
                 var calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeFocusCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>().IsOk(out _);
                 calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeCalChipViewModel>();

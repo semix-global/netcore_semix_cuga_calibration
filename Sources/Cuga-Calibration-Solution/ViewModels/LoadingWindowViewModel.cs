@@ -2,14 +2,14 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.Pattern;
-using Cuga.Data.DataStruct.Microscope.Enums;
+using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common;
+using Local.SQL.Cache.Providers.Extensions;
+using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
-using Net.Utilities.Mapper;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -31,10 +31,12 @@ public sealed partial class LoadingWindowViewModel(
     CIBViewModel cibViewModel,
     ConfigViewModel configViewModel,
     MonitorViewModel monitorViewModel,
+    ICacheProvider cacheProvider,
     ILogger<LoadingWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     ISynchronizationContextProvider contextProvider,
     ApplicationCookie applicationCookie,
+    CalibrationSetting calibrationSetting,
     string applicationName) : ViewModelBase
 {
     private const int ConnectCount = 10;
@@ -89,12 +91,13 @@ public sealed partial class LoadingWindowViewModel(
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
 
-            Guard.IsNotEmpty(applicationCookie.OpticsIlluminationModeEnums);
+            Guard.IsNotNullOrWhiteSpace(applicationCookie.DeviceCode);
+            Guard.IsNotEmpty(applicationCookie.MicroscopeLensInformations);
+            Guard.IsNotEmpty(applicationCookie.LaserLightInformations);
+            Guard.IsNotEmpty(applicationCookie.ProductivityInformations);
+            Guard.IsNotEmpty(applicationCookie.CIBInformations);
 
-            CustomerAdaptToMapper.RegisterType<MicroscopeLensInformation, CgMicroscopeLens>(
-                microscopeLensInformation => microscopeLensInformation.AdaptTo().LensCode,
-                microscopeViewModel.CgMicroscopeLensToMicroscopeLensInfo
-            );
+            calibrationSetting.AdaptIn(cacheProvider.GetOrDefault<CalibrationSetting>());
 
             contextProvider.Send(() => CloseView(true));
 

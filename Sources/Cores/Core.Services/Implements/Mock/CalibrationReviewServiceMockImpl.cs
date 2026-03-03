@@ -5,7 +5,6 @@ using HalconDotNet;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
-using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models.Enums.Files;
 using Semix.CoreLib;
 using System.IO;

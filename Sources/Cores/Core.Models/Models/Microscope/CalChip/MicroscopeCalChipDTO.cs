@@ -4,9 +4,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Utilities;
 using Core.Wcf.Models.Microscope;
-using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -171,7 +169,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
 
         return new CalibrationMicroscopeCalChip
         {
-            CgMicroscopeLens = MicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(MicroscopeLensInformation),
+            CgMicroscopeLens = MicroscopeLensInformation.AdaptTo().LensCode,
             DSWAlignmentDegree = DSWAlignmentDegree,
             DswBrightFieldMachinePosition = dswItemTemp is null ? Point.Origin.ToCgPoint() : DSWBrightFieldMachineAffinePosition.ToCgPoint(),
             DswEcsValue = dswItemTemp?.EcsValue ?? 0d,

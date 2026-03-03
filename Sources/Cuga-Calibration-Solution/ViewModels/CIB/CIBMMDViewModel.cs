@@ -327,9 +327,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.CIBInformations,
                 Cache.HazeFindBFMachinePosition,
                 Cache.ProductivityInformation,
-                Cache.AFOffsetMotor,
-                Cache.AFECS,
-                Cache.IsAFEnable,
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 Cache.MeasurePowerWaitTime,
@@ -537,17 +534,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
-
-            if (Cache.IsAFEnable)
-            {
-                AfViewModel.SetDarkField(CalChipSiteModelEnum.HazeModel, Cache.AFECS, Cache.AFOffsetMotor);
-                AfViewModel.ToggleDarkFieldEnable(true);
-            }
-            else
-            {
-                AfViewModel.ToggleBrightFieldEnable(false);
-                AfViewModel.SetSensorEcsValue(Cache.AFECS);
-            }
 
             try
             {
