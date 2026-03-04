@@ -133,13 +133,6 @@ public sealed class DarkFieldImageDTO :
 
     public override int GetHashCode() => HashCode.Combine(CIBInformation, Size, CIBProfileModeEnum, IsForward, RawImageFilePath, ImageCIBProfileModeEnum);
 
-    public override string ToString(string? format, IFormatProvider? formatProvider = null)
-    {
-        formatProvider ??= CultureInfo.CurrentCulture;
-
-        return $"CIB: {CIBInformation}, Size: {Size.ToString(format, formatProvider)}, Mode: {CIBProfileModeEnum}, Forward: {IsForward}, ImageMode: {ImageCIBProfileModeEnum}";
-    }
-
     #endregion IEquatable、IFormattable
 
     #region Operator

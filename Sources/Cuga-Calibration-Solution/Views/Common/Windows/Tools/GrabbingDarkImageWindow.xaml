@@ -15,9 +15,11 @@
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            xmlns:wpfImageViewer="clr-namespace:Net.Utilities.ImageViewer.WPF;assembly=Net.Utilities.ImageViewer.WPF"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:GrabbingDarkImageWindowViewModel}"
+           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
            ResizeMode="NoResize"
@@ -25,12 +27,16 @@
            WindowStartupLocation="CenterScreen"
            WindowStyle="None"
            mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <!--#region Title-->
         <hc:SimplePanel Background="{StaticResource PrimaryBrush}">
             <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
                         VerticalAlignment="Center"
@@ -63,8 +69,6 @@
                 </Button.Style>
             </Button>
         </hc:SimplePanel>
-        <!--#endregion-->
-        <!--#region Body-->
         <Border Grid.Row="1"
                 Margin="1"
                 Padding="2"
@@ -78,7 +82,7 @@
                 </Grid.ColumnDefinitions>
                 <GroupBox Header="GrabbingDarkImage">
                     <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <ListBox Margin="5" ItemsSource="{Binding Results}">
+                        <ListBox Margin="5" ItemsSource="{Binding Cache.Results}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <ItemsControl ItemsSource="{Binding .}">
@@ -94,7 +98,7 @@
                                                         Style="{StaticResource BorderRegion}">
                                                     <Grid>
                                                         <Grid.RowDefinitions>
-                                                            <RowDefinition Height="50" />
+                                                            <RowDefinition Height="Auto" />
                                                             <RowDefinition Height="*" />
                                                         </Grid.RowDefinitions>
                                                         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -106,9 +110,9 @@
                                                             <TextBlock TextWrapping="Wrap"
                                                                        HorizontalAlignment="Left"
                                                                        VerticalAlignment="Bottom"
-                                                                       ToolTip="{Binding .}">
+                                                                       ToolTip="{Binding RawImageFilePath}">
                                                                 <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
-                                                                    <Run Text="{Binding RawImageFilePath}" />
+                                                                    <Run Text="{Binding Converter={StaticResource Object2StringConverter}}" />
                                                                 </Hyperlink>
                                                             </TextBlock>
                                                         </ScrollViewer>
@@ -143,14 +147,14 @@
                                       ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <ComboBox hc:TitleElement.Title="Stage Coordinate System: "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="160"
                                       ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:StageCoordinateSystemEnum}}}"
-                                      SelectedItem="{Binding StageCoordinateSystemEnum}"
+                                      SelectedItem="{Binding Cache.StageCoordinateSystemEnum}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -168,13 +172,13 @@
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />
                                 <ListBox Grid.Column="1"
-                                         Height="200"
+                                         Height="400"
                                          ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                                          ItemsSource="{Binding ApplicationCookie.CIBInformations}"
                                          SelectionMode="Extended">
                                     <i:Interaction.Behaviors>
                                         <behaviors:ListBoxScrollToCurrentBehavior />
-                                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type pattern:CIBInformation}" BindableSelectedItems="{Binding CIBInformations}" />
+                                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type pattern:CIBInformation}" BindableSelectedItems="{Binding Cache.CIBInformations}" />
                                     </i:Interaction.Behaviors>
                                 </ListBox>
                             </Grid>
@@ -182,7 +186,7 @@
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="160"
                                       ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}"
-                                      SelectedItem="{Binding CalChipSiteModelEnum}"
+                                      SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -194,7 +198,7 @@
                                       IsExpanded="False"
                                       ExpandDirection="Down">
                                 <Border Style="{StaticResource BorderRegion}">
-                                    <cibMode:CibGrabModeTypeUserControl DataContext="{Binding CIBConfiguration}" />
+                                    <cibMode:CibGrabModeTypeUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                                 </Border>
                             </Expander>
                             <ComboBox hc:TitleElement.Title="Laser Light Information: "
@@ -203,7 +207,7 @@
                                       ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <StackPanel Orientation="Horizontal">
@@ -211,7 +215,7 @@
                                            Width="160"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />
-                                <ToggleButton IsChecked="{Binding IsForward}"
+                                <ToggleButton IsChecked="{Binding Cache.IsForward}"
                                               HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               Background="{StaticResource DangerBrush}"
@@ -222,7 +226,7 @@
                                            Width="160"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />
-                                <ToggleButton IsChecked="{Binding IsKeepOrigin}"
+                                <ToggleButton IsChecked="{Binding Cache.IsKeepOrigin}"
                                               HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               Background="{StaticResource DangerBrush}"
@@ -233,7 +237,7 @@
                                       ExpandDirection="Down">
                                 <Border Style="{StaticResource BorderRegion}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                        <TextBox Text="{Binding PrescanAODWaveformResultFilePath}"
+                                        <TextBox Text="{Binding Cache.PrescanAODWaveformResultFilePath}"
                                                  Height="50"
                                                  TextWrapping="Wrap"
                                                  hc:TitleElement.Title="Prescan File Path: "
@@ -264,11 +268,11 @@
                                                    PopupAnimation="Slide"
                                                    StaysOpen="False">
                                                 <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
-                                                    <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                    <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.PrescanAODWaveformProfiles}" />
                                                 </Border>
                                             </Popup>
                                         </hc:UniformSpacingPanel>
-                                        <TextBox Text="{Binding ChirpAODWaveformResultFilePath}"
+                                        <TextBox Text="{Binding Cache.ChirpAODWaveformResultFilePath}"
                                                  Height="50"
                                                  TextWrapping="Wrap"
                                                  hc:TitleElement.Title="Chirp File Path: "
@@ -299,7 +303,7 @@
                                                    PopupAnimation="Slide"
                                                    StaysOpen="False">
                                                 <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
-                                                    <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                                    <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.ChirpAODWaveformProfiles}" />
                                                 </Border>
                                             </Popup>
                                         </hc:UniformSpacingPanel>
@@ -315,7 +319,7 @@
                                                            Width="160"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Center" />
-                                                <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                <ToggleButton IsChecked="{Binding Cache.IsAutoFocus}"
                                                               HorizontalAlignment="Center"
                                                               VerticalAlignment="Center"
                                                               Background="{StaticResource DangerBrush}"
@@ -324,14 +328,14 @@
                                             <hc:NumericUpDown hc:TitleElement.Title="ECS: "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
-                                                              Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                              Visibility="{Binding Cache.IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ECS}" />
+                                                              Value="{Binding Cache.ECS}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ImageWidth}" />
+                                                              Value="{Binding Cache.ImageWidth}" />
                                             <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                                     VerticalAlignment="Top"
                                                                     Spacing="10">
@@ -355,7 +359,7 @@
                                                            Width="160"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Center" />
-                                                <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                <ToggleButton IsChecked="{Binding Cache.IsAutoFocus}"
                                                               HorizontalAlignment="Center"
                                                               VerticalAlignment="Center"
                                                               Background="{StaticResource DangerBrush}"
@@ -364,14 +368,14 @@
                                             <hc:NumericUpDown hc:TitleElement.Title="ECS: "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
-                                                              Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                              Visibility="{Binding Cache.IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ECS}" />
+                                                              Value="{Binding Cache.ECS}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="PTP Length(um): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ScanLength}" />
+                                                              Value="{Binding Cache.ScanLength}" />
                                             <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                                     VerticalAlignment="Top"
                                                                     Spacing="10">
@@ -395,7 +399,7 @@
                                                            Width="160"
                                                            HorizontalAlignment="Left"
                                                            VerticalAlignment="Center" />
-                                                <ToggleButton IsChecked="{Binding IsAutoFocus}"
+                                                <ToggleButton IsChecked="{Binding Cache.IsAutoFocus}"
                                                               HorizontalAlignment="Center"
                                                               VerticalAlignment="Center"
                                                               Background="{StaticResource DangerBrush}"
@@ -404,24 +408,24 @@
                                             <hc:NumericUpDown hc:TitleElement.Title="ECS: "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
-                                                              Visibility="{Binding IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                              Visibility="{Binding Cache.IsAutoFocus, Converter={StaticResource Boolean2VisibilityReConverter}}"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ECS}" />
+                                                              Value="{Binding Cache.ECS}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ImageWidth}" />
+                                                              Value="{Binding Cache.ImageWidth}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="PEG Column Count: "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ColumnCount}" />
+                                                              Value="{Binding Cache.ColumnCount}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="PEG Column Width(um): "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ColumnWidth}" />
+                                                              Value="{Binding Cache.ColumnWidth}" />
                                             <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                                     VerticalAlignment="Top"
                                                                     Spacing="10">
@@ -444,17 +448,17 @@
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding ScanLength}" />
+                                                              Value="{Binding Cache.ScanLength}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="Start ECS: "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding StartECS}" />
+                                                              Value="{Binding Cache.StartECS}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="Stop ECS: "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
-                                                              Value="{Binding StopECS}" />
+                                                              Value="{Binding Cache.StopECS}" />
                                             <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                                     VerticalAlignment="Top"
                                                                     Spacing="10">
@@ -476,6 +480,5 @@
                 </Border>
             </Grid>
         </Border>
-        <!--#endregion-->
     </Grid>
 </hc:Window>
