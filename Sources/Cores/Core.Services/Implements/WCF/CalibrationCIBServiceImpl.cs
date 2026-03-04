@@ -6,24 +6,22 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
 using MathNet.Numerics;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
-using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationCIBService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationService>, ICalibrationCIBService
+public sealed class CalibrationCIBServiceImpl(
+    ICalibrationStageService calibrationStageService) : BaseService<ICgCalibrationService>, ICalibrationCIBService
 {
     public SxExecuteRet<bool> Connect()
     {
@@ -174,7 +172,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
-        bool isKeepOrigin,
+        bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken)
     {
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
@@ -198,6 +196,8 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
                 IsCalibration = true, /*为true时不下发波形*/
                 ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
             },
+            isForward,
+            isKeepRawImageCIBProfileModeEnum,
             cancellationToken);
 
         return getPMTImagesRet.IsSuccess
@@ -205,16 +205,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var rawBytes = File.ReadAllBytes(t.RawImageFilePath);
-
-                using var image = RawImageFactory.CreateImage(rawBytes);
-                var resultImage = isKeepOrigin
-                    ? image.CopyImage()
-                    : t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog
-                        ? image.RAW12BitsPerPixelLogToLinear()
-                        : image.Clone();
-
-                return new DarkFieldImageDTO { Image = resultImage, ImageCIBProfileModeEnum = isKeepOrigin ? t.CIBProfileModeEnum : CIBProfileModeEnum.PMTVoltage }.AdaptIn(t);
+                return new DarkFieldImageDTO().AdaptIn(t);
             }, cancellationToken))))
             : SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getPMTImagesRet.Msg, []);
     }
@@ -226,15 +217,26 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         int imageWidth,
         CIBInformation cibInformation,
         bool isAutoFocus,
-        bool isKeepOrigin,
+        bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken)
     {
+        var getMachineDirectionRet = calibrationStageService.GetMachineDirection();
+        if (getMachineDirectionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getMachineDirectionRet.Msg, []);
+
         var isIncreasing = centerPositions.Select(t => t.X).IsIncreasing(true);
         var isDecreasing = centerPositions.Select(t => t.X).IsDecreasing(true);
         if (centerPositions.Count < 2
             || centerPositions.Any(t => t.Y - centerPositions[0].Y == 0) == false // 检查y是否相同
-            || (isIncreasing == false && isDecreasing == false)) // 检查x是否递增
+            || (isIncreasing == false && isDecreasing == false)) // 检查x是否递增或者递减
             return ThrowHelper.ThrowArgumentException<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>>(nameof(centerPositions), "Center positions must have the same Y value and X values must be either increasing or decreasing.");
+
+        var isForward = stageCoordinateSystemEnum switch
+        {
+            StageCoordinateSystemEnum.Bright => isIncreasing,
+            StageCoordinateSystemEnum.Dark => isIncreasing,
+            StageCoordinateSystemEnum.Machine => getMachineDirectionRet.Anything.XDirection > 0 ? isDecreasing : isDecreasing == false,
+            _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+        };
 
         var getDFImgCalibrationRet = GetDFImgCalibration(new SxCollectImgParam
         {
@@ -249,7 +251,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             StartPoint = [.. centerPositions.Select(t => t.ToSxPointD())],
             IsSingle = true,
             AF = isAutoFocus ? 0 : 1,
-            IsForward = isIncreasing,
+            IsForward = true,
             IsCalibration = true, /*为true时不下发波形*/
             ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
         });
@@ -272,16 +274,8 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             if (m2CImgSysCollectImgDTOs.Length != 1) return SxExecuteRetHelper.CreateError($"Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId} Position:{index}", false);
             var m2CImgSysCollectImgDTO = m2CImgSysCollectImgDTOs[0];
 
-            var rawBytes = File.ReadAllBytes(m2CImgSysCollectImgDTO.Url);
-            using var image = RawImageFactory.CreateImage(rawBytes);
 
-            var resultImage = isKeepOrigin
-                ? image.CopyImage()
-                : getCIBProfileModeEnumRet.Anything[0] == CIBProfileModeEnum.PMTLog
-                    ? image.RAW12BitsPerPixelLogToLinear()
-                    : image.Clone();
-
-            result[index] = new DarkFieldImageDTO { Image = resultImage, ImageCIBProfileModeEnum = isKeepOrigin ? getCIBProfileModeEnumRet.Anything[0] : CIBProfileModeEnum.PMTVoltage }.AdaptIn(m2CImgSysCollectImgDTO, getCIBProfileModeEnumRet.Anything[0]);
+            result[index] = new DarkFieldImageDTO().AdaptIn(m2CImgSysCollectImgDTO, isForward, getCIBProfileModeEnumRet.Anything[0], isKeepRawImageCIBProfileModeEnum);
 
             return SxExecuteRetHelper.CreateSuccess(true);
         }, cancellationToken)));
@@ -299,6 +293,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
+        bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken)
     {
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
@@ -322,6 +317,8 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
                 IsCalibration = true, /*为true时不下发波形*/
                 ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
             },
+            isForward,
+            isKeepRawImageCIBProfileModeEnum,
             cancellationToken);
     }
 
@@ -334,7 +331,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
         double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
-        bool isKeepOrigin,
+        bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken)
     {
         Guard.IsLessThan(startECS, stopECS);
@@ -369,6 +366,8 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
                     Vel = Convert.ToInt32(speedECS)
                 }
             },
+            isForward,
+            isKeepRawImageCIBProfileModeEnum,
             cancellationToken);
 
         return getPMTImagesRet.IsSuccess
@@ -376,16 +375,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var rawBytes = File.ReadAllBytes(t.RawImageFilePath);
-
-                using var image = RawImageFactory.CreateImage(rawBytes);
-                var resultImage = isKeepOrigin
-                    ? image.CopyImage()
-                    : t.CIBProfileModeEnum == CIBProfileModeEnum.PMTLog
-                        ? image.RAW12BitsPerPixelLogToLinear()
-                        : image.Clone();
-
-                return new DarkFieldImageDTO { Image = resultImage, ImageCIBProfileModeEnum = isKeepOrigin ? t.CIBProfileModeEnum : CIBProfileModeEnum.PMTVoltage }.AdaptIn(t);
+                return new DarkFieldImageDTO().AdaptIn(t);
             }, cancellationToken))))
             : SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getPMTImagesRet.Msg, []);
     }
@@ -482,6 +472,8 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
     private async Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
         IReadOnlyList<CIBInformation> cibInformations,
         SxCollectImgParam sxCollectImgParam,
+        bool isForward,
+        bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken,
         [CallerMemberName] string name = "")
     {
@@ -502,7 +494,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgCalibrationServic
             var m2CImgSysCollectImgDTOs = getDFImgCalibrationRet.Anything.Where(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId).ToArray();
             if (m2CImgSysCollectImgDTOs.Length != 1) return SxExecuteRetHelper.CreateError($"{name} Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", false);
 
-            result[index] = new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDTOs[0], getCIBProfileModeEnumRet.Anything[index]);
+            result[index] = new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDTOs[0], isForward, getCIBProfileModeEnumRet.Anything[index], isKeepRawImageCIBProfileModeEnum);
 
             return SxExecuteRetHelper.CreateSuccess(true);
         }, cancellationToken)));

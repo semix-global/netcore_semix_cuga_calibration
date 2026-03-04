@@ -152,7 +152,7 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepOrigin = false)
+        bool isKeepRawImageCIBProfileModeEnum = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -172,7 +172,7 @@ public sealed class CIBViewModel(
                     cibInformations,
                     isForward,
                     isAutoFocus,
-                    isKeepOrigin,
+                    isKeepRawImageCIBProfileModeEnum,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -192,7 +192,7 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepOrigin = false)
+        bool isKeepRawImageCIBProfileModeEnum = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -207,7 +207,7 @@ public sealed class CIBViewModel(
             cancellationToken,
             isForward: isForward,
             isAutoFocus: isAutoFocus,
-            isKeepOrigin: isKeepOrigin);
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
 
         return darkFieldImages.Single();
     }
@@ -228,7 +228,7 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isAutoFocus = true,
-        bool isKeepOrigin = false)
+        bool isKeepRawImageCIBProfileModeEnum = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -247,7 +247,7 @@ public sealed class CIBViewModel(
                     imageWidth,
                     cibInformation,
                     isAutoFocus,
-                    isKeepOrigin,
+                    isKeepRawImageCIBProfileModeEnum,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -271,7 +271,7 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepOrigin = false)
+        bool isKeepRawImageCIBProfileModeEnum = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -291,6 +291,7 @@ public sealed class CIBViewModel(
                     cibInformations,
                     isForward,
                     isAutoFocus,
+                    isKeepRawImageCIBProfileModeEnum,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -310,7 +311,7 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepOrigin = false)
+        bool isKeepRawImageCIBProfileModeEnum = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -325,7 +326,7 @@ public sealed class CIBViewModel(
             cancellationToken,
             isForward: isForward,
             isAutoFocus: isAutoFocus,
-            isKeepOrigin: isKeepOrigin);
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
 
         return darkFieldImages.Single();
     }
@@ -348,7 +349,7 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isKeepOrigin = false)
+        bool isKeepRawImageCIBProfileModeEnum = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -369,7 +370,7 @@ public sealed class CIBViewModel(
                     stopECS,
                     cibInformations,
                     isForward,
-                    isKeepOrigin,
+                    isKeepRawImageCIBProfileModeEnum,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -390,7 +391,7 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isKeepOrigin = false)
+        bool isKeepRawImageCIBProfileModeEnum = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -406,7 +407,7 @@ public sealed class CIBViewModel(
             isCustomChirpAODWaveform,
             cancellationToken,
             isForward: isForward,
-            isKeepOrigin: isKeepOrigin);
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
 
         return darkFieldImages.Single();
     }
@@ -425,7 +426,7 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isKeepOrigin = false)
+        bool isKeepRawImageCIBProfileModeEnum = false)
     {
         var resulList = new List<DarkFieldImageDTO>();
 
@@ -457,7 +458,7 @@ public sealed class CIBViewModel(
                 isCustomChirpAODWaveform,
                 cancellationToken,
                 isForward: isForward,
-                isKeepOrigin: isKeepOrigin));
+                isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum));
         }
 
         return resulList;
@@ -733,12 +734,10 @@ public sealed class CIBViewModel(
         {
             productivityInformation,
             stageCoordinateSystemEnum,
-            position = centerPosition,
+            centerPosition,
             cibInformation,
             algorithmTemplateTypeEnum,
-            darkFieldImage.CIBProfileModeEnum,
-            darkFieldImage.RawImageFilePath,
-            darkFieldImage.Size,
+            DarkFieldImage = new HtmlQuote(darkFieldImage.ToHtmlAnonymous()),
             templateFilePath,
             saveResultImageFileDirectory,
             xDirection,

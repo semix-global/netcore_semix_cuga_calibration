@@ -1105,72 +1105,50 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
 }
 ```
 
-## 4.6. AOD Prescan均匀性校准: `CalibrationLaserIlluminationProfileItem`
+## ==4.6.== AOD Prescan均匀性校准: `CalibrationLaserAODUniformityItem`
 
-> 根据不同 `列表.SingleOrDefault(t => t.Coefficient == 幅值 && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
-> 
-> 个数： 13 * 3 = 39
+> 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.CgMagTypeEnum == 幅值)` 判断`is not null`后使用
+>
+> 个数： 2 * 3 * 13 = 78
+>
+> 当前里面的single后，`波形数组 * Uniformities * OpticsPolarizationModeEnumMeasurePowers[当前偏振] / OpticsPolarizationModeEnumMeasurePowers[OpticsPolarizationModeEnum]`，
 
 ```cs
 /// <summary>
-/// 均匀性校准对象
+/// AOD Uniformitiy 校准
 /// </summary>
 [Serializable]
-public sealed class CalibrationLaserIlluminationProfileItem : CalibrationBase
+public sealed class CalibrationLaserAODUniformityItem : CalibrationBase
 {
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
     /// <summary>
     /// 波形功率系数(1表示100%, 0表示0%)
     /// </summary>
     public double Coefficient { get; set; }
 
     /// <summary>
-    /// Mag类型
+    /// Uniformity 偏振功率校准结果, **需要下发AOD硬件**
     /// </summary>
-    public CgMagTypeEnum OpticsMagTypeEnum { get; set; }
+    public IReadOnlyList<KeyValuePair<CgPolarizationTypeEnum, double>> OpticsPolarizationModeEnumMeasurePowers { get; set; }
 
     /// <summary>
-    /// 当前暗场Mag和功率系数下的结果prescan文件路径, **需要下发Laser硬件**
+    /// Uniformitiy 校准结果使用的偏振
     /// </summary>
-    public CalibrationPrescanAODWaveformResult[] CalibrationPrescanAODWaveformResults { get; set; }
+    public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
 
     /// <summary>
-    /// 当前暗场Mag和功率系数下的P偏振功率, **Cuga内部使用**
+    /// Uniformity 校准结果, **需要下发AOD硬件**
     /// </summary>
-    public double PolarizationPPower { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和功率系数下的S偏振功率, **Cuga内部使用**
-    /// </summary>
-    public double PolarizationSPower { get; set; }
-
-    /// <summary>
-    /// 当前暗场Mag和功率系数下的C偏振功率, **Cuga内部使用**
-    /// </summary>
-    public double PolarizationCPower { get; set; }
-}
-
-/// <summary>
-/// Prescan波形结果
-/// </summary>
-[Serializable]
-public class CalibrationPrescanAODWaveformResult
-{
-#if NETFRAMEWORK
-    /// <summary>
-    /// 电极Id
-    /// </summary>
-    public CgAwgElectrodeEnum OpticsAODElectrodeEnum { get; set; }
-#else
-    /// <summary>
-    /// 电极Id
-    /// </summary>
-    public int OpticsAODElectrodeEnum { get; set; }
-#endif
-
-    /// <summary>
-    /// 波形文件路径
-    /// </summary>
-    public string FilePath { get; set; } = string.Empty;
+    public IReadOnlyList<double> Uniformities { get; set; }
 }
 ```
 

@@ -16,6 +16,7 @@
            xmlns:wpfImageViewer="clr-namespace:Net.Utilities.ImageViewer.WPF;assembly=Net.Utilities.ImageViewer.WPF"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:GrabbingDarkImageWindowViewModel}"
@@ -76,62 +77,11 @@
                 Style="{StaticResource BorderRegion}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="500" />
                     <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="320" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <GroupBox Header="GrabbingDarkImage">
-                    <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <ListBox Margin="5" ItemsSource="{Binding Cache.Results}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <ItemsControl ItemsSource="{Binding .}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type darkField:DarkFieldRawScanImageDTO}">
-                                                <Border Width="300"
-                                                        Height="350"
-                                                        Style="{StaticResource BorderRegion}">
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto" />
-                                                            <RowDefinition Height="*" />
-                                                        </Grid.RowDefinitions>
-                                                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                                            <i:Interaction.Triggers>
-                                                                <i:EventTrigger EventName="Loaded">
-                                                                    <i:CallMethodAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}}" MethodName="ScrollToEnd" />
-                                                                </i:EventTrigger>
-                                                            </i:Interaction.Triggers>
-                                                            <TextBlock TextWrapping="Wrap"
-                                                                       HorizontalAlignment="Left"
-                                                                       VerticalAlignment="Bottom"
-                                                                       ToolTip="{Binding RawImageFilePath}">
-                                                                <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
-                                                                    <Run Text="{Binding Converter={StaticResource Object2StringConverter}}" />
-                                                                </Hyperlink>
-                                                            </TextBlock>
-                                                        </ScrollViewer>
-                                                        <wpfImageViewer:ImageViewerCanvas Grid.Row="1"
-                                                                                          BitmapImageDrawable="{Binding RawImageFilePath, Converter={StaticResource StringToBitmapImageDrawableConverter}}"
-                                                                                          IsShowCrossLine="True"
-                                                                                          IsToggleAddOrModifyRectROIDrawable="False" />
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Border>
-                </GroupBox>
-                <GridSplitter Grid.Column="1" Width="5" />
-                <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
+                <Border Style="{StaticResource BorderRegion}">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <StackPanel>
@@ -172,7 +122,7 @@
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />
                                 <ListBox Grid.Column="1"
-                                         Height="400"
+                                         Height="300"
                                          ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                                          ItemsSource="{Binding ApplicationCookie.CIBInformations}"
                                          SelectionMode="Extended">
@@ -222,11 +172,11 @@
                                               Style="{StaticResource ToggleButtonSwitch}" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Keep Origin: "
+                                <TextBlock Text="Keep Raw Image CIB Profile Mode: "
                                            Width="160"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />
-                                <ToggleButton IsChecked="{Binding Cache.IsKeepOrigin}"
+                                <ToggleButton IsChecked="{Binding Cache.IsKeepRawImageCIBProfileModeEnum}"
                                               HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               Background="{StaticResource DangerBrush}"
@@ -237,6 +187,35 @@
                                       ExpandDirection="Down">
                                 <Border Style="{StaticResource BorderRegion}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <Grid>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Generate AOD Waveform: "
+                                                           Width="160"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center" />
+                                                <ToggleButton IsChecked="{Binding Cache.IsGenerateAODWaveform}"
+                                                              HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"
+                                                              Background="{StaticResource DangerBrush}"
+                                                              Style="{StaticResource ToggleButtonSwitch}" />
+                                            </StackPanel>
+                                            <Button Content="Import AOD Waveform Params"
+                                                    Command="{Binding ImportAODWaveformParamsCommand}"
+                                                    HorizontalAlignment="Right"
+                                                    hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                    Visibility="{Binding Cache.IsGenerateAODWaveform, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                    Style="{StaticResource ButtonInfo.Small}" />
+                                        </Grid>
+                                        <Expander Header="Prescan AOD Waveform"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down"
+                                                  Visibility="{Binding Cache.IsGenerateAODWaveform, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                      IsVisibleAmplitude="False"
+                                                                                                      DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                            </Border>
+                                        </Expander>
                                         <TextBox Text="{Binding Cache.PrescanAODWaveformResultFilePath}"
                                                  Height="50"
                                                  TextWrapping="Wrap"
@@ -248,16 +227,16 @@
                                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <hc:UniformSpacingPanel Spacing="10">
-                                            <Button Content="Prescan"
-                                                    Command="{Binding ChangedPrescanAODWaveformProfilesCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
+                                            <Button Command="{Binding ChangedPrescanAODWaveformProfilesCommand}" hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
+                                            <Button Command="{Binding ChangedPrescanAODWaveformProfilesCancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
                                             <Button Content="Clear"
                                                     Command="{Binding ClearPrescanAODWaveformProfilesCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}" />
+                                                    hc:IconElement.Geometry="{StaticResource RecycleBinGeometry}"
+                                                    Style="{StaticResource ButtonDanger}" />
                                             <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
                                                           Content="Profiles"
-                                                          Margin="0,5"
-                                                          HorizontalAlignment="Left"
                                                           hc:IconElement.Geometry="{StaticResource AllGeometry}" />
                                             <Popup Width="800"
                                                    Height="800"
@@ -272,6 +251,14 @@
                                                 </Border>
                                             </Popup>
                                         </hc:UniformSpacingPanel>
+                                        <Expander Header="Chirp AOD Waveform"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down"
+                                                  Visibility="{Binding Cache.IsGenerateAODWaveform, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False" DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                            </Border>
+                                        </Expander>
                                         <TextBox Text="{Binding Cache.ChirpAODWaveformResultFilePath}"
                                                  Height="50"
                                                  TextWrapping="Wrap"
@@ -283,16 +270,16 @@
                                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <hc:UniformSpacingPanel Spacing="10">
-                                            <Button Content="Chirp"
-                                                    Command="{Binding ChangedChirpAODWaveformProfilesCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
+                                            <Button Command="{Binding ChangedChirpAODWaveformProfilesCommand}" hc:IconElement.Geometry="{StaticResource RotateRightGeometry}" />
+                                            <Button Command="{Binding ChangedPrescanAODWaveformProfilesCancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
                                             <Button Content="Clear"
                                                     Command="{Binding ClearChirpAODWaveformProfilesCommand}"
-                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}" />
+                                                    hc:IconElement.Geometry="{StaticResource RecycleBinGeometry}"
+                                                    Style="{StaticResource ButtonDanger}" />
                                             <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
                                                           Content="Profiles"
-                                                          Margin="0,5"
-                                                          HorizontalAlignment="Left"
                                                           hc:IconElement.Geometry="{StaticResource AllGeometry}" />
                                             <Popup Width="800"
                                                    Height="800"
@@ -312,7 +299,7 @@
                             </Expander>
                             <TabControl>
                                 <TabItem Header="Width">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <Grid Margin="5">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="Auto Focus: "
@@ -349,10 +336,10 @@
                                                         Style="{StaticResource ButtonWarning}" />
                                             </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
-                                    </Border>
+                                    </Grid>
                                 </TabItem>
                                 <TabItem Header="PTP">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <Grid Margin="5">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="Auto Focus: "
@@ -389,10 +376,10 @@
                                                         Style="{StaticResource ButtonWarning}" />
                                             </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
-                                    </Border>
+                                    </Grid>
                                 </TabItem>
                                 <TabItem Header="PEG">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <Grid Margin="5">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="Auto Focus: "
@@ -439,10 +426,10 @@
                                                         Style="{StaticResource ButtonWarning}" />
                                             </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
-                                    </Border>
+                                    </Grid>
                                 </TabItem>
                                 <TabItem Header="XZ Sync">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <Grid Margin="5">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                             <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
                                                               hc:TitleElement.TitlePlacement="Left"
@@ -472,12 +459,66 @@
                                                         Style="{StaticResource ButtonWarning}" />
                                             </hc:UniformSpacingPanel>
                                         </hc:UniformSpacingPanel>
-                                    </Border>
+                                    </Grid>
                                 </TabItem>
                             </TabControl>
                         </hc:UniformSpacingPanel>
                     </ScrollViewer>
                 </Border>
+                <GridSplitter Grid.Column="1" Width="5" />
+                <GroupBox Grid.Column="2" Header="Images">
+                    <Border Padding="5" Style="{StaticResource BorderRegion}">
+                        <ListBox Margin="5" ItemsSource="{Binding Cache.Results}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <ItemsControl BorderThickness="1"
+                                                  BorderBrush="{StaticResource DarkSuccessBrush}"
+                                                  ItemsSource="{Binding .}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type darkField:DarkFieldRawScanImageDTO}">
+                                                <Border Width="300"
+                                                        Height="360"
+                                                        Margin="2"
+                                                        Style="{StaticResource BorderRegion}">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="*" />
+                                                        </Grid.RowDefinitions>
+                                                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                                            <i:Interaction.Triggers>
+                                                                <i:EventTrigger EventName="Loaded">
+                                                                    <i:CallMethodAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}}" MethodName="ScrollToEnd" />
+                                                                </i:EventTrigger>
+                                                            </i:Interaction.Triggers>
+                                                            <TextBlock TextWrapping="Wrap"
+                                                                       HorizontalAlignment="Left"
+                                                                       VerticalAlignment="Bottom"
+                                                                       ToolTip="{Binding RawImageFilePath}">
+                                                                <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
+                                                                    <Run Text="{Binding Mode=OneWay}" />
+                                                                </Hyperlink>
+                                                            </TextBlock>
+                                                        </ScrollViewer>
+                                                        <wpfImageViewer:ImageViewerCanvas Grid.Row="1"
+                                                                                          BitmapImageDrawable="{Binding Mode=OneWay, Converter={StaticResource DarkFieldRawScanImageDTOToBitmapImageDrawableConverter}}"
+                                                                                          IsShowCrossLine="True"
+                                                                                          IsToggleAddOrModifyRectROIDrawable="False" />
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </GroupBox>
             </Grid>
         </Border>
     </Grid>

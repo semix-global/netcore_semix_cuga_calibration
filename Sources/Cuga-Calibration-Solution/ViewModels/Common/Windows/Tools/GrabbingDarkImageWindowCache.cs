@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
@@ -55,13 +56,22 @@ public sealed partial class GrabbingDarkImageWindowCache : ObservableCacheBase
     private double _eCS = 6000;
 
     [ObservableProperty]
-    private bool _isKeepOrigin;
+    private bool _isKeepRawImageCIBProfileModeEnum;
+
+    [ObservableProperty]
+    private bool _isGenerateAODWaveform;
+
+    [ObservableProperty]
+    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
 
     [ObservableProperty]
     private string _prescanAODWaveformResultFilePath = string.Empty;
 
     [ObservableProperty]
     private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+
+    [ObservableProperty]
+    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
 
     [ObservableProperty]
     private string _chirpAODWaveformResultFilePath = string.Empty;

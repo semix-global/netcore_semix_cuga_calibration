@@ -6,6 +6,7 @@
              xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
              xmlns:cookies="clr-namespace:Core.Models.Models.Common.Cookies;assembly=Core.Models"
              xmlns:converts="clr-namespace:Core.Models.Models.Common.Status.Converts;assembly=Core.Models"
+             xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
@@ -24,6 +25,7 @@
             <converts:MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert x:Key="MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert" />
             <converts:MultiProductivityInformationAndLaserLightInformationStatusConvert x:Key="MultiProductivityInformationAndLaserLightInformationStatusConvert" />
             <converts:MultiProductivityInformationToOpticsApodizationsCalibrationStatusesConvert x:Key="MultiProductivityInformationToOpticsApodizationsCalibrationStatusesConvert" />
+            <darkField:DarkFieldRawScanImageDTOToBitmapImageDrawableConverter x:Key="DarkFieldRawScanImageDTOToBitmapImageDrawableConverter" />
             <valueConverters:ValueConverterGroup x:Key="IntIs0ToVisibilityConverter">
                 <valueConverters:IntegerToBoolConverter TrueValue="0" FalseValue="-999" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />

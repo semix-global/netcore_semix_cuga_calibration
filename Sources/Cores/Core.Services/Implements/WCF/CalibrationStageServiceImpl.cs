@@ -22,7 +22,6 @@ namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationStageService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationStageServiceImpl(
-    ICalibrationMicroscopeService calibrationMicroscopeService,
     CalibrationSetting calibrationSetting) : BaseService<ICgCalibrationService>, ICalibrationStageService
 {
     public SxExecuteRet<bool> Connect()

@@ -23,6 +23,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -55,59 +56,50 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     private async Task LoadedAsync() => await Task.Run(() => Cache = cacheProvider.GetOrDefault<ChirpAODWaveformTrainingCache>());
 
     [RelayCommand]
-    private void ImportPrescanAODWaveformParam()
+    private void ImportAODWaveformParams()
     {
         try
         {
+            var isSuccess = true;
+
+            var stringBuilder = new StringBuilder();
+
             var prescanCache = cacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
 
             var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
 
             if (prescanResult is null)
             {
-                dialogWindowProvider.ShowDialog($"{Name}: No matched found for current Productivity Information!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                return;
+                stringBuilder.AppendLine("Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam;
+                stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
             }
 
-            Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam;
-
-            dialogWindowProvider.ShowDialog($"{Name}: Import Success!");
-        }
-        catch (Exception ex)
-        {
-            dialogWindowProvider.ShowDialog($"""
-                                             {Name}: Import Parameters Failed
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            logger.LogError(ex, "Import Parameters Failed");
-        }
-    }
-
-    [RelayCommand]
-    private void ImportChirpAODWaveformParam()
-    {
-        try
-        {
             var chirpCache = cacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
 
             var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
 
             if (chirpResult is null)
             {
-                dialogWindowProvider.ShowDialog($"{Name}: No matched found for current Productivity Information!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                return;
+                stringBuilder.AppendLine("Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam;
+                stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
             }
 
-            Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam;
-
-            dialogWindowProvider.ShowDialog($"{Name}: Import Success!");
+            dialogWindowProvider.ShowDialog(stringBuilder.ToString(), DialogButtonsEnum.OK, isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
         catch (Exception ex)
         {
             dialogWindowProvider.ShowDialog($"""
-                                             {Name}: Import Parameters Failed
+                                             Import Parameters Failed
                                              {ex.Message}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
             logger.LogError(ex, "Import Parameters Failed");

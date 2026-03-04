@@ -88,7 +88,6 @@ public sealed partial class MainWindowViewModel(
         await Task.Run(() =>
         {
             var guid = Guid.NewGuid();
-            var random = new Random();
             logger.LogHtmlInformation("1. Microscope Focus Calibration", HtmlHeaderLevelEnum.Header1, guid.LoggingHtml());
             logger.LogHtmlInformation("Step3", HtmlHeaderLevelEnum.Header2, guid.LoggingHtml());
 
@@ -101,15 +100,15 @@ public sealed partial class MainWindowViewModel(
             logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Image0 = new HtmlImage(dataUri, "test", [new HtmlImageCrossOverlay(true)]),
-                EcsValue = random.NextDouble(),
+                EcsValue = Random.Shared.NextDouble(),
                 ContentAlignment.BottomCenter,
-                FindFocusPosition = new Point(random.NextDouble() * 10000, random.NextDouble() * 10000),
-                FindFocusLimit = random.NextDouble(),
-                FindFocusInterval = random.NextDouble(),
+                FindFocusPosition = new Point(Random.Shared.NextDouble() * 10000, Random.Shared.NextDouble() * 10000),
+                FindFocusLimit = Random.Shared.NextDouble(),
+                FindFocusInterval = Random.Shared.NextDouble(),
                 Plot = new HtmlPlot2DLinesChart([
-                    ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
-                    ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
-                    ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints())
+                    ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints()),
+                    ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints()),
+                    ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints())
                 ], "test"),
                 Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", "test", [new HtmlImageCrossOverlay(true)])
             }), guid.LoggingHtml());
@@ -121,26 +120,26 @@ public sealed partial class MainWindowViewModel(
             {
                 var item = new
                 {
-                    EcsValue = random.NextDouble(),
+                    EcsValue = Random.Shared.NextDouble(),
                     ContentAlignment.BottomCenter,
-                    FindFocusPosition = new PointF((float)random.NextDouble() * 10000f, (float)random.NextDouble() * 10000f),
+                    FindFocusPosition = new PointF((float)Random.Shared.NextDouble() * 10000f, (float)Random.Shared.NextDouble() * 10000f),
                     Array = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
                 };
                 listAndImage.Add(item);
 
                 logger.LogHtmlInformation($"{i}. Find Focus time", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
-                    EcsValue = random.NextDouble(),
+                    EcsValue = Random.Shared.NextDouble(),
                     ContentAlignment.BottomCenter,
-                    FindFocusPosition = new Point(random.NextDouble() * 10000, random.NextDouble() * 10000),
-                    FindFocusLimit = random.NextDouble(),
-                    FindFocusInterval = random.NextDouble(),
+                    FindFocusPosition = new Point(Random.Shared.NextDouble() * 10000, Random.Shared.NextDouble() * 10000),
+                    FindFocusLimit = Random.Shared.NextDouble(),
+                    FindFocusInterval = Random.Shared.NextDouble(),
                     Plot = new HtmlPlot2DLinesChart([
-                        ("x", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
-                        ("y", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
-                        ("z", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints())
+                        ("x", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints()),
+                        ("y", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints()),
+                        ("z", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints())
                     ], "test"),
-                    Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(random.NextDouble() > 0.5)])
+                    Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(Random.Shared.NextDouble() > 0.5)])
                 }), guid.LoggingHtml());
             }
 
@@ -151,28 +150,28 @@ public sealed partial class MainWindowViewModel(
             {
                 var item = new
                 {
-                    EcsValue = random.NextDouble(),
+                    EcsValue = Random.Shared.NextDouble(),
                     ContentAlignment.BottomCenter,
-                    FindFocusPosition = new PointF((float)random.NextDouble() * 10000f, (float)random.NextDouble() * 10000f),
+                    FindFocusPosition = new PointF((float)Random.Shared.NextDouble() * 10000f, (float)Random.Shared.NextDouble() * 10000f),
                     Array = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
                 };
                 listAndImage1.Add(item);
 
                 logger.LogHtmlInformation($"{i}. Find Focus time", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
-                    EcsValue = random.NextDouble(),
+                    EcsValue = Random.Shared.NextDouble(),
                     ContentAlignment.BottomCenter,
-                    FindFocusPosition = new Point(random.NextDouble() * 10000, random.NextDouble() * 10000),
-                    FindFocusLimit = random.NextDouble(),
-                    FindFocusInterval = random.NextDouble(),
+                    FindFocusPosition = new Point(Random.Shared.NextDouble() * 10000, Random.Shared.NextDouble() * 10000),
+                    FindFocusLimit = Random.Shared.NextDouble(),
+                    FindFocusInterval = Random.Shared.NextDouble(),
                     Plot = new HtmlPlot2DLinesChart([
-                        ("x", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints(), 1),
-                        ("y", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints(), 5),
-                        ("z", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints(), 10),
-                        ("s", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints(), 8),
-                        ("a", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints(), 7)
+                        ("x", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints(), 1),
+                        ("y", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints(), 5),
+                        ("z", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints(), 10),
+                        ("s", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints(), 8),
+                        ("a", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints(), 7)
                     ], "test"),
-                    Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(random.NextDouble() > 0.5)])
+                    Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(Random.Shared.NextDouble() > 0.5)])
                 }), guid.LoggingHtml());
             }
 
@@ -192,29 +191,29 @@ public sealed partial class MainWindowViewModel(
                 new HtmlComment("afsasdfasdfasdfasdfasdfasdfasdf"),
                 new HtmlQuote(new
                 {
-                    EcsValue = random.NextDouble(),
+                    EcsValue = Random.Shared.NextDouble(),
                     ContentAlignment.BottomCenter,
-                    FindFocusPosition = new Point(random.NextDouble() * 10000, random.NextDouble() * 10000),
-                    FindFocusLimit = random.NextDouble(),
-                    FindFocusInterval = random.NextDouble(),
+                    FindFocusPosition = new Point(Random.Shared.NextDouble() * 10000, Random.Shared.NextDouble() * 10000),
+                    FindFocusLimit = Random.Shared.NextDouble(),
+                    FindFocusInterval = Random.Shared.NextDouble(),
                     Plot = new HtmlPlot2DLinesChart([
-                        ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
-                        ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
-                        ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints())
+                        ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints()),
+                        ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints()),
+                        ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints())
                     ], "test"),
                     Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }),
                 new HtmlBullet(new
                 {
-                    EcsValue = random.NextDouble(),
+                    EcsValue = Random.Shared.NextDouble(),
                     ContentAlignment.BottomCenter,
-                    FindFocusPosition = new Point(random.NextDouble() * 10000, random.NextDouble() * 10000),
-                    FindFocusLimit = random.NextDouble(),
-                    FindFocusInterval = random.NextDouble(),
+                    FindFocusPosition = new Point(Random.Shared.NextDouble() * 10000, Random.Shared.NextDouble() * 10000),
+                    FindFocusLimit = Random.Shared.NextDouble(),
+                    FindFocusInterval = Random.Shared.NextDouble(),
                     Plot = new HtmlPlot2DLinesChart([
-                        ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
-                        ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints()),
-                        ("test", Enumerable.Range(1, 100).Select(_ => random.NextDouble()).ToPoints())
+                        ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints()),
+                        ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints()),
+                        ("test", Enumerable.Range(1, 100).Select(_ => Random.Shared.NextDouble()).ToPoints())
                     ], "test"),
                     Image = new HtmlImage($@"{AppDomain.CurrentDomain.BaseDirectory}\Assets\Data\test.jpg", description: "test", htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
@@ -238,9 +237,9 @@ public sealed partial class MainWindowViewModel(
 
             for (var i = 0; i < 10; i++)
             {
-                points0.Add(($"test{i}", Enumerable.Range(1, 100).Select(_ => new Point(random.NextDouble() * 10000, random.NextDouble() * 10000)).ToArray(), 1d));
-                points.Add(($"test{i}", Enumerable.Range(1, 100).Select(_ => new Point(random.NextDouble() * 10000, random.NextDouble() * 10000)).ToArray(), i + 1d));
-                points1.Add(($"test{i}", Enumerable.Range(1, 100).Select(_ => new Point(random.NextDouble() * 10000, random.NextDouble() * 10000)).ToArray()));
+                points0.Add(($"test{i}", Enumerable.Range(1, 100).Select(_ => new Point(Random.Shared.NextDouble() * 10000, Random.Shared.NextDouble() * 10000)).ToArray(), 1d));
+                points.Add(($"test{i}", Enumerable.Range(1, 100).Select(_ => new Point(Random.Shared.NextDouble() * 10000, Random.Shared.NextDouble() * 10000)).ToArray(), i + 1d));
+                points1.Add(($"test{i}", Enumerable.Range(1, 100).Select(_ => new Point(Random.Shared.NextDouble() * 10000, Random.Shared.NextDouble() * 10000)).ToArray()));
             }
 
             logger.LogHtmlInformation("test1", HtmlHeaderLevelEnum.Header1, new HtmlPlot2DLinesChart(points.ToArray(), "test1"), guid.LoggingHtml());
