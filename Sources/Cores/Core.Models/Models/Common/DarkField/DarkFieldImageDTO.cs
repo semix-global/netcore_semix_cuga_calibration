@@ -67,7 +67,7 @@ public partial class DarkFieldRawScanImageDTO :
     {
         formatProvider ??= CultureInfo.CurrentCulture;
 
-        return $"CIB: {CIBInformation}, Size: {Size.ToString(format, formatProvider)}, Raw Image CIB Profile Mode: {RawImageCIBProfileModeEnum}, Forward: {IsForward}, Image CIB Profile Mode: {ImageCIBProfileModeEnum}";
+        return $"CIB: {CIBInformation}, Size: {Size.ToString(format, formatProvider)}, Raw Mode: {RawImageCIBProfileModeEnum}, Image Direction: {(IsForward ? "Forward" : "Reverse")}, Image Mode: {ImageCIBProfileModeEnum}";
     }
 
     #endregion IEquatable、IFormattable

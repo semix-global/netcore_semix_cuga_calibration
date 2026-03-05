@@ -161,7 +161,7 @@
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Forward: "
+                                <TextBlock Text="Scan Forward: "
                                            Width="160"
                                            HorizontalAlignment="Left"
                                            VerticalAlignment="Center" />

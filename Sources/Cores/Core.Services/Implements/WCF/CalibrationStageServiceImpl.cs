@@ -24,6 +24,8 @@ namespace Core.Services.Implements.WCF;
 public sealed class CalibrationStageServiceImpl(
     CalibrationSetting calibrationSetting) : BaseService<ICgCalibrationService>, ICalibrationStageService
 {
+    private (double XDirection, double YDirection)? _direction;
+
     public SxExecuteRet<bool> Connect()
     {
         if (IsConnected) return SxExecuteRetHelper.CreateSuccess(true);
@@ -180,11 +182,14 @@ public sealed class CalibrationStageServiceImpl(
 
     public SxExecuteRet<(double XDirection, double YDirection)> GetMachineDirection()
     {
-        var sxExecuteRet = Invoke(() => Service!.GetStageCoordinateSystem());
+        if (_direction is not null) return SxExecuteRetHelper.CreateSuccess(_direction.Value);
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<(double XDirection, double YDirection)>(sxExecuteRet.Msg, default)
-            : SxExecuteRetHelper.CreateSuccess<(double XDirection, double YDirection)>((sxExecuteRet.Anything.XCSYS, sxExecuteRet.Anything.YCSYS));
+        var sxExecuteRet = Invoke(() => Service!.GetStageCoordinateSystem());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double XDirection, double YDirection)>(sxExecuteRet.ErrorMsg, default);
+
+        _direction = (sxExecuteRet.Anything.XCSYS, sxExecuteRet.Anything.YCSYS);
+
+        return SxExecuteRetHelper.CreateSuccess(_direction.Value);
     }
 
     public SxExecuteRet<bool> InitYAxis()

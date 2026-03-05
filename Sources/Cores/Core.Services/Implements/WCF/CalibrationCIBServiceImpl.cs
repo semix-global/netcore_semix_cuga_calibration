@@ -175,6 +175,9 @@ public sealed class CalibrationCIBServiceImpl(
         bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken)
     {
+        var getMachineDirectionRet = calibrationStageService.GetMachineDirection();
+        if (getMachineDirectionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getMachineDirectionRet.Msg, []);
+
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
         var getPMTImagesRet = await GetPMTImagesAsync(
@@ -196,7 +199,12 @@ public sealed class CalibrationCIBServiceImpl(
                 IsCalibration = true, /*为true时不下发波形*/
                 ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
             },
-            isForward,
+            stageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => isForward,
+                StageCoordinateSystemEnum.Machine => getMachineDirectionRet.Anything.XDirection > 0 ? isForward : isForward == false,
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<bool>(nameof(stageCoordinateSystemEnum))
+            },
             isKeepRawImageCIBProfileModeEnum,
             cancellationToken);
 
@@ -232,10 +240,9 @@ public sealed class CalibrationCIBServiceImpl(
 
         var isForward = stageCoordinateSystemEnum switch
         {
-            StageCoordinateSystemEnum.Bright => isIncreasing,
-            StageCoordinateSystemEnum.Dark => isIncreasing,
-            StageCoordinateSystemEnum.Machine => getMachineDirectionRet.Anything.XDirection > 0 ? isDecreasing : isDecreasing == false,
-            _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum), stageCoordinateSystemEnum, null)
+            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => isIncreasing,
+            StageCoordinateSystemEnum.Machine => getMachineDirectionRet.Anything.XDirection > 0 ? isIncreasing : isIncreasing == false,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<bool>(nameof(stageCoordinateSystemEnum))
         };
 
         var getDFImgCalibrationRet = GetDFImgCalibration(new SxCollectImgParam
@@ -296,6 +303,9 @@ public sealed class CalibrationCIBServiceImpl(
         bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken)
     {
+        var getMachineDirectionRet = calibrationStageService.GetMachineDirection();
+        if (getMachineDirectionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>(getMachineDirectionRet.Msg, []);
+
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
         return await GetPMTImagesAsync(
@@ -317,7 +327,12 @@ public sealed class CalibrationCIBServiceImpl(
                 IsCalibration = true, /*为true时不下发波形*/
                 ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
             },
-            isForward,
+            stageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => isForward,
+                StageCoordinateSystemEnum.Machine => getMachineDirectionRet.Anything.XDirection > 0 ? isForward : isForward == false,
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<bool>(nameof(stageCoordinateSystemEnum))
+            },
             isKeepRawImageCIBProfileModeEnum,
             cancellationToken);
     }
@@ -335,6 +350,9 @@ public sealed class CalibrationCIBServiceImpl(
         CancellationToken cancellationToken)
     {
         Guard.IsLessThan(startECS, stopECS);
+
+        var getMachineDirectionRet = calibrationStageService.GetMachineDirection();
+        if (getMachineDirectionRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getMachineDirectionRet.Msg, []);
 
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
@@ -366,7 +384,12 @@ public sealed class CalibrationCIBServiceImpl(
                     Vel = Convert.ToInt32(speedECS)
                 }
             },
-            isForward,
+            stageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => isForward,
+                StageCoordinateSystemEnum.Machine => getMachineDirectionRet.Anything.XDirection > 0 ? isForward : isForward == false,
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<bool>(nameof(stageCoordinateSystemEnum))
+            },
             isKeepRawImageCIBProfileModeEnum,
             cancellationToken);
 
