@@ -3,6 +3,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -61,7 +62,7 @@ public sealed partial class CIBLineCentricityDTO : CalibrationDtoBase, ICloneabl
     {
         return new CalibrationLaserLineCentricityItem
         {
-            CgMicroscopeLens = MicroscopeLensInformation.AdaptTo().LensCode,
+            CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
             CgNIOITypeEnum = ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
             CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
             Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,

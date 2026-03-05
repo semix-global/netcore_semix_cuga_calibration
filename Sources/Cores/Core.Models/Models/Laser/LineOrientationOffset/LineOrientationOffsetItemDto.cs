@@ -3,6 +3,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -81,7 +82,7 @@ public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, I
     {
         return new CalibrationLaserLineOrientationOffsetItem
         {
-            CgMicroscopeLens = MicroscopeLensInformation.AdaptTo().LensCode,
+            CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
             PmtId = PmtId,
             Offset = Offset.ToCgPoint(),
             IsCalibrated = IsCalibrated,

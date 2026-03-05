@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -47,31 +48,31 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
         switch (SiteDirection)
         {
             case StageDirectionTypeEnum.Up:
-                {
-                    HighSiteMatchResult.TopPosition = point;
-                    HighSiteMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
-                }
+            {
+                HighSiteMatchResult.TopPosition = point;
+                HighSiteMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
+            }
                 break;
 
             case StageDirectionTypeEnum.Down:
-                {
-                    HighSiteMatchResult.BottomPosition = point;
-                    HighSiteMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
-                }
+            {
+                HighSiteMatchResult.BottomPosition = point;
+                HighSiteMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
+            }
                 break;
 
             case StageDirectionTypeEnum.Left:
-                {
-                    HighSiteMatchResult.LeftPosition = point;
-                    HighSiteMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
-                }
+            {
+                HighSiteMatchResult.LeftPosition = point;
+                HighSiteMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
+            }
                 break;
 
             case StageDirectionTypeEnum.Right:
-                {
-                    HighSiteMatchResult.RightPosition = point;
-                    HighSiteMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
-                }
+            {
+                HighSiteMatchResult.RightPosition = point;
+                HighSiteMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
+            }
                 break;
         }
     }
@@ -108,7 +109,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 
     public CalibrationChuckGlobalScaleError AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation.AdaptTo().LensCode,
+        CgMicroscopeLens = HighMicroscopeLensInformation != MicroscopeLensInformation.Default ? HighMicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
         ScaleX = AppliedScaleXY.X,
         ScaleY = AppliedScaleXY.Y,
         IsCalibrated = IsCalibrated,

@@ -4,6 +4,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 
@@ -64,7 +65,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<Ch
 
     public CalibrationChuckStageMap AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation.AdaptTo().LensCode,
+        CgMicroscopeLens = HighMicroscopeLensInformation != MicroscopeLensInformation.Default ? HighMicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
         OpticsMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         ExpandStageMap = ExpandStageMapDto.AdaptTo(),

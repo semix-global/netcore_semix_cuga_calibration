@@ -4,6 +4,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -78,63 +79,63 @@ public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICl
         switch (SiteDirection)
         {
             case StageDirectionTypeEnum.Up:
+            {
+                if (IsPositive)
                 {
-                    if (IsPositive)
-                    {
-                        PositiveMatchResult.TopPosition = point;
-                        PositiveMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
-                    }
-                    else
-                    {
-                        NegativeMatchResult.TopPosition = point;
-                        NegativeMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
-                    }
+                    PositiveMatchResult.TopPosition = point;
+                    PositiveMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
                 }
+                else
+                {
+                    NegativeMatchResult.TopPosition = point;
+                    NegativeMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
+                }
+            }
                 break;
 
             case StageDirectionTypeEnum.Down:
+            {
+                if (IsPositive)
                 {
-                    if (IsPositive)
-                    {
-                        PositiveMatchResult.BottomPosition = point;
-                        PositiveMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
-                    }
-                    else
-                    {
-                        NegativeMatchResult.BottomPosition = point;
-                        NegativeMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
-                    }
+                    PositiveMatchResult.BottomPosition = point;
+                    PositiveMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
                 }
+                else
+                {
+                    NegativeMatchResult.BottomPosition = point;
+                    NegativeMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
+                }
+            }
                 break;
 
             case StageDirectionTypeEnum.Left:
+            {
+                if (IsPositive)
                 {
-                    if (IsPositive)
-                    {
-                        PositiveMatchResult.LeftPosition = point;
-                        PositiveMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
-                    }
-                    else
-                    {
-                        NegativeMatchResult.LeftPosition = point;
-                        NegativeMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
-                    }
+                    PositiveMatchResult.LeftPosition = point;
+                    PositiveMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
                 }
+                else
+                {
+                    NegativeMatchResult.LeftPosition = point;
+                    NegativeMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
+                }
+            }
                 break;
 
             case StageDirectionTypeEnum.Right:
+            {
+                if (IsPositive)
                 {
-                    if (IsPositive)
-                    {
-                        PositiveMatchResult.RightPosition = point;
-                        PositiveMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
-                    }
-                    else
-                    {
-                        NegativeMatchResult.RightPosition = point;
-                        NegativeMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
-                    }
+                    PositiveMatchResult.RightPosition = point;
+                    PositiveMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
                 }
+                else
+                {
+                    NegativeMatchResult.RightPosition = point;
+                    NegativeMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
+                }
+            }
                 break;
         }
     }
@@ -189,7 +190,7 @@ public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICl
 
     public CalibrationChuckCenterAndThetaObj AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation.AdaptTo().LensCode,
+        CgMicroscopeLens = HighMicroscopeLensInformation != MicroscopeLensInformation.Default ? HighMicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,,
         NewBFCenterStagePosition = NewBFCenterStagePosition.ToCgPoint(),
         ScaleT = AppliedScaleT,
         IsCalibrated = IsCalibrated,

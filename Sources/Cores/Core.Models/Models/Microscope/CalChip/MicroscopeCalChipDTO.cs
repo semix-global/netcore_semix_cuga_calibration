@@ -15,6 +15,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Cuga.Data.DataStruct.Microscope.Enums;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
@@ -169,7 +170,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
 
         return new CalibrationMicroscopeCalChip
         {
-            CgMicroscopeLens = MicroscopeLensInformation.AdaptTo().LensCode,
+            CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
             DSWAlignmentDegree = DSWAlignmentDegree,
             DswBrightFieldMachinePosition = dswItemTemp is null ? Point.Origin.ToCgPoint() : DSWBrightFieldMachineAffinePosition.ToCgPoint(),
             DswEcsValue = dswItemTemp?.EcsValue ?? 0d,

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -53,7 +54,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, IClonea
 
     public CalibrationMicroscopeFocusItem AdaptTo() => new()
     {
-        CgMicroscopeLens = LensInformation.AdaptTo().LensCode,
+        CgMicroscopeLens = LensInformation != MicroscopeLensInformation.Default ? LensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
         EcsValue = EcsValue,
         MicroscopeVoltage = MicroscopeVoltage,
         IsCalibrated = IsCalibrated,

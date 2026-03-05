@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -42,7 +43,7 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICl
 
     public CalibrationMicroscopePixelSizeItem AdaptTo() => new()
     {
-        CgMicroscopeLens = LensInformation.AdaptTo().LensCode,
+        CgMicroscopeLens = LensInformation != MicroscopeLensInformation.Default ? LensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
         PixelSize = PixelSize.ToCgSize(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

@@ -10,6 +10,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
+using Cuga.Data.DataStruct.Microscope.Enums;
 
 namespace Core.Models.Models.Chuck.Prealigner;
 
@@ -143,7 +144,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<
 
     public CalibrationPrealignerObj AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation.AdaptTo().LensCode,
+        CgMicroscopeLens = HighMicroscopeLensInformation != MicroscopeLensInformation.Default ? HighMicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
         NewEfemLoadWaferStagePosition = ResultItemDto.NewEfemLoadWaferStagePosition.ToCgPoint(),
         EfemLoadWaferChuckAbsoluteAngle = ResultItemDto.EfemLoadWaferChuckAbsoluteAngle,
         IsCalibrated = IsCalibrated,
