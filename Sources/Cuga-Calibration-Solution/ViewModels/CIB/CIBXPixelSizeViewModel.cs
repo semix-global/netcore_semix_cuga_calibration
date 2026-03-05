@@ -31,6 +31,7 @@ using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Threading.Channels;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -627,23 +628,27 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             CalibratingItem.SlideItems = [.. itemItems];
 
-            var matchPoints = CalibratingItem.SlideItems.Where(t => t.IsMatchOk).Select(t => t.MatchPoint).ToArray();
+            var matchPoints = Filter.NMS(
+                [
+                    .. CalibratingItem.SlideItems
+                        .Where(t => t.IsMatchOk)
+                        .Select(t => t.MatchPoint)
+                ],
+                templateImageSize.Width);
 
             var xDifferences = matchPoints
                 .Zip(matchPoints.Skip(1), (prev, next) => next.X - prev.X)
                 .ToArray();
-            var average = xDifferences.Average();
-            var xFilterDifferences = xDifferences.Where(t => t >= average).ToArray();
-            CalibratingItem.SlideSplitDifferences = xFilterDifferences;
+            CalibratingItem.SlideSplitDifferences = [..Filter.MAD(Vector<double>.Build.Dense([..xDifferences.Where(t => t >= templateImageSize.Width)]))];
 
-            var isOk = xFilterDifferences.Length == imageCount - 1;
+            var isOk = CalibratingItem.SlideSplitDifferences.Count >= 1;
 
             var htmlAnonymous = new
             {
                 AllScore = new HtmlPlot2DLinesChart([(string.Empty, [.. CalibratingItem.SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))])], string.Empty),
                 matchPoints = new HtmlPlot2DLinesChart([(string.Empty, matchPoints)], string.Empty),
                 xDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. xDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
-                xFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. xFilterDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty)
+                xFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. CalibratingItem.SlideSplitDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty)
             };
 
             if (isOk == false)
@@ -652,8 +657,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 return false;
             }
 
-            CalibratingItem.XPixelSize = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / xFilterDifferences.Average();
-            CalibratingItem.XPixelSizeDelta = xFilterDifferences.Max() - xFilterDifferences.Min();
+            CalibratingItem.XPixelSize = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / CalibratingItem.SlideSplitDifferences.Average();
+            CalibratingItem.XPixelSizeDelta = CalibratingItem.SlideSplitDifferences.Max() - CalibratingItem.SlideSplitDifferences.Min();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -823,11 +828,12 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var imageAllPixelByteLength = Cache.Item.ImageWidth * heightPixelByteLength;
                 var verifyStepAllPixelByteLength = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.XPixelSize * heightPixelByteLength;
 
-                Guard.IsEqualTo(MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength), imageCount);
+                var slideCount = MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength);
+                Guard.IsLessThanOrEqualTo(slideCount, imageCount);
 
-                var verifyItemItems = new CIBXPixelSizeDTOItem[imageCount];
+                var verifyItemItems = new CIBXPixelSizeDTOItem[slideCount];
                 foreach (var (index, pointer) in Enumerable
-                             .Range(0, imageCount)
+                             .Range(0, slideCount)
                              .Select(t => t * verifyStepAllPixelByteLength)
                              .Select(Convert.ToInt64)
                              .Select(pointer => pointer - pointer % heightPixelByteLength) // verifyStepAllPixelByteLength是double, 不是整数倍, 需要对齐
@@ -862,7 +868,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var verifyXDifferences = selectedReviewItem.VerifyItems
                     .Zip(selectedReviewItem.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
-                selectedReviewItem.VerifySplitDifferences = verifyXDifferences;
+                selectedReviewItem.VerifySplitDifferences = [..Filter.MAD(Vector<double>.Build.Dense([..verifyXDifferences.Where(t => t >= templateImageSize.Width)]))];
 
                 var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / verifyXDifferences.Average();
 
@@ -882,14 +888,16 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 });
 
                 if (isOk)
+                {
+                    selectedReviewItem.XPixelSize = verifyRealUmPerPixel;
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                }
                 else
                 {
                     errorMessageStringBuilder.AppendLine($"{title}: Error");
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                 }
 
-                if (isOk) selectedReviewItem.XPixelSize = verifyRealUmPerPixel;
                 selectedReviewItem.IsVerified = isOk;
             }
 
