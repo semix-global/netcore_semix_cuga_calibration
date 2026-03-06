@@ -190,7 +190,7 @@ public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICl
 
     public CalibrationChuckCenterAndThetaObj AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation != MicroscopeLensInformation.Default ? HighMicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,,
+        CgMicroscopeLens = HighMicroscopeLensInformation != MicroscopeLensInformation.Default ? HighMicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
         NewBFCenterStagePosition = NewBFCenterStagePosition.ToCgPoint(),
         ScaleT = AppliedScaleT,
         IsCalibrated = IsCalibrated,
