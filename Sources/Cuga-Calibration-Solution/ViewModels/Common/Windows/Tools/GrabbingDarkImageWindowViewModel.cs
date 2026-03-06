@@ -223,6 +223,7 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             var currentStartPosition = cibViewModel.GetCIBInformationPosition(
                 Cache.StageCoordinateSystemEnum,
+                Cache.ProductivityInformation,
                 cibInformations[0],
                 startPosition,
                 microscopeViewModel.GetCurrentMicroscopeLensInformation());
@@ -272,6 +273,7 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             var currentStartPosition = cibViewModel.GetCIBInformationPosition(
                 Cache.StageCoordinateSystemEnum,
+                Cache.ProductivityInformation,
                 cibInformations[0],
                 startPosition,
                 microscopeViewModel.GetCurrentMicroscopeLensInformation());
@@ -320,6 +322,7 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             var currentStartPosition = cibViewModel.GetCIBInformationPosition(
                 Cache.StageCoordinateSystemEnum,
+                Cache.ProductivityInformation,
                 cibInformations[0],
                 startPosition,
                 microscopeViewModel.GetCurrentMicroscopeLensInformation());
@@ -366,6 +369,7 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             var currentStartPosition = cibViewModel.GetCIBInformationPosition(
                 Cache.StageCoordinateSystemEnum,
+                Cache.ProductivityInformation,
                 cibInformations[0],
                 startPosition,
                 microscopeViewModel.GetCurrentMicroscopeLensInformation());

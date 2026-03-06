@@ -436,11 +436,13 @@ public sealed class CIBViewModel(
         {
             var currentStartPosition = GetCIBInformationPosition(
                 stageCoordinateSystemEnum,
+                productivityInformation,
                 currentCIBInformations[0],
                 startPosition);
 
             var currentStopPosition = GetCIBInformationPosition(
                 stageCoordinateSystemEnum,
+                productivityInformation,
                 currentCIBInformations[0],
                 stopPosition);
 
@@ -574,6 +576,7 @@ public sealed class CIBViewModel(
 
     public Vector GetCIBInformationOffset(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        ProductivityInformation productivityInformation,
         CIBInformation cibInformation,
         MicroscopeLensInformation? microscopeLensInformation = null,
         bool isLineCentricityOffset = true)
@@ -582,8 +585,8 @@ public sealed class CIBViewModel(
 
         var cibLineCentricities = cacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
 
-        var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.PmtId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId);
-        var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.PmtId == cibInformation.PMTId);
+        var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId);
+        var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == cibInformation.PMTId);
 
         var cartesianCIBLineCentricityOffset = Vector.Zero;
 
@@ -614,11 +617,13 @@ public sealed class CIBViewModel(
 
     public Point GetCIBInformationPosition(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        ProductivityInformation productivityInformation,
         CIBInformation cibInformation,
         Point position,
         MicroscopeLensInformation? microscopeLensInformation = null)
         => position + GetCIBInformationOffset(
             stageCoordinateSystemEnum,
+            productivityInformation,
             cibInformation,
             microscopeLensInformation,
             false);
