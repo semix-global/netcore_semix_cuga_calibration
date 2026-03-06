@@ -18,6 +18,7 @@ namespace CugaCalibration.ViewModels;
 
 [IOCAppService(ServiceType = typeof(LoadingWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class LoadingWindowViewModel(
+    ConfigViewModel configViewModel,
     StageViewModel stageViewModel,
     ReviewViewModel reviewViewModel,
     MicroscopeViewModel microscopeViewModel,
@@ -29,7 +30,6 @@ public sealed partial class LoadingWindowViewModel(
     OpticsViewModel opticsViewModel,
     CollectorViewModel collectorViewModel,
     CIBViewModel cibViewModel,
-    ConfigViewModel configViewModel,
     MonitorViewModel monitorViewModel,
     ICacheProvider cacheProvider,
     ILogger<LoadingWindowViewModel> logger,
@@ -73,8 +73,7 @@ public sealed partial class LoadingWindowViewModel(
             if (await ConnectAsync(opticsViewModel.Connect, "Connecting Optics Service", 9).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(collectorViewModel.Connect, "Connecting Collector Service", 10).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(cibViewModel.Connect, "Connecting CIB Service", 11).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(configViewModel.Connect, "Connecting Configure Service", 12).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Service", 13).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Service", 12).ConfigureAwait(false) == false) return;
 
             Message = "Connected OK!!!";
 

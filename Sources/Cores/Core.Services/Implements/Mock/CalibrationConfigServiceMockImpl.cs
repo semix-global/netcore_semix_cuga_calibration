@@ -13,17 +13,28 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Semix.CoreLib;
 using System.IO;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Services.Interfaces;
 
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationConfigService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed class CalibrationConfigServiceMockImpl(IOptions<ApplicationSetting> options) : ICalibrationConfigService
+public sealed class CalibrationConfigServiceMockImpl(
+    IOptions<ApplicationSetting> options,
+    ISysUserService sysUserService) : ICalibrationConfigService
 {
     public SxExecuteRet<bool> Connect()
     {
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public async Task<SxExecuteRet<SysUserDto>> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
+    {
+        var sysUserDto = await sysUserService.LoginAsync(user, cancellationToken);
+
+        return SxExecuteRetHelper.CreateSuccess(sysUserDto);
     }
 
     public SxExecuteRet<string> GetDeviceCode()

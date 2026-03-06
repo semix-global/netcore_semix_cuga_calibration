@@ -201,14 +201,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             return;
         }
 
-        _windowManagerService.ShowDialog(HostApplication.GetRequiredService<RecipeManagementViewModel>());
-        if (ApplicationCookie.CalibrationRecipeDto is null)
+        showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
+        if (showDialog == false)
         {
             return;
         }
 
-        showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
-        if (showDialog == false)
+        _windowManagerService.ShowDialog(HostApplication.GetRequiredService<RecipeManagementViewModel>());
+        if (ApplicationCookie.CalibrationRecipeDto is null)
         {
             return;
         }

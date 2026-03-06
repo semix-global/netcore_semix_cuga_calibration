@@ -2,6 +2,7 @@ using Core.Models.Exceptions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -16,6 +17,13 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
         var ret = calibrationConfigService.Connect();
 
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public async Task<SysUserDto> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
+    {
+        var ret = await calibrationConfigService.LoginAsync(user, cancellationToken);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public string GetDeviceCode()
