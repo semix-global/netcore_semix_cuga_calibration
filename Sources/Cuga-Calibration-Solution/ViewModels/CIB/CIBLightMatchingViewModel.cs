@@ -431,7 +431,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         (true, null),
                                         (false, Cache.Item.LaserLightInformation),
                                         false,
-                                        cancellationToken);
+                                        cancellationToken,
+                                        isKeepRawImageCIBProfileModeEnum: true);
 
                                     Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
@@ -603,7 +604,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         (true, null),
                                         (false, Cache.Item.LaserLightInformation),
                                         false,
-                                        cancellationToken);
+                                        cancellationToken,
+                                        isKeepRawImageCIBProfileModeEnum: true);
 
                                     Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 

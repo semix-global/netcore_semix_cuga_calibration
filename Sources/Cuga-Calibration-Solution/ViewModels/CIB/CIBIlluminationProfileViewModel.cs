@@ -359,7 +359,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     (true, null),
                                     (false, Cache.Item.LaserLightInformation),
                                     false,
-                                    cancellationToken);
+                                    cancellationToken,
+                                    isKeepRawImageCIBProfileModeEnum: true);
 
                                 Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 

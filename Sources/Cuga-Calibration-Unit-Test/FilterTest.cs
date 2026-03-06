@@ -166,8 +166,8 @@ public class FilterTest
             new Point(34748.8396, 0.925536601)
         ];
 
-        var matchPoints1 = Filter.NMS([..points.Where(t => t.Y > 0.7)], 50).Result;
-        matchPoints1.Should()
+        var matchPoints = Filter.NMS([..points.Where(t => t.Y > 0.7)], 50).Result;
+        matchPoints.Should()
             .BeEquivalentTo(expectedMatchPoints1, options => options.WithStrictOrdering());
 
         var expectedMatchPoints2 = (Point[])
@@ -176,9 +176,9 @@ public class FilterTest
             new Point(14898.65624, 0.99189684),
             new Point(24839.6321, 0.995478021)
         ];
-        matchPoints1 = Filter.MAD([..matchPoints1.Select(t => t.Y)]).Indexes.Select(t => matchPoints1[t]).ToArray();
+        matchPoints = Filter.MAD([..matchPoints.Select(t => t.Y)]).Indexes.Select(t => matchPoints[t]).ToArray();
 
-        matchPoints1.Should()
+        matchPoints.Should()
             .BeEquivalentTo(expectedMatchPoints2, options => options.WithStrictOrdering());
 
         var expectedResult = (double[])
@@ -187,7 +187,7 @@ public class FilterTest
             expectedMatchPoints2[2].X - expectedMatchPoints2[1].X
         ];
 
-        var result = Filter.MAD([..matchPoints1.Zip(matchPoints1.Skip(1), (prev, next) => next.X - prev.X)]).Result;
+        var result = Filter.MAD([..matchPoints.Zip(matchPoints.Skip(1), (prev, next) => next.X - prev.X)]).Result;
 
         result.Should()
             .BeEquivalentTo(expectedResult, options => options.WithStrictOrdering());
