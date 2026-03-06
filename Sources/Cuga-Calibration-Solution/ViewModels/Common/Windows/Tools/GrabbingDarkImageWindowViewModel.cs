@@ -326,7 +326,7 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             var positions = Enumerable.Range(0, Cache.ColumnCount).Select(t => currentStartPosition + new Vector(t * Cache.ColumnWidth, 0)).ToArray();
 
-            if (Cache.IsForward) positions = [..positions.AsEnumerable().Reverse()];
+            if (Cache.IsForward == false) positions = [..positions.AsEnumerable().Reverse()];
 
             var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
                 Cache.ProductivityInformation,

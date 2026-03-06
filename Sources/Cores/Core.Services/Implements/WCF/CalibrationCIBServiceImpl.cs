@@ -258,7 +258,7 @@ public sealed class CalibrationCIBServiceImpl(
             StartPoint = [.. centerPositions.Select(t => t.ToSxPointD())],
             IsSingle = true,
             AF = isAutoFocus ? 0 : 1,
-            IsForward = true,
+            IsForward = isIncreasing,
             IsCalibration = true, /*为true时不下发波形*/
             ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
         });

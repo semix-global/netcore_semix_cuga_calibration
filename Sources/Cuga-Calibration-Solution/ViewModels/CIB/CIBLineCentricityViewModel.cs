@@ -20,6 +20,7 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -726,7 +727,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 Cache.AlgorithmTemplateTypeEnum,
                 darkFieldImage,
                 Cache.Item.TemplateFilePath,
-                Cache.Item.TemplateImageFilePath,
+                FileHelper.GetFileFullName(Cache.Item.TemplateImageFilePath),
                 HtmlLogUniqueId,
                 out var position,
                 out _,
