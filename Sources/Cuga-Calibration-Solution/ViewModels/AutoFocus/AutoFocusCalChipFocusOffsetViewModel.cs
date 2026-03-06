@@ -35,7 +35,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
         new() { StepName = "Haze Param" },
         new() { StepName = "Haze RTFC" },
         new() { StepName = "Chuck Param" },
-        new() { StepName = "Chuck RTFC" },
+        new() { StepName = "Chuck RTFC" }
     ];
 
     #region 界面相关
@@ -208,7 +208,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 Cache.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.CIBInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)

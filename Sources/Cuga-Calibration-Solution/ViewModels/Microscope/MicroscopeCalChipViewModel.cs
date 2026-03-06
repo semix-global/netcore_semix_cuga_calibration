@@ -385,7 +385,7 @@ public sealed partial class MicroscopeCalChipViewModel() : CalibrationViewModelB
             {
                 Direction = name,
                 Cache.CalChipSiteModelEnum,
-                MachinePosition = resultMachine,
+                MachinePosition = resultMachine
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -661,7 +661,7 @@ public sealed partial class MicroscopeCalChipViewModel() : CalibrationViewModelB
                 Cache.AlgorithmWaferTypeEnum,
                 CalibratingItem.DSWAlignmentDegree,
                 CalibratingItem.DswItem.BrightFieldMachinePosition,
-                CalibratingItem.DSWBrightFieldMachineAffinePosition,
+                CalibratingItem.DSWBrightFieldMachineAffinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;

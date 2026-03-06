@@ -31,7 +31,6 @@ using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Threading.Channels;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -634,12 +633,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                         .Where(t => t.IsMatchOk)
                         .Select(t => t.MatchPoint)
                 ],
-                templateImageSize.Width);
+                templateImageSize.Width).Result;
+            matchPoints = Filter.MAD([..matchPoints.Select(t => t.Y)]).Indexes.Select(t => matchPoints[t]).ToArray();
 
             var xDifferences = matchPoints
                 .Zip(matchPoints.Skip(1), (prev, next) => next.X - prev.X)
                 .ToArray();
-            CalibratingItem.SlideSplitDifferences = [..Filter.MAD(Vector<double>.Build.Dense([..xDifferences.Where(t => t >= templateImageSize.Width)]))];
+            CalibratingItem.SlideSplitDifferences = Filter.MAD(xDifferences).Result;
 
             var isOk = CalibratingItem.SlideSplitDifferences.Count >= 1;
 
@@ -868,13 +868,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var verifyXDifferences = selectedReviewItem.VerifyItems
                     .Zip(selectedReviewItem.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
-                selectedReviewItem.VerifySplitDifferences = [..Filter.MAD(Vector<double>.Build.Dense([..verifyXDifferences.Where(t => t >= templateImageSize.Width)]))];
+                selectedReviewItem.VerifySplitDifferences = Filter.MAD(verifyXDifferences).Result;
 
-                var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / verifyXDifferences.Average();
+                var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.VerifySplitDifferences.Average();
 
                 var waferDiameter = Cache.Item.WaferRadius * 2d;
                 var errorPixel = Math.Abs(waferDiameter / verifyRealUmPerPixel - waferDiameter / selectedReviewItem.XPixelSize);
-                var isOk = Math.Abs(verifyXDifferences.Max() - verifyXDifferences.Min()) <= Cache.Threshold
+                var isOk = Math.Abs(selectedReviewItem.VerifySplitDifferences.Max() - selectedReviewItem.VerifySplitDifferences.Min()) <= Cache.Threshold
                            && errorPixel <= Cache.Threshold;
 
                 var htmlQuote = new HtmlQuote(new
@@ -882,6 +882,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                     Cache.Threshold,
                     verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. selectedReviewItem.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
                     verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. verifyXDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
+                    verifyXFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. selectedReviewItem.VerifySplitDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
                     CalibratedXPixelSize = selectedReviewItem.XPixelSize,
                     verifyRealUmPerPixel,
                     errorPixel = $"({errorPixel:0.###}px)/({waferDiameter:0.###}um)"

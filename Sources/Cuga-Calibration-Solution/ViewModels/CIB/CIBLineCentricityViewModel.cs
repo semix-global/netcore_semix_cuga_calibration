@@ -441,7 +441,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 DFTemplateFilePath = Cache.Item.TemplateFilePath,
                 BFHtmlTab = new HtmlTab(new
                 {
-                    TemplateImage = new HtmlImage(Cache.Item.BrightTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(Cache.Item.BrightTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 }),
                 DFHtmlTab = new HtmlTab(new
                 {

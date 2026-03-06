@@ -368,12 +368,12 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     StartMachinePosition = StageViewModel.DarkFieldToMachinePosition(Cache.Item.ImageCollectionConfiguration.ExtensionStartPoint),
                     EndMachinePosition = StageViewModel.DarkFieldToMachinePosition(Cache.Item.ImageCollectionConfiguration.ExtensionEndPoint),
                     afEcsLimitMin = zLimitMin,
-                    afEcsLimitMax = zLimitMax,
+                    afEcsLimitMax = zLimitMax
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 CalibratingItem = new GlobalFieldTiltDTO()
                 {
-                    OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum,
+                    OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum
                 };
 
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);

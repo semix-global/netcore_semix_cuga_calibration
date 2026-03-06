@@ -212,6 +212,6 @@ public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, IClonea
         BrightFieldMachinePosition = BrightFieldMachinePosition,
         EcsValue = EcsValue,
         Quality = Quality,
-        FilePath = FilePath,
+        FilePath = FilePath
     };
 }
