@@ -45,7 +45,7 @@ public partial class LoginWindowViewModel(
 
             UserNames = [.. users.OrderBy(t => t.Id).Select(t => t.UserName)];
 
-            if (users.Count > 0) SysUserDto = hostEnvironment.IsProduction() ? new SysUserDto { UserName = users[0].UserName } : new SysUserDto { UserName = users[0].UserName, Password = "666666" };
+            if (users.Count > 0) SysUserDto = hostEnvironment.IsProduction() ? new SysUserDto { UserName = users[0].UserName, Password = "DcWEikSY" } : new SysUserDto { UserName = users[0].UserName, Password = "666666" };
         }
         catch (Exception ex)
         {
