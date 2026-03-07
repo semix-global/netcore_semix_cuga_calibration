@@ -1,4 +1,4 @@
-﻿using Core.Models.Enums.CIB;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
@@ -112,6 +112,14 @@ public interface ICalibrationCIBService
     /// <param name="delays">延迟</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetDelays(IReadOnlyList<CIBDelayDTO> delays);
+
+    /// <summary>
+    /// 实时下发XPixelSize 
+    /// </summary>
+    /// <param name="productivityInformation"></param>
+    /// <param name="xPixelSize"></param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetXPixelSize(ProductivityInformation productivityInformation, double xPixelSize);
 
     /// <summary>
     /// 获取Gain实测关系

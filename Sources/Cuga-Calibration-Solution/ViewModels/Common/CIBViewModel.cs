@@ -135,6 +135,13 @@ public sealed class CIBViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public void SetXPixelSize(ProductivityInformation productivityInformation, double xPixelSize)
+    {
+        var ret = calibrationCIBService.SetXPixelSize(productivityInformation, xPixelSize);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     #region 采图
 
     #region X 采[单位置]短图

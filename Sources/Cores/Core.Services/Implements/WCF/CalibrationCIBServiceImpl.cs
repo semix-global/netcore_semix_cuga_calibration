@@ -125,6 +125,19 @@ public sealed class CalibrationCIBServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetXPixelSize(ProductivityInformation productivityInformation, double xPixelSize)
+    {
+        var ret = Invoke(() => Service?.SetRealXPixel(
+            productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+            productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
+            productivityInformation.AdaptTo().NIOI.ToCgNIOIType(),
+            xPixelSize));
+
+        return ret.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(ret.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain)
     {
         var sxExecuteRet = Invoke(() => Service?.GetDcSenseRelationalTables([.. cibInformations.Select(t => (stopGain, startGain, stepGain, t.PMTId, t.ChannelId))]));

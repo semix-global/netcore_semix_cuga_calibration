@@ -7,6 +7,7 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.CIB.LineCentricity;
+using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
@@ -95,6 +96,9 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
+    private CIBXPixelSizeDTO[] _cIBXPixelSizes = [];
+
+    [ObservableProperty]
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
 
     [ObservableProperty]
@@ -123,6 +127,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         await Task.CompletedTask.ConfigureAwait(false);
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        CIBXPixelSizes = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
 
         if (LoadDepends() == false) return false;
 
@@ -225,8 +230,8 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.CalChipSiteModelEnum switch
                     {
-                        CalChipSiteModelEnum.ChuckModel => StageViewModel.BrightFieldToMachinePosition(Cache.Item.FindBFMachinePosition),
-                        CalChipSiteModelEnum.DswModel => MicroscopeCalChip.DSWBrightFieldMachineAffinePosition,
+                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition,
+                        CalChipSiteModelEnum.DswModel => Cache.Item.FindBFMachinePosition == Point.Origin ? MicroscopeCalChip.DSWBrightFieldMachineAffinePosition : Cache.Item.FindBFMachinePosition,
                         _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
                     }), Cache.CalChipSiteModelEnum);
 
@@ -478,6 +483,15 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
+            Guard.IsNotEqualTo(ChuckCenter.NewBFCenterStagePosition, Point.Origin);
+            Guard.IsEqualTo(ChuckCenter.IsOk, true);
+            StageViewModel.SetBrightFieldCenterMachinePositionValue(ChuckCenter.NewBFCenterStagePosition);
+
+            var xPixelSize = CIBXPixelSizes.Single(t => t.ProductivityInformation == Cache.ProductivityInformation);
+            Guard.IsGreaterThan(xPixelSize.XPixelSize, 0);
+            Guard.IsEqualTo(xPixelSize.IsOk, true);
+            CIBViewModel.SetXPixelSize(Cache.ProductivityInformation, xPixelSize.XPixelSize);
+
             var (_, yDirection) = StageViewModel.GetMachineDirection();
             CalibratingItems = ApplicationCookie.CIBInformationPMTIds
                 .OrderBy(t => t)
@@ -533,6 +547,15 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             }
 
             Cache.ProductivityInformation = productiveGroups.First().Key;
+
+            Guard.IsNotEqualTo(ChuckCenter.NewBFCenterStagePosition, Point.Origin);
+            Guard.IsEqualTo(ChuckCenter.IsOk, true);
+            StageViewModel.SetBrightFieldCenterMachinePositionValue(ChuckCenter.NewBFCenterStagePosition);
+
+            var xPixelSize = CIBXPixelSizes.Single(t => t.ProductivityInformation == Cache.ProductivityInformation);
+            Guard.IsGreaterThan(xPixelSize.XPixelSize, 0);
+            Guard.IsEqualTo(xPixelSize.IsOk, true);
+            CIBViewModel.SetXPixelSize(Cache.ProductivityInformation, xPixelSize.XPixelSize);
 
             var centerLineCentricityDTO = Reviews.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation
                                                                        && t.PmtId == CalibrationConstantsHelper.MainPmtId);
@@ -676,7 +699,14 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 });
 
                 if (isOk)
+                {
+                    if (selectedReviewItem.PmtId == CalibrationSetting.SettingCommonParam.MainCIBInformation.PMTId)
+                    {
+                        StageViewModel.SetDarkFieldCenterMachinePositionValue(selectedReviewItem.DFMachineCenterPosition);
+                    }
+
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                }
                 else
                 {
                     errorMessageStringBuilder.AppendLine($"{title}: Error");
@@ -704,8 +734,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     private async Task<bool> GetLineCentricityAsync(CIBLineCentricityDTO cibLineCentricityDTO, CancellationToken cancellationToken)
     {
         Logger.LogHtmlInformation($"PMT ID :{cibLineCentricityDTO.PmtId}", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
-
-        Guard.IsNotEqualTo(ChuckCenter.NewBFCenterStagePosition, Point.Origin);
 
         using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
             Cache.ProductivityInformation,

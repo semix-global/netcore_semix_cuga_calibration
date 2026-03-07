@@ -11,7 +11,6 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
-using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using HalconDotNet;
@@ -634,7 +633,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                         .Select(t => t.MatchPoint)
                 ],
                 templateImageSize.Width).Result;
-            matchPoints = Filter.MAD([..matchPoints.Select(t => t.Y)]).Indexes.Select(t => matchPoints[t]).ToArray();
+            matchPoints = Filter.MAD([.. matchPoints.Select(t => t.Y)]).Indexes.Select(t => matchPoints[t]).ToArray();
 
             var xDifferences = matchPoints
                 .Zip(matchPoints.Skip(1), (prev, next) => next.X - prev.X)
@@ -891,6 +890,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 if (isOk)
                 {
                     selectedReviewItem.XPixelSize = verifyRealUmPerPixel;
+                    CIBViewModel.SetXPixelSize(selectedReviewItem.ProductivityInformation, selectedReviewItem.XPixelSize);
+
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                 }
                 else
