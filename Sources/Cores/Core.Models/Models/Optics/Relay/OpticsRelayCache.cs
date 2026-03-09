@@ -86,6 +86,9 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
     private Point _xZDSWFindBFMachinePosition;
 
     [ObservableProperty]
+    private double _xZScanLength;
+
+    [ObservableProperty]
     private double _startXZRelayMotorAbsoluteValue;
 
     [ObservableProperty]
@@ -93,9 +96,6 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stopXZRelayMotorAbsoluteValue;
-
-    [ObservableProperty]
-    private double _xZScanLength;
 
     [ObservableProperty]
     private double _xZCenterECS;

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Optics.Relay.Children.Step3View"
+﻿<UserControl x:Class="CugaCalibration.Views.Optics.Relay.Children.Step5View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -24,8 +24,8 @@
             <hc:UniformSpacingPanel Orientation="Vertical"
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <hc:Shield Subject="Step 4: "
-                           Status="{Binding CalibrationStepList[3].StepName}"
+                <hc:Shield Subject="Step 6: "
+                           Status="{Binding CalibrationStepList[5].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Optics Illumination Mode: "
                            Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
@@ -50,7 +50,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <TextBox Text="{Binding Cache.Item.DSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                        <TextBox Text="{Binding Cache.Item.XZDSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                                  hc:TitleElement.Title="Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />
@@ -58,11 +58,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step3Command}"
+                                    Command="{Binding Step5Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step3CancelCommand}"
+                                    Command="{Binding Step5CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>

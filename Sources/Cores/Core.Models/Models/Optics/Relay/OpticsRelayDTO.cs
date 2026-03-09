@@ -71,6 +71,12 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
     [property: System.Xml.Serialization.XmlIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
+    [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    private IScatterPlotControl _xZScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
@@ -110,15 +116,17 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
         ScatterPlotControl.Configure(new Columns(), 2);
 
         ScatterPlotControl.SetTitle(0, "Quality(Y: Quality - X: ECS)");
-        ScatterPlotControl.SetTitle(1, "Relay(Y: ECS - X: mm)");
+        ScatterPlotControl.SetTitle(1, "Z Relay(Y: ECS - X: mm)");
+
+        XZScatterPlotControl.SetTitle("X/Z Relay(Y: ECS - X: mm)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var qualityScatterLine = ScatterPlotControl.GetOrAddScatterLines(0, 1)[0];
-            var relayScatterLines = ScatterPlotControl.GetOrAddScatterLines(1, 6);
+            var qualityScatterLines = ScatterPlotControl.GetOrAddScatterLines(0, 1);
+            var relayScatterLines = ScatterPlotControl.GetOrAddScatterLines(1, 2);
 
             var isNeedRefreshes = new bool[Items.Count];
 
@@ -126,7 +134,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
             {
                 if (item.Qualitys.Count <= 0) continue;
 
-                qualityScatterLine.Update(
+                qualityScatterLines[0].Update(
                     $"{item.RelayMotorAbsoluteValue:0.###}(mm)",
                     [.. item.Qualitys.Select(t => new Point(t.ECS, t.Quality))],
                     Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
@@ -139,37 +147,49 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
             if (isNeedRefreshes.All(b => b))
             {
                 relayScatterLines[0].Update(
-                    "Z Relay",
+                    "Relay",
                     [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS))],
                     Constants.Category10.GetColor(0));
             }
 
             relayScatterLines[1].Update(
-                $"Z Relay {PolynomialCurve.ToString1(Slope, Intercept, RSquared, "0.######")}, Ratio = {RelayMotorRatio:0.###}",
+                $"{PolynomialCurve.ToString1(Slope, Intercept, RSquared, "0.######")}, Ratio = {RelayMotorRatio:0.###}",
                 FitRelayPoints,
                 Constants.Category10.GetColor(1));
-
-            relayScatterLines[2].Update(
-                "XZ Relay: X Strehl Ratio",
-                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestXStrehlRatioECS))],
-                Constants.Category10.GetColor(2));
-            relayScatterLines[3].Update(
-                "XZ Relay: Y Strehl Ratio",
-                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestYStrehlRatioECS))],
-                Constants.Category10.GetColor(3));
-            relayScatterLines[4].Update(
-                "XZ Relay: Gray",
-                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestGrayECS))],
-                Constants.Category10.GetColor(4));
-
-            relayScatterLines[5].Update(
-                $"XZ Relay {PolynomialCurve.ToString1(XZSlope, XZIntercept, XZRSquared, "0.######")}, Ratio = {RelayMotorRatio:0.###}",
-                XZFitRelayPoints,
-                Constants.Category10.GetColor(5));
         }
         finally
         {
             ScatterPlotControl.AutoScaleRefresh();
+        }
+    }
+
+    private void RefreshXZPlot()
+    {
+        try
+        {
+            var relayScatterLines = XZScatterPlotControl.GetOrAddScatterLines(4);
+
+            relayScatterLines[0].Update(
+                "X Strehl Ratio",
+                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestXStrehlRatioECS))],
+                Constants.Category10.GetColor(0));
+            relayScatterLines[1].Update(
+                "Y Strehl Ratio",
+                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestYStrehlRatioECS))],
+                Constants.Category10.GetColor(1));
+            relayScatterLines[2].Update(
+                "Gray",
+                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestGrayECS))],
+                Constants.Category10.GetColor(2));
+
+            relayScatterLines[3].Update(
+                $"{PolynomialCurve.ToString1(XZSlope, XZIntercept, XZRSquared, "0.######")}, Ratio = {RelayMotorRatio:0.###}",
+                XZFitRelayPoints,
+                Constants.Category10.GetColor(3));
+        }
+        finally
+        {
+            XZScatterPlotControl.AutoScaleRefresh();
         }
     }
 
