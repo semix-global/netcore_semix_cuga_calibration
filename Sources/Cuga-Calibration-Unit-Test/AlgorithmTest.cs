@@ -1,6 +1,4 @@
 using AwesomeAssertions;
-using Core.Models.Models.Common.DarkField;
-using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;
@@ -71,21 +69,16 @@ public sealed class AlgorithmTest
 
         grayValHTuple.ToLArr().Should().BeEquivalentTo(intTuple.ToLArr(), options => options.WithStrictOrdering());
 
-        using var algorithmDarkFieldImage = new DarkFieldImageDTO { Image = algorithmImage };
-        algorithmDarkFieldImage.RawImageFilePath = filePath;
-        using var customDarkFieldImage = new DarkFieldImageDTO { Image = customImage };
-        customDarkFieldImage.RawImageFilePath = filePath;
-
-        var algorithmResult = GetYPixelSize(algorithmDarkFieldImage);
-        var customResult = GetYPixelSize(customDarkFieldImage);
+        var algorithmResult = GetYPixelSize(algorithmImage);
+        var customResult = GetYPixelSize(customImage);
 
         algorithmResult.Should().Be(customResult);
         return;
 
 
-        double GetYPixelSize(DarkFieldImageDTO darkFieldImage)
+        double GetYPixelSize(HImage currentImage)
         {
-            algorithm.DarkPixSizeCal(darkFieldImage.Image, 1, out var drawingImageObj, out var meanTuple);
+            algorithm.DarkPixSizeCal(currentImage, 1, out var drawingImageObj, out var meanTuple);
 
             using var mean = meanTuple;
 
@@ -94,7 +87,7 @@ public sealed class AlgorithmTest
             var drawImageFilePath = $"YPixelSize({yPixelSize:f3})_DrawImage_Guid({Guid.NewGuid()}).jpg";
             var imageFilePath = $"YPixelSize({yPixelSize:f3})_Image_Guid({Guid.NewGuid()}).jpg";
 
-            darkFieldImage.Image.Save(imageFilePath);
+            currentImage.Save(imageFilePath);
             drawingImage.Save(drawImageFilePath);
 
             using var _0 = Process.Start(new ProcessStartInfo

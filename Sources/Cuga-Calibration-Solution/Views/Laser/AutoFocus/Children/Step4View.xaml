@@ -29,27 +29,28 @@
 
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <hc:NumericUpDown Width="290"
-                                      hc:InfoElement.Title="Current Position of Motor: "
-                                      hc:TitleElement.TitleWidth="210"
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      Minimum="0"
-                                      Maximum="5500"
+                    <hc:NumericUpDown hc:TitleElement.Title="Start AF(mm): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.CurrentMotorPosition, Mode=OneWay}" />
-                    <hc:NumericUpDown Width="290"
-                                      hc:InfoElement.Title="Increase Position of Motor: "
-                                      hc:TitleElement.TitleWidth="210"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      Value="{Binding Cache.StartAFMotorAbsoluteValue}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Step AF(mm): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
                                       Minimum="0"
-                                      Maximum="5500"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.IncreateMotorPosition}" />
-                    <TextBox Text="{Binding ResultLaserAutoFocusDto.EcsMotorPositionRelation, Mode=OneWay, StringFormat={}{0:f3}}"
-                             Width="290"
+                                      Value="{Binding Cache.StepAFMotorAbsoluteValue}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Stop AF(mm): "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="190"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.StopAFMotorAbsoluteValue}" />
+                    <TextBox Text="{Binding ResultLaserAutoFocusDto.EcsMotorPositionRelationSlope, Mode=OneWay, StringFormat={}{0:f3}}"
                              hc:InfoElement.Title="Motor Calibration Result:(ecs/mm): "
                              hc:TitleElement.TitleWidth="210"
                              hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Background="LightGray"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
@@ -79,12 +80,12 @@
                         <wpf:WpfPlot>
                             <i:Interaction.Behaviors>
                                 <behaviors:WpfPlotMultiBehavior Title="Transformational Relation Of The ECS And AF Motor Position"
-                                                                Plot0Title="ECS And Motor Origin Position"
+                                                                Plot0Title="Origin"
                                                                 Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                Plot0="{Binding Cache.EcsMotorOriginPositionList}"
-                                                                Plot1Title="ECS And Motor Smooth Position"
+                                                                Plot0="{Binding ResultLaserAutoFocusDto.ECSMotorOrigins}"
+                                                                Plot1Title="Fit"
                                                                 Plot1Color="{x:Static scottPlot:Colors.Orange}"
-                                                                Plot1="{Binding Cache.EcsMotorSmoothPositionList}" />
+                                                                Plot1="{Binding ResultLaserAutoFocusDto.FitECSMotorOrigins}" />
                             </i:Interaction.Behaviors>
                         </wpf:WpfPlot>
                     </Grid>

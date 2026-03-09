@@ -13,10 +13,8 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationEFEMService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationEFEMServiceMockImpl : ICalibrationEFEMService
 {
-    private static readonly Random Random = new();
-
-    private static readonly List<EFEMFoupItem> Lp1 = [.. Enumerable.Range(0, 25).Select(i => new EFEMFoupItem { StationEnum = EFEMStationEnum.P1, SlotId = 25 - i, IsHasWafer = Random.NextDouble() > 0.5 })];
-    private static readonly List<EFEMFoupItem> Lp2 = [.. Enumerable.Range(0, 25).Select(i => new EFEMFoupItem { StationEnum = EFEMStationEnum.P2, SlotId = 25 - i, IsHasWafer = Random.NextDouble() > 0.5 })];
+    private static readonly List<EFEMFoupItem> Lp1 = [.. Enumerable.Range(0, 25).Select(i => new EFEMFoupItem { StationEnum = EFEMStationEnum.P1, SlotId = 25 - i, IsHasWafer = Random.Shared.NextDouble() > 0.5 })];
+    private static readonly List<EFEMFoupItem> Lp2 = [.. Enumerable.Range(0, 25).Select(i => new EFEMFoupItem { StationEnum = EFEMStationEnum.P2, SlotId = 25 - i, IsHasWafer = Random.Shared.NextDouble() > 0.5 })];
 
     public SxExecuteRet<bool> Connect()
     {

@@ -1,5 +1,4 @@
 using Core.Models.Enums.ADS;
-using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Services.Interfaces;
@@ -10,6 +9,7 @@ using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
+using Semix.WcfTransfer.DTO;
 
 namespace Core.Services.Implements.WCF;
 
@@ -42,7 +42,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
 
     public SxExecuteRet<bool> SetSensorXSpeedFeedForwardValue(bool isPositive, (double X1, double X2) value)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetXSpeedFeed(StageSpeedEnum.Low.ToSxSpeedEnum(), isPositive, (Convert.ToUInt16(value.X1), Convert.ToUInt16(value.X2))));
+        var sxExecuteRet = Invoke(() => Service!.SetXSpeedFeed(SxSpeedEnum.Low, isPositive, (Convert.ToUInt16(value.X1), Convert.ToUInt16(value.X2))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -62,7 +62,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
 
     public SxExecuteRet<bool> SetSensorYSpeedFeedForwardValue(bool isPositive, (double Y1, double Y2, double Y3) value)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetYSpeedFeed(StageSpeedEnum.Low.ToSxSpeedEnum(), isPositive, (Convert.ToUInt16(value.Y1), Convert.ToUInt16(value.Y2), Convert.ToUInt16(value.Y3))));
+        var sxExecuteRet = Invoke(() => Service!.SetYSpeedFeed(SxSpeedEnum.Low, isPositive, (Convert.ToUInt16(value.Y1), Convert.ToUInt16(value.Y2), Convert.ToUInt16(value.Y3))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

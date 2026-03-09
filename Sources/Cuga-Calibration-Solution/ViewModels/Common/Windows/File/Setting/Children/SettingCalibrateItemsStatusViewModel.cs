@@ -15,12 +15,13 @@ using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
+using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 
 [IOCAppService(ServiceType = typeof(SettingCalibrateItemsStatusViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
-public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindowViewModelBase
+public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
 {
     private readonly IMessenger _messenger;
     private readonly IDialogWindowProvider _dialogWindowProvider;
@@ -146,7 +147,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
         }
     }
 
-    public override Task<bool> SavingAsync()
+    public Task<bool> SavingAsync()
     {
         return Task.Run(async () =>
         {
@@ -201,7 +202,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : SettingWindow
         });
     }
 
-    public override bool Closing()
+    public bool Closing()
     {
         _calibrationObj = null;
 

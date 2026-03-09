@@ -8,6 +8,10 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Models.Exceptions;
+using Local.SQL.DB.Providers.Repositories.Interfaces;
+using Local.SQL.DB.Providers.Services.Interfaces;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -18,7 +22,9 @@ using System.IO;
 namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationConfigService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationService>, ICalibrationConfigService
+public sealed class CalibrationConfigServiceImpl(
+    ISysUserRepository sysUserRepository,
+    ISysUserService sysUserService) : BaseService<ICgCalibrationService>, ICalibrationConfigService
 {
     private IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum OpticsIlluminationModeEnum, int OpticsMagType)>? _prescanChirpAODWaveConfigs;
 
@@ -33,6 +39,28 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibrationSer
             IsConnected = createService.IsSuccess;
             return createService;
         }, false);
+    }
+
+    public async Task<SxExecuteRet<SysUserDto>> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password)) throw new LoginException("The account or password cannot be empty!");
+
+        var sxExecuteRet = Invoke(() => Service!.UserCheck(user.UserName, user.Password));
+        if (sxExecuteRet.IsSuccess == false) throw new LoginException(sxExecuteRet.Msg);
+
+        var sysUser = await sysUserRepository
+            .Select
+            .Where(t => t.UserName == user.UserName)
+            .ToOneAsync(cancellationToken).ConfigureAwait(false) ?? throw new LoginException("The account or password is incorrect!");
+        if (sysUser.IsDeleted || sysUser.IsEnabled == false) throw new LoginException("The account has been deactivated and login is prohibited!");
+
+        var sysUserDto = await sysUserService.GetAsync(sysUser.Id, cancellationToken).ConfigureAwait(false) ?? throw new DbException();
+
+        sysUserDto.LoginDate = DateTime.Now;
+        var isSuccess = await sysUserService.UpdateAsync(sysUserDto, cancellationToken).ConfigureAwait(false);
+        if (isSuccess == false) throw new LoginException("Login time write failed");
+
+        return SxExecuteRetHelper.CreateSuccess(sysUserDto);
     }
 
     public SxExecuteRet<string> GetDeviceCode()

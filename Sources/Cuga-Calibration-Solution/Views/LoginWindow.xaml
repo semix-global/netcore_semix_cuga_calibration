@@ -7,10 +7,11 @@
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            Title="{Binding Title, Mode=OneWay}"
-           Width="500"
-           Height="400"
+           Width="500" Height="400"
            d:DataContext="{d:DesignInstance Type=viewModels:LoginWindowViewModel}"
+           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
            Topmost="True"
            WindowStyle="None"
            ResizeMode="NoResize"
@@ -18,6 +19,11 @@
            WindowStartupLocation="CenterScreen"
            BorderBrush="{StaticResource PrimaryBrush}"
            mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -84,13 +90,14 @@
                            HorizontalAlignment="Center"
                            FontSize="20"
                            Foreground="#bdbdbd" />
-                <TextBox Grid.Row="4"
-                         Text="{Binding SysUserDto.UserName, UpdateSourceTrigger=PropertyChanged}"
-                         Height="35"
-                         Margin="30,10"
-                         hc:InfoElement.Placeholder="Name"
-                         Style="{StaticResource TextBoxExtend}"
-                         Tag="Name" />
+                <ComboBox Grid.Row="4"
+                          Text="{Binding SysUserDto.UserName, UpdateSourceTrigger=PropertyChanged}"
+                          Height="35"
+                          Margin="30,10"
+                          hc:InfoElement.Placeholder="Name"
+                          IsEditable="True"
+                          ItemsSource="{Binding UserNames}"
+                          Style="{StaticResource ComboBoxExtend}" />
                 <PasswordBox Grid.Row="5"
                              Height="35"
                              Margin="30,10"

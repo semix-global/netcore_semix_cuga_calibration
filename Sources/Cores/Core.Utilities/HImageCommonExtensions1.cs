@@ -110,8 +110,8 @@ public static class HImageCommonExtensions1
             using var region = @this.GetDomain();
             region.GetRegionPoints(out var rowsHTuple, out var columnsHTuple);
 
-            using var _01 = rowsHTuple;
-            using var _11 = columnsHTuple;
+            using var _0 = rowsHTuple;
+            using var _1 = columnsHTuple;
 
             using var grayValHTuple = @this.GetGrayval(rowsHTuple, columnsHTuple);
 

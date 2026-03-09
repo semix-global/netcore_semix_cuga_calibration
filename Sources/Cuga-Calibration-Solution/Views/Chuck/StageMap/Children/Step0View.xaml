@@ -41,8 +41,8 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox hc:InfoElement.Title="Low Site1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                    <TextBox hc:TitleElement.Title="Low Site1(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"
                              IsReadOnly="True">
                         <TextBox.Style>
@@ -58,8 +58,8 @@
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-                    <TextBox hc:InfoElement.Title="Low Site2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                    <TextBox hc:TitleElement.Title="Low Site2(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"
                              IsReadOnly="True">
                         <TextBox.Style>
@@ -75,8 +75,8 @@
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-                    <TextBox hc:InfoElement.Title="High Site1(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                    <TextBox hc:TitleElement.Title="High Site1(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"
                              IsReadOnly="True">
                         <TextBox.Style>
@@ -92,8 +92,8 @@
                             </Style>
                         </TextBox.Style>
                     </TextBox>
-                    <TextBox hc:InfoElement.Title="High Site2(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                    <TextBox hc:TitleElement.Title="High Site2(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="100"
                              IsReadOnly="True">
                         <TextBox.Style>
@@ -165,9 +165,9 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <TextBox Text="{Binding Cache.P5Angle, StringFormat={}{0:f10}}"
-                             hc:InfoElement.Title="Degrees(°): "
+                             hc:TitleElement.Title="Degrees(°): "
                              hc:TitleElement.TitleWidth="90"
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"

@@ -1,4 +1,4 @@
-﻿namespace CugaCalibration.Views.Optics.Relay.Children;
+namespace CugaCalibration.Views.Optics.Relay.Children;
 
 public sealed partial class Step2View
 {

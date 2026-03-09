@@ -13,7 +13,6 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Status;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -161,8 +160,6 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 })
         ];
 
-        if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
-
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
@@ -260,20 +257,6 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
     #region 校准
 
-    [RelayCommand]
-    private void ChangeAllSelection(object isSelectAll)
-    {
-        try
-        {
-            var isEnabled = Convert.ToBoolean(isSelectAll);
-            foreach (var t in Cache.PmtConfigList) t.Enabled = isEnabled;
-        }
-        catch
-        {
-            ThrowHelper.ThrowArgumentException("Command Parameter Convert to Boolean Invalid!");
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
@@ -314,7 +297,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 Cache.Item.LaserLightInformation,
                 AstigmatisPMTId = Cache.CIBInformation.PMTId,
                 AstigmatismChannelId = Cache.CIBInformation.ChannelId,
-                PMTEnableList = new HtmlTable([.. Cache.PmtConfigList.Select(t => (t.Id, t.Enabled))]),
+                Cache.PMTIds,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -402,11 +385,8 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 ClearCalibrationTemp();
 
                 // 下发默认波形
-                if (LaserViewModel.TrySendAodFile(Cache.ProductivityInformation, Cache.ProductivityInformation.OpticsIlluminationModeEnum, (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation), false, out var errorMessage) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Send Default Aod Wave Failed.Error: " + errorMessage), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
+                LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 
                 var centerPosition = new Point(
                     (Cache.Item.ImageCollectionConfiguration.StartPoint.X + Cache.Item.ImageCollectionConfiguration.EndPoint.X) / 2,
@@ -572,10 +552,8 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             }
             finally
             {
-                if (LaserViewModel.TrySendAodFile(Cache.ProductivityInformation, Cache.ProductivityInformation.OpticsIlluminationModeEnum, (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation), false, out var errorMessage) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Send Default Aod Wave Failed.Error: " + errorMessage), HtmlLogUniqueId.LoggingHtml());
-                }
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, CalibrationSetting.SettingCommonParam.MainLaserLightInformation.Coefficient);
+                LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
             }
         });
 
@@ -595,17 +573,15 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
             var bytes = File.ReadAllBytes(channelItemDto.RawFilePath);
-            var image = RawImageFactory.CreateImage(bytes);
+            using var image = RawImageFactory.CreateImage(bytes);
+            image.Save(originImageFilePath);
 
-            using var darkFieldImageDto = new DarkFieldImageDTO { Image = image };
-            darkFieldImageDto.Image.Save(originImageFilePath);
-
-            var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImageDto.Image);
+            var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(image);
             linerImage.Save(linearImageFilePath);
 
             var inputDarkFieldImage = Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog
                 ? linerImage
-                : darkFieldImageDto.Image;
+                : image;
 
             if (Cache.Item.AlgorithmImageQualityTypeEnum is not AlgorithmImageQualityTypeEnum.StrehlRatio)
                 throw new NotImplementedException("Only Strehl Ratio is implemented in this version.");
@@ -683,28 +659,32 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
         var time = Cache.Item.ImageCollectionConfiguration.XUniformTime + 10d;
         var task = Task.Run(() => AfViewModel.GetZAndXSyncModeTraceBufferList(TimeSpan.FromSeconds(time)), cancellationToken);
         var darkFieldImageDtoList = Cache.Item.IsMultiPMTOnceCollection
-            ? LaserViewModel.GetMultiPMTDarkFieldLineScanImageByOnce(
+            ? await CIBViewModel.GetPMTImagesAsync(
                 Cache.ProductivityInformation,
-                Cache.CalChipSiteModelEnum,
                 StageCoordinateSystemEnum.Dark,
-                Cache.Item.ImageCollectionConfiguration,
+                Cache.Item.ImageCollectionConfiguration.ExtensionStartPoint,
+                Cache.Item.ImageCollectionConfiguration.ExtensionEndPoint,
+                Cache.Item.ImageCollectionConfiguration.ExtensionStartEcs,
+                Cache.Item.ImageCollectionConfiguration.ExtensionEndEcs,
+                [.. Cache.PMTIds.OrderBy(t => t).Select(t => ApplicationCookie.CIBInformations.Single(tt => tt.PMTId == t && tt.ChannelId == Cache.CIBInformation.ChannelId))],
+                (false, Cache.CalChipSiteModelEnum),
+                (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 true,
-                Cache.Item.CIBConfiguration,
-                Cache.PmtConfigList,
-                Cache.ApodizationModeEnum)
-            : LaserViewModel.GetMultiPMTDarkFieldLineScanImageByEnumerable(
+                cancellationToken)
+            : await CIBViewModel.GetPMTImagesByOffsetAsync(
                 Cache.ProductivityInformation,
-                Cache.CalChipSiteModelEnum,
                 StageCoordinateSystemEnum.Dark,
-                Cache.Item.ImageCollectionConfiguration,
+                Cache.Item.ImageCollectionConfiguration.ExtensionStartPoint,
+                Cache.Item.ImageCollectionConfiguration.ExtensionEndPoint,
+                Cache.Item.ImageCollectionConfiguration.ExtensionStartEcs,
+                Cache.Item.ImageCollectionConfiguration.ExtensionEndEcs,
+                [.. Cache.PMTIds.OrderBy(t => t).Select(t => ApplicationCookie.CIBInformations.Single(tt => tt.PMTId == t && tt.ChannelId == Cache.CIBInformation.ChannelId))],
+                (false, Cache.CalChipSiteModelEnum),
+                (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 true,
-                Cache.Item.CIBConfiguration,
-                Cache.PmtConfigList,
-                Cache.ApodizationModeEnum,
-                Cache.PmtInterval,
-                isAppliedLineCentricityResult);
+                cancellationToken);
 
         var traceBuffers = await task.ConfigureAwait(false);
 
@@ -718,14 +698,14 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             [
                 ..darkFieldImageDtoList.Select(t => new BestFocusAndAstigmatismChannelDTOItem
                 {
-                    PmtId = t.PMTId,
-                    ChannelId = t.ChannelId,
+                    PmtId = t.CIBInformation.PMTId,
+                    ChannelId = t.CIBInformation.ChannelId,
                     RawFilePath = t.RawImageFilePath
                 })
             ]
         };
         // todo:改成读cuga配置
-        bestFocusAndAstigmatismItemDto.LineScanRate = (double)darkFieldImageDtoList.First().Width / (bestFocusAndAstigmatismItemDto.TriggerEndIndex - bestFocusAndAstigmatismItemDto.TriggerStartIndex + 1);
+        bestFocusAndAstigmatismItemDto.LineScanRate = (double)darkFieldImageDtoList.First().Size.Width / (bestFocusAndAstigmatismItemDto.TriggerEndIndex - bestFocusAndAstigmatismItemDto.TriggerStartIndex + 1);
         return bestFocusAndAstigmatismItemDto;
     }
 

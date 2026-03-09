@@ -66,6 +66,12 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     [ObservableProperty]
     private double _findCurrentStep = 100;
 
+    [ObservableProperty]
+    private double _lowCoefficient = 0.6d;
+
+    [ObservableProperty]
+    private double _highCoefficient = 1.5d;
+
     #endregion Current
 
     #region NSC
@@ -95,19 +101,13 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     private int _retryCount = 10;
 
     [ObservableProperty]
-    private double _currentMotorPosition = 0;
+    private double _startAFMotorAbsoluteValue;
 
     [ObservableProperty]
-    private double _increateMotorPosition;
+    private double _stepAFMotorAbsoluteValue;
 
     [ObservableProperty]
-    private double[] _increateEcsAverage = [];
-
-    [ObservableProperty]
-    public Point[] _ecsMotorOriginPositionList = [];
-
-    [ObservableProperty]
-    public Point[] _ecsMotorSmoothPositionList = [];
+    private double _stopAFMotorAbsoluteValue;
 
     #endregion NSC
 }

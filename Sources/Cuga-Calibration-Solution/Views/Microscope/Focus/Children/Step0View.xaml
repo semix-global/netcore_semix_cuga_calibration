@@ -5,7 +5,6 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:behaviors1="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
              xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"

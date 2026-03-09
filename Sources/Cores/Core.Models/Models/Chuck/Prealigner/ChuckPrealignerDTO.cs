@@ -3,7 +3,6 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using Net.Utilities.Mapper;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -145,7 +144,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<
 
     public CalibrationPrealignerObj AdaptTo() => new()
     {
-        CgMicroscopeLens = HighMicroscopeLensInformation.LensCode == -1 ? 0 : CustomerAdaptToMapper.Mapper<MicroscopeLensInformation, CgMicroscopeLens>(HighMicroscopeLensInformation),
+        CgMicroscopeLens = HighMicroscopeLensInformation != MicroscopeLensInformation.Default ? HighMicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
         NewEfemLoadWaferStagePosition = ResultItemDto.NewEfemLoadWaferStagePosition.ToCgPoint(),
         EfemLoadWaferChuckAbsoluteAngle = ResultItemDto.EfemLoadWaferChuckAbsoluteAngle,
         IsCalibrated = IsCalibrated,

@@ -1,6 +1,4 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
-using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
 using Net.Utilities.Models.Geometries;
@@ -19,15 +17,15 @@ public interface ICalibrationRecipeService
 
     bool GetCorrectWaferMapByOffset(bool isAutoAlignment);
 
-    bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo);
+    bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, out ReticleMarkItemDto maskInfo);
 
     [Obsolete]
-    bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo);
+    bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, out ReticleMarkItemDto maskInfo);
 
     bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation productivityInformation, out ReticleMarkItemDto maskInfo);
 
     [Obsolete]
-    bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo);
+    bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, int? stageSpeedEnum, out ReticleMarkItemDto maskInfo);
 
     bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation productivityInformation, out ReticleMarkItemDto maskInfo);
 

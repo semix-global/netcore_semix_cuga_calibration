@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
@@ -13,7 +12,6 @@ using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.Threading;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -25,6 +23,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -57,59 +56,50 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     private async Task LoadedAsync() => await Task.Run(() => Cache = cacheProvider.GetOrDefault<ChirpAODWaveformTrainingCache>());
 
     [RelayCommand]
-    private void ImportPrescanAODWaveformParam()
+    private void ImportAODWaveformParams()
     {
         try
         {
+            var isSuccess = true;
+
+            var stringBuilder = new StringBuilder();
+
             var prescanCache = cacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
 
             var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
 
             if (prescanResult is null)
             {
-                dialogWindowProvider.ShowDialog($"{Name}: No matched found for current Productivity Information!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                return;
+                stringBuilder.AppendLine("Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam;
+                stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
             }
 
-            Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam;
-
-            dialogWindowProvider.ShowDialog($"{Name}: Import Success!");
-        }
-        catch (Exception ex)
-        {
-            dialogWindowProvider.ShowDialog($"""
-                                             {Name}: Import Parameters Failed
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            logger.LogError(ex, "Import Parameters Failed");
-        }
-    }
-
-    [RelayCommand]
-    private void ImportChirpAODWaveformParam()
-    {
-        try
-        {
             var chirpCache = cacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
 
             var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
 
             if (chirpResult is null)
             {
-                dialogWindowProvider.ShowDialog($"{Name}: No matched found for current Productivity Information!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                return;
+                stringBuilder.AppendLine("Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam;
+                stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
             }
 
-            Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam;
-
-            dialogWindowProvider.ShowDialog($"{Name}: Import Success!");
+            dialogWindowProvider.ShowDialog(stringBuilder.ToString(), DialogButtonsEnum.OK, isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
         catch (Exception ex)
         {
             dialogWindowProvider.ShowDialog($"""
-                                             {Name}: Import Parameters Failed
+                                             Import Parameters Failed
                                              {ex.Message}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
             logger.LogError(ex, "Import Parameters Failed");
@@ -292,26 +282,23 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             var startPositon = stageViewModel.MachineToBrightFieldPosition(Cache.DSWMachinePosition);
 
+            var startECS = Cache.CenterECS - Cache.RangeECS;
+            var stopECS = Cache.CenterECS + Cache.RangeECS;
             using var darkFieldImage = await cibViewModel.GetPMTImageAsync(
                 item.ProductivityInformation,
                 StageCoordinateSystemEnum.Dark,
                 startPositon,
                 startPositon + new Vector(Cache.ScanLength, 0),
+                startECS,
+                stopECS,
                 item.CIBInformation,
                 (true, null),
                 (false, Cache.CIBConfiguration),
                 (true, null),
                 true,
-                Cache.CenterECS - Cache.RangeECS,
-                Cache.CenterECS + Cache.RangeECS,
-                cancellationToken
-            );
+                cancellationToken);
 
             item.RawImageFilePath = darkFieldImage.RawImageFilePath;
-
-            using var image = Cache.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog
-                ? calibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImage.Image)
-                : darkFieldImage.Image.Copy();
 
             var (
                 xStrehlRatioPoints,
@@ -323,7 +310,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 bestYStrehlRatioPoint,
                 bestYStrehlRatioXPSFPoints,
                 bestYStrehlRatioYPSFPoints) = calibrationAlgorithmService.GetXYStrehlRatios(
-                image,
+                darkFieldImage.Image,
                 out var xStrehlRatioFitPoints,
                 out var yStrehlRatioFitPoints,
                 out var grayFitPoints,
@@ -351,6 +338,10 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             item.BestYStrehlRatioYPSFFitPoints = bestYStrehlRatioYPSFFitPoints;
 
             item.BestGrayPoint = item.GrayFitPoints.Maxima(t => t.Y).First();
+
+            item.BestXStrehlRatioECS = startECS + item.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+            item.BestYStrehlRatioECS = startECS + item.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+            item.BestGrayECS = startECS + item.BestGrayPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
 
             Cache.Items = [.. Cache.Items, item];
 

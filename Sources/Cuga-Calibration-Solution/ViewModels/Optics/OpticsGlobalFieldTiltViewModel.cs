@@ -8,7 +8,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.GlobalFieldTilt;
@@ -144,7 +143,6 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 })
         ];
 
-        if (Cache.PmtConfigList.Count == 0) Cache.PmtConfigList = [.. CalibrationSetting.SettingPmtConfigParam.PmtConfigList.Select(t => t.Clone())];
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
@@ -209,20 +207,6 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
     #region 校准
 
-    [RelayCommand]
-    private void ChangeAllSelection(object isSelectAll)
-    {
-        try
-        {
-            var isEnabled = Convert.ToBoolean(isSelectAll);
-            foreach (var t in Cache.PmtConfigList) t.Enabled = isEnabled;
-        }
-        catch
-        {
-            ThrowHelper.ThrowArgumentException("Command Parameter Convert to Boolean Invalid!");
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
@@ -251,7 +235,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                PMTEnableList = new HtmlTable([.. Cache.PmtConfigList.Select(t => (t.Id, t.Enabled))])
+                Cache.PMTIds
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
@@ -384,12 +368,12 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     StartMachinePosition = StageViewModel.DarkFieldToMachinePosition(Cache.Item.ImageCollectionConfiguration.ExtensionStartPoint),
                     EndMachinePosition = StageViewModel.DarkFieldToMachinePosition(Cache.Item.ImageCollectionConfiguration.ExtensionEndPoint),
                     afEcsLimitMin = zLimitMin,
-                    afEcsLimitMax = zLimitMax,
+                    afEcsLimitMax = zLimitMax
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                CalibratingItem = new GlobalFieldTiltDTO()
+                CalibratingItem = new GlobalFieldTiltDTO
                 {
-                    OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum,
+                    OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum
                 };
 
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
@@ -403,7 +387,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
                     Logger.LogHtmlInformation($"Multiple PMT Best Focus:Times {times}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                    var globalFieldTiltDTOItem = new GlobalFieldTiltDTOItem()
+                    var globalFieldTiltDTOItem = new GlobalFieldTiltDTOItem
                     {
                         AppliedDOEPos = OpticsViewModel.GetDOEMotorAbsoluteValue(Cache.Item.ProductivityInformation.OpticsIlluminationModeEnum)
                     };
@@ -540,31 +524,30 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
                 OpticsViewModel.SetDOEMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, selectedReviewItem.ResultItem.AppliedDOEPos);
 
-                await CIBViewModel.RuntimeAfCalibrationAsync(
-                    Cache.Item.CIBConfiguration,
-                    Cache.Item.CIBInformation,
-                    StageViewModel.DarkFieldToMachinePosition(Cache.Item.FindPosition),
-                    Cache.Item.LaserLightInformation,
+                await CIBViewModel.RuntimeAFCalibrationAsync(
                     Cache.Item.ProductivityInformation,
-                    cancellationToken,
-                    isAppliedDefaultRtfcParam: false,
-                    calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine,
-                    saveImageFileDirectory: detectImageDirectory,
-                    logGuid: HtmlLogUniqueId,
-                    logName: Cache.CalChipSiteModelEnum.ToDescriptionOrString());
+                    Cache.CalChipSiteModelEnum,
+                    StageCoordinateSystemEnum.Machine,
+                    StageViewModel.DarkFieldToMachinePosition(Cache.Item.FindPosition),
+                    800,
+                    Cache.Item.CIBInformation,
+                    Cache.Item.CIBConfiguration,
+                    Cache.Item.LaserLightInformation,
+                    detectImageDirectory,
+                    HtmlLogUniqueId,
+                    cancellationToken);
 
                 selectedReviewItem.ResultItem.BestFocusChannelItems = [];
-                foreach (var item in Cache.PmtConfigList.Where(t => t.Enabled))
+                foreach (var pmtId in Cache.PMTIds.OrderBy(t => t))
                 {
                     var verifyPosition = new Point
-                        (Cache.Item.FindPosition.X, Cache.Item.FindPosition.Y + (item.Id - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval);
+                        (Cache.Item.FindPosition.X, Cache.Item.FindPosition.Y + (pmtId - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval);
                     var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
                         Cache.Item.ProductivityInformation,
                         StageCoordinateSystemEnum.Bright,
                         verifyPosition,
-                        ApplicationCookie.CIBInformations.Single(t => t.PMTId == item.Id && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                         1000,
+                        ApplicationCookie.CIBInformations.Single(t => t.PMTId == pmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                         (false, Cache.CalChipSiteModelEnum),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
@@ -572,12 +555,12 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                         cancellationToken);
                     var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
-                    var imageFilePath = $@"{ImageFileDirectory}\Verify\{selectedReviewItem.OpticsIlluminationModeEnum}_PMT{item.Id}_Guid{HtmlLogUniqueId.LoggingHtml()}.jpg";
+                    var imageFilePath = $@"{ImageFileDirectory}\Verify\{selectedReviewItem.OpticsIlluminationModeEnum}_PMT{pmtId}_Guid{HtmlLogUniqueId.LoggingHtml()}.jpg";
                     darkFieldImageDto.Image.Save(imageFilePath);
 
-                    var bestFocusItem = new GlobalFieldTiltDTOItem.Item()
+                    var bestFocusItem = new GlobalFieldTiltDTOItem.Item
                     {
-                        PmtId = item.Id,
+                        PmtId = pmtId,
                         ChannelId = Cache.Item.CIBInformation.ChannelId,
                         XBestFocusQuality = quality,
                         RawFilePath = darkFieldImageDto.RawImageFilePath,
@@ -585,7 +568,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     };
                     selectedReviewItem.ResultItem.BestFocusChannelItems = [.. selectedReviewItem.ResultItem.BestFocusChannelItems, bestFocusItem];
 
-                    Logger.LogHtmlInformation($"PMT {item.Id} Verify", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    Logger.LogHtmlInformation($"PMT {pmtId} Verify", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
                         verifyPosition,
                         quality,
@@ -640,7 +623,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
             if (Cache.Item.AlgorithmImageQualityTypeEnum is AlgorithmImageQualityTypeEnum.Laplace)
                 await TraversalECSFunctionAsync();
             else
-                BestFocusFunction();
+                await BestFocusFunctionAsync();
 
             var xVector = Vector<double>.Build.DenseOfEnumerable([.. globalFieldTiltDTOItem.BestFocusChannelItems.Select(t => (t.PmtId - globalFieldTiltDTOItem.BestFocusChannelItems[0].PmtId) * Cache.PmtInterval)]);
             var yVector = Vector<double>.Build.DenseOfEnumerable([.. globalFieldTiltDTOItem.BestFocusChannelItems.Select(t => (t.XBestFocusEcs - globalFieldTiltDTOItem.BestFocusChannelItems[0].XBestFocusEcs) * Cache.UmPerEcs)]);
@@ -671,35 +654,42 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
             return false;
         }
 
-        void BestFocusFunction()
+        async Task BestFocusFunctionAsync()
         {
             var darkFieldImageDtoList = Cache.Item.IsMultiPMTOnceCollection
-                ? LaserViewModel.GetMultiPMTDarkFieldLineScanImageByOnce(
+                ? await CIBViewModel.GetPMTImagesAsync(
                     Cache.Item.ProductivityInformation,
-                    Cache.CalChipSiteModelEnum,
                     StageCoordinateSystemEnum.Dark,
-                    Cache.Item.ImageCollectionConfiguration,
+                    Cache.Item.ImageCollectionConfiguration.ExtensionStartPoint,
+                    Cache.Item.ImageCollectionConfiguration.ExtensionEndPoint,
+                    Cache.Item.ImageCollectionConfiguration.ExtensionStartEcs,
+                    Cache.Item.ImageCollectionConfiguration.ExtensionEndEcs,
+                    [.. Cache.PMTIds.OrderBy(t => t).Select(t => ApplicationCookie.CIBInformations.Single(tt => tt.PMTId == t && tt.ChannelId == Cache.Item.CIBInformation.ChannelId))],
+                    (false, Cache.CalChipSiteModelEnum),
+                    (false, Cache.Item.CIBConfiguration),
                     (false, Cache.Item.LaserLightInformation),
-                    true,
-                    Cache.Item.CIBConfiguration,
-                    Cache.PmtConfigList)
-                : LaserViewModel.GetMultiPMTDarkFieldLineScanImageByEnumerable(
+                    false,
+                    cancellationToken)
+                : await CIBViewModel.GetPMTImagesByOffsetAsync(
                     Cache.Item.ProductivityInformation,
-                    Cache.CalChipSiteModelEnum,
                     StageCoordinateSystemEnum.Dark,
-                    Cache.Item.ImageCollectionConfiguration,
+                    Cache.Item.ImageCollectionConfiguration.ExtensionStartPoint,
+                    Cache.Item.ImageCollectionConfiguration.ExtensionEndPoint,
+                    Cache.Item.ImageCollectionConfiguration.ExtensionStartEcs,
+                    Cache.Item.ImageCollectionConfiguration.ExtensionEndEcs,
+                    [.. Cache.PMTIds.OrderBy(t => t).Select(t => ApplicationCookie.CIBInformations.Single(tt => tt.PMTId == t && tt.ChannelId == Cache.Item.CIBInformation.ChannelId))],
+                    (false, Cache.CalChipSiteModelEnum),
+                    (false, Cache.Item.CIBConfiguration),
                     (false, Cache.Item.LaserLightInformation),
-                    true,
-                    Cache.Item.CIBConfiguration,
-                    Cache.PmtConfigList,
-                    pmtInterval: Cache.PmtInterval);
+                    false,
+                    cancellationToken);
 
             globalFieldTiltDTOItem.BestFocusChannelItems =
             [
-                ..darkFieldImageDtoList.Where(t => t.ChannelId == Cache.Item.CIBInformation.ChannelId).Select(t => new GlobalFieldTiltDTOItem.Item()
+                ..darkFieldImageDtoList.Where(t => t.CIBInformation.ChannelId == Cache.Item.CIBInformation.ChannelId).Select(t => new GlobalFieldTiltDTOItem.Item
                 {
-                    PmtId = t.PMTId,
-                    ChannelId = t.ChannelId,
+                    PmtId = t.CIBInformation.PMTId,
+                    ChannelId = t.CIBInformation.ChannelId,
                     RawFilePath = t.RawImageFilePath
                 })
             ];
@@ -712,12 +702,10 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
                 var bytes = File.ReadAllBytes(bestFocusChannelItems.RawFilePath);
-                var image = RawImageFactory.CreateImage(bytes);
+                using var image = RawImageFactory.CreateImage(bytes);
+                image.Save(originImageFilePath);
 
-                using var darkFieldImageDto = new DarkFieldImageDTO { Image = image };
-                darkFieldImageDto.Image.Save(originImageFilePath);
-
-                var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(darkFieldImageDto.Image);
+                var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(image);
                 linerImage.Save(linearImageFilePath);
 
                 bestFocusChannelItems.FilePath = originImageFilePath;
@@ -727,8 +715,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 {
                     var inputDarkFieldImage = Cache.Item.CIBConfiguration is { IsAutoGainControl: true, CIBProfileMode: CIBProfileModeEnum.PMTLog }
                         ? linerImage
-                        : darkFieldImageDto.Image;
-
+                        : image;
 
                     Point[] xFitPoints = [];
                     Point[] xQualityPoints = [];
@@ -776,23 +763,23 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
         {
             AfViewModel.ToggleBrightFieldEnable(false);
 
-            foreach (var pmt in Cache.PmtConfigList.Where(t => t.Enabled).OrderBy(t => t.Id))
+            foreach (var pmtId in Cache.PMTIds.OrderBy(t => t))
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Logger.LogHtmlInformation($"PMT {pmt.Id}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"PMT {pmtId}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                var detectImageDirectory = Path.Combine(ImageFileDirectory, "Traversal", $"{pmt.Id}");
+                var detectImageDirectory = Path.Combine(ImageFileDirectory, "Traversal", $"{pmtId}");
 
-                var channelItem = new GlobalFieldTiltDTOItem.Item()
+                var channelItem = new GlobalFieldTiltDTOItem.Item
                 {
-                    PmtId = pmt.Id,
+                    PmtId = pmtId,
                     ChannelId = Cache.Item.CIBInformation.ChannelId
                 };
                 globalFieldTiltDTOItem.BestFocusChannelItems = [.. globalFieldTiltDTOItem.BestFocusChannelItems, channelItem];
 
                 Logger.LogHtmlInformation("Roughly", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
-                var findPosition = Cache.Item.ImageCollectionConfiguration.StartPoint + (Vector)new Point(0, (pmt.Id - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval);
+                var findPosition = Cache.Item.ImageCollectionConfiguration.StartPoint + (Vector)new Point(0, (pmtId - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval);
                 await CatchImageAsync(Generate.LinearRange(
                     Cache.Item.CenterECS - Cache.Item.RangeECS,
                     Cache.Item.StepECS,
@@ -800,7 +787,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
                 Logger.LogHtmlInformation("Refined", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
-                findPosition = Cache.Item.ImageCollectionConfiguration.EndPoint + (Vector)new Point(0, (pmt.Id - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval);
+                findPosition = Cache.Item.ImageCollectionConfiguration.EndPoint + (Vector)new Point(0, (pmtId - CalibrationConstantsHelper.MainPmtId) * Cache.PmtInterval);
                 await CatchImageAsync(Generate.LinearRange(
                     channelItem.XBestFocusEcs - Cache.Item.RangeRefinedECS,
                     Cache.Item.StepRefinedECS,
@@ -823,8 +810,8 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                             Cache.Item.ProductivityInformation,
                             StageCoordinateSystemEnum.Dark,
                             findPosition,
-                            ApplicationCookie.CIBInformations.Single(t => t.PMTId == pmt.Id && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                             Cache.Item.ImageWidth,
+                            ApplicationCookie.CIBInformations.Single(t => t.PMTId == pmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                             (false, Cache.CalChipSiteModelEnum),
                             (false, Cache.Item.CIBConfiguration),
                             (false, Cache.Item.LaserLightInformation),

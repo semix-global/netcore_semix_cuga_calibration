@@ -6,8 +6,6 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:dependencyHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
-             xmlns:opticsEnum="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
-             xmlns:stageSpeedEnum="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              xmlns:waferEnum="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
@@ -109,30 +107,7 @@
                                 <GridViewColumn Width="700" Header="Dark Template">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <hc:UniformSpacingPanel Orientation="Horizontal">
-                                                <hc:ComboBox Margin="5"
-                                                             hc:InfoElement.TitlePlacement="Left"
-                                                             hc:InfoElement.Title="Optics Type: "
-                                                             SelectedItem="{Binding RecipeDarkFieldTemplateDto.OpticsMagTypeEnum}"
-                                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type opticsEnum:OpticsMagTypeEnum}}}">
-                                                    <hc:ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        </DataTemplate>
-                                                    </hc:ComboBox.ItemTemplate>
-                                                </hc:ComboBox>
-                                                <hc:ComboBox Margin="5"
-                                                             hc:InfoElement.TitlePlacement="Left"
-                                                             hc:InfoElement.Title="Stage Speed: "
-                                                             SelectedItem="{Binding RecipeDarkFieldTemplateDto.StageSpeedEnum}"
-                                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stageSpeedEnum:StageSpeedEnum}}}">
-                                                    <hc:ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        </DataTemplate>
-                                                    </hc:ComboBox.ItemTemplate>
-                                                </hc:ComboBox>
-                                            </hc:UniformSpacingPanel>
+                                            <hc:UniformSpacingPanel Orientation="Horizontal" />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>

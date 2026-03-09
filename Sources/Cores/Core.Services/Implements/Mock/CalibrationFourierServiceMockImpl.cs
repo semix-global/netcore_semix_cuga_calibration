@@ -12,8 +12,6 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationFourierService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierService
 {
-    private static readonly Random Random = new();
-
     public SxExecuteRet<bool> Connect()
     {
         Thread.Sleep(100);
@@ -23,8 +21,14 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 
     public SxExecuteRet<HImage> GetFourierImage(int channelId)
     {
-        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(2048, 2044, 10, Random);
+        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(2048, 2044, 10, Random.Shared);
+
+#pragma warning disable IDE0079
+#pragma warning disable IDISP004
 
         return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
+
+#pragma warning restore IDISP004
+#pragma warning restore IDE0079
     }
 }
