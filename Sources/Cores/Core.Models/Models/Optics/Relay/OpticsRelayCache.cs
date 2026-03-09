@@ -4,6 +4,7 @@ using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Core.Models.Models.Common.Alignment;
 
 namespace Core.Models.Models.Optics.Relay;
 
@@ -43,6 +44,9 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
+    private AlignmentResultDto _alignmentResult = new();
+
+    [ObservableProperty]
     private Point _dSWFindBFMachinePosition;
 
     [ObservableProperty]
@@ -64,17 +68,41 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
     private double _stopRelayMotorAbsoluteValue;
 
     [ObservableProperty]
-    private double _startRoughECS;
+    private double _centerRoughECS;
+
+    [ObservableProperty]
+    private double _rangeRoughECS;
 
     [ObservableProperty]
     private double _stepRoughECS;
-
-    [ObservableProperty]
-    private double _stopRoughECS;
 
     [ObservableProperty]
     private double _rangeRefinedECS;
 
     [ObservableProperty]
     private double _stepRefinedECS;
+
+    [ObservableProperty]
+    private Point _xZDSWFindBFMachinePosition;
+
+    [ObservableProperty]
+    private double _startXZRelayMotorAbsoluteValue;
+
+    [ObservableProperty]
+    private double _stepXZRelayMotorAbsoluteValue;
+
+    [ObservableProperty]
+    private double _stopXZRelayMotorAbsoluteValue;
+
+    [ObservableProperty]
+    private double _xZScanLength;
+
+    [ObservableProperty]
+    private double _xZCenterECS;
+
+    [ObservableProperty]
+    private double _xZRangeECS;
+
+    [ObservableProperty]
+    private OpticsStrehlRatioTypeEnum _opticsStrehlRatioTypeEnum = OpticsStrehlRatioTypeEnum.Gray;
 }

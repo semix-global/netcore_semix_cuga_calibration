@@ -282,13 +282,15 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             var startPositon = stageViewModel.MachineToBrightFieldPosition(Cache.DSWMachinePosition);
 
+            var startECS = Cache.CenterECS - Cache.RangeECS;
+            var stopECS = Cache.CenterECS + Cache.RangeECS;
             using var darkFieldImage = await cibViewModel.GetPMTImageAsync(
                 item.ProductivityInformation,
                 StageCoordinateSystemEnum.Dark,
                 startPositon,
                 startPositon + new Vector(Cache.ScanLength, 0),
-                Cache.CenterECS - Cache.RangeECS,
-                Cache.CenterECS + Cache.RangeECS,
+                startECS,
+                stopECS,
                 item.CIBInformation,
                 (true, null),
                 (false, Cache.CIBConfiguration),
@@ -336,6 +338,10 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             item.BestYStrehlRatioYPSFFitPoints = bestYStrehlRatioYPSFFitPoints;
 
             item.BestGrayPoint = item.GrayFitPoints.Maxima(t => t.Y).First();
+
+            item.BestXStrehlRatioECS = startECS + item.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+            item.BestYStrehlRatioECS = startECS + item.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+            item.BestGrayECS = startECS + item.BestGrayPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
 
             Cache.Items = [.. Cache.Items, item];
 
