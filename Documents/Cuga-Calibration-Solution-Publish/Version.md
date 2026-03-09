@@ -243,3 +243,101 @@
 >      #81 MMD1.0
 >      
 >      #84 下发波形文件配置
+
+## 2.5.0.0309
+
+>   1. 新增校准、诊断
+>
+>       #81 MMD 1.1
+>
+>       #86 MMD1.2
+>
+>       #88 明暗场对准offset校准
+>
+>       #90 4电极初始化程序
+>
+>       #91 Prescan AOD 相位校准1.0
+>
+>       #93 OI NI Relay1.0
+>
+>       #94 BestFocus
+>
+>       #101 Light Matching
+>
+>       #105 Optics INC
+>
+>       #108 AOD Uniformity、算法图像新结构
+>
+>       #110 采集偏振Analyzer校准1.0 版 Loading依赖项各校准获取方式更正
+>
+>       #114 Global Focus Offset
+>
+>       #116 AOD Waveform And Training
+>
+>       #120 MMD1.3、CollectionFocusAlignOpticsFocus、OpticsObjectiveYAngle这两个校准同步KLA
+>
+>       #127 DF Calchip
+>
+>       \#134 AUTO FOCUS修改低中高2.0
+>
+>       \#138 OI NI Relay2.0 Optics Relay添加X/Z同步运动
+>
+>   2.   架构
+>
+>        #92 X/Y Pixel Size、Line Centricity 选择OINI、选择产率 界面改成ListBox
+>
+>        #115 权限的源生成器
+>
+>        #120 cache 导入导出弹窗以及不需要的属性删除
+>
+>        #121 缓存导入导出
+>
+>        #126 移除litedb
+>
+>        #129  所有已发布的校准启动页面Loading相互依赖关系2.0,load依赖项代码规范化
+>
+>        #130 校准的架构调整：OpticsMagTypeEnum 彻底移除，包含相关服务分离（laser分离到具体比如optics，cib等）
+>
+>        \#140 CUGA 登录用户权限控制
+>
+>        \#141 采图诊断工具2.0, setting页面2.0
+>
+>   3.   优化
+>
+>        #24  新增加了接口，将Cuga自动速度移动chuck修改为固定速度
+>
+>        #63 Y Pixel Size Line Centricity 增加垂直入射 
+>        #68 X Pixel Size 校准3.0（NI路）
+>
+>        #69 激光DOE Angle校准修改为产率版本，并合并到主分支
+>
+>        #70 line orientation正反向校准修改为产率模式，增加了操作步骤
+>
+>        #78 chuck center和theta scale合二为一，global和theta scale改成累乘，简化选点步骤#87 calchip重构，暗场验证方式改成清晰度的方式
+>
+>        #91 prescan chirp 多电极校准工具统一 
+>
+>        #100 OI NI AOD Alignment Delay Laser Optics Power Meter Laser Attenutar 
+>        #104 CIB Illumination Profile 
+>
+>        #106 Prealigner校准流程改为循环n次
+>        #107 calchip dsw Alignment
+>
+>        #108 CIB XTC
+>
+>        #109 X pixel size采图线数优化新增需求
+>
+>        #113 校准兼容chuck和dsw模式
+>
+>        #116 AOD Waveform And Training 优化
+>        #117 Global Field Tilt方案修改，兼容遍历和bestfocus
+>
+>        #124 y pixel size迁移到CIB目录，替换算法
+>
+>        #125 CIB Line Centricity迁移到CIB目录，替换算法
+>
+>        #126 y Strehl 比添加二次项
+>
+>        #132 转线型图bugfix
+>
+>        \#142 线性图采图接口转换, x pixel size算法MAD NMS 优化
