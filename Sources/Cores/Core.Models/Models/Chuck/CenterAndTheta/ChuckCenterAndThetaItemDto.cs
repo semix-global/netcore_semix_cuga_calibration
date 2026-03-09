@@ -79,63 +79,63 @@ public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICl
         switch (SiteDirection)
         {
             case StageDirectionTypeEnum.Up:
-            {
-                if (IsPositive)
                 {
-                    PositiveMatchResult.TopPosition = point;
-                    PositiveMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
+                    if (IsPositive)
+                    {
+                        PositiveMatchResult.TopPosition = point;
+                        PositiveMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
+                    }
+                    else
+                    {
+                        NegativeMatchResult.TopPosition = point;
+                        NegativeMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
+                    }
                 }
-                else
-                {
-                    NegativeMatchResult.TopPosition = point;
-                    NegativeMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
-                }
-            }
                 break;
 
             case StageDirectionTypeEnum.Down:
-            {
-                if (IsPositive)
                 {
-                    PositiveMatchResult.BottomPosition = point;
-                    PositiveMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
+                    if (IsPositive)
+                    {
+                        PositiveMatchResult.BottomPosition = point;
+                        PositiveMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
+                    }
+                    else
+                    {
+                        NegativeMatchResult.BottomPosition = point;
+                        NegativeMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
+                    }
                 }
-                else
-                {
-                    NegativeMatchResult.BottomPosition = point;
-                    NegativeMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
-                }
-            }
                 break;
 
             case StageDirectionTypeEnum.Left:
-            {
-                if (IsPositive)
                 {
-                    PositiveMatchResult.LeftPosition = point;
-                    PositiveMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
+                    if (IsPositive)
+                    {
+                        PositiveMatchResult.LeftPosition = point;
+                        PositiveMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
+                    }
+                    else
+                    {
+                        NegativeMatchResult.LeftPosition = point;
+                        NegativeMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
+                    }
                 }
-                else
-                {
-                    NegativeMatchResult.LeftPosition = point;
-                    NegativeMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
-                }
-            }
                 break;
 
             case StageDirectionTypeEnum.Right:
-            {
-                if (IsPositive)
                 {
-                    PositiveMatchResult.RightPosition = point;
-                    PositiveMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
+                    if (IsPositive)
+                    {
+                        PositiveMatchResult.RightPosition = point;
+                        PositiveMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
+                    }
+                    else
+                    {
+                        NegativeMatchResult.RightPosition = point;
+                        NegativeMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
+                    }
                 }
-                else
-                {
-                    NegativeMatchResult.RightPosition = point;
-                    NegativeMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
-                }
-            }
                 break;
         }
     }

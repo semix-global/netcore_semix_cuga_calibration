@@ -1,8 +1,8 @@
-﻿using System.Globalization;
-using System.Windows;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.ImageViewer.WPF.Drawables;
 using Net.Utilities.WPF.Converters;
+using System.Globalization;
+using System.Windows;
 
 namespace Core.Models.Models.Common.DarkField;
 

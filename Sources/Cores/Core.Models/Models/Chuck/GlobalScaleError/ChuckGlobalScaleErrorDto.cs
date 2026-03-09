@@ -48,31 +48,31 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
         switch (SiteDirection)
         {
             case StageDirectionTypeEnum.Up:
-            {
-                HighSiteMatchResult.TopPosition = point;
-                HighSiteMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
-            }
+                {
+                    HighSiteMatchResult.TopPosition = point;
+                    HighSiteMatchResult.TopFindResultImageFilePath = findResultImageFilePath;
+                }
                 break;
 
             case StageDirectionTypeEnum.Down:
-            {
-                HighSiteMatchResult.BottomPosition = point;
-                HighSiteMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
-            }
+                {
+                    HighSiteMatchResult.BottomPosition = point;
+                    HighSiteMatchResult.BottomFindResultImageFilePath = findResultImageFilePath;
+                }
                 break;
 
             case StageDirectionTypeEnum.Left:
-            {
-                HighSiteMatchResult.LeftPosition = point;
-                HighSiteMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
-            }
+                {
+                    HighSiteMatchResult.LeftPosition = point;
+                    HighSiteMatchResult.LeftFindResultImageFilePath = findResultImageFilePath;
+                }
                 break;
 
             case StageDirectionTypeEnum.Right:
-            {
-                HighSiteMatchResult.RightPosition = point;
-                HighSiteMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
-            }
+                {
+                    HighSiteMatchResult.RightPosition = point;
+                    HighSiteMatchResult.RightFindResultImageFilePath = findResultImageFilePath;
+                }
                 break;
         }
     }

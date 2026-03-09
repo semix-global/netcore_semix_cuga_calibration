@@ -25,9 +25,9 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP004
-        
+
         return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
-        
+
 #pragma warning restore IDISP004
 #pragma warning restore IDE0079
     }

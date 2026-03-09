@@ -184,8 +184,8 @@ public sealed partial class LaserAutoFocusDto : CalibrationDtoBase, ICloneable<L
         EcsMotorPositionRelationRSquare = EcsMotorPositionRelationRSquare,
         MinAFMotorAbsoluteValue = MinAFMotorAbsoluteValue,
         MaxAFMotorAbsoluteValue = MaxAFMotorAbsoluteValue,
-        ECSMotorOrigins = [..ECSMotorOrigins],
-        FitECSMotorOrigins = [..FitECSMotorOrigins],
+        ECSMotorOrigins = [.. ECSMotorOrigins],
+        FitECSMotorOrigins = [.. FitECSMotorOrigins],
         Id = Id,
         Expiration = Expiration
     };

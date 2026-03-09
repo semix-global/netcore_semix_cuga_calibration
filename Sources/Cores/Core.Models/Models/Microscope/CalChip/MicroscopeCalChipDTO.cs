@@ -4,6 +4,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Utilities;
 using Core.Wcf.Models.Microscope;
+using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -15,7 +16,6 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using Cuga.Data.DataStruct.Microscope.Enums;
 
 namespace Core.Models.Models.Microscope.CalChip;
 

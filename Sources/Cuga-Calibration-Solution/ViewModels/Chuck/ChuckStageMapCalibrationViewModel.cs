@@ -1286,9 +1286,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             }
 
             var plotDicGroup = (from kvp in plotDic
-                group kvp.Value by kvp.Key.RepeatIndex
+                                group kvp.Value by kvp.Key.RepeatIndex
                 into g
-                select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                                select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
             if (plotDicGroup.Count == 0)
                 continue;
 

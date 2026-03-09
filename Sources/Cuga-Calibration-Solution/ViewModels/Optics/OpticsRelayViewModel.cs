@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
@@ -24,7 +25,6 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using Core.Models.Enums.Optics;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -429,8 +429,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     if (CalibratingItem.Items.Count > 1)
                     {
                         var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
-                            Vector<double>.Build.Dense([..CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)]),
-                            Vector<double>.Build.Dense([..CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)]));
+                            Vector<double>.Build.Dense([.. CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)]),
+                            Vector<double>.Build.Dense([.. CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)]));
 
                         defaultSlope = slope;
                         CalibratingItem.Slope = slope;
@@ -705,7 +705,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     if (CalibratingItem.XZItems.Count > 1)
                     {
                         var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
-                            Vector<double>.Build.Dense([..CalibratingItem.XZItems.Select(t => t.RelayMotorAbsoluteValue)]),
+                            Vector<double>.Build.Dense([.. CalibratingItem.XZItems.Select(t => t.RelayMotorAbsoluteValue)]),
                             Vector<double>.Build.Dense([
                                 ..CalibratingItem.XZItems.Select(t => Cache.Item.OpticsStrehlRatioQualityTypeEnum switch
                                 {

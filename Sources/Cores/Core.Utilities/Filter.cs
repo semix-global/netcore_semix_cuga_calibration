@@ -1,4 +1,4 @@
-﻿using MathNet.Numerics.Statistics;
+using MathNet.Numerics.Statistics;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Utilities;
@@ -18,7 +18,7 @@ public static class Filter
 
         var tuples = filters.Index().Where(t => lowerBound <= t.Item && t.Item <= upperBound).ToArray();
 
-        return ([..tuples.Select(t => t.Index)], [..tuples.Select(t => t.Item)]);
+        return ([.. tuples.Select(t => t.Index)], [.. tuples.Select(t => t.Item)]);
     }
 
     public static (int[] Indexes, double[] Result) IQR(IReadOnlyList<double> filters, double multiplier = 1.5)
@@ -32,7 +32,7 @@ public static class Filter
 
         var tuples = filters.Index().Where(t => lowerBound <= t.Item && t.Item <= upperBound).ToArray();
 
-        return ([..tuples.Select(t => t.Index)], [..tuples.Select(t => t.Item)]);
+        return ([.. tuples.Select(t => t.Index)], [.. tuples.Select(t => t.Item)]);
     }
 
     public static (int[] Indexes, double[] Result) ZScore(IReadOnlyList<double> filters, double k = 3d)
@@ -45,7 +45,7 @@ public static class Filter
 
         var tuples = filters.Index().Where(t => lowerBound <= t.Item && t.Item <= upperBound).ToArray();
 
-        return ([..tuples.Select(t => t.Index)], [..tuples.Select(t => t.Item)]);
+        return ([.. tuples.Select(t => t.Index)], [.. tuples.Select(t => t.Item)]);
     }
 
     public static (int[] Indexes, Point[] Result) NMS(IReadOnlyList<Point> filters, double distanceThreshold)
@@ -71,6 +71,6 @@ public static class Filter
 
         tupleList = tupleList.OrderBy(t => t.Item.X).ToList();
 
-        return ([..tupleList.Select(t => t.Index)], [..tupleList.Select(t => t.Item)]);
+        return ([.. tupleList.Select(t => t.Index)], [.. tupleList.Select(t => t.Item)]);
     }
 }

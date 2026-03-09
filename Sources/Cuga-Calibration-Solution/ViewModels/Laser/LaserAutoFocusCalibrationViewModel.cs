@@ -932,10 +932,10 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.FindPosition,
                 Cache.StartAFMotorAbsoluteValue,
-                Cache.StepAFMotorAbsoluteValue, 
+                Cache.StepAFMotorAbsoluteValue,
                 Cache.StopAFMotorAbsoluteValue
             }), HtmlLogUniqueId.LoggingHtml());
-            
+
             try
             {
                 var afMotorAbsoluteValues = Generate.LinearRange(Cache.StartAFMotorAbsoluteValue, Cache.StepAFMotorAbsoluteValue, Cache.StopAFMotorAbsoluteValue);
