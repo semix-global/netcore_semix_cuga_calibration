@@ -517,9 +517,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                Guard.IsTrue(Save([CalibratingItem], cancellationToken));
-
-                return CalibratingItem.IsCalibrated;
+                return true;
             }
             finally
             {
@@ -676,6 +674,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     async Task CatchImageAsync(double startECS, double stopECS)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat)}");
 
                         using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(

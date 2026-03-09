@@ -147,7 +147,7 @@
                                                 <ListBox Margin="5" ItemsSource="{Binding XZItems}">
                                                     <ListBox.ItemsPanel>
                                                         <ItemsPanelTemplate>
-                                                            <WrapPanel Orientation="Horizontal" />
+                                                            <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                                         </ItemsPanelTemplate>
                                                     </ListBox.ItemsPanel>
                                                     <ListBox.ItemTemplate>

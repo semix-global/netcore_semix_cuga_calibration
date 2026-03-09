@@ -84,8 +84,7 @@
                         <hc:NumericUpDown hc:TitleElement.Title="X/Z Center(ECS): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Background="{StaticResource SecondaryRegionBrush}" />
+                                          Style="{StaticResource NumericUpDownExtend}" />
                         <hc:NumericUpDown hc:TitleElement.Title="X/Z ±Range(ECS): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
@@ -192,7 +191,7 @@
                             <ListBox Margin="5" ItemsSource="{Binding SelectedItems, ElementName=ListView}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" />
+                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
                                     </ItemsPanelTemplate>
                                 </ListBox.ItemsPanel>
                                 <ListBox.ItemTemplate>
