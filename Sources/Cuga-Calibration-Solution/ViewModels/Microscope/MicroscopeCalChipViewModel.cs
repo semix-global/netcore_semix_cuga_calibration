@@ -444,7 +444,7 @@ public sealed partial class MicroscopeCalChipViewModel() : CalibrationViewModelB
                 cancellationToken.ThrowIfCancellationRequested();
 
                 AfViewModel.SetSensorEcsValue(ecs);
-                var dtoItem = new MicroscopeCalChipDTOItem()
+                var dtoItem = new MicroscopeCalChipDTOItem
                 {
                     EcsValue = ecs,
                     FilePath = currentDetectImageDirectory

@@ -371,7 +371,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     afEcsLimitMax = zLimitMax
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                CalibratingItem = new GlobalFieldTiltDTO()
+                CalibratingItem = new GlobalFieldTiltDTO
                 {
                     OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum
                 };
@@ -387,7 +387,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
                     Logger.LogHtmlInformation($"Multiple PMT Best Focus:Times {times}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                    var globalFieldTiltDTOItem = new GlobalFieldTiltDTOItem()
+                    var globalFieldTiltDTOItem = new GlobalFieldTiltDTOItem
                     {
                         AppliedDOEPos = OpticsViewModel.GetDOEMotorAbsoluteValue(Cache.Item.ProductivityInformation.OpticsIlluminationModeEnum)
                     };
@@ -558,7 +558,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     var imageFilePath = $@"{ImageFileDirectory}\Verify\{selectedReviewItem.OpticsIlluminationModeEnum}_PMT{pmtId}_Guid{HtmlLogUniqueId.LoggingHtml()}.jpg";
                     darkFieldImageDto.Image.Save(imageFilePath);
 
-                    var bestFocusItem = new GlobalFieldTiltDTOItem.Item()
+                    var bestFocusItem = new GlobalFieldTiltDTOItem.Item
                     {
                         PmtId = pmtId,
                         ChannelId = Cache.Item.CIBInformation.ChannelId,
@@ -686,7 +686,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
             globalFieldTiltDTOItem.BestFocusChannelItems =
             [
-                ..darkFieldImageDtoList.Where(t => t.CIBInformation.ChannelId == Cache.Item.CIBInformation.ChannelId).Select(t => new GlobalFieldTiltDTOItem.Item()
+                ..darkFieldImageDtoList.Where(t => t.CIBInformation.ChannelId == Cache.Item.CIBInformation.ChannelId).Select(t => new GlobalFieldTiltDTOItem.Item
                 {
                     PmtId = t.CIBInformation.PMTId,
                     ChannelId = t.CIBInformation.ChannelId,
@@ -770,7 +770,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
                 var detectImageDirectory = Path.Combine(ImageFileDirectory, "Traversal", $"{pmtId}");
 
-                var channelItem = new GlobalFieldTiltDTOItem.Item()
+                var channelItem = new GlobalFieldTiltDTOItem.Item
                 {
                     PmtId = pmtId,
                     ChannelId = Cache.Item.CIBInformation.ChannelId

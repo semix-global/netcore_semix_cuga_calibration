@@ -496,7 +496,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             CalibratingItems = ApplicationCookie.CIBInformationPMTIds
                 .OrderBy(t => t)
                 .Select(t =>
-                    new CIBLineCentricityDTO()
+                    new CIBLineCentricityDTO
                     {
                         MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation,
                         ProductivityInformation = Cache.ProductivityInformation,
@@ -700,10 +700,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
                 if (isOk)
                 {
-                    if (selectedReviewItem.PmtId == CalibrationSetting.SettingCommonParam.MainCIBInformation.PMTId)
-                    {
-                        StageViewModel.SetDarkFieldCenterMachinePositionValue(selectedReviewItem.DFMachineCenterPosition);
-                    }
+                    if (selectedReviewItem.PmtId == CalibrationSetting.SettingCommonParam.MainCIBInformation.PMTId) StageViewModel.SetDarkFieldCenterMachinePositionValue(selectedReviewItem.DFMachineCenterPosition);
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                 }
