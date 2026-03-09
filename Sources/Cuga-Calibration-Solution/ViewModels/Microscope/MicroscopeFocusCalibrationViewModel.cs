@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
@@ -6,7 +7,6 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -54,7 +54,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     private MicroscopeFocusItemDto? _resultMicroscopeFocusItemDto;
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeLensInfoCalibrationStatus> _calibrationStatusList = [];
+    private IReadOnlyList<MicroscopeLensInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -100,19 +100,22 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
         Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
 
-        SynchronizationContextProvider.Send(() =>
-            CalibrationStatusList =
-            [
-                .. ApplicationCookie.MicroscopeLensInformations
-                    .Select(t => new MicroscopeLensInfoCalibrationStatus { MicroscopeLensInformation = t, IsCalibrated = false })
-            ]
-        );
-        foreach (var calibrationStatus in Calibrations)
-        {
-            CalibrationStatusList
-                .Single(t => t.MicroscopeLensInformation == calibrationStatus.LensInformation)
-                .IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+        if (CalibratingStatuses.Count == 0)
+            CalibratingStatuses = [.. ApplicationCookie.MicroscopeLensInformations.Select(t => new MicroscopeLensInformationStatus { SelectedItem = t })];
+
+        Calibrations =
+        [
+            .. Calibrations
+                .Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))
+                .Select(t =>
+                {
+                    CalibratingStatuses
+                        .Single(tt => tt.SelectedItem == t.LensInformation)
+                        .IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
 
         RecipeCacheProvider.Set(Cache, cancellationToken);
 
@@ -162,26 +165,11 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 return true;
 
             case 2:
-                if (ResultMicroscopeFocusItemDto is null)
-                {
-                    DialogWindowProvider.TryShowDialog("Please find focus!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                    if (dialogButtonsEnum == DialogResultEnum.Retry) return false;
-                }
-                else
-                {
-                    ResultMicroscopeFocusItemDto.IsCalibrated = true;
-                    if (Save(ResultMicroscopeFocusItemDto, cancellationToken) == false)
-                    {
-                        ResultMicroscopeFocusItemDto.IsCalibrated = false;
-                        Logger.LogError("{@Name} Error: Save Failed!", Name);
-                        return false;
-                    }
-                }
+                CalibratingStatuses
+                    .Single(t => t.SelectedItem == Cache.MicroscopeLensInformation)
+                    .IsCalibrated = true;
 
-                CalibrationStatusList.Single(t => t.MicroscopeLensInformation == SelectMicroscopeFocusCacheItem.LensInformation).IsCalibrated = true;
-                //DialogWindowProvider.ShowDialog("Find Focus Ok!");
-
-                IsCalibrated = CalibrationStatusList.All(s => s.IsCalibrated);
+                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 ClearCalibrationTemp();
@@ -359,6 +347,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             AfViewModel.SetSensorBrightFieldChuckStandardEcsValue(ResultMicroscopeFocusItemDto.LensInformation, ResultMicroscopeFocusItemDto.EcsValue);
             MicroscopeViewModel.SetVoltage(ResultMicroscopeFocusItemDto.MicroscopeVoltage);
 
+            ResultMicroscopeFocusItemDto.IsCalibrated = true;
+            Guard.IsTrue(Save([ResultMicroscopeFocusItemDto], cancellationToken));
+
             Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 TransBufferValueArray = afErrorAverage,
@@ -461,12 +452,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         Cache.VerifyResultError = error;
 
         selectReviewItemDto.IsVerified = result;
-        if (Save(selectReviewItemDto, cancellationToken) == false)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-            selectReviewItemDto.IsVerified = false;
-            return false;
-        }
+        Guard.IsTrue(Save([selectReviewItemDto], cancellationToken));
 
         Logger.LogHtmlInformation($"Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
         {
@@ -498,11 +484,8 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             {
                 DialogWindowProvider.ShowDialog($"Parfocal {(result ? "OK" : "Failed")}, Offset: {parfocalOffset}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
                 selectReviewItemDto.IsVerified = false;
-                if (Save(selectReviewItemDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
+
+                Guard.IsTrue(Save([selectReviewItemDto], cancellationToken));
             }
 
             Logger.LogHtmlInformation($"Parfocal {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -552,17 +535,19 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         Logger.LogHtmlInformation($"Get Quality, Ecs:{microscopeFocusItemDto.EcsValue}", HtmlHeaderLevelEnum.Header4, htmlBulletList, HtmlLogUniqueId.LoggingHtml());
     }
 
-    private bool Save(MicroscopeFocusItemDto itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(IReadOnlyList<MicroscopeFocusItemDto> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
-        update(itemDto);
         update(Cache);
 
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => t.LensInformation != itemDto.LensInformation),
-            itemDto.Clone()
-        ];
+        foreach (var dto in dtos)
+        {
+            update(dto);
+            Calibrations =
+            [
+                .. Calibrations.Where(t => t.LensInformation != dto.LensInformation),
+                dto
+            ];
+        }
 
         foreach (var microscopeFocusCacheItem in Cache.MicroscopeFocusCacheItemDic)
         {

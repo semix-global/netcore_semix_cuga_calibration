@@ -1,18 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
 using AwesomeAssertions;
 using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
-using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Plottables;
-using ScottPlot;
+using System.Diagnostics;
+using System.IO;
 using Xunit;
 
 namespace CugaCalibrationUnitTest;

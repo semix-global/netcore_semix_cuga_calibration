@@ -38,8 +38,8 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:ComboBox Width="275"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Wafer Mask Type: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Wafer Mask Type: "
                                  SelectedItem="{Binding SelectMicroscopePixelSizeCacheItem.WaferMaskTypeEnum}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type wafer:WaferMaskTypeEnum}}}">
                         <hc:ComboBox.ItemTemplate>
@@ -50,8 +50,8 @@
                     </hc:ComboBox>
                     <TextBox Text="{Binding SelectMicroscopePixelSizeCacheItem.FindPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel Margin="5"
                                             HorizontalAlignment="Left"
