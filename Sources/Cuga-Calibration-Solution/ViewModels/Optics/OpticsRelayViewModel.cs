@@ -43,10 +43,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Image Param" },
         new() { StepName = "Alignment" },
-        new() { StepName = "Find Z DSW Position" },
-        new() { StepName = "Z Relay" },
-        new() { StepName = "Find X/Z DSW Position" },
-        new() { StepName = "X/Z Relay" }
+        new() { StepName = "Find Z Sync DSW Position" },
+        new() { StepName = "Z Sync Relay" },
+        new() { StepName = "Find X/Z Sync DSW Position" },
+        new() { StepName = "X/Z Sync Relay" }
     ];
 
     #region 界面相关
@@ -633,22 +633,86 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     CalibratingItem.XZItems = [.. ((IReadOnlyList<OpticsRelayDTOXZItem>)[.. CalibratingItem.XZItems, item]).OrderBy(t => t.RelayMotorAbsoluteValue)];
 
                     var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
+                    var startECS = Cache.Item.XZCenterECS + deltaECS - Cache.Item.XZRangeECS;
+                    var stopECS = Cache.Item.XZCenterECS + deltaECS + Cache.Item.XZRangeECS;
 
-                    await CatchImageAsync(
-                        Cache.Item.XZCenterECS + deltaECS - Cache.Item.XZRangeECS,
-                        Cache.Item.XZCenterECS + deltaECS + Cache.Item.XZRangeECS);
+                    var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat)}");
+
+                    using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
+                        Cache.Item.ProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
+                        startCurrentXZDSWBFPosition,
+                        startCurrentXZDSWBFPosition + new Vector(Cache.Item.XZScanLength, 0),
+                        startECS,
+                        stopECS,
+                        Cache.Item.CIBInformation,
+                        (true, null),
+                        (false, Cache.Item.CIBConfiguration),
+                        (false, Cache.Item.LaserLightInformation),
+                        false,
+                        cancellationToken);
+
+                    var filePath = Path.Combine(currentDetectImageDirectory, $"[{startECS:0.###}ECS, {stopECS:0.###}ECS]_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                    darkFieldImage.Image.Save(filePath);
+
+                    var (
+                        xStrehlRatioPoints,
+                        yStrehlRatioPoints,
+                        grayPoints,
+                        bestXStrehlRatioPoint,
+                        bestXStrehlRatioXPSFPoints,
+                        bestXStrehlRatioYPSFPoints,
+                        bestYStrehlRatioPoint,
+                        bestYStrehlRatioXPSFPoints,
+                        bestYStrehlRatioYPSFPoints) = CalibrationAlgorithmService.GetXYStrehlRatios(
+                        darkFieldImage.Image,
+                        out var xStrehlRatioFitPoints,
+                        out var yStrehlRatioFitPoints,
+                        out var grayFitPoints,
+                        out var bestXStrehlRatioXPSFFitPoints,
+                        out var bestXStrehlRatioYPSFFitPoints,
+                        out var bestYStrehlRatioXPSFFitPoints,
+                        out var bestYStrehlRatioYPSFFitPoints);
+
+                    item.ImageFilePath = filePath;
+                    item.RawImageFilePath = darkFieldImage.RawImageFilePath;
+
+                    item.XStrehlRatioPoints = xStrehlRatioPoints;
+                    item.YStrehlRatioPoints = yStrehlRatioPoints;
+                    item.GrayPoints = grayPoints;
+                    item.BestXStrehlRatioPoint = bestXStrehlRatioPoint;
+                    item.BestXStrehlRatioXPSFPoints = bestXStrehlRatioXPSFPoints;
+                    item.BestXStrehlRatioYPSFPoints = bestXStrehlRatioYPSFPoints;
+                    item.BestYStrehlRatioPoint = bestYStrehlRatioPoint;
+                    item.BestYStrehlRatioXPSFPoints = bestYStrehlRatioXPSFPoints;
+                    item.BestYStrehlRatioYPSFPoints = bestYStrehlRatioYPSFPoints;
+
+                    item.XStrehlRatioFitPoints = xStrehlRatioFitPoints;
+                    item.YStrehlRatioFitPoints = yStrehlRatioFitPoints;
+                    item.GrayFitPoints = grayFitPoints;
+                    item.BestXStrehlRatioXPSFFitPoints = bestXStrehlRatioXPSFFitPoints;
+                    item.BestXStrehlRatioYPSFFitPoints = bestXStrehlRatioYPSFFitPoints;
+                    item.BestYStrehlRatioXPSFFitPoints = bestYStrehlRatioXPSFFitPoints;
+                    item.BestYStrehlRatioYPSFFitPoints = bestYStrehlRatioYPSFFitPoints;
+
+                    item.BestGrayPoint = item.GrayFitPoints.Maxima(t => t.Y).First();
+
+                    item.BestXStrehlRatioECS = startECS + item.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+                    item.BestYStrehlRatioECS = startECS + item.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+                    item.BestGrayECS = startECS + item.BestGrayPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+
 
                     if (CalibratingItem.XZItems.Count > 1)
                     {
                         var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
                             Vector<double>.Build.Dense([..CalibratingItem.XZItems.Select(t => t.RelayMotorAbsoluteValue)]),
                             Vector<double>.Build.Dense([
-                                ..CalibratingItem.XZItems.Select(t => Cache.Item.OpticsStrehlRatioTypeEnum switch
+                                ..CalibratingItem.XZItems.Select(t => Cache.Item.OpticsStrehlRatioQualityTypeEnum switch
                                 {
-                                    OpticsStrehlRatioTypeEnum.XStrehlRatio => t.BestXStrehlRatioECS,
-                                    OpticsStrehlRatioTypeEnum.YStrehlRatio => t.BestYStrehlRatioECS,
-                                    OpticsStrehlRatioTypeEnum.Gray => t.BestGrayECS,
-                                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Cache.Item.OpticsStrehlRatioTypeEnum))
+                                    OpticsStrehlRatioQualityTypeEnum.XStrehlRatio => t.BestXStrehlRatioECS,
+                                    OpticsStrehlRatioQualityTypeEnum.YStrehlRatio => t.BestYStrehlRatioECS,
+                                    OpticsStrehlRatioQualityTypeEnum.Gray => t.BestGrayECS,
+                                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Cache.Item.OpticsStrehlRatioQualityTypeEnum))
                                 })
                             ]));
 
@@ -667,89 +731,13 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
-                        defaultSlope
+                        defaultSlope,
+                        XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        GrayScatterPlotControl = new HtmlContainer([.. item.GrayScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        item.RawImageFilePath,
+                        Image = new HtmlImage(item.ImageFilePath)
                     }), HtmlLogUniqueId.LoggingHtml());
-
-                    continue;
-
-                    async Task CatchImageAsync(double startECS, double stopECS)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat)}");
-
-                        using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                            Cache.Item.ProductivityInformation,
-                            StageCoordinateSystemEnum.Dark,
-                            startCurrentXZDSWBFPosition,
-                            startCurrentXZDSWBFPosition + new Vector(Cache.Item.XZScanLength, 0),
-                            startECS,
-                            stopECS,
-                            Cache.Item.CIBInformation,
-                            (true, null),
-                            (false, Cache.Item.CIBConfiguration),
-                            (false, Cache.Item.LaserLightInformation),
-                            false,
-                            cancellationToken);
-
-                        var filePath = Path.Combine(currentDetectImageDirectory, $"[{startECS:0.###}ECS, {stopECS:0.###}ECS]_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImage.Image.Save(filePath);
-
-                        var (
-                            xStrehlRatioPoints,
-                            yStrehlRatioPoints,
-                            grayPoints,
-                            bestXStrehlRatioPoint,
-                            bestXStrehlRatioXPSFPoints,
-                            bestXStrehlRatioYPSFPoints,
-                            bestYStrehlRatioPoint,
-                            bestYStrehlRatioXPSFPoints,
-                            bestYStrehlRatioYPSFPoints) = CalibrationAlgorithmService.GetXYStrehlRatios(
-                            darkFieldImage.Image,
-                            out var xStrehlRatioFitPoints,
-                            out var yStrehlRatioFitPoints,
-                            out var grayFitPoints,
-                            out var bestXStrehlRatioXPSFFitPoints,
-                            out var bestXStrehlRatioYPSFFitPoints,
-                            out var bestYStrehlRatioXPSFFitPoints,
-                            out var bestYStrehlRatioYPSFFitPoints);
-
-                        item.ImageFilePath = filePath;
-                        item.RawImageFilePath = darkFieldImage.RawImageFilePath;
-
-                        item.XStrehlRatioPoints = xStrehlRatioPoints;
-                        item.YStrehlRatioPoints = yStrehlRatioPoints;
-                        item.GrayPoints = grayPoints;
-                        item.BestXStrehlRatioPoint = bestXStrehlRatioPoint;
-                        item.BestXStrehlRatioXPSFPoints = bestXStrehlRatioXPSFPoints;
-                        item.BestXStrehlRatioYPSFPoints = bestXStrehlRatioYPSFPoints;
-                        item.BestYStrehlRatioPoint = bestYStrehlRatioPoint;
-                        item.BestYStrehlRatioXPSFPoints = bestYStrehlRatioXPSFPoints;
-                        item.BestYStrehlRatioYPSFPoints = bestYStrehlRatioYPSFPoints;
-
-                        item.XStrehlRatioFitPoints = xStrehlRatioFitPoints;
-                        item.YStrehlRatioFitPoints = yStrehlRatioFitPoints;
-                        item.GrayFitPoints = grayFitPoints;
-                        item.BestXStrehlRatioXPSFFitPoints = bestXStrehlRatioXPSFFitPoints;
-                        item.BestXStrehlRatioYPSFFitPoints = bestXStrehlRatioYPSFFitPoints;
-                        item.BestYStrehlRatioXPSFFitPoints = bestYStrehlRatioXPSFFitPoints;
-                        item.BestYStrehlRatioYPSFFitPoints = bestYStrehlRatioYPSFFitPoints;
-
-                        item.BestGrayPoint = item.GrayFitPoints.Maxima(t => t.Y).First();
-
-                        item.BestXStrehlRatioECS = startECS + item.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-                        item.BestYStrehlRatioECS = startECS + item.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-                        item.BestGrayECS = startECS + item.BestGrayPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
-                        {
-                            XStrehlRatioScatterPlotControl = new HtmlContainer([..item.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                            YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                            GrayScatterPlotControl = new HtmlContainer([.. item.GrayScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                            item.RawImageFilePath,
-                            Image = new HtmlImage(item.ImageFilePath)
-                        }), HtmlLogUniqueId.LoggingHtml());
-                    }
                 }
 
                 CalibratingItem.MinRelayMotorAbsoluteValue = CalibratingItem.FitRelayPoints[0].X;
@@ -766,7 +754,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     CalibratingItem.RelayMotorRatio,
                     CalibratingItem.MinRelayMotorAbsoluteValue,
                     CalibratingItem.MaxRelayMotorAbsoluteValue,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.XZScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)

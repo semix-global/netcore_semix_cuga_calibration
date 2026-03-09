@@ -245,7 +245,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
             var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
 
             scatterMarkers[0].Update(string.Empty, points, Colors.Gray, MarkerShape.FilledCircle);
-            scatterMarkers[1].Update($"Best ECS {bestECS:0.###} ECS", [bestPoint], Colors.Red, MarkerShape.FilledSquare);
+            scatterMarkers[1].Update($"Best ECS: {bestECS:0.###} ECS", [bestPoint], Colors.Red, MarkerShape.FilledSquare);
             scatterMarkers[1].MarkerSize = 20;
 
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, 1);

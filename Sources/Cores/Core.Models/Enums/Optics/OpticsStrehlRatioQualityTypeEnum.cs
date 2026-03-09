@@ -1,6 +1,6 @@
 ﻿namespace Core.Models.Enums.Optics;
 
-public enum OpticsStrehlRatioTypeEnum
+public enum OpticsStrehlRatioQualityTypeEnum
 {
     XStrehlRatio,
     YStrehlRatio,

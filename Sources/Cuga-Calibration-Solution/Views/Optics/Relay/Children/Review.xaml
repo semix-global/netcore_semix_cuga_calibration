@@ -129,12 +129,12 @@
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type optics:OpticsRelayDTO}">
-                                <TabControl>
+                                <TabControl Margin="5">
                                     <i:Interaction.Behaviors>
                                         <wpf:SelectorAutoSelectFirstBehavior />
                                     </i:Interaction.Behaviors>
-                                    <TabItem Header="X/Z">
-                                        <TabControl>
+                                    <TabItem Header="X/Z Sync">
+                                        <TabControl Margin="5">
                                             <i:Interaction.Behaviors>
                                                 <wpf:SelectorAutoSelectFirstBehavior />
                                             </i:Interaction.Behaviors>
@@ -143,8 +143,10 @@
                                                     <ContentControl Content="{Binding XZScatterPlotControl, Mode=OneWay}" />
                                                 </Border>
                                             </TabItem>
-                                            <TabItem Header="X/Z Plots">
-                                                <ListBox Margin="5" ItemsSource="{Binding XZItems}">
+                                            <TabItem Header="X/Z Sync Plots">
+                                                <ListBox Margin="5"
+                                                         HorizontalContentAlignment="Stretch"
+                                                         ItemsSource="{Binding XZItems}">
                                                     <ListBox.ItemsPanel>
                                                         <ItemsPanelTemplate>
                                                             <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
@@ -190,7 +192,7 @@
                                             </TabItem>
                                         </TabControl>
                                     </TabItem>
-                                    <TabItem Header="Z">
+                                    <TabItem Header="Z Sync">
                                         <TabControl Margin="5">
                                             <i:Interaction.Behaviors>
                                                 <wpf:SelectorAutoSelectFirstBehavior />

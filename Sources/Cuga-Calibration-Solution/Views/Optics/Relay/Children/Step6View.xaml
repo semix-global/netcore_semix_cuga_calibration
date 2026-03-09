@@ -65,27 +65,27 @@
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.XZScanLength}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Start X/Z Relay(mm): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Start X/Z Sync Relay(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StartXZRelayMotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Step X/Z Relay(mm): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Step X/Z Sync Relay(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StepXZRelayMotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Stop X/Z Relay(mm): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Stop X/Z Sync Relay(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StopXZRelayMotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="X/Z Center(ECS): "
+                        <hc:NumericUpDown hc:TitleElement.Title="X/Z Sync Center(ECS): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Style="{StaticResource NumericUpDownExtend}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="X/Z ±Range(ECS): "
+                        <hc:NumericUpDown hc:TitleElement.Title="X/Z Sync ±Range(ECS): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Minimum="0"
@@ -93,10 +93,10 @@
                                           Value="{Binding Cache.Item.XZRangeECS}" />
                         <ComboBox hc:TitleElement.TitleWidth="190"
                                   hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.Title="X/Z Type: "
+                                  hc:TitleElement.Title="X/Z Sync Quality Type: "
                                   Style="{StaticResource ComboBoxExtend}"
-                                  SelectedItem="{Binding Cache.Item.OpticsStrehlRatioTypeEnum}"
-                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:OpticsStrehlRatioTypeEnum}}}">
+                                  SelectedItem="{Binding Cache.Item.OpticsStrehlRatioQualityTypeEnum}"
+                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:OpticsStrehlRatioQualityTypeEnum}}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
@@ -187,8 +187,10 @@
                                 <ContentControl Content="{Binding CalibratingItem.XZScatterPlotControl, Mode=OneWay}" />
                             </Border>
                         </TabItem>
-                        <TabItem Header="X/Z Plots">
-                            <ListBox Margin="5" ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                        <TabItem Header="X/Z Sync Plots">
+                            <ListBox Margin="5"
+                                     HorizontalContentAlignment="Stretch"
+                                     ItemsSource="{Binding SelectedItems, ElementName=ListView}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />

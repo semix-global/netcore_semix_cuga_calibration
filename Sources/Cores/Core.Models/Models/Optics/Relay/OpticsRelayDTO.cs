@@ -144,10 +144,10 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
     {
         ScatterPlotControl.Configure(new Columns(), 2);
 
-        ScatterPlotControl.SetTitle(0, "Quality(Y: Quality - X: ECS)");
-        ScatterPlotControl.SetTitle(1, "Z Relay(Y: ECS - X: mm)");
+        ScatterPlotControl.SetTitle(0, "Z Sync Quality(Y: Quality - X: ECS)");
+        ScatterPlotControl.SetTitle(1, "Z Sync Relay(Y: ECS - X: mm)");
 
-        XZScatterPlotControl.SetTitle("X/Z Relay(Y: ECS - X: mm)");
+        XZScatterPlotControl.SetTitle("X/Z Sync Relay(Y: ECS - X: mm)");
     }
 
     private void RefreshPlot()
@@ -176,7 +176,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
             if (isNeedRefreshes.All(b => b))
             {
                 relayScatterLines[0].Update(
-                    Items.Count > 0 ? "Relay" : string.Empty,
+                    string.Empty,
                     [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS))],
                     Constants.Category10.GetColor(0));
             }
@@ -501,7 +501,7 @@ public sealed partial class OpticsRelayDTOXZItem : ObservableObject, ICloneable<
             var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
 
             scatterMarkers[0].Update(string.Empty, points, Colors.Gray, MarkerShape.FilledCircle);
-            scatterMarkers[1].Update($"Best ECS {bestECS:0.###} ECS", [bestPoint], Colors.Red, MarkerShape.FilledSquare);
+            scatterMarkers[1].Update($"Best ECS: {bestECS:0.###} ECS", [bestPoint], Colors.Red, MarkerShape.FilledSquare);
             scatterMarkers[1].MarkerSize = 20;
 
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, 1);
