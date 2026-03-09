@@ -1042,6 +1042,12 @@
             心跳
             </summary>
         </member>
+        <member name="M:Semix.WcfTransfer.Interfaces.IM2CSecsGemService.UploadLoadPortStatus(Semix.WcfTransfer.DTO.SxLoadPortInfo)">
+            <summary>
+            开始检测
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:Semix.WcfTransfer.Interfaces.IM2CUploadService">
             <summary>
             CUGA上传的接口

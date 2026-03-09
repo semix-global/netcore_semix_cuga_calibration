@@ -144,9 +144,9 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];
 
-    partial void OnItemChanged(ChirpAODWaveformTrainingItem? value)
+    partial void OnItemChanged(ChirpAODWaveformTrainingItem value)
     {
-        if (value is null) return;
+        if (ReferenceEquals(value, null)) return;
 
         P2Coefficient = value.P2Coefficient;
         P3Coefficient = value.P3Coefficient;

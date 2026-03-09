@@ -1,6 +1,4 @@
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
-using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
@@ -107,7 +105,7 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
+    public bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, out ReticleMarkItemDto maskInfo)
     {
         try
         {
@@ -115,7 +113,7 @@ public class CalibrationRecipeServiceImpl(
             maskInfo = reticleMaskDto.MicrosocpeReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
                             && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
                 );
             return true;
         }
@@ -128,7 +126,7 @@ public class CalibrationRecipeServiceImpl(
     }
 
     [Obsolete]
-    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, out ReticleMarkItemDto maskInfo)
+    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, out ReticleMarkItemDto maskInfo)
     {
         try
         {
@@ -136,7 +134,7 @@ public class CalibrationRecipeServiceImpl(
             maskInfo = reticleMaskDto.ChuckReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
                             && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
+                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
                 );
             return true;
         }
@@ -166,7 +164,7 @@ public class CalibrationRecipeServiceImpl(
     }
 
     [Obsolete]
-    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, OpticsMagTypeEnum? opticsMagType, StageSpeedEnum? stageSpeedEnum, out ReticleMarkItemDto maskInfo)
+    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, int? stageSpeedEnum, out ReticleMarkItemDto maskInfo)
     {
         try
         {
@@ -174,9 +172,9 @@ public class CalibrationRecipeServiceImpl(
             maskInfo = reticleMaskDto.LaserReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
                             && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null || (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType
+                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType
                                                           && (stageSpeedEnum is null || t.RecipeDarkFieldTemplateDto.StageSpeedEnum == stageSpeedEnum)
-                                                          && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
+                                                          && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
                 );
 
             return true;

@@ -12,8 +12,6 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationAfService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
 {
-    private static readonly Random Random = new();
-
     private CalChipSiteModelEnum _calChipSiteModelEnum;
     private double _ecsValue;
     private double _currentAValue;
@@ -74,7 +72,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     public SxExecuteRet<double> GetSensorEcsValue()
     {
         Thread.Sleep(100);
-        _ecsValue = Random.NextDouble() * 1000;
+        _ecsValue = Random.Shared.NextDouble() * 1000;
 
         return SxExecuteRetHelper.CreateSuccess(_ecsValue);
     }
@@ -82,7 +80,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     public SxExecuteRet<double> GetSensorAverageEcsValue()
     {
         Thread.Sleep(100);
-        _ecsValue = Random.NextDouble() * 1000;
+        _ecsValue = Random.Shared.NextDouble() * 1000;
 
         return SxExecuteRetHelper.CreateSuccess(_ecsValue);
     }
@@ -113,7 +111,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess((Random.NextDouble(), Random.NextDouble()));
+        return SxExecuteRetHelper.CreateSuccess((Random.Shared.NextDouble(), Random.Shared.NextDouble()));
     }
 
     public SxExecuteRet<double> GetSensorCurrentValue(bool isA)
@@ -154,28 +152,28 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.NextDouble()).ToList());
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.Shared.NextDouble()).ToList());
     }
 
     public SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.NextDouble()).ToList());
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.Shared.NextDouble()).ToList());
     }
 
     public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble())).ToList());
     }
 
     public SxExecuteRet<List<(double Trigger, double X, double Ecs)>> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.NextDouble(), Random.NextDouble(), Random.NextDouble())).ToList());
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble())).ToList());
     }
 
     public SxExecuteRet<bool> SetSensorBrightFieldChuckCenterMachinePositionValue(Point position)

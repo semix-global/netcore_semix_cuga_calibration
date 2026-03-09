@@ -201,14 +201,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             return;
         }
 
-        _windowManagerService.ShowDialog(HostApplication.GetRequiredService<RecipeManagementViewModel>());
-        if (ApplicationCookie.CalibrationRecipeDto is null)
+        showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
+        if (showDialog == false)
         {
             return;
         }
 
-        showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
-        if (showDialog == false)
+        _windowManagerService.ShowDialog(HostApplication.GetRequiredService<RecipeManagementViewModel>());
+        if (ApplicationCookie.CalibrationRecipeDto is null)
         {
             return;
         }
@@ -589,10 +589,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             try
             {
                 if (IsLoadingOk == false) return;
-
-                var calibrationSetting = _cacheProvider.GetOrDefault<CalibrationSetting>();
-                var isCalibrationSettingChanged = calibrationSetting.IsOk(out _);
-                if (isCalibrationSettingChanged) CalibrationSetting.AdaptIn(calibrationSetting);
 
                 var calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeFocusCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>().IsOk(out _);

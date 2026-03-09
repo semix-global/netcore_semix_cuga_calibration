@@ -4,10 +4,8 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
 using Net.Utilities.Helpers.Extensions;
 using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
@@ -45,7 +43,7 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase
     private bool _isDarkFieldAlignment;
 
     [ObservableProperty]
-    private ObservableCollection<PmtConfigParam> _pmtConfigList = [];
+    private IReadOnlyList<int> _pMTIds = [];
 
     /// <summary>
     /// 采样率 count/ms

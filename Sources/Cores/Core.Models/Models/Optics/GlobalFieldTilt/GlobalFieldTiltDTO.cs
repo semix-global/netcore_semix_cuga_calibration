@@ -321,7 +321,7 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
             Plot = new HtmlTab(new
             {
                 Analysis = new HtmlContainer(ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
-                OriginImage = new HtmlImage(FilePath),
+                OriginImage = new HtmlImage(FilePath)
                 // LinearImage = new HtmlImage(File.Exists(LinearFilePath) ? LinearFilePath : OriginFilePath)
             })
         };

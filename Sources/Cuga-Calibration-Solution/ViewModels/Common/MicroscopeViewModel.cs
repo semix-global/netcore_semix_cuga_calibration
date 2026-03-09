@@ -55,6 +55,29 @@ public sealed class MicroscopeViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    #region 坐标转换
+
+    public Vector GetMicroscopeLensInformationOffset(
+        MicroscopeLensInformation previousMicroscopeLensInformation,
+        MicroscopeLensInformation currentMicroscopeLensInformation)
+    {
+        var microscopeCentricities = cacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
+
+        var previousMicroscopeCentricity = microscopeCentricities.SingleOrDefault(t => t.LensInformation == previousMicroscopeLensInformation);
+        var currentMicroscopeCentricity = microscopeCentricities.SingleOrDefault(t => t.LensInformation == currentMicroscopeLensInformation);
+
+        return previousMicroscopeCentricity is not null && currentMicroscopeCentricity is not null
+            ? currentMicroscopeCentricity.Offset - previousMicroscopeCentricity.Offset
+            : Vector.Zero;
+    }
+
+    public Point GetMicroscopeLensInformationPosition(
+        MicroscopeLensInformation previousMicroscopeLensInformation,
+        MicroscopeLensInformation currentMicroscopeLensInformation,
+        Point position) => position + GetMicroscopeLensInformationOffset(previousMicroscopeLensInformation, currentMicroscopeLensInformation);
+
+    #endregion
+
     public void SwitchMicroscopeLensInformation(MicroscopeLensInformation microscopeLensInformation, bool isMoveToMicroscopeCenter = false)
     {
         var switchMicroscopeLensInformationNotAutoFocus = SwitchMicroscopeLensInformationNotAutoFocus(microscopeLensInformation, isMoveToMicroscopeCenter);
@@ -68,12 +91,9 @@ public sealed class MicroscopeViewModel(
     public bool SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation, bool isMoveToMicroscopeCenter = false)
     {
         var resultFocusList = cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
-        var resultCentricityList = cacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
 
         var previousMicroscopeLensInformation = GetCurrentMicroscopeLensInformation();
         var newMicroscopeFocusItemDto = resultFocusList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
-        var oldMicroscopeCentricityItemDto = resultCentricityList.SingleOrDefault(t => t.LensInformation == previousMicroscopeLensInformation);
-        var newMicroscopeCentricityItemDto = resultCentricityList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
 
         afViewModel.ToggleBrightFieldEnable(false);
 
@@ -125,8 +145,9 @@ public sealed class MicroscopeViewModel(
         var taskMove = Task.Run(() =>
         {
             if (isMoveToMicroscopeCenter == false) return true;
-            if (oldMicroscopeCentricityItemDto?.IsOk != true || newMicroscopeCentricityItemDto?.IsOk != true) return true;
-            stageViewModel.MoveRelativeStageXy(newMicroscopeCentricityItemDto.Offset - (Vector)oldMicroscopeCentricityItemDto.Offset);
+
+            stageViewModel.MoveRelativeStageXy((Point)GetMicroscopeLensInformationOffset(previousMicroscopeLensInformation, microscopeLensInformation));
+
             return true;
         });
 

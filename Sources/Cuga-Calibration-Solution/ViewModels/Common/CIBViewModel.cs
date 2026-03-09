@@ -1,36 +1,44 @@
 using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
+using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.CIB.LineCentricity;
+using Core.Models.Models.CIB.XPixelSize;
+using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.AutoFocus;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common;
 
 [IOCAppService(ServiceType = typeof(CIBViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed class CIBViewModel(
+    ICalibrationCIBService calibrationCIBService,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
     ILogger<CIBViewModel> logger,
     ICacheProvider cacheProvider,
+    MicroscopeViewModel microscopeViewModel,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
     LaserViewModel laserViewModel,
-    CalibrationSetting calibrationSetting,
-    ICalibrationCIBService calibrationCIBService,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    ICalibrationLaserService calibrationLaserService) : ViewModelBase
+    CalibrationSetting calibrationSetting) : ViewModelBase
 {
     public bool Connect()
     {
@@ -127,23 +135,35 @@ public sealed class CIBViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public void SetXPixelSize(ProductivityInformation productivityInformation, double xPixelSize)
+    {
+        var ret = calibrationCIBService.SetXPixelSize(productivityInformation, xPixelSize);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    #region 采图
+
+    #region X 采[单位置]短图
+
     public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
-        IReadOnlyList<CIBInformation> cibInformations,
+        Point centerPosition,
         int imageWidth,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        IReadOnlyList<CIBInformation> cibInformations,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true)
-        => await InvokeAsync(
+        bool isAutoFocus = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
+        => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
-            position,
+            centerPosition,
             cibInformations,
             customCalChip,
             customCIBConfiguration,
@@ -154,11 +174,12 @@ public sealed class CIBViewModel(
                 var ret = await calibrationCIBService.GetPMTImagesAsync(
                     productivityInformation,
                     stageCoordinateSystemEnum,
-                    position,
-                    cibInformations,
+                    centerPosition,
                     imageWidth,
+                    cibInformations,
                     isForward,
                     isAutoFocus,
+                    isKeepRawImageCIBProfileModeEnum,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -168,48 +189,97 @@ public sealed class CIBViewModel(
     public async Task<DarkFieldImageDTO> GetPMTImageAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
-        CIBInformation cibInformation,
+        Point centerPosition,
         int imageWidth,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        CIBInformation cibInformation,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true)
+        bool isAutoFocus = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
-            position,
-            [cibInformation],
+            centerPosition,
             imageWidth,
+            [cibInformation],
             customCalChip,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
             cancellationToken,
-            isForward,
-            isAutoFocus);
+            isForward: isForward,
+            isAutoFocus: isAutoFocus,
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
 
         return darkFieldImages.Single();
     }
+
+    #endregion
+
+    #region X 采[多位置]短图
+
+    public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        IReadOnlyList<Point> centerPositions,
+        int imageWidth,
+        CIBInformation cibInformation,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
+        (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
+        bool isCustomChirpAODWaveform,
+        CancellationToken cancellationToken,
+        bool isAutoFocus = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
+        => await GetPMTImagesAsync(
+            productivityInformation,
+            stageCoordinateSystemEnum,
+            centerPositions[0],
+            [cibInformation],
+            customCalChip,
+            customCIBConfiguration,
+            customPrescanAODWaveform,
+            isCustomChirpAODWaveform,
+            async () =>
+            {
+                var ret = await calibrationCIBService.GetPMTImagesAsync(
+                    productivityInformation,
+                    stageCoordinateSystemEnum,
+                    centerPositions,
+                    imageWidth,
+                    cibInformation,
+                    isAutoFocus,
+                    isKeepRawImageCIBProfileModeEnum,
+                    cancellationToken);
+
+                return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+            }
+        );
+
+    #endregion
+
+    #region X 采[单位置]长图
 
     public async Task<IReadOnlyList<DarkFieldRawScanImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
-        Point endPosition,
+        Point stopPosition,
         IReadOnlyList<CIBInformation> cibInformations,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true)
-        => await InvokeAsync(
+        bool isAutoFocus = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
+        => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
             startPosition,
@@ -224,10 +294,11 @@ public sealed class CIBViewModel(
                     productivityInformation,
                     stageCoordinateSystemEnum,
                     startPosition,
-                    endPosition,
+                    stopPosition,
                     cibInformations,
                     isForward,
                     isAutoFocus,
+                    isKeepRawImageCIBProfileModeEnum,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -238,48 +309,55 @@ public sealed class CIBViewModel(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
-        Point endPosition,
+        Point stopPosition,
         CIBInformation cibInformation,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isAutoFocus = true)
+        bool isAutoFocus = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
             startPosition,
-            endPosition,
+            stopPosition,
             [cibInformation],
             customCalChip,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
             cancellationToken,
-            isForward,
-            isAutoFocus);
+            isForward: isForward,
+            isAutoFocus: isAutoFocus,
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
 
         return darkFieldImages.Single();
     }
+
+    #endregion
+
+    #region X/Z 同步采[单位置]短图
 
     public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
-        Point endPosition,
+        Point stopPosition,
+        double startECS,
+        double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
-        double startECS,
-        double stopECS,
         CancellationToken cancellationToken,
-        bool isForward = true)
-        => await InvokeAsync(
+        bool isForward = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
+        => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
             startPosition,
@@ -294,11 +372,12 @@ public sealed class CIBViewModel(
                     productivityInformation,
                     stageCoordinateSystemEnum,
                     startPosition,
-                    endPosition,
-                    cibInformations,
+                    stopPosition,
                     startECS,
                     stopECS,
+                    cibInformations,
                     isForward,
+                    isKeepRawImageCIBProfileModeEnum,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -309,41 +388,99 @@ public sealed class CIBViewModel(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
-        Point endPosition,
+        Point stopPosition,
+        double startECS,
+        double stopECS,
         CIBInformation cibInformation,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
-        double startECS,
-        double stopECS,
         CancellationToken cancellationToken,
-        bool isForward = true)
+        bool isForward = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
             startPosition,
-            endPosition,
+            stopPosition,
+            startECS,
+            stopECS,
             [cibInformation],
             customCalChip,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
-            startECS,
-            stopECS,
             cancellationToken,
-            isForward);
+            isForward: isForward,
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
 
         return darkFieldImages.Single();
     }
 
-    private async Task<T> InvokeAsync<T>(
+    public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesByOffsetAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point position,
+        Point startPosition,
+        Point stopPosition,
+        double startECS,
+        double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
-        (bool IsCustom, CalChipSiteModelEnum? calChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
+        (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
+        bool isCustomChirpAODWaveform,
+        CancellationToken cancellationToken,
+        bool isForward = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
+    {
+        var resulList = new List<DarkFieldImageDTO>();
+
+        foreach (var currentCIBInformations in cibInformations
+                     .GroupBy(t => t.PMTId)
+                     .Select(gg => gg.ToArray()))
+        {
+            var currentStartPosition = GetCIBInformationPosition(
+                stageCoordinateSystemEnum,
+                productivityInformation,
+                currentCIBInformations[0],
+                startPosition);
+
+            var currentStopPosition = GetCIBInformationPosition(
+                stageCoordinateSystemEnum,
+                productivityInformation,
+                currentCIBInformations[0],
+                stopPosition);
+
+            resulList.AddRange(await GetPMTImagesAsync(
+                productivityInformation,
+                stageCoordinateSystemEnum,
+                currentStartPosition,
+                currentStopPosition,
+                startECS,
+                stopECS,
+                currentCIBInformations,
+                customCalChip,
+                customCIBConfiguration,
+                customPrescanAODWaveform,
+                isCustomChirpAODWaveform,
+                cancellationToken,
+                isForward: isForward,
+                isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum));
+        }
+
+        return resulList;
+    }
+
+    #endregion
+
+    private async Task<T> GetPMTImagesAsync<T>(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point centerPosition,
+        IReadOnlyList<CIBInformation> cibInformations,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -353,22 +490,22 @@ public sealed class CIBViewModel(
         {
             if (customCalChip.IsCustom == false)
             {
-                Guard.IsNotNull(customCalChip.calChipSiteModelEnum);
+                Guard.IsNotNull(customCalChip.CalChipSiteModelEnum);
 
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
@@ -379,7 +516,7 @@ public sealed class CIBViewModel(
                 }
             }
             else
-                Guard.IsNull(customCalChip.calChipSiteModelEnum);
+                Guard.IsNull(customCalChip.CalChipSiteModelEnum);
 
             if (customCIBConfiguration.IsCustom == false)
             {
@@ -410,22 +547,22 @@ public sealed class CIBViewModel(
         {
             if (customCalChip.IsCustom == false)
             {
-                Guard.IsNotNull(customCalChip.calChipSiteModelEnum);
+                Guard.IsNotNull(customCalChip.CalChipSiteModelEnum);
 
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(position, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(position, customCalChip.calChipSiteModelEnum.Value);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
@@ -436,96 +573,274 @@ public sealed class CIBViewModel(
                 }
             }
             else
-                Guard.IsNull(customCalChip.calChipSiteModelEnum);
+                Guard.IsNull(customCalChip.CalChipSiteModelEnum);
         }
     }
 
-    public async Task<RuntimeAfCalibrationResultDTO> RuntimeAfCalibrationAsync(
-        CIBConfiguration cibConfiguration,
+    #endregion
+
+    #region 坐标转换
+
+    public Vector GetCIBInformationOffset(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        ProductivityInformation productivityInformation,
+        CIBInformation cibInformation,
+        MicroscopeLensInformation? microscopeLensInformation = null,
+        bool isLineCentricityOffset = true)
+    {
+        var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+
+        var cibLineCentricities = cacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
+
+        var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId);
+        var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == cibInformation.PMTId);
+
+        var cartesianCIBLineCentricityOffset = Vector.Zero;
+
+        if (centerCIBLineCentricity is not null && currentCIBLineCentricity is not null)
+        {
+            var offset = currentCIBLineCentricity.DFMachineCenterPosition - centerCIBLineCentricity.DFMachineCenterPosition;
+            cartesianCIBLineCentricityOffset = new Vector(xDirection * offset.X, yDirection * offset.Y)
+                                               - (isLineCentricityOffset
+                                                   ? new Vector(0, (currentCIBLineCentricity.PmtId - centerCIBLineCentricity.PmtId) * calibrationSetting.SettingCommonParam.PMTInterval)
+                                                   : Vector.Zero);
+        }
+
+        var cartesianOffset = cartesianCIBLineCentricityOffset
+                              - (microscopeLensInformation is not null
+                                  ? microscopeViewModel.GetMicroscopeLensInformationOffset(centerCIBLineCentricity?.MicroscopeLensInformation ?? microscopeLensInformation, microscopeLensInformation)
+                                  : Vector.Zero);
+
+        if (cibInformation.PMTId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId && centerCIBLineCentricity?.MicroscopeLensInformation == microscopeLensInformation)
+            Guard.IsTrue(cartesianOffset == Vector.Zero);
+
+        return stageCoordinateSystemEnum switch
+        {
+            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => cartesianOffset,
+            StageCoordinateSystemEnum.Machine => new Vector(xDirection * cartesianOffset.X, yDirection * cartesianOffset.Y),
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector>(nameof(stageCoordinateSystemEnum))
+        };
+    }
+
+    public Point GetCIBInformationPosition(
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        ProductivityInformation productivityInformation,
         CIBInformation cibInformation,
         Point position,
-        LaserLightInformation laserLightInformation,
-        ProductivityInformation productivityInformation,
-        CancellationToken cancellationToken,
-        bool isAppliedDefaultRtfcParam = true,
-        int xXWidthPixel = 800,
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright,
-        string? saveImageFileDirectory = null,
-        Guid? logGuid = null,
-        string? logName = null
-    )
-    {
-        var lightInformation = isAppliedDefaultRtfcParam ? null : laserLightInformation;
-        Point? point = isAppliedDefaultRtfcParam && calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel
-            ? null
-            : stageCoordinateSystemEnum switch
-            {
-                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => stageViewModel.DarkFieldToMachinePosition(position),
-                StageCoordinateSystemEnum.Machine => position,
-                _ => throw new ArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum)),
-            };
+        MicroscopeLensInformation? microscopeLensInformation = null)
+        => position + GetCIBInformationOffset(
+            stageCoordinateSystemEnum,
+            productivityInformation,
+            cibInformation,
+            microscopeLensInformation,
+            false);
 
-        var ret = calibrationLaserService.RuntimeAfCalibration(calChipSiteModelEnum, productivityInformation, cibInformation.PMTId, lightInformation?.Coefficient, point);
+    #endregion
+
+    public async Task<RuntimeAfCalibrationResultDTO> RuntimeAFCalibrationAsync(
+        ProductivityInformation productivityInformation,
+        CalChipSiteModelEnum calChipSiteModelEnum,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point centerPosition,
+        int imageWidth,
+        CIBInformation cibInformation,
+        CIBConfiguration cibConfiguration,
+        LaserLightInformation laserLightInformation,
+        string saveResultImageFileDirectory,
+        Guid logGuid,
+        CancellationToken cancellationToken)
+    {
+        var centerMachinePosition = stageCoordinateSystemEnum switch
+        {
+            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => stageViewModel.DarkFieldToMachinePosition(centerPosition),
+            StageCoordinateSystemEnum.Machine => centerPosition,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(stageCoordinateSystemEnum))
+        };
+
+        var ret = calibrationCIBService.RuntimeAFCalibration(
+            calChipSiteModelEnum,
+            productivityInformation,
+            cibInformation,
+            centerMachinePosition,
+            laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         if (ret.Anything.isAFServo)
-            afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.Ecs, ret.Anything.Motor);
+            afViewModel.SetDarkField(calChipSiteModelEnum, ret.Anything.ECS, ret.Anything.Motor);
         else
             ThrowHelper.ThrowNotSupportedException("Relay Servo is not supported.");
         //opticsViewModel.SetRelayMotorAbsoluteValue(productivityInformation.OpticsIlluminationModeEnum, ret.Anything.Motor);
 
-        var (_, yDirection) = stageViewModel.GetMachineDirection();
-        var verifyPosition = new Point
-            (position.X, position.Y + yDirection * ((cibInformation.PMTId - CalibrationConstantsHelper.MainPmtId) * calibrationSetting.SettingCommonParam.PMTInterval));
         var darkFieldImageDto = await GetPMTImageAsync(
             productivityInformation,
-            stageCoordinateSystemEnum,
-            verifyPosition,
+            StageCoordinateSystemEnum.Machine,
+            centerMachinePosition,
+            imageWidth,
             cibInformation,
-            xXWidthPixel,
             (true, null),
             (false, cibConfiguration),
             (false, laserLightInformation),
             false,
             cancellationToken);
+
         var quality = calibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
-        var rtfcVerifyImageFilePath = string.Empty;
-        if (saveImageFileDirectory is not null)
-        {
-            rtfcVerifyImageFilePath = $"{saveImageFileDirectory}\\RTFCThumb\\logTitle\\{calChipSiteModelEnum}Guid{logGuid}.jpg";
-            darkFieldImageDto.Image.Save(rtfcVerifyImageFilePath);
-
-            if (logGuid is not null && logName is not null)
-                logger.LogHtmlInformation($"{logName} RTFC", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                {
-                    point,
-                    calChipSiteModelEnum,
-                    cibInformation,
-                    laserLightInformation,
-                    ret.Anything.Ecs,
-                    ret.Anything.Motor,
-                    ret.Anything.isAFServo,
-                    darkFieldImageDto.RawImageFilePath,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        RTFCResultImage = new HtmlImage(rtfcVerifyImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
-                    })
-                }), logGuid.Value.LoggingHtml());
-        }
+        var verifyImageFilePath = Path.Combine(saveResultImageFileDirectory, $"Origin_Score{calChipSiteModelEnum}_Quality{quality:0.###}_({logGuid:N}).jpg");
+        darkFieldImageDto.Image.Save(verifyImageFilePath);
 
         var rtfcResult = new RuntimeAfCalibrationResultDTO
         {
             CalChipSiteModelEnum = calChipSiteModelEnum,
             ProductivityInformation = productivityInformation.Clone(),
-            ECSValue = ret.Anything.Ecs,
+            ECSValue = ret.Anything.ECS,
             MotorValue = ret.Anything.Motor,
-            DarkFieldFilePath = rtfcVerifyImageFilePath,
+            DarkFieldFilePath = verifyImageFilePath,
             RawImageFilePath = darkFieldImageDto.RawImageFilePath,
             DarkFieldQuality = quality
         };
 
+        logger.LogHtmlInformation("RTFC", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        {
+            productivityInformation,
+            calChipSiteModelEnum,
+            stageCoordinateSystemEnum,
+            position = centerPosition,
+            cibInformation,
+            imageWidth,
+            cibConfiguration,
+            laserLightInformation,
+            saveResultImageFileDirectory,
+            rtfcResult.ECSValue,
+            rtfcResult.MotorValue,
+            rtfcResult.DarkFieldFilePath,
+            rtfcResult.RawImageFilePath,
+            rtfcResult.DarkFieldQuality,
+            HtmlTab = new HtmlTab(new
+            {
+                RTFCResultImage = new HtmlImage(verifyImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
+            })
+        }), logGuid.LoggingHtml());
+
         return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public bool TryGetMatchPosition(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point centerPosition,
+        CIBInformation cibInformation,
+        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
+        DarkFieldImageDTO darkFieldImage,
+        string templateFilePath,
+        string saveResultImageFileDirectory,
+        Guid logGuid,
+        out Point resultPosition,
+        out double matchScore,
+        out double matchAngle,
+        out string resultImageFilePath)
+    {
+        var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+
+        logger.LogHtmlInformation("Template Match", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+        {
+            productivityInformation,
+            stageCoordinateSystemEnum,
+            centerPosition,
+            cibInformation,
+            algorithmTemplateTypeEnum,
+            DarkFieldImage = new HtmlQuote(darkFieldImage.ToHtmlAnonymous()),
+            templateFilePath,
+            saveResultImageFileDirectory,
+            xDirection,
+            yDirection
+        }), logGuid.LoggingHtml());
+
+        resultPosition = Point.Origin;
+        matchScore = 0;
+        matchAngle = 0;
+        resultImageFilePath = string.Empty;
+
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+        if (xSize?.IsOk != true)
+        {
+            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser X Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
+
+            return false;
+        }
+
+        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType && t.PmtId == cibInformation.PMTId);
+        if (ySize?.IsOk != true)
+        {
+            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
+
+            return false;
+        }
+
+        var readTemplateIsSuccess = calibrationAlgorithmService.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out var templateId);
+        using var _1 = templateId;
+
+        if (readTemplateIsSuccess == false)
+        {
+            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Read Template Failed!"), logGuid.LoggingHtml());
+
+            return false;
+        }
+
+        bool isSuccess;
+        bool cleanTemplateIsSuccess;
+        try
+        {
+            var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
+
+            using var image = darkFieldImage.IsForward ? darkFieldImage.Image : darkFieldImage.Image.HorizontalFlip();
+            isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var matchPoint, out var matchOffset, out matchScore, out matchAngle);
+
+            resultImageFilePath = Path.Combine(isSuccess ? saveResultImageFileDirectory : $"{FileHelper.GetFileFullName(templateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({logGuid:N}).jpg");
+            using var temp = darkFieldImage.Image.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - matchPoint.X, matchPoint.Y));
+            temp.Save(resultImageFilePath);
+
+            var stageCoordinateSystemMatchOffset = stageCoordinateSystemEnum switch
+            {
+                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => (Vector)matchOffset,
+                StageCoordinateSystemEnum.Machine => new Vector(xDirection * matchOffset.X, yDirection * matchOffset.Y),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector>(nameof(stageCoordinateSystemEnum))
+            };
+
+            var positionOffset = new Vector(stageCoordinateSystemMatchOffset.X * xSize.XPixelSize, stageCoordinateSystemMatchOffset.Y * ySize.YPixelSize);
+            resultPosition = centerPosition + positionOffset;
+
+            var htmlBullet = new HtmlBullet(new
+            {
+                matchPoint,
+                matchOffset,
+                matchScore,
+                matchAngle,
+                templateMatchScoreThreshold,
+                stageCoordinateSystemMatchOffset,
+                positionOffset,
+                resultPosition,
+                HtmlTab = new HtmlTab(new
+                {
+                    ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - matchPoint.X, matchPoint.Y)), new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            });
+
+            if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, logGuid.LoggingHtml());
+            else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, logGuid.LoggingHtml());
+        }
+        finally
+        {
+            cleanTemplateIsSuccess = calibrationAlgorithmService.TryCleanTemplate(algorithmTemplateTypeEnum, templateId);
+        }
+
+        if (cleanTemplateIsSuccess == false)
+        {
+            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Clean Template Failed!"), logGuid.LoggingHtml());
+
+            return false;
+        }
+
+        return isSuccess;
     }
 }

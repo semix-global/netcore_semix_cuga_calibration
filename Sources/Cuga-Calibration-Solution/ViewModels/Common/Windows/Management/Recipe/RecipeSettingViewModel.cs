@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Stage;
 using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -26,7 +25,6 @@ using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
@@ -71,6 +69,7 @@ public sealed partial class RecipeSettingViewModel(
     MicroscopeViewModel microscopeViewModel,
     ReviewViewModel reviewViewModel,
     LaserViewModel laserViewModel,
+    CIBViewModel cibViewModel,
     CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie) : ViewModelBase
 {
@@ -834,13 +833,13 @@ public sealed partial class RecipeSettingViewModel(
     {
         try
         {
-            if (obj is null)
+            /*if (obj is null)
                 return;
 
             var (maskDto, directoryName) = GetSelectReticleMaskListInfo(obj.ToString());
 
             var brightPosition = StageViewModel.GetBrightFieldStagePosition();
-            var darkFieldImageDto = laserViewModel.GetDarkFieldLineScanImage(
+            var darkFieldImageDto = cibViewModel.GetPMTImageAsync(
                 CalChipSiteModelEnum.ChuckModel,
                 brightPosition,
                 (false, calibrationSetting.SettingCommonParam.MainLaserLightInformation),
@@ -870,7 +869,7 @@ public sealed partial class RecipeSettingViewModel(
             maskDto.RecipeDarkFieldTemplateDto.AlgorithmTemplateTypeEnum = createDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum;
             maskDto.RecipeDarkFieldTemplateDto.AlgorithmTemplateSizeEnum = createDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum;
             maskDto.RecipeDarkFieldTemplateDto.TemplateFilePath = createDarkImageTemplateWindowViewModel.TemplateFilePath;
-            maskDto.RecipeDarkFieldTemplateDto.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
+            maskDto.RecipeDarkFieldTemplateDto.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;*/
         }
         catch (Exception ex)
         {

@@ -9,8 +9,6 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:calChip="clr-namespace:Core.Models.Models.Microscope.CalChip;assembly=Core.Models"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"

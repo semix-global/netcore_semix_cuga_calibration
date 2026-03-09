@@ -1,17 +1,18 @@
 ﻿<UserControl x:Class="CugaCalibration.Views.Optics.GlobalFieldTilt.Children.Step1View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:optics="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:optics="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              d:DataContext="{d:DesignInstance Type=optics:OpticsGlobalFieldTiltViewModel}"
-             d:DesignWidth="1920"
              d:DesignHeight="1080"
+             d:DesignWidth="1920"
              mc:Ignorable="d">
     <UserControl.Resources>
         <Style x:Key="ListboxItemStyle" TargetType="ListBoxItem">
@@ -51,27 +52,27 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Step 2: "
-                           Status="{Binding CalibrationStepList[1].StepName}"
+                <hc:Shield Status="{Binding CalibrationStepList[1].StepName}"
+                           Subject="Step 2: "
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Productivity: "
                            Status="{Binding Cache.Item.ProductivityInformation}"
+                           Subject="Productivity: "
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Microscope Magnification: "
                            Status="{Binding Cache.MicroscopeLensInformation.LensName}"
+                           Subject="Microscope Magnification: "
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                        <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                    <Expander IsExpanded="False"
-                                              ExpandDirection="Down"
-                                              Header="CIB Configuration">
+                                <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                                    <Expander ExpandDirection="Down"
+                                              Header="CIB Configuration"
+                                              IsExpanded="False">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                             <StackPanel>
                                                 <TextBlock Text="Param"
@@ -83,19 +84,19 @@
                                             <ComboBox hc:TitleElement.Title="Microscope Lens: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="190"
-                                                      Style="{StaticResource ComboBoxExtend}"
-                                                      ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                                                <b:Interaction.Behaviors>
+                                                      ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
+                                                      Style="{StaticResource ComboBoxExtend}">
+                                                <i:Interaction.Behaviors>
                                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
-                                                </b:Interaction.Behaviors>
+                                                </i:Interaction.Behaviors>
                                             </ComboBox>
                                             <ComboBox hc:TitleElement.Title="Productivity Information: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="190"
                                                       Style="{StaticResource ComboBoxExtend}">
-                                                <b:Interaction.Behaviors>
+                                                <i:Interaction.Behaviors>
                                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                                                </b:Interaction.Behaviors>
+                                                </i:Interaction.Behaviors>
                                                 <ComboBox.ItemsSource>
                                                     <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
                                                         <Binding Path="ApplicationCookie" />
@@ -106,71 +107,40 @@
                                             <ComboBox hc:TitleElement.Title="Laser Light Information: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="190"
-                                                      Style="{StaticResource ComboBoxExtend}"
-                                                      ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                                                <b:Interaction.Behaviors>
+                                                      ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
+                                                      Style="{StaticResource ComboBoxExtend}">
+                                                <i:Interaction.Behaviors>
                                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
-                                                </b:Interaction.Behaviors>
+                                                </i:Interaction.Behaviors>
                                             </ComboBox>
                                             <ComboBox hc:TitleElement.Title="CIB Information: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="190"
-                                                      Style="{StaticResource ComboBoxExtend}"
-                                                      ItemsSource="{Binding ApplicationCookie.CIBInformations}">
-                                                <b:Interaction.Behaviors>
+                                                      ItemsSource="{Binding ApplicationCookie.CIBInformations}"
+                                                      Style="{StaticResource ComboBoxExtend}">
+                                                <i:Interaction.Behaviors>
                                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                                                </b:Interaction.Behaviors>
+                                                </i:Interaction.Behaviors>
                                             </ComboBox>
                                             <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                                         </hc:UniformSpacingPanel>
                                     </Expander>
                                 </Border>
-                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                    <Expander IsExpanded="False"
-                                              ExpandDirection="Down"
-                                              Header="PMT Config">
-                                        <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                                         IsInertiaEnabled="True"
-                                                         VerticalScrollBarVisibility="Auto">
-                                            <GroupBox Header="PMT Enable">
-                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                    <ListBox Width="auto"
-                                                             Height="auto"
-                                                             ItemsSource="{Binding Cache.PmtConfigList}"
-                                                             ItemContainerStyle="{StaticResource ListboxItemStyle}">
-                                                        <ListBox.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <hc:SimplePanel Height="30" Margin="5">
-                                                                    <TextBlock Text="{Binding Id, StringFormat='PMT {0}'}"
-                                                                               MinWidth="150"
-                                                                               HorizontalAlignment="Left"
-                                                                               VerticalAlignment="Center" />
-                                                                    <ToggleButton IsChecked="{Binding Enabled}"
-                                                                                  HorizontalAlignment="Right"
-                                                                                  VerticalAlignment="Center"
-                                                                                  Background="{StaticResource DangerBrush}"
-                                                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                                                </hc:SimplePanel>
-                                                            </DataTemplate>
-                                                        </ListBox.ItemTemplate>
-                                                    </ListBox>
-                                                    <hc:SimplePanel Margin="0,10">
-                                                        <Button Content="Clear Selection"
-                                                                Command="{Binding ChangeAllSelectionCommand}"
-                                                                CommandParameter="False"
-                                                                HorizontalAlignment="Left" />
-                                                        <Button Content="Select All"
-                                                                Command="{Binding ChangeAllSelectionCommand}"
-                                                                CommandParameter="True"
-                                                                HorizontalAlignment="Right" />
-                                                    </hc:SimplePanel>
-                                                </hc:UniformSpacingPanel>
-                                            </GroupBox>
-                                        </hc:ScrollViewer>
-
+                                <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                                    <Expander ExpandDirection="Down"
+                                              Header="PMT Config"
+                                              IsExpanded="False">
+                                        <ListBox Height="200"
+                                                 ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                                                 ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
+                                                 SelectionMode="Extended">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ListBoxSelectedItemsBehavior Type="{x:Type system:Int32}" BindableSelectedItems="{Binding Cache.PMTIds}" />
+                                            </i:Interaction.Behaviors>
+                                        </ListBox>
                                     </Expander>
                                 </Border>
-                                <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
                                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                             VerticalAlignment="Top"
                                                             Spacing="10">

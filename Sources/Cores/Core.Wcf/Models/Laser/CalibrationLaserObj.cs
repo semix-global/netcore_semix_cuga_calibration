@@ -111,14 +111,44 @@ public sealed class CalibrationLaserObj
 public sealed class CalibrationLaserAutoFocus : CalibrationBase
 {
     /// <summary>
-    /// A路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// 中档: A路灯的电流值(绝对电流值), **需要下发AF硬件**
     /// </summary>
-    public double CurrentA { get; set; }
+    public double MiddleCurrentA { get; set; }
 
     /// <summary>
-    /// B路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// 中档: B路灯的电流值(绝对电流值), **需要下发AF硬件**
     /// </summary>
-    public double CurrentB { get; set; }
+    public double MiddleCurrentB { get; set; }
+
+    /// <summary>
+    /// 低档系数
+    /// </summary>
+    public double LowCoefficient { get; set; } = 0.6d;
+
+    /// <summary>
+    /// 高档系数
+    /// </summary>
+    public double HighCoefficient { get; set; } = 1.5d;
+
+    /// <summary>
+    /// 低档: A路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// </summary>
+    public double LowCurrentA => LowCoefficient * MiddleCurrentA;
+
+    /// <summary>
+    /// 低档: B路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// </summary>
+    public double LowCurrentB => LowCoefficient * MiddleCurrentB;
+
+    /// <summary>
+    /// 高档: A路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// </summary>
+    public double HighCurrentA => HighCoefficient * MiddleCurrentA;
+
+    /// <summary>
+    /// 高档: B路灯的电流值(绝对电流值), **需要下发AF硬件**
+    /// </summary>
+    public double HighCurrentB => HighCoefficient * MiddleCurrentB;
 
     /// <summary>
     /// Nsc 增益归一化, **需要下发AF硬件** 【需要 * 1000下发】
@@ -126,14 +156,19 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
     public double NscGain { get; set; }
 
     /// <summary>
-    /// AF  电机位置和NSC换算关系,斜率系数
+    /// 斜率(ECS/mm), **Cuga内部使用**
     /// </summary>
-    public double EcsMotorPositionRelationSlope { get; set; }
+    public double Slope { get; set; }
 
     /// <summary>
-    /// AF  电机位置和NSC换算关系,截距系数
+    /// AF 工作范围 最小值, **Cuga内部使用**
     /// </summary>
-    public double EcsMotorPositionRelationIntercept { get; set; }
+    public double MinAFMotorAbsoluteValue { get; set; }
+
+    /// <summary>
+    /// AF 工作范围 最大值, **Cuga内部使用**
+    /// </summary>
+    public double MaxAFMotorAbsoluteValue { get; set; }
 }
 
 /// <summary>

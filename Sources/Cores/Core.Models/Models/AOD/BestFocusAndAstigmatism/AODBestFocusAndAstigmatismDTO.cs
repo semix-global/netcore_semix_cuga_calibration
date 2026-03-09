@@ -245,7 +245,7 @@ public partial class AODBestFocusAndAstigmatismDTOItem : ObservableObject, IClon
         =>
         [
             ..ChannelItems.GroupBy(t => t.ChannelId)
-                .Select(t => new BestFocusAndAstigmatismChannelGroupItemDto()
+                .Select(t => new BestFocusAndAstigmatismChannelGroupItemDto
                 {
                     ChannelId = t.Key,
                     ChannelItems = [..t.Select(tt => tt)]

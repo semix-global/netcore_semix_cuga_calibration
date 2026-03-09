@@ -20,11 +20,8 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 {
     private double _currentRelayMotorValue;
-
     private double _currentINCMotorValue;
-
     private OpticsApodizationModeEnum _currentOpticsApodizationModeEnum;
-
     private OpticsPolarizationModeEnum _currentOpticsPolarizationModeEnum;
 
     public SxExecuteRet<bool> Connect()

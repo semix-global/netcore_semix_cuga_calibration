@@ -226,12 +226,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     {
         try
         {
-            /*if (item.IsOk == false)
+            if (item.IsCalibrated == false)
             {
-                DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is OK Failed!");
+                DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is Calibrated Failed!");
 
                 return;
-            }*/
+            }
 
             CIBViewModel.SetMMD(
                 item.CIBInformation,
@@ -327,9 +327,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.CIBInformations,
                 Cache.HazeFindBFMachinePosition,
                 Cache.ProductivityInformation,
-                Cache.AFOffsetMotor,
-                Cache.AFECS,
-                Cache.IsAFEnable,
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 Cache.MeasurePowerWaitTime,
@@ -402,7 +399,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            return LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
+                            return LaserViewModel.GetOpticalMeasurePower();
                         })
                 ];
                 var measurePowerNoise = HostEnvironment.IsProduction() ? measurePowerNoises.Average() : 0;
@@ -417,7 +414,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                         await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
 
-                        var measurePower = LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
+                        var measurePower = LaserViewModel.GetOpticalMeasurePower();
 
                         Cache.MeasurePowerPoints = [.. Cache.MeasurePowerPoints, new Point(coefficient, measurePower - measurePowerNoise)];
                     }
@@ -435,7 +432,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                     await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
 
-                    Cache.ODFilterRatio = maxMeasurePowerPoint.Y / LaserViewModel.GetOpticalMeasurePower(Cache.ProductivityInformation, Cache.GeneratePrescanAODWaveformParam.FlatnessTime);
+                    Cache.ODFilterRatio = maxMeasurePowerPoint.Y / LaserViewModel.GetOpticalMeasurePower();
                 }
                 finally
                 {
@@ -538,17 +535,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             StageViewModel.SetAbsoluteStageTheta(0);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
-            if (Cache.IsAFEnable)
-            {
-                AfViewModel.SetDarkField(CalChipSiteModelEnum.HazeModel, Cache.AFECS, Cache.AFOffsetMotor);
-                AfViewModel.ToggleDarkFieldEnable(true);
-            }
-            else
-            {
-                AfViewModel.ToggleBrightFieldEnable(false);
-                AfViewModel.SetSensorEcsValue(Cache.AFECS);
-            }
-
             try
             {
                 foreach (var (coefficientIndex, (coefficient, isUseODFilter)) in ((IReadOnlyList<(double Coefficient, bool IsUseODFilter)>)
@@ -588,8 +574,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
                                 hazeBFPosition,
-                                cibInformations,
                                 Cache.ImageWidth,
+                                cibInformations,
                                 (true, null),
                                 (true, null),
                                 (true, null),

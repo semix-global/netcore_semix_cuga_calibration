@@ -8,6 +8,9 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
+             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -32,9 +35,9 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:ComboBox HorizontalAlignment="Left"
-                                 hc:InfoElement.TitleWidth="150"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Optics Illumination Mode: "
+                                 hc:TitleElement.TitleWidth="150"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Optics Illumination Mode: "
                                  SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsIlluminationModeEnum}}}">
                         <hc:ComboBox.ItemTemplate>
@@ -43,14 +46,23 @@
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
+                    <ComboBox hc:TitleElement.Title="Productivity Information: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="160"
+                              ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
+                              Style="{StaticResource ComboBoxExtend}">
+                        <i:Interaction.Behaviors>
+                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                        </i:Interaction.Behaviors>
+                    </ComboBox>
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                     <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
-                                                        hc:InfoElement.TitleWidth="150"
-                                                        hc:InfoElement.TitlePlacement="Left"
-                                                        hc:InfoElement.Title="Cib Grab Mode: "
+                                                        hc:TitleElement.TitleWidth="150"
+                                                        hc:TitleElement.TitlePlacement="Left"
+                                                        hc:TitleElement.Title="Cib Grab Mode: "
                                                         DataContext="{Binding Cache.CIBConfiguration}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"

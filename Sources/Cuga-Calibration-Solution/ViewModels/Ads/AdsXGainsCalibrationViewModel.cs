@@ -1,11 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Ads.XGains;
-using Core.Models.Models.Common.Status;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
@@ -16,7 +13,6 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -85,22 +81,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
     [ObservableProperty]
     private AdsXGainsItemDto _resultAdsXGainsItemDto = new();
-
-    [ObservableProperty]
-    private ObservableCollection<OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus> _calibrationStatusList =
-    [
-        ..EnumHelper.Enums<OpticsMagTypeEnum>().Select(t => new OpticsMagTypeEnumAndStageSpeedEnumCalibrationStatus
-        {
-            OpticsMagTypeEnum = t,
-            StageSpeedEnumCalibrationStatusList = [..EnumHelper.Enums<StageSpeedEnum>().Select(tt => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = tt, IsCalibrated = false })]
-        })
-    ];
-
-    [ObservableProperty]
-    private ObservableCollection<StageSpeedEnumCalibrationStatus> _calibrationStatusListItem =
-    [
-        .. EnumHelper.Enums<StageSpeedEnum>().Select(t => new StageSpeedEnumCalibrationStatus { StageSpeedEnum = t, IsCalibrated = false })
-    ];
 
     private List<(double x1, double x2)> defaultXList = [];
 

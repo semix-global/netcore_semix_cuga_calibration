@@ -13,8 +13,6 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationMicroscopeService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscopeService
 {
-    private static readonly Random Random = new();
-
     private MicroscopeLensInformation _defaultMicroscopeLensInformation = MicroscopeLensInformation.Default.Clone().AdaptIn(new CgMicroscopeInfo
     {
         Lens = 5,
@@ -112,7 +110,7 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Random.NextDouble());
+        return SxExecuteRetHelper.CreateSuccess(Random.Shared.NextDouble());
     }
 
     public SxExecuteRet<(double min, double max)> GetVoltageRange()

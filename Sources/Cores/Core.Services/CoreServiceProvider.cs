@@ -15,6 +15,7 @@ public static class CoreServiceProvider
         services.AddSingleton(sp =>
         {
             var cacheProvider = sp.GetRequiredService<ICacheProvider>();
+
             return cacheProvider.Get<CalibrationSetting>() ?? new CalibrationSetting();
         });
 

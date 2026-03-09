@@ -17,7 +17,6 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationStageService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 {
-    private static readonly Random Random = new();
     private static readonly Point BrightFieldStagePosition = new(89911.095473606, -20812.22680077);
     private static readonly Point DarkFieldStagePosition = new(-81180.630005259, -21457.871246671);
 
@@ -217,7 +216,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 
     public SxExecuteRet<Point> FindWaferCenterByAutomatic(int offsetThreshold = 100)
     {
-        _curPosition = new Point(new Random().Next(1, 100), new Random().Next(1, 100));
+        _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(_curPosition);
@@ -225,7 +224,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 
     public SxExecuteRet<Point> FindWaferCenterByManually(out List<byte[]> bitmapMemoryBytes, Point offset, List<Point>? waferEdgeOffsets = null)
     {
-        _curPosition = new Point(new Random().Next(1, 100), new Random().Next(1, 100));
+        _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
         var tempBitmap = Convert.FromBase64String(File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.txt")));
         bitmapMemoryBytes = [tempBitmap, tempBitmap, tempBitmap, tempBitmap, tempBitmap, tempBitmap, tempBitmap, tempBitmap];
         Thread.Sleep(100);
@@ -239,7 +238,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
     {
-        _curPosition = new Point(new Random().Next(1, 100), new Random().Next(1, 100));
+        _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(
@@ -258,7 +257,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(AlignmentSiteDto site, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
     {
-        _curPosition = new Point(new Random().Next(1, 100), new Random().Next(1, 100));
+        _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(
@@ -287,7 +286,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     )
     {
         Thread.Sleep(100);
-        var offsetAngle = 0.01 + Random.NextDouble() * (0.1 - 0.05);
+        var offsetAngle = 0.01 + Random.Shared.NextDouble() * (0.1 - 0.05);
 
         return SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto { Degrees = offsetAngle });
     }
@@ -303,7 +302,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         bool isP2)
     {
         Thread.Sleep(100);
-        var offsetAngle = 0.01 + Random.NextDouble() * (0.1 - 0.05);
+        var offsetAngle = 0.01 + Random.Shared.NextDouble() * (0.1 - 0.05);
 
         return SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto { Degrees = offsetAngle });
     }
@@ -315,7 +314,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)
     {
-        _curPosition = new Point(new Random().Next(1, 100), new Random().Next(1, 100));
+        _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(
@@ -339,7 +338,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlgorithmWaferTypeEnum algorithmWaferTypeEnum
     )
     {
-        _curPosition = new Point(new Random().Next(1, 100), new Random().Next(1, 100));
+        _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(
@@ -368,7 +367,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         LaserLightInformation laserLightInformation)
     {
         Thread.Sleep(100);
-        var offsetAngle = 0.01 + Random.NextDouble() * (0.1 - 0.05);
+        var offsetAngle = 0.01 + Random.Shared.NextDouble() * (0.1 - 0.05);
 
         return SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto { Degrees = offsetAngle });
     }

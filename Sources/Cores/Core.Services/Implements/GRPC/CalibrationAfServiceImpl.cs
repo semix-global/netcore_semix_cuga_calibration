@@ -18,7 +18,7 @@ using Semix.CoreLib;
 namespace Core.Services.Implements.GRPC;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAfService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService microscopeService) : BaseService<ICgCalibAutofocusService, ICgDiagAutofocusService, ICgFacadeSwathService>, ICalibrationAfService
+public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibAutofocusService, ICgDiagAutofocusService, ICgFacadeSwathService>, ICalibrationAfService
 {
     public SxExecuteRet<bool> Connect()
     {

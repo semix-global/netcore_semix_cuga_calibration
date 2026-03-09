@@ -486,7 +486,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             gantryErrorList.Add(new Point(column, diameter * Math.Tan(thetaGantryVector[column - minColumnIndex])));
         }
 
-        var isGantrySuccess = gantryErrorList.All(t => Math.Abs(t.Y) < alignmentThreshold);
+        var isGantrySuccess = gantryErrorList.All(t => Math.Abs(t.Y) < gantryThreshold);
         var meanGantryTheta = thetaGantryVector.Average();
 
         htmlBullet = new HtmlBullet(new
@@ -605,7 +605,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             scaleXErrorList.Add(new Point(row, diameter * (1 - k)));
         }
 
-        var isScaleXSuccess = scaleXErrorList.All(t => Math.Abs(t.Y) < alignmentThreshold);
+        var isScaleXSuccess = scaleXErrorList.All(t => Math.Abs(t.Y) < scaleThreshold);
         var meanScaleX = xScaleVector.Average();
 
         var yScaleVector = Vector<double>.Build.Dense(maxColumnIndex - minColumnIndex + 1);
@@ -622,7 +622,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             scaleYErrorList.Add(new Point(column, diameter * (1 - k)));
         }
 
-        var isScaleYSuccess = scaleYErrorList.All(t => Math.Abs(t.Y) < alignmentThreshold);
+        var isScaleYSuccess = scaleYErrorList.All(t => Math.Abs(t.Y) < scaleThreshold);
         var meanScaleY = yScaleVector.Average();
 
         htmlBullet = new HtmlBullet(new

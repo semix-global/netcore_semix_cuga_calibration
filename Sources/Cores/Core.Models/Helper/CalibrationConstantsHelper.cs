@@ -42,16 +42,6 @@ public static class CalibrationConstantsHelper
     public const int MainXWidthPixel = 800;
 
     /// <summary>
-    /// 主校准暗场采集倍率
-    /// </summary>
-    public const OpticsMagTypeEnum MainOpticsMagTypeEnum = OpticsMagTypeEnum.High;
-
-    /// <summary>
-    /// 主校准暗场采集速度
-    /// </summary>
-    public const StageSpeedEnum MainStageSpeedEnum = StageSpeedEnum.Low;
-
-    /// <summary>
     /// 主校准暗场入射方式
     /// </summary>
     public const OpticsIlluminationModeEnum MainOpticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;

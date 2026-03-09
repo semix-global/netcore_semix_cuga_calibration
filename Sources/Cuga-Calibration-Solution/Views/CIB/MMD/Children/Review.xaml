@@ -200,6 +200,8 @@
                                     <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                 </Trigger>
                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="False">
+                                    <Setter Property="FontSize" Value="{StaticResource SubHeadFontSize}" />
+                                    <Setter Property="FontWeight" Value="Bold" />
                                     <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsVerified}" Value="True">
@@ -241,6 +243,8 @@
                                                    PopupAnimation="Slide"
                                                    IsOpen="{Binding IsChecked, ElementName=ToggleButtonReviewGainRelationships, Mode=TwoWay}">
                                                 <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                                                          FontSize="{StaticResource TextFontSize}"
+                                                          FontWeight="Normal"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="All"
                                                           RowHeaderWidth="60"

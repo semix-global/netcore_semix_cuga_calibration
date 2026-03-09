@@ -112,24 +112,22 @@
                                             </i:Interaction.Behaviors>
                                         </ComboBox>
                                     </hc:UniformSpacingPanel>
+                                    <StackPanel>
+                                        <Button Content="Import AOD Waveform Params"
+                                                Command="{Binding ImportAODWaveformParamsCommand}"
+                                                HorizontalAlignment="Right"
+                                                hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                Style="{StaticResource ButtonInfo.Small}" />
+                                    </StackPanel>
                                     <Expander IsExpanded="False" ExpandDirection="Down">
                                         <Expander.Header>
                                             <TextBlock Text="Chirp AOD Waveform" Style="{StaticResource TextBlockDefaultInfo}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <StackPanel>
-                                                    <Button Content="Import"
-                                                            Command="{Binding ImportChirpAODWaveformParamCommand}"
-                                                            HorizontalAlignment="Right"
-                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                                            Style="{StaticResource ButtonInfo.Small}" />
-                                                </StackPanel>
-                                                <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
-                                                                                                  IsVisibleDirectoryPath="False"
-                                                                                                  IsVisibleCompensation="False"
-                                                                                                  DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
-                                            </hc:UniformSpacingPanel>
+                                            <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                              IsVisibleDirectoryPath="False"
+                                                                                              IsVisibleCompensation="False"
+                                                                                              DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
                                         </Border>
                                     </Expander>
                                     <Expander IsExpanded="False" ExpandDirection="Down">
@@ -137,19 +135,10 @@
                                             <TextBlock Text="Prescan AOD Waveform" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <StackPanel>
-                                                    <Button Content="Import"
-                                                            Command="{Binding ImportPrescanAODWaveformParamCommand}"
-                                                            HorizontalAlignment="Right"
-                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                                            Style="{StaticResource ButtonInfo.Small}" />
-                                                </StackPanel>
-                                                <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
-                                                                                                    IsVisibleAmplitude="False"
-                                                                                                    IsVisibleDirectoryPath="False"
-                                                                                                    DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
-                                            </hc:UniformSpacingPanel>
+                                            <paramUI:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                IsVisibleAmplitude="False"
+                                                                                                IsVisibleDirectoryPath="False"
+                                                                                                DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
                                         </Border>
                                     </Expander>
                                 </hc:UniformSpacingPanel>

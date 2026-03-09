@@ -1,456 +1,503 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
-using Core.Services.Interfaces;
-using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.ViewModels.Chuck;
+using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+using Local.SQL.Cache.Providers.Extensions;
+using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.Nlog.Entities.HtmlElements;
-using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.WPF.Behaviors;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Collections.ObjectModel;
+using System.Text;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
 [IOCAppService(ServiceType = typeof(GrabbingDarkImageWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public partial class GrabbingDarkImageWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
+    ILogger<ChuckPrealignerCalibrationViewModel> logger,
+    MicroscopeViewModel microscopeViewModel,
+    AfViewModel afViewModel,
     LaserViewModel laserViewModel,
     StageViewModel stageViewModel,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    IOptions<ApplicationSetting> options,
-    ISynchronizationContextProvider contextProvider,
-    CalibrationSetting calibrationSetting,
+    CIBViewModel cibViewModel,
     ApplicationCookie applicationCookie,
-    ILogger<GrabbingDarkImageWindowViewModel> logger)
-    : ViewModelBase
+    ICacheProvider cacheProvider) : ViewModelBase
 {
-    public IReadOnlyList<LaserLightInformation> LaserLightInformationList => applicationCookie.LaserLightInformations;
-
     [ObservableProperty]
-    private StageCoordinateSystemEnum _stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
+    private ApplicationCookie _applicationCookie = applicationCookie;
 
+    [DefaultCache]
     [ObservableProperty]
-    private bool _isPtp;
-
-    [ObservableProperty]
-    private Point _startPosition;
-
-    [ObservableProperty]
-    private Point _endPosition;
-
-    [ObservableProperty]
-    private int _xWidth = 800;
-
-    [ObservableProperty]
-    private int _pmtId = 8;
-
-    [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = calibrationSetting.SettingCommonParam.MainLaserLightInformation;
-
-    [ObservableProperty]
-    private OpticsMagTypeEnum _opticsMagTypeEnum = OpticsMagTypeEnum.High;
-
-    [ObservableProperty]
-    private StageSpeedEnum _stageSpeedEnum = StageSpeedEnum.Low;
-
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
-
-    [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-
-    [ObservableProperty]
-    private bool _isForward = true;
-
-    [ObservableProperty]
-    private bool _isAutoFocus = true;
-
-    [ObservableProperty]
-    private string _prescanAODWaveformResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
-
-    [ObservableProperty]
-    private string _chirpAODWaveformResultFilePath = string.Empty;
-
-    [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
-
-    [ObservableProperty]
-    private ObservableCollection<GrabbingDarkImageDto> _grabbingDarkImageList = [];
-
-    [ObservableProperty]
-    private GrabbingDarkImageDto _selectGrabbingDarkImageDto = new();
-
-    [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    private GrabbingDarkImageWindowCache _cache = new();
 
     [RelayCommand]
-    private void ChangedPrescanAODWaveformProfiles()
+    private async Task LoadedAsync() => await Task.Run(() => Cache = cacheProvider.GetOrDefault<GrabbingDarkImageWindowCache>());
+
+    [RelayCommand]
+    private void ImportAODWaveformParams()
     {
         try
         {
-            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator1.PrescanAODWaveformFileExtension, out var filePath);
-            if (dialog == false) return;
+            var isSuccess = true;
 
-            PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(filePath);
-            PrescanAODWaveformResultFilePath = filePath;
+            var stringBuilder = new StringBuilder();
+
+            var prescanCache = cacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+
+            var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
+
+            if (prescanResult is null)
+            {
+                stringBuilder.AppendLine("Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam;
+                stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
+            }
+
+            var chirpCache = cacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+
+            var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
+
+            if (chirpResult is null)
+            {
+                stringBuilder.AppendLine("Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam;
+                stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
+            }
+
+            dialogWindowProvider.ShowDialog(stringBuilder.ToString(), DialogButtonsEnum.OK, isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
         catch (Exception ex)
         {
-            ClearPrescanAODWaveformProfiles();
-
-            logger.LogError(ex, "{@Name}: Changed Prescan AOD Waveform Profiles Failed", nameof(GrabbingDarkImageWindowViewModel));
             dialogWindowProvider.ShowDialog($"""
-                                             Changed Prescan AOD Waveform Profiles Failed
+                                             Import Parameters Failed
                                              {ex.Message}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            logger.LogError(ex, "Import Parameters Failed");
         }
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task ChangedPrescanAODWaveformProfilesAsync(CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                ClearPrescanAODWaveformProfiles();
+
+                if (Cache.IsGenerateAODWaveform)
+                {
+                    Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+                    foreach (var configuration in Cache.GeneratePrescanAODWaveformParam.ElectrodeConfigurations) configuration.WithAmplitude(Cache.LaserLightInformation.Coefficient);
+
+                    var prescanAODWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+
+                    Cache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
+                    Cache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
+                }
+                else
+                {
+                    var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator1.PrescanAODWaveformFileExtension, out var filePath);
+                    if (dialog == false) return;
+
+                    Cache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(filePath);
+                    Cache.PrescanAODWaveformResultFilePath = filePath;
+                }
+
+                dialogWindowProvider.ShowDialog("Changed Prescan AOD Waveform Profiles Success");
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    dialogWindowProvider.ShowDialog("Changed Chirp AOD Waveform Profiles Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                    return;
+                }
+
+                logger.LogError(ex, "Changed Prescan AOD Waveform Profiles Failed");
+                dialogWindowProvider.ShowDialog($"""
+                                                 Changed Prescan AOD Waveform Profiles Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
+        }, cancellationToken);
     }
 
     [RelayCommand]
     private void ClearPrescanAODWaveformProfiles()
     {
-        PrescanAODWaveformProfiles = [];
-        PrescanAODWaveformResultFilePath = string.Empty;
+        Cache.PrescanAODWaveformProfiles = [];
+        Cache.PrescanAODWaveformResultFilePath = string.Empty;
     }
 
-    [RelayCommand]
-    private void ChangedChirpAODWaveformProfiles()
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task ChangedChirpAODWaveformProfilesAsync(CancellationToken cancellationToken)
     {
-        try
+        await Task.Run(() =>
         {
-            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator1.ChirpAODWaveformFileExtension, out var filePath);
-            if (dialog == false) return;
+            try
+            {
+                ClearChirpAODWaveformProfiles();
 
-            ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(filePath);
-            ChirpAODWaveformResultFilePath = filePath;
-        }
-        catch (Exception ex)
-        {
-            ClearChirpAODWaveformProfiles();
+                if (Cache.IsGenerateAODWaveform)
+                {
+                    Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
 
-            logger.LogError(ex, "{@Name}: Changed Chirp AOD Waveform Profiles Failed", nameof(GrabbingDarkImageWindowViewModel));
-            dialogWindowProvider.ShowDialog($"""
-                                             Changed Chirp AOD Waveform Profiles Failed
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-        }
+                    var chirpAODWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+
+                    Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
+                    Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
+                }
+                else
+                {
+                    var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(AODWaveformGenerator1.ChirpAODWaveformFileExtension, out var filePath);
+                    if (dialog == false) return;
+
+                    Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(filePath);
+                    Cache.ChirpAODWaveformResultFilePath = filePath;
+                }
+
+                dialogWindowProvider.ShowDialog("Changed Chirp AOD Waveform Profiles Success");
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    dialogWindowProvider.ShowDialog("Changed Chirp AOD Waveform Profiles Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                    return;
+                }
+
+                logger.LogError(ex, "Changed Chirp AOD Waveform Profiles Failed");
+                dialogWindowProvider.ShowDialog($"""
+                                                 Changed Chirp AOD Waveform Profiles Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
+        }, cancellationToken);
     }
 
     [RelayCommand]
     private void ClearChirpAODWaveformProfiles()
     {
-        ChirpAODWaveformProfiles = [];
-        ChirpAODWaveformResultFilePath = string.Empty;
+        Cache.ChirpAODWaveformProfiles = [];
+        Cache.ChirpAODWaveformResultFilePath = string.Empty;
     }
 
-    [RelayCommand]
-    private Task GrabbingImageAsync()
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task GetPMTImagesByWidthAsync(CancellationToken cancellationToken) => InvokeGetPMTImagesAsync("Width", async startPosition =>
     {
-        return Task.Run(() =>
+        if (Cache.IsAutoFocus == false)
         {
-            var htmlLogUniqueId = Guid.NewGuid();
-            logger.LogHtmlInformation("Grabbing Image Start", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
-            var isSuccess = false;
+            afViewModel.ToggleBrightFieldEnable(false);
+            afViewModel.SetSensorEcsValue(Cache.ECS);
+        }
 
+        var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+        foreach (var cibInformations in Cache.CIBInformations
+                     .GroupBy(t => t.PMTId)
+                     .OrderBy(t => t.Key)
+                     .Select(gg => gg.OrderByDescending(t => t).ToArray()))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                Cache.StageCoordinateSystemEnum,
+                Cache.ProductivityInformation,
+                cibInformations[0],
+                startPosition,
+                microscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+            var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                Cache.ProductivityInformation,
+                Cache.StageCoordinateSystemEnum,
+                currentStartPosition,
+                Cache.ImageWidth,
+                cibInformations,
+                (true, null),
+                (false, Cache.CIBConfiguration),
+                (true, null),
+                true,
+                cancellationToken,
+                isForward: Cache.IsForward,
+                isAutoFocus: Cache.IsAutoFocus,
+                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum);
+
+            foreach (var darkFieldImage in darkFieldImages)
+            {
+                using var _1 = darkFieldImage;
+            }
+
+            resultList.Add(darkFieldImages);
+        }
+
+        Cache.Results = resultList;
+    }, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task GetPMTImagesByPTPAsync(CancellationToken cancellationToken) => InvokeGetPMTImagesAsync("PTP", async startPosition =>
+    {
+        if (Cache.IsAutoFocus == false)
+        {
+            afViewModel.ToggleBrightFieldEnable(false);
+            afViewModel.SetSensorEcsValue(Cache.ECS);
+        }
+
+        var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+        foreach (var cibInformations in Cache.CIBInformations
+                     .GroupBy(t => t.PMTId)
+                     .OrderBy(t => t.Key)
+                     .Select(gg => gg.OrderByDescending(t => t).ToArray()))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                Cache.StageCoordinateSystemEnum,
+                Cache.ProductivityInformation,
+                cibInformations[0],
+                startPosition,
+                microscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+            var currentStopPosition = currentStartPosition + new Vector(Cache.ScanLength, 0);
+
+            var darkFieldRawScanImages = await cibViewModel.GetPMTImagesAsync(
+                Cache.ProductivityInformation,
+                Cache.StageCoordinateSystemEnum,
+                currentStartPosition,
+                currentStopPosition,
+                cibInformations,
+                (true, null),
+                (false, Cache.CIBConfiguration),
+                (true, null),
+                true,
+                cancellationToken,
+                isForward: Cache.IsForward,
+                isAutoFocus: Cache.IsAutoFocus,
+                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum);
+
+            resultList.Add(darkFieldRawScanImages);
+        }
+
+        Cache.Results = resultList;
+    }, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task GetPMTImagesByPEGAsync(CancellationToken cancellationToken) => InvokeGetPMTImagesAsync("PEG", async startPosition =>
+    {
+        if (Cache.IsAutoFocus == false)
+        {
+            afViewModel.ToggleBrightFieldEnable(false);
+            afViewModel.SetSensorEcsValue(Cache.ECS);
+        }
+
+        var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+        foreach (var cibInformations in Cache.CIBInformations
+                     .GroupBy(t => t.PMTId)
+                     .OrderBy(t => t.Key)
+                     .Select(gg => gg.OrderByDescending(t => t).ToArray()))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Guard.IsEqualTo(cibInformations.Length, 1);
+
+            var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                Cache.StageCoordinateSystemEnum,
+                Cache.ProductivityInformation,
+                cibInformations[0],
+                startPosition,
+                microscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+            var positions = Enumerable.Range(0, Cache.ColumnCount).Select(t => currentStartPosition + new Vector(t * Cache.ColumnWidth, 0)).ToArray();
+
+            if (Cache.IsForward == false) positions = [.. positions.AsEnumerable().Reverse()];
+
+            var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                Cache.ProductivityInformation,
+                Cache.StageCoordinateSystemEnum,
+                positions,
+                Cache.ImageWidth,
+                cibInformations[0],
+                (true, null),
+                (false, Cache.CIBConfiguration),
+                (true, null),
+                true,
+                cancellationToken,
+                isAutoFocus: Cache.IsAutoFocus,
+                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum);
+
+            foreach (var darkFieldImage in darkFieldImages)
+            {
+                using var _ = darkFieldImage;
+            }
+
+            resultList.Add(darkFieldImages);
+        }
+
+        Cache.Results = resultList;
+    }, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task GetPMTImagesByXZSyncAsync(CancellationToken cancellationToken) => InvokeGetPMTImagesAsync("XZSync", async startPosition =>
+    {
+        var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+        foreach (var cibInformations in Cache.CIBInformations
+                     .GroupBy(t => t.PMTId)
+                     .OrderBy(t => t.Key)
+                     .Select(gg => gg.OrderByDescending(t => t).ToArray()))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                Cache.StageCoordinateSystemEnum,
+                Cache.ProductivityInformation,
+                cibInformations[0],
+                startPosition,
+                microscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+            var currentStopPosition = currentStartPosition + new Vector(Cache.ScanLength, 0);
+
+            var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                Cache.ProductivityInformation,
+                Cache.StageCoordinateSystemEnum,
+                currentStartPosition,
+                currentStopPosition,
+                Cache.StartECS,
+                Cache.StopECS,
+                cibInformations,
+                (true, null),
+                (false, Cache.CIBConfiguration),
+                (true, null),
+                true,
+                cancellationToken,
+                isForward: Cache.IsForward,
+                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum);
+
+            foreach (var darkFieldImage in darkFieldImages)
+            {
+                using var _ = darkFieldImage;
+            }
+
+            resultList.Add(darkFieldImages);
+        }
+
+        Cache.Results = resultList;
+    }, cancellationToken);
+
+    private async Task InvokeGetPMTImagesAsync(
+        string modeName,
+        Func<Point, Task> func,
+        CancellationToken cancellationToken)
+    {
+        await Task.Run(async () =>
+        {
             try
             {
-                if (dialogWindowProvider.TryShowDialog($"""
-                                                        Grabbing Image Please confirm Param.
-                                                        {nameof(StageCoordinateSystemEnum)}: {StageCoordinateSystemEnum}
-                                                        {(IsPtp
-                                                            ? $"""
-                                                               {nameof(StartPosition)}: {StartPosition}
-                                                               {nameof(EndPosition)}: {EndPosition}
-                                                               """
-                                                            : $"{nameof(XWidth)}: {XWidth}")}
-                                                        {nameof(PmtId)}: {PmtId}
-                                                        {nameof(LaserLightInformation)}: {LaserLightInformation}
-                                                        {nameof(CIBConfiguration.Gain)}: {CIBConfiguration.Gain}
-                                                        {nameof(OpticsMagTypeEnum)}: {OpticsMagTypeEnum}
-                                                        {nameof(StageSpeedEnum)}: {StageSpeedEnum}
-                                                        {nameof(CalChipSiteModelEnum)}: {CalChipSiteModelEnum}
-                                                        {nameof(CIBConfiguration.IsL0K)}: {CIBConfiguration.IsL0K}
-                                                        {nameof(CIBConfiguration.IsAutoGainControl)}: {CIBConfiguration.IsAutoGainControl}
-                                                        {nameof(IsForward)}: {IsForward}
-                                                        {(string.IsNullOrWhiteSpace(PrescanAODWaveformResultFilePath) ? string.Empty : $"{nameof(PrescanAODWaveformResultFilePath)}: {PrescanAODWaveformResultFilePath}")}
-                                                        {(string.IsNullOrWhiteSpace(ChirpAODWaveformResultFilePath) ? string.Empty : $"{nameof(ChirpAODWaveformResultFilePath)}: {ChirpAODWaveformResultFilePath}")}
-                                                        """, out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return;
+                if (dialogWindowProvider.TryShowDialog($"Grabbing Image By {modeName}, Please confirm Param.", out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return;
 
-                var isCustomPrescanAod = PrescanAODWaveformProfiles.Count > 0 && string.IsNullOrWhiteSpace(PrescanAODWaveformResultFilePath) == false;
-                if (isCustomPrescanAod)
+                if (Cache.PrescanAODWaveformProfiles.Count > 0)
                 {
-                    foreach (var prescanAODWaveformProfile in PrescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficient(LaserLightInformation.Coefficient);
-                    laserViewModel.SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum, PrescanAODWaveformProfiles);
-                }
+                    foreach (var prescanAODWaveformProfile in Cache.PrescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficient(Cache.LaserLightInformation.Coefficient);
 
-                var isCustomChirpAod = ChirpAODWaveformProfiles.Count > 0 && string.IsNullOrWhiteSpace(ChirpAODWaveformResultFilePath) == false;
-                if (isCustomChirpAod)
-                {
-                    laserViewModel.SetChirpAODWaveProfiles(OpticsIlluminationModeEnum, ChirpAODWaveformProfiles);
+                    laserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.PrescanAODWaveformProfiles);
                 }
+                else laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.LaserLightInformation.Coefficient);
 
-                var resultPosition = StageCoordinateSystemEnum switch
+                if (Cache.ChirpAODWaveformProfiles.Count > 0) laserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
+                else laserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+
+                var startPosition = Cache.StageCoordinateSystemEnum switch
                 {
                     StageCoordinateSystemEnum.Bright => stageViewModel.GetBrightFieldStagePosition(),
                     StageCoordinateSystemEnum.Dark => stageViewModel.GetDarkFieldStagePosition(),
                     StageCoordinateSystemEnum.Machine => stageViewModel.GetMachineStagePosition(),
-                    _ => throw new ArgumentOutOfRangeException(nameof(StageCoordinateSystemEnum), StageCoordinateSystemEnum, null)
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
                 };
 
-                var result = IsPtp
-                    ?
-                    [
-                        .. laserViewModel.GetDarkFieldLineScanImageList(
-                            StartPosition,
-                            EndPosition,
-                            OpticsMagTypeEnum,
-                            StageSpeedEnum,
-                            OpticsIlluminationModeEnum,
-                            PmtId,
-                            StageCoordinateSystemEnum,
-                            CIBConfiguration,
-                            (isCustomPrescanAod, isCustomPrescanAod ? null : LaserLightInformation),
-                            isCustomChirpAod,
-                            IsForward,
-                            IsAutoFocus).Select(ToDarkFieldImageDto)
-                    ]
-                    : laserViewModel.GetDarkFieldLineScanImageList(
-                        CalChipSiteModelEnum,
-                        resultPosition,
-                        XWidth,
-                        OpticsMagTypeEnum,
-                        StageSpeedEnum,
-                        OpticsIlluminationModeEnum,
-                        PmtId,
-                        StageCoordinateSystemEnum,
-                        CIBConfiguration,
-                        (isCustomPrescanAod, isCustomPrescanAod ? null : LaserLightInformation),
-                        isCustomChirpAod,
-                        IsForward,
-                        IsAutoFocus);
-
-                var darkFieldImageList = new List<DarkFieldImage>();
-
-                foreach (var (i, darkFieldImageDto) in result.Select((t, i) => (i, t)))
+                try
                 {
-                    using var _ = darkFieldImageDto;
-                    var filePath = $@"{options.Value.AppHomeDirectory}\Images\{nameof(GrabbingDarkImageWindowViewModel)}\{OpticsMagTypeEnum}\{PmtId}-{i + 1}\{LaserLightInformation}\{CIBConfiguration.Gain}\{htmlLogUniqueId}.jpg";
-                    darkFieldImageDto.Image.Save(filePath);
-                    darkFieldImageList.Add(new DarkFieldImage
+                    Cache.Results = [];
+
+                    await func(startPosition);
+                }
+                finally
+                {
+                    switch (Cache.StageCoordinateSystemEnum)
                     {
-                        Width = darkFieldImageDto.Width,
-                        Height = darkFieldImageDto.Height,
-                        FilePath = filePath,
-                        RawImageFilePath = darkFieldImageDto.RawImageFilePath,
-                        DarkFieldImageList = [.. darkFieldImageDto.Image.GetHorizontalProjects()]
-                    });
+                        case StageCoordinateSystemEnum.Bright:
+                            stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, Cache.CalChipSiteModelEnum);
+
+                            break;
+
+                        case StageCoordinateSystemEnum.Dark:
+                            stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, Cache.CalChipSiteModelEnum);
+
+                            break;
+
+                        case StageCoordinateSystemEnum.Machine:
+                            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, Cache.CalChipSiteModelEnum);
+
+                            break;
+
+                        default:
+                            ThrowHelper.ThrowArgumentOutOfRangeException(nameof(Cache.StageCoordinateSystemEnum));
+
+                            break;
+                    }
                 }
 
-                var plotList = new List<WpfPlotModel>
-                {
-                    new("ch1", [..darkFieldImageList[0].DarkFieldImageList.ToPoints()]),
-                    new("ch2", [..darkFieldImageList[1].DarkFieldImageList.ToPoints()]),
-                    new("ch3", [..darkFieldImageList[2].DarkFieldImageList.ToPoints()])
-                };
-                var grabbingDarkImageDto = new GrabbingDarkImageDto
-                {
-                    PmtId = PmtId,
-                    Coefficient = LaserLightInformation.Coefficient,
-                    OpticsMagTypeEnum = OpticsMagTypeEnum,
-                    StageSpeedEnum = StageSpeedEnum,
-                    CalChipSiteModelEnum = CalChipSiteModelEnum,
-                    StageCoordinateSystemEnum = StageCoordinateSystemEnum,
-                    CIBConfiguration = CIBConfiguration.Clone(),
-                    IsForward = IsForward,
-                    XWidth = IsPtp ? string.Empty : XWidth.ToString(),
-                    StartPosition = IsPtp ? StartPosition.ToString() : string.Empty,
-                    EndPosition = IsPtp ? EndPosition.ToString() : string.Empty,
-                    PrescanFilePath = PrescanAODWaveformResultFilePath,
-                    ChirpFilePath = ChirpAODWaveformResultFilePath,
-                    DarkFieldImageList = darkFieldImageList,
-                    PlotList = plotList
-                };
-                contextProvider.Send(() => GrabbingDarkImageList.Add(grabbingDarkImageDto));
-                SelectGrabbingDarkImageDto = grabbingDarkImageDto;
-                isSuccess = true;
-
-                logger.LogHtmlInformation($"Ok Mag:{OpticsMagTypeEnum};Coefficient: {LaserLightInformation}; Gain: {CIBConfiguration.Gain}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    PmtId,
-                    OpticsMagTypeEnum,
-                    LaserLightInformation,
-                    CIBConfiguration.Gain,
-                    CalChipSiteModelEnum,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        CH1 = new HtmlImage(darkFieldImageList[0].FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        CH2 = new HtmlImage(darkFieldImageList[1].FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        CH3 = new HtmlImage(darkFieldImageList[2].FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                    }),
-                    DarkFieldImageList = new HtmlPlot2DLinesChart([
-                        ("ch1", darkFieldImageList[0].DarkFieldImageList.ToPoints()),
-                        ("ch2", darkFieldImageList[1].DarkFieldImageList.ToPoints()),
-                        ("ch3", darkFieldImageList[2].DarkFieldImageList.ToPoints())
-                    ], "Dark Field Image")
-                }), htmlLogUniqueId.LoggingHtml());
+                dialogWindowProvider.ShowDialog($"Grabbing Image By {modeName} Completed.");
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "{@Name}: Grabbing Image Failed", nameof(GrabbingDarkImageWindowViewModel));
-            }
-            finally
-            {
-                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml(
-                    $"Mag({EnumHelper.ToDescriptionString(OpticsMagTypeEnum)})_CalChip({EnumHelper.ToDescriptionString(CalChipSiteModelEnum)})__GainVoltage({CIBConfiguration.Gain}){(isSuccess ? "OK" : "Failed")}"));
-            }
-
-            return;
-
-            DarkFieldImageDTO ToDarkFieldImageDto(DarkFieldRawScanImageDTO origin)
-            {
-                var rawBytes = System.IO.File.ReadAllBytes(origin.RawImageFilePath);
-                var image = RawImageFactory.CreateImage(rawBytes);
-
-                return new DarkFieldImageDTO
+                if (ex is OperationCanceledException)
                 {
-                    Image = image
-                }.AdaptIn(origin);
+                    dialogWindowProvider.ShowDialog($"Get PMT Images By {modeName} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                    return;
+                }
+
+                dialogWindowProvider.ShowDialog($"""
+                                                 Get PMT Images By {modeName} Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                logger.LogError(ex, "Get PMT Images By {ModeName}", modeName);
             }
-        });
-    }
-
-    [RelayCommand]
-    private async Task SavePictureAsync(DarkFieldImage darkFieldImage)
-    {
-        try
-        {
-            await Task.Run(() =>
-            {
-                var tryShowSaveFilePathDialog = dialogWindowProvider.TryShowSaveFilePathDialog(".jpg", out var saveFilePath);
-                if (tryShowSaveFilePathDialog == false) return;
-
-                System.IO.File.Copy(darkFieldImage.FilePath, saveFilePath, true);
-                System.IO.File.WriteAllBytes($"{saveFilePath}.raw", System.IO.File.ReadAllBytes(darkFieldImage.RawImageFilePath));
-            }).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "{@Name}: Grabbing Image Failed", nameof(GrabbingDarkImageWindowViewModel));
-        }
-    }
-
-    [RelayCommand]
-    private void ShowPlot(DarkFieldImage darkFieldImage)
-    {
-        try
-        {
-            dialogWindowProvider.ShowPlot([.. darkFieldImage.DarkFieldImageList]);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "{@Name}: Show Plot Failed", nameof(GrabbingDarkImageWindowViewModel));
-        }
-    }
-
-    [RelayCommand]
-    private void DeleteImage(GrabbingDarkImageDto grabbingDarkImageDto)
-    {
-        contextProvider.Send(() => GrabbingDarkImageList.Remove(grabbingDarkImageDto));
-        if (GrabbingDarkImageList.Count > 0) SelectGrabbingDarkImageDto = GrabbingDarkImageList[0];
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand]
     private void Close()
     {
+        try
+        {
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            cacheProvider.Set(Cache, cancellationTokenSource.Token);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to save cache");
+        }
+
         CloseView(true);
-    }
-
-    public sealed partial class GrabbingDarkImageDto : ObservableObject
-    {
-        [ObservableProperty]
-        private CIBConfiguration _cIBConfiguration = new();
-
-        [ObservableProperty]
-        private int _pmtId;
-
-        [ObservableProperty]
-        private double _coefficient;
-
-        [ObservableProperty]
-        private OpticsMagTypeEnum _opticsMagTypeEnum;
-
-        [ObservableProperty]
-        private StageSpeedEnum _stageSpeedEnum;
-
-        [ObservableProperty]
-        private CalChipSiteModelEnum _calChipSiteModelEnum;
-
-        [ObservableProperty]
-        private StageCoordinateSystemEnum _stageCoordinateSystemEnum;
-
-        [ObservableProperty]
-        private bool _isForward;
-
-        [ObservableProperty]
-        private string _xWidth = string.Empty;
-
-        [ObservableProperty]
-        private string _startPosition = string.Empty;
-
-        [ObservableProperty]
-        private string _endPosition = string.Empty;
-
-        [ObservableProperty]
-        private string _prescanFilePath = string.Empty;
-
-        [ObservableProperty]
-        private string _chirpFilePath = string.Empty;
-
-        [ObservableProperty]
-        private List<DarkFieldImage> _darkFieldImageList = [];
-
-        [ObservableProperty]
-        private List<WpfPlotModel> _plotList = [];
-    }
-
-    public sealed partial class DarkFieldImage : ObservableObject
-    {
-        [ObservableProperty]
-        private double _width;
-
-        [ObservableProperty]
-        private double _height;
-
-        [ObservableProperty]
-        private string _filePath = string.Empty;
-
-        [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
-
-        [ObservableProperty]
-        private List<double> _darkFieldImageList = [];
     }
 }

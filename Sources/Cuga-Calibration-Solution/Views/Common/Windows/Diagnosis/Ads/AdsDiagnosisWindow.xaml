@@ -109,11 +109,6 @@
                     <local:AdsGainsDiagnosisUserControl DataContext="{Binding AdsGainsDiagnosisViewModel}" />
                 </Border>
             </TabItem>
-            <TabItem Header="CenterOfMass">
-                <Border>
-                    <local:AdsCenterOfMassDiagnosisUserControl DataContext="{Binding AdsCenterOfMassDiagnosisViewModel}" />
-                </Border>
-            </TabItem>
         </TabControl>
     </Grid>
 </hc:Window>

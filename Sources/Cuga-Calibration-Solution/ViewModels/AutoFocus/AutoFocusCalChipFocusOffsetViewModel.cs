@@ -35,7 +35,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
         new() { StepName = "Haze Param" },
         new() { StepName = "Haze RTFC" },
         new() { StepName = "Chuck Param" },
-        new() { StepName = "Chuck RTFC" },
+        new() { StepName = "Chuck RTFC" }
     ];
 
     #region 界面相关
@@ -208,7 +208,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 Cache.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.CIBInformation,
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
@@ -240,19 +240,18 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
             try
             {
-                var rtfcResultDTO = await CIBViewModel.RuntimeAfCalibrationAsync(
-                    Cache.Item.CIBConfiguration,
-                    Cache.CIBInformation,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
-                    Cache.Item.LaserLightInformation,
+                var rtfcResultDTO = await CIBViewModel.RuntimeAFCalibrationAsync(
                     Cache.ProductivityInformation,
-                    cancellationToken,
-                    isAppliedDefaultRtfcParam: false,
-                    calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright,
-                    saveImageFileDirectory: detectImageDirectory,
-                    logGuid: HtmlLogUniqueId,
-                    logName: Cache.CalChipSiteModelEnum.ToDescriptionOrString());
+                    Cache.CalChipSiteModelEnum,
+                    StageCoordinateSystemEnum.Bright,
+                    StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
+                    800,
+                    Cache.CIBInformation,
+                    Cache.Item.CIBConfiguration,
+                    Cache.Item.LaserLightInformation,
+                    detectImageDirectory,
+                    HtmlLogUniqueId,
+                    cancellationToken);
 
                 switch (Cache.CalChipSiteModelEnum)
                 {
@@ -362,8 +361,8 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Bright,
                         StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
-                        Cache.CIBInformation,
                         Cache.ImageWidth,
+                        Cache.CIBInformation,
                         (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),

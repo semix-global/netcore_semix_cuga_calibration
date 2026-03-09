@@ -9,8 +9,6 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationMonitorService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationMonitorServiceMockImpl : ICalibrationMonitorService
 {
-    private static readonly Random Random = new();
-
     public SxExecuteRet<bool> Connect()
     {
         Thread.Sleep(100);
@@ -22,27 +20,27 @@ public sealed class CalibrationMonitorServiceMockImpl : ICalibrationMonitorServi
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Random.NextDouble());
+        return SxExecuteRetHelper.CreateSuccess(Random.Shared.NextDouble());
     }
 
     public SxExecuteRet<double> GetReviewCameraCurrentTemperature()
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Random.NextDouble());
+        return SxExecuteRetHelper.CreateSuccess(Random.Shared.NextDouble());
     }
 
     public SxExecuteRet<double> GetXAxisCurrentTemperature()
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Random.NextDouble());
+        return SxExecuteRetHelper.CreateSuccess(Random.Shared.NextDouble());
     }
 
     public SxExecuteRet<double> GetYAxisCurrentTemperature()
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(Random.NextDouble());
+        return SxExecuteRetHelper.CreateSuccess(Random.Shared.NextDouble());
     }
 }
