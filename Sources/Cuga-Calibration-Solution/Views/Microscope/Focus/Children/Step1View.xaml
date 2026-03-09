@@ -37,8 +37,8 @@
                     </StackPanel>
                     <TextBox Text="{Binding SelectMicroscopeFocusCacheItem.FindFocusPosition, Converter={StaticResource PointToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Position(um): "
+                             hc:TitleElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel Margin="5"
                                             HorizontalAlignment="Left"

@@ -38,14 +38,14 @@
                     </StackPanel>
                     <TextBox Text="{Binding Cache.Threshold, Converter={StaticResource SizeToStringConverter}}"
                              Width="275"
-                             hc:InfoElement.Title="Threshold: "
+                             hc:TitleElement.Title="Threshold: "
                              hc:TitleElement.TitleWidth="90"
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="{Binding IsAutoCalibrate}"
                              Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding SelectMicroscopePixelSizeCacheItem.AlgorithmStandardMaskSquareSizeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                             hc:InfoElement.Title="StandardMaskSquareSize: "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="StandardMaskSquareSize: "
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"

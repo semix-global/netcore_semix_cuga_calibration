@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using HalconDotNet;
-using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;
 
@@ -130,7 +129,7 @@ public static class HImageCommonExtensions1
 
             return result;
         }
-        
+
         /// <summary>
         /// 获取 16位HImage 指定行的灰度值数组
         /// </summary>
