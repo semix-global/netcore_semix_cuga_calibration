@@ -43,8 +43,9 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Image Param" },
         new() { StepName = "Alignment" },
-        new() { StepName = "Find DSW Position" },
+        new() { StepName = "Find Z DSW Position" },
         new() { StepName = "Z Relay" },
+        new() { StepName = "Find X/Z DSW Position" },
         new() { StepName = "X/Z Relay" }
     ];
 
@@ -161,8 +162,20 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
+                return true;
+
+            case 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition));
+
+                return true;
+
+            case 5:
+                return true;
+
+            case 6:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.XZDSWFindBFMachinePosition));
 
                 return true;
 
@@ -183,17 +196,31 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
-                    ? Cache.Item.DSWFindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.DswItem).BrightFieldMachinePosition));
-
                 return true;
 
             case 2:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.DSWFindBFMachinePosition
+                    : MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
+
                 return true;
 
             case 3:
+                return true;
+
+            case 4:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.XZDSWFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.DSWFindBFMachinePosition
+                    : MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
+
+                return true;
+
+            case 5:
+                return true;
+
+            case 6:
                 CalibratingStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum).IsCalibrated = true;
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
