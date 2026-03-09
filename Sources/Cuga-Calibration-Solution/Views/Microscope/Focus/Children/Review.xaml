@@ -36,28 +36,28 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:NumericUpDown x:Name="ThresholdNumeric"
-                                      hc:InfoElement.Title="Threshold: "
+                                      hc:TitleElement.Title="Threshold: "
                                       hc:TitleElement.TitleWidth="120"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.Threshold}" />
-                    <hc:NumericUpDown hc:InfoElement.Title="ParfocalThreshold: "
+                    <hc:NumericUpDown hc:TitleElement.Title="ParfocalThreshold: "
                                       hc:TitleElement.TitleWidth="120"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.ParfocalThreshold}" />
                     <TextBox Text="{Binding Cache.VerifyResultQuality, StringFormat={}{0:f3}}"
-                             hc:InfoElement.Title="Result Quality: "
+                             hc:TitleElement.Title="Result Quality: "
                              hc:TitleElement.TitleWidth="120"
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding Cache.VerifyResultError, StringFormat={}{0:f3}}"
-                             hc:InfoElement.Title="Result Error: "
+                             hc:TitleElement.Title="Result Error: "
                              hc:TitleElement.TitleWidth="120"
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"

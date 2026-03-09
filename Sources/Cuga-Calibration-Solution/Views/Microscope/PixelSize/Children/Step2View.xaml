@@ -51,8 +51,8 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:ComboBox hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Standard Mask Square Size: "
+                    <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Standard Mask Square Size: "
                                  SelectedItem="{Binding SelectMicroscopePixelSizeCacheItem.AlgorithmStandardMaskSquareSizeEnum}"
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmStandardMaskSquareSizeEnum}}}">
                         <hc:ComboBox.ItemTemplate>
@@ -61,15 +61,15 @@
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
-                    <hc:NumericUpDown hc:InfoElement.Title="AngleThreshold(°): "
+                    <hc:NumericUpDown hc:TitleElement.Title="AngleThreshold(°): "
                                       hc:TitleElement.TitleWidth="130"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.AngleThreshold}" />
                     <TextBox Text="{Binding ResultMicroscopePixelSizeItemDto.PixelSize, Converter={StaticResource SizeToStringConverter}}"
-                             hc:InfoElement.Title="Find Pixel Size: "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="Find Pixel Size: "
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
