@@ -270,20 +270,18 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                     CalChipSiteModelEnum = Cache.CalChipSiteModelEnum
                 };
 
-                var rtfcResultDTO = await CIBViewModel.RuntimeAfCalibrationAsync(
-                    Cache.Item.CIBConfiguration,
-                    Cache.Item.CIBInformation,
-                    StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition)),
-                    Cache.Item.LaserLightInformation,
+                var rtfcResultDTO = await CIBViewModel.RuntimeAFCalibrationAsync(
                     Cache.ProductivityInformation,
-                    cancellationToken,
-                    isAppliedDefaultRtfcParam: false,
-                    xXWidthPixel: Cache.Item.ImageWidth,
-                    calChipSiteModelEnum: Cache.CalChipSiteModelEnum,
-                    stageCoordinateSystemEnum: StageCoordinateSystemEnum.Machine,
-                    saveImageFileDirectory: detectImageDirectory,
-                    logGuid: HtmlLogUniqueId,
-                    logName: Cache.CalChipSiteModelEnum.ToDescriptionOrString());
+                    Cache.CalChipSiteModelEnum,
+                    StageCoordinateSystemEnum.Machine,
+                    StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition)),
+                    800,
+                    Cache.Item.CIBInformation,
+                    Cache.Item.CIBConfiguration,
+                    Cache.Item.LaserLightInformation,
+                    detectImageDirectory,
+                    HtmlLogUniqueId,
+                    cancellationToken);
 
                 CalibratingItem.RuntimeAfCalibrationResultDTO = rtfcResultDTO;
                 CalibratingItem.IsCalibrated = true;
@@ -348,8 +346,8 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                         globalFocusOffsetDTO.ProductivityInformation,
                         StageCoordinateSystemEnum.Machine,
                         StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition)),
-                        Cache.Item.CIBInformation,
                         Cache.Item.ImageWidth,
+                        Cache.Item.CIBInformation,
                         (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),

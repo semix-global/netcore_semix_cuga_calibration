@@ -2368,7 +2368,7 @@
             直接传输字节数组（18460字节，无需Base64，减少开销）
             </summary>
         </member>
-        <member name="F:Semix.WcfTransfer.Interfaces.IDO2.ClassificationObj.claImageDirectory">
+        <member name="F:Semix.WcfTransfer.Interfaces.IDO2.ClassificationObj.pretrained_model_path">
             <summary>
             分类训练界面参数
             </summary>  

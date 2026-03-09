@@ -3,6 +3,7 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Interface.Calibration;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
@@ -23,6 +24,11 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
 
             return createService;
         });
+    }
+
+    public Task<SxExecuteRet<SysUserDto>> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<string> GetDeviceCode()

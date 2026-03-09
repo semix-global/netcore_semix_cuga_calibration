@@ -42,8 +42,11 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     [
         new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Image Param" },
-        new() { StepName = "Find DSW Position" },
-        new() { StepName = "Relay" }
+        new() { StepName = "Alignment" },
+        new() { StepName = "Find Z Sync DSW Position" },
+        new() { StepName = "Z Sync Relay" },
+        new() { StepName = "Find X/Z Sync DSW Position" },
+        new() { StepName = "X/Z Sync Relay" }
     ];
 
     #region 界面相关
@@ -79,6 +82,9 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     [ObservableProperty]
     private MicroscopeCalChipDTO _microscopeCalChip = new();
 
+    [ObservableProperty]
+    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
     #endregion 缓存
 
     #endregion 属性
@@ -92,6 +98,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
 
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses =
@@ -155,9 +162,20 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
+                return true;
+
+            case 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition));
+
+                return true;
+
+            case 5:
+                return true;
+
+            case 6:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.XZDSWFindBFMachinePosition));
 
                 return true;
 
@@ -178,18 +196,31 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
-                    ? Cache.Item.DSWFindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.DswItem).BrightFieldMachinePosition));
-
                 return true;
 
             case 2:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.DSWFindBFMachinePosition
+                    : MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
+
                 return true;
 
             case 3:
+                return true;
+
+            case 4:
+                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.XZDSWFindBFMachinePosition != Point.Origin
+                    ? Cache.Item.DSWFindBFMachinePosition
+                    : MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
+
+                return true;
+
+            case 5:
+                return true;
+
+            case 6:
                 CalibratingStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum).IsCalibrated = true;
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
@@ -247,9 +278,36 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
+            var alignmentResult = StageViewModel.Alignment(
+                MicroscopeCalChipCache.LowSite1,
+                MicroscopeCalChipCache.LowSite2,
+                MicroscopeCalChipCache.HighSite1,
+                MicroscopeCalChipCache.HighSite2,
+                MicroscopeCalChipCache.LowMicroscopeLensInformation,
+                MicroscopeCalChipCache.HighMicroscopeLensInformation,
+                MicroscopeCalChipCache.AlgorithmWaferTypeEnum,
+                CalChipSiteModelEnum.DswModel);
+
+            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d));
+
+            Cache.Item.AlignmentResult = alignmentResult;
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step3Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
             Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-            StageViewModel.SetAbsoluteStageTheta(0);
             Cache.Item.DSWFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -267,7 +325,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3Async(CancellationToken cancellationToken)
+    private Task Step4Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
@@ -296,12 +354,11 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                 Cache.Item.StartRelayMotorAbsoluteValue,
                 Cache.Item.StepRelayMotorAbsoluteValue,
                 Cache.Item.StopRelayMotorAbsoluteValue,
-                Cache.Item.StartRoughECS,
+                Cache.Item.CenterRoughECS,
+                Cache.Item.RangeRoughECS,
                 Cache.Item.StepRoughECS,
-                Cache.Item.StopRoughECS,
                 Cache.Item.RangeRefinedECS,
                 Cache.Item.StepRefinedECS,
-                Cache.Threshold,
                 currentMotorAbsoluteValue,
                 nmPerEcs,
                 defaultSlope,
@@ -313,16 +370,18 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             CalibratingItem.Slope = 0d;
             CalibratingItem.Intercept = 0d;
             CalibratingItem.RSquared = 0d;
-            CalibratingItem.RelayMotorRatio = 0d;
             CalibratingItem.FitRelayPoints = [];
-            CalibratingItem.MinRelayMotorAbsoluteValue = 0d;
-            CalibratingItem.MaxRelayMotorAbsoluteValue = 0d;
-            CalibratingItem.IsCalibrated = false;
+            CalibratingItem.RelayMotorRatio = 0d;
 
             var dswBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
 
+            var currentDSWBFPosition = CIBViewModel.GetCIBInformationPosition(
+                StageCoordinateSystemEnum.Dark,
+                Cache.Item.ProductivityInformation,
+                Cache.Item.CIBInformation,
+                dswBFPosition,
+                Cache.Item.MicroscopeLensInformation);
             try
             {
                 Logger.LogHtmlInformation("Relay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -341,7 +400,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     .. relayMotorAbsoluteValues.AsSpan()[..closestIndex].ToArray().AsEnumerable().Reverse()
                 ];
 
-                foreach (var (index, relayMotorAbsoluteValue) in relayMotorAbsoluteValues.Index())
+                Guard.IsGreaterThan(relayMotorAbsoluteValues.Length, 2);
+                foreach (var relayMotorAbsoluteValue in relayMotorAbsoluteValues)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -352,15 +412,12 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     var itemItem = new OpticsRelayDTOItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
                     CalibratingItem.Items = [.. ((IReadOnlyList<OpticsRelayDTOItem>)[.. CalibratingItem.Items, itemItem]).OrderBy(t => t.RelayMotorAbsoluteValue)];
 
-                    var deltaECS = (index == 0
-                                       ? Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI ? 1 : -1
-                                       : 1)
-                                   * (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
+                    var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
 
                     await CatchImageAsync(Generate.LinearRange(
-                        Cache.Item.StartRoughECS + deltaECS,
+                        Cache.Item.CenterRoughECS + deltaECS - Cache.Item.RangeRoughECS,
                         Cache.Item.StepRoughECS,
-                        Cache.Item.StopRoughECS + deltaECS));
+                        Cache.Item.CenterRoughECS + deltaECS + Cache.Item.RangeRoughECS));
                     GuardUtils.IsNotNullAndReturn(itemItem.MaxItem);
 
                     await CatchImageAsync(Generate.LinearRange(
@@ -372,8 +429,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     if (CalibratingItem.Items.Count > 1)
                     {
                         var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
-                            Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)),
-                            Vector<double>.Build.DenseOfEnumerable(CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)));
+                            Vector<double>.Build.Dense([.. CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)]),
+                            Vector<double>.Build.Dense([.. CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)]));
 
                         defaultSlope = slope;
                         CalibratingItem.Slope = slope;
@@ -390,7 +447,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
-                        defalutSlope = defaultSlope,
+                        defaultSlope,
                         itemItem.MaxItem.ECS,
                         itemItem.MaxItem.Quality,
                         itemItem.MaxItem.RawImageFilePath,
@@ -418,10 +475,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                             using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
                                 Cache.Item.ProductivityInformation,
                                 StageCoordinateSystemEnum.Dark,
-                                dswBFPosition,
-                                Cache.Item.CIBInformation,
+                                currentDSWBFPosition,
                                 Cache.Item.ImageWidth,
-                                (false, CalChipSiteModelEnum.DswModel),
+                                Cache.Item.CIBInformation,
+                                (true, null),
                                 (false, Cache.Item.CIBConfiguration),
                                 (false, Cache.Item.LaserLightInformation),
                                 false,
@@ -450,17 +507,254 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     }
                 }
 
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    dswBFPosition,
+                    currentDSWBFPosition,
+                    CalibratingItem.Slope,
+                    CalibratingItem.Intercept,
+                    CalibratingItem.RSquared,
+                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                return true;
+            }
+            finally
+            {
+                OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, currentMotorAbsoluteValue);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+            }
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step5Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+            Cache.Item.XZDSWFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.ProductivityInformation,
+                Cache.Item.LaserLightInformation,
+                Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.XZDSWFindBFMachinePosition
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step6Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(async () =>
+        {
+            var detectImageDirectory = ImageFileDirectory;
+
+            var currentMotorAbsoluteValue = OpticsViewModel.GetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum);
+            var nmPerEcs = AfViewModel.GetNmPerEcs();
+            var defaultSlope = CalibratingItem.Slope;
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.OpticsIlluminationModeEnum,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.ProductivityInformation,
+                Cache.Item.LaserLightInformation,
+                Cache.Item.CIBInformation,
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.Item.XZDSWFindBFMachinePosition,
+                Cache.Item.XZScanLength,
+                Cache.Item.StartXZRelayMotorAbsoluteValue,
+                Cache.Item.StepXZRelayMotorAbsoluteValue,
+                Cache.Item.StopXZRelayMotorAbsoluteValue,
+                Cache.Item.XZCenterECS,
+                Cache.Item.XZRangeECS,
+                Cache.Threshold,
+                currentMotorAbsoluteValue,
+                nmPerEcs,
+                defaultSlope,
+                detectImageDirectory
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            CalibratingItem.XZItems = [];
+            CalibratingItem.XZSlope = 0d;
+            CalibratingItem.XZIntercept = 0d;
+            CalibratingItem.XZRSquared = 0d;
+            CalibratingItem.XZFitRelayPoints = [];
+            CalibratingItem.RelayMotorRatio = 0d;
+            CalibratingItem.MinRelayMotorAbsoluteValue = 0d;
+            CalibratingItem.MaxRelayMotorAbsoluteValue = 0d;
+            CalibratingItem.IsCalibrated = false;
+
+            var xZDSWBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.XZDSWFindBFMachinePosition);
+            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(xZDSWBFPosition);
+
+            var startCurrentXZDSWBFPosition = CIBViewModel.GetCIBInformationPosition(
+                StageCoordinateSystemEnum.Dark,
+                Cache.Item.ProductivityInformation,
+                Cache.Item.CIBInformation,
+                xZDSWBFPosition,
+                Cache.Item.MicroscopeLensInformation);
+
+            try
+            {
+                Logger.LogHtmlInformation("Relay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                AfViewModel.ToggleBrightFieldEnable(false);
+
+                var relayMotorAbsoluteValues = Generate.LinearRange(Cache.Item.StartXZRelayMotorAbsoluteValue, Cache.Item.StepXZRelayMotorAbsoluteValue, Cache.Item.StopXZRelayMotorAbsoluteValue);
+                var closestIndex = relayMotorAbsoluteValues
+                    .Index()
+                    .OrderBy(x => Math.Abs(x.Item - currentMotorAbsoluteValue))
+                    .First()
+                    .Index;
+                relayMotorAbsoluteValues =
+                [
+                    .. relayMotorAbsoluteValues.AsSpan()[closestIndex..],
+                    .. relayMotorAbsoluteValues.AsSpan()[..closestIndex].ToArray().AsEnumerable().Reverse()
+                ];
+                Guard.IsGreaterThan(relayMotorAbsoluteValues.Length, 2);
+                foreach (var relayMotorAbsoluteValue in relayMotorAbsoluteValues)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    Logger.LogHtmlInformation($"{relayMotorAbsoluteValue:0.###}mm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+                    OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, relayMotorAbsoluteValue);
+
+                    var item = new OpticsRelayDTOXZItem { RelayMotorAbsoluteValue = relayMotorAbsoluteValue };
+                    CalibratingItem.XZItems = [.. ((IReadOnlyList<OpticsRelayDTOXZItem>)[.. CalibratingItem.XZItems, item]).OrderBy(t => t.RelayMotorAbsoluteValue)];
+
+                    var deltaECS = (relayMotorAbsoluteValue - currentMotorAbsoluteValue) * defaultSlope;
+                    var startECS = Cache.Item.XZCenterECS + deltaECS - Cache.Item.XZRangeECS;
+                    var stopECS = Cache.Item.XZCenterECS + deltaECS + Cache.Item.XZRangeECS;
+
+                    var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat)}");
+
+                    using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
+                        Cache.Item.ProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
+                        startCurrentXZDSWBFPosition,
+                        startCurrentXZDSWBFPosition + new Vector(Cache.Item.XZScanLength, 0),
+                        startECS,
+                        stopECS,
+                        Cache.Item.CIBInformation,
+                        (true, null),
+                        (false, Cache.Item.CIBConfiguration),
+                        (false, Cache.Item.LaserLightInformation),
+                        false,
+                        cancellationToken);
+
+                    var filePath = Path.Combine(currentDetectImageDirectory, $"[{startECS:0.###}ECS, {stopECS:0.###}ECS]_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                    darkFieldImage.Image.Save(filePath);
+
+                    var (
+                        xStrehlRatioPoints,
+                        yStrehlRatioPoints,
+                        grayPoints,
+                        bestXStrehlRatioPoint,
+                        bestXStrehlRatioXPSFPoints,
+                        bestXStrehlRatioYPSFPoints,
+                        bestYStrehlRatioPoint,
+                        bestYStrehlRatioXPSFPoints,
+                        bestYStrehlRatioYPSFPoints) = CalibrationAlgorithmService.GetXYStrehlRatios(
+                        darkFieldImage.Image,
+                        out var xStrehlRatioFitPoints,
+                        out var yStrehlRatioFitPoints,
+                        out var grayFitPoints,
+                        out var bestXStrehlRatioXPSFFitPoints,
+                        out var bestXStrehlRatioYPSFFitPoints,
+                        out var bestYStrehlRatioXPSFFitPoints,
+                        out var bestYStrehlRatioYPSFFitPoints);
+
+                    item.ImageFilePath = filePath;
+                    item.RawImageFilePath = darkFieldImage.RawImageFilePath;
+
+                    item.XStrehlRatioPoints = xStrehlRatioPoints;
+                    item.YStrehlRatioPoints = yStrehlRatioPoints;
+                    item.GrayPoints = grayPoints;
+                    item.BestXStrehlRatioPoint = bestXStrehlRatioPoint;
+                    item.BestXStrehlRatioXPSFPoints = bestXStrehlRatioXPSFPoints;
+                    item.BestXStrehlRatioYPSFPoints = bestXStrehlRatioYPSFPoints;
+                    item.BestYStrehlRatioPoint = bestYStrehlRatioPoint;
+                    item.BestYStrehlRatioXPSFPoints = bestYStrehlRatioXPSFPoints;
+                    item.BestYStrehlRatioYPSFPoints = bestYStrehlRatioYPSFPoints;
+
+                    item.XStrehlRatioFitPoints = xStrehlRatioFitPoints;
+                    item.YStrehlRatioFitPoints = yStrehlRatioFitPoints;
+                    item.GrayFitPoints = grayFitPoints;
+                    item.BestXStrehlRatioXPSFFitPoints = bestXStrehlRatioXPSFFitPoints;
+                    item.BestXStrehlRatioYPSFFitPoints = bestXStrehlRatioYPSFFitPoints;
+                    item.BestYStrehlRatioXPSFFitPoints = bestYStrehlRatioXPSFFitPoints;
+                    item.BestYStrehlRatioYPSFFitPoints = bestYStrehlRatioYPSFFitPoints;
+
+                    item.BestGrayPoint = item.GrayFitPoints.Maxima(t => t.Y).First();
+
+                    item.BestXStrehlRatioECS = startECS + item.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+                    item.BestYStrehlRatioECS = startECS + item.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+                    item.BestGrayECS = startECS + item.BestGrayPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+
+
+                    if (CalibratingItem.XZItems.Count > 1)
+                    {
+                        var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
+                            Vector<double>.Build.Dense([.. CalibratingItem.XZItems.Select(t => t.RelayMotorAbsoluteValue)]),
+                            Vector<double>.Build.Dense([
+                                ..CalibratingItem.XZItems.Select(t => Cache.Item.OpticsStrehlRatioQualityTypeEnum switch
+                                {
+                                    OpticsStrehlRatioQualityTypeEnum.XStrehlRatio => t.BestXStrehlRatioECS,
+                                    OpticsStrehlRatioQualityTypeEnum.YStrehlRatio => t.BestYStrehlRatioECS,
+                                    OpticsStrehlRatioQualityTypeEnum.Gray => t.BestGrayECS,
+                                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Cache.Item.OpticsStrehlRatioQualityTypeEnum))
+                                })
+                            ]));
+
+                        defaultSlope = slope;
+                        CalibratingItem.XZSlope = slope;
+                        CalibratingItem.XZIntercept = intercept;
+                        CalibratingItem.XZRSquared = rSquared;
+                        CalibratingItem.XZFitRelayPoints = [.. CalibratingItem.XZItems.Index().Select(t => new Point(t.Item.RelayMotorAbsoluteValue, yPredicted[t.Index]))];
+                        CalibratingItem.RelayMotorRatio = 1 / (
+                            CalibratingItem.XZSlope /* ECS/mm */
+                            * nmPerEcs /* 分子 ECS 转为 nm */
+                            / 1e6d /* 分母mm 转为 nm */
+                            / Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为照明方向移动的距离 */
+                        );
+                    }
+
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    {
+                        defaultSlope,
+                        XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        GrayScatterPlotControl = new HtmlContainer([.. item.GrayScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        item.RawImageFilePath,
+                        Image = new HtmlImage(item.ImageFilePath)
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+
                 CalibratingItem.MinRelayMotorAbsoluteValue = CalibratingItem.FitRelayPoints[0].X;
                 CalibratingItem.MaxRelayMotorAbsoluteValue = CalibratingItem.FitRelayPoints[^1].X;
                 CalibratingItem.IsCalibrated = CalibratingItem.RSquared >= Cache.Threshold;
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    CalibratingItem.Slope,
-                    CalibratingItem.Intercept,
-                    CalibratingItem.RSquared,
+                    xZDSWBFPosition,
+                    startCurrentXZDSWBFPosition,
+                    CalibratingItem.XZSlope,
+                    CalibratingItem.XZIntercept,
+                    CalibratingItem.XZRSquared,
                     CalibratingItem.RelayMotorRatio,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    CalibratingItem.MinRelayMotorAbsoluteValue,
+                    CalibratingItem.MaxRelayMotorAbsoluteValue,
+                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.XZScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)
@@ -475,8 +769,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             finally
             {
                 OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, currentMotorAbsoluteValue);
-                StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(xZDSWBFPosition);
             }
         });
     }
@@ -524,6 +817,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     selectedReviewItem.Intercept,
                     selectedReviewItem.RSquared,
                     selectedReviewItem.RelayMotorRatio,
+                    selectedReviewItem.MinRelayMotorAbsoluteValue,
+                    selectedReviewItem.MaxRelayMotorAbsoluteValue,
                     selectedReviewItem.IsVerified,
                     SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });

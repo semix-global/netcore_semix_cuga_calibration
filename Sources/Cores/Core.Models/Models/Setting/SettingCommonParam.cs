@@ -23,46 +23,25 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
     private LaserLightInformation _mainLaserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private double _pMTInterval = 320;
+    private double _pMTInterval = 320d;
 
     [ObservableProperty]
-    private double _measurePowerMeasurementMinValue = 0.1;
+    private CIBInformation _mainCIBInformation = CIBInformation.Default;
 
-    #region 校准状态控制
-
-    /// <summary>
-    /// 依赖关系使能
-    /// </summary>
     [ObservableProperty]
-    private bool _dependencyEnable;
-
-    /// <summary>
-    /// 前置条件使能
-    /// </summary>
-    [ObservableProperty]
-    private bool _prerequisitesEnable;
-
-    /// <summary>
-    /// 是否是Debug环境
-    /// </summary>
-    [ObservableProperty]
-    private bool _isDebugEnvironment;
-
-    #endregion 校准状态控制
+    private double _measurePowerMeasurementMinValue = 0.1d;
 
     #region Mapper
 
     public SettingCommonParam AdaptIn(SettingCommonParam obj)
     {
         MinLogLevelEnum = obj.MinLogLevelEnum;
-        LowMicroscopeLensInformation = obj.LowMicroscopeLensInformation;
-        HighMicroscopeLensInformation = obj.HighMicroscopeLensInformation;
-        MainLaserLightInformation = obj.MainLaserLightInformation;
+        LowMicroscopeLensInformation = obj.LowMicroscopeLensInformation.Clone();
+        HighMicroscopeLensInformation = obj.HighMicroscopeLensInformation.Clone();
+        MainLaserLightInformation = obj.MainLaserLightInformation.Clone();
         PMTInterval = obj.PMTInterval;
+        MainCIBInformation = obj.MainCIBInformation.Clone();
         MeasurePowerMeasurementMinValue = obj.MeasurePowerMeasurementMinValue;
-        DependencyEnable = obj.DependencyEnable;
-        PrerequisitesEnable = obj.PrerequisitesEnable;
-        IsDebugEnvironment = obj.IsDebugEnvironment;
 
         return this;
     }

@@ -2,10 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting.Children"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             d:DataContext="{d:DesignInstance Type=viewModels:SettingTemplateMatchViewModel}"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting"
+             d:DataContext="{d:DesignInstance Type=viewModels:SettingWindowViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
@@ -21,7 +21,7 @@
                                       Maximum="1"
                                       Minimum="0.001"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding SettingTemplateMatchParam.SharpeTypeTemplateMatchScoreThreshold}" />
+                                      Value="{Binding CalibrationSetting.SettingTemplateMatchParam.SharpeTypeTemplateMatchScoreThreshold}" />
                     <hc:NumericUpDown hc:InfoElement.ShowClearButton="True"
                                       hc:InfoElement.Title="Match Score Threshold(NCC): "
                                       hc:InfoElement.TitlePlacement="Left"
@@ -30,7 +30,7 @@
                                       Maximum="1"
                                       Minimum="0.001"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding SettingTemplateMatchParam.NccTypeTemplateMatchScoreThreshold}" />
+                                      Value="{Binding CalibrationSetting.SettingTemplateMatchParam.NccTypeTemplateMatchScoreThreshold}" />
                 </hc:UniformSpacingPanel>
             </GroupBox>
         </UniformGrid>

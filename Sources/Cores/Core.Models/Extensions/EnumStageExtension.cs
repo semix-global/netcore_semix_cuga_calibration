@@ -1,9 +1,6 @@
 using Core.Models.Enums.Stage;
 using Cuga.Data.DataStruct.DTO.Swath;
 using CommunityToolkit.Diagnostics;
-using Core.Models.Enums.ADS;
-using Cuga.Data.DataStruct.ADS;
-
 
 #if NET
 using Cuga.Data.DataStruct.Basic;
@@ -150,28 +147,6 @@ public static class EnumStageExtension
 #endif
     }
 
-    extension(CgSpeedLevelType @this)
-    {
-        public StageSpeedEnum ToStageSpeedEnum() => @this switch
-        {
-            CgSpeedLevelType.Low => StageSpeedEnum.Low,
-            CgSpeedLevelType.Mid => StageSpeedEnum.Middle,
-            CgSpeedLevelType.High => StageSpeedEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<StageSpeedEnum>(nameof(@this))
-        };
-    }
-
-    extension(ESxLevelEnum @this)
-    {
-        public StageSpeedEnum ToStageSpeedEnum() => @this switch
-        {
-            ESxLevelEnum.Low => StageSpeedEnum.Low,
-            ESxLevelEnum.Mid => StageSpeedEnum.Middle,
-            ESxLevelEnum.High => StageSpeedEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<StageSpeedEnum>(nameof(@this))
-        };
-    }
-
     extension(SxSpeedEnum @this)
     {
         public CgSpeedLevelType ToCgSpeedLevelType() => @this switch
@@ -182,46 +157,11 @@ public static class EnumStageExtension
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgSpeedLevelType>(nameof(@this))
         };
 
-        public StageSpeedEnum ToStageSpeedEnum() => @this switch
-        {
-            SxSpeedEnum.Low => StageSpeedEnum.Low,
-            SxSpeedEnum.Mid => StageSpeedEnum.Middle,
-            SxSpeedEnum.High => StageSpeedEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<StageSpeedEnum>(nameof(@this))
-        };
-
         public ESxLevelEnum ToESxLevelEnum() => @this switch
         {
             SxSpeedEnum.Low => ESxLevelEnum.Low,
             SxSpeedEnum.Mid => ESxLevelEnum.Mid,
             SxSpeedEnum.High => ESxLevelEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<ESxLevelEnum>(nameof(@this))
-        };
-    }
-
-    extension(StageSpeedEnum @this)
-    {
-        public CgSpeedLevelType ToCgSpeedLevelType() => @this switch
-        {
-            StageSpeedEnum.Low => CgSpeedLevelType.Low,
-            StageSpeedEnum.Middle => CgSpeedLevelType.Mid,
-            StageSpeedEnum.High => CgSpeedLevelType.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgSpeedLevelType>(nameof(@this))
-        };
-
-        public SxSpeedEnum ToSxSpeedEnum() => @this switch
-        {
-            StageSpeedEnum.Low => SxSpeedEnum.Low,
-            StageSpeedEnum.Middle => SxSpeedEnum.Mid,
-            StageSpeedEnum.High => SxSpeedEnum.High,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(@this))
-        };
-
-        public ESxLevelEnum ToESxLevelEnum() => @this switch
-        {
-            StageSpeedEnum.Low => ESxLevelEnum.Low,
-            StageSpeedEnum.Middle => ESxLevelEnum.Mid,
-            StageSpeedEnum.High => ESxLevelEnum.High,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<ESxLevelEnum>(nameof(@this))
         };
     }

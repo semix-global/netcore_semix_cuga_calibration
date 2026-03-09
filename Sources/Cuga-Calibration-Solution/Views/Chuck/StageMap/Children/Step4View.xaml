@@ -33,15 +33,15 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <TextBox Text="{Binding ResultChuckStageMapDto.ExpandStageMapDto.RowNumber}"
-                             hc:InfoElement.Title="Row Number: "
+                             hc:TitleElement.Title="Row Number: "
                              hc:TitleElement.TitleWidth="120"
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding ResultChuckStageMapDto.ExpandStageMapDto.ColumnNumber}"
-                             hc:InfoElement.Title="Column Number: "
+                             hc:TitleElement.Title="Column Number: "
                              hc:TitleElement.TitleWidth="120"
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"

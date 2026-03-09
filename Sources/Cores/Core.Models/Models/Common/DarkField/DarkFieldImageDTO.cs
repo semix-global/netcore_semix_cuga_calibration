@@ -1,41 +1,48 @@
+using System.Globalization;
 using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
+using Core.Models.Models.Common.Pattern;
+using Core.Utilities;
 using HalconDotNet;
-using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
 #else
 using Semix.WcfTransfer.DTO;
-
 #endif
 
 namespace Core.Models.Models.Common.DarkField;
 
 public partial class DarkFieldRawScanImageDTO :
     ObservableObject,
+    IEquatable<DarkFieldRawScanImageDTO>,
+    IFormattable,
     ICloneable<DarkFieldRawScanImageDTO>
 {
     [ObservableProperty]
-    private int _pMTId;
+    private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private int _channelId;
+    private SizeI _size;
+
+    [ObservableProperty]
+    private bool _isForward;
+
+    [ObservableProperty]
+    private CIBProfileModeEnum _rawImageCIBProfileModeEnum;
 
     [ObservableProperty]
     private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
-    private int _width;
+    private bool _isKeepRawImageCIBProfileModeEnum = true;
 
-    [ObservableProperty]
-    private int _height;
-
-    [ObservableProperty]
-    private CIBProfileModeEnum _cIBProfileModeEnum;
+    public CIBProfileModeEnum ImageCIBProfileModeEnum => IsKeepRawImageCIBProfileModeEnum ? RawImageCIBProfileModeEnum : CIBProfileModeEnum.PMTVoltage;
 
     partial void OnRawImageFilePathChanged(string value)
     {
@@ -46,84 +53,159 @@ public partial class DarkFieldRawScanImageDTO :
         RawImageFilePath = result;
     }
 
+    #region IEquatable、IFormattable
+
+    public bool Equals(DarkFieldRawScanImageDTO? other) => this == other;
+
+    public override bool Equals(object? obj) => obj is DarkFieldRawScanImageDTO other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(CIBInformation, Size, RawImageCIBProfileModeEnum, IsForward, RawImageFilePath, IsKeepRawImageCIBProfileModeEnum);
+
+    public override string ToString() => ToString(null);
+
+    public virtual string ToString(string? format, IFormatProvider? formatProvider = null)
+    {
+        formatProvider ??= CultureInfo.CurrentCulture;
+
+        return $"CIB: {CIBInformation}, Size: {Size.ToString(format, formatProvider)}, Raw Mode: {RawImageCIBProfileModeEnum}, Image Direction: {(IsForward ? "Forward" : "Reverse")}, Image Mode: {ImageCIBProfileModeEnum}";
+    }
+
+    #endregion IEquatable、IFormattable
+
+    #region Operator
+
+    public static bool operator ==(DarkFieldRawScanImageDTO? left, DarkFieldRawScanImageDTO? right) => (left, right) switch
+    {
+        (null, null) => true,
+        (null, _) => false,
+        (_, null) => false,
+        (_, _) => ReferenceEquals(left, right) || (Equals(left.CIBInformation, right.CIBInformation)
+                                                   && Equals(left.Size, right.Size)
+                                                   && Equals(left.RawImageCIBProfileModeEnum, right.RawImageCIBProfileModeEnum)
+                                                   && Equals(left.IsForward, right.IsForward)
+                                                   && Equals(left.RawImageFilePath, right.RawImageFilePath)
+                                                   && Equals(left.IsKeepRawImageCIBProfileModeEnum, right.IsKeepRawImageCIBProfileModeEnum))
+    };
+
+    public static bool operator !=(DarkFieldRawScanImageDTO? left, DarkFieldRawScanImageDTO? right) => !(left == right);
+
+    #endregion Operator
+
     #region Mapper
 
     public DarkFieldRawScanImageDTO Clone() => new()
     {
-        PMTId = PMTId,
-        ChannelId = ChannelId,
-        Width = Width,
-        Height = Height,
+        CIBInformation = CIBInformation.Clone(),
+        Size = Size,
+        IsForward = IsForward,
+        RawImageCIBProfileModeEnum = RawImageCIBProfileModeEnum,
         RawImageFilePath = RawImageFilePath,
-        CIBProfileModeEnum = CIBProfileModeEnum
+        IsKeepRawImageCIBProfileModeEnum = IsKeepRawImageCIBProfileModeEnum
     };
 
-    public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBProfileModeEnum cibProfileModeEnum)
+    public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
     {
         Guard.IsNotNull(obj);
 
-        PMTId = obj.PMTId;
-        ChannelId = obj.Channel;
-        Width = obj.ImgWidth;
-        Height = obj.ImgHeight;
+        CIBInformation = CIBInformation.Default.Clone().AdaptIn((obj.PMTId, obj.Channel, true));
+        Size = new SizeI(obj.ImgWidth, obj.ImgHeight);
+        IsForward = isForward;
+        RawImageCIBProfileModeEnum = rawCIBProfileModeEnum;
         RawImageFilePath = obj.Url;
-
-        CIBProfileModeEnum = cibProfileModeEnum;
+        IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum;
 
         return this;
     }
 
     #endregion Mapper
+
+    public HImage GetImage()
+    {
+        var rawBytes = File.ReadAllBytes(RawImageFilePath);
+
+        using var image = RawImageFactory.CreateImage(rawBytes);
+
+        return IsKeepRawImageCIBProfileModeEnum
+            ? image.CopyImage()
+            : RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog
+                ? image.RAW12BitsPerPixelLogToLinear()
+                : image.Clone();
+    }
+
+    public virtual object ToHtmlAnonymous() => new
+    {
+        CIBInformation,
+        Size,
+        RawImageCIBProfileModeEnum,
+        IsForward,
+        RawImageFilePath,
+        IsKeepRawImageCIBProfileModeEnum,
+        ImageCIBProfileModeEnum
+    };
 }
 
 public sealed class DarkFieldImageDTO :
     DarkFieldRawScanImageDTO,
+    IEquatable<DarkFieldImageDTO>,
     ICloneable<DarkFieldImageDTO>,
     IAdaptIn<DarkFieldRawScanImageDTO, DarkFieldImageDTO>,
     IDisposable
 {
-    public required HImage Image { get; init; }
+#pragma warning disable IDE0079
+#pragma warning disable IDISP008
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
+    public HImage Image { get; private set; } = HalconFactory.EmptyHImage;
+
+#pragma warning restore IDISP008
+#pragma warning restore IDE0079
+
+    #region IEquatable
+
+    public bool Equals(DarkFieldImageDTO? other) => this == other;
+
+    #endregion IEquatable
 
     #region Mapper
 
-    public new DarkFieldImageDTO Clone() => new()
+    public new DarkFieldImageDTO Clone()
     {
-        PMTId = PMTId,
-        ChannelId = ChannelId,
-        Width = Width,
-        Height = Height,
-        RawImageFilePath = RawImageFilePath,
-        CIBProfileModeEnum = CIBProfileModeEnum,
-        Image = Image.Copy()
-    };
+        var darkFieldImage = (DarkFieldImageDTO)base.Clone();
 
-    public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBProfileModeEnum cibProfileModeEnum)
+        darkFieldImage.Image = Image.Clone();
+
+        return darkFieldImage;
+    }
+
+    public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
     {
-        Guard.IsNotNull(obj);
+        base.AdaptIn(obj, isForward, rawCIBProfileModeEnum, isKeepRawImageCIBProfileModeEnum);
 
-        PMTId = obj.PMTId;
-        ChannelId = obj.Channel;
-        Width = obj.ImgWidth;
-        Height = obj.ImgHeight;
-        RawImageFilePath = obj.Url;
-
-        CIBProfileModeEnum = cibProfileModeEnum;
+        Initialize();
 
         return this;
     }
 
     public DarkFieldImageDTO AdaptIn(DarkFieldRawScanImageDTO obj)
     {
-        Guard.IsNotNull(obj);
-
-        PMTId = obj.PMTId;
-        ChannelId = obj.ChannelId;
-        Width = obj.Width;
-        Height = obj.Height;
+        CIBInformation = obj.CIBInformation.Clone();
+        Size = obj.Size;
+        IsForward = obj.IsForward;
+        RawImageCIBProfileModeEnum = obj.RawImageCIBProfileModeEnum;
         RawImageFilePath = obj.RawImageFilePath;
-        CIBProfileModeEnum = obj.CIBProfileModeEnum;
+        IsKeepRawImageCIBProfileModeEnum = obj.IsKeepRawImageCIBProfileModeEnum;
+
+        Initialize();
 
         return this;
+    }
+
+    private void Initialize()
+    {
+        using var _ = Image;
+
+        Image = GetImage();
     }
 
     #endregion Mapper

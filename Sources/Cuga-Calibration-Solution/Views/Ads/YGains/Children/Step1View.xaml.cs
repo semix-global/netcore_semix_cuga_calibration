@@ -29,7 +29,7 @@ public sealed partial class Step1View
         viewModel.PropertyChanged += ViewModelOnPropertyChanged;
     }
 
-    private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void ViewModelOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is not AdsYGainsCalibrationViewModel viewModel) return;
         switch (e.PropertyName)

@@ -59,49 +59,40 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
     private string _rawImageFilePath = string.Empty;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Point> _xStrehlRatioPoints = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Point> _xStrehlRatioFitPoints = [];
 
     [ObservableProperty]
     private Point _bestXStrehlRatioPoint;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
+    private double _bestXStrehlRatioECS;
+
+    [ObservableProperty]
     private IReadOnlyList<Point> _yStrehlRatioPoints = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Point> _yStrehlRatioFitPoints = [];
 
     [ObservableProperty]
     private Point _bestYStrehlRatioPoint;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
+    private double _bestYStrehlRatioECS;
+
+    [ObservableProperty]
     private IReadOnlyList<Point> _grayPoints = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Point> _grayFitPoints = [];
 
     [ObservableProperty]
     private Point _bestGrayPoint;
+
+    [ObservableProperty]
+    private double _bestGrayECS;
 
     [ObservableProperty]
     private IReadOnlyList<IReadOnlyList<Point>> _bestXStrehlRatioXPSFPoints = [];
@@ -170,11 +161,15 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
     partial void OnBestXStrehlRatioPointChanged(Point value) => RefreshPlot();
 
+    partial void OnBestXStrehlRatioECSChanged(double value) => RefreshPlot();
+
     partial void OnYStrehlRatioPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnYStrehlRatioFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnBestYStrehlRatioPointChanged(Point value) => RefreshPlot();
+
+    partial void OnBestYStrehlRatioECSChanged(double value) => RefreshPlot();
 
     partial void OnGrayPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
@@ -182,21 +177,39 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
     partial void OnBestGrayPointChanged(Point value) => RefreshPlot();
 
+    partial void OnBestGrayECSChanged(double value) => RefreshPlot();
+
+    partial void OnBestXStrehlRatioXPSFPointsChanged(IReadOnlyList<IReadOnlyList<Point>> value) => RefreshPlot();
+
+    partial void OnBestXStrehlRatioXPSFFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnBestXStrehlRatioYPSFPointsChanged(IReadOnlyList<IReadOnlyList<Point>> value) => RefreshPlot();
+
+    partial void OnBestXStrehlRatioYPSFFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnBestYStrehlRatioXPSFPointsChanged(IReadOnlyList<IReadOnlyList<Point>> value) => RefreshPlot();
+
+    partial void OnBestYStrehlRatioXPSFFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnBestYStrehlRatioYPSFPointsChanged(IReadOnlyList<IReadOnlyList<Point>> value) => RefreshPlot();
+
+    partial void OnBestYStrehlRatioYPSFFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
     // ReSharper restore UnusedParameterInPartialMethod
 
     private void RefreshPlot()
     {
         try
         {
-            RefreshBase(XStrehlRatioScatterPlotControl, XStrehlRatioPoints, XStrehlRatioFitPoints, BestXStrehlRatioPoint);
+            RefreshBase(XStrehlRatioScatterPlotControl, XStrehlRatioPoints, XStrehlRatioFitPoints, BestXStrehlRatioPoint, BestXStrehlRatioECS);
             Refresh(XStrehlRatioScatterPlotControl, 1, BestXStrehlRatioXPSFPoints, BestXStrehlRatioXPSFFitPoints);
             Refresh(XStrehlRatioScatterPlotControl, 2, BestXStrehlRatioYPSFPoints, BestXStrehlRatioYPSFFitPoints);
 
-            RefreshBase(YStrehlRatioScatterPlotControl, YStrehlRatioPoints, YStrehlRatioFitPoints, BestYStrehlRatioPoint);
+            RefreshBase(YStrehlRatioScatterPlotControl, YStrehlRatioPoints, YStrehlRatioFitPoints, BestYStrehlRatioPoint, BestYStrehlRatioECS);
             Refresh(YStrehlRatioScatterPlotControl, 1, BestYStrehlRatioXPSFPoints, BestYStrehlRatioXPSFFitPoints);
             Refresh(YStrehlRatioScatterPlotControl, 2, BestYStrehlRatioYPSFPoints, BestYStrehlRatioYPSFFitPoints);
 
-            RefreshBase(GrayScatterPlotControl, GrayPoints, GrayFitPoints, BestGrayPoint);
+            RefreshBase(GrayScatterPlotControl, GrayPoints, GrayFitPoints, BestGrayPoint, BestGrayECS);
         }
         finally
         {
@@ -227,12 +240,12 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEq
 
         return;
 
-        void RefreshBase(IScatterPlotControl scatterPlotControl, IReadOnlyList<Point> points, IReadOnlyList<Point> fitPoints, Point bestPoint)
+        void RefreshBase(IScatterPlotControl scatterPlotControl, IReadOnlyList<Point> points, IReadOnlyList<Point> fitPoints, Point bestPoint, double bestECS)
         {
             var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
 
             scatterMarkers[0].Update(string.Empty, points, Colors.Gray, MarkerShape.FilledCircle);
-            scatterMarkers[1].Update(string.Empty, [bestPoint], Colors.Red, MarkerShape.FilledSquare);
+            scatterMarkers[1].Update($"Best ECS: {bestECS:0.###} ECS", [bestPoint], Colors.Red, MarkerShape.FilledSquare);
             scatterMarkers[1].MarkerSize = 20;
 
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, 1);

@@ -15,7 +15,7 @@ using Semix.CoreLib;
 namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAfService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationAfServiceImpl(ICalibrationMicroscopeService microscopeService) : BaseService<ICgCalibrationService>, ICalibrationAfService
+public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService>, ICalibrationAfService
 {
     public SxExecuteRet<bool> Connect()
     {

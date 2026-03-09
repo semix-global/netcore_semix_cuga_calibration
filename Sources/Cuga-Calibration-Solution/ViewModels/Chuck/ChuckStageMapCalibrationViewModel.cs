@@ -23,12 +23,12 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -447,16 +447,17 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         var laserLineCentricityItemDto = LaserLineCentricityItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
                                                                               && t.ProductivityInformation == Cache.ProductivityInformation);
 
-        var darkFieldImageDto = LaserViewModel.GetDarkFieldLineScanImage(
-            CalChipSiteModelEnum.ChuckModel,
+        var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
+            Cache.ProductivityInformation,
+            StageCoordinateSystemEnum.Bright,
             brightFieldPosition,
+            Cache.XWidthPixel,
+            CalibrationSetting.SettingCommonParam.MainCIBInformation,
+            (false, CalChipSiteModelEnum.ChuckModel),
+            (false, Cache.CIBConfiguration),
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
-            Cache.CIBConfiguration,
-            Cache.ProductivityInformation,
-            Cache.OpticsIlluminationModeEnum,
-            Cache.XWidthPixel,
-            stageCoordinateSystemEnum: StageCoordinateSystemEnum.Bright);
+            CancellationToken.None);
         var detectImageDirectory = ImageFileDirectory;
         using var image = darkFieldImageDto;
 
@@ -569,7 +570,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             var (isSuccess, errorMessage) = Cache.Step3Verify();
             if (isSuccess == false)
@@ -623,7 +624,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 //    RtfcEcs = ecs,
                 //    RtfcHeight = height,
                 //}), HtmlLogUniqueId.LoggingHtml());
-                DarkFieldGetStageMap(ResultChuckStageMapDto.CalibrationDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationDarkFieldStageMap)), cancellationToken);
+                await DarkFieldGetStageMapAsync(ResultChuckStageMapDto.CalibrationDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationDarkFieldStageMap)), cancellationToken);
             }
 
             var calibrationStageMap = Cache.IsDarkField == false
@@ -845,7 +846,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 }
 
                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                DarkFieldGetStageMap(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken, true);
+                await DarkFieldGetStageMapAsync(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken, true);
 
                 var middleFileDateTimeFormat = DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat);
                 ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath = $@"{CsvFileDirectory}\ReviewDarkField\{middleFileDateTimeFormat}\Ideal_Guid({HtmlLogUniqueId}).csv";
@@ -1117,258 +1118,185 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         }
     }
 
-    private void DarkFieldGetStageMap(StageMapDto stageMapDto, string detectImageDirectory, Action notifyAction, CancellationToken cancellationToken, bool isReview = false)
+    private async Task DarkFieldGetStageMapAsync(StageMapDto stageMapDto, string detectImageDirectory, Action notifyAction, CancellationToken cancellationToken, bool isReview = false)
     {
         if (isReview) Guard.IsNotNull(ReviewDto);
 
-        var templateXId = HalconFactory.EmptyHTuple;
-        var templateYId = HalconFactory.EmptyHTuple;
-        var templateId = HalconFactory.EmptyHTuple;
-
-        if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
-        {
-            if (CalibrationAlgorithmService.TryReadProjectionTemplate(Cache.DarkFieldTemplateFilePath, out templateXId, out templateYId) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Read Template Failed!"), HtmlLogUniqueId.LoggingHtml());
-                return;
-            }
-        }
-        else
-        {
-            if (CalibrationAlgorithmService.TryReadTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.DarkFieldTemplateFilePath, out templateId) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Read Template Failed!"), HtmlLogUniqueId.LoggingHtml());
-                return;
-            }
-        }
-
         var (xDirection, _) = StageViewModel.GetMachineDirection();
 
-        using var _1 = templateXId;
-        using var _2 = templateYId;
-        using var _3 = templateId;
+        var idealStageMapItemMatrix = stageMapDto.IdealStageMapItemMatrix;
+        var realMatrix = stageMapDto.RealMatrix;
+        var errorItemList = stageMapDto.ErrorMatrix;
 
-        try
+        var idealMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<Point>();
+        var valueIsOkMatrix = isReview && ReviewDto is not null ? new bool[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<bool>();
+        var valueMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<Point>();
+        if (isReview && ReviewDto is not null)
         {
-            var idealStageMapItemMatrix = stageMapDto.IdealStageMapItemMatrix;
-            var realMatrix = stageMapDto.RealMatrix;
-            var errorItemList = stageMapDto.ErrorMatrix;
-
-            var idealMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<Point>();
-            var valueIsOkMatrix = isReview && ReviewDto is not null ? new bool[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<bool>();
-            var valueMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<Point>();
-            if (isReview && ReviewDto is not null)
+            for (var i = 0; i < ReviewDto.ExpandStageMapDto.RowNumber; i++)
             {
-                for (var i = 0; i < ReviewDto.ExpandStageMapDto.RowNumber; i++)
+                for (var j = 0; j < ReviewDto.ExpandStageMapDto.ColumnNumber; j++)
                 {
-                    for (var j = 0; j < ReviewDto.ExpandStageMapDto.ColumnNumber; j++)
-                    {
-                        idealMatrix[i, j] = ReviewDto.ExpandStageMapDto.IdealStageMapItemMatrix[i][j].Point;
-                        valueIsOkMatrix[i, j] = true;
-                        valueMatrix[i, j] = ReviewDto.ExpandStageMapDto.ErrorMatrix[i][j];
-                    }
+                    idealMatrix[i, j] = ReviewDto.ExpandStageMapDto.IdealStageMapItemMatrix[i][j].Point;
+                    valueIsOkMatrix[i, j] = true;
+                    valueMatrix[i, j] = ReviewDto.ExpandStageMapDto.ErrorMatrix[i][j];
                 }
-            }
-
-            for (var row = 0; row < idealStageMapItemMatrix.Length; row++)
-            {
-                var isInWaferRowList = idealStageMapItemMatrix[row]
-                    .Select((t, i) => (Index: i, Item: t))
-                    .Where(t => t.Item.IsInWafer)
-                    .ToList();
-                var points = isInWaferRowList.Select(t => t.Item.Point).ToList();
-                if (points.Count == 0) continue;
-
-                Logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                if (isReview && ReviewDto is not null)
-                {
-                    Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
-                    var strings = new List<string>();
-                    for (var i = 0; i < points.Count; i++)
-                    {
-                        var item = isInWaferRowList[i];
-                        var isok = Interpolator.TryBilinear(idealMatrix, valueIsOkMatrix, valueMatrix, points[i], out var value);
-
-                        var error = ReviewDto.CalibrationDarkFieldStageMap.ErrorMatrix[row][item.Index];
-
-                        strings.Add($"{row}, {item.Index}, {points[i]}, {error}, current: {value}, {isok} {value.ToString() == error.ToString()} {points[i] == ReviewDto.CalibrationDarkFieldStageMap.IdealStageMapItemMatrix[row][item.Index].Point}");
-                        if (isok == false)
-                        {
-                            value = error;
-                        }
-
-                        points[i] = new Point(points[i].X + value.X, points[i].Y);
-                    }
-
-                    Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, strings) + Environment.NewLine + string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
-                }
-
-                var darkImageRepeatList = new List<List<DarkFieldImageDTO>>();
-                foreach (var _ in Enumerable.Range(1, Cache.RepeatCount))
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    try
-                    {
-                        var rowDarkFieldImageDtoList = LaserViewModel.GetChuckDarkFieldRowLineScanImage(
-                            points,
-                            (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
-                            false,
-                            Cache.CIBConfiguration,
-                            Cache.ProductivityInformation,
-                            Cache.OpticsIlluminationModeEnum,
-                            Cache.XWidthPixel,
-                            CalibrationConstantsHelper.MainPmtId,
-                            CalibrationConstantsHelper.MainChannelId,
-                            StageCoordinateSystemEnum.Machine);
-                        if (isInWaferRowList.Count != rowDarkFieldImageDtoList.Count)
-                        {
-                            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Get Dark Field ChuckRow Line Scan Image List Failed!"), HtmlLogUniqueId.LoggingHtml());
-                            continue;
-                        }
-
-                        darkImageRepeatList.Add(rowDarkFieldImageDtoList);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Get Dark Field ChuckRow Line Scan Image List Failed!Error:{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-                    }
-                }
-
-                var plotDic = new Dictionary<(int RepeatIndex, int ColIndex), Point>();
-                for (var column = 0; column < idealStageMapItemMatrix[row].Length; column++)
-                {
-                    var stageMapItem = idealStageMapItemMatrix[row][column];
-                    if (stageMapItem.IsInWafer == false) continue;
-
-                    Logger.LogHtmlInformation($"{column + 1} column", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    stageMapItem.Reset();
-                    stageMapItem.TemplateFilePath = Cache.DarkFieldTemplateFilePath;
-                    stageMapItem.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath;
-
-                    try
-                    {
-                        foreach (var (index, rowDarkFieldImageDtoList) in darkImageRepeatList.Select((t, i) => (Index: i, RowDarkFieldImageDtoList: t)))
-                        {
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            using var darkFieldImageDto = rowDarkFieldImageDtoList.ElementAt(column - isInWaferRowList[0].Index);
-                            var ySizePerPixel = LaserPixelSizeItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId && t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).YPixelSize;
-                            var xSizePerPixel = CIBXPixelSizeItems.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).XPixelSize;
-
-                            var originImageFilePath = $"{detectImageDirectory}\\row({row})_col({column})_index({index})_Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
-                            darkFieldImageDto.Image.Save(originImageFilePath);
-
-                            if ((Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection
-                                    ? CalibrationAlgorithmService.TryProjectionTemplateMatchToOffset(darkFieldImageDto.Image, templateXId, templateYId, out var point, out var offset)
-                                    : CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.AlgorithmTemplateTypeEnum, darkFieldImageDto.Image, templateId, out point, out offset, out _, out _)) == false)
-                            {
-                                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                                {
-                                    Error = $"Try {EnumHelper.ToDescriptionString(Cache.AlgorithmTemplateTypeEnum)} Match To Offset Failed",
-                                    PmtId = darkFieldImageDto.PMTId,
-                                    darkFieldImageDto.ChannelId,
-                                    darkFieldImageDto.Width,
-                                    Cache.ProductivityInformation,
-                                    CalibrationConstantsHelper.MainStageSpeedEnum,
-                                    point,
-                                    offset,
-                                    OriginPosition = stageMapItem.Point,
-                                    HtmlTab = new HtmlTab(new
-                                    {
-                                        OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(point)]),
-                                        TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                                    })
-                                }), HtmlLogUniqueId.LoggingHtml());
-                                continue;
-                            }
-
-                            offset = new Point(xDirection * offset.X, offset.Y);
-                            var actualOffset = new Point(offset.X * xSizePerPixel, offset.Y * ySizePerPixel);
-                            plotDic.Add((index, column), actualOffset);
-
-                            stageMapItem.FilePath = originImageFilePath;
-
-                            Logger.LogHtmlInformation($"{index + 1}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                            {
-                                PmtId = darkFieldImageDto.PMTId,
-                                darkFieldImageDto.ChannelId,
-                                darkFieldImageDto.Width,
-                                Cache.ProductivityInformation,
-                                CalibrationConstantsHelper.MainStageSpeedEnum,
-                                point,
-                                offset,
-                                actualOffset,
-                                OriginPosition = stageMapItem.Point,
-                                HtmlTab = new HtmlTab(new
-                                {
-                                    OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(point)]),
-                                    TemplateImage = new HtmlImage(Cache.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                                })
-                            }), HtmlLogUniqueId.LoggingHtml());
-                        }
-
-                        var actualOffsetList = plotDic
-                            .Where(kvp => kvp.Key.ColIndex == column)
-                            .Select(kvp => kvp.Value).ToList();
-
-                        if (actualOffsetList.Count == 0) continue;
-
-                        var offsetX = actualOffsetList.Average(t => t.X);
-                        var offsetY = actualOffsetList.Average(t => t.Y);
-
-                        var offsetResult = new Point(offsetX, offsetY);
-                        var resultPosition = stageMapItem.Point + (Vector)offsetResult;
-                        stageMapItem.IsMatchOk = true;
-                        realMatrix[row][column] = resultPosition;
-                        errorItemList[row][column] = resultPosition - (Vector)stageMapItem.Point;
-
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                        {
-                            offsetResult,
-                            OriginPosition = stageMapItem.Point,
-                            ResultPosition = resultPosition,
-                            Plot = new HtmlPlot2DLinesChart([("Error X", actualOffsetList.Select(t => t.X).ToPoints()), ("Error Y", actualOffsetList.Select(t => t.Y).ToPoints())], "Error")
-                        }), HtmlLogUniqueId.LoggingHtml());
-                    }
-                    finally
-                    {
-                        notifyAction.Invoke();
-                    }
-                }
-
-                var plotDicGroup = (from kvp in plotDic
-                                    group kvp.Value by kvp.Key.RepeatIndex
-                    into g
-                                    select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
-                if (plotDicGroup.Count == 0)
-                    continue;
-
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    PlotX = new HtmlPlot2DLinesChart([.. plotDicGroup.Select(kvp => (kvp.RepeatCount, kvp.Points.Select(t => t.X).ToPoints()))], "Error X"),
-                    PlotY = new HtmlPlot2DLinesChart([.. plotDicGroup.Select(kvp => (kvp.RepeatCount, kvp.Points.Select(t => t.Y).ToPoints()))], "Error Y")
-                }), HtmlLogUniqueId.LoggingHtml());
             }
         }
-        finally
+
+        for (var row = 0; row < idealStageMapItemMatrix.Length; row++)
         {
-            if (Cache.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
+            var isInWaferRowList = idealStageMapItemMatrix[row]
+                .Select((t, i) => (Index: i, Item: t))
+                .Where(t => t.Item.IsInWafer)
+                .ToList();
+            var points = isInWaferRowList.Select(t => t.Item.Point).ToList();
+            if (points.Count == 0) continue;
+
+            Logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+            if (isReview && ReviewDto is not null)
             {
-                if (CalibrationAlgorithmService.TryCleanProjectionTemplate(templateXId, templateYId) == false)
+                Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
+                var strings = new List<string>();
+                for (var i = 0; i < points.Count; i++)
                 {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Clean Template Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    var item = isInWaferRowList[i];
+                    var isok = Interpolator.TryBilinear(idealMatrix, valueIsOkMatrix, valueMatrix, points[i], out var value);
+
+                    var error = ReviewDto.CalibrationDarkFieldStageMap.ErrorMatrix[row][item.Index];
+
+                    strings.Add($"{row}, {item.Index}, {points[i]}, {error}, current: {value}, {isok} {value.ToString() == error.ToString()} {points[i] == ReviewDto.CalibrationDarkFieldStageMap.IdealStageMapItemMatrix[row][item.Index].Point}");
+                    if (isok == false)
+                    {
+                        value = error;
+                    }
+
+                    points[i] = new Point(points[i].X + value.X, points[i].Y);
+                }
+
+                Logger.LogHtmlInformation("error", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, strings) + Environment.NewLine + string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
+            }
+
+            var darkImageRepeatList = new List<IReadOnlyList<DarkFieldImageDTO>>();
+            foreach (var _ in Enumerable.Range(1, Cache.RepeatCount))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                try
+                {
+                    var rowDarkFieldImageDtoList = await CIBViewModel.GetPMTImagesAsync(
+                        Cache.ProductivityInformation,
+                        StageCoordinateSystemEnum.Machine,
+                        points,
+                        Cache.XWidthPixel,
+                        CalibrationSetting.SettingCommonParam.MainCIBInformation,
+                        (false, CalChipSiteModelEnum.ChuckModel),
+                        (false, Cache.CIBConfiguration),
+                        (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
+                        false,
+                        cancellationToken);
+                    if (isInWaferRowList.Count != rowDarkFieldImageDtoList.Count)
+                    {
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Get Dark Field ChuckRow Line Scan Image List Failed!"), HtmlLogUniqueId.LoggingHtml());
+                        continue;
+                    }
+
+                    darkImageRepeatList.Add(rowDarkFieldImageDtoList);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Get Dark Field ChuckRow Line Scan Image List Failed!Error:{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
                 }
             }
-            else
+
+            var plotDic = new Dictionary<(int RepeatIndex, int ColIndex), Point>();
+            for (var column = 0; column < idealStageMapItemMatrix[row].Length; column++)
             {
-                if (CalibrationAlgorithmService.TryCleanTemplate(Cache.AlgorithmTemplateTypeEnum, templateId) == false)
+                var stageMapItem = idealStageMapItemMatrix[row][column];
+                if (stageMapItem.IsInWafer == false) continue;
+
+                Logger.LogHtmlInformation($"{column + 1} column", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
+                cancellationToken.ThrowIfCancellationRequested();
+
+                stageMapItem.Reset();
+                stageMapItem.TemplateFilePath = Cache.DarkFieldTemplateFilePath;
+                stageMapItem.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath;
+
+                try
                 {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Clean Template Failed!"), HtmlLogUniqueId.LoggingHtml());
+                    foreach (var (index, rowDarkFieldImageDtoList) in darkImageRepeatList.Select((t, i) => (Index: i, RowDarkFieldImageDtoList: t)))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        using var darkFieldImageDto = rowDarkFieldImageDtoList.ElementAt(column - isInWaferRowList[0].Index);
+
+                        if (CIBViewModel.TryGetMatchPosition(
+                                Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Machine,
+                                stageMapItem.Point,
+                                CalibrationSetting.SettingCommonParam.MainCIBInformation,
+                                Cache.AlgorithmTemplateTypeEnum,
+                                darkFieldImageDto,
+                                Cache.DarkFieldTemplateFilePath,
+                                FileHelper.GetFileFullName(Cache.DarkFieldTemplateFilePath),
+                                HtmlLogUniqueId,
+                                out var position,
+                                out _,
+                                out _,
+                                out var resultImageFilePath) == false)
+                        {
+                            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
+                            return;
+                        }
+
+                        var actualOffset = (Point)(position - stageMapItem.Point);
+
+                        plotDic.Add((index, column), actualOffset);
+
+                        stageMapItem.FilePath = resultImageFilePath;
+                    }
+
+                    var actualOffsetList = plotDic
+                        .Where(kvp => kvp.Key.ColIndex == column)
+                        .Select(kvp => kvp.Value).ToList();
+
+                    if (actualOffsetList.Count == 0) continue;
+
+                    var offsetX = actualOffsetList.Average(t => t.X);
+                    var offsetY = actualOffsetList.Average(t => t.Y);
+
+                    var offsetResult = new Point(offsetX, offsetY);
+                    var resultPosition = stageMapItem.Point + (Vector)offsetResult;
+                    stageMapItem.IsMatchOk = true;
+                    realMatrix[row][column] = resultPosition;
+                    errorItemList[row][column] = resultPosition - (Vector)stageMapItem.Point;
+
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    {
+                        offsetResult,
+                        OriginPosition = stageMapItem.Point,
+                        ResultPosition = resultPosition,
+                        Plot = new HtmlPlot2DLinesChart([("Error X", actualOffsetList.Select(t => t.X).ToPoints()), ("Error Y", actualOffsetList.Select(t => t.Y).ToPoints())], "Error")
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+                finally
+                {
+                    notifyAction.Invoke();
                 }
             }
+
+            var plotDicGroup = (from kvp in plotDic
+                                group kvp.Value by kvp.Key.RepeatIndex
+                into g
+                                select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+            if (plotDicGroup.Count == 0)
+                continue;
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            {
+                PlotX = new HtmlPlot2DLinesChart([.. plotDicGroup.Select(kvp => (kvp.RepeatCount, kvp.Points.Select(t => t.X).ToPoints()))], "Error X"),
+                PlotY = new HtmlPlot2DLinesChart([.. plotDicGroup.Select(kvp => (kvp.RepeatCount, kvp.Points.Select(t => t.Y).ToPoints()))], "Error Y")
+            }), HtmlLogUniqueId.LoggingHtml());
         }
     }
 

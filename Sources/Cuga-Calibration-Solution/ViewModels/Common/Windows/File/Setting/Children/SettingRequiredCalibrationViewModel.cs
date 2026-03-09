@@ -8,6 +8,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models;
+using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
@@ -16,7 +17,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 public sealed partial class SettingRequiredCalibrationViewModel(
     CalibrationSetting calibrationSetting,
     ISynchronizationContextProvider synchronizationContextProvider,
-    ILogger<SettingRequiredCalibrationViewModel> logger) : SettingWindowViewModelBase
+    ILogger<SettingRequiredCalibrationViewModel> logger) : ViewModelBase
 {
     [ObservableProperty]
     private ObservableCollection<SettingRequiredCalibrationParam> _settingRequiredCalibrationParamList = [];
@@ -27,7 +28,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
         await ReflectWcfObjToObservableObjAsync().ConfigureAwait(false);
     }
 
-    public override async Task<bool> SavingAsync()
+    public async Task<bool> SavingAsync()
     {
         try
         {
