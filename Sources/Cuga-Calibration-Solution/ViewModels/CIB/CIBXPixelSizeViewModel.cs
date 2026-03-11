@@ -31,6 +31,7 @@ using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Threading.Channels;
+using Core.Models.Extensions;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -489,6 +490,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             using var _ = templateId;
 
             var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
+            var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(CalibrationSetting);
 
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
@@ -578,6 +580,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                             itemItem,
                             templateId,
                             templateImageSize,
+                            templateMatchScoreThreshold,
                             detectImageDirectory,
                             semaphore,
                             cancellationToken);
@@ -633,13 +636,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                         .Where(t => t.IsMatchOk)
                         .Select(t => t.MatchPoint)
                 ],
-                templateImageSize.Width).Result;
+                templateImageSize.Width).Results;
             matchPoints = Filter.MAD([.. matchPoints.Select(t => t.Y)]).Indexes.Select(t => matchPoints[t]).ToArray();
 
             var xDifferences = matchPoints
                 .Zip(matchPoints.Skip(1), (prev, next) => next.X - prev.X)
                 .ToArray();
-            CalibratingItem.SlideSplitDifferences = Filter.MAD(xDifferences).Result;
+            CalibratingItem.SlideSplitDifferences = Filter.MAD(xDifferences).Results;
 
             var isOk = CalibratingItem.SlideSplitDifferences.Count >= 1;
 
@@ -773,6 +776,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 using var _ = templateId;
 
                 var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
+                var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(CalibrationSetting);
 
                 var waferMapDieBuilder = new WaferMapDieBuilder
                 {
@@ -855,6 +859,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                         verifyItemItems[index],
                         templateId,
                         templateImageSize,
+                        templateMatchScoreThreshold,
                         detectImageDirectory,
                         semaphore,
                         cancellationToken,
@@ -868,7 +873,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var verifyXDifferences = selectedReviewItem.VerifyItems
                     .Zip(selectedReviewItem.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
-                selectedReviewItem.VerifySplitDifferences = Filter.MAD(verifyXDifferences).Result;
+                selectedReviewItem.VerifySplitDifferences = Filter.MAD(verifyXDifferences).Results;
 
                 var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.VerifySplitDifferences.Average();
 
@@ -953,6 +958,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         CIBXPixelSizeDTOItem itemItem,
         HTuple templateId,
         Size templateImageSize,
+        double templateMatchScoreThreshold,
         string detectImageDirectory,
         SemaphoreSlim semaphore,
         CancellationToken cancellationToken,
@@ -984,7 +990,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
                 var bullet = new HtmlBullet(new
                 {
-                    currentMatchPoint = matchPoint,
+                    templateMatchScoreThreshold,
+                    matchPoint,
                     itemItem.StartPixel,
                     itemItem.SizeI,
                     itemItem.MatchPoint,

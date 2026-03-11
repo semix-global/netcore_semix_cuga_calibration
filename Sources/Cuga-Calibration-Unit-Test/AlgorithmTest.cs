@@ -6,6 +6,7 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Diagnostics;
 using System.IO;
+using Core.Utilities;
 using Xunit;
 
 namespace CugaCalibrationUnitTest;
@@ -15,9 +16,16 @@ public sealed class AlgorithmTest
     [Fact]
     public void YPixelSizeTest()
     {
+        /*using var image = RawImageFactory.CreateImage(@"\\10.10.6.8\samba\source-raw\20260310\20260310_7313_0_0_1_short_001000_PMT08-CH1_8.raw");
+
+        var average = image.GetIntensity().Average;
+        using var image1 = image.RAW12BitsPerPixelLogToLinear();
+        var d = image1.GetIntensity().Average;*/
+
         var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\20260227_2486_0_0_1_short_001000_PMT13-CH3_13.raw");
         var rawBytes = File.ReadAllBytes(filePath);
         using var image = RawImageFactory.CreateImage(rawBytes);
+        using var image1 = image.RAW12BitsPerPixelLogToLinear();
 
         image.GetBitsPerPixel().Should().Be(16);
 

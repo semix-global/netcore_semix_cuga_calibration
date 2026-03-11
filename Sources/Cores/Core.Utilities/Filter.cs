@@ -5,7 +5,7 @@ namespace Core.Utilities;
 
 public static class Filter
 {
-    public static (int[] Indexes, double[] Result) MAD(IReadOnlyList<double> filters, double k = 3d)
+    public static (int[] Indexes, double[] Results) MAD(IReadOnlyList<double> filters, double k = 3d)
     {
         var median = filters.Median();
         var mad = filters.Select(x => Math.Abs(x - median)).Median();
@@ -21,7 +21,7 @@ public static class Filter
         return ([.. tuples.Select(t => t.Index)], [.. tuples.Select(t => t.Item)]);
     }
 
-    public static (int[] Indexes, double[] Result) IQR(IReadOnlyList<double> filters, double multiplier = 1.5)
+    public static (int[] Indexes, double[] Results) IQR(IReadOnlyList<double> filters, double multiplier = 1.5)
     {
         var q1 = filters.Quantile(0.25);
         var q3 = filters.Quantile(0.75);
@@ -35,7 +35,7 @@ public static class Filter
         return ([.. tuples.Select(t => t.Index)], [.. tuples.Select(t => t.Item)]);
     }
 
-    public static (int[] Indexes, double[] Result) ZScore(IReadOnlyList<double> filters, double k = 3d)
+    public static (int[] Indexes, double[] Results) ZScore(IReadOnlyList<double> filters, double k = 3d)
     {
         var mean = filters.Mean();
         var standardDeviation = filters.StandardDeviation();
@@ -48,7 +48,7 @@ public static class Filter
         return ([.. tuples.Select(t => t.Index)], [.. tuples.Select(t => t.Item)]);
     }
 
-    public static (int[] Indexes, Point[] Result) NMS(IReadOnlyList<Point> filters, double distanceThreshold)
+    public static (int[] Indexes, Point[] Results) NMS(IReadOnlyList<Point> filters, double distanceThreshold)
     {
         var tupleList = new List<(int Index, Point Item)>();
 

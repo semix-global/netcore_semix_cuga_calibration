@@ -1,28 +1,80 @@
 ﻿using CommunityToolkit.Diagnostics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Utilities;
 
 public static class Extremumor
 {
-    public static (Vector<double> X, Vector<double> Y) FindMaxima(
-        Vector<double> x,
-        Vector<double> y,
-        double threshold = 0,
-        bool isContainsEdge = false) => FindExtrema(x, y, ExtremumTypeEnum.Maximum, threshold, isContainsEdge);
-
     private enum ExtremumTypeEnum
     {
         Maximum,
         Minimum
     }
 
-    public static (Vector<double> X, Vector<double> Y) FindMinima(
-        Vector<double> x,
-        Vector<double> y,
+    public static (int[] Indexes, Point[] Results) FindMaxima(
+        IReadOnlyList<Point> points,
         double threshold = 0,
-        bool isContainsEdge = false) => FindExtrema(x, y, ExtremumTypeEnum.Minimum, threshold, isContainsEdge);
+        bool isContainsEdge = false) => FindExtrema(points, ExtremumTypeEnum.Maximum, threshold, isContainsEdge);
+
+    public static (int[] Indexes, Point[] Results) FindMinima(
+        IReadOnlyList<Point> points,
+        double threshold = 0,
+        bool isContainsEdge = false) => FindExtrema(points, ExtremumTypeEnum.Minimum, threshold, isContainsEdge);
+
+    private static (int[] Indexes, Point[] Results) FindExtrema(
+        IReadOnlyList<Point> points,
+        ExtremumTypeEnum extremumTypeEnum,
+        double threshold,
+        bool isContainsEdge)
+    {
+        var x = Vector<double>.Build.Dense([..points.Select(p => p.X)]);
+        var y = Vector<double>.Build.Dense([..points.Select(p => p.Y)]);
+
+        var derivativeY = y.Differentiate() / x.Differentiate();
+
+        var indexes = derivativeY.FindAbsAbove(threshold);
+
+        var derivativeSign = Vector<double>.Build.SameAs(derivativeY);
+        derivativeSign.SetSubVectorIndexes(indexes, derivativeY.SubVectorIndexes(indexes).PointwiseSign());
+
+        var derivativeChange = derivativeSign.Differentiate(); // 符号变化量
+
+        var filteredIndices = new List<int>();
+        for (var i = 0; i < derivativeChange.Count; i++)
+        {
+            var change = derivativeChange[i];
+            if (change == 0) continue;
+
+            // change < 0: 符号从正变负 (+1 → -1 or 0)，变化量 = -2 or -1, 极大值
+            // change > 0: 符号从负变正 (-1 → +1 or 0)，变化量 = +2 or 1, 极小值
+            var isMaximumPoint = change < 0;
+            var isMinimumPoint = change > 0;
+
+            if ((extremumTypeEnum == ExtremumTypeEnum.Maximum && isMaximumPoint) || // 极大值 且 极大值点
+                (extremumTypeEnum == ExtremumTypeEnum.Minimum && isMinimumPoint)) // 极小值 且 极小值点
+            {
+                filteredIndices.Add(i + 1); // i + 1 是原始数据中的极值点索引
+            }
+        }
+
+        if (isContainsEdge)
+        {
+            if ((extremumTypeEnum == ExtremumTypeEnum.Maximum && derivativeSign[0] < 0) || // 极大值 且 第一个点递减
+                (extremumTypeEnum == ExtremumTypeEnum.Minimum && derivativeSign[0] > 0)) // 极小值 且 最后一个点递曾
+                filteredIndices.Add(0);
+
+            if ((extremumTypeEnum == ExtremumTypeEnum.Maximum && derivativeSign[^1] > 0) || // 极大值 且 最后一个点递增
+                (extremumTypeEnum == ExtremumTypeEnum.Minimum && derivativeSign[^1] < 0)) // 极小值 且 最后一个点递减
+                filteredIndices.Add(x.Count - 1);
+        }
+
+
+        if (filteredIndices.Count == 0) return ([], []);
+
+        return ([..filteredIndices], [..filteredIndices.Select(t => points[t])]);
+    }
 
     /// <summary>
     /// 从每组极值中各选一个点，使得所有选中点的值最接近（跨度最小）
@@ -77,60 +129,5 @@ public static class Extremumor
                 Search(depth + 1); // 递归处理下一组
             }
         }
-    }
-
-    private static (Vector<double> X, Vector<double> Y) FindExtrema(
-        Vector<double> x,
-        Vector<double> y,
-        ExtremumTypeEnum extremumTypeEnum,
-        double threshold,
-        bool isContainsEdge)
-    {
-        var derivativeY = y.Differentiate() / x.Differentiate();
-
-        var indexes = derivativeY.FindAbsAbove(threshold);
-
-        var derivativeSign = Vector<double>.Build.SameAs(derivativeY);
-        derivativeSign.SetSubVectorIndexes(indexes, derivativeY.SubVectorIndexes(indexes).PointwiseSign());
-
-        var derivativeChange = derivativeSign.Differentiate(); // 符号变化量
-
-        var filteredIndices = new List<int>();
-        for (var i = 0; i < derivativeChange.Count; i++)
-        {
-            var change = derivativeChange[i];
-            if (change == 0) continue;
-
-            // change < 0: 符号从正变负 (+1 → -1 or 0)，变化量 = -2 or -1, 极大值
-            // change > 0: 符号从负变正 (-1 → +1 or 0)，变化量 = +2 or 1, 极小值
-            var isMaximumPoint = change < 0;
-            var isMinimumPoint = change > 0;
-
-            if ((extremumTypeEnum == ExtremumTypeEnum.Maximum && isMaximumPoint) || // 极大值 且 极大值点
-                (extremumTypeEnum == ExtremumTypeEnum.Minimum && isMinimumPoint)) // 极小值 且 极小值点
-            {
-                filteredIndices.Add(i + 1); // i + 1 是原始数据中的极值点索引
-            }
-        }
-
-        if (isContainsEdge)
-        {
-            if ((extremumTypeEnum == ExtremumTypeEnum.Maximum && derivativeSign[0] < 0) || // 极大值 且 第一个点递减
-                (extremumTypeEnum == ExtremumTypeEnum.Minimum && derivativeSign[0] > 0)) // 极小值 且 最后一个点递曾
-                filteredIndices.Add(0);
-
-            if ((extremumTypeEnum == ExtremumTypeEnum.Maximum && derivativeSign[^1] > 0) || // 极大值 且 最后一个点递增
-                (extremumTypeEnum == ExtremumTypeEnum.Minimum && derivativeSign[^1] < 0)) // 极小值 且 最后一个点递减
-                filteredIndices.Add(x.Count - 1);
-        }
-
-
-        if (filteredIndices.Count == 0)
-            return (Vector<double>.Build.Dense(0), Vector<double>.Build.Dense(0));
-
-        var extremaX = x.SubVectorIndexes([.. filteredIndices]);
-        var extremaY = y.SubVectorIndexes([.. filteredIndices]);
-
-        return (extremaX, extremaY);
     }
 }

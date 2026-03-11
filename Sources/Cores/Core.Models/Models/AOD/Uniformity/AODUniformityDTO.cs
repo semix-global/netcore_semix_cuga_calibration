@@ -8,12 +8,12 @@ using Core.Utilities;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Net.Utilities.Helpers.Extensions;
 using Generate = MathNet.Numerics.Generate;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -144,29 +144,27 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
             // 正序
             SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects)).ToArray();
-            var (forwardX, forwardY) = Extremumor.FindMinima(
-                Vector<double>.Build.DenseOfArray(Enumerable.Range(0, SmoothImageHorizontalProjects.Count).ToArray()),
-                Vector<double>.Build.DenseOfEnumerable(SmoothImageHorizontalProjects));
+            var (_, forward) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 
-            var forwardHorizontalProjectMinPixel = forwardX
+            var forwardHorizontalProjectMinPixel = forward
+                .Select(t=>t.X)
                 .Select(t => (int)t)
                 .Index()
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                .Select(t => (X: t.Item, Y: forwardY[t.Index]))
+                .Select(t => (X: t.Item, Y: forward[t.Index].Y))
                 .OrderBy(t => t.Y)
                 .FirstOrDefault((-1, 0));
 
             // 倒序
             var reverseSmoothImageHorizontalProjects = SmoothImageHorizontalProjects.Reverse().ToArray();
-            var (reverseX, reverseY) = Extremumor.FindMinima(
-                Vector<double>.Build.DenseOfArray(Enumerable.Range(0, reverseSmoothImageHorizontalProjects.Length).ToArray()),
-                Vector<double>.Build.DenseOfEnumerable(reverseSmoothImageHorizontalProjects));
+            var (_, reverse) = Extremumor.FindMinima(reverseSmoothImageHorizontalProjects.ToPoints());
 
-            var reverseHorizontalProjectMinPixel = reverseX
+            var reverseHorizontalProjectMinPixel = reverse
+                .Select(t=>t.X)
                 .Select(t => (int)t)
                 .Index()
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                .Select(t => (X: t.Item, Y: reverseY[t.Index]))
+                .Select(t => (X: t.Item, Y: reverse[t.Index].Y))
                 .OrderBy(t => t.Y)
                 .FirstOrDefault((-1, 0));
 
@@ -193,17 +191,16 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 ImageHorizontalProjects.Count).Regions;
 
             SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
-            var (x, y) = Extremumor.FindMinima(
-                Vector<double>.Build.DenseOfArray(Enumerable.Range(0, SmoothImageHorizontalProjects.Count).ToArray()),
-                Vector<double>.Build.DenseOfEnumerable(SmoothImageHorizontalProjects));
+            var (_, points) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 
             foreach (var (index, (vYPixelStartIndex, _, vYPixelStopIndex)) in regions.Index())
             {
-                horizontalProjectMinPixels[index] = x
+                horizontalProjectMinPixels[index] = points
+                    .Select(t=>t.X)
                     .Select(t => (int)t)
                     .Index()
                     .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                    .Select(t => (X: t.Item, Y: y[t.Index]))
+                    .Select(t => (X: t.Item, Y: points[t.Index].Y))
                     .OrderBy(t => t.Y)
                     .First()
                     .X;

@@ -166,7 +166,7 @@ public class FilterTest
             new Point(34748.8396, 0.925536601)
         ];
 
-        var matchPoints = Filter.NMS([.. points.Where(t => t.Y > 0.7)], 50).Result;
+        var matchPoints = Filter.NMS([.. points.Where(t => t.Y > 0.7)], 50).Results;
         matchPoints.Should()
             .BeEquivalentTo(expectedMatchPoints1, options => options.WithStrictOrdering());
 
@@ -187,7 +187,7 @@ public class FilterTest
             expectedMatchPoints2[2].X - expectedMatchPoints2[1].X
         ];
 
-        var result = Filter.MAD([.. matchPoints.Zip(matchPoints.Skip(1), (prev, next) => next.X - prev.X)]).Result;
+        var result = Filter.MAD([.. matchPoints.Zip(matchPoints.Skip(1), (prev, next) => next.X - prev.X)]).Results;
 
         result.Should()
             .BeEquivalentTo(expectedResult, options => options.WithStrictOrdering());
