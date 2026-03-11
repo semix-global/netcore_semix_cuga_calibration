@@ -120,8 +120,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
             {
                 if (HazeTargetPMTValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetPMTValueKvp))
                 {
-                    scatterPlotControl.GetOrAddYLine(0, "Target", hazeTargetPMTValueKvp.Value, Colors.Red);
-
                     WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
                         2,
                         "Result",
@@ -160,12 +158,12 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                             new Range(0, hazeCount - 1),
                             MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
                     }
+
+                    scatterPlotControl.GetOrAddYLine(0, "Target", hazeTargetPMTValueKvp.Value, Colors.Red);
                 }
 
                 if (SilicaSphereTargetPMTValue is not null)
                 {
-                    scatterPlotControl.GetOrAddYLine(3, "Target", SilicaSphereTargetPMTValue.Value, Colors.Red);
-
                     if (SilicaSphereAveragePMTValues.TryGetSingle(t => t.Key == channelId, out var silicaSphereAveragePMTValueKvp))
                     {
                         var yLine = scatterPlotControl.GetOrAddYLine(3, "Average", silicaSphereAveragePMTValueKvp.Value, Colors.Yellow);
@@ -210,6 +208,8 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                                 MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
                         }
                     }
+
+                    scatterPlotControl.GetOrAddYLine(3, "Target", SilicaSphereTargetPMTValue.Value, Colors.Red);
                 }
             }
             finally
