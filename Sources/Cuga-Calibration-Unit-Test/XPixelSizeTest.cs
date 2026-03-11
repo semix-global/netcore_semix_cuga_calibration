@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using Core.Utilities;
-using MathNet.Numerics.Statistics;
 using MiniExcelLibs;
 using Net.Utilities.ScottPlot.WPF.Plottables;
 using Net.Utilities.ScottPlot.WPF.WPF;
@@ -13,12 +12,15 @@ namespace CugaCalibrationUnitTest;
 public class XPixelSizeTest
 {
     [Theory]
-    [InlineData(0.5)]
-    [InlineData(0.6)]
-    [InlineData(0.7)]
-    public void TestXPixelSize(double threshold)
+    [InlineData(@"Assets\XPixelSize\test1.xlsx", 0.7, 4)]
+    [InlineData(@"Assets\XPixelSize\test2.xlsx", 0.7, 16)]
+    [InlineData(@"Assets\XPixelSize\test3.xlsx", 0.7, 15)]
+    [InlineData(@"Assets\XPixelSize\test4.xlsx", 0.7, 17)]
+    public void TestXPixelSize(string filePath, double threshold, int count)
     {
-        var points = MiniExcel.Query<Temp>(@"Assets\XPixelSize\test1.xlsx", sheetName: "ALL Points").Select(t => new Point(t.X, t.Y))
+        var points = MiniExcel.Query<Temp>(filePath, sheetName: "ALL Points")
+            .Select(t => new Point(t.X, t.Y))
+            .Distinct()
             .OrderBy(t => t.X)
             .ToArray();
 
@@ -27,7 +29,7 @@ public class XPixelSizeTest
         var filterIndexes = indexes.Where(t => points[t].Y >= threshold).ToArray();
         filterIndexes = Filter.NMS([..filterIndexes.Select(t => points[t])], 402).Indexes.Select(t => filterIndexes[t]).ToArray();
 
-        var doubles = filterIndexes.Select(t => points[t].Y - threshold).ToArray();
+        filterIndexes = filterIndexes.Select(t => (Index: t, points[t].Y)).OrderByDescending(t => t.Y).Take(count).Select(t => t.Index).ToArray();
 
         var thread = new Thread(() =>
         {
@@ -38,7 +40,7 @@ public class XPixelSizeTest
 
             var plot = scatterPlotControl.Plot;
 
-            plot.Title($"Template Match: px/quality {doubles.Aggregate(string.Empty, (t1, t2) => $"{t1}, {t2:0.###}")} \r {doubles.Median()} \r {doubles.Average()}");
+            plot.Title("Template Match: px/score");
             var scatterLine = ScatterLine.Empty;
             scatterLine.Update(
                 "Origin",
@@ -47,7 +49,7 @@ public class XPixelSizeTest
             plot.PlottableList.Add(scatterLine);
 
             var yLine = YLine.Empty;
-            yLine.Update("Threshold", threshold, Colors.Green);
+            yLine.Update("Threshold", threshold, Colors.LightGreen);
             plot.PlottableList.Add(yLine);
 
             var scatterMarkers = ScatterMarkers.Empty;
@@ -85,7 +87,7 @@ public class XPixelSizeTest
 
         thread.SetApartmentState(ApartmentState.STA);
         thread.Start();
-        // thread.Join();
+        thread.Join();
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Statistics;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Models.Geometries;
 
@@ -33,6 +34,7 @@ public static class Extremumor
         var y = Vector<double>.Build.Dense([..points.Select(p => p.Y)]);
 
         var derivativeY = y.Differentiate() / x.Differentiate();
+        Guard.IsFalse(derivativeY.Any(double.IsNaN));
 
         var indexes = derivativeY.FindAbsAbove(threshold);
 
