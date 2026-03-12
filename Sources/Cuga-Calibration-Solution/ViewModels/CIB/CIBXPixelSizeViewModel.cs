@@ -657,7 +657,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 .ToArray();
             CalibratingItem.SlideSplitDifferences = Filter.MAD(xDifferences).Results;
 
-            var isOk = CalibratingItem.SlideSplitDifferences.Count >= 1;
+            var isOk = matchPoints.Length >= 2 && CalibratingItem.SlideSplitDifferences.Count >= 1;
 
             var htmlAnonymous = new
             {
@@ -673,7 +673,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             if (isOk == false)
             {
-                Logger.LogHtmlError("Error: Match Count < 1", HtmlHeaderLevelEnum.Header3, new HtmlBullet(htmlAnonymous), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError("Error: Match Count < 2", HtmlHeaderLevelEnum.Header3, new HtmlBullet(htmlAnonymous), HtmlLogUniqueId.LoggingHtml());
 
                 return false;
             }
