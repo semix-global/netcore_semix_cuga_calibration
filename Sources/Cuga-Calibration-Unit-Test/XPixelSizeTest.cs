@@ -1,12 +1,17 @@
-﻿using System.Windows;
+﻿// #define XPixelSizeTest
+
 using AwesomeAssertions;
 using Core.Utilities;
 using MiniExcelLibs;
+using Xunit;
+using Point = Net.Utilities.Models.Geometries.Point;
+
+#if XPixelSizeTest
+using System.Windows;
 using Net.Utilities.ScottPlot.WPF.Plottables;
 using Net.Utilities.ScottPlot.WPF.WPF;
 using ScottPlot;
-using Xunit;
-using Point = Net.Utilities.Models.Geometries.Point;
+#endif
 
 namespace CugaCalibrationUnitTest;
 
@@ -41,7 +46,8 @@ public class XPixelSizeTest
         filterXDifferences.Should().HaveCount(xDifferences.Length);
         string.Join(",", filterXDifferences).Should().Be(expected);
 
-        /*var thread = new Thread(() =>
+#if XPixelSizeTest
+        var thread = new Thread(() =>
         {
             var window = new Window { Title = $"{nameof(TestXPixelSize)}_{threshold:0.###}" };
 
@@ -92,12 +98,13 @@ public class XPixelSizeTest
             {
                 FileName = imageFullPath,
                 UseShellExecute = true
-            });#1#
+            });*/
         });
 
         thread.SetApartmentState(ApartmentState.STA);
         thread.Start();
-        thread.Join();*/
+        thread.Join();
+#endif
     }
 }
 

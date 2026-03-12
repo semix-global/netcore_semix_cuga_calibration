@@ -664,7 +664,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 Score = new HtmlPlot2DLinesChart([
                     ("All", [..matches.Select(t => t.ScorePoint)], string.Empty),
                     ("Maxima", [..indexes.Select(t => matches[t].ScorePoint)], MarkerShape.FilledTriangleDown.ToPlotJsMarker()),
-                    ("Filter Maxima", [..filterIndexes.Select(t => matches[t].ScorePoint)], MarkerShape.FilledTriangleDown.ToPlotJsMarker())
+                    ("Filter Maxima", [..filterIndexes.Select(t => matches[t].ScorePoint)], MarkerShape.Asterisk.ToPlotJsMarker())
                 ], string.Empty),
                 MatchPoints = new HtmlPlot2DLinesChart([(string.Empty, matchPoints)], string.Empty),
                 XDifferences = new HtmlPlot2DLinesChart([(string.Empty, xDifferences.ToPoints())], string.Empty),
@@ -852,6 +852,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
                 var slideCount = MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength);
                 Guard.IsLessThanOrEqualTo(slideCount, imageCount);
+                Guard.IsGreaterThanOrEqualTo(slideCount, 2);
 
                 var verifyItemItems = new CIBXPixelSizeDTOItem[slideCount];
                 foreach (var (index, pointer) in Enumerable
