@@ -1,4 +1,4 @@
-﻿// #define GenerateTest
+﻿#define GenerateTest
 
 using AwesomeAssertions;
 using Xunit;
@@ -32,11 +32,11 @@ public class GenerateTest
                 select Generate.LinearVShapeWindowBySegments(
                     coefficient,
                     coefficient / 1000d,
-                    segmentCount,
+                    indexes.Length,
                     index,
                     totalLength)
             )
-            .ToList();
+            .ToArray();
 
         var allWindow = Generate.LinearVShapeWindowBySegments(
             coefficient,
@@ -44,6 +44,18 @@ public class GenerateTest
             indexes.Length,
             indexes,
             totalLength);
+
+        foreach (var (index, (window, (vStartIndex, vMiddleIndex, vStopIndex))) in windows.Index())
+        {
+            vStartIndex.Should().Be(allWindow.Regions[index].VStartIndex);
+            vMiddleIndex.Should().Be(allWindow.Regions[index].VMiddleIndex);
+            vStopIndex.Should().Be(allWindow.Regions[index].VStopIndex);
+
+            Vector<double>.Build.Dense(window).SubVectorRange(vStartIndex, vStopIndex).Should()
+                .HaveCount(vStopIndex - vStartIndex + 1)
+                .And.BeEquivalentTo(Vector<double>.Build.Dense(allWindow.Window).SubVectorRange(vStartIndex, vStopIndex),
+                    options => options.WithStrictOrdering());
+        }
 
 #if GenerateTest
         var thread = new Thread(() =>
@@ -53,7 +65,7 @@ public class GenerateTest
             var scatterPlotControl = new ScatterPlotControl();
             wpfWindow.Content = scatterPlotControl;
 
-            scatterPlotControl.Configure(new Rows(), windows.Count + 1);
+            scatterPlotControl.Configure(new Rows(), windows.Length + 1);
 
             scatterPlotControl.SetTitle(0, string.Join(", ", indexes));
             var scatterLine = scatterPlotControl.AddScatterLine(0);
@@ -129,6 +141,38 @@ public class GenerateTest
     }
 
     [Fact]
+    public void LinearVShapeWindowByIndex_Single_NegativeCoefficient_ShouldReturnCorrectWindowAndRegion()
+    {
+        var (window, region) = Generate.LinearVShapeWindowByIndex(
+            -1d,
+            0d,
+            5,
+            4,
+            11);
+
+        region.VStartIndex.Should().Be(1);
+        region.VMiddleIndex.Should().Be(5);
+        region.VStopIndex.Should().Be(9);
+
+        window.Should()
+            .HaveCount(11)
+            .And.BeEquivalentTo(
+            [
+                -1, // 0
+                -1, // 1 <- V Start
+                -0.75, // 2
+                -0.5, // 3
+                -0.25, // 4
+                0, // 5 <- V Middle
+                -0.25, // 6
+                -0.5, // 7
+                -0.75, // 8
+                -1, // 9 <- V Stop
+                -1 // 10
+            ], options => options.WithStrictOrdering());
+    }
+
+    [Fact]
     public void LinearVShapeWindowByIndex_Single_LeftClipped_ShouldReturnAsymmetricWindow()
     {
         var (window, region) = Generate.LinearVShapeWindowByIndex(
@@ -188,6 +232,49 @@ public class GenerateTest
                 0.25, // 8
                 0.5 // 9 <- V Stop
             ], options => options.WithStrictOrdering());
+    }
+
+    [Fact]
+    public void LinearVShapeWindowByIndex_Single_Exception()
+    {
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            -1,
+            4,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vMiddleIndex");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            10,
+            4,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vMiddleIndex");
+
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            0,
+            0,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vHalfWidth");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            0,
+            -1,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vHalfWidth");
+
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            0,
+            4,
+            0))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            0,
+            4,
+            -1))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
     }
 
     [Fact]
@@ -366,6 +453,90 @@ public class GenerateTest
     }
 
     [Fact]
+    public void LinearVShapeWindowByIndex_Multiple_Empty()
+    {
+        var (window, regions) = Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [],
+            4,
+            10);
+
+        regions.Should().BeEmpty();
+
+        window.Should()
+            .HaveCount(10)
+            .And.OnlyContain(t => Equals(t, 1d));
+    }
+
+    [Fact]
+    public void LinearVShapeWindowByIndex_Multiple_Exception()
+    {
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [-1, 0],
+            4,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vMiddleIndex");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [0, 10],
+            4,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vMiddleIndex");
+
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [0],
+            0,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vHalfWidth");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [0],
+            -1,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vHalfWidth");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [],
+            0,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vHalfWidth");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [],
+            -1,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vHalfWidth");
+
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [0],
+            4,
+            0))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [0],
+            4,
+            -1))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [],
+            4,
+            0))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+        ((Action)(() => Generate.LinearVShapeWindowByIndex(
+            1d,
+            0d,
+            [],
+            4,
+            -1))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+    }
+
+    [Fact]
     public void LinearVShapeWindowBySegments_Single_ShouldReturnCorrectWindowAndRegion()
     {
         var (window, region) = Generate.LinearVShapeWindowBySegments(
@@ -424,6 +595,49 @@ public class GenerateTest
                 0.5, // 7
                 1d // 8 <- V Stop
             ], options => options.WithStrictOrdering());
+    }
+
+    [Fact]
+    public void LinearVShapeWindowBySegments_Single_Exception()
+    {
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            -1,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vShapeSegmentIndex");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            2,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vShapeSegmentIndex");
+
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            0,
+            0,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("segmentCount");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            -1,
+            0,
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("segmentCount");
+
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            0,
+            0))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            0,
+            -1))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
     }
 
     [Fact]
@@ -651,6 +865,91 @@ public class GenerateTest
                 1d // 10
             ], options => options.WithStrictOrdering());
     }
+
+
+    [Fact]
+    public void LinearVShapeWindowBySegments_Multiple_Empty()
+    {
+        var (window, regions) = Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            [],
+            10);
+
+        regions.Should().BeEmpty();
+
+        window.Should()
+            .HaveCount(10)
+            .And.OnlyContain(t => Equals(t, 1d));
+    }
+
+    [Fact]
+    public void LinearVShapeWindowBySegments_Multiple_Exception()
+    {
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            [-1, 0],
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vShapeSegmentIndex");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            [0, 2],
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("vShapeSegmentIndex");
+
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            0,
+            [0],
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("segmentCount");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            -1,
+            [0],
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("segmentCount");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            0,
+            [],
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("segmentCount");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            -1,
+            [],
+            10))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("segmentCount");
+
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            [0],
+            0))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            [0],
+            -1))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            [],
+            0))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+        ((Action)(() => Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            2,
+            [],
+            -1))).Should().Throw<ArgumentOutOfRangeException>().WithParameterName("totalLength");
+    }
 }
 
 public static class GenerateExtensions
@@ -664,10 +963,10 @@ public static class GenerateExtensions
             int vHalfWidth,
             int totalLength)
         {
+            Guard.IsGreaterThan(totalLength, 0);
             Guard.IsGreaterThanOrEqualTo(vMiddleIndex, 0);
             Guard.IsLessThanOrEqualTo(vMiddleIndex, totalLength - 1);
             Guard.IsGreaterThan(vHalfWidth, 0);
-            Guard.IsGreaterThan(totalLength, 0);
 
             var window = Generate.Repeat(totalLength, coefficient);
 
@@ -692,7 +991,8 @@ public static class GenerateExtensions
             int vHalfWidth,
             int totalLength)
         {
-            if (vMiddleIndexes.Count == 0) return (Generate.Repeat(totalLength, coefficient), []);
+            Guard.IsGreaterThan(vHalfWidth, 0);
+            Guard.IsGreaterThan(totalLength, 0);
 
             var window = Generate.Repeat(totalLength, coefficient);
             var regions = new (int VStartIndex, int VMiddleIndex, int VStopIndex)[vMiddleIndexes.Count];
@@ -748,7 +1048,8 @@ public static class GenerateExtensions
             IReadOnlyList<int> vShapeSegmentIndexes,
             int totalLength)
         {
-            if (vShapeSegmentIndexes.Count == 0) return (Generate.Repeat(totalLength, coefficient), []);
+            Guard.IsGreaterThan(segmentCount, 0);
+            Guard.IsGreaterThan(totalLength, 0);
 
             var window = Generate.Repeat(totalLength, coefficient);
             var regions = new (int VStartIndex, int VMiddleIndex, int VStopIndex)[vShapeSegmentIndexes.Count];
