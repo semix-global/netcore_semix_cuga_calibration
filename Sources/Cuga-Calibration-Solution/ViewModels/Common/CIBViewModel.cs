@@ -800,7 +800,7 @@ public sealed class CIBViewModel(
             isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var matchPoint, out var matchOffset, out matchScore, out matchAngle);
 
             resultImageFilePath = Path.Combine(isSuccess ? saveResultImageFileDirectory : $"{FileHelper.GetFileFullName(templateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({logGuid:N}).jpg");
-            using var temp = darkFieldImage.Image.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - matchPoint.X, matchPoint.Y));
+            using var temp = darkFieldImage.Image.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y));
             temp.Save(resultImageFilePath);
 
             var stageCoordinateSystemMatchOffset = stageCoordinateSystemEnum switch
@@ -825,7 +825,7 @@ public sealed class CIBViewModel(
                 resultPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - matchPoint.X, matchPoint.Y)), new HtmlImageCrossOverlay(true)]),
+                    ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y)), new HtmlImageCrossOverlay(true)]),
                     TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             });
