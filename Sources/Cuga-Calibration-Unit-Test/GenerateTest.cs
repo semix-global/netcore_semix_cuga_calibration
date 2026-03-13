@@ -676,19 +676,11 @@ public static class GenerateExtensions
 
             var k = (coefficient - vCoefficient) / vHalfWidth;
 
-            for (var i = vMiddleIndex - 1; i >= vStartIndex; i--)
-            {
-                var rate = vCoefficient + (vMiddleIndex - i) * k;
-                window[i] = rate;
-            }
+            for (var i = vMiddleIndex - 1; i >= vStartIndex; i--) window[i] = vCoefficient + (vMiddleIndex - i) * k;
 
             window[vMiddleIndex] = vCoefficient;
 
-            for (var i = vMiddleIndex + 1; i <= vStopIndex; i++)
-            {
-                var rate = vCoefficient + (i - vMiddleIndex) * k;
-                window[i] = rate;
-            }
+            for (var i = vMiddleIndex + 1; i <= vStopIndex; i++) window[i] = vCoefficient + (i - vMiddleIndex) * k;
 
             return (window, (vStartIndex, vMiddleIndex, vStopIndex));
         }
@@ -707,11 +699,10 @@ public static class GenerateExtensions
 
             for (var i = 0; i < vMiddleIndexes.Count; i++)
             {
-                var vMiddleIndex = vMiddleIndexes[i];
                 var (tempWindow, region) = Generate.LinearVShapeWindowByIndex(
                     coefficient,
                     vCoefficient,
-                    vMiddleIndex,
+                    vMiddleIndexes[i],
                     vHalfWidth,
                     totalLength);
 
@@ -736,6 +727,7 @@ public static class GenerateExtensions
             Guard.IsGreaterThan(segmentCount, 0);
             Guard.IsGreaterThanOrEqualTo(vShapeSegmentIndex, 0);
             Guard.IsLessThanOrEqualTo(vShapeSegmentIndex, segmentCount - 1);
+            Guard.IsGreaterThan(totalLength, 0);
 
             var segmentLength = totalLength / segmentCount;
             var vHalfWidth = segmentLength / 2;
@@ -763,12 +755,11 @@ public static class GenerateExtensions
 
             for (var i = 0; i < vShapeSegmentIndexes.Count; i++)
             {
-                var vShapeSegmentIndex = vShapeSegmentIndexes[i];
                 var (tempWindow, region) = Generate.LinearVShapeWindowBySegments(
                     coefficient,
                     vCoefficient,
                     segmentCount,
-                    vShapeSegmentIndex,
+                    vShapeSegmentIndexes[i],
                     totalLength);
 
                 Vector<double>.Build.Dense(window).SetSubVectorRange(
