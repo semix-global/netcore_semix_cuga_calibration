@@ -133,7 +133,6 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         SelectMicroscopeCentricityCacheItem = Cache.CurrentCalibrationCacheItem;
-        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
 
         return true;
     }
@@ -619,8 +618,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                         CalibrationStepIndex++;
 
                         return await AutoNextingAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                    ,
+                    },
                     var index when index == AutoCalibrationStepList.Count - 1 => async () =>
                     {
                         AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
@@ -638,8 +636,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                             }) == false) return false;
                         AutoCalibrationStepIndex++;
                         return true;
-                    }
-                    ,
+                    },
                     _ => async () =>
                     {
                         if (await AutoActionStepAsync(cancellationToken) == false)

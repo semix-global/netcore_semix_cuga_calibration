@@ -760,7 +760,8 @@ public sealed class CIBViewModel(
         matchAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize?.IsOk != true)
         {
             logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser X Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
@@ -768,7 +769,10 @@ public sealed class CIBViewModel(
             return false;
         }
 
-        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType && t.PmtId == cibInformation.PMTId);
+        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == productivityInformation.OpticsIlluminationModeEnum
+                                  && t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
+                                  && t.PmtId == cibInformation.PMTId);
         if (ySize?.IsOk != true)
         {
             logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser Pixel Size is Empty or not verify."), logGuid.LoggingHtml());

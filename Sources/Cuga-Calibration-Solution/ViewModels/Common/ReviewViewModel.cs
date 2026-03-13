@@ -203,13 +203,17 @@ public sealed partial class ReviewViewModel(
         originImageFilePath = string.Empty;
 
         var size = microscopePixelSizeHistoryList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
+
+        Size pixelSize;
         if (size is null || size.IsOk == false)
         {
             if (logGuid is not null && logName is not null)
-                logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Microscope Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
-            else logger.LogError("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
-            return false;
+                logger.LogHtmlWarning("Warning", HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Microscope Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
+            else logger.LogWarning("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
+
+            pixelSize = new Size(3.45 / microscopeLensInformation.ObjectiveMagnification, 3.45 / microscopeLensInformation.ObjectiveMagnification);
         }
+        else pixelSize = size.PixelSize;
 
         var isSuccess = calibrationAlgorithmService.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out var templateId);
         using var _1 = templateId;
@@ -256,7 +260,7 @@ public sealed partial class ReviewViewModel(
                 return false;
             }
 
-            var actualOffset = new Point(offset.X * size.PixelSize.Width, offset.Y * size.PixelSize.Height);
+            var actualOffset = new Point(offset.X * pixelSize.Width, offset.Y * pixelSize.Height);
             stageViewModel.MoveRelativeStageXy(actualOffset);
             Thread.Sleep(500);
             var tempResultPosition = stageViewModel.GetBrightFieldStagePosition();
