@@ -23,27 +23,27 @@ public static class GenerateExtensions
             int vHalfWidth,
             int totalLength)
         {
+            Guard.IsGreaterThan(totalLength, 0);
             Guard.IsGreaterThanOrEqualTo(vMiddleIndex, 0);
             Guard.IsLessThan(vMiddleIndex, totalLength);
             Guard.IsGreaterThan(vHalfWidth, 0);
-            Guard.IsGreaterThan(totalLength, 0);
 
             var window = Enumerable.Repeat(coefficient, totalLength).ToArray();
 
             var vStartIndex = Math.Max(0, vMiddleIndex - vHalfWidth);
-            var vStopIndex = Math.Min(totalLength, vMiddleIndex + vHalfWidth);
+            var vStopIndex = Math.Min(totalLength - 1, vMiddleIndex + vHalfWidth);
 
             var k = (coefficient - vCoefficient) / vHalfWidth;
 
-            for (var i = vStartIndex; i < vMiddleIndex; i++)
+            for (var i = vMiddleIndex - 1; i >= vStartIndex; i--)
             {
-                var rate = coefficient - (i - vStartIndex) * k;
+                var rate = vCoefficient + (vMiddleIndex - i) * k;
                 window[i] = rate;
             }
 
             window[vMiddleIndex] = vCoefficient;
 
-            for (var i = vMiddleIndex + 1; i < vStopIndex; i++)
+            for (var i = vMiddleIndex + 1; i <= vStopIndex; i++)
             {
                 var rate = vCoefficient + (i - vMiddleIndex) * k;
                 window[i] = rate;
@@ -101,7 +101,6 @@ public static class GenerateExtensions
             int vHalfWidth,
             int totalLength)
         {
-            Guard.IsNotEmpty(vMiddleIndexes);
             Guard.IsGreaterThan(vHalfWidth, 0);
             Guard.IsGreaterThan(totalLength, 0);
 
@@ -118,20 +117,20 @@ public static class GenerateExtensions
                 Guard.IsLessThan(vMiddleIndex, totalLength);
 
                 var vStartIndex = Math.Max(0, vMiddleIndex - vHalfWidth);
-                var vStopIndex = Math.Min(totalLength, vMiddleIndex + vHalfWidth);
+                var vStopIndex = Math.Min(totalLength - 1, vMiddleIndex + vHalfWidth);
 
-                for (var i = vStartIndex; i < vMiddleIndex; i++)
+                for (var i = vMiddleIndex - 1; i >= vStartIndex; i--)
                 {
-                    var rate = coefficient - (i - vStartIndex) * k;
-                    window[i] = Math.Min(window[i], rate);
+                    var rate = vCoefficient + (vMiddleIndex - i) * k;
+                    window[i] = rate;
                 }
 
-                window[vMiddleIndex] = Math.Min(window[vMiddleIndex], vCoefficient);
+                window[vMiddleIndex] = vCoefficient;
 
-                for (var i = vMiddleIndex + 1; i < vStopIndex; i++)
+                for (var i = vMiddleIndex + 1; i <= vStopIndex; i++)
                 {
                     var rate = vCoefficient + (i - vMiddleIndex) * k;
-                    window[i] = Math.Min(window[i], rate);
+                    window[i] = rate;
                 }
 
                 vShapeInfos[j] = (vStartIndex, vMiddleIndex, vStopIndex);
@@ -156,20 +155,18 @@ public static class GenerateExtensions
             int[] vShapeSegmentIndexes,
             int totalLength)
         {
-            Guard.IsNotNull(vShapeSegmentIndexes);
-            Guard.IsGreaterThan(vShapeSegmentIndexes.Length, 0);
             Guard.IsGreaterThan(segmentCount, 0);
             Guard.IsGreaterThan(totalLength, 0);
 
             var segmentLength = totalLength / segmentCount;
             var vHalfWidth = segmentLength / 2;
 
-            var vMiddleIndexes = vShapeSegmentIndexes.Select(segmentIndex =>
+            var vMiddleIndexes = vShapeSegmentIndexes.Select(vShapeSegmentIndex =>
             {
-                Guard.IsLessThan(segmentIndex, segmentCount);
-                Guard.IsGreaterThanOrEqualTo(segmentIndex, 0);
+                Guard.IsLessThan(vShapeSegmentIndex, segmentCount);
+                Guard.IsGreaterThanOrEqualTo(vShapeSegmentIndex, 0);
 
-                return segmentIndex * segmentLength + vHalfWidth;
+                return vShapeSegmentIndex * segmentLength + vHalfWidth;
             }).ToArray();
 
             return Generate.LinearVShapeWindow(

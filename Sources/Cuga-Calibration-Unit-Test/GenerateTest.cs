@@ -1,4 +1,4 @@
-﻿#define GenerateTest
+﻿// #define GenerateTest
 
 using AwesomeAssertions;
 using Xunit;
