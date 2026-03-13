@@ -135,12 +135,11 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
         public void CalculateHorizontalProjectMinPixel(int segmentCount, int segmentIndex)
         {
-            var segmentWidth = ImageHorizontalProjects.Count / segmentCount;
-            var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindow(
+            var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindowBySegments(
                 1d,
                 1d,
-                segmentIndex * segmentWidth,
-                segmentWidth,
+                segmentCount + 1,
+                segmentIndex,
                 ImageHorizontalProjects.Count).Region;
 
             // 正序
@@ -148,7 +147,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             var (_, forward) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 
             var forwardHorizontalProjectMinPixel = forward
-                .Select(t => t.X)
+                .Select(t=>t.X)
                 .Select(t => (int)t)
                 .Index()
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
@@ -161,7 +160,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             var (_, reverse) = Extremumor.FindMinima(reverseSmoothImageHorizontalProjects.ToPoints());
 
             var reverseHorizontalProjectMinPixel = reverse
-                .Select(t => t.X)
+                .Select(t=>t.X)
                 .Select(t => (int)t)
                 .Index()
                 .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
@@ -184,12 +183,11 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         {
             var horizontalProjectMinPixels = new int[segmentCount];
 
-            var segmentWidth = ImageHorizontalProjects.Count / segmentCount;
-            var regions = Generate.LinearVShapeWindow(
+            var regions = Generate.LinearVShapeWindowBySegments(
                 1d,
                 1d,
-                [..segmentIndexes.Select(t => t * segmentWidth)],
-                segmentWidth,
+                segmentCount + 1,
+                segmentIndexes,
                 ImageHorizontalProjects.Count).Regions;
 
             SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
@@ -198,7 +196,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
             foreach (var (index, (vYPixelStartIndex, _, vYPixelStopIndex)) in regions.Index())
             {
                 horizontalProjectMinPixels[index] = points
-                    .Select(t => t.X)
+                    .Select(t=>t.X)
                     .Select(t => (int)t)
                     .Index()
                     .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)

@@ -499,7 +499,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                     var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
 
-                    var window = Generate.LinearVShapeWindow(
+                    var window = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
                         Cache.Item.PrescanAODWaveformProfileSegmentCount + 1,
@@ -514,13 +514,12 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
-                    var prescanAODWaveformProfileSegmentWidth = prescanAODWaveformProfileTotalLength / Cache.Item.PrescanAODWaveformProfileSegmentCount;
 
-                    var (window, regions) = Generate.LinearVShapeWindow(
+                    var (window, regions) = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        [..prescanAODWaveformProfileSegmentIndexes.Select(t => t * prescanAODWaveformProfileSegmentWidth)],
-                        prescanAODWaveformProfileSegmentWidth,
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount + 1,
+                        prescanAODWaveformProfileSegmentIndexes,
                         prescanAODWaveformProfileTotalLength);
 
                     return (window, regions);
