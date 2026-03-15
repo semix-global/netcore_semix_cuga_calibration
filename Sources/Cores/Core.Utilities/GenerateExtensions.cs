@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Extensions;
 
 namespace Core.Utilities;
 
@@ -7,16 +9,7 @@ public static class GenerateExtensions
 {
     extension(Generate)
     {
-        /// <summary>
-        /// 生成线性V形窗口
-        /// </summary>
-        /// <param name="coefficient">基础系数</param>
-        /// <param name="vCoefficient">V形底部系数</param>
-        /// <param name="vMiddleIndex">V形中心位置索引</param>
-        /// <param name="vHalfWidth">V形半宽度</param>
-        /// <param name="totalLength">窗口总长度</param>
-        /// <returns>窗口数组和V形区域信息（起始索引、中心索引、结束索引）</returns>
-        public static (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex) Region) LinearVShapeWindow(
+        public static (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex) Region) LinearVShapeWindowByIndex(
             double coefficient,
             double vCoefficient,
             int vMiddleIndex,
@@ -25,42 +18,58 @@ public static class GenerateExtensions
         {
             Guard.IsGreaterThan(totalLength, 0);
             Guard.IsGreaterThanOrEqualTo(vMiddleIndex, 0);
-            Guard.IsLessThan(vMiddleIndex, totalLength);
+            Guard.IsLessThanOrEqualTo(vMiddleIndex, totalLength - 1);
             Guard.IsGreaterThan(vHalfWidth, 0);
 
-            var window = Enumerable.Repeat(coefficient, totalLength).ToArray();
+            var window = Generate.Repeat(totalLength, coefficient);
 
             var vStartIndex = Math.Max(0, vMiddleIndex - vHalfWidth);
             var vStopIndex = Math.Min(totalLength - 1, vMiddleIndex + vHalfWidth);
 
             var k = (coefficient - vCoefficient) / vHalfWidth;
 
-            for (var i = vMiddleIndex - 1; i >= vStartIndex; i--)
-            {
-                var rate = vCoefficient + (vMiddleIndex - i) * k;
-                window[i] = rate;
-            }
+            for (var i = vMiddleIndex - 1; i >= vStartIndex; i--) window[i] = vCoefficient + (vMiddleIndex - i) * k;
 
             window[vMiddleIndex] = vCoefficient;
 
-            for (var i = vMiddleIndex + 1; i <= vStopIndex; i++)
-            {
-                var rate = vCoefficient + (i - vMiddleIndex) * k;
-                window[i] = rate;
-            }
+            for (var i = vMiddleIndex + 1; i <= vStopIndex; i++) window[i] = vCoefficient + (i - vMiddleIndex) * k;
 
             return (window, (vStartIndex, vMiddleIndex, vStopIndex));
         }
 
-        /// <summary>
-        /// 根据段数生成线性V形窗口
-        /// </summary>
-        /// <param name="coefficient">基础系数</param>
-        /// <param name="vCoefficient">V形底部系数</param>
-        /// <param name="segmentCount">总段数</param>
-        /// <param name="vShapeSegmentIndex">V形所在段的索引（从0开始）</param>
-        /// <param name="totalLength">窗口总长度</param>
-        /// <returns>窗口数组和V形区域信息（起始索引、中心索引、结束索引）</returns>
+        public static (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) LinearVShapeWindowByIndex(
+            double coefficient,
+            double vCoefficient,
+            IReadOnlyList<int> vMiddleIndexes,
+            int vHalfWidth,
+            int totalLength)
+        {
+            Guard.IsGreaterThan(vHalfWidth, 0);
+            Guard.IsGreaterThan(totalLength, 0);
+
+            var window = Generate.Repeat(totalLength, coefficient);
+            var regions = new (int VStartIndex, int VMiddleIndex, int VStopIndex)[vMiddleIndexes.Count];
+
+            for (var i = 0; i < vMiddleIndexes.Count; i++)
+            {
+                var (tempWindow, region) = Generate.LinearVShapeWindowByIndex(
+                    coefficient,
+                    vCoefficient,
+                    vMiddleIndexes[i],
+                    vHalfWidth,
+                    totalLength);
+
+                Vector<double>.Build.Dense(window).SetSubVectorRange(
+                    region.VStartIndex,
+                    region.VStopIndex,
+                    Vector<double>.Build.Dense([..tempWindow.AsSpan()[region.VStartIndex..(region.VStopIndex + 1)]]));
+
+                regions[i] = region;
+            }
+
+            return (window, regions);
+        }
+
         public static (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex) Region) LinearVShapeWindowBySegments(
             double coefficient,
             double vCoefficient,
@@ -69,15 +78,15 @@ public static class GenerateExtensions
             int totalLength)
         {
             Guard.IsGreaterThan(segmentCount, 0);
-            Guard.IsLessThan(vShapeSegmentIndex, segmentCount);
             Guard.IsGreaterThanOrEqualTo(vShapeSegmentIndex, 0);
+            Guard.IsLessThanOrEqualTo(vShapeSegmentIndex, segmentCount - 1);
             Guard.IsGreaterThan(totalLength, 0);
 
             var segmentLength = totalLength / segmentCount;
             var vHalfWidth = segmentLength / 2;
             var vMiddleIndex = vShapeSegmentIndex * segmentLength + vHalfWidth;
 
-            return Generate.LinearVShapeWindow(
+            return Generate.LinearVShapeWindowByIndex(
                 coefficient,
                 vCoefficient,
                 vMiddleIndex,
@@ -85,96 +94,37 @@ public static class GenerateExtensions
                 totalLength);
         }
 
-        /// <summary>
-        /// 生成包含多个线性V形的窗口
-        /// </summary>
-        /// <param name="coefficient">基础系数</param>
-        /// <param name="vCoefficient">V形底部系数</param>
-        /// <param name="vMiddleIndexes">多个V形中心位置索引数组</param>
-        /// <param name="vHalfWidth">V形半宽度</param>
-        /// <param name="totalLength">窗口总长度</param>
-        /// <returns>窗口数组和多个V形区域信息数组（每个包含起始索引、中心索引、结束索引）</returns>
-        public static (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) LinearVShapeWindow(
-            double coefficient,
-            double vCoefficient,
-            int[] vMiddleIndexes,
-            int vHalfWidth,
-            int totalLength)
-        {
-            Guard.IsGreaterThan(vHalfWidth, 0);
-            Guard.IsGreaterThan(totalLength, 0);
-
-            var window = Enumerable.Repeat(coefficient, totalLength).ToArray();
-            var vShapeInfos = new (int VStartIndex, int VMiddleIndex, int VStopIndex)[vMiddleIndexes.Length];
-
-            var k = (coefficient - vCoefficient) / vHalfWidth;
-
-            for (var j = 0; j < vMiddleIndexes.Length; j++)
-            {
-                var vMiddleIndex = vMiddleIndexes[j];
-
-                Guard.IsGreaterThanOrEqualTo(vMiddleIndex, 0);
-                Guard.IsLessThan(vMiddleIndex, totalLength);
-
-                var vStartIndex = Math.Max(0, vMiddleIndex - vHalfWidth);
-                var vStopIndex = Math.Min(totalLength - 1, vMiddleIndex + vHalfWidth);
-
-                for (var i = vMiddleIndex - 1; i >= vStartIndex; i--)
-                {
-                    var rate = vCoefficient + (vMiddleIndex - i) * k;
-                    window[i] = rate;
-                }
-
-                window[vMiddleIndex] = vCoefficient;
-
-                for (var i = vMiddleIndex + 1; i <= vStopIndex; i++)
-                {
-                    var rate = vCoefficient + (i - vMiddleIndex) * k;
-                    window[i] = rate;
-                }
-
-                vShapeInfos[j] = (vStartIndex, vMiddleIndex, vStopIndex);
-            }
-
-            return (window, vShapeInfos);
-        }
-
-        /// <summary>
-        /// 根据多个段索引生成包含多个线性V形的窗口
-        /// </summary>
-        /// <param name="coefficient">基础系数</param>
-        /// <param name="vCoefficient">V形底部系数</param>
-        /// <param name="segmentCount">总段数</param>
-        /// <param name="vShapeSegmentIndexes">多个V形所在段的索引数组（从0开始）</param>
-        /// <param name="totalLength">窗口总长度</param>
-        /// <returns>窗口数组和多个V形区域信息数组（每个包含起始索引、中心索引、结束索引）</returns>
         public static (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) LinearVShapeWindowBySegments(
             double coefficient,
             double vCoefficient,
             int segmentCount,
-            int[] vShapeSegmentIndexes,
+            IReadOnlyList<int> vShapeSegmentIndexes,
             int totalLength)
         {
             Guard.IsGreaterThan(segmentCount, 0);
             Guard.IsGreaterThan(totalLength, 0);
 
-            var segmentLength = totalLength / segmentCount;
-            var vHalfWidth = segmentLength / 2;
+            var window = Generate.Repeat(totalLength, coefficient);
+            var regions = new (int VStartIndex, int VMiddleIndex, int VStopIndex)[vShapeSegmentIndexes.Count];
 
-            var vMiddleIndexes = vShapeSegmentIndexes.Select(vShapeSegmentIndex =>
+            for (var i = 0; i < vShapeSegmentIndexes.Count; i++)
             {
-                Guard.IsLessThan(vShapeSegmentIndex, segmentCount);
-                Guard.IsGreaterThanOrEqualTo(vShapeSegmentIndex, 0);
+                var (tempWindow, region) = Generate.LinearVShapeWindowBySegments(
+                    coefficient,
+                    vCoefficient,
+                    segmentCount,
+                    vShapeSegmentIndexes[i],
+                    totalLength);
 
-                return vShapeSegmentIndex * segmentLength + vHalfWidth;
-            }).ToArray();
+                Vector<double>.Build.Dense(window).SetSubVectorRange(
+                    region.VStartIndex,
+                    region.VStopIndex,
+                    Vector<double>.Build.Dense([..tempWindow.AsSpan()[region.VStartIndex..(region.VStopIndex + 1)]]));
 
-            return Generate.LinearVShapeWindow(
-                coefficient,
-                vCoefficient,
-                vMiddleIndexes,
-                vHalfWidth,
-                totalLength);
+                regions[i] = region;
+            }
+
+            return (window, regions);
         }
     }
 }
