@@ -2,6 +2,7 @@
 
 using AwesomeAssertions;
 using CommunityToolkit.Diagnostics;
+using Core.Models.Models.AOD.Uniformity;
 using Core.Utilities;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
@@ -17,11 +18,20 @@ using Point = Net.Utilities.Models.Geometries.Point;
 
 #if VSharpTest
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using Core.Utilities.WPF.Converters;
 using ScottPlot.MultiplotLayouts;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 #endif
 
 namespace CugaCalibrationUnitTest;
 
+#if !VSharpTest
+// ReSharper disable  UnusedVariable
+// ReSharper disable UnusedMember.Local
+#endif
 public class VSharpTest
 {
     [Theory]
@@ -29,7 +39,11 @@ public class VSharpTest
     [InlineData("test_1_6_true.raw", 11, 6, true, 435)]
     [InlineData("test_1_1_false.raw", 5, 1, false, 1049)]
     [InlineData("test_1_3_false.raw", 5, 3, false, 347)]
+#pragma warning disable IDE0079
+#pragma warning disable xUnit1026
     public void TestVSharp1(string filePath, int segmentCount, int segmentIndex, bool isLog, int expectedIndex)
+#pragma warning restore xUnit1026
+#pragma warning restore IDE0079
     {
         var vSharpResult = GetVSharp(filePath, segmentCount, isLog);
 
@@ -64,7 +78,6 @@ public class VSharpTest
 #endif
     }
 
-
     [Theory]
     [InlineData(4792, "test_1_4_true.raw", "test_1_6_true.raw", 11, 4, 6, "test_9_true.raw", new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, true, new[] { 71, 246, 420, 596, 773, 950, 1123, 1299, 1472 })]
     [InlineData(4792, "test_1_1_false.raw", "test_1_3_false.raw", 5, 1, 3, "test_4_false.raw", new[] { 0, 1, 2, 3 }, false, new[] { 160, 509, 863, 1213 })]
@@ -80,12 +93,18 @@ public class VSharpTest
         bool isLog,
         IReadOnlyList<int> expectedSegmentIndexes)
     {
+        #region Forward / Reverse VSharp
+
         var startVSharpResult = GetVSharp(startFilePath, segmentCount, isLog);
         var stopVSharpResult = GetVSharp(stopFilePath, segmentCount, isLog);
 
+        #endregion
+
+        #region Prescan Index to Pixel Index
+
         var isReverse = startVSharpResult.VSharpIndex > stopVSharpResult.VSharpIndex;
 
-        var linearSpline = LinearSpline.InterpolateSorted(
+        var linearSplinePrescan = LinearSpline.InterpolateSorted(
             [
                 Generate.LinearVShapeWindowBySegments(
                     1d,
@@ -108,10 +127,25 @@ public class VSharpTest
         var mappingPointList = new List<Point>();
         for (var i = 0; i < prescanCount; i++)
         {
-            var mappingIndex = linearSpline.Interpolate(i);
+            var mappingIndex = linearSplinePrescan.Interpolate(i);
 
             mappingPointList.Add(new Point(i, mappingIndex));
         }
+
+        #endregion
+
+        #region Mapping VShape
+
+        using var originImage = RawImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}");
+        var originHorizontalProjects = isReverse ? originImage.GetHorizontalProjects().Reverse().ToArray() : originImage.GetHorizontalProjects();
+
+        using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
+        var lineHorizontalProjects = isReverse ? lineImage.GetHorizontalProjects().Reverse().ToArray() : lineImage.GetHorizontalProjects();
+
+        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(lineHorizontalProjects)).ToArray();
+        var smoothImageHorizontalProjectPoints = smoothImageHorizontalProjects.ToPoints();
+
+        var (indexes, smoothImageHorizontalProjectMinimaPoints) = Extremumor.FindMinima(smoothImageHorizontalProjectPoints);
 
         var vShapePrescanWindowBySegments = Generate.LinearVShapeWindowBySegments(
             1d,
@@ -126,22 +160,11 @@ public class VSharpTest
             {
                 var (vStartIndex, vMiddleIndex, vStopIndex) = t;
 
-                return (VStartIndex: (int)Math.Clamp(Math.Floor(mappingPointList[vStartIndex].Y), 0, startVSharpResult.OriginHorizontalProjects.Count - 1),
-                    VMiddleIndex: (int)Math.Clamp(Math.Round(mappingPointList[vMiddleIndex].Y), 0, startVSharpResult.OriginHorizontalProjects.Count - 1),
-                    VStopIndex: (int)Math.Clamp(Math.Ceiling(mappingPointList[vStopIndex].Y), 0, startVSharpResult.OriginHorizontalProjects.Count - 1));
+                return (VStartIndex: (int)Math.Clamp(Math.Floor(mappingPointList[vStartIndex].Y), 0, lineHorizontalProjects.Count - 1),
+                    VMiddleIndex: (int)Math.Clamp(Math.Round(mappingPointList[vMiddleIndex].Y), 0, lineHorizontalProjects.Count - 1),
+                    VStopIndex: (int)Math.Clamp(Math.Ceiling(mappingPointList[vStopIndex].Y), 0, lineHorizontalProjects.Count - 1));
             })
             .ToArray();
-
-        using var originImage = RawImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}");
-        var originHorizontalProjects = isReverse ? originImage.GetHorizontalProjects().Reverse().ToArray() : originImage.GetHorizontalProjects();
-
-        using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
-        var lineHorizontalProjects = isReverse ? lineImage.GetHorizontalProjects().Reverse().ToArray() : lineImage.GetHorizontalProjects();
-
-        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(lineHorizontalProjects)).ToArray();
-        var smoothImageHorizontalProjectPoints = smoothImageHorizontalProjects.ToPoints();
-
-        var (indexes, smoothImageHorizontalProjectMinimaPoints) = Extremumor.FindMinima(smoothImageHorizontalProjectPoints);
 
         var vSharps = regions.Select(t =>
         {
@@ -158,17 +181,102 @@ public class VSharpTest
         vSharps.Select(t => t.VSharpIndex).Should()
             .BeEquivalentTo(expectedSegmentIndexes, options => options.WithStrictOrdering());
 
+        #endregion
+
+        #region Pixel Index to Prescan Index
+
+        var mappingMinIndexes = vShapePrescanWindowBySegments.Regions.Select(t => t.VMiddleIndex).ToArray();
+        var imageHorizontalProjectMinIndexes = vSharps.Select(t => t.VSharpIndex).ToArray();
+
+        var mappingList = new List<AODUniformityDTO.Mapping>();
+
+        var linearSplineImage = LinearSpline.InterpolateSorted([.. imageHorizontalProjectMinIndexes], [.. mappingMinIndexes]);
+        for (var i = 0; i < lineHorizontalProjects.Count; i++)
+        {
+            var mappingIndex = linearSplineImage.Interpolate(i);
+
+            var indexOf = imageHorizontalProjectMinIndexes.IndexOf(i);
+            var isNotLinearSpline = indexOf != -1;
+
+            mappingList.Add(new AODUniformityDTO.Mapping
+            {
+                IsNotLinearSpline = isNotLinearSpline,
+                ImageHorizontalProjectIndex = i,
+                LinearSplineMappingIndex = mappingIndex
+            });
+        }
+
+        #endregion
+
+        #region Pixel Index to Prescan Index Group
+
+        var leftMappingMinIndexes = Generate.LinearRangeInt32(0, mappingList[0].MappingIndex - 1);
+        for (var i = 0; i < mappingList.Count; i++)
+        {
+            if (i == mappingList.Count - 1)
+                mappingList[i].MappingIndices = [.. leftMappingMinIndexes, .. Generate.LinearRangeInt32(mappingList[^1].MappingIndex, vShapePrescanWindowBySegments.Window.Length - 1)];
+            else
+            {
+                var mappingIndexes = Generate.LinearRangeInt32(mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex);
+                mappingIndexes = mappingIndexes.Except((int[])[mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex]).ToArray();
+
+                var chunks = mappingIndexes.ChunkSplitEvenly(2).ToArray();
+
+                mappingList[i].MappingIndices = [.. leftMappingMinIndexes, mappingList[i].MappingIndex, .. chunks[0]];
+
+                leftMappingMinIndexes = chunks.ElementAtOrDefault(1) ?? [];
+            }
+        }
+
+        #endregion
+
 #if VSharpTest
         var thread = new Thread(() =>
         {
-            var wpfWindow = new Window { Title = nameof(TestVSharp1), WindowState = WindowState.Maximized };
+            #region Plot
 
             var scatterPlotControl = new ScatterPlotControl();
-            wpfWindow.Content = scatterPlotControl;
+            scatterPlotControl.Configure(new Rows(), 8);
 
-            scatterPlotControl.Configure(new Rows(), 7);
+            #endregion
 
-            #region forward / reverse
+            #region Pixel Index to Prescan Index Group
+
+            var dataGrid = new DataGrid
+            {
+                ItemsSource = mappingList,
+                AutoGenerateColumns = false,
+                IsReadOnly = true
+            };
+
+            dataGrid.Columns.Add(new DataGridCheckBoxColumn { Header = nameof(AODUniformityDTO.Mapping.IsNotLinearSpline), Binding = new Binding(nameof(AODUniformityDTO.Mapping.IsNotLinearSpline)) });
+            dataGrid.Columns.Add(new DataGridTextColumn { Header = nameof(AODUniformityDTO.Mapping.ImageHorizontalProjectIndex), Binding = new Binding(nameof(AODUniformityDTO.Mapping.ImageHorizontalProjectIndex)) });
+            dataGrid.Columns.Add(new DataGridTextColumn { Header = nameof(AODUniformityDTO.Mapping.LinearSplineMappingIndex), Binding = new Binding(nameof(AODUniformityDTO.Mapping.LinearSplineMappingIndex)) { StringFormat = "0.###" } });
+            dataGrid.Columns.Add(new DataGridTextColumn { Header = nameof(AODUniformityDTO.Mapping.MappingIndex), Binding = new Binding(nameof(AODUniformityDTO.Mapping.MappingIndex)) });
+            dataGrid.Columns.Add(new DataGridTextColumn { Header = nameof(AODUniformityDTO.Mapping.MappingIndices), Binding = new Binding(nameof(AODUniformityDTO.Mapping.MappingIndices)) { Converter = new IntsToStringConverter() } });
+
+            #endregion
+
+            #region WPF Window
+
+            var wpfWindow = new Window { Title = nameof(TestVSharp1), WindowState = WindowState.Maximized };
+
+            var tabControl = new TabControl();
+            tabControl.Items.Add(new TabItem
+            {
+                Header = "Plot",
+                Content = scatterPlotControl
+            });
+            tabControl.Items.Add(new TabItem
+            {
+                Header = "Mapping Data",
+                Content = dataGrid
+            });
+            wpfWindow.Content = tabControl;
+
+            #endregion
+
+            #region Forward / Reverse VSharp
 
             RefreshVSharpPlot(
                 startFilePath,
@@ -191,6 +299,8 @@ public class VSharpTest
                 3);
 
             #endregion
+
+            #region Mapping VShape
 
             scatterPlotControl.SetTitle(4, $"{nameof(segmentCount)}: {segmentCount}, {nameof(isLog)}: {isLog}, {nameof(filePath)}: {filePath}, {nameof(segmentIndexes)}: {string.Join(",", segmentIndexes)}");
 
@@ -227,15 +337,55 @@ public class VSharpTest
                 scatterMarkers.MarkerSize = 40;
             }
 
+            #region Window
+
             scatterPlotControl.SetTitle(5, nameof(vShapePrescanWindowBySegments.Window));
 
             scatterLine = scatterPlotControl.AddScatterLine(5);
             scatterLine.Update(string.Empty, vShapePrescanWindowBySegments.Window.ToPoints(), Colors.Gray);
 
-            scatterPlotControl.SetTitle(6, nameof(vShapePrescanWindowBySegments.Window));
+            #endregion
+
+            #endregion
+
+            #region Prescan Index to Pixel Index
+
+            scatterPlotControl.SetTitle(6, "pixel/prescan");
 
             scatterLine = scatterPlotControl.AddScatterLine(6);
             scatterLine.Update(string.Empty, mappingPointList, Colors.Gray);
+
+            #endregion
+
+            #region Pixel Index to Prescan Index
+
+            scatterPlotControl.SetTitle(7, "prescan/pixel");
+
+            var isNotLinearSplineImageHorizontalProjectIndexes = mappingList.Where(t => t.IsNotLinearSpline).Select(t => t.ImageHorizontalProjectIndex).ToArray();
+            var isNotLinearSplineMappingIndexes = mappingList.Where(t => t.IsNotLinearSpline).Select(t => t.MappingIndex).ToArray();
+            var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
+                Vector<double>.Build.Dense([.. isNotLinearSplineImageHorizontalProjectIndexes]),
+                Vector<double>.Build.Dense([.. isNotLinearSplineMappingIndexes]));
+
+            var scatterLineMapping = scatterPlotControl.GetOrAddScatterLine(7, "Origin", [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isNotLinearSplineMappingIndexes[t.Index]))]);
+            scatterLineMapping.MarkerSize = 10;
+
+            scatterLineMapping = scatterPlotControl.GetOrAddScatterLine(7, $"Fit Curve: y = {slope:0.######}x + {intercept:0.######} r^2 = {rSquared:0.######}",
+                [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, yPredicted[t.Index]))]);
+            scatterLineMapping.MarkerSize = 10;
+
+            var isLinearSplineImageHorizontalProjectIndexes = mappingList.Where(t => t.IsNotLinearSpline == false).Select(t => t.ImageHorizontalProjectIndex).ToArray();
+            var isLinearSplineLinearSplineMappingIndexes = mappingList.Where(t => t.IsNotLinearSpline == false).Select(t => t.LinearSplineMappingIndex).ToArray();
+            var isLinearSplineMappingIndexes = mappingList.Where(t => t.IsNotLinearSpline == false).Select(t => t.MappingIndex).ToArray();
+
+            var scatterMarkersMapping = scatterPlotControl.GetOrAddScatterMarkers(7, "Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineLinearSplineMappingIndexes[t.Index]))], Colors.DarkRed,
+                MarkerShape.FilledSquare);
+            scatterMarkersMapping.MarkerSize = 5;
+            scatterMarkersMapping = scatterPlotControl.GetOrAddScatterMarkers(7, "Round Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineMappingIndexes[t.Index]))], Colors.Red,
+                MarkerShape.FilledDiamond);
+            scatterMarkersMapping.MarkerSize = 5;
+
+            #endregion
 
             wpfWindow.ShowDialog();
         });
@@ -374,3 +524,8 @@ public class VSharpTest
         int VSharpIndex,
         Point VSharpPoints);
 }
+
+#if !VSharpTest
+// ReSharper restore UnusedVariable
+// ReSharper restore UnusedMember.Local
+#endif
