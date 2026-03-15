@@ -189,7 +189,7 @@ public class VSharpTest
         {
             ImageHorizontalProjects = lineHorizontalProjects
         };
-        windowItem.CalculateHorizontalProjectMinPixels(prescanAODWaveformCount, segmentCount, segmentIndexes, prescanToImageIndexMappings);
+        windowItem.CalculateHorizontalProjectMinPixels(vShapePrescanWindowBySegments.Regions, prescanToImageIndexMappings);
 
         vSharps.Select(t => t.VSharpIndex).Should()
             .BeEquivalentTo(windowItem.HorizontalProjectMinPixels, options => options.WithStrictOrdering());

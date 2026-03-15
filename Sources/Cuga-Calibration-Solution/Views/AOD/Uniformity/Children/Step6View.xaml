@@ -75,6 +75,12 @@
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.WindowInterval}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.WaitTime}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Calibrating Times: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="200"

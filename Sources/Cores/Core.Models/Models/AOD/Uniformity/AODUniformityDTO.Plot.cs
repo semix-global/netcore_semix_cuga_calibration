@@ -10,6 +10,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
+using Net.Utilities.ScottPlot.WPF.Helper;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -115,21 +116,21 @@ public partial class AODUniformityDTO
                 IsReverseScatterPlotControl.GetOrAddScatterLine(
                     windowIndex,
                     title,
-                    [.. windowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                    windowItem.Window.ToPoints(),
                     primaryColor);
 
             if (windowItem.ImageHorizontalProjects.Count > 0)
                 IsReverseScatterPlotControl.GetOrAddScatterLine(
                     imageIndex,
                     title,
-                    [.. windowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    windowItem.ImageHorizontalProjects.ToPoints(),
                     primaryColor);
 
             if (windowItem.SmoothImageHorizontalProjects.Count > 0)
                 IsReverseScatterPlotControl.GetOrAddScatterLine(
                     imageIndex,
                     $"{title} Smooth",
-                    [.. windowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    windowItem.SmoothImageHorizontalProjects.ToPoints(),
                     secondaryColor);
 
             if (windowItem.HorizontalProjectMinPixels.Count > 0)
@@ -205,7 +206,7 @@ public partial class AODUniformityDTO
                 InitializeWindowScatterPlotControl.GetOrAddScatterLine(
                     0,
                     $"{itemItemData.Window[0]:0.###}",
-                    [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    itemItemData.ImageHorizontalProjects.ToPoints(),
                     index,
                     new Range(0, InitializeWindowItem.Items.Count - 1));
             }
@@ -214,7 +215,7 @@ public partial class AODUniformityDTO
                 InitializeWindowScatterPlotControl.GetOrAddScatterLine(
                     1,
                     "Window",
-                    [.. InitializeWindowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                    InitializeWindowItem.Window.ToPoints(),
                     Colors.Green);
         }
         finally
@@ -227,64 +228,59 @@ public partial class AODUniformityDTO
     {
         try
         {
-            if (Item.Items.Count >= 0 && TargetPMTValues.TryGetSingle(t => t.Key == Item.CIBInformation, out var targetPMTValueKvp))
+            var scatterLines0 = ScatterPlotControl.GetOrAddScatterLines(0, Item.Items.Count);
+            var scatterLines1 = ScatterPlotControl.GetOrAddScatterLines(1, Item.Items.Count);
+
+            foreach (var (i, itemItemData) in Item.Items.Index())
             {
-                ScatterPlotControl.Clear(0);
+                scatterLines0[i].Update(
+                    $"{i + 1}: {Item.CIBInformation} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
+                    itemItemData.ImageHorizontalProjects.ToPoints(),
+                    Constants.Turbo.GetColor(i, new Range(0, Item.Items.Count - 1)));
 
-                foreach (var (i, itemItemData) in Item.Items.Index())
-                {
-                    ScatterPlotControl.GetOrAddScatterLine(
-                        0,
-                        $"{i + 1}: {Item.CIBInformation} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
-                        [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                        i,
-                        new Range(0, Item.Items.Count - 1));
+                var window = Mappings
+                    .OrderBy(t => t.ImageHorizontalProjectIndex)
+                    .Select(t => Vector<double>.Build.Dense([.. itemItemData.Window]).SubVectorIndexes([.. t.MappingIndices]).Distinct().Single())
+                    .ToArray();
 
-
-                    var window = Mappings
-                        .OrderBy(t => t.ImageHorizontalProjectIndex)
-                        .Select(t => Vector<double>.Build.Dense([.. itemItemData.Window]).SubVectorIndexes([.. t.MappingIndices]).Distinct().Single())
-                        .ToArray();
-
-                    ScatterPlotControl.GetOrAddScatterLine(
-                        1,
-                        $"{i + 1}: {Item.CIBInformation}",
-                        [.. window.Index().Select(t => new Point(t.Index, t.Item))],
-                        i,
-                        new Range(0, Item.Items.Count - 1));
-                }
-
-                /*foreach (var mapping in ImageHorizontalProjectMappings)
-                {
-                    if (mapping.Length <= 1) continue;
-
-                    ScatterPlotControl.GetOrAddXLine(0, $"{mapping[0]}", mapping[0], Colors.LightGray);
-                    ScatterPlotControl.GetOrAddXLine(0, $"{mapping[^1]}", mapping[^1], Colors.LightGray);
-                }
-
-                foreach (var mapping in PrescanAODWaveformProfileMappings)
-                {
-                    if (mapping.Length <= 1) continue;
-
-                    ScatterPlotControl.GetOrAddXLine(1, $"{mapping[0]}", mapping[0], Colors.LightGray);
-                    ScatterPlotControl.GetOrAddXLine(1, $"{mapping[^1]}", mapping[^1], Colors.LightGray);
-                }*/
-
-                ScatterPlotControl.GetOrAddYLine(0, "Target", targetPMTValueKvp.Value, Colors.Red);
-
-                var scatterLine = ScatterPlotControl.GetOrAddScatterLine(
-                    2,
-                    "Result",
-                    [.. Item.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                    Colors.Red);
-                scatterLine.LinePattern = LinePattern.Dotted;
-                scatterLine.LineWidth = 5;
+                scatterLines1[i].Update(
+                    $"{i + 1}: {Item.CIBInformation}",
+                    window.ToPoints(),
+                    Constants.Turbo.GetColor(i, new Range(0, Item.Items.Count - 1)));
             }
-            else
+
+            /*foreach (var mapping in ImageHorizontalProjectMappings)
             {
-                ScatterPlotControl.Clear(0);
-                ScatterPlotControl.Clear(1);
+                if (mapping.Length <= 1) continue;
+
+                ScatterPlotControl.GetOrAddXLine(0, $"{mapping[0]}", mapping[0], Colors.LightGray);
+                ScatterPlotControl.GetOrAddXLine(0, $"{mapping[^1]}", mapping[^1], Colors.LightGray);
             }
+
+            foreach (var mapping in PrescanAODWaveformProfileMappings)
+            {
+                if (mapping.Length <= 1) continue;
+
+                ScatterPlotControl.GetOrAddXLine(1, $"{mapping[0]}", mapping[0], Colors.LightGray);
+                ScatterPlotControl.GetOrAddXLine(1, $"{mapping[^1]}", mapping[^1], Colors.LightGray);
+            }*/
+
+            ScatterPlotControl.GetOrAddYLines(0, 1)[0].Update(
+                TargetPMTValues.TryGetSingle(t => t.Key == Item.CIBInformation, out var targetPMTValueKvp)
+                    ? "Target"
+                    : string.Empty,
+                targetPMTValueKvp.Value,
+                Colors.Red);
+
+            var scatterLine = ScatterPlotControl.GetOrAddScatterLines(2, 1)[0];
+            scatterLine.Update(
+                Item.Window.Count > 0
+                    ? "Target"
+                    : string.Empty,
+                Item.Window.ToPoints(),
+                Colors.Red);
+            scatterLine.LinePattern = LinePattern.Dotted;
+            scatterLine.LineWidth = 5;
         }
         finally
         {
@@ -328,7 +324,7 @@ public partial class AODUniformityDTO
                 {
                     scatterPlotControl.GetOrAddScatterLine(
                         $"{pmtId} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
-                        [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                        itemItemData.ImageHorizontalProjects.ToPoints(),
                         pmtId,
                         new Range(minPMTId, maxPMTId));
                 }

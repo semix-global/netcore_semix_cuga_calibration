@@ -180,7 +180,9 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
     {
         await InvokeCalibrateAsync(async () =>
         {
-            var laserOpticalPower = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);
+            var laserOpticalPower = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                        && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType 
+                                                                        && t.IsOk);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {

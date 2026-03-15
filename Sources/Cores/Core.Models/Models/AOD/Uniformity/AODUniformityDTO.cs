@@ -153,20 +153,13 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                 .First();
         }
 
-        public void CalculateHorizontalProjectMinPixels(int prescanAODWaveformCount, int segmentCount, IReadOnlyList<int> segmentIndexes, IReadOnlyList<Point> prescanToImageIndexMappings)
+        public void CalculateHorizontalProjectMinPixels(IReadOnlyList<(int VStartIndex, int VMiddleIndex, int VStopIndex)> regions, IReadOnlyList<Point> prescanToImageIndexMappings)
         {
             SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
 
             var (indexes, _) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 
-            var regions = Generate.LinearVShapeWindowBySegments(
-                    1d,
-                    0d,
-                    segmentCount,
-                    segmentIndexes,
-                    prescanAODWaveformCount
-                )
-                .Regions
+            HorizontalProjectMinPixels = regions
                 .Select(t =>
                 {
                     var (vStartIndex, vMiddleIndex, vStopIndex) = t;
@@ -175,17 +168,16 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
                         VMiddleIndex: (int)Math.Clamp(Math.Round(prescanToImageIndexMappings[vMiddleIndex].Y), 0, ImageHorizontalProjects.Count - 1),
                         VStopIndex: (int)Math.Clamp(Math.Ceiling(prescanToImageIndexMappings[vStopIndex].Y), 0, ImageHorizontalProjects.Count - 1));
                 })
+                .Select(t =>
+                {
+                    var (startIndex, _, stopIndex) = t;
+
+                    return indexes
+                        .Where(tt => startIndex <= tt && tt <= stopIndex)
+                        .OrderBy(tt => SmoothImageHorizontalProjects[tt])
+                        .First();
+                })
                 .ToArray();
-
-            HorizontalProjectMinPixels = regions.Select(t =>
-            {
-                var (startIndex, _, stopIndex) = t;
-
-                return indexes
-                    .Where(tt => startIndex <= tt && tt <= stopIndex)
-                    .OrderBy(tt => SmoothImageHorizontalProjects[tt])
-                    .First();
-            }).ToArray();
         }
 
         public WindowItem Clone() => new()

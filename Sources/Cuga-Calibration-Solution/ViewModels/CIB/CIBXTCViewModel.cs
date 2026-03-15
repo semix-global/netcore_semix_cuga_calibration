@@ -281,7 +281,6 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             Guard.IsGreaterThanOrEqualTo(Cache.Item.PrescanAODWaveformProfileSegmentCount, 4);
-            Guard.IsTrue((Cache.Item.PrescanAODWaveformProfileSegmentCount & 1) == 0, "It must be even number!");
 
             var detectImageDirectory = ImageFileDirectory;
 
@@ -510,7 +509,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var pmtIdTargetPixelValue = CalibratingItem.TargetPixelValues.GetOrAdd(pmtId, itemItems.Single(t => t.CIBInformation.ChannelId == Cache.Item.CIBInformation.ChannelId).Items[times].HorizontalProjectMinPixel);
+                        var pmtIdTargetPixelValue = CalibratingItem.TargetPixelValues.GetOrAdd(pmtId, itemItems.Single(t => t.CIBInformation.ChannelId == CalibrationSetting.SettingCommonParam.MainCIBInformation.ChannelId).Items[times].HorizontalProjectMinPixel);
 
                         foreach (var itemItem in itemItems)
                         {

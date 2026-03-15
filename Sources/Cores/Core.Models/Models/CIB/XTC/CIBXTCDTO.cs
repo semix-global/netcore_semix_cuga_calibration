@@ -64,11 +64,16 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         newValue.PropertyChanged -= ItemOnPropertyChanged;
         newValue.PropertyChanged += ItemOnPropertyChanged;
 
+        OnPropertyChanged(nameof(IsReverse));
         RefreshForwardAndReversePlot();
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(IsReverse));
+            RefreshForwardAndReversePlot();
+        }
     }
 
     partial void OnStopWindowItemChanged(AODUniformityDTO.WindowItem? oldValue, AODUniformityDTO.WindowItem newValue)
@@ -78,11 +83,16 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         newValue.PropertyChanged -= ItemOnPropertyChanged;
         newValue.PropertyChanged += ItemOnPropertyChanged;
 
+        OnPropertyChanged(nameof(IsReverse));
         RefreshForwardAndReversePlot();
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshForwardAndReversePlot();
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(IsReverse));
+            RefreshForwardAndReversePlot();
+        }
     }
 
     partial void OnItemsChanged(IReadOnlyList<CIBXTCDTOItem>? oldValue, IReadOnlyList<CIBXTCDTOItem> newValue)
