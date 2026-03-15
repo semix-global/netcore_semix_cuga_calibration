@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -14,6 +13,7 @@ using Net.Utilities.Models;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Models.Geometries;
 using Generate = MathNet.Numerics.Generate;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -133,80 +133,59 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         [ObservableProperty]
         private string _imageFilePath = string.Empty;
 
-        public void CalculateHorizontalProjectMinPixel(int segmentCount, int segmentIndex)
+        public void CalculateHorizontalProjectMinPixel(int segmentCount)
         {
-            var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindowBySegments(
-                1d,
-                1d,
-                segmentCount + 1,
-                segmentIndex,
-                ImageHorizontalProjects.Count).Region;
-
-            // 正序
             SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects)).ToArray();
-            var (_, forward) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 
-            var forwardHorizontalProjectMinPixel = forward
-                .Select(t=>t.X)
-                .Select(t => (int)t)
-                .Index()
-                .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                .Select(t => (X: t.Item, Y: forward[t.Index].Y))
-                .OrderBy(t => t.Y)
-                .FirstOrDefault((-1, 0));
+            var vShapeWindowBySegments = Generate.LinearVShapeWindowBySegments(
+                1d,
+                0d,
+                segmentCount,
+                Generate.LinearRangeInt32(0, segmentCount - 1),
+                ImageHorizontalProjects.Count);
+            var startIndex = vShapeWindowBySegments.Regions[0].VMiddleIndex;
+            var stopIndex = vShapeWindowBySegments.Regions[^1].VMiddleIndex;
 
-            // 倒序
-            var reverseSmoothImageHorizontalProjects = SmoothImageHorizontalProjects.Reverse().ToArray();
-            var (_, reverse) = Extremumor.FindMinima(reverseSmoothImageHorizontalProjects.ToPoints());
-
-            var reverseHorizontalProjectMinPixel = reverse
-                .Select(t=>t.X)
-                .Select(t => (int)t)
-                .Index()
-                .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                .Select(t => (X: t.Item, Y: reverse[t.Index].Y))
-                .OrderBy(t => t.Y)
-                .FirstOrDefault((-1, 0));
-
-            HorizontalProjectMinPixel = (forwardHorizontalProjectMinPixel.X, reverseHorizontalProjectMinPixel.X) switch
-            {
-                (not -1, -1) => forwardHorizontalProjectMinPixel.X,
-                (-1, not -1) => ImageHorizontalProjects.Count - reverseHorizontalProjectMinPixel.X - 1,
-                (not -1, not -1) => forwardHorizontalProjectMinPixel.Y < reverseHorizontalProjectMinPixel.Y
-                    ? forwardHorizontalProjectMinPixel.X
-                    : ImageHorizontalProjects.Count - reverseHorizontalProjectMinPixel.X - 1,
-                (_, _) => ThrowHelper.ThrowInvalidOperationException<int>("Horizontal Project Min Pixel is not found.")
-            };
+            var (indexes, _) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
+            HorizontalProjectMinPixel = indexes
+                .Where(t => startIndex <= t && t <= stopIndex)
+                .OrderBy(t => SmoothImageHorizontalProjects[t])
+                .First();
         }
 
-        public void CalculateHorizontalProjectMinPixels(int segmentCount, int[] segmentIndexes)
+        public void CalculateHorizontalProjectMinPixels(int prescanAODWaveformCount, int segmentCount, IReadOnlyList<int> segmentIndexes, IReadOnlyList<Point> prescanToImageIndexMappings)
         {
-            var horizontalProjectMinPixels = new int[segmentCount];
+            SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
+
+            var (indexes, _) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 
             var regions = Generate.LinearVShapeWindowBySegments(
-                1d,
-                1d,
-                segmentCount + 1,
-                segmentIndexes,
-                ImageHorizontalProjects.Count).Regions;
+                    1d,
+                    0d,
+                    segmentCount,
+                    segmentIndexes,
+                    prescanAODWaveformCount
+                )
+                .Regions
+                .Select(t =>
+                {
+                    var (vStartIndex, vMiddleIndex, vStopIndex) = t;
 
-            SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
-            var (_, points) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
+                    return (VStartIndex: (int)Math.Clamp(Math.Floor(prescanToImageIndexMappings[vStartIndex].Y), 0, ImageHorizontalProjects.Count - 1),
+                        VMiddleIndex: (int)Math.Clamp(Math.Round(prescanToImageIndexMappings[vMiddleIndex].Y), 0, ImageHorizontalProjects.Count - 1),
+                        VStopIndex: (int)Math.Clamp(Math.Ceiling(prescanToImageIndexMappings[vStopIndex].Y), 0, ImageHorizontalProjects.Count - 1));
+                })
+                .ToArray();
 
-            foreach (var (index, (vYPixelStartIndex, _, vYPixelStopIndex)) in regions.Index())
+            HorizontalProjectMinPixels = regions.Select(t =>
             {
-                horizontalProjectMinPixels[index] = points
-                    .Select(t=>t.X)
-                    .Select(t => (int)t)
-                    .Index()
-                    .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                    .Select(t => (X: t.Item, Y: points[t.Index].Y))
-                    .OrderBy(t => t.Y)
-                    .First()
-                    .X;
-            }
+                var (startIndex, _, stopIndex) = t;
 
-            HorizontalProjectMinPixels = horizontalProjectMinPixels;
+                return indexes
+                    .Where(tt => startIndex <= tt && tt <= stopIndex)
+                    .OrderBy(tt => SmoothImageHorizontalProjects[tt])
+                    .First();
+            }).ToArray();
         }
 
         public WindowItem Clone() => new()

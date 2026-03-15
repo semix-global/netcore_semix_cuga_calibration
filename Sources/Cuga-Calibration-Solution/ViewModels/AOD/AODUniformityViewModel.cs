@@ -329,13 +329,16 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             Guard.IsGreaterThanOrEqualTo(Cache.Item.PrescanAODWaveformProfileSegmentCount, 4);
             Guard.IsTrue((Cache.Item.PrescanAODWaveformProfileSegmentCount & 1) == 0, "It must be even number!");
             Guard.IsLessThanOrEqualTo(Cache.Item.ImageHorizontalProjectsSegmentCount, Cache.ProductivityInformation.YPixel);
+            Guard.IsGreaterThan(Cache.Item.ImageHorizontalProjectsSegmentCount, 0);
 
             var detectImageDirectory = ImageFileDirectory;
 
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
-            var startPrescanAODWaveformProfileSegmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2 - 1;
-            var stopPrescanAODWaveformProfileSegmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2 + 1;
-            var prescanAODWaveformProfileSegmentIndexes = GenerateUtils.LinearIndexRange(0, Cache.Item.PrescanAODWaveformProfileSegmentCount - 1).ToArray();
+            var prescanAODWaveformCount = prescanAODWaveformProfiles[0].Shorts.Count;
+
+            var startPrescanAODWaveformSegmentIndex = (Cache.Item.PrescanAODWaveformProfileSegmentCount - 1) / 2;
+            var stopPrescanAODWaveformSegmentIndex = startPrescanAODWaveformSegmentIndex + 1;
+            var prescanAODWaveformSegmentIndexes = Generate.LinearRangeInt32(0, Cache.Item.PrescanAODWaveformProfileSegmentCount - 1).ToArray();
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -349,9 +352,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
                 Cache.Item.ImageHorizontalProjectsSegmentCount,
                 PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                startPrescanAODWaveformProfileSegmentIndex,
-                stopPrescanAODWaveformProfileSegmentIndex,
-                prescanAODWaveformProfileSegmentIndexes,
+                prescanAODWaveformCount,
+                startPrescanAODWaveformSegmentIndex,
+                stopPrescanAODWaveformSegmentIndex,
+                prescanAODWaveformSegmentIndexes,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -374,27 +378,43 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             {
                 Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startPrescanAODWaveformProfileSegmentIndex);
+                var (startWindow, startRegion) = GetWindow(startPrescanAODWaveformSegmentIndex);
+                CalibratingItem.StartWindowItem.Window = startWindow;
                 await CatchImageAsync(
-                    $"{startPrescanAODWaveformProfileSegmentIndex}",
+                    $"{startPrescanAODWaveformSegmentIndex}",
                     hazeBFPosition,
                     detectImageDirectory,
                     CalibratingItem.StartWindowItem,
                     cancellationToken,
                     false);
-                CalibratingItem.StartWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, startPrescanAODWaveformProfileSegmentIndex);
+                CalibratingItem.StartWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount);
 
-                CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopPrescanAODWaveformProfileSegmentIndex);
+                var (stopWindow, stopRegion) = GetWindow(stopPrescanAODWaveformSegmentIndex);
+                CalibratingItem.StopWindowItem.Window = stopWindow;
                 await CatchImageAsync(
-                    $"{stopPrescanAODWaveformProfileSegmentIndex}",
+                    $"{stopPrescanAODWaveformSegmentIndex}",
                     hazeBFPosition,
                     detectImageDirectory,
                     CalibratingItem.StopWindowItem,
                     cancellationToken,
                     false);
-                CalibratingItem.StopWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, stopPrescanAODWaveformProfileSegmentIndex);
+                CalibratingItem.StopWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount);
 
-                var (mappingWindow, mappingRegions) = GetWindow();
+                var linearSplinePrescan = LinearSpline.InterpolateSorted(
+                    [
+                        startRegion.VMiddleIndex,
+                        stopRegion.VMiddleIndex
+                    ],
+                    [
+                        CalibratingItem.IsReverse ? CalibratingItem.StartWindowItem.ImageHorizontalProjects.Count - 1 - CalibratingItem.StartWindowItem.HorizontalProjectMinPixel : CalibratingItem.StartWindowItem.HorizontalProjectMinPixel,
+                        CalibratingItem.IsReverse ? CalibratingItem.StopWindowItem.ImageHorizontalProjects.Count - 1 - CalibratingItem.StopWindowItem.HorizontalProjectMinPixel : CalibratingItem.StopWindowItem.HorizontalProjectMinPixel
+                    ]);
+
+                var prescanToImageIndexMappings = Generate.LinearRangeInt32(0, prescanAODWaveformCount - 1)
+                    .Select(t => new Point(t, linearSplinePrescan.Interpolate(t)))
+                    .ToArray();
+
+                var (mappingWindow, mappingRegions) = GetWindows();
                 CalibratingItem.MappingWindowItem.Window = mappingWindow;
                 await CatchImageAsync("All",
                     hazeBFPosition,
@@ -402,7 +422,11 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     CalibratingItem.MappingWindowItem,
                     cancellationToken);
 
-                CalibratingItem.MappingWindowItem.CalculateHorizontalProjectMinPixels(Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexes);
+                CalibratingItem.MappingWindowItem.CalculateHorizontalProjectMinPixels(
+                    prescanAODWaveformCount,
+                    Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                    prescanAODWaveformSegmentIndexes,
+                    prescanToImageIndexMappings);
 
                 Logger.LogHtmlInformation("Forward & Reverse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -433,16 +457,16 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     });
                 }
 
-                var leftMappingMinIndexes = GenerateUtils.LinearIndexRange(0, mappingList[0].MappingIndex - 1);
+                var leftMappingMinIndexes = Generate.LinearRangeInt32(0, mappingList[0].MappingIndex - 1);
                 for (var i = 0; i < mappingList.Count; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
                     if (i == mappingList.Count - 1)
-                        mappingList[i].MappingIndices = [.. leftMappingMinIndexes, .. GenerateUtils.LinearIndexRange(mappingList[^1].MappingIndex, mappingWindow.Length - 1)];
+                        mappingList[i].MappingIndices = [.. leftMappingMinIndexes, .. Generate.LinearRangeInt32(mappingList[^1].MappingIndex, mappingWindow.Length - 1)];
                     else
                     {
-                        var mappingIndexes = GenerateUtils.LinearIndexRange(mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex);
+                        var mappingIndexes = Generate.LinearRangeInt32(mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex);
                         mappingIndexes = mappingIndexes.Except((int[])[mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex]).ToArray();
 
                         var chunks = mappingIndexes.ChunkSplitEvenly(2).ToArray();
@@ -477,7 +501,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                 }
 
-                CalibratingItem.ImageHorizontalProjectMappings = [.. GenerateUtils.LinearIndexRange(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1).ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
+                CalibratingItem.ImageHorizontalProjectMappings = [.. Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1).ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
                 CalibratingItem.PrescanAODWaveformProfileMappings =
                 [
                     ..CalibratingItem.ImageHorizontalProjectMappings
@@ -494,34 +518,31 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                 return true;
 
-                double[] GetAndApplyWindow(int segmentIndex)
+
+                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex) Region) GetWindow(int segmentIndex)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
-
-                    var window = Generate.LinearVShapeWindowBySegments(
+                    var (window, region) = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        Cache.Item.PrescanAODWaveformProfileSegmentCount + 1,
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount,
                         segmentIndex,
-                        prescanAODWaveformProfileTotalLength).Window;
+                        prescanAODWaveformCount);
 
-                    return window;
+                    return (window, region);
                 }
 
-                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) GetWindow()
+                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) GetWindows()
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-
-                    var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
 
                     var (window, regions) = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        Cache.Item.PrescanAODWaveformProfileSegmentCount + 1,
-                        prescanAODWaveformProfileSegmentIndexes,
-                        prescanAODWaveformProfileTotalLength);
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                        prescanAODWaveformSegmentIndexes,
+                        prescanAODWaveformCount);
 
                     return (window, regions);
                 }
@@ -771,7 +792,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                                                      && itemItem.Items[times].MaxRate <= Cache.CalibrateThresholdMax;
                     }
 
-                    var notSkipImageHorizontalProjectIndexes = GenerateUtils.LinearIndexRange(0, CalibratingItem.Item.Items[times].ImageHorizontalProjects.Count - 1)
+                    var notSkipImageHorizontalProjectIndexes = Generate.LinearRangeInt32(0, CalibratingItem.Item.Items[times].ImageHorizontalProjects.Count - 1)
                         .Skip(Cache.Item.ImageHorizontalProjectsSkipCout)
                         .SkipLast(Cache.Item.ImageHorizontalProjectsSkipLastCout)
                         .ToArray();
