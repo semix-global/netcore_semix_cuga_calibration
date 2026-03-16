@@ -528,7 +528,11 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             CalibratingItem.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
 
-            Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { CalibratingItem.RawImageFilePath }), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                imageCount,
+                CalibratingItem.RawImageFilePath
+            }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
             await
@@ -648,6 +652,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             filterIndexes = filterIndexes
                 .OrderByDescending(t => matches[t].ScorePoint.Y)
                 .Take(imageCount)
+                .OrderBy(t => matches[t].ScorePoint.X)
                 .ToArray();
 
             var matchPoints = filterIndexes.Select(t => matches[t].MatchPoint).ToArray();
@@ -1009,7 +1014,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var bullet = new HtmlBullet(new
                 {
                     templateMatchScoreThreshold,
-                    matchPoint,
+                    currentMatchPoint = matchPoint,
                     itemItem.StartPixel,
                     itemItem.SizeI,
                     itemItem.MatchPoint,
