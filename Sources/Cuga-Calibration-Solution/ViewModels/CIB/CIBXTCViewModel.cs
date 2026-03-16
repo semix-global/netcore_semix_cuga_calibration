@@ -281,6 +281,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             Guard.IsGreaterThanOrEqualTo(Cache.Item.PrescanAODWaveformProfileSegmentCount, 4);
+            Guard.IsTrue((Cache.Item.PrescanAODWaveformProfileSegmentCount & 1) == 0, "It must be even number!");
 
             var detectImageDirectory = ImageFileDirectory;
 
@@ -504,6 +505,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                             ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
                         )).ToArray();
 
+                    CalibratingItem.TargetPixelValues = [];
                     var resultList = new List<bool>();
                     foreach (var (pmtId, itemItems) in results)
                     {
@@ -516,14 +518,6 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                             cancellationToken.ThrowIfCancellationRequested();
 
                             itemItem.Items[times].Error = itemItem.Items[times].HorizontalProjectMinPixel - pmtIdTargetPixelValue;
-                            if (itemItem.Items.Any(t => t.IsOk))
-                            {
-                                itemItem.Items[times].IsOk = true;
-                                resultList.Add(itemItem.Items[times].IsOk);
-
-                                continue;
-                            }
-
                             itemItem.Items[times].IsOk = Math.Abs(itemItem.Items[times].Error) <= Cache.CalibratingThreshold;
                             resultList.Add(itemItem.Items[times].IsOk);
 

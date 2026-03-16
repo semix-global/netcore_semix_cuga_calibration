@@ -939,17 +939,15 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         ];
 
                         LogDetails(true);
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(
-                            new
-                            {
-                                Base = htmlBullet,
-                                Window = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.Item.Window.ToPoints())], string.Empty),
-                                PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                                pPower,
-                                sPower,
-                                cPower
-                            }
-                        ), HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                        {
+                            Base = htmlBullet,
+                            Window = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.Item.Window.ToPoints())], string.Empty),
+                            PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+                            pPower,
+                            sPower,
+                            cPower
+                        }), HtmlLogUniqueId.LoggingHtml());
 
                         break;
                     }
