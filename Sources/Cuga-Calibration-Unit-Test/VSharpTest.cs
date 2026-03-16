@@ -6,6 +6,7 @@ using Core.Models.Models.AOD.Uniformity;
 using Core.Utilities;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Extensions;
 using Xunit;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -39,6 +40,14 @@ public class VSharpTest
     [InlineData("test_1_6_true.raw", 11, 6, true, 435)]
     [InlineData("test_1_1_false.raw", 5, 1, false, 1049)]
     [InlineData("test_1_3_false.raw", 5, 3, false, 347)]
+    [InlineData("20260315_1116_0_0_1_short_001000_PMT08-CH3_8.raw", 30, 14, true, 765)]
+    [InlineData("20260315_1119_0_0_1_short_001000_PMT08-CH3_8.raw", 30, 15, true, 826)]
+    [InlineData("20260315_1107_0_0_1_short_001000_PMT08-CH3_8.raw", 8, 3, true, 685)]
+    [InlineData("20260315_1110_0_0_1_short_001000_PMT08-CH3_8.raw", 8, 4, true, 913)]
+    [InlineData("20260315_1098_0_0_1_short_001000_PMT08-CH3_8.raw", 20, 9, true, 753)]
+    [InlineData("20260315_1101_0_0_1_short_001000_PMT08-CH3_8.raw", 20, 10, true, 845)]
+    [InlineData("20260315_780_0_0_1_short_001000_PMT08-CH3_8.raw", 8, 3, true, 950)]
+    [InlineData("20260315_783_0_0_1_short_001000_PMT08-CH3_8.raw", 8, 4, true, 737)]
 #pragma warning disable IDE0079
 #pragma warning disable xUnit1026
     public void TestVSharp1(string filePath, int segmentCount, int segmentIndex, bool isLog, int expectedIndex)
@@ -48,14 +57,6 @@ public class VSharpTest
         var vSharpResult = GetVSharp(filePath, segmentCount, isLog);
 
         vSharpResult.VSharpIndex.Should().Be(expectedIndex);
-
-        var windowItem = new AODUniformityDTO.WindowItem
-        {
-            ImageHorizontalProjects = vSharpResult.LineHorizontalProjects
-        };
-        windowItem.CalculateHorizontalProjectMinPixel(segmentCount);
-
-        vSharpResult.VSharpIndex.Should().Be(windowItem.HorizontalProjectMinPixel);
 
 #if VSharpTest
         var thread = new Thread(() =>
@@ -87,8 +88,10 @@ public class VSharpTest
     }
 
     [Theory]
-    [InlineData(4792, "test_1_4_true.raw", "test_1_6_true.raw", 11, 4, 6, "test_9_true.raw", new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, true, new[] { 71, 246, 420, 596, 773, 950, 1123, 1299, 1472 })]
-    [InlineData(4792, "test_1_1_false.raw", "test_1_3_false.raw", 5, 1, 3, "test_4_false.raw", new[] { 0, 1, 2, 3 }, false, new[] { 160, 509, 863, 1213 })]
+    [InlineData(5002, "20260315_1116_0_0_1_short_001000_PMT08-CH3_8.raw", "20260315_1119_0_0_1_short_001000_PMT08-CH3_8.raw", 30, 14, 15, "20260315_1122_0_0_1_short_001000_PMT08-CH3_8.raw", true, new[] { 30, 89, 147, 202, 258, 315, 373, 429, 485, 542, 600, 656, 714, 771, 828, 885, 942, 997, 1054, 1110, 1168, 1224, 1282, 1338, 1396, 1454, 1510, 1567, 1624, 1683 })]
+    [InlineData(5002, "20260315_1107_0_0_1_short_001000_PMT08-CH3_8.raw", "20260315_1110_0_0_1_short_001000_PMT08-CH3_8.raw", 8, 3, 4, "20260315_1113_0_0_1_short_001000_PMT08-CH3_8.raw", true, new[] { 103, 317, 531, 747, 961, 1175, 1390, 1604 })]
+    [InlineData(5002, "20260315_1098_0_0_1_short_001000_PMT08-CH3_8.raw", "20260315_1101_0_0_1_short_001000_PMT08-CH3_8.raw", 20, 9, 10, "20260315_1104_0_0_1_short_001000_PMT08-CH3_8.raw", true, new[] { 45, 132, 216, 302, 387, 473, 558, 644, 729, 815, 901, 985, 1071, 1156, 1241, 1326, 1412, 1498, 1583, 1669 })]
+    [InlineData(4669, "20260315_780_0_0_1_short_001000_PMT08-CH3_8.raw", "20260315_783_0_0_1_short_001000_PMT08-CH3_8.raw", 8, 3, 4, "20260315_786_0_0_1_short_001000_PMT08-CH3_8.raw", true, new[] { 95, 289, 484, 681, 876, 1070, 1266, 1461 })]
     public void TestVSharps(
         int prescanAODWaveformCount,
         string startFilePath,
@@ -97,10 +100,11 @@ public class VSharpTest
         int startSegmentIndex,
         int stopSegmentIndex,
         string filePath,
-        IReadOnlyList<int> segmentIndexes,
         bool isLog,
         IReadOnlyList<int> expectedSegmentIndexes)
     {
+        var segmentIndexes = Generate.LinearRangeInt32(0, segmentCount - 1);
+
         #region Forward / Reverse VSharp
 
         var startVSharpResult = GetVSharp(startFilePath, segmentCount, isLog);
@@ -128,12 +132,36 @@ public class VSharpTest
                     prescanAODWaveformCount).Region.VMiddleIndex
             ],
             [
-                isReverse ? startVSharpResult.OriginHorizontalProjects.Count - 1 - startVSharpResult.VSharpIndex : startVSharpResult.VSharpIndex,
-                isReverse ? stopVSharpResult.OriginHorizontalProjects.Count - 1 - stopVSharpResult.VSharpIndex : stopVSharpResult.VSharpIndex
+                isReverse ? startVSharpResult.LineHorizontalProjects.Count - 1 - startVSharpResult.VSharpIndex : startVSharpResult.VSharpIndex,
+                isReverse ? stopVSharpResult.LineHorizontalProjects.Count - 1 - stopVSharpResult.VSharpIndex : stopVSharpResult.VSharpIndex
             ]);
 
         var prescanToImageIndexMappings = Generate.LinearRangeInt32(0, prescanAODWaveformCount - 1)
             .Select(t => new Point(t, linearSplinePrescan.Interpolate(t)))
+            .ToArray();
+        var startPrescanAODWaveformIndex = (int)prescanToImageIndexMappings.First(t => 0 <= t.Y && t.Y <= startVSharpResult.LineHorizontalProjects.Count - 1).X;
+        if (startPrescanAODWaveformIndex < 0) startPrescanAODWaveformIndex = 0;
+        var stopPrescanAODWaveformIndex = (int)prescanToImageIndexMappings.Last(t => 0 <= t.Y && t.Y <= stopVSharpResult.LineHorizontalProjects.Count - 1).X;
+        if (stopPrescanAODWaveformIndex > prescanAODWaveformCount - 1) stopPrescanAODWaveformIndex = prescanAODWaveformCount - 1;
+
+        var window = Generate.Repeat(prescanAODWaveformCount, 1d);
+
+        var prescanAODWaveformIndexes = Generate.LinearRangeInt32(0, prescanAODWaveformCount - 1).AsSpan()[startPrescanAODWaveformIndex..(stopPrescanAODWaveformIndex + 1)].ToArray();
+
+        var (windowTemp, regionTemps) = Generate.LinearVShapeWindowBySegments(
+            1d,
+            0d,
+            segmentCount,
+            segmentIndexes,
+            prescanAODWaveformIndexes.Length);
+
+        Vector<double>.Build.Dense(window).SetSubVectorRange(
+            prescanAODWaveformIndexes[0],
+            prescanAODWaveformIndexes[^1],
+            Vector<double>.Build.Dense(windowTemp));
+
+        var regions = regionTemps
+            .Select(t => (VStartIndex: t.VStartIndex + startPrescanAODWaveformIndex, VMiddleIndex: t.VMiddleIndex + startPrescanAODWaveformIndex, VStopIndex: t.VStopIndex + startPrescanAODWaveformIndex))
             .ToArray();
 
         #endregion
@@ -146,20 +174,12 @@ public class VSharpTest
         using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
         var lineHorizontalProjects = isReverse ? lineImage.GetHorizontalProjects().Reverse().ToArray() : lineImage.GetHorizontalProjects();
 
-        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(lineHorizontalProjects)).ToArray();
+        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([..lineHorizontalProjects])).ToArray();
         var smoothImageHorizontalProjectPoints = smoothImageHorizontalProjects.ToPoints();
 
         var (indexes, smoothImageHorizontalProjectMinimaPoints) = Extremumor.FindMinima(smoothImageHorizontalProjectPoints);
 
-        var vShapePrescanWindowBySegments = Generate.LinearVShapeWindowBySegments(
-            1d,
-            0d,
-            segmentCount,
-            segmentIndexes,
-            prescanAODWaveformCount
-        );
-
-        var regions = vShapePrescanWindowBySegments.Regions
+        var vSharps = regions
             .Select(t =>
             {
                 var (vStartIndex, vMiddleIndex, vStopIndex) = t;
@@ -168,19 +188,19 @@ public class VSharpTest
                     VMiddleIndex: (int)Math.Clamp(Math.Round(prescanToImageIndexMappings[vMiddleIndex].Y), 0, lineHorizontalProjects.Count - 1),
                     VStopIndex: (int)Math.Clamp(Math.Ceiling(prescanToImageIndexMappings[vStopIndex].Y), 0, lineHorizontalProjects.Count - 1));
             })
+            .Select(t =>
+            {
+                var (startIndex, _, stopIndex) = t;
+
+                var vSharpIndex = indexes
+                    .Where(tt => startIndex <= tt && tt <= stopIndex)
+                    .OrderBy(tt => smoothImageHorizontalProjects[tt])
+                    .First();
+                var vSharpPoints = smoothImageHorizontalProjectPoints[vSharpIndex];
+
+                return (VSharpIndex: vSharpIndex, VSharpPoints: vSharpPoints);
+            })
             .ToArray();
-
-        var vSharps = regions.Select(t =>
-        {
-            var (startIndex, _, stopIndex) = t;
-            var vSharpIndex = indexes
-                .Where(tt => startIndex <= tt && tt <= stopIndex)
-                .OrderBy(tt => smoothImageHorizontalProjectPoints[tt].Y)
-                .First();
-            var vSharpPoints = smoothImageHorizontalProjectPoints[vSharpIndex];
-
-            return (VSharpIndex: vSharpIndex, VSharpPoints: vSharpPoints);
-        }).ToArray();
 
         vSharps.Select(t => t.VSharpIndex).Should()
             .BeEquivalentTo(expectedSegmentIndexes, options => options.WithStrictOrdering());
@@ -189,24 +209,26 @@ public class VSharpTest
         {
             ImageHorizontalProjects = lineHorizontalProjects
         };
-        windowItem.CalculateHorizontalProjectMinPixels(vShapePrescanWindowBySegments.Regions, prescanToImageIndexMappings);
+        windowItem.CalculateHorizontalProjectMinPixels(regions, prescanToImageIndexMappings);
 
         vSharps.Select(t => t.VSharpIndex).Should()
             .BeEquivalentTo(windowItem.HorizontalProjectMinPixels, options => options.WithStrictOrdering());
+        smoothImageHorizontalProjects.Should()
+            .BeEquivalentTo(windowItem.SmoothImageHorizontalProjects, options => options.WithStrictOrdering());
 
         #endregion
 
         #region Pixel Index to Prescan Index
 
-        var mappingMinIndexes = vShapePrescanWindowBySegments.Regions.Select(t => t.VMiddleIndex).ToArray();
+        var mappingMinIndexes = regions.Select(t => t.VMiddleIndex).ToArray();
         var imageHorizontalProjectMinIndexes = vSharps.Select(t => t.VSharpIndex).ToArray();
 
         var mappingList = new List<AODUniformityDTO.Mapping>();
 
-        var linearSplineImage = LinearSpline.InterpolateSorted([.. imageHorizontalProjectMinIndexes], [.. mappingMinIndexes]);
+        var linearSpline = LinearSpline.InterpolateSorted([.. imageHorizontalProjectMinIndexes], [.. mappingMinIndexes]);
         for (var i = 0; i < lineHorizontalProjects.Count; i++)
         {
-            var mappingIndex = linearSplineImage.Interpolate(i);
+            var mappingIndex = linearSpline.Interpolate(i);
 
             var indexOf = imageHorizontalProjectMinIndexes.IndexOf(i);
             var isNotLinearSpline = indexOf != -1;
@@ -227,7 +249,7 @@ public class VSharpTest
         for (var i = 0; i < mappingList.Count; i++)
         {
             if (i == mappingList.Count - 1)
-                mappingList[i].MappingIndices = [.. leftMappingMinIndexes, .. Generate.LinearRangeInt32(mappingList[^1].MappingIndex, vShapePrescanWindowBySegments.Window.Length - 1)];
+                mappingList[i].MappingIndices = [.. leftMappingMinIndexes, .. Generate.LinearRangeInt32(mappingList[^1].MappingIndex, window.Length - 1)];
             else
             {
                 var mappingIndexes = Generate.LinearRangeInt32(mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex);
@@ -352,10 +374,10 @@ public class VSharpTest
 
             #region Window
 
-            scatterPlotControl.SetTitle(5, nameof(vShapePrescanWindowBySegments.Window));
+            scatterPlotControl.SetTitle(5, nameof(window));
 
             scatterLine = scatterPlotControl.AddScatterLine(5);
-            scatterLine.Update(string.Empty, vShapePrescanWindowBySegments.Window.ToPoints(), Colors.Gray);
+            scatterLine.Update(string.Empty, window.ToPoints(), Colors.Gray);
 
             #endregion
 
@@ -366,7 +388,7 @@ public class VSharpTest
             scatterPlotControl.SetTitle(6, "pixel/prescan");
 
             scatterLine = scatterPlotControl.AddScatterLine(6);
-            scatterLine.Update(string.Empty, mappingPointList, Colors.Gray);
+            scatterLine.Update(string.Empty, prescanToImageIndexMappings, Colors.Gray);
 
             #endregion
 
@@ -419,7 +441,7 @@ public class VSharpTest
         using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
         var lineHorizontalProjects = lineImage.GetHorizontalProjects();
 
-        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(lineHorizontalProjects)).ToArray();
+        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([..lineHorizontalProjects])).ToArray();
         var smoothImageHorizontalProjectPoints = smoothImageHorizontalProjects.ToPoints();
 
         var vShapeWindowBySegments = Generate.LinearVShapeWindowBySegments(
@@ -427,16 +449,23 @@ public class VSharpTest
             0d,
             segmentCount,
             Generate.LinearRangeInt32(0, segmentCount - 1),
-            originHorizontalProjects.Count);
+            lineHorizontalProjects.Count);
         var startIndex = vShapeWindowBySegments.Regions[0].VMiddleIndex;
         var stopIndex = vShapeWindowBySegments.Regions[^1].VMiddleIndex;
 
         var (indexes, smoothImageHorizontalProjectMinimaPoints) = Extremumor.FindMinima(smoothImageHorizontalProjectPoints);
         var vSharpIndex = indexes
             .Where(t => startIndex <= t && t <= stopIndex)
-            .OrderBy(t => smoothImageHorizontalProjectPoints[t].Y)
+            .OrderBy(t => smoothImageHorizontalProjects[t])
             .First();
         var vSharpPoints = smoothImageHorizontalProjectPoints[vSharpIndex];
+
+        var windowItem = new AODUniformityDTO.WindowItem { ImageHorizontalProjects = lineHorizontalProjects };
+        windowItem.CalculateHorizontalProjectMinPixel(segmentCount);
+
+        vSharpIndex.Should().Be(windowItem.HorizontalProjectMinPixel);
+        smoothImageHorizontalProjects.Should()
+            .BeEquivalentTo(windowItem.SmoothImageHorizontalProjects, options => options.WithStrictOrdering());
 
         return new VSharpResult(
             originHorizontalProjects,

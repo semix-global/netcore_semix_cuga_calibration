@@ -135,7 +135,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
         public void CalculateHorizontalProjectMinPixel(int segmentCount)
         {
-            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects)).ToArray();
+            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([..ImageHorizontalProjects])).ToArray();
 
             var vShapeWindowBySegments = Generate.LinearVShapeWindowBySegments(
                 1d,
@@ -155,7 +155,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
         public void CalculateHorizontalProjectMinPixels(IReadOnlyList<(int VStartIndex, int VMiddleIndex, int VStopIndex)> regions, IReadOnlyList<Point> prescanToImageIndexMappings)
         {
-            SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
+            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([..ImageHorizontalProjects])).ToArray();
 
             var (indexes, _) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 

@@ -40,9 +40,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
+    public override string CalibrateDirectoryName => $"{Cache.ProductivityInformation}-{Cache.LaserLightInformation}";
 
-    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
+    public override string CalibrateFileName => $"{Cache.ProductivityInformation}-{Cache.LaserLightInformation}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -346,7 +346,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
             var startPrescanAODWaveformSegmentIndex = (Cache.Item.PrescanAODWaveformProfileSegmentCount - 1) / 2;
             var stopPrescanAODWaveformSegmentIndex = startPrescanAODWaveformSegmentIndex + 1;
-            var prescanAODWaveformSegmentIndexes = Generate.LinearRangeInt32(0, Cache.Item.PrescanAODWaveformProfileSegmentCount - 1).ToArray();
+            var prescanAODWaveformSegmentIndexes = Generate.LinearRangeInt32(0, Cache.Item.PrescanAODWaveformProfileSegmentCount - 1);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -526,7 +526,11 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                 }
 
-                CalibratingItem.ImageHorizontalProjectMappings = [.. Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1).ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
+                CalibratingItem.ImageHorizontalProjectMappings =
+                [
+                    ..Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1)
+                        .ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)
+                ];
                 CalibratingItem.PrescanAODWaveformProfileMappings =
                 [
                     ..CalibratingItem.ImageHorizontalProjectMappings
@@ -756,11 +760,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         CIBInformation = t,
                         WindowLimitMin = windowLimitMin,
                         WindowLimitMax = windowLimitMax
-                    })
+                    }),
+                CalibratingItem.Item
             ];
             CalibratingItem.OpticsPolarizationModeEnumMeasurePowers = [];
-
-            var itemItems = CalibratingItem.Items.Concat([CalibratingItem.Item]).ToArray();
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
             CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
@@ -809,7 +812,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         cancellationToken.ThrowIfCancellationRequested();
 
                         using var _ = darkFieldImage;
-                        var itemItem = itemItems.Single(t => t.CIBInformation == cibInformations[index]);
+                        var itemItem = CalibratingItem.Items.Single(t => t.CIBInformation == cibInformations[index]);
 
                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImage.Image.Save(imageFilePath);
@@ -835,7 +838,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     }
 
                     CalibratingItem.TargetPMTValues = [];
-                    foreach (var itemItem in itemItems)
+                    foreach (var itemItem in CalibratingItem.Items)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
