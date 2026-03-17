@@ -84,6 +84,12 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private int _imageHorizontalProjectsSegmentCount = 100;
 
     [ObservableProperty]
+    private int _initializeWindowLinearSpacedCount = 11;
+    
+    [ObservableProperty]
+    private double _initializeWindowLinearSpacedRate = 0.5;
+
+    [ObservableProperty]
     private int _imageHorizontalProjectsSkipCout;
 
     [ObservableProperty]

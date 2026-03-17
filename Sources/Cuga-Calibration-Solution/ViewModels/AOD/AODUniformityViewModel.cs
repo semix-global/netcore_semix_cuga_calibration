@@ -624,6 +624,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.Item.ImageWidth,
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
                 Cache.Item.ImageHorizontalProjectsSegmentCount,
+                Cache.Item.InitializeWindowLinearSpacedCount,
+                Cache.Item.InitializeWindowLinearSpacedRate,
                 PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
                 currentOpticsPolarizationModeEnum,
                 currentCollectorPolarizationModeEnum,
@@ -647,7 +649,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             {
                 Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                foreach (var coefficient in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.LaserLightInformation.Coefficient + t * 0.05 * Cache.LaserLightInformation.Coefficient))
+                foreach (var coefficient in Generate.LinearSpaced(
+                             Cache.Item.InitializeWindowLinearSpacedCount,
+                             Cache.LaserLightInformation.Coefficient * Cache.Item.InitializeWindowLinearSpacedRate,
+                             Cache.LaserLightInformation.Coefficient))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -667,19 +672,23 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     CalibratingItem.InitializeWindowItem.Items = [.. CalibratingItem.InitializeWindowItem.Items, itemItemData];
                 }
 
-                var itemItems = CalibratingItem.InitializeWindowItem.Items.OrderByDescending(t => t.Window[0]).ToArray();
                 var window = Generate.Repeat(prescanAODWaveformProfiles[0].Shorts.Count, Cache.LaserLightInformation.Coefficient);
-                foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings.Index())
+
+                var itemItems = CalibratingItem.InitializeWindowItem.Items.OrderByDescending(t => t.Window[0]).ToArray();
+                if (itemItems.Length > 0)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings.Index())
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                    var maximumIndex = Vector<double>.Build.Dense([
-                        ..itemItems.Select(t => Vector<double>.Build.Dense([..t.ImageHorizontalProjects]).SubVectorIndexes(imageHorizontalProjectIndexes).Average())
-                    ]).MaximumIndex();
+                        var maximumIndex = Vector<double>.Build.Dense([
+                            ..itemItems.Select(t => Vector<double>.Build.Dense([..t.ImageHorizontalProjects]).SubVectorIndexes(imageHorizontalProjectIndexes).Average())
+                        ]).MaximumIndex();
 
-                    Vector<double>.Build.Dense(window).SetSubVectorIndexes(
-                        CalibratingItem.PrescanAODWaveformProfileMappings[index],
-                        itemItems[maximumIndex].Window[0]);
+                        Vector<double>.Build.Dense(window).SetSubVectorIndexes(
+                            CalibratingItem.PrescanAODWaveformProfileMappings[index],
+                            itemItems[maximumIndex].Window[0]);
+                    }
                 }
 
                 CalibratingItem.InitializeWindowItem.Window = window;
@@ -728,6 +737,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.Item.ImageWidth,
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
                 Cache.Item.ImageHorizontalProjectsSegmentCount,
+                Cache.Item.InitializeWindowLinearSpacedCount,
+                Cache.Item.InitializeWindowLinearSpacedRate,
                 Cache.Item.ImageHorizontalProjectsSkipCout,
                 Cache.Item.ImageHorizontalProjectsSkipLastCout,
                 Cache.Item.WindowLimitRate,
