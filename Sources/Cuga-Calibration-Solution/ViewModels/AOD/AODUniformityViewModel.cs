@@ -31,6 +31,7 @@ using System.IO;
 using System.Text;
 using Core.Models.Enums.Collector;
 using Core.Models.Models.Laser.OpticalPowerMeter;
+using Humanizer;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -830,7 +831,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                         var itemItemData = new AODUniformityDTOItem.Item
                         {
-                            Window = CalibratingItem.Item.Window,
+                            Window = [..CalibratingItem.Item.Window],
                             PrescanAODWaveformProfiles = prescanAODWaveformProfiles,
                             ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
@@ -936,11 +937,30 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                     if (CalibratingItem.IsCalibrated)
                     {
+                        var itemItemData = CalibratingItem.Item.Items
+                            .Select(t => (Judge: new Point(t.MinRate - Cache.CalibrateThresholdMin, t.MaxRate - Cache.CalibrateThresholdMax).ToOriginLength, Result: t))
+                            .OrderBy(t => t.Judge)
+                            .First().Result;
+                        var isOkSelect = Cache.CalibrateThresholdMin <= itemItemData.MinRate
+                                         && itemItemData.MaxRate <= Cache.CalibrateThresholdMax;
+
+                        if (isOkSelect == false)
+                        {
+                            DialogWindowProvider.TryShowDialog($"""
+                                                                {nameof(itemItemData.MinRate).Humanize(LetterCasing.Title)}: {itemItemData.MinRate:0.###}
+                                                                {nameof(itemItemData.MaxRate).Humanize(LetterCasing.Title)}: {itemItemData.MaxRate:0.###}
+                                                                Whether to enable the value?
+                                                                """, out var dialogButtonsEnum, DialogButtonsEnum.OKCancel, DialogIconEnum.Warning);
+                            if (dialogButtonsEnum != DialogResultEnum.OK) return false;
+                        }
+
+                        CalibratingItem.Item.Window = [..itemItemData.Window];
+                        CalibratingItem.IsCalibrated = true;
+
                         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                                                                    && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
                                                                                                                    && t.IsOk).MaxMeasurePowerPosition);
-                        foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(CalibratingItem.Item.Window);
-                        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
+                        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, itemItemData.PrescanAODWaveformProfiles);
 
                         var pPower = await GetPowerAsync(OpticsPolarizationModeEnum.P);
                         var sPower = await GetPowerAsync(OpticsPolarizationModeEnum.S);
@@ -956,11 +976,16 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             Base = htmlBullet,
-                            Window = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.Item.Window.ToPoints())], string.Empty),
-                            PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
                             pPower,
                             sPower,
-                            cPower
+                            cPower,
+                            Window = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.Item.Window.ToPoints())], string.Empty),
+                            PrescanAODWaveformProfiles = new HtmlTable([.. itemItemData.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+                            itemItemData.MinRate,
+                            itemItemData.MaxRate,
+                            itemItemData.RawImageFilePath,
+                            Image = new HtmlImage(itemItemData.ImageFilePath),
+                            ImageHorizontalProjects = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.ImageHorizontalProjects.ToPoints())], string.Empty),
                         }), HtmlLogUniqueId.LoggingHtml());
 
                         break;
@@ -1015,7 +1040,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     }
                     finally
                     {
-                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                     }
                 }
             }

@@ -238,7 +238,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
                 }
                 finally
                 {
-                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
+                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                 }
             }
 

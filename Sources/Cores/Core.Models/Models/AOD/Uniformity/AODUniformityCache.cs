@@ -99,7 +99,7 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private double _windowLimitRate = 0.2;
 
     [ObservableProperty]
-    private double _windowInterval = 0.1;
+    private double _windowInterval = 0.01;
 
     [ObservableProperty]
     private double _waitTime = 5;
