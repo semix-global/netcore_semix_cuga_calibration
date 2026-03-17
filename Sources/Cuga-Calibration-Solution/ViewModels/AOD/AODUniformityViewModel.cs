@@ -889,7 +889,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                             {
                                 vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMin);
 
-                                mappingStatuses[index] = Status.Ok;
+                                mappingStatuses[index] = Status.OkWindowLimitMin;
                             }
                             else
                             {
@@ -908,7 +908,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                             {
                                 vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMax);
 
-                                mappingStatuses[index] = Status.Ok;
+                                mappingStatuses[index] = Status.OkWindowLimitMax;
                             }
                             else
                             {
@@ -922,7 +922,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     }
 
                     CalibratingItem.Item.Window = window;
-                    CalibratingItem.IsCalibrated = mappingStatuses.All(t => t is Status.Ok or Status.None);
+                    CalibratingItem.IsCalibrated = mappingStatuses.All(t => t is Status.Ok or Status.None or Status.OkWindowLimitMin or Status.OkWindowLimitMax);
 
                     var htmlBullet = new HtmlBullet(new
                     {
@@ -1170,6 +1170,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         None,
         GreaterThan,
         LessThan,
-        Ok
+        Ok,
+        OkWindowLimitMin,
+        OkWindowLimitMax
     }
 }
