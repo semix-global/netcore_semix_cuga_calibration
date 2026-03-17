@@ -125,6 +125,8 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="Min Rate" DisplayMemberBinding="{Binding Item.VerifyMinRate, StringFormat='0.###'}" />
+                            <GridViewColumn Header="MaxRate" DisplayMemberBinding="{Binding Item.VerifyMaxRate, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -136,13 +138,20 @@
                         </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type uniformity:AODUniformityDTO}">
-                                <TextBlock Text="{Binding ProductivityInformation}" />
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}, {1}">
+                                            <Binding Path="ProductivityInformation" />
+                                            <Binding Path="LaserLightInformation" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </DataTemplate>
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type uniformity:AODUniformityDTO}">
                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <TabControl ItemsSource="{Binding ScatterPlotControls}">
+                                    <TabControl>
                                         <TabItem Header="Plots">
                                             <Grid Margin="5">
                                                 <Grid.ColumnDefinitions>
@@ -151,8 +160,8 @@
                                                 </Grid.ColumnDefinitions>
                                                 <controls:ScatterMultiPlotControl Grid.Column="0"
                                                                                   Title="Window"
-                                                                                  ScatterLine0Points="{Binding Item.Window}" />
-                                                <controls:ScatterMultiPlotControl Grid.Column="1" ScatterLine0Points="{Binding Item.VerifyImageHorizontalProjects}">
+                                                                                  ScatterLine0Points="{Binding Item.Window, Converter={StaticResource DoublesToPointsConverter}}" />
+                                                <controls:ScatterMultiPlotControl Grid.Column="1" ScatterLine0Points="{Binding Item.VerifyImageHorizontalProjects, Converter={StaticResource DoublesToPointsConverter}}">
                                                     <controls:ScatterMultiPlotControl.Title>
                                                         <MultiBinding StringFormat="{}{0} Optics Polarization {1}: [{2:0.###}, {3:0.###}]">
                                                             <Binding Path="Item.CIBInformation" />
@@ -170,7 +179,13 @@
                                                       Style="{StaticResource DataGrid.Small}"
                                                       HeadersVisibility="All"
                                                       RowHeaderWidth="60"
-                                                      ItemsSource="{Binding Item.VerifyMappingStatuses}" />
+                                                      AutoGenerateColumns="False"
+                                                      IsReadOnly="True"
+                                                      ItemsSource="{Binding Item.VerifyMappingStatuses}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Value" Binding="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
                                         </TabItem>
                                     </TabControl>
                                 </Border>

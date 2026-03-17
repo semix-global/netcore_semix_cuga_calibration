@@ -923,17 +923,19 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     }
 
                     CalibratingItem.Item.Window = window;
-                    CalibratingItem.Item.Items[times].MappingStatuses = mappingStatuses;
-                    CalibratingItem.Item.VerifyMappingStatuses = mappingStatuses;
+                    CalibratingItem.Item.Items[times].MappingStatuses = [..mappingStatuses];
+                    CalibratingItem.Item.VerifyMappingStatuses = [..mappingStatuses];
 
                     var htmlBullet = new HtmlBullet(new
                     {
                         times,
-                        windowIntervals = new HtmlExpand(string.Empty, new HtmlTable([.. windowIntervals.Index().Select(t => new { t.Index, t.Item })])),
-                        mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([.. mappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
-                        CalibratingItem.ProductivityInformation,
+                        CalibratingItem.Item.CIBInformation,
+                        CalibratingItem.Item.Items[times].MinRate,
+                        CalibratingItem.Item.Items[times].MaxRate,
+                        mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.Item.Items[times].MappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
                         Plot = new HtmlContainer(CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
-                        Plots = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                        Plots = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))]),
+                        windowIntervals = new HtmlExpand(string.Empty, new HtmlTable([.. windowIntervals.Index().Select(t => new { t.Index, t.Item })]))
                     });
 
                     if (CalibratingItem.Item.VerifyMappingStatuses.All(t => t is AODUniformityDTOItem.Status.Ok or AODUniformityDTOItem.Status.None or AODUniformityDTOItem.Status.OkWindowLimitMin or AODUniformityDTOItem.Status.OkWindowLimitMax))
@@ -978,9 +980,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         ];
 
                         LogDetails(true);
+                        Logger.LogHtmlInformation("Plots", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
-                            Base = htmlBullet,
+                            CalibratingItem.Item.CIBInformation,
                             pPower,
                             sPower,
                             cPower,

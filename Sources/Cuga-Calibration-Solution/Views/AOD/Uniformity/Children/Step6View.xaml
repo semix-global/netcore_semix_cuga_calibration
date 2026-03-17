@@ -187,7 +187,13 @@
                               Style="{StaticResource DataGrid.Small}"
                               HeadersVisibility="All"
                               RowHeaderWidth="60"
-                              ItemsSource="{Binding CalibratingItem.Item.VerifyMappingStatuses}" />
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              ItemsSource="{Binding CalibratingItem.Item.VerifyMappingStatuses}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Value" Binding="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </TabItem>
             </TabControl>
         </GroupBox>
