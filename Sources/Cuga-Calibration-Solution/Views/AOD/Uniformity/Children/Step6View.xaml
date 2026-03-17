@@ -181,6 +181,14 @@
                         </TabControl.ContentTemplate>
                     </TabControl>
                 </TabItem>
+                <TabItem Header="Status">
+                    <DataGrid Margin="5"
+                              hc:DataGridAttach.ShowRowNumber="True"
+                              Style="{StaticResource DataGrid.Small}"
+                              HeadersVisibility="All"
+                              RowHeaderWidth="60"
+                              ItemsSource="{Binding CalibratingItem.Item.VerifyMappingStatuses}" />
+                </TabItem>
             </TabControl>
         </GroupBox>
     </Grid>

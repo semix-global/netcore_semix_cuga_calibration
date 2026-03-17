@@ -789,7 +789,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("Uniformity", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var windowIntervals = Generate.Repeat(CalibratingItem.ImageHorizontalProjectMappings.Count, Cache.Item.WindowInterval);
-                var mappingStatuses = Generate.Repeat(CalibratingItem.ImageHorizontalProjectMappings.Count, Status.None);
+                var mappingStatuses = Generate.Repeat(CalibratingItem.ImageHorizontalProjectMappings.Count, AODUniformityDTOItem.Status.None);
 
                 var times = 0;
                 while (true)
@@ -880,7 +880,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         var targetPMTValue = CalibratingItem.TargetPMTValues.Get(CalibratingItem.Item.CIBInformation);
                         if (value > targetPMTValue * (Cache.CalibrateThresholdMax - Cache.CalibrateThreshold * 0.5))
                         {
-                            if (mappingStatuses[index] == Status.LessThan) windowIntervals[index] *= 0.5d;
+                            if (mappingStatuses[index] == AODUniformityDTOItem.Status.LessThan) windowIntervals[index] *= 0.5d;
 
                             vector.SetSubVectorIndexes(
                                 CalibratingItem.PrescanAODWaveformProfileMappings[index],
@@ -890,16 +890,16 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                             {
                                 vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMin);
 
-                                mappingStatuses[index] = Status.OkWindowLimitMin;
+                                mappingStatuses[index] = AODUniformityDTOItem.Status.OkWindowLimitMin;
                             }
                             else
                             {
-                                mappingStatuses[index] = Status.GreaterThan;
+                                mappingStatuses[index] = AODUniformityDTOItem.Status.GreaterThan;
                             }
                         }
                         else if (value < targetPMTValue * (Cache.CalibrateThresholdMin + Cache.CalibrateThreshold * 0.5))
                         {
-                            if (mappingStatuses[index] == Status.GreaterThan) windowIntervals[index] *= 0.5d;
+                            if (mappingStatuses[index] == AODUniformityDTOItem.Status.GreaterThan) windowIntervals[index] *= 0.5d;
 
                             vector.SetSubVectorIndexes(
                                 CalibratingItem.PrescanAODWaveformProfileMappings[index],
@@ -909,21 +909,22 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                             {
                                 vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMax);
 
-                                mappingStatuses[index] = Status.OkWindowLimitMax;
+                                mappingStatuses[index] = AODUniformityDTOItem.Status.OkWindowLimitMax;
                             }
                             else
                             {
-                                mappingStatuses[index] = Status.LessThan;
+                                mappingStatuses[index] = AODUniformityDTOItem.Status.LessThan;
                             }
                         }
                         else
                         {
-                            mappingStatuses[index] = Status.Ok;
+                            mappingStatuses[index] = AODUniformityDTOItem.Status.Ok;
                         }
                     }
 
                     CalibratingItem.Item.Window = window;
-                    CalibratingItem.IsCalibrated = mappingStatuses.All(t => t is Status.Ok or Status.None or Status.OkWindowLimitMin or Status.OkWindowLimitMax);
+                    CalibratingItem.Item.Items[times].MappingStatuses = mappingStatuses;
+                    CalibratingItem.Item.VerifyMappingStatuses = mappingStatuses;
 
                     var htmlBullet = new HtmlBullet(new
                     {
@@ -935,7 +936,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         Plots = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                     });
 
-                    if (CalibratingItem.IsCalibrated)
+                    if (CalibratingItem.Item.VerifyMappingStatuses.All(t => t is AODUniformityDTOItem.Status.Ok or AODUniformityDTOItem.Status.None or AODUniformityDTOItem.Status.OkWindowLimitMin or AODUniformityDTOItem.Status.OkWindowLimitMax))
                     {
                         var itemItemData = CalibratingItem.Item.Items
                             .Select(t => (Judge: new Point(t.MinRate - Cache.CalibrateThresholdMin, t.MaxRate - Cache.CalibrateThresholdMax).ToOriginLength, Result: t))
@@ -955,6 +956,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         }
 
                         CalibratingItem.Item.Window = [..itemItemData.Window];
+                        CalibratingItem.Item.VerifyMinRate = itemItemData.MinRate;
+                        CalibratingItem.Item.VerifyMaxRate = itemItemData.MaxRate;
+                        CalibratingItem.Item.VerifyImageHorizontalProjects = [..itemItemData.ImageHorizontalProjects];
+                        CalibratingItem.Item.VerifyMappingStatuses = [..itemItemData.MappingStatuses];
                         CalibratingItem.IsCalibrated = true;
 
                         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
@@ -981,11 +986,12 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                             cPower,
                             Window = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.Item.Window.ToPoints())], string.Empty),
                             PrescanAODWaveformProfiles = new HtmlTable([.. itemItemData.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                            itemItemData.MinRate,
-                            itemItemData.MaxRate,
+                            CalibratingItem.Item.VerifyMinRate,
+                            CalibratingItem.Item.VerifyMaxRate,
+                            ImageHorizontalProjects = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.Item.VerifyImageHorizontalProjects.ToPoints())], string.Empty),
+                            mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.Item.VerifyMappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
                             itemItemData.RawImageFilePath,
-                            Image = new HtmlImage(itemItemData.ImageFilePath),
-                            ImageHorizontalProjects = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.ImageHorizontalProjects.ToPoints())], string.Empty),
+                            Image = new HtmlImage(itemItemData.ImageFilePath)
                         }), HtmlLogUniqueId.LoggingHtml());
 
                         break;
@@ -1189,14 +1195,4 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     });
 
     #endregion 校准
-
-    private enum Status
-    {
-        None,
-        GreaterThan,
-        LessThan,
-        Ok,
-        OkWindowLimitMin,
-        OkWindowLimitMax
-    }
 }

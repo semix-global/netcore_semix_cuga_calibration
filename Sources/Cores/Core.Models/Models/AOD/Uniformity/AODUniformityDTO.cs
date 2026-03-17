@@ -27,39 +27,65 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private WindowItem _startWindowItem = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private WindowItem _stopWindowItem = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private WindowItem _mappingWindowItem = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Mapping> _mappings = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<int[]> _imageHorizontalProjectMappings = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<int[]> _prescanAODWaveformProfileMappings = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private ConcurrentBag<KeyValuePair<CIBInformation, double>> _targetPMTValues = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private AODUniformityDTOItem _initializeWindowItem = new();
 
     [ObservableProperty]
     private AODUniformityDTOItem _item = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<AODUniformityDTOItem> _items = [];
 
     [ObservableProperty]
@@ -231,16 +257,37 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Item> _items = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _window = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private double _windowLimitMin;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private double _windowLimitMax;
+
+    [ObservableProperty]
+    private double _verifyMinRate;
+
+    [ObservableProperty]
+    private double _verifyMaxRate;
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _verifyImageHorizontalProjects = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Status> _verifyMappingStatuses = [];
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -268,7 +315,11 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
         Items = [.. Items.Select(t => t.Clone())],
         Window = [.. Window],
         WindowLimitMin = WindowLimitMin,
-        WindowLimitMax = WindowLimitMax
+        WindowLimitMax = WindowLimitMax,
+        VerifyMinRate = VerifyMinRate,
+        VerifyMaxRate = VerifyMaxRate,
+        VerifyImageHorizontalProjects = [..VerifyImageHorizontalProjects],
+        VerifyMappingStatuses = [..VerifyMappingStatuses]
     };
 
     #endregion Mapper
@@ -282,6 +333,9 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
         private double _maxRate;
 
         [ObservableProperty]
+        private IReadOnlyList<Status> _mappingStatuses = [];
+
+        [ObservableProperty]
         private bool _isOk;
 
         public new Item Clone()
@@ -290,8 +344,19 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
             clone.MinRate = MinRate;
             clone.MaxRate = MaxRate;
             clone.IsOk = IsOk;
+            clone.MappingStatuses = [..MappingStatuses];
 
             return clone;
         }
+    }
+
+    public enum Status
+    {
+        None,
+        GreaterThan,
+        LessThan,
+        Ok,
+        OkWindowLimitMin,
+        OkWindowLimitMax
     }
 }
