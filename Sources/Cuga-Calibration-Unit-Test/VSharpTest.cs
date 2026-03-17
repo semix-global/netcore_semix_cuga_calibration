@@ -179,7 +179,7 @@ public class VSharpTest
 
         var (indexes, smoothImageHorizontalProjectMinimaPoints) = Extremumor.FindMinima(smoothImageHorizontalProjectPoints);
 
-        var vSharps = regions
+        var imageRegions = regions
             .Select(t =>
             {
                 var (vStartIndex, vMiddleIndex, vStopIndex) = t;
@@ -187,7 +187,8 @@ public class VSharpTest
                 return (VStartIndex: (int)Math.Clamp(Math.Floor(prescanToImageIndexMappings[vStartIndex].Y), 0, lineHorizontalProjects.Count - 1),
                     VMiddleIndex: (int)Math.Clamp(Math.Round(prescanToImageIndexMappings[vMiddleIndex].Y), 0, lineHorizontalProjects.Count - 1),
                     VStopIndex: (int)Math.Clamp(Math.Ceiling(prescanToImageIndexMappings[vStopIndex].Y), 0, lineHorizontalProjects.Count - 1));
-            })
+            }).ToArray();
+        var vSharps = imageRegions
             .Select(t =>
             {
                 var (startIndex, _, stopIndex) = t;
@@ -346,7 +347,7 @@ public class VSharpTest
             scatterLine = scatterPlotControl.AddScatterLine(4);
             scatterLine.Update(string.Empty, smoothImageHorizontalProjectPoints, Colors.Brown);
 
-            foreach (var (_, (vStartIndexTemp, vMiddleIndexTemp, vStopIndexTemp)) in regions.Index())
+            foreach (var (_, (vStartIndexTemp, vMiddleIndexTemp, vStopIndexTemp)) in imageRegions.Index())
             {
                 var xLineTemp = scatterPlotControl.AddXLine(4);
                 xLineTemp.Update(string.Empty, vStartIndexTemp, Colors.LightSalmon);
