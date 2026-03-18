@@ -230,7 +230,7 @@ public partial class AODUniformityDTO
         {
             var scatterLines0 = ScatterPlotControl.GetOrAddScatterLines(0, Item.Items.Count);
             var scatterLines1 = ScatterPlotControl.GetOrAddScatterLines(1, Item.Items.Count);
-            var xLines = ScatterPlotControl.GetOrAddXLines(1, 2);
+            var yLines = ScatterPlotControl.GetOrAddYLines(1, 2);
 
             foreach (var (i, itemItemData) in Item.Items.Index())
             {
@@ -250,12 +250,12 @@ public partial class AODUniformityDTO
                     Constants.Turbo.GetColor(i, new Range(0, Item.Items.Count - 1)));
             }
 
-            xLines[0].Update(string.Empty, Item.VerifyMinRate, Colors.DarkRed);
-            xLines[0].LineWidth = 5;
-            xLines[0].LinePattern = LinePattern.Solid;
-            xLines[1].Update(string.Empty, Item.VerifyMaxRate, Colors.DarkRed);
-            xLines[1].LineWidth = 5;
-            xLines[1].LinePattern = LinePattern.Solid;
+            yLines[0].Update(string.Empty, Item.WindowLimitMin, Colors.DarkRed);
+            yLines[0].LineWidth = 5;
+            yLines[0].LinePattern = LinePattern.Solid;
+            yLines[1].Update(string.Empty, Item.WindowLimitMax, Colors.DarkRed);
+            yLines[1].LineWidth = 5;
+            yLines[1].LinePattern = LinePattern.Solid;
 
             /*foreach (var mapping in ImageHorizontalProjectMappings)
             {

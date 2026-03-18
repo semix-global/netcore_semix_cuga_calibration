@@ -125,6 +125,7 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="Laser Light" DisplayMemberBinding="{Binding LaserLightInformation}" />
                             <GridViewColumn Header="Min Rate" DisplayMemberBinding="{Binding Item.VerifyMinRate, StringFormat='0.###'}" />
                             <GridViewColumn Header="MaxRate" DisplayMemberBinding="{Binding Item.VerifyMaxRate, StringFormat='0.###'}" />
                         </GridView>

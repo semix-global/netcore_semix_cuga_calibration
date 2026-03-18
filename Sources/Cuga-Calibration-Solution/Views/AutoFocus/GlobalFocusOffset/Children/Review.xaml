@@ -111,7 +111,7 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="Productivity Information" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Header="Is AF Servo" DisplayMemberBinding="{Binding RuntimeAfCalibrationResultDTO.IsAFServo}" />
                             <GridViewColumn Header="ECS" DisplayMemberBinding="{Binding RuntimeAfCalibrationResultDTO.ECSValue, StringFormat={}{0:F3}}" />
                             <GridViewColumn Header="Motor" DisplayMemberBinding="{Binding RuntimeAfCalibrationResultDTO.MotorValue, StringFormat={}{0:F5}}" />

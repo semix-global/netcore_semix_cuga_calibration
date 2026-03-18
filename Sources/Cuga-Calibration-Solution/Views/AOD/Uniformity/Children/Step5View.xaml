@@ -92,14 +92,9 @@
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
-            <TabControl>
-                <TabItem Header="Plots">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentControl Content="{Binding CalibratingItem.InitializeWindowScatterPlotControl, Mode=OneWay}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Details" />
-            </TabControl>
+            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                <ContentControl Content="{Binding CalibratingItem.InitializeWindowScatterPlotControl, Mode=OneWay}" />
+            </Border>
         </GroupBox>
     </Grid>
 </UserControl>

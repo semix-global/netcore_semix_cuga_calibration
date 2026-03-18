@@ -469,6 +469,22 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     });
                 }
 
+                if (HostEnvironment.IsDevelopment())
+                {
+                    var mappingChuck = Generate.LinearRangeInt32(1, prescanAODWaveformCount - 1).ChunkSplitEvenly(CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count).ToArray();
+
+                    mappingList =
+                    [
+                        ..Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1)
+                            .Select(t => new AODUniformityDTO.Mapping
+                            {
+                                IsNotLinearSpline = Random.Shared.NextDouble() > 0.5,
+                                ImageHorizontalProjectIndex = t,
+                                LinearSplineMappingIndex = mappingChuck[t][0]
+                            })
+                    ];
+                }
+
                 var leftMappingMinIndexes = Generate.LinearRangeInt32(0, mappingList[0].MappingIndex - 1);
                 for (var i = 0; i < mappingList.Count; i++)
                 {
@@ -497,34 +513,14 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     Plot = new HtmlContainer(CalibratingItem.MappingScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                foreach (var mapping in mappingList)
+                if (HostEnvironment.IsProduction())
                 {
-                    if (HostEnvironment.IsDevelopment())
+                    foreach (var mapping in mappingList)
                     {
-                        if (mapping.MappingIndex < 0 || mapping.MappingIndex >= mappingWindow.Length)
-                        {
-                            mapping.LinearSplineMappingIndex = mappingWindow.Length - 1;
-                            mapping.MappingIndices = [mapping.MappingIndex];
-                        }
+                        Guard.IsGreaterThanOrEqualTo(mapping.MappingIndex, 0);
+                        Guard.IsLessThanOrEqualTo(mapping.MappingIndex, mappingWindow.Length - 1);
+                        if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                     }
-
-                    /*mapping.MappingIndices =
-                    [
-                        ..mapping.MappingIndices
-                            .Select(t =>
-                            {
-                                var temp = t;
-                                if (temp < 0) temp = 0;
-                                if (temp > prescanAODWaveformCount - 1) temp = prescanAODWaveformCount - 1;
-
-                                return temp;
-                            })
-                            .Distinct()
-                    ];*/
-
-                    Guard.IsGreaterThanOrEqualTo(mapping.MappingIndex, 0);
-                    Guard.IsLessThanOrEqualTo(mapping.MappingIndex, mappingWindow.Length - 1);
-                    if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                 }
 
                 CalibratingItem.ImageHorizontalProjectMappings =
@@ -547,7 +543,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
-
 
                 (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex) Region) GetWindow(int segmentIndex)
                 {
@@ -1188,7 +1183,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
+                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.LaserLightInformation == dto.LaserLightInformation) == false),
                 dto
             ];
         }
