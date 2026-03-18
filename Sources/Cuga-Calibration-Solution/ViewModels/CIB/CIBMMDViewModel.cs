@@ -263,6 +263,17 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.CIBInformations
             }), HtmlLogUniqueId.LoggingHtml());
 
+            var mmdConfigurationList = new List<CIBMMDCache.MMDConfiguration>(Cache.MMDConfigurations);
+
+            foreach (var cibInformation in Cache.CIBInformations)
+            {
+                if (mmdConfigurationList.Any(t => t.CIBInformation == cibInformation)) continue;
+
+                mmdConfigurationList.Add(new CIBMMDCache.MMDConfiguration { CIBInformation = cibInformation });
+            }
+
+            Cache.MMDConfigurations = [..mmdConfigurationList.DistinctBy(t => t.CIBInformation).OrderBy(t => t.CIBInformation)];
+
             return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t))
                    && ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
         });

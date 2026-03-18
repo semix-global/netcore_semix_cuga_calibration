@@ -155,18 +155,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnCIBInformationsChanged(IReadOnlyList<CIBInformation> value)
-    {
-        var oldMMDConfigurations = MMDConfigurations;
-
-        MMDConfigurations =
-        [
-            .. value
-                .OrderBy(t => t)
-                .Select(t => oldMMDConfigurations.SingleOrDefault(tt => tt.CIBInformation == t) ?? new MMDConfiguration { CIBInformation = t })
-        ];
-    }
-
     partial void OnMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnODFilterRatioChanged(double value) => RefreshPlot();
@@ -220,7 +208,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
         private CIBInformation _cIBInformation = CIBInformation.Default;
 
         [ObservableProperty]
-        private double _filterMinGain;
+        private double _filterMinGain = -10;
 
         [ObservableProperty]
         private double _powerRate = 0.002;
