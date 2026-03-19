@@ -415,22 +415,19 @@ public sealed partial class ReviewViewModel(
             if (point is null) return;
 
             var microscopePixelSizes = cacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
-            if (microscopePixelSizes.IsOk(out var errorMessage) == false)
-            {
-                dialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
-
             var currentMicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
-            var microscopePixelSizeItemDto = microscopePixelSizes.SingleOrDefault(t => t.LensInformation == currentMicroscopeLensInformation);
-            if (microscopePixelSizeItemDto is null)
+            var size = microscopePixelSizes.SingleOrDefault(t => t.LensInformation == currentMicroscopeLensInformation);
+
+            Size pixelSize;
+            if (size is null || size.IsOk == false)
             {
-                dialogWindowProvider.ShowDialog($"Microscope {currentMicroscopeLensInformation} Pixel Size is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
+                logger.LogWarning("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
+                pixelSize = new Size(3.45 / currentMicroscopeLensInformation.ObjectiveMagnification, 3.45 / currentMicroscopeLensInformation.ObjectiveMagnification);
             }
+            else pixelSize = size.PixelSize;
 
             var tmp = new Point(point.Value.X, point.Value.Y);
-            var pointEnd = new Point(tmp.X * microscopePixelSizeItemDto.PixelSize.Width, tmp.Y * microscopePixelSizeItemDto.PixelSize.Height);
+            var pointEnd = new Point(tmp.X * pixelSize.Width, tmp.Y * pixelSize.Height);
             stageViewModel.MoveRelativeStageXy(pointEnd);
 
             stageViewModel.GetDarkFieldStagePosition();
