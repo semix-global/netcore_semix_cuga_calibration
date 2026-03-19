@@ -4,7 +4,6 @@ using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -13,6 +12,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 
@@ -177,7 +177,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
             {
                 relayScatterLines[0].Update(
                     string.Empty,
-                    [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS))],
+                    [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, Guard.IsNotNullAndReturn(t.MaxItem).ECS))],
                     Constants.Category10.GetColor(0));
             }
 

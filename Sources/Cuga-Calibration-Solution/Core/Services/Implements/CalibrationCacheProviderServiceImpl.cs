@@ -85,11 +85,11 @@ public class CalibrationCacheProviderServiceImpl(
                             var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType.GetElementType() == calibrationCategoryItem.WcfModelType);
                             var dtoItems = cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType);
                             if (dtoItems is null || dtoItems.Length == 0)
-                                dtoItems = [GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(calibrationCategoryItem.CalibrationDtoType))];
+                                dtoItems = [Guard.IsNotNullAndReturn(Activator.CreateInstance(calibrationCategoryItem.CalibrationDtoType))];
                             var wcfItems = dtoItems.Select(t =>
                             {
-                                var value = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(t, null));
-                                GuardUtils.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(value, childCalibrationRequiredCache.IsRequired);
+                                var value = Guard.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(t, null));
+                                Guard.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(value, childCalibrationRequiredCache.IsRequired);
                                 return value;
                             }).ToArray();
 
@@ -103,7 +103,7 @@ public class CalibrationCacheProviderServiceImpl(
                             var wcfModel = dto is not null ? calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null) : null;
                             if (wcfModel is not null)
                             {
-                                GuardUtils.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
+                                Guard.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
                                 childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), wcfModel);
                             }
                         }
@@ -290,7 +290,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                 // Import Default Caches
                 messageBuilder.AppendLine("=== Default Cache Import ===");
-                var defaultCaches = GuardUtils.IsNotNullAndAssignableToType<JObject>(importData[nameof(CacheCollector.DefaultCaches)]);
+                var defaultCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CacheCollector.DefaultCaches)]);
                 foreach (var cacheItem in CacheCollector.DefaultCaches)
                 {
                     try
@@ -333,7 +333,7 @@ public class CalibrationCacheProviderServiceImpl(
                 messageBuilder.AppendLine();
 
                 // Import Recipe Caches
-                var recipesCaches = GuardUtils.IsNotNullAndAssignableToType<JObject>(importData[nameof(CacheCollector.RecipeCaches)]);
+                var recipesCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CacheCollector.RecipeCaches)]);
 
                 var originalRecipeDBPath = applicationCookie.CalibrationRecipeDto?.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
                 Guard.IsNotNullOrEmpty(originalRecipeDBPath);
@@ -345,7 +345,7 @@ public class CalibrationCacheProviderServiceImpl(
                         try
                         {
                             Guard.IsNotNull(recipeName);
-                            var recipeCaches = GuardUtils.IsNotNullAndAssignableToType<JObject>(recipeCachesToken);
+                            var recipeCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(recipeCachesToken);
 
                             var recipe = (await sysRecipeInformationService.GetByConditionAsync(new SysRecipeInformationDto { RecipeDbName = recipeName }, cancellationToken)).FirstOrDefault();
 

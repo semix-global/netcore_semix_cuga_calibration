@@ -1,8 +1,8 @@
 ﻿// #define XPixelSizeTest
 
 using AwesomeAssertions;
-using Core.Utilities;
 using MiniExcelLibs;
+using Net.Utilities.Algorithms.Modules;
 using Xunit;
 using Point = Net.Utilities.Models.Geometries.Point;
 

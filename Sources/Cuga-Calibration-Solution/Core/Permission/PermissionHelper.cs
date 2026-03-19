@@ -2,11 +2,11 @@ using Core.Models.Models.Common.Cookies;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Enums;
 using Net.Utilities.Helpers.Helpers;
-using Net.Utilities.Models;
 using Net.Utilities.WPF.Helper;
 using Net.Utilities.WPF.MVVM;
 using System.Windows;
 using System.Windows.Controls;
+using CommunityToolkit.Diagnostics;
 
 namespace CugaCalibration.Core.Permission;
 
@@ -21,7 +21,7 @@ public static class PermissionHelper
 
         if (applicationCookie.SysUser.IsAdmin) return;
 
-        var list = applicationCookieService.FindSysMenuListByRecursionComponent(GuardUtils.IsNotNullAndReturn(frameworkElement.DataContext.GetType().FullName));
+        var list = applicationCookieService.FindSysMenuListByRecursionComponent(Guard.IsNotNullAndReturn(frameworkElement.DataContext.GetType().FullName));
         foreach (var detail in list.Where(t => string.IsNullOrWhiteSpace(t.Component) == false && string.IsNullOrWhiteSpace(t.Perms) == false))
         {
             // 有权限的不处理

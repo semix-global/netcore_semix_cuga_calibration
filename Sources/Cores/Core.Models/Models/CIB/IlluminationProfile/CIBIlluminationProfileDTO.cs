@@ -9,7 +9,6 @@ using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -18,6 +17,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.IlluminationProfile;
@@ -236,7 +236,7 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
 
         public new Item Clone()
         {
-            var clone = GuardUtils.IsAssignableToType<Item>(base.Clone());
+            var clone = Guard.IsAssignableToTypeAndReturn<Item>(base.Clone());
             clone.MinRate = MinRate;
             clone.MaxRate = MaxRate;
             clone.IsOk = IsOk;

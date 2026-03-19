@@ -3,15 +3,15 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
-using Core.Utilities;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Generate = MathNet.Numerics.Generate;
@@ -340,7 +340,7 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
 
         public new Item Clone()
         {
-            var clone = GuardUtils.IsAssignableToType<Item>(base.Clone());
+            var clone = Guard.IsAssignableToTypeAndReturn<Item>(base.Clone());
             clone.MinRate = MinRate;
             clone.MaxRate = MaxRate;
             clone.IsOk = IsOk;

@@ -1,10 +1,10 @@
 ﻿using Core.Models.Helper;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using HalconDotNet;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Extensions;
 using Semix.CoreLib;
 
 namespace Core.Services.Implements.Mock;

@@ -33,7 +33,7 @@ using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Channels;
-using Interpolator = Core.Utilities.Interpolator;
+using Interpolator = Net.Utilities.Algorithms.Modules.Interpolator;
 
 namespace CugaCalibration.ViewModels.AOD;
 
@@ -500,17 +500,17 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 // 等待所有任务完成
                 await Task.WhenAll(producerTask, Task.WhenAll(consumerTasks));
 
-                // var listRow = CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId)).YBestFocusEcs);
+                // var listRow = CalibratingItem.Items.Select(t => Guard.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId)).YBestFocusEcs);
                 //
                 // var listCol = CalibratingItem.Items.Select(t => 1 / t.SpectralDensity);
                 //
                 // var (k, b, _, _) = PolynomialCurve.Fit1(Vector<double>.Build.DenseOfEnumerable(listRow), Vector<double>.Build.DenseOfEnumerable(listCol));
                 //
                 // var resultItemDto = CalibratingItem.Items.Minima(t =>
-                //     Math.Abs(GuardUtils.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId)).XYBestFocusOffsetEcs)
+                //     Math.Abs(Guard.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId)).XYBestFocusOffsetEcs)
                 // ).First();
                 //
-                // var channelItem = GuardUtils.IsNotNullAndReturn(resultItemDto.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId));
+                // var channelItem = Guard.IsNotNullAndReturn(resultItemDto.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId));
                 // var xyEcsOffset = channelItem.XYBestFocusOffsetEcs;
                 // var calibrationResult = Math.Abs(xyEcsOffset) < Cache.Item.XYBestFocusEcsOffsetThreshold;
                 // if (calibrationResult) return true;
@@ -525,7 +525,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 //
                 // var darkFieldImageDtoList = GetMultiPMTDarkFieldLineScanImageList(spectralDensity);
                 // var resultItem = GetMultiPMTBestFocusAndAstigmatism(cancellationToken, darkFieldImageDtoList, spectralDensity);
-                // channelItem = GuardUtils.IsNotNullAndReturn(resultItem.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId));
+                // channelItem = Guard.IsNotNullAndReturn(resultItem.SingleOrDefaultChannelItem(Cache.CIBInformation.PMTId, Cache.CIBInformation.ChannelId));
                 // xyEcsOffset = channelItem.XYBestFocusOffsetEcs;
                 // calibrationResult = Math.Abs(xyEcsOffset) < Cache.Item.XYBestFocusEcsOffsetThreshold;
 
@@ -754,7 +754,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
         generateChirpAODWaveformParam.BandWidth = bandWidth;
         generateChirpAODWaveformParam.DirectoryPath = ChirpFileDirectory;
 
-        var aodWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        var aodWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationToken);
 
         var chirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
 

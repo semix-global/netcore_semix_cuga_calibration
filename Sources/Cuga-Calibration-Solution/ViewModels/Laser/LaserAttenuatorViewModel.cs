@@ -12,13 +12,14 @@ using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
+using MathNet.Numerics;
+using Net.Utilities.Algorithms.Extensions;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -215,7 +216,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
             LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.Item.StartCoefficient);
             LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 
-            var coefficients = GenerateUtils.LinearContainsEdgeRange(Cache.Item.StartCoefficient, Cache.Item.StepCoefficient, Cache.Item.StopCoefficient);
+            var coefficients = Generate.LinearRangeContainsEdge(Cache.Item.StartCoefficient, Cache.Item.StepCoefficient, Cache.Item.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
 
             foreach (var coefficient in coefficients)

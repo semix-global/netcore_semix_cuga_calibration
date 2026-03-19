@@ -32,6 +32,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Channels;
 using Core.Models.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using ScottPlot;
@@ -550,7 +551,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             var windowWidthStep = ((SizeI)templateImageSize).Width;
             var windowImageAllPixelByteLength = windowWidthSize * heightPixelByteLength;
             var windowStepAllPixelByteLength = windowWidthStep * heightPixelByteLength;
-            var totalCount = MathHelper.SlideCount(windowImageAllPixelByteLength, windowStepAllPixelByteLength, bodyBytesLength);
+            var totalCount = Math.SlideCount(windowImageAllPixelByteLength, windowStepAllPixelByteLength, bodyBytesLength);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
@@ -855,7 +856,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var imageAllPixelByteLength = Cache.Item.ImageWidth * heightPixelByteLength;
                 var verifyStepAllPixelByteLength = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.XPixelSize * heightPixelByteLength;
 
-                var slideCount = MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength);
+                var slideCount = Math.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength);
                 Guard.IsLessThanOrEqualTo(slideCount, imageCount);
                 Guard.IsGreaterThanOrEqualTo(slideCount, 2);
 

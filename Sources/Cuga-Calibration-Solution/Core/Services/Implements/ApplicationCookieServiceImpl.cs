@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Helper;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
@@ -13,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
 using static Local.SQL.DB.Providers.Models.Enums.MenuTypeEnum;
@@ -148,7 +148,7 @@ public sealed class ApplicationCookieServiceImpl(
     {
         var (xDirection, yDirection) = calibrationStageServiceImpl.GetMachineDirection().Anything;
 
-        var cache = GuardUtils.IsNotNullAndReturn(cacheProvider.GetOrDefault<CIBLineCentricityCache>());
+        var cache = Guard.IsNotNullAndReturn(cacheProvider.GetOrDefault<CIBLineCentricityCache>());
 
         var resultList = result.Where(t => t.ProductivityInformation == productivityInformation)
             .OrderBy(t => t.PmtId)

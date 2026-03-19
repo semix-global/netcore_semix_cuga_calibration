@@ -6,7 +6,6 @@ using Core.Models.Models.Common.Cookies;
 using Microsoft.Extensions.Logging;
 using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -36,14 +35,14 @@ public sealed partial class GenerateAODWaveformParamUserControl
 
         if (DesignerProperties.GetIsInDesignMode(this)) return;
 
-        _logger = GuardUtils.IsAssignableToType<ILogger<GenerateAODWaveformParamUserControl>>(HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType())));
+        _logger = Guard.IsAssignableToTypeAndReturn<ILogger<GenerateAODWaveformParamUserControl>>(HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType())));
         _dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
     }
 
     [RelayCommand]
     private void ChangeDirectoryPath() => Invoke(param =>
     {
-        var dialog = GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).TryShowSelectDirectoryPathDialog(out var directoryPath);
+        var dialog = Guard.IsNotNullAndReturn(_dialogWindowProvider).TryShowSelectDirectoryPathDialog(out var directoryPath);
         if (dialog == false) return;
 
         param.DirectoryPath = directoryPath;
@@ -92,7 +91,7 @@ public sealed partial class GenerateAODWaveformParamUserControl
     {
         try
         {
-            var dialog = GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).TryShowSelectFilePathDialog(".xlsx", out var filePath);
+            var dialog = Guard.IsNotNullAndReturn(_dialogWindowProvider).TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
             generateAODWaveformElectrodeConfiguration.UniformityConfigurations = [];
@@ -112,19 +111,19 @@ public sealed partial class GenerateAODWaveformParamUserControl
             if (values.Length > 0)
             {
                 generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
-                GuardUtils.IsNotNullAndReturn(_logger).LogInformation("Import Uniformity Configuration OK!");
-                GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration OK!");
+                Guard.IsNotNullAndReturn(_logger).LogInformation("Import Uniformity Configuration OK!");
+                Guard.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration OK!");
             }
             else
             {
-                GuardUtils.IsNotNullAndReturn(_logger).LogWarning("Import Uniformity Configuration Failed! No data found.");
-                GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Guard.IsNotNullAndReturn(_logger).LogWarning("Import Uniformity Configuration Failed! No data found.");
+                Guard.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             }
         }
         catch (Exception ex)
         {
-            GuardUtils.IsNotNullAndReturn(_logger).LogError(ex, "{@Name}: Import Uniformity Configuration", nameof(GenerateAODWaveformParamUserControl));
-            GuardUtils.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog($"""
+            Guard.IsNotNullAndReturn(_logger).LogError(ex, "{@Name}: Import Uniformity Configuration", nameof(GenerateAODWaveformParamUserControl));
+            Guard.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog($"""
                                                                              Import Uniformity Configuration Failed!
                                                                              {ex.Message}
                                                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -156,7 +155,7 @@ public sealed partial class GenerateAODWaveformParamUserControl
         Guard.IsNotNull(_logger);
         Guard.IsNotNull(_dialogWindowProvider);
 
-        var param = GuardUtils.IsAssignableToType<AbstractGenerateAODWaveformParam>(DataContext);
+        var param = Guard.IsAssignableToTypeAndReturn<AbstractGenerateAODWaveformParam>(DataContext);
 
         action.Invoke(param);
     }

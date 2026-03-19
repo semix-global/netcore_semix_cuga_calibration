@@ -1,13 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Humanizer;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
 using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -87,12 +87,12 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
                 ScatterPlotControl.GetOrAddScatterLine(
                     1,
                     "Amplitude",
-                    [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, GuardUtils.IsNotNullAndReturn(t.MaxItem).Amplitude))],
+                    [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, Guard.IsNotNullAndReturn(t.MaxItem).Amplitude))],
                     Colors.Blue);
                 ScatterPlotControl.GetOrAddScatterLine(
                     2,
                     "Measure Power",
-                    [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, GuardUtils.IsNotNullAndReturn(t.MaxItem).MeasurePower))],
+                    [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, Guard.IsNotNullAndReturn(t.MaxItem).MeasurePower))],
                     Colors.Blue);
             }
         }

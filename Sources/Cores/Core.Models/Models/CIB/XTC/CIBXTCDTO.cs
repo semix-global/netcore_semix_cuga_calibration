@@ -6,7 +6,6 @@ using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -15,6 +14,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 
@@ -352,7 +352,7 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
 
         public new Item Clone()
         {
-            var clone = GuardUtils.IsAssignableToType<Item>(base.Clone());
+            var clone = Guard.IsAssignableToTypeAndReturn<Item>(base.Clone());
             clone.Error = Error;
             clone.IsOk = IsOk;
 

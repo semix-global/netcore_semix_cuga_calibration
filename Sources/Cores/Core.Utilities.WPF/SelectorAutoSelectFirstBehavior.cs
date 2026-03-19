@@ -1,9 +1,9 @@
 using Microsoft.Xaml.Behaviors;
-using Net.Utilities.Models;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using CommunityToolkit.Diagnostics;
 
 namespace Core.Utilities.WPF;
 
@@ -17,7 +17,7 @@ public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
         AssociatedObject.Loaded += OnTabControlLoaded;
 
         var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(Selector));
-        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
+        Guard.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     protected override void OnDetaching()
@@ -27,7 +27,7 @@ public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
         AssociatedObject.Loaded -= OnTabControlLoaded;
 
         var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(Selector));
-        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
+        Guard.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     private void OnTabControlLoaded(object? sender, RoutedEventArgs e) => TrySelectFirstItem();
