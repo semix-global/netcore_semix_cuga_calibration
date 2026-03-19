@@ -39,12 +39,21 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     private IReadOnlyList<CIBLightMatchingDTOItem> _items = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private ConcurrentBag<KeyValuePair<int, double>> _hazeTargetPMTValues = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private ConcurrentBag<KeyValuePair<int, double>> _silicaSphereAveragePMTValues = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private double? _silicaSphereTargetPMTValue;
 
 #pragma warning disable IDE0079
@@ -120,13 +129,6 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
             {
                 if (HazeTargetPMTValues.TryGetSingle(t => t.Key == channelId, out var hazeTargetPMTValueKvp))
                 {
-                    WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
-                        2,
-                        "Result",
-                        [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGain))],
-                        Colors.Red,
-                        MarkerShape.HorizontalBar));
-
                     var hazeCount = itemItems.Max(t => t.HazeItems.Count);
                     for (var i = 0; i < hazeCount; i++)
                     {
@@ -162,19 +164,19 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
                     scatterPlotControl.GetOrAddYLine(0, "Target", hazeTargetPMTValueKvp.Value, Colors.Red);
                 }
 
+                WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                    2,
+                    "Result",
+                    [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGain))],
+                    Colors.Red,
+                    MarkerShape.HorizontalBar));
+
                 if (SilicaSphereTargetPMTValue is not null)
                 {
                     if (SilicaSphereAveragePMTValues.TryGetSingle(t => t.Key == channelId, out var silicaSphereAveragePMTValueKvp))
                     {
                         var yLine = scatterPlotControl.GetOrAddYLine(3, "Average", silicaSphereAveragePMTValueKvp.Value, Colors.Yellow);
                         yLine.LinePattern = LinePattern.Solid;
-
-                        WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
-                            5,
-                            "Result",
-                            [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGainPlusMultiplicativeFactors))],
-                            Colors.Red,
-                            MarkerShape.HorizontalBar));
 
                         var silicaSphereCount = itemItems.Max(t => t.SilicaSphereItems.Count);
                         for (var i = 0; i < silicaSphereCount; i++)
@@ -211,6 +213,13 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
                     scatterPlotControl.GetOrAddYLine(3, "Target", SilicaSphereTargetPMTValue.Value, Colors.Red);
                 }
+
+                WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                    5,
+                    "Result",
+                    [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGainPlusMultiplicativeFactors))],
+                    Colors.Red,
+                    MarkerShape.HorizontalBar));
             }
             finally
             {
@@ -301,9 +310,15 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Item> _hazeItems = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Item> _silicaSphereItems = [];
 
     [ObservableProperty]
