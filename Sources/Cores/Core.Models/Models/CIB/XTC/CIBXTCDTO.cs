@@ -26,21 +26,29 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private AODUniformityDTO.WindowItem _startWindowItem = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private AODUniformityDTO.WindowItem _stopWindowItem = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
     private IReadOnlyList<CIBXTCDTOItem> _items = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private ConcurrentBag<KeyValuePair<int, double>> _targetPixelValues = [];
 
     [ObservableProperty]
@@ -197,55 +205,57 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
             try
             {
-                if (TargetPixelValues.TryGetSingle(t => t.Key == pmtId, out var targetPMTValueKvp) == false) return;
-                scatterPlotControl.GetOrAddXLine(1, "Target", targetPMTValueKvp.Value, Colors.Red);
+                if (TargetPixelValues.TryGetSingle(t => t.Key == pmtId, out var targetPMTValueKvp))
+                {
+                    scatterPlotControl.GetOrAddXLine(1, "Target", targetPMTValueKvp.Value, Colors.Red);
+
+                    var count = itemItems.Max(t => t.Items.Count);
+                    for (var i = 0; i < count; i++)
+                    {
+                        var itemItemsData = itemItems.Where(t => i < t.Items.Count)
+                            .Select(t => (t.CIBInformation.ChannelId, Item: t.Items[i]))
+                            .ToArray();
+
+                        var minChannelId = itemItemsData.Min(t => t.ChannelId);
+                        var maxChannelId = itemItemsData.Max(t => t.ChannelId);
+
+                        foreach (var (channelId, itemItemData) in itemItemsData)
+                        {
+                            scatterPlotControl.GetOrAddScatterLine(
+                                0,
+                                "Window",
+                                [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                                Colors.Red);
+
+                            var color = Constants.Turbo.GetColor(i, new Range(0, count - 1));
+                            if (minChannelId != maxChannelId) color = color.Lighten((1 - new Range(minChannelId, maxChannelId).Normalize(channelId)) * 0.8);
+
+                            scatterPlotControl.GetOrAddScatterLine(
+                                1,
+                                $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
+                                [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                                color).IsVisible = i == count - 1;
+
+                            scatterPlotControl.GetOrAddScatterLine(
+                                1,
+                                $"Smooth: {i + 1}: {nameof(CIBInformation.ChannelId)}({channelId})",
+                                [.. itemItemData.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                                color).IsVisible = i == count - 1;
+
+                            scatterPlotControl.GetOrAddXLine(
+                                1,
+                                $"{i + 1} {nameof(CIBInformation.ChannelId)}({channelId})",
+                                itemItemData.HorizontalProjectMinPixel,
+                                color).IsVisible = i == count - 1;
+                        }
+                    }
+                }
 
                 scatterPlotControl.GetOrAddScatterLine(
                     2,
                     "Result",
                     [.. itemItems.Select(t => new Point(t.CIBInformation.ChannelId, t.Delay))],
                     Colors.Red);
-
-                var count = itemItems.Max(t => t.Items.Count);
-                for (var i = 0; i < count; i++)
-                {
-                    var itemItemsData = itemItems.Where(t => i < t.Items.Count)
-                        .Select(t => (t.CIBInformation.ChannelId, Item: t.Items[i]))
-                        .ToArray();
-
-                    var minChannelId = itemItemsData.Min(t => t.ChannelId);
-                    var maxChannelId = itemItemsData.Max(t => t.ChannelId);
-
-                    foreach (var (channelId, itemItemData) in itemItemsData)
-                    {
-                        scatterPlotControl.GetOrAddScatterLine(
-                            0,
-                            "Window",
-                            [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
-                            Colors.Red);
-
-                        var color = Constants.Turbo.GetColor(i, new Range(0, count - 1));
-                        if (minChannelId != maxChannelId) color = color.Lighten((1 - new Range(minChannelId, maxChannelId).Normalize(channelId)) * 0.8);
-
-                        scatterPlotControl.GetOrAddScatterLine(
-                            1,
-                            $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
-                            [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                            color).IsVisible = i == count - 1;
-
-                        scatterPlotControl.GetOrAddScatterLine(
-                            1,
-                            $"Smooth: {i + 1}: {nameof(CIBInformation.ChannelId)}({channelId})",
-                            [.. itemItemData.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                            color).IsVisible = i == count - 1;
-
-                        scatterPlotControl.GetOrAddXLine(
-                            1,
-                            $"{i + 1} {nameof(CIBInformation.ChannelId)}({channelId})",
-                            itemItemData.HorizontalProjectMinPixel,
-                            color).IsVisible = i == count - 1;
-                    }
-                }
             }
             finally
             {
@@ -302,6 +312,9 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Item> _items = [];
 
     [ObservableProperty]
