@@ -96,7 +96,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-        StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
+        //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
         StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition == Point.Origin
             ? MicroscopeCalChip.DSWBrightFieldMachineAffinePosition
             : Cache.Item.CalChipRTFCBrightFieldMachinePosition));
@@ -171,7 +171,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
             case 2:
                 Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-                StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
+                //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition));
                 return true;
 
@@ -340,7 +340,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                    StageViewModel.SetAbsoluteStageTheta(calChipSiteModelEnum is CalChipSiteModelEnum.DswModel ? MicroscopeCalChip.DSWAlignmentDegree : 0);
+                    //StageViewModel.SetAbsoluteStageTheta(calChipSiteModelEnum is CalChipSiteModelEnum.DswModel ? MicroscopeCalChip.DSWAlignmentDegree : 0);
                     StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition), calChipSiteModelEnum);
 
                     var rtfcResultDTO = calChipSiteModelEnum switch
