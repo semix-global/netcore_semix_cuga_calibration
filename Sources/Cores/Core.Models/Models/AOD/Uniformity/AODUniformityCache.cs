@@ -85,7 +85,7 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private int _initializeWindowLinearSpacedCount = 11;
-    
+
     [ObservableProperty]
     private double _initializeWindowLinearSpacedRate = 0.5;
 

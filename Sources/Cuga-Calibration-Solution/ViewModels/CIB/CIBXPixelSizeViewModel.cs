@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
+using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.CIB.XPixelSize;
@@ -18,24 +19,23 @@ using HalconDotNet;
 using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
+using ScottPlot;
 using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Threading.Channels;
-using Core.Models.Extensions;
-using Net.Utilities.Algorithms.Modules;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using ScottPlot;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -644,9 +644,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 .OrderBy(t => t.ScorePoint.X)
                 .ToArray();
 
-            var (indexes, _) = Extremumor.FindMaxima([..matches.Select(t => t.ScorePoint)]);
+            var (indexes, _) = Extremumor.FindMaxima([.. matches.Select(t => t.ScorePoint)]);
             var filterIndexes = indexes.Where(t => matches[t].IsMatchOk).ToArray();
-            filterIndexes = Filter.NMS([..filterIndexes.Select(t => matches[t].ScorePoint)], templateImageSize.Width)
+            filterIndexes = Filter.NMS([.. filterIndexes.Select(t => matches[t].ScorePoint)], templateImageSize.Width)
                 .Indexes
                 .Select(t => filterIndexes[t])
                 .ToArray();
@@ -909,7 +909,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var htmlQuote = new HtmlQuote(new
                 {
                     Cache.Threshold,
-                    Score = new HtmlPlot2DLinesChart([(string.Empty, [..selectedReviewItem.VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))], string.Empty)], string.Empty),
+                    Score = new HtmlPlot2DLinesChart([(string.Empty, [.. selectedReviewItem.VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))], string.Empty)], string.Empty),
                     verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. selectedReviewItem.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
                     verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, selectedReviewItem.VerifySplitDifferences.ToPoints())], string.Empty),
                     CalibratedXPixelSize = selectedReviewItem.XPixelSize,

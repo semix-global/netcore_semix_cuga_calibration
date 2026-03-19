@@ -2,14 +2,17 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
+using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.Status;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
+using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
@@ -28,9 +31,6 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using Core.Models.Enums.Collector;
-using Core.Models.Models.Laser.OpticalPowerMeter;
-using Humanizer;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -825,7 +825,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                         var itemItemData = new AODUniformityDTOItem.Item
                         {
-                            Window = [..CalibratingItem.Item.Window],
+                            Window = [.. CalibratingItem.Item.Window],
                             PrescanAODWaveformProfiles = prescanAODWaveformProfiles,
                             ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
@@ -917,8 +917,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     }
 
                     CalibratingItem.Item.Window = window;
-                    CalibratingItem.Item.Items[times].MappingStatuses = [..mappingStatuses];
-                    CalibratingItem.Item.VerifyMappingStatuses = [..mappingStatuses];
+                    CalibratingItem.Item.Items[times].MappingStatuses = [.. mappingStatuses];
+                    CalibratingItem.Item.VerifyMappingStatuses = [.. mappingStatuses];
 
                     var htmlBullet = new HtmlBullet(new
                     {
@@ -951,11 +951,11 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                             if (dialogButtonsEnum != DialogResultEnum.OK) return false;
                         }
 
-                        CalibratingItem.Item.Window = [..itemItemData.Window];
+                        CalibratingItem.Item.Window = [.. itemItemData.Window];
                         CalibratingItem.Item.VerifyMinRate = itemItemData.MinRate;
                         CalibratingItem.Item.VerifyMaxRate = itemItemData.MaxRate;
-                        CalibratingItem.Item.VerifyImageHorizontalProjects = [..itemItemData.ImageHorizontalProjects];
-                        CalibratingItem.Item.VerifyMappingStatuses = [..itemItemData.MappingStatuses];
+                        CalibratingItem.Item.VerifyImageHorizontalProjects = [.. itemItemData.ImageHorizontalProjects];
+                        CalibratingItem.Item.VerifyMappingStatuses = [.. itemItemData.MappingStatuses];
                         CalibratingItem.IsCalibrated = true;
 
                         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum

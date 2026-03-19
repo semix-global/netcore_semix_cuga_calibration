@@ -1,4 +1,4 @@
-﻿// #define XPixelSizeTest
+// #define XPixelSizeTest
 
 using AwesomeAssertions;
 using MiniExcelLibs;
@@ -33,7 +33,7 @@ public class XPixelSizeTest
         var (indexes, _) = Extremumor.FindMaxima(points);
 
         var filterIndexes = indexes.Where(t => points[t].Y >= threshold).ToArray();
-        filterIndexes = Filter.NMS([..filterIndexes.Select(t => points[t])], 402).Indexes.Select(t => filterIndexes[t]).ToArray();
+        filterIndexes = Filter.NMS([.. filterIndexes.Select(t => points[t])], 402).Indexes.Select(t => filterIndexes[t]).ToArray();
 
         filterIndexes = filterIndexes.Select(t => (Index: t, points[t].Y)).OrderByDescending(t => t.Y).Take(count).Select(t => t.Index).ToArray();
 

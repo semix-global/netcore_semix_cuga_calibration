@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -6,14 +7,13 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using CommunityToolkit.Diagnostics;
-using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Models.Geometries;
 using Generate = MathNet.Numerics.Generate;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -161,7 +161,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
         public void CalculateHorizontalProjectMinPixel(int segmentCount)
         {
-            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([..ImageHorizontalProjects])).ToArray();
+            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. ImageHorizontalProjects])).ToArray();
 
             var vShapeWindowBySegments = Generate.LinearVShapeWindowBySegments(
                 1d,
@@ -181,7 +181,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 
         public void CalculateHorizontalProjectMinPixels(IReadOnlyList<(int VStartIndex, int VMiddleIndex, int VStopIndex)> regions, IReadOnlyList<Point> prescanToImageIndexMappings)
         {
-            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([..ImageHorizontalProjects])).ToArray();
+            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. ImageHorizontalProjects])).ToArray();
 
             var (indexes, _) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 
@@ -318,8 +318,8 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
         WindowLimitMax = WindowLimitMax,
         VerifyMinRate = VerifyMinRate,
         VerifyMaxRate = VerifyMaxRate,
-        VerifyImageHorizontalProjects = [..VerifyImageHorizontalProjects],
-        VerifyMappingStatuses = [..VerifyMappingStatuses]
+        VerifyImageHorizontalProjects = [.. VerifyImageHorizontalProjects],
+        VerifyMappingStatuses = [.. VerifyMappingStatuses]
     };
 
     #endregion Mapper
@@ -344,7 +344,7 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
             clone.MinRate = MinRate;
             clone.MaxRate = MaxRate;
             clone.IsOk = IsOk;
-            clone.MappingStatuses = [..MappingStatuses];
+            clone.MappingStatuses = [.. MappingStatuses];
 
             return clone;
         }

@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
@@ -9,7 +10,6 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using CommunityToolkit.Diagnostics;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 

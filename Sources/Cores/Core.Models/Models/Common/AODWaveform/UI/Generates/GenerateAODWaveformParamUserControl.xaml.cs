@@ -124,9 +124,9 @@ public sealed partial class GenerateAODWaveformParamUserControl
         {
             Guard.IsNotNullAndReturn(_logger).LogError(ex, "{@Name}: Import Uniformity Configuration", nameof(GenerateAODWaveformParamUserControl));
             Guard.IsNotNullAndReturn(_dialogWindowProvider).ShowDialog($"""
-                                                                             Import Uniformity Configuration Failed!
-                                                                             {ex.Message}
-                                                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                                                        Import Uniformity Configuration Failed!
+                                                                        {ex.Message}
+                                                                        """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
     });
 

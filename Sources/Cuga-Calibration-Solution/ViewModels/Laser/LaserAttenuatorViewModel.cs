@@ -8,7 +8,9 @@ using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -18,8 +20,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
-using MathNet.Numerics;
-using Net.Utilities.Algorithms.Extensions;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -182,7 +182,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         await InvokeCalibrateAsync(async () =>
         {
             var laserOpticalPower = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
-                                                                        && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType 
+                                                                        && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
                                                                         && t.IsOk);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new

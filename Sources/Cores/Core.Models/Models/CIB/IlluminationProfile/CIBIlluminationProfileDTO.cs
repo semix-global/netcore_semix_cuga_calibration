@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
@@ -17,7 +18,6 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using CommunityToolkit.Diagnostics;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.IlluminationProfile;

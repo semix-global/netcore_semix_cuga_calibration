@@ -384,7 +384,7 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.CIBInformationPMTIds.Count* applicationCookie.OpticsMagTypeProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.CIBInformationPMTIds.Count * applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB Y Pixel Size is Empty";
 

@@ -19,6 +19,7 @@ using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
@@ -33,7 +34,6 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using Net.Utilities.Algorithms.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -272,7 +272,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 mmdConfigurationList.Add(new CIBMMDCache.MMDConfiguration { CIBInformation = cibInformation });
             }
 
-            Cache.MMDConfigurations = [..mmdConfigurationList.DistinctBy(t => t.CIBInformation).OrderBy(t => t.CIBInformation)];
+            Cache.MMDConfigurations = [.. mmdConfigurationList.DistinctBy(t => t.CIBInformation).OrderBy(t => t.CIBInformation)];
 
             return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t))
                    && ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
@@ -492,7 +492,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Where(t => t > minFitMeasurePowerPoint.Y)
                     .Select(t =>
                     {
-                        var solveForX =  FindRoots.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
+                        var solveForX = FindRoots.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
                         return HostEnvironment.IsProduction()
                             ? new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t)

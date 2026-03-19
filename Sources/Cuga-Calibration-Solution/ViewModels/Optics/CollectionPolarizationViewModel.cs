@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -17,7 +18,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using System.IO;
-using CommunityToolkit.Diagnostics;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 

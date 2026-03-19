@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;
@@ -6,7 +7,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Diagnostics;
 using System.IO;
-using Core.Utilities;
 using Xunit;
 
 namespace CugaCalibrationUnitTest;

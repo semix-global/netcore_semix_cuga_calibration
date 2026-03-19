@@ -1,4 +1,4 @@
-﻿// #define VSharpTest
+// #define VSharpTest
 
 using AwesomeAssertions;
 using CommunityToolkit.Diagnostics;
@@ -7,13 +7,13 @@ using Core.Utilities;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
-using Xunit;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.ScottPlot.WPF.WPF;
 using ScottPlot;
+using Xunit;
 using Generate = MathNet.Numerics.Generate;
 using Point = Net.Utilities.Models.Geometries.Point;
 
@@ -174,7 +174,7 @@ public class VSharpTest
         using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
         var lineHorizontalProjects = isReverse ? lineImage.GetHorizontalProjects().Reverse().ToArray() : lineImage.GetHorizontalProjects();
 
-        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([..lineHorizontalProjects])).ToArray();
+        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. lineHorizontalProjects])).ToArray();
         var smoothImageHorizontalProjectPoints = smoothImageHorizontalProjects.ToPoints();
 
         var (indexes, smoothImageHorizontalProjectMinimaPoints) = Extremumor.FindMinima(smoothImageHorizontalProjectPoints);
@@ -442,7 +442,7 @@ public class VSharpTest
         using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
         var lineHorizontalProjects = lineImage.GetHorizontalProjects();
 
-        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([..lineHorizontalProjects])).ToArray();
+        var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. lineHorizontalProjects])).ToArray();
         var smoothImageHorizontalProjectPoints = smoothImageHorizontalProjects.ToPoints();
 
         var vShapeWindowBySegments = Generate.LinearVShapeWindowBySegments(

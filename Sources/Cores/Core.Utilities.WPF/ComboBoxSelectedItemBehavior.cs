@@ -1,9 +1,9 @@
+using CommunityToolkit.Diagnostics;
 using Microsoft.Xaml.Behaviors;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using CommunityToolkit.Diagnostics;
 
 namespace Core.Utilities.WPF;
 
