@@ -389,21 +389,36 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                         false,
                         cancellationToken);
 
-                    var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image);
-                    item.BestFocus = bestFocus;
-                    item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
-                    item.BestFocus.BestXStrehlRatioECS = startECS + item.BestFocus.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-                    item.BestFocus.BestYStrehlRatioECS = startECS + item.BestFocus.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    try
                     {
-                        item.Lambda,
-                        item.SCMotorAbsoluteValueL1,
-                        item.SCMotorAbsoluteValueL3,
-                        item.BestFocus.RawImageFilePath,
-                        XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                        YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
-                    }), HtmlLogUniqueId.LoggingHtml());
+                        var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image);
+                        item.BestFocus = bestFocus;
+                        item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
+                        item.BestFocus.BestXStrehlRatioECS = startECS + item.BestFocus.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+                        item.BestFocus.BestYStrehlRatioECS = startECS + item.BestFocus.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+                        
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                        {
+                            item.Lambda,
+                            item.SCMotorAbsoluteValueL1,
+                            item.SCMotorAbsoluteValueL3,
+                            item.BestFocus.RawImageFilePath,
+                            XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                            YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
+                    catch (Exception ex)
+                    {
+                        item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                        {
+                            Exception = ex,
+                            item.Lambda,
+                            item.SCMotorAbsoluteValueL1,
+                            item.SCMotorAbsoluteValueL3,
+                            item.BestFocus.RawImageFilePath,
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
                 }
 
                 CalibratingItem.IsCalibrated = true;
