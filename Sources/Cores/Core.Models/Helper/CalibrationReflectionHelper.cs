@@ -1,7 +1,7 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Models;
 using Core.Wcf.Models;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using System.Collections;
 using System.ComponentModel;
 using System.Reflection;
@@ -21,16 +21,16 @@ public static class CalibrationReflectionHelper
         foreach (var fatherPropertyInfo in typeof(CalibrationObj).GetProperties())
         {
             var items = new List<CalibrationCategoryItem>();
-            var calibrationCategory = new CalibrationCategory(GuardUtils.IsNotNullAndReturn(fatherPropertyInfo.GetCustomAttribute<DescriptionAttribute>()).Description, fatherPropertyInfo.PropertyType, items);
+            var calibrationCategory = new CalibrationCategory(Guard.IsNotNullAndReturn(fatherPropertyInfo.GetCustomAttribute<DescriptionAttribute>()).Description, fatherPropertyInfo.PropertyType, items);
 
             foreach (var property in fatherPropertyInfo.PropertyType.GetProperties())
             {
                 var isArray = typeof(IEnumerable).IsAssignableFrom(property.PropertyType);
 
-                var childCalibrationWcfType = GuardUtils.IsNotNullAndReturn(isArray ? property.PropertyType.GetElementType() : property.PropertyType);
+                var childCalibrationWcfType = Guard.IsNotNullAndReturn(isArray ? property.PropertyType.GetElementType() : property.PropertyType);
                 var childCalibrationDtoInfo = WcfModelTypeToCalibrationDtoType(childCalibrationWcfType);
 
-                items.Add(new CalibrationCategoryItem(childCalibrationWcfType, childCalibrationDtoInfo.dtoType, childCalibrationDtoInfo.MethodInfo, isArray, GuardUtils.IsNotNullAndReturn(childCalibrationDtoInfo.dtoType.Namespace)));
+                items.Add(new CalibrationCategoryItem(childCalibrationWcfType, childCalibrationDtoInfo.dtoType, childCalibrationDtoInfo.MethodInfo, isArray, Guard.IsNotNullAndReturn(childCalibrationDtoInfo.dtoType.Namespace)));
             }
 
             resultList.Add(calibrationCategory);
@@ -56,6 +56,6 @@ public static class CalibrationReflectionHelper
             return (dtoType: t, methodInfo);
         }).Single(t => t.dtoType is not null);
 
-        return (GuardUtils.IsNotNullAndReturn(targetDtoInfo.dtoType), GuardUtils.IsNotNullAndReturn(targetDtoInfo.methodInfo));
+        return (Guard.IsNotNullAndReturn(targetDtoInfo.dtoType), Guard.IsNotNullAndReturn(targetDtoInfo.methodInfo));
     }
 }

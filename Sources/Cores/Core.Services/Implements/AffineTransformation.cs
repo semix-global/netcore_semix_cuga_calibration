@@ -382,8 +382,8 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             alignmentRealLineList.Add(($"row {row}", ToPoints(realXRow, realYCol)));
             alignmentRealLineList.Add(($"row {row}: y = {k2:e3}x + {b2:f3}, r^2 = {rSquared2}", ToPoints(realXRow, yPredicted2)));
 
-            thetaRotateVector[row - minRowIndex] = MathUtils.TwoLineToIncludedRadianAngle(k2, k1); // 每行的夹角
-            alignmentIncludedDegreeAngleList.Add(new Point(row, MathUtils.RadianAngleToDegreeAngle(thetaRotateVector[row - minRowIndex])));
+            thetaRotateVector[row - minRowIndex] = Math.TwoLineToIncludedRadianAngle(k2, k1); // 每行的夹角
+            alignmentIncludedDegreeAngleList.Add(new Point(row, Math.RadianAngleToDegreeAngle(thetaRotateVector[row - minRowIndex])));
             alignmentErrorList.Add(new Point(row, diameter * Math.Tan(thetaRotateVector[row - minRowIndex])));
         }
 
@@ -393,7 +393,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         var htmlBullet = new HtmlBullet(new
         {
             isAlignmentSuccess,
-            meanThetaRotate = $"{MathUtils.RadianAngleToDegreeAngle(meanAlignmentTheta):f10}°",
+            meanThetaRotate = $"{Math.RadianAngleToDegreeAngle(meanAlignmentTheta):f10}°",
             FitReal = new HtmlPlot2DLinesChart([.. alignmentRealLineList], "unit: um"),
             alignmentIncludedDegreeAngleList = new HtmlPlot2DLinesChart([(nameof(alignmentIncludedDegreeAngleList), [.. alignmentIncludedDegreeAngleList])], "unit: °"),
             alignmentErrorList = new HtmlPlot2DLinesChart([(nameof(alignmentErrorList), [.. alignmentErrorList])], "unit: um")
@@ -480,9 +480,9 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             gantryLineList.Add(($"column {column}", ToPoints(realYColumn, realXColumn)));
             gantryLineList.Add(($"column {column}: y = {k2:e3}x + {b2:f3}, r^2 = {rSquared2}", ToPoints(realYColumn, yPredicted2)));
 
-            thetaGantryVector[column - minColumnIndex] = MathUtils.TwoLineToIncludedRadianAngle(k2, k1); // 每列的夹角
+            thetaGantryVector[column - minColumnIndex] = Math.TwoLineToIncludedRadianAngle(k2, k1); // 每列的夹角
 
-            gantryIncludedDegreeAngleList.Add(new Point(column, MathUtils.RadianAngleToDegreeAngle(thetaGantryVector[column - minColumnIndex])));
+            gantryIncludedDegreeAngleList.Add(new Point(column, Math.RadianAngleToDegreeAngle(thetaGantryVector[column - minColumnIndex])));
             gantryErrorList.Add(new Point(column, diameter * Math.Tan(thetaGantryVector[column - minColumnIndex])));
         }
 
@@ -492,7 +492,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
         htmlBullet = new HtmlBullet(new
         {
             isGantrySuccess,
-            meanThetaGantry = $"{MathUtils.RadianAngleToDegreeAngle(meanGantryTheta):f10}°",
+            meanThetaGantry = $"{Math.RadianAngleToDegreeAngle(meanGantryTheta):f10}°",
             Fit = new HtmlPlot2DLinesChart([.. gantryLineList], "unit: um"),
             gantryIncludedDegreeAngleList = new HtmlPlot2DLinesChart([(nameof(gantryIncludedDegreeAngleList), [.. gantryIncludedDegreeAngleList])], "unit: °"),
             gantryErrorList = new HtmlPlot2DLinesChart([(nameof(gantryErrorList), [.. gantryErrorList])], "unit: um")

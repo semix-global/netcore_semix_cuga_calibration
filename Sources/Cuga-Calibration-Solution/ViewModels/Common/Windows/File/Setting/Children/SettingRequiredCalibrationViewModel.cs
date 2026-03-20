@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
@@ -7,7 +8,6 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.IOC.Providers;
-using Net.Utilities.Models;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 
@@ -70,7 +70,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
                         var categoryItem = new SettingRequiredCalibrationCategoryItem
                         {
                             AssemblyQualifiedName = calibrationCategoryItem.CalibrationDtoType.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false),
-                            Description = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last()
+                            Description = Guard.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last()
                         };
                         var childCalibrationCache = parentCalibrationCache?.CategoryItems.SingleOrDefault(t => t.AssemblyQualifiedName == categoryItem.AssemblyQualifiedName);
                         categoryItem.IsRequired = childCalibrationCache?.IsRequired ?? false;

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
+using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.CIB.XPixelSize;
@@ -18,15 +19,19 @@ using HalconDotNet;
 using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
+using ScottPlot;
 using System.Buffers;
 using System.IO;
 using System.Text;
@@ -489,6 +494,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             using var _ = templateId;
 
             var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
+            var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(CalibrationSetting);
 
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
@@ -523,7 +529,11 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             CalibratingItem.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
 
-            Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new { CalibratingItem.RawImageFilePath }), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Split", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                imageCount,
+                CalibratingItem.RawImageFilePath
+            }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
             await
@@ -541,7 +551,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             var windowWidthStep = ((SizeI)templateImageSize).Width;
             var windowImageAllPixelByteLength = windowWidthSize * heightPixelByteLength;
             var windowStepAllPixelByteLength = windowWidthStep * heightPixelByteLength;
-            var totalCount = MathHelper.SlideCount(windowImageAllPixelByteLength, windowStepAllPixelByteLength, bodyBytesLength);
+            var totalCount = Math.SlideCount(windowImageAllPixelByteLength, windowStepAllPixelByteLength, bodyBytesLength);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
@@ -578,6 +588,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                             itemItem,
                             templateId,
                             templateImageSize,
+                            templateMatchScoreThreshold,
                             detectImageDirectory,
                             semaphore,
                             cancellationToken);
@@ -627,33 +638,49 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
             CalibratingItem.SlideItems = [.. itemItems];
 
-            var matchPoints = Filter.NMS(
-                [
-                    .. CalibratingItem.SlideItems
-                        .Where(t => t.IsMatchOk)
-                        .Select(t => t.MatchPoint)
-                ],
-                templateImageSize.Width).Result;
-            matchPoints = Filter.MAD([.. matchPoints.Select(t => t.Y)]).Indexes.Select(t => matchPoints[t]).ToArray();
+            var matches = CalibratingItem.SlideItems
+                .Select(t => (ScorePoint: new Point(t.MatchPoint.X, t.Score), t.MatchPoint, t.IsMatchOk))
+                .Distinct()
+                .OrderBy(t => t.ScorePoint.X)
+                .ToArray();
+
+            var (indexes, _) = Extremumor.FindMaxima([.. matches.Select(t => t.ScorePoint)]);
+            var filterIndexes = indexes.Where(t => matches[t].IsMatchOk).ToArray();
+            filterIndexes = Filter.NMS([.. filterIndexes.Select(t => matches[t].ScorePoint)], templateImageSize.Width)
+                .Indexes
+                .Select(t => filterIndexes[t])
+                .ToArray();
+            filterIndexes = filterIndexes
+                .OrderByDescending(t => matches[t].ScorePoint.Y)
+                .Take(imageCount)
+                .OrderBy(t => matches[t].ScorePoint.X)
+                .ToArray();
+
+            var matchPoints = filterIndexes.Select(t => matches[t].MatchPoint).ToArray();
 
             var xDifferences = matchPoints
                 .Zip(matchPoints.Skip(1), (prev, next) => next.X - prev.X)
                 .ToArray();
-            CalibratingItem.SlideSplitDifferences = Filter.MAD(xDifferences).Result;
+            CalibratingItem.SlideSplitDifferences = Filter.MAD(xDifferences).Results;
 
-            var isOk = CalibratingItem.SlideSplitDifferences.Count >= 1;
+            var isOk = matchPoints.Length >= 2 && CalibratingItem.SlideSplitDifferences.Count >= 1;
 
             var htmlAnonymous = new
             {
-                AllScore = new HtmlPlot2DLinesChart([(string.Empty, [.. CalibratingItem.SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))])], string.Empty),
-                matchPoints = new HtmlPlot2DLinesChart([(string.Empty, matchPoints)], string.Empty),
-                xDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. xDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
-                xFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. CalibratingItem.SlideSplitDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty)
+                Score = new HtmlPlot2DLinesChart([
+                    ("All", [..matches.Select(t => t.ScorePoint)], string.Empty),
+                    ("Maxima", [..indexes.Select(t => matches[t].ScorePoint)], MarkerShape.FilledTriangleDown.ToPlotJsMarker()),
+                    ("Filter Maxima", [..filterIndexes.Select(t => matches[t].ScorePoint)], MarkerShape.Asterisk.ToPlotJsMarker())
+                ], string.Empty),
+                MatchPoints = new HtmlPlot2DLinesChart([(string.Empty, matchPoints)], string.Empty),
+                XDifferences = new HtmlPlot2DLinesChart([(string.Empty, xDifferences.ToPoints())], string.Empty),
+                XFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.SlideSplitDifferences.ToPoints())], string.Empty)
             };
 
             if (isOk == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlBullet(htmlAnonymous), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError("Error: Match Count < 2", HtmlHeaderLevelEnum.Header3, new HtmlBullet(htmlAnonymous), HtmlLogUniqueId.LoggingHtml());
+
                 return false;
             }
 
@@ -773,6 +800,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 using var _ = templateId;
 
                 var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
+                var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(CalibrationSetting);
 
                 var waferMapDieBuilder = new WaferMapDieBuilder
                 {
@@ -828,8 +856,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 var imageAllPixelByteLength = Cache.Item.ImageWidth * heightPixelByteLength;
                 var verifyStepAllPixelByteLength = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.XPixelSize * heightPixelByteLength;
 
-                var slideCount = MathHelper.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength);
+                var slideCount = Math.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength);
                 Guard.IsLessThanOrEqualTo(slideCount, imageCount);
+                Guard.IsGreaterThanOrEqualTo(slideCount, 2);
 
                 var verifyItemItems = new CIBXPixelSizeDTOItem[slideCount];
                 foreach (var (index, pointer) in Enumerable
@@ -855,6 +884,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                         verifyItemItems[index],
                         templateId,
                         templateImageSize,
+                        templateMatchScoreThreshold,
                         detectImageDirectory,
                         semaphore,
                         cancellationToken,
@@ -865,24 +895,23 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
                 selectedReviewItem.VerifyItems = [.. verifyItemItems];
 
-                var verifyXDifferences = selectedReviewItem.VerifyItems
+                selectedReviewItem.VerifySplitDifferences = selectedReviewItem.VerifyItems
                     .Zip(selectedReviewItem.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
-                selectedReviewItem.VerifySplitDifferences = Filter.MAD(verifyXDifferences).Result;
 
                 var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.VerifySplitDifferences.Average();
 
                 var waferDiameter = Cache.Item.WaferRadius * 2d;
+                var distancePixel = Math.Abs(selectedReviewItem.VerifySplitDifferences.Max() - selectedReviewItem.VerifySplitDifferences.Min());
                 var errorPixel = Math.Abs(waferDiameter / verifyRealUmPerPixel - waferDiameter / selectedReviewItem.XPixelSize);
-                var isOk = Math.Abs(selectedReviewItem.VerifySplitDifferences.Max() - selectedReviewItem.VerifySplitDifferences.Min()) <= Cache.Threshold
-                           && errorPixel <= Cache.Threshold;
+                var isOk = distancePixel <= Cache.Threshold && errorPixel <= Cache.Threshold;
 
                 var htmlQuote = new HtmlQuote(new
                 {
                     Cache.Threshold,
+                    Score = new HtmlPlot2DLinesChart([(string.Empty, [.. selectedReviewItem.VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))], string.Empty)], string.Empty),
                     verifyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. selectedReviewItem.VerifyItems.Select(t => t.MatchPoint)])], string.Empty),
-                    verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. verifyXDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
-                    verifyXFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, [.. selectedReviewItem.VerifySplitDifferences.Index().Select(t => new Point(t.Index, t.Item))])], string.Empty),
+                    verifyXDifferences = new HtmlPlot2DLinesChart([(string.Empty, selectedReviewItem.VerifySplitDifferences.ToPoints())], string.Empty),
                     CalibratedXPixelSize = selectedReviewItem.XPixelSize,
                     verifyRealUmPerPixel,
                     errorPixel = $"({errorPixel:0.###}px)/({waferDiameter:0.###}um)"
@@ -897,7 +926,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 }
                 else
                 {
-                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    errorMessageStringBuilder.AppendLine($"{title}: Error ({distancePixel:0.###} or {errorPixel:0.###}) > {Cache.Threshold:0.###}");
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                 }
 
@@ -953,6 +982,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         CIBXPixelSizeDTOItem itemItem,
         HTuple templateId,
         Size templateImageSize,
+        double templateMatchScoreThreshold,
         string detectImageDirectory,
         SemaphoreSlim semaphore,
         CancellationToken cancellationToken,
@@ -984,6 +1014,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
                 var bullet = new HtmlBullet(new
                 {
+                    templateMatchScoreThreshold,
                     currentMatchPoint = matchPoint,
                     itemItem.StartPixel,
                     itemItem.SizeI,

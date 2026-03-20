@@ -51,5 +51,5 @@ public sealed partial class CIBXTCCacheItem : CalibrationCacheBase
     private int _imageWidth = 1000;
 
     [ObservableProperty]
-    private int _prescanAODWaveformProfileSegmentCount = 8;
+    private int _prescanAODWaveformProfileSegmentCount = 10;
 }

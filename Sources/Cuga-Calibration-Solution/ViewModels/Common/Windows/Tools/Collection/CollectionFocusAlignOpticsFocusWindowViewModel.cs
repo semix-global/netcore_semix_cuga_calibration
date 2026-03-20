@@ -134,7 +134,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
 
                 foreach (var resultItemPropertyName in resultItemPropertyNames)
                 {
-                    GuardUtils.IsAssignableToType<List<Point>>(temp[resultItemPropertyName]).Add(new Point(
+                    Guard.IsAssignableToTypeAndReturn<List<Point>>(temp[resultItemPropertyName]).Add(new Point(
                         ObjectHelper.GetPropertyValue<double>(result, resultECSPropertyName),
                         ObjectHelper.GetPropertyValue<double>(resultItem, resultItemPropertyName)));
                 }
@@ -315,9 +315,9 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             () => Task.CompletedTask,
             (item, darkFieldImageDto) =>
             {
-                var hazeResultItem = GuardUtils.IsAssignableToType<HazeResultItem>(item);
+                var hazeResultItem = Guard.IsAssignableToTypeAndReturn<HazeResultItem>(item);
 
-                var matrix = Matrix<double>.Build.DenseOfArray(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix(), null);
+                var matrix = Matrix<double>.Build.DenseOfArray(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix());
 
                 var baseSize = matrix.RowCount / 3;
                 var remainder = matrix.RowCount % 3;
@@ -419,7 +419,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             },
             (item, darkFieldImageDto) =>
             {
-                var dswResultItem = GuardUtils.IsAssignableToType<DSWResultItem>(item);
+                var dswResultItem = Guard.IsAssignableToTypeAndReturn<DSWResultItem>(item);
 
                 var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) =
                     StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
@@ -518,8 +518,8 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                 var laserLightInformation = ObjectHelper.GetPropertyValue<LaserLightInformation>(Cache, nameof(Cache.HazeLaserLightInformation).Replace(Haze, name));
                 var brightFieldPosition = ObjectHelper.GetPropertyValue<Point>(Cache, nameof(Cache.HazeBrightFieldPosition).Replace(Haze, name));
 
-                var resultType = GuardUtils.IsNotNullAndReturn(Type.GetType(typeof(HazeResult).GetAssemblyQualifiedName().Replace(Haze, name)));
-                var resultItemType = GuardUtils.IsNotNullAndReturn(Type.GetType(typeof(HazeResultItem).GetAssemblyQualifiedName().Replace(Haze, name)));
+                var resultType = Guard.IsNotNullAndReturn(Type.GetType(typeof(HazeResult).GetAssemblyQualifiedName().Replace(Haze, name)));
+                var resultItemType = Guard.IsNotNullAndReturn(Type.GetType(typeof(HazeResultItem).GetAssemblyQualifiedName().Replace(Haze, name)));
 
                 var cacheAverageECSPropertyName = nameof(Cache.HazeAverageECS).Replace(Haze, name);
                 var cacheResultsPropertyName = nameof(Cache.HazeResults).Replace(Haze, name);
@@ -569,11 +569,11 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         false,
                         cancellationToken);
 
-                    var resultList = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultType)));
-                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.AddRange))).Invoke(resultList, [ObjectHelper.GetPropertyValue(Cache, cacheResultsPropertyName)]);
+                    var resultList = Guard.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultType)));
+                    Guard.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.AddRange))).Invoke(resultList, [ObjectHelper.GetPropertyValue(Cache, cacheResultsPropertyName)]);
 
-                    var result = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(resultType));
-                    var resultItemList = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultItemType)));
+                    var result = Guard.IsNotNullAndReturn(Activator.CreateInstance(resultType));
+                    var resultItemList = Guard.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultItemType)));
 
                     ObjectHelper.SetPropertyValue(result, resultECSPropertyName, ecs);
                     ObjectHelper.SetPropertyValue(result, resultItemsPropertyName, resultItemList);
@@ -585,16 +585,16 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         var filePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImageDto.Image.Save(filePath);
 
-                        var resultItem = GuardUtils.IsNotNullAndReturn(Activator.CreateInstance(resultItemType));
+                        var resultItem = Guard.IsNotNullAndReturn(Activator.CreateInstance(resultItemType));
 
                         ObjectHelper.SetPropertyValue(resultItem, resultItemImageChannelIdPropertyName, darkFieldImageDto.CIBInformation.ChannelId);
                         ObjectHelper.SetPropertyValue(resultItem, resultItemImageFilePathPropertyName, filePath);
                         await resultItemAction.Invoke(resultItem, darkFieldImageDto);
 
-                        GuardUtils.IsNotNullAndReturn(resultItemList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultItemList, [resultItem]);
+                        Guard.IsNotNullAndReturn(resultItemList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultItemList, [resultItem]);
                     }
 
-                    GuardUtils.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultList, [result]);
+                    Guard.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultList, [result]);
                     ObjectHelper.SetPropertyValue(Cache, cacheResultsPropertyName, resultList);
 
                     RefreshPlot();

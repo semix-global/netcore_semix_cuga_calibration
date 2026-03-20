@@ -17,7 +17,6 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -336,7 +335,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             // ECS/mm relay电机值增大, chuck焦点向下移动, chuck焦点向下移动 ecs增大 mm
             var defaultSlope = 1d / Cache.Item.DefaultRelayMotorRatio /* mm */
                                * 1e6d /* mm 转为 nm */
-                               * Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
+                               * Math.Cos(Math.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为垂直方向焦点移动的距离 */
                                / nmPerEcs; /* 转为 ECS */
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -418,19 +417,19 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         Cache.Item.CenterRoughECS + deltaECS - Cache.Item.RangeRoughECS,
                         Cache.Item.StepRoughECS,
                         Cache.Item.CenterRoughECS + deltaECS + Cache.Item.RangeRoughECS));
-                    GuardUtils.IsNotNullAndReturn(itemItem.MaxItem);
+                    Guard.IsNotNullAndReturn(itemItem.MaxItem);
 
                     await CatchImageAsync(Generate.LinearRange(
                         itemItem.MaxItem.ECS - Cache.Item.RangeRefinedECS,
                         Cache.Item.StepRefinedECS,
                         itemItem.MaxItem.ECS + Cache.Item.RangeRefinedECS));
-                    GuardUtils.IsNotNullAndReturn(itemItem.MaxItem);
+                    Guard.IsNotNullAndReturn(itemItem.MaxItem);
 
                     if (CalibratingItem.Items.Count > 1)
                     {
                         var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
                             Vector<double>.Build.Dense([.. CalibratingItem.Items.Select(t => t.RelayMotorAbsoluteValue)]),
-                            Vector<double>.Build.Dense([.. CalibratingItem.Items.Select(t => GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS)]));
+                            Vector<double>.Build.Dense([.. CalibratingItem.Items.Select(t => Guard.IsNotNullAndReturn(t.MaxItem).ECS)]));
 
                         defaultSlope = slope;
                         CalibratingItem.Slope = slope;
@@ -441,7 +440,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                             CalibratingItem.Slope /* ECS/mm */
                             * nmPerEcs /* 分子 ECS 转为 nm */
                             / 1e6d /* 分母mm 转为 nm */
-                            / Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为照明方向移动的距离 */
+                            / Math.Cos(Math.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为照明方向移动的距离 */
                         );
                     }
 
@@ -725,7 +724,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                             CalibratingItem.XZSlope /* ECS/mm */
                             * nmPerEcs /* 分子 ECS 转为 nm */
                             / 1e6d /* 分母mm 转为 nm */
-                            / Math.Cos(MathUtils.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为照明方向移动的距离 */
+                            / Math.Cos(Math.DegreeAngleToRadianAngle(Cache.Item.OpticsIlluminationDegreeAngle)) /* 转为照明方向移动的距离 */
                         );
                     }
 

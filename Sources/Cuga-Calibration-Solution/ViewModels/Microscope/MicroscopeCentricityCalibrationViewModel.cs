@@ -133,7 +133,6 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         SelectMicroscopeCentricityCacheItem = Cache.CurrentCalibrationCacheItem;
-        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
 
         return true;
     }

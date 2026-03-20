@@ -78,10 +78,16 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private int _imageWidth = 1000;
 
     [ObservableProperty]
-    private int _prescanAODWaveformProfileSegmentCount = 10;
+    private int _prescanAODWaveformProfileSegmentCount = 20;
 
     [ObservableProperty]
     private int _imageHorizontalProjectsSegmentCount = 100;
+
+    [ObservableProperty]
+    private int _initializeWindowLinearSpacedCount = 11;
+
+    [ObservableProperty]
+    private double _initializeWindowLinearSpacedRate = 0.5;
 
     [ObservableProperty]
     private int _imageHorizontalProjectsSkipCout;
@@ -93,5 +99,8 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private double _windowLimitRate = 0.2;
 
     [ObservableProperty]
-    private double _windowInterval = 0.1;
+    private double _windowInterval = 0.01;
+
+    [ObservableProperty]
+    private double _waitTime = 5;
 }

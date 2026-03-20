@@ -13,18 +13,18 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _hazeCalibratingRetryTimes = 5;
+    private int _hazeCalibratingRetryTimes = 10;
 
     [ObservableProperty]
-    private int _silicaSphereCalibratingRetryTimes = 5;
+    private int _silicaSphereCalibratingRetryTimes = 10;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibratingHazeThreshold), nameof(ReviewHazeThreshold))]
-    private double _hazeThreshold = 16;
+    private double _hazeThreshold = 8;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibratingSilicaSphereThreshold), nameof(CalibratingSilicaSphereThreshold))]
-    private double _silicaSphereThreshold = 16;
+    private double _silicaSphereThreshold = 8;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibratingHazeThreshold), nameof(ReviewSilicaSphereThreshold))]

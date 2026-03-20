@@ -5,7 +5,6 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -104,7 +103,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDtoBase, IClonea
                         ..Items.Select(t =>
                             new Point
                             (
-                                GuardUtils.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(channelItemDto.PmtId, channelItemDto.ChannelId)).YBestFocusEcs,
+                                Guard.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(channelItemDto.PmtId, channelItemDto.ChannelId)).YBestFocusEcs,
                                 1 / t.SpectralDensity
                             )
                         )
@@ -119,7 +118,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDtoBase, IClonea
                         ..Items.Select(t =>
                             new Point
                             (
-                                GuardUtils.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(channelItemDto.PmtId, channelItemDto.ChannelId)).XBestFocusEcs,
+                                Guard.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(channelItemDto.PmtId, channelItemDto.ChannelId)).XBestFocusEcs,
                                 1 / t.SpectralDensity
                             )
                         )
@@ -134,7 +133,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDtoBase, IClonea
                         ..Items.Select(t =>
                             new Point
                             (
-                                GuardUtils.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(channelItemDto.PmtId, channelItemDto.ChannelId)).XYBestFocusOffsetEcs,
+                                Guard.IsNotNullAndReturn(t.SingleOrDefaultChannelItem(channelItemDto.PmtId, channelItemDto.ChannelId)).XYBestFocusOffsetEcs,
                                 1 / t.SpectralDensity
                             )
                         )

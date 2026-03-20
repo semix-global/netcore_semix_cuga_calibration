@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
-using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -115,7 +114,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
                     {
                         var calibrationCategoryItemObj = new CalibrationCategoryItem
                         {
-                            Description = GuardUtils.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last(),
+                            Description = Guard.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoType.Namespace).Split('.').Last(),
                             IsAnyOk = false,
                             IsArray = calibrationCategoryItem.IsArray,
                             Type = calibrationCategoryItem.CalibrationDtoType

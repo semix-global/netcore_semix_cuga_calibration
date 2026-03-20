@@ -11,11 +11,16 @@ public partial class AODUniformityDTO
         newValue.PropertyChanged -= ItemOnPropertyChanged;
         newValue.PropertyChanged += ItemOnPropertyChanged;
 
+        OnPropertyChanged(nameof(IsReverse));
         RefreshIsReversePlot();
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshIsReversePlot();
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(IsReverse));
+            RefreshIsReversePlot();
+        }
     }
 
     partial void OnStopWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
@@ -25,11 +30,16 @@ public partial class AODUniformityDTO
         newValue.PropertyChanged -= ItemOnPropertyChanged;
         newValue.PropertyChanged += ItemOnPropertyChanged;
 
+        OnPropertyChanged(nameof(IsReverse));
         RefreshIsReversePlot();
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshIsReversePlot();
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(IsReverse));
+            RefreshIsReversePlot();
+        }
     }
 
     partial void OnMappingWindowItemChanged(WindowItem? oldValue, WindowItem newValue)
