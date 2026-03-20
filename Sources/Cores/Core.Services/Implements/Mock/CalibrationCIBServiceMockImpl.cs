@@ -179,6 +179,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isForward,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
@@ -205,6 +206,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         CIBInformation cibInformation,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
@@ -230,6 +232,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isForward,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         using var fileSteam = File.OpenRead(_mockImageFilePath);

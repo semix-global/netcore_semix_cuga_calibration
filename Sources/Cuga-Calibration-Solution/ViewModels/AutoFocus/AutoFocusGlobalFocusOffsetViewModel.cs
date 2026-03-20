@@ -352,7 +352,8 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,
-                        cancellationToken);
+                        cancellationToken,
+                        isCustomAFParam: true);
 
                     var darkFieldFilePath = $"{ImageFileDirectory}\\Verify_({globalFocusOffsetDTO.ProductivityInformation})_Guid({HtmlLogUniqueId}).jpg";
                     darkFieldImageDto.Image.Save(darkFieldFilePath);

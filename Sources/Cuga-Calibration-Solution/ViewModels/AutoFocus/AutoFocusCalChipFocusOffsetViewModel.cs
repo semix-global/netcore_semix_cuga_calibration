@@ -367,7 +367,8 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,
-                        cancellationToken);
+                        cancellationToken,
+                        isCustomAFParam: true);
 
                     var darkFieldFilePath = $"{ImageFileDirectory}\\Verify_({calChipSiteModelEnum})_Guid({HtmlLogUniqueId}).jpg";
                     darkFieldImageDto.Image.Save(darkFieldFilePath);

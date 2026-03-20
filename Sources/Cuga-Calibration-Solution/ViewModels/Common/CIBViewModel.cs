@@ -159,7 +159,8 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -171,6 +172,8 @@ public sealed class CIBViewModel(
             isCustomChirpAODWaveform,
             async () =>
             {
+                if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
+
                 var ret = await calibrationCIBService.GetPMTImagesAsync(
                     productivityInformation,
                     stageCoordinateSystemEnum,
@@ -180,6 +183,7 @@ public sealed class CIBViewModel(
                     isForward,
                     isAutoFocus,
                     isKeepRawImageCIBProfileModeEnum,
+                    isCustomAFParam,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -199,7 +203,8 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -214,7 +219,8 @@ public sealed class CIBViewModel(
             cancellationToken,
             isForward: isForward,
             isAutoFocus: isAutoFocus,
-            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum,
+            isCustomAFParam: isCustomAFParam);
 
         return darkFieldImages.Single();
     }
@@ -235,7 +241,8 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -247,6 +254,8 @@ public sealed class CIBViewModel(
             isCustomChirpAODWaveform,
             async () =>
             {
+                if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
+
                 var ret = await calibrationCIBService.GetPMTImagesAsync(
                     productivityInformation,
                     stageCoordinateSystemEnum,
@@ -255,6 +264,7 @@ public sealed class CIBViewModel(
                     cibInformation,
                     isAutoFocus,
                     isKeepRawImageCIBProfileModeEnum,
+                    isCustomAFParam,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -278,7 +288,8 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -290,6 +301,8 @@ public sealed class CIBViewModel(
             isCustomChirpAODWaveform,
             async () =>
             {
+                if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
+
                 var ret = await calibrationCIBService.GetPMTImagesAsync(
                     productivityInformation,
                     stageCoordinateSystemEnum,
@@ -299,6 +312,7 @@ public sealed class CIBViewModel(
                     isForward,
                     isAutoFocus,
                     isKeepRawImageCIBProfileModeEnum,
+                    isCustomAFParam,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -318,7 +332,8 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -333,7 +348,8 @@ public sealed class CIBViewModel(
             cancellationToken,
             isForward: isForward,
             isAutoFocus: isAutoFocus,
-            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum,
+            isCustomAFParam: isCustomAFParam);
 
         return darkFieldImages.Single();
     }
@@ -681,7 +697,8 @@ public sealed class CIBViewModel(
             (false, cibConfiguration),
             (false, laserLightInformation),
             false,
-            cancellationToken);
+            cancellationToken,
+            isCustomAFParam: true);
 
         var quality = calibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
