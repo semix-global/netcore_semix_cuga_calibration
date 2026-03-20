@@ -316,6 +316,12 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                 Cache.Item.StartLambda,
                 Cache.Item.StepLambda,
                 Cache.Item.StopLambda,
+                Cache.Item.LambdaToL1Coefficient,
+                Cache.Item.LambdaToL3Coefficient,
+                Cache.Item.SCMotorAbsoluteValueL1Center,
+                Cache.Item.SCMotorAbsoluteValueL3Center,
+                Cache.Item.IsL1ToL2Direction,
+                Cache.Item.IsL2ToL3Direction,
                 Cache.Item.XZCenterECS,
                 Cache.Item.XZRangeECS,
                 currentMotorAbsoluteValueL1,
@@ -352,7 +358,10 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlInformation($"{lambda:0.###}λ", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                    OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, lambda);
+                    var l1 = Cache.Item.SCMotorAbsoluteValueL1Center + (Cache.Item.IsL1ToL2Direction ? -1d : 1d) * lambda * Cache.Item.LambdaToL1Coefficient;
+                    var l3 = Cache.Item.SCMotorAbsoluteValueL3Center + (Cache.Item.IsL2ToL3Direction ? 1d : -1d) * lambda * Cache.Item.LambdaToL3Coefficient;
+
+                    OpticsViewModel.SetSCMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, (l1, l3));
 
                     var item = new OpticsSCDTOItem { Lambda = lambda };
                     CalibratingItem.Items = [.. CalibratingItem.Items, item];

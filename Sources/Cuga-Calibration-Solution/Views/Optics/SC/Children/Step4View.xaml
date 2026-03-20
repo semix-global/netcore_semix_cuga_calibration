@@ -80,6 +80,48 @@
                                           hc:TitleElement.TitleWidth="190"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StopLambda}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="λ to L1 Coefficient: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.LambdaToL1Coefficient}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="λ to L3 Coefficient: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.LambdaToL3Coefficient}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="L1 Center(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.SCMotorAbsoluteValueL1Center}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="L3 Center(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.SCMotorAbsoluteValueL3Center}" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="L1 =&gt; L2: "
+                                       Width="190"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                            <ToggleButton IsChecked="{Binding Cache.Item.IsL1ToL2Direction}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Background="{StaticResource DangerBrush}"
+                                          Style="{StaticResource ToggleButtonSwitch}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="L2 =&gt; L3: "
+                                       Width="190"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                            <ToggleButton IsChecked="{Binding Cache.Item.IsL2ToL3Direction}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          Background="{StaticResource DangerBrush}"
+                                          Style="{StaticResource ToggleButtonSwitch}" />
+                        </StackPanel>
                         <hc:NumericUpDown hc:TitleElement.Title="X/Z Sync Center(ECS): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
