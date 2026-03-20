@@ -19,6 +19,8 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using System.IO;
+using MathNet.Numerics;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements;
@@ -72,153 +74,100 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (mtfX.D, mtfY.D);
     }
 
-    public (
-        Point[] XStrehlRatioPoints,
-        Point[] YStrehlRatioPoints,
-        Point[] GrayPoints,
-        Point BestXStrehlRatioPoint,
-        Point[][] BestXStrehlRatioXPSFPoints,
-        Point[][] BestXStrehlRatioYPSFPoints,
-        Point BestYStrehlRatioPoint,
-        Point[][] BestYStrehlRatioXPSFPoints,
-        Point[][] BestYStrehlRatioYPSFPoints) GetXYStrehlRatios(
-            HImage image,
-            out Point[] xStrehlRatioFitPoints,
-            out Point[] yStrehlRatioFitPoints,
-            out Point[] grayFitPoints,
-            out Point[] bestXStrehlRatioXPSFFitPoints,
-            out Point[] bestXStrehlRatioYPSFFitPoints,
-            out Point[] bestYStrehlRatioXPSFFitPoints,
-            out Point[] bestYStrehlRatioYPSFFitPoints)
+    public BestFocus GetBestFocus(HImage image)
     {
-        _algorithm.STLR(
+        #region 算法调用
+
+        _algorithm.STLR_kla(
             image,
-            out var xTuple,
-            out var xStrehlRatioTuple,
-            out var yStrehlRatioTuple,
-            out var grayTuple,
-            out var fitXTuple,
-            out var xStrehlRatioFitTuple,
-            out var yStrehlRatioFitTuple,
-            out var grayFitRatioTuple);
+            out var hvXListHTuple,
+            out var hvXRatioMaxHTuple,
+            out var hvXRatioMeanHTuple,
+            out var hvXRatioMinHTuple,
+            out var hvYRatioMaxHTuple,
+            out var hvYRatioMeanHTuple,
+            out var hvYRatioMinHTuple,
+            out var hvXValuesHTuple,
+            out var hvIndXHTuple,
+            out var hvXMaxHTuple,
+            out var hvYValuesHTuple,
+            out var hvIndYHTuple,
+            out var hvYMaxHTuple,
+            out var hvPlotXHTuple,
+            out var hvPlotYHTuple,
+            out var xStrehlList,
+            out var yStrehlList,
+            out var hvRowBeginXHTuple,
+            out var hvColBeginXHTuple,
+            out var hvRowEndXHTuple,
+            out var hvColEndXHTuple,
+            out var hvKxHTuple,
+            out var hvRowBeginYHTuple,
+            out var hvColBeginYHTuple,
+            out var hvRowEndYHTuple,
+            out var hvColEndYHTuple,
+            out var hvKyHTuple);
 
-        using var _0 = xTuple;
-        using var _1 = xStrehlRatioTuple;
-        using var _2 = yStrehlRatioTuple;
-        using var _3 = grayTuple;
-        using var _4 = fitXTuple;
-        using var _5 = xStrehlRatioFitTuple;
-        using var _6 = yStrehlRatioFitTuple;
-        using var _7 = grayFitRatioTuple;
+        using var _0 = hvXListHTuple;
+        using var _1 = hvXRatioMaxHTuple;
+        using var _2 = hvXRatioMeanHTuple;
+        using var _3 = hvXRatioMinHTuple;
+        using var _4 = hvYRatioMaxHTuple;
+        using var _5 = hvYRatioMeanHTuple;
+        using var _6 = hvYRatioMinHTuple;
+        using var _7 = hvXValuesHTuple;
+        using var _8 = hvIndXHTuple;
+        using var _9 = hvXMaxHTuple;
+        using var _10 = hvYValuesHTuple;
+        using var _11 = hvIndYHTuple;
+        using var _12 = hvYMaxHTuple;
+        using var _13 = hvPlotXHTuple;
+        using var _14 = hvPlotYHTuple;
+        using var _15 = hvRowBeginXHTuple;
+        using var _16 = hvColBeginXHTuple;
+        using var _17 = hvRowEndXHTuple;
+        using var _18 = hvColEndXHTuple;
+        using var _19 = hvKxHTuple;
+        using var _20 = hvRowBeginYHTuple;
+        using var _21 = hvColBeginYHTuple;
+        using var _22 = hvRowEndYHTuple;
+        using var _23 = hvColEndYHTuple;
+        using var _24 = hvKyHTuple;
 
-        xStrehlRatioFitPoints =
-        [
-            .. Enumerable.Range(0, fitXTuple.Length)
-                .Select(t => new Point(fitXTuple[t].D, xStrehlRatioFitTuple[t].D))
-        ];
+        #endregion
 
-        yStrehlRatioFitPoints =
-        [
-            .. Enumerable.Range(0, fitXTuple.Length)
-                .Select(t => new Point(fitXTuple[t].D, yStrehlRatioFitTuple[t].D))
-        ];
+        var xs = Generate.LinearRangeInt32(0, hvXListHTuple.Length - 1);
+        var xFieldTiltPoints = Generate.LinearRangeInt32(0, hvPlotXHTuple.Length - 1).Select(t => new Point(t, hvPlotXHTuple[t].D)).ToArray();
+        var (xFieldTiltFitSlope, xFieldTiltFitIntercept, xFieldTiltFitRSquared, xFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..xFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..xFieldTiltPoints.Select(t => t.Y)]));
+        var xFieldTiltFitPoints = xFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
 
-        grayFitPoints =
-        [
-            .. Enumerable.Range(0, fitXTuple.Length)
-                .Select(t => new Point(fitXTuple[t].D, grayFitRatioTuple[t].D))
-        ];
+        var yFieldTiltPoints = Generate.LinearRangeInt32(0, hvPlotYHTuple.Length - 1).Select(t => new Point(t, hvPlotYHTuple[t].D)).ToArray();
+        var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.Y)]));
+        var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, yFieldTiltFitYPredicted[t.Index])).ToArray();
 
-        _algorithm.StackPointLiner(
-            image,
-            fitXTuple,
-            xStrehlRatioFitTuple,
-            out var bestXStrehlRatioXPSFList,
-            out var bestXStrehlRatioYPSFList,
-            out var bestXStrehlRatioFitXTuple,
-            out var bestXStrehlRatioXPSFFitTuple,
-            out var bestXStrehlRatioYPSFFitTuple);
-
-        using var _8 = bestXStrehlRatioFitXTuple;
-        using var _9 = bestXStrehlRatioXPSFFitTuple;
-        using var _10 = bestXStrehlRatioYPSFFitTuple;
-
-        bestXStrehlRatioXPSFFitPoints =
-        [
-            .. Enumerable.Range(0, bestXStrehlRatioXPSFFitTuple.Length)
-                .Select(t => new Point(t, bestXStrehlRatioXPSFFitTuple[t].D))
-        ];
-        bestXStrehlRatioYPSFFitPoints =
-        [
-            .. Enumerable.Range(0, bestXStrehlRatioYPSFFitTuple.Length)
-                .Select(t => new Point(t, bestXStrehlRatioYPSFFitTuple[t].D))
-        ];
-
-        _algorithm.StackPointLiner(
-            image,
-            fitXTuple,
-            yStrehlRatioFitTuple,
-            out var bestYStrehlRatioXPSFList,
-            out var bestYStrehlRatioYPSFList,
-            out var bestYStrehlRatioFitXTuple,
-            out var bestYStrehlRatioXPSFFitTuple,
-            out var bestYStrehlRatioYPSFFitTuple);
-
-        using var _11 = bestYStrehlRatioFitXTuple;
-        using var _12 = bestYStrehlRatioXPSFFitTuple;
-        using var _13 = bestYStrehlRatioYPSFFitTuple;
-
-        bestYStrehlRatioXPSFFitPoints =
-        [
-            .. Enumerable.Range(0, bestYStrehlRatioXPSFFitTuple.Length)
-                .Select(t => new Point(t, bestYStrehlRatioXPSFFitTuple[t].D))
-        ];
-        bestYStrehlRatioYPSFFitPoints =
-        [
-            .. Enumerable.Range(0, bestYStrehlRatioYPSFFitTuple.Length)
-                .Select(t => new Point(t, bestYStrehlRatioYPSFFitTuple[t].D))
-        ];
-
-        return (
-            [
-                .. Enumerable.Range(0, xTuple.Length)
-                    .Select(t => new Point(xTuple[t].D, xStrehlRatioTuple[t].D))
-            ],
-            [
-                .. Enumerable.Range(0, xTuple.Length)
-                    .Select(t => new Point(xTuple[t].D, yStrehlRatioTuple[t].D))
-            ],
-            [
-                .. Enumerable.Range(0, xTuple.Length)
-                    .Select(t => new Point(xTuple[t].D, grayTuple[t].D))
-            ],
-            xStrehlRatioFitPoints.Single(t => Equals(t.X, bestXStrehlRatioFitXTuple.D)),
-            [
-                ..bestXStrehlRatioXPSFList.Select<double[], Point[]>(t =>
-                [
-                    .. t.Index().Select(tt => new Point(tt.Index, tt.Item))
-                ])
-            ],
-            [
-                ..bestXStrehlRatioYPSFList.Select<double[], Point[]>(t =>
-                [
-                    .. t.Index().Select(tt => new Point(tt.Index, tt.Item))
-                ])
-            ],
-            yStrehlRatioFitPoints.Single(t => Equals(t.X, bestYStrehlRatioFitXTuple.D)),
-            [
-                ..bestYStrehlRatioXPSFList.Select<double[], Point[]>(t =>
-                [
-                    .. t.Index().Select(tt => new Point(tt.Index, tt.Item))
-                ])
-            ],
-            [
-                ..bestYStrehlRatioYPSFList.Select<double[], Point[]>(t =>
-                [
-                    .. t.Index().Select(tt => new Point(tt.Index, tt.Item))
-                ])
-            ]
-        );
+        return new BestFocus
+        {
+            XStrehlRatioPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvXRatioMeanHTuple[t].D))],
+            XStrehlRatioFitPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvXValuesHTuple[t].D))],
+            XStrehlRatioColumnPoints = [..xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvXRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvXRatioMaxHTuple[t].D)])],
+            BestXStrehlRatioPoint = new Point(hvIndXHTuple.D, hvXMaxHTuple.D),
+            XIntraRibbonFieldsPoints = [..xStrehlList.Select<double[], IReadOnlyList<Point>>(t => [..xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
+            XFieldTiltPoints = xFieldTiltPoints,
+            XFieldTiltFitSlope = xFieldTiltFitSlope,
+            XFieldTiltFitIntercept = xFieldTiltFitIntercept,
+            XFieldTiltFitRSquared = xFieldTiltFitRSquared,
+            XFieldTiltFitPoints = xFieldTiltFitPoints,
+            YStrehlRatioPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvYRatioMeanHTuple[t].D))],
+            YStrehlRatioFitPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvYValuesHTuple[t].D))],
+            YStrehlRatioColumnPoints = [..xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvYRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvYRatioMaxHTuple[t].D)])],
+            BestYStrehlRatioPoint = new Point(hvIndYHTuple.D, hvYMaxHTuple.D),
+            YIntraRibbonFieldsPoints = [..yStrehlList.Select<double[], IReadOnlyList<Point>>(t => [..xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
+            YFieldTiltPoints = yFieldTiltPoints,
+            YFieldTiltFitSlope = yFieldTiltFitSlope,
+            YFieldTiltFitIntercept = yFieldTiltFitIntercept,
+            YFieldTiltFitRSquared = yFieldTiltFitRSquared,
+            YFieldTiltFitPoints = yFieldTiltFitPoints
+        };
     }
 
     public (double Width, double Height) GetLightQuality(HImage image, Rect roiRect)

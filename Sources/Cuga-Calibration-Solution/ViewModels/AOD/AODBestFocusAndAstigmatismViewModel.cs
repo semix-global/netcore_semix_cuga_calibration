@@ -586,7 +586,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             if (Cache.Item.AlgorithmImageQualityTypeEnum is not AlgorithmImageQualityTypeEnum.StrehlRatio)
                 throw new NotImplementedException("Only Strehl Ratio is implemented in this version.");
 
-            var (
+            /*var (
                 xStrehlRatioPoints,
                 yStrehlRatioPoints,
                 grayPoints,
@@ -630,7 +630,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             channelItemDto.GrayFitPositions = grayFitPoints;
 
             channelItemDto.XBestFocusEcs = xBestFocusXPixel >= 0 && xBestFocusXPixel < ecsInterpolationBuffers.Count ? ecsInterpolationBuffers[Convert.ToInt32(xBestFocusXPixel)].ECS : ecsInterpolationBuffers[0].ECS;
-            channelItemDto.YBestFocusEcs = yBestFocusXPixel >= 0 && yBestFocusXPixel < ecsInterpolationBuffers.Count ? ecsInterpolationBuffers[Convert.ToInt32(yBestFocusXPixel)].ECS : ecsInterpolationBuffers[0].ECS;
+            channelItemDto.YBestFocusEcs = yBestFocusXPixel >= 0 && yBestFocusXPixel < ecsInterpolationBuffers.Count ? ecsInterpolationBuffers[Convert.ToInt32(yBestFocusXPixel)].ECS : ecsInterpolationBuffers[0].ECS;*/
         }
 
         Logger.LogHtmlInformation($"spectralDensity: {aodBestFocusAndAstigmatismDTOItem.SpectralDensity} Times: {index}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new

@@ -44,24 +44,12 @@ public interface ICalibrationAlgorithmService
     /// <returns>MTF</returns>
     (double MtfX, double MtfY) ModulationTransferFunction(HImage image, Rect roiRect);
 
-    (
-        Point[] XStrehlRatioPoints,
-        Point[] YStrehlRatioPoints,
-        Point[] GrayPoints,
-        Point BestXStrehlRatioPoint,
-        Point[][] BestXStrehlRatioXPSFPoints,
-        Point[][] BestXStrehlRatioYPSFPoints,
-        Point BestYStrehlRatioPoint,
-        Point[][] BestYStrehlRatioXPSFPoints,
-        Point[][] BestYStrehlRatioYPSFPoints) GetXYStrehlRatios(
-            HImage image,
-            out Point[] xStrehlRatioFitPoints,
-            out Point[] yStrehlRatioFitPoints,
-            out Point[] grayFitPoints,
-            out Point[] bestXStrehlRatioXPSFFitPoints,
-            out Point[] bestXStrehlRatioYPSFFitPoints,
-            out Point[] bestYStrehlRatioXPSFFitPoints,
-            out Point[] bestYStrehlRatioYPSFFitPoints);
+    /// <summary>
+    /// Best Focus
+    /// </summary>
+    /// <param name="image">图片</param>
+    /// <returns>Best Focus结果</returns>
+    BestFocus GetBestFocus(HImage image);
 
     #endregion 清晰度
 

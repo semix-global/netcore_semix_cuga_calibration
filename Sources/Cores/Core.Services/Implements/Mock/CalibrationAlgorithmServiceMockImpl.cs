@@ -14,6 +14,8 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using System.IO;
+using MathNet.Numerics;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements.Mock;
@@ -48,6 +50,56 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     public (double MtfX, double MtfY) ModulationTransferFunction(HImage image, Rect roiRect)
     {
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
+    }
+
+    public BestFocus GetBestFocus(HImage image)
+    {
+        var xStrehlRatioPoints = Enumerable.Range(0, 200).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
+
+        var (_, _, _, _, xStrehlRatioFitYPredicted) = PolynomialCurve.Fit2(Vector<double>.Build.Dense([..xStrehlRatioPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..xStrehlRatioPoints.Select(t => t.Y)]));
+        var xStrehlRatioFitPoints = xStrehlRatioPoints.Index().Select(t => new Point(t.Item.X, xStrehlRatioFitYPredicted[t.Index])).ToArray();
+        var xStrehlRatioColumnPoints = xStrehlRatioFitPoints.Select<Point, IReadOnlyList<Point>>(t => [new Point(t.X, t.Y - 0.5), new Point(t.X, t.Y + 0.5)]).ToArray();
+        var xIntraRibbonFieldsPoints = Generate.LinearRange(-0.5, 0.1, 0.5).Select<double, IReadOnlyList<Point>>(t => [..xStrehlRatioFitPoints.Select(tt => new Point(tt.X, tt.Y + t))]).ToArray();
+
+        var xFieldTiltPoints = Enumerable.Range(0, 10).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
+        var (xFieldTiltFitSlope, xFieldTiltFitIntercept, xFieldTiltFitRSquared, xFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..xFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..xFieldTiltPoints.Select(t => t.Y)]));
+        var xFieldTiltFitPoints = xFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
+
+        var yStrehlRatioPoints = Enumerable.Range(0, 200).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
+
+        var (_, _, _, _, yStrehlRatioFitYPredicted) = PolynomialCurve.Fit2(Vector<double>.Build.Dense([..yStrehlRatioPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yStrehlRatioPoints.Select(t => t.Y)]));
+        var yStrehlRatioFitPoints = yStrehlRatioPoints.Index().Select(t => new Point(t.Item.X, yStrehlRatioFitYPredicted[t.Index])).ToArray();
+        var yStrehlRatioColumnPoints = yStrehlRatioFitPoints.Select<Point, IReadOnlyList<Point>>(t => [new Point(t.X, t.Y - 0.5), new Point(t.X, t.Y + 0.5)]).ToArray();
+        var yIntraRibbonFieldsPoints = Generate.LinearRange(-0.5, 0.1, 0.5).Select<double, IReadOnlyList<Point>>(t => [..yStrehlRatioFitPoints.Select(tt => new Point(tt.X, tt.Y + t))]).ToArray();
+
+        var yFieldTiltPoints = Enumerable.Range(0, 10).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
+        var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.Y)]));
+        var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
+
+
+        return new BestFocus
+        {
+            XStrehlRatioPoints = xStrehlRatioPoints,
+            XStrehlRatioFitPoints = xStrehlRatioFitPoints,
+            XStrehlRatioColumnPoints = xStrehlRatioColumnPoints,
+            BestXStrehlRatioPoint = xStrehlRatioFitPoints.Maxima(t => t.Y).First(),
+            XIntraRibbonFieldsPoints = xIntraRibbonFieldsPoints,
+            XFieldTiltPoints = xFieldTiltPoints,
+            XFieldTiltFitSlope = xFieldTiltFitSlope,
+            XFieldTiltFitIntercept = xFieldTiltFitIntercept,
+            XFieldTiltFitRSquared = xFieldTiltFitRSquared,
+            XFieldTiltFitPoints = xFieldTiltFitPoints,
+            YStrehlRatioPoints = yStrehlRatioPoints,
+            YStrehlRatioFitPoints = yStrehlRatioFitPoints,
+            YStrehlRatioColumnPoints = yStrehlRatioColumnPoints,
+            BestYStrehlRatioPoint = yStrehlRatioFitPoints.Maxima(t => t.Y).First(),
+            YIntraRibbonFieldsPoints = yIntraRibbonFieldsPoints,
+            YFieldTiltPoints = yFieldTiltPoints,
+            YFieldTiltFitSlope = yFieldTiltFitSlope,
+            YFieldTiltFitIntercept = yFieldTiltFitIntercept,
+            YFieldTiltFitRSquared = yFieldTiltFitRSquared,
+            YFieldTiltFitPoints = yFieldTiltFitPoints
+        };
     }
 
     public (
