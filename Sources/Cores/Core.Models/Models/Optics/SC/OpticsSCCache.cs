@@ -49,13 +49,13 @@ public sealed partial class OpticsSCCacheItem : CalibrationCacheBase
     private double _scanLength;
 
     [ObservableProperty]
-    private double _startSCMotorAbsoluteValue;
+    private double _startLambda;
 
     [ObservableProperty]
-    private double _stepSCMotorAbsoluteValue;
+    private double _stepLambda;
 
     [ObservableProperty]
-    private double _stopSCMotorAbsoluteValue;
+    private double _stopLambda;
 
     [ObservableProperty]
     private double _xZCenterECS;

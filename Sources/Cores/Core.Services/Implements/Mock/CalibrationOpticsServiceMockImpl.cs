@@ -10,6 +10,7 @@ using Semix.CoreLib;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -21,6 +22,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 {
     private double _currentRelayMotorValue;
     private double _currentINCMotorValue;
+    private double _currentSCL1MotorValue;
+    private double _currentSCL3MotorValue;
     private OpticsApodizationModeEnum _currentOpticsApodizationModeEnum;
     private OpticsPolarizationModeEnum _currentOpticsPolarizationModeEnum;
 
@@ -255,6 +258,23 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         Thread.Sleep(100);
 
         _currentINCMotorValue = value;
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double L1, double L3)> GetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess((_currentSCL1MotorValue, _currentSCL3MotorValue));
+    }
+
+    public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
+    {
+        Thread.Sleep(100);
+
+        _currentSCL1MotorValue = value.L1;
+        _currentSCL3MotorValue = value.L3;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }

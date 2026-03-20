@@ -52,6 +52,16 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<(double L1, double L3)> GetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> ToggleODFilter(bool isEnable)
     {
         throw new NotImplementedException();

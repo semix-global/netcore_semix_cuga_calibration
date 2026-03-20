@@ -1,20 +1,15 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
-using ScottPlot;
-using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
 using Core.Models.Models.Common.DarkField;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
-using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.Optics.SC;
 
@@ -26,10 +21,14 @@ public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsS
     [ObservableProperty]
     private IReadOnlyList<OpticsSCDTOItem> _items = [];
 
-
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SCMotorAbsoluteValueL1), nameof(SCMotorAbsoluteValueL3))]
+    [NotifyPropertyChangedFor(nameof(SCMotorAbsoluteValueL1), nameof(SCMotorAbsoluteValueL3), nameof(Lambda))]
     private OpticsSCDTOItem? _maxItem;
+
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public double Lambda => MaxItem?.Lambda ?? 0;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -87,7 +86,7 @@ public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsS
 
             ScatterPlotControl.GetOrAddScatterLine(
                 string.Empty,
-                [.. Items.Select(t => new Point(t.SCMotorAbsoluteValueL1, t.BestFocus.BestYStrehlRatioPoint.Y))],
+                [.. Items.Select(t => new Point(t.Lambda, t.BestFocus.BestYStrehlRatioPoint.Y))],
                 Constants.Category10.GetColor(0));
 
             MaxItem = Items.Maxima(t => t.BestFocus.BestYStrehlRatioPoint.Y).First();
@@ -104,18 +103,7 @@ public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsS
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
-        XZItems = [.. XZItems.Select(t => t.Clone())],
-        Slope = Slope,
-        Intercept = Intercept,
-        RSquared = RSquared,
-        FitSCPoints = [.. FitSCPoints],
-        XZSlope = XZSlope,
-        XZIntercept = XZIntercept,
-        XZRSquared = XZRSquared,
-        XZFitSCPoints = [.. XZFitSCPoints],
-        SCMotorRatio = SCMotorRatio,
-        MinSCMotorAbsoluteValue = MinSCMotorAbsoluteValue,
-        MaxSCMotorAbsoluteValue = MaxSCMotorAbsoluteValue,
+        MaxItem = MaxItem?.Clone(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -126,9 +114,8 @@ public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsS
     public CalibrationOpticsSC AdaptTo() => new()
     {
         CgNIOITypeEnum = OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-        Slope = XZSlope,
-        MinSCMotorAbsoluteValue = MinSCMotorAbsoluteValue,
-        MaxSCMotorAbsoluteValue = MaxSCMotorAbsoluteValue,
+        SCMotorAbsoluteValueL1 = SCMotorAbsoluteValueL1,
+        SCMotorAbsoluteValueL3 = SCMotorAbsoluteValueL3,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -140,6 +127,9 @@ public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsS
 public sealed partial class OpticsSCDTOItem : ObservableObject, ICloneable<OpticsSCDTOItem>
 {
     [ObservableProperty]
+    private double _lambda;
+
+    [ObservableProperty]
     private double _sCMotorAbsoluteValueL1;
 
     [ObservableProperty]
@@ -150,6 +140,7 @@ public sealed partial class OpticsSCDTOItem : ObservableObject, ICloneable<Optic
 
     public OpticsSCDTOItem Clone() => new()
     {
+        Lambda = Lambda,
         SCMotorAbsoluteValueL1 = SCMotorAbsoluteValueL1,
         SCMotorAbsoluteValueL3 = SCMotorAbsoluteValueL3,
         BestFocus = BestFocus.Clone()
