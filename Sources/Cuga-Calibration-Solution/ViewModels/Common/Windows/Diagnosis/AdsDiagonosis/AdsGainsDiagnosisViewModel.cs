@@ -276,7 +276,7 @@ public partial class AdsGainsDiagnosisViewModel(
                     return false;
                 }
 
-                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Start"), HtmlLogUniqueId.LoggingHtml());
+                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlComment("Start"), HtmlLogUniqueId.LoggingHtml());
                 messenger.Send(ToggleCalibrateEventFactory.UpdateWindowEnable(false));
                 IsEnableWindow = false;
 

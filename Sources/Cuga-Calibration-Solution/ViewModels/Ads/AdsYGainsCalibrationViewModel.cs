@@ -2062,7 +2062,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         {
                             if (SelectReviewItemDto is not null && await VerifyCaibrationAsync(SelectReviewItemDto, cancellationToken) == false)
                             {
-                                DialogWindowProvider.ShowDialog($"Auto Calibration Review  Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                DialogWindowProvider.ShowDialog("Auto Calibration Review  Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                 return false;
                             }
 
@@ -2106,7 +2106,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         if (await LoadedingAsync(cancellationToken) == false) return false;
         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
         {
-            DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
@@ -2117,7 +2117,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             {
                 if (await VerifyCaibrationAsync(SelectReviewItemDto!, cancellationToken) == false)
                 {
-                    DialogWindowProvider.ShowDialog($"Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    DialogWindowProvider.ShowDialog("Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;
                 }
 
