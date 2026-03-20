@@ -1,8 +1,8 @@
 ﻿namespace Core.Models.Models.Common.DarkField;
 
-public partial class BestFocusDTOUserControl
+public partial class BestFocusUserControl
 {
-    public BestFocusDTOUserControl()
+    public BestFocusUserControl()
     {
         InitializeComponent();
     }

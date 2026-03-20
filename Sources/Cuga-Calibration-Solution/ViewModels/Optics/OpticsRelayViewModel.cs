@@ -635,8 +635,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     var startECS = Cache.Item.XZCenterECS + deltaECS - Cache.Item.XZRangeECS;
                     var stopECS = Cache.Item.XZCenterECS + deltaECS + Cache.Item.XZRangeECS;
 
-                    var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}mm_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.MiddleFileDateTimeFormat)}");
-
                     using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
                         Cache.Item.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
@@ -651,55 +649,11 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                         false,
                         cancellationToken);
 
-                    var filePath = Path.Combine(currentDetectImageDirectory, $"[{startECS:0.###}ECS, {stopECS:0.###}ECS]_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    darkFieldImage.Image.Save(filePath);
-
-                    var (
-                        xStrehlRatioPoints,
-                        yStrehlRatioPoints,
-                        grayPoints,
-                        bestXStrehlRatioPoint,
-                        bestXStrehlRatioXPSFPoints,
-                        bestXStrehlRatioYPSFPoints,
-                        bestYStrehlRatioPoint,
-                        bestYStrehlRatioXPSFPoints,
-                        bestYStrehlRatioYPSFPoints) = CalibrationAlgorithmService.GetXYStrehlRatios(
-                        darkFieldImage.Image,
-                        out var xStrehlRatioFitPoints,
-                        out var yStrehlRatioFitPoints,
-                        out var grayFitPoints,
-                        out var bestXStrehlRatioXPSFFitPoints,
-                        out var bestXStrehlRatioYPSFFitPoints,
-                        out var bestYStrehlRatioXPSFFitPoints,
-                        out var bestYStrehlRatioYPSFFitPoints);
-
-                    item.ImageFilePath = filePath;
-                    item.RawImageFilePath = darkFieldImage.RawImageFilePath;
-
-                    item.XStrehlRatioPoints = xStrehlRatioPoints;
-                    item.YStrehlRatioPoints = yStrehlRatioPoints;
-                    item.GrayPoints = grayPoints;
-                    item.BestXStrehlRatioPoint = bestXStrehlRatioPoint;
-                    item.BestXStrehlRatioXPSFPoints = bestXStrehlRatioXPSFPoints;
-                    item.BestXStrehlRatioYPSFPoints = bestXStrehlRatioYPSFPoints;
-                    item.BestYStrehlRatioPoint = bestYStrehlRatioPoint;
-                    item.BestYStrehlRatioXPSFPoints = bestYStrehlRatioXPSFPoints;
-                    item.BestYStrehlRatioYPSFPoints = bestYStrehlRatioYPSFPoints;
-
-                    item.XStrehlRatioFitPoints = xStrehlRatioFitPoints;
-                    item.YStrehlRatioFitPoints = yStrehlRatioFitPoints;
-                    item.GrayFitPoints = grayFitPoints;
-                    item.BestXStrehlRatioXPSFFitPoints = bestXStrehlRatioXPSFFitPoints;
-                    item.BestXStrehlRatioYPSFFitPoints = bestXStrehlRatioYPSFFitPoints;
-                    item.BestYStrehlRatioXPSFFitPoints = bestYStrehlRatioXPSFFitPoints;
-                    item.BestYStrehlRatioYPSFFitPoints = bestYStrehlRatioYPSFFitPoints;
-
-                    item.BestGrayPoint = item.GrayFitPoints.Maxima(t => t.Y).First();
-
-                    item.BestXStrehlRatioECS = startECS + item.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-                    item.BestYStrehlRatioECS = startECS + item.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-                    item.BestGrayECS = startECS + item.BestGrayPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-
+                    var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image);
+                    item.BestFocus = bestFocus;
+                    item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
+                    item.BestFocus.BestXStrehlRatioECS = startECS + item.BestFocus.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+                    item.BestFocus.BestYStrehlRatioECS = startECS + item.BestFocus.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
 
                     if (CalibratingItem.XZItems.Count > 1)
                     {
@@ -708,9 +662,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                             Vector<double>.Build.Dense([
                                 ..CalibratingItem.XZItems.Select(t => Cache.Item.OpticsStrehlRatioQualityTypeEnum switch
                                 {
-                                    OpticsStrehlRatioQualityTypeEnum.XStrehlRatio => t.BestXStrehlRatioECS,
-                                    OpticsStrehlRatioQualityTypeEnum.YStrehlRatio => t.BestYStrehlRatioECS,
-                                    OpticsStrehlRatioQualityTypeEnum.Gray => t.BestGrayECS,
+                                    OpticsStrehlRatioQualityTypeEnum.XStrehlRatio => t.BestFocus.BestXStrehlRatioECS,
+                                    OpticsStrehlRatioQualityTypeEnum.YStrehlRatio => t.BestFocus.BestYStrehlRatioECS,
                                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(Cache.Item.OpticsStrehlRatioQualityTypeEnum))
                                 })
                             ]));
@@ -731,11 +684,9 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
                         defaultSlope,
-                        XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                        YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                        GrayScatterPlotControl = new HtmlContainer([.. item.GrayScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                        item.RawImageFilePath,
-                        Image = new HtmlImage(item.ImageFilePath)
+                        XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        item.BestFocus.RawImageFilePath
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
 
