@@ -58,7 +58,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
 
         var (_, _, _, _, xStrehlRatioFitYPredicted) = PolynomialCurve.Fit2(Vector<double>.Build.Dense([..xStrehlRatioPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..xStrehlRatioPoints.Select(t => t.Y)]));
         var xStrehlRatioFitPoints = xStrehlRatioPoints.Index().Select(t => new Point(t.Item.X, xStrehlRatioFitYPredicted[t.Index])).ToArray();
-        var xStrehlRatioColumnPoints = xStrehlRatioFitPoints.Select<Point, IReadOnlyList<Point>>(t => [new Point(t.X, t.Y - 0.5), new Point(t.X, t.Y + 0.5)]).ToArray();
+        var xStrehlRatioColumnPoints = xStrehlRatioFitPoints.Select<Point, IReadOnlyList<Point>>(t => [new Point(t.X, t.Y - 0.1), new Point(t.X, t.Y + 0.1)]).ToArray();
         var xIntraRibbonFieldsPoints = Generate.LinearRange(-0.5, 0.1, 0.5).Select<double, IReadOnlyList<Point>>(t => [..xStrehlRatioFitPoints.Select(tt => new Point(tt.X, tt.Y + t))]).ToArray();
 
         var xFieldTiltPoints = Enumerable.Range(0, 10).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
@@ -75,7 +75,6 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         var yFieldTiltPoints = Enumerable.Range(0, 10).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
         var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.Y)]));
         var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
-
 
         return new BestFocus
         {

@@ -214,16 +214,15 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
             #region Plot1
 
             var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
-
-            scatterMarkers[0].Update(string.Empty, strehlRatioPoints, Colors.Blue, MarkerShape.OpenCircle);
-            scatterMarkers[1].MarkerSize = 20;
-
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, strehlRatioColumnPoints.Count + 1);
             foreach (var (index, temp) in strehlRatioColumnPoints.Index())
             {
                 scatterLines[index].Update(string.Empty, temp, Colors.Blue);
                 scatterLines[index].MarkerColor = Colors.DarkBlue;
             }
+            
+            scatterMarkers[0].Update(string.Empty, strehlRatioPoints, Colors.Blue, MarkerShape.OpenCircle);
+            scatterMarkers[0].MarkerSize = 20;
 
             scatterLines[strehlRatioColumnPoints.Count].Update(string.Empty, strehlRatioFitPoints, Colors.Green);
             scatterLines[strehlRatioColumnPoints.Count].MarkerColor = Colors.DarkGreen;
@@ -247,8 +246,9 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
             scatterLines[0].Update(string.Empty, fieldTiltPoints, Colors.Blue);
             scatterLines[0].MarkerSize = 20;
             scatterLines[0].MarkerColor = Colors.DarkBlue;
+            scatterLines[0].MarkerShape = MarkerShape.OpenCircle;
 
-            scatterLines[0].Update(PolynomialCurve.ToString1(fieldTiltFitSlope, fieldTiltFitIntercept, fieldTiltFitRSquared, "0.######"), fieldTiltFitPoints, Colors.Red);
+            scatterLines[1].Update(PolynomialCurve.ToString1(fieldTiltFitSlope, fieldTiltFitIntercept, fieldTiltFitRSquared, "0.######"), fieldTiltFitPoints, Colors.Red);
         }
         finally
         {
