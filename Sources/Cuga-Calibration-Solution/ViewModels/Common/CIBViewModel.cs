@@ -144,6 +144,15 @@ public sealed class CIBViewModel(
 
     #region 采图
 
+    public void SetRTFCParam(ProductivityInformation productivityInformation)
+    {
+        laserViewModel.ToggleOpticsMagType(productivityInformation);
+
+        var ret = calibrationCIBService.SetRTFCParam(productivityInformation);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     #region X 采[单位置]短图
 
     public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(

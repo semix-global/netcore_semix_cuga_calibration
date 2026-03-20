@@ -255,6 +255,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             try
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+                CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -302,9 +303,9 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                         Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
-                            ResultLaserAutoFocusDto.Fa,
-                            ResultLaserAutoFocusDto.Na,
-                            ResultLaserAutoFocusDto.CurrentA,
+                            MiddleFa = ResultLaserAutoFocusDto.Fa,
+                            MiddleNa = ResultLaserAutoFocusDto.Na,
+                            MiddleCurrentA = ResultLaserAutoFocusDto.CurrentA,
                             ABrightnessFList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessFList)], string.Empty),
                             ABrightnessNList = new HtmlPlot2DLinesChart([(string.Empty, ABrightnessNList)], string.Empty)
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -384,10 +385,14 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
 
                         Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
-                            ResultLaserAutoFocusDto.Fb,
-                            ResultLaserAutoFocusDto.Nb,
-                            ResultLaserAutoFocusDto.CurrentB,
+                            MiddleFa = ResultLaserAutoFocusDto.Fa,
+                            MiddleNa = ResultLaserAutoFocusDto.Na,
+                            MiddleCurrentA = ResultLaserAutoFocusDto.CurrentA,
+                            MiddleFb = ResultLaserAutoFocusDto.Fb,
+                            MiddleNb = ResultLaserAutoFocusDto.Nb,
+                            MiddleCurrentB = ResultLaserAutoFocusDto.CurrentB,
                             ResultLaserAutoFocusDto.LowCoefficient,
+                            ResultLaserAutoFocusDto.HighCoefficient,
                             LowCurrentA = ResultLaserAutoFocusDto.LowCoefficient * ResultLaserAutoFocusDto.CurrentA,
                             LowCurrentB = ResultLaserAutoFocusDto.LowCoefficient * ResultLaserAutoFocusDto.CurrentB,
                             HighCurrentA = ResultLaserAutoFocusDto.HighCoefficient * ResultLaserAutoFocusDto.CurrentA,
@@ -469,6 +474,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             try
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+                CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -717,6 +723,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             try
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+                CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -919,6 +926,8 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             ResultLaserAutoFocusDto.FitECSMotorOrigins = [];
 
             StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+            CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
+
             var originPosition = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -996,7 +1005,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
                     ResultLaserAutoFocusDto.EcsMotorPositionRelationRSquare,
                     ResultLaserAutoFocusDto.MinAFMotorAbsoluteValue,
                     ResultLaserAutoFocusDto.MaxAFMotorAbsoluteValue,
-                    TraceBufferList = new HtmlPlot2DLinesChart([("Position", ResultLaserAutoFocusDto.ECSMotorOrigins), ($"Fit{PolynomialCurve.ToString1(slope, intercept, rSquared, "0.###")}", ResultLaserAutoFocusDto.FitECSMotorOrigins)], string.Empty)
+                    Plot = new HtmlPlot2DLinesChart([("Position", ResultLaserAutoFocusDto.ECSMotorOrigins), ($"Fit{PolynomialCurve.ToString1(slope, intercept, rSquared, "0.###")}", ResultLaserAutoFocusDto.FitECSMotorOrigins)], string.Empty)
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
@@ -1060,6 +1069,7 @@ public sealed partial class LaserAutoFocusCalibrationViewModel : CalibrationView
             try
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
+                CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.SetSensorNscCompensation(ReviewDto.NscOffset, ReviewDto.NscGain);
                 await Task.Delay(100, cancellationToken);

@@ -132,6 +132,13 @@ public interface ICalibrationCIBService
     SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain);
 
     /// <summary>
+    /// 下发当前位置下的RTFC参数
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation);
+
+    /// <summary>
     /// 读取所有CIB的图片: X 采[单位置]短图
     /// </summary>
     /// <param name="productivityInformation">产率</param>

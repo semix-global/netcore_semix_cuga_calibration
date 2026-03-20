@@ -176,6 +176,15 @@ public sealed class CalibrationCIBServiceImpl(
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
     }
+    
+    public SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation)
+    {
+        var sxExecuteRet = Invoke(() => Service!.SetFocusCacheToMachine(productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(), productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(), productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
 
     public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,

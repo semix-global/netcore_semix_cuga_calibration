@@ -169,6 +169,13 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
     }
+    
+    public SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
 
     public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
