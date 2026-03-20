@@ -18,6 +18,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
+using Net.Utilities.Algorithms.Extensions;
 
 namespace CugaCalibration.ViewModels.Optics;
 
@@ -350,7 +351,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
                 AfViewModel.ToggleBrightFieldEnable(false);
 
-                var lambdas = Generate.LinearRange(Cache.Item.StartLambda, Cache.Item.StepLambda, Cache.Item.StopLambda);
+                var lambdas = Generate.LinearRangeContainsEdge(Cache.Item.StartLambda, Cache.Item.StepLambda, Cache.Item.StopLambda);
                 Guard.IsGreaterThan(lambdas.Length, 2);
                 foreach (var lambda in lambdas)
                 {
@@ -363,7 +364,12 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
                     OpticsViewModel.SetSCMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, (l1, l3));
 
-                    var item = new OpticsSCDTOItem { Lambda = lambda };
+                    var item = new OpticsSCDTOItem
+                    {
+                        Lambda = lambda,
+                        SCMotorAbsoluteValueL1 = l1,
+                        SCMotorAbsoluteValueL3 = l3
+                    };
                     CalibratingItem.Items = [.. CalibratingItem.Items, item];
 
                     var startECS = Cache.Item.XZCenterECS - Cache.Item.XZRangeECS;
@@ -393,6 +399,9 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                     {
                         // XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                         // YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        item.Lambda,
+                        item.SCMotorAbsoluteValueL1,
+                        item.SCMotorAbsoluteValueL3,
                         item.BestFocus.RawImageFilePath
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
