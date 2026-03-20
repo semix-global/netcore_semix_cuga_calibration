@@ -317,7 +317,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
             {
                 var hazeResultItem = Guard.IsAssignableToTypeAndReturn<HazeResultItem>(item);
 
-                var matrix = Matrix<double>.Build.DenseOfArray(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix(), null);
+                var matrix = Matrix<double>.Build.DenseOfArray(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix());
 
                 var baseSize = matrix.RowCount / 3;
                 var remainder = matrix.RowCount % 3;
