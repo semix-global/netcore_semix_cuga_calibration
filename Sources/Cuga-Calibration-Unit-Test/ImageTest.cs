@@ -37,7 +37,7 @@ public class ImageTest
     [InlineData(@"VSharpTest\20260315_1113_0_0_1_short_001000_PMT08-CH3_8.raw")]
     [InlineData(@"VSharpTest\20260315_1104_0_0_1_short_001000_PMT08-CH3_8.raw")]
     [InlineData(@"VSharpTest\20260315_786_0_0_1_short_001000_PMT08-CH3_8.raw")]
-    public void TestImage(string filePath)
+    public void Test(string filePath)
     {
         using var originImage = RawImageFactory.CreateImage(@$"Assets\{filePath}");
 
@@ -75,7 +75,7 @@ public class ImageTest
             .BeEquivalentTo(expectedGrayValHTuple.ToLArr(), options => options.WithStrictOrdering());
 
 #if ImageTest
-        var imageFullPath = Path.GetFullPath($"{nameof(TestImage)}.jpg");
+        var imageFullPath = Path.GetFullPath($"{nameof(ImageTest)}.jpg");
         FileHelper.DeleteFileIfExists(imageFullPath);
         lineImage.Save(imageFullPath);
 
