@@ -14,16 +14,16 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Text="Raw File Path: "
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Center" />
+        <ScrollViewer MaxHeight="30"
+                      Margin="10,2"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
             <TextBlock TextWrapping="Wrap">
                 <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
                     <Run Text="{Binding RawImageFilePath}" />
                 </Hyperlink>
             </TextBlock>
-        </StackPanel>
+        </ScrollViewer>
         <TabControl Grid.Row="1">
             <TabItem Header="Y Strehl Ratio">
                 <Border Margin="5" Style="{StaticResource BorderRegion}">

@@ -19,6 +19,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Text;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
@@ -41,8 +42,23 @@ public partial class GrabbingDarkImageWindowViewModel(
     [ObservableProperty]
     private GrabbingDarkImageWindowCache _cache = new();
 
+    [ObservableProperty]
+    private IReadOnlyList<DarkFieldRawScanImageDTO> _selectedItems = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<IReadOnlyList<DarkFieldRawScanImageDTO>> _results = [];
+
+    [ObservableProperty]
+    private List<AbstractHtmlElement> _htmlElementList = [];
+
     [RelayCommand]
-    private async Task LoadedAsync() => await Task.Run(() => Cache = cacheProvider.GetOrDefault<GrabbingDarkImageWindowCache>());
+    private async Task LoadedAsync() => await Task.Run(() =>
+    {
+        Results = [];
+        HtmlElementList.Clear();
+
+        return Cache = cacheProvider.GetOrDefault<GrabbingDarkImageWindowCache>();
+    });
 
     [RelayCommand]
     private void ImportAODWaveformParams()
@@ -251,7 +267,7 @@ public partial class GrabbingDarkImageWindowViewModel(
             resultList.Add(darkFieldImages);
         }
 
-        Cache.Results = resultList;
+        Results = resultList;
     }, cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -298,7 +314,7 @@ public partial class GrabbingDarkImageWindowViewModel(
             resultList.Add(darkFieldRawScanImages);
         }
 
-        Cache.Results = resultList;
+        Results = resultList;
     }, cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -353,7 +369,7 @@ public partial class GrabbingDarkImageWindowViewModel(
             resultList.Add(darkFieldImages);
         }
 
-        Cache.Results = resultList;
+        Results = resultList;
     }, cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -400,8 +416,28 @@ public partial class GrabbingDarkImageWindowViewModel(
             resultList.Add(darkFieldImages);
         }
 
-        Cache.Results = resultList;
+        Results = resultList;
     }, cancellationToken);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task BestFocusAsync(CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                
+            }
+            catch (Exception ex)
+            {
+                dialogWindowProvider.ShowDialog($"""
+                                                 Best Focus Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                logger.LogError(ex, "Best Focus Failed");
+            }
+        }, cancellationToken).ConfigureAwait(false);
+    }
 
     private async Task InvokeGetPMTImagesAsync(
         string modeName,
@@ -435,7 +471,7 @@ public partial class GrabbingDarkImageWindowViewModel(
 
                 try
                 {
-                    Cache.Results = [];
+                    Results = [];
 
                     await func(startPosition);
                 }
@@ -490,6 +526,8 @@ public partial class GrabbingDarkImageWindowViewModel(
     {
         try
         {
+            Results = [];
+
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             cacheProvider.Set(Cache, cancellationTokenSource.Token);
         }

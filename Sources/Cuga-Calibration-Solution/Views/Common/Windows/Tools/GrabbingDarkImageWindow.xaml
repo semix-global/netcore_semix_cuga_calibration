@@ -468,7 +468,7 @@
                 <GridSplitter Grid.Column="1" Width="5" />
                 <GroupBox Grid.Column="2" Header="Images">
                     <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <ListBox Margin="5" ItemsSource="{Binding Cache.Results}">
+                        <ListBox Margin="5" ItemsSource="{Binding Results}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <ItemsControl BorderThickness="1"

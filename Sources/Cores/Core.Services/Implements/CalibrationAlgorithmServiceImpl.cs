@@ -170,18 +170,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
         };
     }
 
-    public (double Width, double Height) GetLightQuality(HImage image, Rect roiRect)
-    {
-        using var roiImage = image.ToRoi(roiRect);
-
-        _algorithm.LightQuality(roiImage, out var width, out var height);
-
-        using var _1 = width;
-        using var _2 = height;
-
-        return (width.D, height.D);
-    }
-
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)
     {
         _algorithm.CalculatePixSize(image, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
@@ -427,14 +415,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
         var drawingImage = new HImage(resultImage);
 
         return (drawingImage, diameter.D, angle.D, new Point(dCol.D, dRow.D), new Point(col.D, row.D));
-    }
-
-    public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)
-    {
-        _algorithm.ChannelFineSamePositionPoint(image.Select(t => (HObject)t).ToList(), out var ch3SubCh1, out var ch3SubCh2, out var result);
-        if (result == -1) ThrowHelper.ThrowArgumentException("Get Cib List Failed");
-
-        return ([.. ch3SubCh1], [.. ch3SubCh2]);
     }
 
     public Point GetChuckCenter(

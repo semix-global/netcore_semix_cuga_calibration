@@ -78,7 +78,4 @@ public sealed partial class GrabbingDarkImageWindowCache : ObservableCacheBase
 
     [ObservableProperty]
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<DarkFieldRawScanImageDTO>> _results = [];
 }

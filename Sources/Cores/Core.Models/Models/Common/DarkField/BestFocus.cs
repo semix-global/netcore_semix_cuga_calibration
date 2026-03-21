@@ -111,12 +111,14 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         XStrehlRatioScatterPlotControl.SetTitle(0, "Peek X Strehl Ratio(Y: Strehl Ratio - X: px)");
         XStrehlRatioScatterPlotControl.SetTitle(1, "X Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
         XStrehlRatioScatterPlotControl.SetTitle(2, "X Field Tilt(Y: px - X: Intra-Ribbon)");
+        XStrehlRatioScatterPlotControl.ToggleLegend(1, false);
 
         YStrehlRatioScatterPlotControl.Configure(new Columns(), 3);
 
         YStrehlRatioScatterPlotControl.SetTitle(0, "Peek Y Strehl Ratio(Y: Strehl Ratio - X: px)");
         YStrehlRatioScatterPlotControl.SetTitle(1, "Y Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
         YStrehlRatioScatterPlotControl.SetTitle(2, "Y Field Tilt(Y: px - X: Intra-Ribbon)");
+        YStrehlRatioScatterPlotControl.ToggleLegend(1, false);
     }
 
     // ReSharper disable UnusedParameterInPartialMethod
@@ -212,22 +214,25 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         try
         {
             #region Plot1
-            
+
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, strehlRatioColumnPoints.Count + 1);
             foreach (var (index, temp) in strehlRatioColumnPoints.Index())
             {
                 scatterLines[index].Update(string.Empty, temp, Colors.Blue);
                 scatterLines[index].MarkerColor = Colors.DarkBlue;
             }
-            
-            scatterLines[strehlRatioColumnPoints.Count].Update(string.Empty, strehlRatioFitPoints, Colors.Green);
-            scatterLines[strehlRatioColumnPoints.Count].MarkerColor = Colors.DarkGreen;
 
-            var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
-            scatterMarkers[0].Update(string.Empty, strehlRatioPoints, Colors.Blue, MarkerShape.OpenCircle);
-            scatterMarkers[0].MarkerSize = 20;
-            scatterMarkers[1].Update($"Best Strehl: {bestStrehlRatioPoint.Y:0.####}, ECS: {bestStrehlRatioECS:0.###}", [bestStrehlRatioPoint], Colors.Red, MarkerShape.Asterisk);
-            scatterMarkers[1].MarkerSize = 20;
+            scatterLines[strehlRatioColumnPoints.Count].Update(string.Empty, strehlRatioFitPoints, Colors.GreenYellow);
+            scatterLines[strehlRatioColumnPoints.Count].MarkerColor = Colors.LightGreen;
+
+            if (strehlRatioColumnPoints.Count > 0)
+            {
+                var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
+                scatterMarkers[0].Update(string.Empty, strehlRatioPoints, Colors.DarkBlue, MarkerShape.OpenCircle);
+                scatterMarkers[0].MarkerSize = 12;
+                scatterMarkers[1].Update(bestStrehlRatioECS > 0 ? $"Best Strehl: {bestStrehlRatioPoint.Y:0.####}, ECS: {bestStrehlRatioECS:0.###}" : $"Best Strehl: {bestStrehlRatioPoint.Y:0.####}", [bestStrehlRatioPoint], Colors.Red, MarkerShape.Asterisk);
+                scatterMarkers[1].MarkerSize = 30;
+            }
 
             #endregion
 
@@ -236,18 +241,22 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
             scatterLines = scatterPlotControl.GetOrAddScatterLines(1, intraRibbonFieldsPoints.Count);
             foreach (var (index, temp) in intraRibbonFieldsPoints.Index())
             {
-                scatterLines[index].Update($"{index + 1}", temp, Constants.Turbo.GetColor(index, new Range(0, intraRibbonFieldsPoints.Count - 1)));
+                scatterLines[index].Update($"{index + 1}", temp, Constants.Turbo.GetColor(intraRibbonFieldsPoints.Count - 1 - index, new Range(0, intraRibbonFieldsPoints.Count - 1)));
             }
 
             #endregion
 
+            #region Plot3
+
             scatterLines = scatterPlotControl.GetOrAddScatterLines(2, 2);
             scatterLines[0].Update(string.Empty, fieldTiltPoints, Colors.Blue);
-            scatterLines[0].MarkerSize = 20;
+            scatterLines[0].MarkerSize = 10;
             scatterLines[0].MarkerColor = Colors.DarkBlue;
             scatterLines[0].MarkerShape = MarkerShape.OpenCircle;
 
             scatterLines[1].Update(PolynomialCurve.ToString1(fieldTiltFitSlope, fieldTiltFitIntercept, fieldTiltFitRSquared, "0.######"), fieldTiltFitPoints, Colors.Red);
+
+            #endregion
         }
         finally
         {
