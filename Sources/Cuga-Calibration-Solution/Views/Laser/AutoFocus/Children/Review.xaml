@@ -100,7 +100,7 @@
                         </TextBox.Text>
                     </TextBox>
                     <hc:NumericUpDown Width="310"
-                                      hc:InfoElement.Title="Calibration Range (nsc/um): "
+                                      hc:InfoElement.Title="Calibration Range (nsc/nm): "
                                       hc:TitleElement.TitleWidth="180"
                                       hc:InfoElement.TitlePlacement="Left"
                                       Minimum="0"
@@ -228,7 +228,7 @@
                             <TextBox Text="{Binding ReviewDto.EcsToNmRange, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
-                                     hc:InfoElement.Title="Ecs Range(um): "
+                                     hc:InfoElement.Title="Ecs Range(nm): "
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"
@@ -260,7 +260,7 @@
                             <TextBox Text="{Binding ReviewDto.NscCurrentNscPerNm, StringFormat={}{0:f3}}"
                                      Width="375"
                                      Height="25"
-                                     hc:InfoElement.Title="Nsc(nsc/um): "
+                                     hc:InfoElement.Title="Nsc(nsc/nm): "
                                      hc:InfoElement.TitlePlacement="Left"
                                      hc:TitleElement.TitleWidth="200"
                                      IsReadOnly="True"

@@ -2,7 +2,8 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Net.Utilities.Models;
+using MathNet.Numerics;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -134,7 +135,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                 Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var electrode2OffsetFrequencyPeriodCoefficient = Cache.ElectrodeConfigurationResults.Single(t => t.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode2).OffsetFrequencyPeriodCoefficient;
-                var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(
+                var offsetFrequencyPeriodCoefficients = Generate.LinearRangeContainsEdge(
                     electrode2OffsetFrequencyPeriodCoefficient + Cache.Electrode3OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient,
                     Cache.Electrode3OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient,
                     electrode2OffsetFrequencyPeriodCoefficient + Cache.Electrode3OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient);
@@ -227,13 +228,13 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
             if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
         });
 
-        var step0Task = GuardUtils.IsAssignableToType<Task<bool>>(Step0Command.ExecuteAsync( /* isNotSilent */ false));
+        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync( /* isNotSilent */ false));
         if (await step0Task == false) return;
 
-        var step1Task = GuardUtils.IsAssignableToType<Task<bool>>(Step1Command.ExecuteAsync( /* isNotSilent */ false));
+        var step1Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step1Command.ExecuteAsync( /* isNotSilent */ false));
         if (await step1Task == false) return;
 
-        var stepSecondLastTask = GuardUtils.IsAssignableToType<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isNotSilent */ false));
+        var stepSecondLastTask = Guard.IsAssignableToTypeAndReturn<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isNotSilent */ false));
         if (await stepSecondLastTask == false) return;
 
         await StepFirstLastCommand.ExecuteAsync( /* isNotSilent */ false);

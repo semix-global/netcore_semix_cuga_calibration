@@ -19,7 +19,6 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -183,7 +182,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
 
@@ -324,7 +323,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                     generatePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                     generatePrescanAODWaveformParam.WithFrequencyFlatness(prescanFrequency);
                     generatePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-                    var aodWaveformResultItem = AODWaveformGenerator1.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+                    var aodWaveformResultItem = AODWaveformGenerator.GeneratePrescanAODWaveform(generatePrescanAODWaveformParam.AdaptTo(), cancellationToken);
 
                     var itemItem = new AODAlignmentDTOItem
                     {
@@ -369,7 +368,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 var skipItemItems = CalibratingItem.Items.Skip(Cache.Item.RangeSkipFitCount).SkipLast(Cache.Item.RangeSkipFitCount).ToArray();
                 var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
                     Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => t.PrescanFrequency)),
-                    Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => (double)GuardUtils.IsNotNullAndReturn(t.ProjectMaxPixel))));
+                    Vector<double>.Build.DenseOfEnumerable(skipItemItems.Select(t => (double)Guard.IsNotNullAndReturn(t.ProjectMaxPixel))));
 
                 CalibratingItem.Slope = slope;
                 CalibratingItem.Intercept = intercept;

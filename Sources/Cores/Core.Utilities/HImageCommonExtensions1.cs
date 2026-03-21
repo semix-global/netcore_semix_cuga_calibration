@@ -119,10 +119,7 @@ public static class HImageCommonExtensions1
             using var subHTuple = grayValHTuple - 1500d;
             using var divHTuple = subHTuple / 128d;
             using var exp2HTuple = divHTuple.TupleExp2();
-            using var exp2MaxHTuple = exp2HTuple.TupleMax();
-            using var scaleHTuple = exp2MaxHTuple / 4095d;
-            using var exp2DivHTuple = exp2HTuple / scaleHTuple;
-            using var intTuple = exp2DivHTuple.TupleInt();
+            using var intTuple = exp2HTuple.TupleInt();
 
             var result = new HImage("uint2", width, height);
             result.SetGrayval(rowsHTuple, columnsHTuple, intTuple);

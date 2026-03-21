@@ -1,6 +1,6 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.Status.Interfaces;
 using Microsoft.Xaml.Behaviors;
-using Net.Utilities.Models;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,7 +19,7 @@ public class ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem> : Behavi
 
     private static void BindableSelectedItemsPropertyChangedCallback(DependencyObject? d, DependencyPropertyChangedEventArgs e)
     {
-        var behavior = GuardUtils.IsNotNullAndAssignableToType<ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem>>(d);
+        var behavior = Guard.IsNotNullAndAssignableToTypeAndReturn<ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem>>(d);
 
         if (e.NewValue is null) return;
 
@@ -42,7 +42,7 @@ public class ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem> : Behavi
         AssociatedObject.SelectionChanged += OnSelectionChanged;
 
         var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
-        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
+        Guard.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     protected override void OnDetaching()
@@ -52,7 +52,7 @@ public class ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem> : Behavi
         AssociatedObject.SelectionChanged -= OnSelectionChanged;
 
         var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
-        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
+        Guard.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     private void OnItemsSourceChanged(object? sender, EventArgs e)
@@ -81,7 +81,7 @@ public class ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem> : Behavi
     {
         if (_isUpdatingSelection) return;
 
-        var listBox = GuardUtils.IsNotNullAndAssignableToType<ListBox>(sender);
+        var listBox = Guard.IsNotNullAndAssignableToTypeAndReturn<ListBox>(sender);
 
         BindableSelectedItems =
         [
@@ -90,6 +90,6 @@ public class ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem> : Behavi
                 .Select(t => t.SelectedItem)
         ];
 
-        GuardUtils.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemsProperty)).UpdateSource();
+        Guard.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemsProperty)).UpdateSource();
     }
 }

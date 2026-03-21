@@ -14,7 +14,7 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     ObservableObject,
-    IAdaptTo<AODWaveformGenerator1.AODWaveformOffsetConfiguration>,
+    IAdaptTo<AODWaveformGenerator.AODWaveformOffsetConfiguration>,
     IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>,
     ICloneable<GenerateAODWaveformElectrodeConfiguration>
 {
@@ -67,7 +67,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         return this;
     }
 
-    public AODWaveformGenerator1.AODWaveformOffsetConfiguration AdaptTo() => new(
+    public AODWaveformGenerator.AODWaveformOffsetConfiguration AdaptTo() => new(
 #if NETFRAMEWORK
         OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum().ToString(),
 #else

@@ -84,7 +84,8 @@
                         <hc:NumericUpDown hc:TitleElement.Title="X/Z Sync Center(ECS): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
-                                          Style="{StaticResource NumericUpDownExtend}" />
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.XZCenterECS}" />
                         <hc:NumericUpDown hc:TitleElement.Title="X/Z Sync ±Range(ECS): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"

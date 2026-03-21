@@ -1,10 +1,10 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -177,7 +177,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
             {
                 relayScatterLines[0].Update(
                     string.Empty,
-                    [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, GuardUtils.IsNotNullAndReturn(t.MaxItem).ECS))],
+                    [.. Items.Select(t => new Point(t.RelayMotorAbsoluteValue, Guard.IsNotNullAndReturn(t.MaxItem).ECS))],
                     Constants.Category10.GetColor(0));
             }
 

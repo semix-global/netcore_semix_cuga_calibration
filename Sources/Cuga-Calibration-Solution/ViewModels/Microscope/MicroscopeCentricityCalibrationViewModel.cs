@@ -133,7 +133,6 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         SelectMicroscopeCentricityCacheItem = Cache.CurrentCalibrationCacheItem;
-        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(SelectMicroscopeCentricityCacheItem.FindPosition, Cache.CalChipSiteModelEnum);
 
         return true;
     }
@@ -719,7 +718,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         if (await LoadedingAsync(cancellationToken) == false) return false;
         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
         {
-            DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 

@@ -177,6 +177,15 @@ public sealed class CalibrationCIBServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
     }
 
+    public SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation)
+    {
+        var sxExecuteRet = Invoke(() => Service!.SetFocusCacheToMachine(productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(), productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(), productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
@@ -186,6 +195,7 @@ public sealed class CalibrationCIBServiceImpl(
         bool isForward,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         var getMachineDirectionRet = calibrationStageService.GetMachineDirection();
@@ -210,7 +220,8 @@ public sealed class CalibrationCIBServiceImpl(
                 AF = isAutoFocus ? 0 : 1,
                 IsForward = isForward,
                 IsCalibration = true, /*为true时不下发波形*/
-                ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                ImgArrayResoult = false, /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                FocusParamNoUsed = isCustomAFParam
             },
             stageCoordinateSystemEnum switch
             {
@@ -239,6 +250,7 @@ public sealed class CalibrationCIBServiceImpl(
         CIBInformation cibInformation,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         var getMachineDirectionRet = calibrationStageService.GetMachineDirection();
@@ -273,7 +285,8 @@ public sealed class CalibrationCIBServiceImpl(
             AF = isAutoFocus ? 0 : 1,
             IsForward = isIncreasing,
             IsCalibration = true, /*为true时不下发波形*/
-            ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+            ImgArrayResoult = false, /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+            FocusParamNoUsed = isCustomAFParam
         });
         if (getDFImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getDFImgCalibrationRet.Msg, []);
 
@@ -314,6 +327,7 @@ public sealed class CalibrationCIBServiceImpl(
         bool isForward,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         var getMachineDirectionRet = calibrationStageService.GetMachineDirection();
@@ -338,7 +352,8 @@ public sealed class CalibrationCIBServiceImpl(
                 AF = isAutoFocus ? 0 : 1,
                 IsForward = isForward,
                 IsCalibration = true, /*为true时不下发波形*/
-                ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                ImgArrayResoult = false, /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                FocusParamNoUsed = isCustomAFParam
             },
             stageCoordinateSystemEnum switch
             {

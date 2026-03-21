@@ -170,6 +170,13 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
     }
 
+    public SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
@@ -179,6 +186,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isForward,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
@@ -205,6 +213,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         CIBInformation cibInformation,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         var bytes = File.ReadAllBytes(_mockImageFilePath);
@@ -230,6 +239,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isForward,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
         using var fileSteam = File.OpenRead(_mockImageFilePath);

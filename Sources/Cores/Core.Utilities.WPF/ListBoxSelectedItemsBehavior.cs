@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.Helpers.Helpers;
-using Net.Utilities.Models;
 using System.Collections;
 using System.ComponentModel;
 using System.Windows;
@@ -27,7 +26,7 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
 
     private static void BindableSelectedItemsPropertyChangedCallback(DependencyObject? d, DependencyPropertyChangedEventArgs e)
     {
-        var behavior = GuardUtils.IsNotNullAndAssignableToType<ListBoxSelectedItemsBehavior>(d);
+        var behavior = Guard.IsNotNullAndAssignableToTypeAndReturn<ListBoxSelectedItemsBehavior>(d);
 
         if (e.NewValue is null) return;
 
@@ -56,7 +55,7 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
         AssociatedObject.SelectionChanged += OnSelectionChanged;
 
         var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
-        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
+        Guard.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     protected override void OnDetaching()
@@ -66,7 +65,7 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
         AssociatedObject.SelectionChanged -= OnSelectionChanged;
 
         var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ListBox));
-        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
+        Guard.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
 
@@ -98,10 +97,10 @@ public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
 
         Guard.IsNotNull(Type);
 
-        var listBox = GuardUtils.IsNotNullAndAssignableToType<ListBox>(sender);
+        var listBox = Guard.IsNotNullAndAssignableToTypeAndReturn<ListBox>(sender);
 
         BindableSelectedItems = ObjectHelper.ConvertToArray(listBox.SelectedItems, Type);
 
-        GuardUtils.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemsProperty)).UpdateSource();
+        Guard.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemsProperty)).UpdateSource();
     }
 }

@@ -50,11 +50,13 @@
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.SpeedEcsPerSecond}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Nsc Standard(nsc/um): "
+                                          hc:InfoElement.Title="Nsc Standard(nsc/nm): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
+                                          IsReadOnly="True"
+                                          Background="{StaticResource SecondaryRegionBrush}"
                                           Value="{Binding Cache.NscStandardNscPerNm}" />
                         <hc:NumericUpDown Width="275"
                                           hc:InfoElement.Title="Retry Count: "
@@ -64,7 +66,7 @@
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.RetryCount}" />
                         <hc:NumericUpDown Width="275"
-                                          hc:InfoElement.Title="Calibration Range (nsc/um): "
+                                          hc:InfoElement.Title="Calibration Range (nsc/nm): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:InfoElement.TitlePlacement="Left"
                                           Minimum="0"
@@ -136,7 +138,7 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="310" Header="Standard, Offset, Gain, nsc/um, Symmetry Ratio">
+                            <GridViewColumn Width="310" Header="Standard, Offset, Gain, nsc/nm, Symmetry Ratio">
                                 <GridViewColumn.DisplayMemberBinding>
                                     <MultiBinding StringFormat="{}{0:f3}, {1:f3}, {2:f3}, {3:f3}, {4:f3}" Mode="OneWay">
                                         <Binding Path="NscStandard" />

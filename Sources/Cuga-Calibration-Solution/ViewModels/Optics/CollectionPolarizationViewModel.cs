@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -14,7 +15,6 @@ using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using System.IO;
@@ -146,7 +146,7 @@ public sealed partial class CollectionPolarizationViewModel(
     {
         Cache.HazeWaferPosition = Cache.HazeWaferPosition != Point.Origin
             ? Cache.HazeWaferPosition
-            : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
+            : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
 
         StageViewModel.SetAbsoluteStageTheta(0);
         StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition));

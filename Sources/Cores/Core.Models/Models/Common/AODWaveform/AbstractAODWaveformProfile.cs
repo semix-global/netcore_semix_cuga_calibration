@@ -82,42 +82,42 @@ public abstract class AbstractAODWaveformProfile :
 
     #region 波形
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.Signals"/>
+    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.Signals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
 
     public IReadOnlyList<Point> Signals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FFTSignals"/>
+    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FFTSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
 
     public IReadOnlyList<Point> FFTSignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FrequencyCoefficients"/>
+    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FrequencyCoefficients"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
 
     public IReadOnlyList<Point> FrequencyCoefficients { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalFrequencySignals"/>
+    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalFrequencySignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
 
     public IReadOnlyList<Point> FlatnessTotalFrequencySignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalPhaseSignals"/>
+    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalPhaseSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
 
     public IReadOnlyList<Point> FlatnessTotalPhaseSignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalCompensationPhaseSignals"/>
+    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalCompensationPhaseSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]

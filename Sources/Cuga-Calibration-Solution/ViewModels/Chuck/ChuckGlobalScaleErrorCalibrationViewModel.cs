@@ -904,7 +904,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
         if (await LoadedingAsync(cancellationToken) == false) return false;
         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
         {
-            DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
@@ -917,7 +917,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
 
                 if (await VerifyCalibrationAsync(cancellationToken) == false)
                 {
-                    DialogWindowProvider.ShowDialog($"Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    DialogWindowProvider.ShowDialog("Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;
                 }
 

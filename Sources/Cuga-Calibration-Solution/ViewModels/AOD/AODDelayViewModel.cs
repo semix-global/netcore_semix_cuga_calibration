@@ -14,7 +14,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -178,7 +177,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
 
@@ -303,13 +302,13 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 await CatchAODDelayAsync(Generate.LinearRange(Cache.Item.StartRoughAODDelay, Cache.Item.StepRoughAODDelay, Cache.Item.StopRoughAODDelay));
-                GuardUtils.IsNotNullAndReturn(CalibratingItem.MaxItem);
+                Guard.IsNotNullAndReturn(CalibratingItem.MaxItem);
 
                 await CatchAODDelayAsync(Generate.LinearRange(
                     CalibratingItem.MaxItem.AODDelay - Cache.Item.RangeRefinedAODDelay,
                     Cache.Item.StepRefinedAODDelay,
                     CalibratingItem.MaxItem.AODDelay + Cache.Item.RangeRefinedAODDelay));
-                GuardUtils.IsNotNullAndReturn(CalibratingItem.MaxItem);
+                Guard.IsNotNullAndReturn(CalibratingItem.MaxItem);
 
                 CalibratingItem.IsCalibrated = true;
 
@@ -428,7 +427,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                     selectedReviewItem.MaxItem?.RawImageFilePath,
                     Image = string.IsNullOrWhiteSpace(selectedReviewItem.MaxItem?.ImageFilePath)
                         ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.")
-                        : new HtmlImage(GuardUtils.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),
+                        : new HtmlImage(Guard.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),
                     ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 

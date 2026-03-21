@@ -2,7 +2,8 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Net.Utilities.Models;
+using MathNet.Numerics;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -90,7 +91,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
                     Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
 
-                    var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
+                    var offsetFrequencyPeriodCoefficients = Generate.LinearRangeContainsEdge(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
                     Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
 
                     var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
@@ -250,7 +251,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         var aodWaveformElectrodeOffsetFrequencyPeriod = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem> { Electrodes = electrodes };
                         Cache.Step0Items = [.. Cache.Step0Items, aodWaveformElectrodeOffsetFrequencyPeriod];
 
-                        var offsetFrequencyPeriodCoefficients = GenerateUtils.LinearContainsEdgeRange(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
+                        var offsetFrequencyPeriodCoefficients = Generate.LinearRangeContainsEdge(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
                         Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
 
                         var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
@@ -393,7 +394,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             try
             {
-                var frequencies = GenerateUtils.LinearContainsEdgeRange(Cache.Frequencies[0], Cache.StepFrequency, Cache.Frequencies[^1]);
+                var frequencies = Generate.LinearRangeContainsEdge(Cache.Frequencies[0], Cache.StepFrequency, Cache.Frequencies[^1]);
                 Guard.IsNotEmpty(frequencies);
                 foreach (var electrodeFrequencyUniformityParams in Cache.ElectrodeOffsetFrequencyUniformityParams.Chunk(Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize))
                 {
@@ -421,7 +422,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                             Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId.LoggingHtml());
 
-                            var amplitudes = GenerateUtils.LinearContainsEdgeRange(electrodeFrequencyUniformityParams[0].StartAmplitude, electrodeFrequencyUniformityParams[0].StepAmplitude, electrodeFrequencyUniformityParams[0].StopAmplitude).AsEnumerable()
+                            var amplitudes = Generate.LinearRangeContainsEdge(electrodeFrequencyUniformityParams[0].StartAmplitude, electrodeFrequencyUniformityParams[0].StepAmplitude, electrodeFrequencyUniformityParams[0].StopAmplitude).AsEnumerable()
                                 .Reverse().ToArray();
                             Guard.IsNotEmpty(amplitudes);
                             foreach (var amplitude in amplitudes)
@@ -516,13 +517,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
         });
 
-        var step0Task = GuardUtils.IsAssignableToType<Task<bool>>(Step0Command.ExecuteAsync( /* isNotSilent */ false));
+        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync( /* isNotSilent */ false));
         if (await step0Task == false) return;
 
-        var step1Task = GuardUtils.IsAssignableToType<Task<bool>>(Step1Command.ExecuteAsync( /* isNotSilent */ false));
+        var step1Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step1Command.ExecuteAsync( /* isNotSilent */ false));
         if (await step1Task == false) return;
 
-        var stepSecondLastTask = GuardUtils.IsAssignableToType<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isNotSilent */ false));
+        var stepSecondLastTask = Guard.IsAssignableToTypeAndReturn<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isNotSilent */ false));
         if (await stepSecondLastTask == false) return;
 
         await StepFirstLastCommand.ExecuteAsync( /* isNotSilent */ false);

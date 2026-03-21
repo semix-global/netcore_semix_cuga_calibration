@@ -22,7 +22,6 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -809,7 +808,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinates.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinates.Select(t => t.Y)));
 
-        var pmtXErrorTitle = $"y ={slopeXError:0.######}x + {interceptXError:0.######} r^2 = {rSquaredXError:0.######} angle = {MathUtils.RadianAngleToDegreeAngle(Math.Atan(slopeXError))}";
+        var pmtXErrorTitle = $"y ={slopeXError:0.######}x + {interceptXError:0.######} r^2 = {rSquaredXError:0.######} angle = {Math.RadianAngleToDegreeAngle(Math.Atan(slopeXError))}";
 
         var pmtYErrorCoordinates = results.OrderBy(t => t.Pmt)
             .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.Y)).ToArray();
@@ -818,7 +817,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.X)),
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.Y)));
 
-        var pmtYErrorTitle = $"y ={slopeYError:0.######}x + {interceptYError:0.######} r^2 = {rSquaredYError:0.######} angle = {MathUtils.RadianAngleToDegreeAngle(Math.Atan(slopeYError))}";
+        var pmtYErrorTitle = $"y ={slopeYError:0.######}x + {interceptYError:0.######} r^2 = {rSquaredYError:0.######} angle = {Math.RadianAngleToDegreeAngle(Math.Atan(slopeYError))}";
 
         Logger.LogHtmlInformation("Calibration OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {

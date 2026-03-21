@@ -4,7 +4,6 @@ using Core.Models.Models.Common.Cookies;
 using Cuga.Data.DataStruct.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -124,7 +123,7 @@ public sealed class MicroscopeLensInformation :
 
     public MicroscopeLensInformation AdaptIn(CgMicroscopeInfo obj)
     {
-        LensName = GuardUtils.IsNotNullAndReturn(obj.LensName);
+        LensName = Guard.IsNotNullAndReturn(obj.LensName);
         LensCode = (int)obj.LensCode;
         ObjectiveMagnification = obj.Lens;
 

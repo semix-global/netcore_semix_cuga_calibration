@@ -41,7 +41,7 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
         Cache.Profiles = [];
         Cache.AODWaveformResultFilePath = string.Empty;
 
-        var aodWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
+        var aodWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.Param.AdaptTo(), cancellationToken);
 
         Cache.Profiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
         Cache.AODWaveformResultFilePath = aodWaveformResult.FilePath;

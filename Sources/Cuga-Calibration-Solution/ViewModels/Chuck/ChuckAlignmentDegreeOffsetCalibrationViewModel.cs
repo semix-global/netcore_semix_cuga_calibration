@@ -17,7 +17,6 @@ using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -439,7 +438,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
         Cache.OpticsIlluminationModeEnum = reviewDto.OpticsIlluminationMode;
         Cache.ProductivityInformation = reviewDto.ProductivityInformation;
 
-        AlignmentCacheDarkField = GuardUtils.IsNotNullAndReturn(AlignmentCacheDarkFields.SingleOrDefault(t =>
+        AlignmentCacheDarkField = Guard.IsNotNullAndReturn(AlignmentCacheDarkFields.SingleOrDefault(t =>
             t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
             t.ProductivityInformation == Cache.ProductivityInformation));
 

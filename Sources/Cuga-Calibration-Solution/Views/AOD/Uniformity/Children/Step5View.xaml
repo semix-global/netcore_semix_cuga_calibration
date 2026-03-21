@@ -42,6 +42,25 @@
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
+                            <TextBlock Text="Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Linear Spaced Count: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.InitializeWindowLinearSpacedCount}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Linear Spaced Rate: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.InitializeWindowLinearSpacedRate}" />
+                        <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
@@ -73,14 +92,9 @@
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
-            <TabControl>
-                <TabItem Header="Plots">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentControl Content="{Binding CalibratingItem.InitializeWindowScatterPlotControl, Mode=OneWay}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Details" />
-            </TabControl>
+            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                <ContentControl Content="{Binding CalibratingItem.InitializeWindowScatterPlotControl, Mode=OneWay}" />
+            </Border>
         </GroupBox>
     </Grid>
 </UserControl>

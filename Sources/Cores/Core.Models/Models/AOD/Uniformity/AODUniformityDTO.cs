@@ -4,14 +4,14 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
-using Core.Utilities;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using Generate = MathNet.Numerics.Generate;
@@ -27,39 +27,65 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private WindowItem _startWindowItem = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private WindowItem _stopWindowItem = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private WindowItem _mappingWindowItem = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Mapping> _mappings = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<int[]> _imageHorizontalProjectMappings = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<int[]> _prescanAODWaveformProfileMappings = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private ConcurrentBag<KeyValuePair<CIBInformation, double>> _targetPMTValues = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private AODUniformityDTOItem _initializeWindowItem = new();
 
     [ObservableProperty]
     private AODUniformityDTOItem _item = new();
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<AODUniformityDTOItem> _items = [];
 
     [ObservableProperty]
@@ -133,83 +159,51 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         [ObservableProperty]
         private string _imageFilePath = string.Empty;
 
-        public void CalculateHorizontalProjectMinPixel(int segmentCount, int segmentIndex)
+        public void CalculateHorizontalProjectMinPixel(int segmentCount)
         {
-            var (vYPixelStartIndex, _, vYPixelStopIndex) = Generate.LinearVShapeWindowBySegments(
+            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. ImageHorizontalProjects])).ToArray();
+
+            var vShapeWindowBySegments = Generate.LinearVShapeWindowBySegments(
                 1d,
-                1d,
-                segmentCount + 1,
-                segmentIndex,
-                ImageHorizontalProjects.Count).Region;
+                0d,
+                segmentCount,
+                Generate.LinearRangeInt32(0, segmentCount - 1),
+                ImageHorizontalProjects.Count);
+            var startIndex = vShapeWindowBySegments.Regions[0].VMiddleIndex;
+            var stopIndex = vShapeWindowBySegments.Regions[^1].VMiddleIndex;
 
-            // 正序
-            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects)).ToArray();
-            var (forwardX, forwardY) = Extremumor.FindMinima(
-                Vector<double>.Build.DenseOfArray(Enumerable.Range(0, SmoothImageHorizontalProjects.Count).ToArray()),
-                Vector<double>.Build.DenseOfEnumerable(SmoothImageHorizontalProjects));
-
-            var forwardHorizontalProjectMinPixel = forwardX
-                .Select(t => (int)t)
-                .Index()
-                .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                .Select(t => (X: t.Item, Y: forwardY[t.Index]))
-                .OrderBy(t => t.Y)
-                .FirstOrDefault((-1, 0));
-
-            // 倒序
-            var reverseSmoothImageHorizontalProjects = SmoothImageHorizontalProjects.Reverse().ToArray();
-            var (reverseX, reverseY) = Extremumor.FindMinima(
-                Vector<double>.Build.DenseOfArray(Enumerable.Range(0, reverseSmoothImageHorizontalProjects.Length).ToArray()),
-                Vector<double>.Build.DenseOfEnumerable(reverseSmoothImageHorizontalProjects));
-
-            var reverseHorizontalProjectMinPixel = reverseX
-                .Select(t => (int)t)
-                .Index()
-                .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                .Select(t => (X: t.Item, Y: reverseY[t.Index]))
-                .OrderBy(t => t.Y)
-                .FirstOrDefault((-1, 0));
-
-            HorizontalProjectMinPixel = (forwardHorizontalProjectMinPixel.X, reverseHorizontalProjectMinPixel.X) switch
-            {
-                (not -1, -1) => forwardHorizontalProjectMinPixel.X,
-                (-1, not -1) => ImageHorizontalProjects.Count - reverseHorizontalProjectMinPixel.X - 1,
-                (not -1, not -1) => forwardHorizontalProjectMinPixel.Y < reverseHorizontalProjectMinPixel.Y
-                    ? forwardHorizontalProjectMinPixel.X
-                    : ImageHorizontalProjects.Count - reverseHorizontalProjectMinPixel.X - 1,
-                (_, _) => ThrowHelper.ThrowInvalidOperationException<int>("Horizontal Project Min Pixel is not found.")
-            };
+            var (indexes, _) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
+            HorizontalProjectMinPixel = indexes
+                .Where(t => startIndex <= t && t <= stopIndex)
+                .OrderBy(t => SmoothImageHorizontalProjects[t])
+                .First();
         }
 
-        public void CalculateHorizontalProjectMinPixels(int segmentCount, int[] segmentIndexes)
+        public void CalculateHorizontalProjectMinPixels(IReadOnlyList<(int VStartIndex, int VMiddleIndex, int VStopIndex)> regions, IReadOnlyList<Point> prescanToImageIndexMappings)
         {
-            var horizontalProjectMinPixels = new int[segmentCount];
+            SmoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. ImageHorizontalProjects])).ToArray();
 
-            var regions = Generate.LinearVShapeWindowBySegments(
-                1d,
-                1d,
-                segmentCount + 1,
-                segmentIndexes,
-                ImageHorizontalProjects.Count).Regions;
+            var (indexes, _) = Extremumor.FindMinima(SmoothImageHorizontalProjects.ToPoints());
 
-            SmoothImageHorizontalProjects = [.. SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.DenseOfEnumerable(ImageHorizontalProjects))];
-            var (x, y) = Extremumor.FindMinima(
-                Vector<double>.Build.DenseOfArray(Enumerable.Range(0, SmoothImageHorizontalProjects.Count).ToArray()),
-                Vector<double>.Build.DenseOfEnumerable(SmoothImageHorizontalProjects));
+            HorizontalProjectMinPixels = regions
+                .Select(t =>
+                {
+                    var (vStartIndex, vMiddleIndex, vStopIndex) = t;
 
-            foreach (var (index, (vYPixelStartIndex, _, vYPixelStopIndex)) in regions.Index())
-            {
-                horizontalProjectMinPixels[index] = x
-                    .Select(t => (int)t)
-                    .Index()
-                    .Where(t => vYPixelStartIndex <= t.Item && t.Item <= vYPixelStopIndex)
-                    .Select(t => (X: t.Item, Y: y[t.Index]))
-                    .OrderBy(t => t.Y)
-                    .First()
-                    .X;
-            }
+                    return (VStartIndex: (int)Math.Clamp(Math.Floor(prescanToImageIndexMappings[vStartIndex].Y), 0, ImageHorizontalProjects.Count - 1),
+                        VMiddleIndex: (int)Math.Clamp(Math.Round(prescanToImageIndexMappings[vMiddleIndex].Y), 0, ImageHorizontalProjects.Count - 1),
+                        VStopIndex: (int)Math.Clamp(Math.Ceiling(prescanToImageIndexMappings[vStopIndex].Y), 0, ImageHorizontalProjects.Count - 1));
+                })
+                .Select(t =>
+                {
+                    var (startIndex, _, stopIndex) = t;
 
-            HorizontalProjectMinPixels = horizontalProjectMinPixels;
+                    return indexes
+                        .Where(tt => startIndex <= tt && tt <= stopIndex)
+                        .OrderBy(tt => SmoothImageHorizontalProjects[tt])
+                        .First();
+                })
+                .ToArray();
         }
 
         public WindowItem Clone() => new()
@@ -263,16 +257,37 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private IReadOnlyList<Item> _items = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _window = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private double _windowLimitMin;
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
     private double _windowLimitMax;
+
+    [ObservableProperty]
+    private double _verifyMinRate;
+
+    [ObservableProperty]
+    private double _verifyMaxRate;
+
+    [ObservableProperty]
+    private IReadOnlyList<double> _verifyImageHorizontalProjects = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Status> _verifyMappingStatuses = [];
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -300,7 +315,11 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
         Items = [.. Items.Select(t => t.Clone())],
         Window = [.. Window],
         WindowLimitMin = WindowLimitMin,
-        WindowLimitMax = WindowLimitMax
+        WindowLimitMax = WindowLimitMax,
+        VerifyMinRate = VerifyMinRate,
+        VerifyMaxRate = VerifyMaxRate,
+        VerifyImageHorizontalProjects = [.. VerifyImageHorizontalProjects],
+        VerifyMappingStatuses = [.. VerifyMappingStatuses]
     };
 
     #endregion Mapper
@@ -314,16 +333,30 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
         private double _maxRate;
 
         [ObservableProperty]
+        private IReadOnlyList<Status> _mappingStatuses = [];
+
+        [ObservableProperty]
         private bool _isOk;
 
         public new Item Clone()
         {
-            var clone = GuardUtils.IsAssignableToType<Item>(base.Clone());
+            var clone = Guard.IsAssignableToTypeAndReturn<Item>(base.Clone());
             clone.MinRate = MinRate;
             clone.MaxRate = MaxRate;
             clone.IsOk = IsOk;
+            clone.MappingStatuses = [.. MappingStatuses];
 
             return clone;
         }
+    }
+
+    public enum Status
+    {
+        None,
+        GreaterThan,
+        LessThan,
+        Ok,
+        OkWindowLimitMin,
+        OkWindowLimitMax
     }
 }
