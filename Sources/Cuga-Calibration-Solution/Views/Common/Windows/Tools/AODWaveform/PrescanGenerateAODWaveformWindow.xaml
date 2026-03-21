@@ -8,9 +8,11 @@
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
            xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:PrescanGenerateAODWaveformWindowViewModel}"
+           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
            ResizeMode="NoResize"
@@ -79,7 +81,17 @@
             <Border Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <paramUI:GeneratePrescanAODWaveformParamUserControl DataContext="{Binding Cache.Param}" />
+                        <Grid>
+                            <paramUI:GeneratePrescanAODWaveformParamUserControl DataContext="{Binding Cache.Param}" />
+                            <StackPanel>
+                                <Button Content="Import"
+                                        Command="{Binding ImportAODWaveformParamsCommand}"
+                                        Margin="5,4"
+                                        HorizontalAlignment="Right"
+                                        hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                        Style="{StaticResource ButtonInfo.Small}" />
+                            </StackPanel>
+                        </Grid>
                         <GroupBox Header="Prescan AOD Waveform Operation">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
@@ -91,16 +103,6 @@
                                              IsReadOnly="True"
                                              Style="{StaticResource TextBoxExtend}"
                                              ScrollViewer.VerticalScrollBarVisibility="Auto" />
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Loaded Prescan AOD Waveform Electrode Offset"
-                                                Command="{Binding LoadedElectrodeOffsetResultCommand}"
-                                                hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
-                                                Style="{StaticResource ButtonDefault.Loading}" />
-                                        <Button Content="Cancel"
-                                                Command="{Binding LoadedElectrodeOffsetResultCancelCommand}"
-                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                Style="{StaticResource ButtonWarning}" />
-                                    </hc:UniformSpacingPanel>
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Generate Prescan AOD Waveform"
                                                 Command="{Binding GenerateAODWaveformCommand}"

@@ -353,6 +353,8 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
                 var lambdas = Generate.LinearRangeContainsEdge(Cache.Item.StartLambda, Cache.Item.StepLambda, Cache.Item.StopLambda);
                 Guard.IsGreaterThan(lambdas.Length, 2);
+
+                var isSuccess = true;
                 foreach (var lambda in lambdas)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -396,7 +398,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                         item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
                         item.BestFocus.BestXStrehlRatioECS = startECS + item.BestFocus.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
                         item.BestFocus.BestYStrehlRatioECS = startECS + item.BestFocus.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-                        
+
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                         {
                             item.Lambda,
@@ -409,6 +411,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                     }
                     catch (Exception ex)
                     {
+                        isSuccess = false;
                         item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                         {
@@ -421,7 +424,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                     }
                 }
 
-                CalibratingItem.IsCalibrated = true;
+                CalibratingItem.IsCalibrated = isSuccess;
 
                 var htmlBullet = new HtmlBullet(new
                 {

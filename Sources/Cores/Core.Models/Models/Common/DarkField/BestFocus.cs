@@ -212,8 +212,7 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         try
         {
             #region Plot1
-
-            var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
+            
             var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, strehlRatioColumnPoints.Count + 1);
             foreach (var (index, temp) in strehlRatioColumnPoints.Index())
             {
@@ -221,12 +220,12 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
                 scatterLines[index].MarkerColor = Colors.DarkBlue;
             }
             
-            scatterMarkers[0].Update(string.Empty, strehlRatioPoints, Colors.Blue, MarkerShape.OpenCircle);
-            scatterMarkers[0].MarkerSize = 20;
-
             scatterLines[strehlRatioColumnPoints.Count].Update(string.Empty, strehlRatioFitPoints, Colors.Green);
             scatterLines[strehlRatioColumnPoints.Count].MarkerColor = Colors.DarkGreen;
 
+            var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
+            scatterMarkers[0].Update(string.Empty, strehlRatioPoints, Colors.Blue, MarkerShape.OpenCircle);
+            scatterMarkers[0].MarkerSize = 20;
             scatterMarkers[1].Update($"Best Strehl: {bestStrehlRatioPoint.Y:0.####}, ECS: {bestStrehlRatioECS:0.###}", [bestStrehlRatioPoint], Colors.Red, MarkerShape.Asterisk);
             scatterMarkers[1].MarkerSize = 20;
 

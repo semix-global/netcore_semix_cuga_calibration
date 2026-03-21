@@ -29,8 +29,8 @@
             <hc:UniformSpacingPanel Orientation="Vertical"
                                     Spacing="2"
                                     Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <hc:Shield Subject="Step 7: "
-                           Status="{Binding CalibrationStepList[6].StepName}"
+                <hc:Shield Subject="Step 5: "
+                           Status="{Binding CalibrationStepList[4].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Optics Illumination Mode: "
                            Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
@@ -184,7 +184,11 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="λ" DisplayMemberBinding="{Binding Lambda, StringFormat='0.###'}" />
+                            <GridViewColumn Width="80"
+                                            Header="λ"
+                                            DisplayMemberBinding="{Binding Lambda, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestFocus.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                            <GridViewColumn Header="X Strehl" DisplayMemberBinding="{Binding BestFocus.BestXStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
                             <GridViewColumn Header="L1(mm)" DisplayMemberBinding="{Binding SCMotorAbsoluteValueL1, StringFormat='0.###'}" />
                             <GridViewColumn Header="L3(mm)" DisplayMemberBinding="{Binding SCMotorAbsoluteValueL3, StringFormat='0.###'}" />
                             <GridViewColumn Header="Best X Strehl ECS" DisplayMemberBinding="{Binding BestFocus.BestXStrehlRatioECS, StringFormat='0.###'}" />

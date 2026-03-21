@@ -34,13 +34,6 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <StackPanel>
-                            <TextBlock Text="Param"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -104,9 +97,13 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Optics Illumination Mode" DisplayMemberBinding="{Binding OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                            <GridViewColumn Header="λ" DisplayMemberBinding="{Binding Lambda, StringFormat='0.###'}" />
+                            <GridViewColumn Width="80"
+                                            Header="λ"
+                                            DisplayMemberBinding="{Binding Lambda, StringFormat='0.###'}" />
                             <GridViewColumn Header="L1(mm)" DisplayMemberBinding="{Binding SCMotorAbsoluteValueL1, StringFormat='0.###'}" />
                             <GridViewColumn Header="L3(mm)" DisplayMemberBinding="{Binding SCMotorAbsoluteValueL3, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding MaxItem.BestFocus.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                            <GridViewColumn Header="X Strehl" DisplayMemberBinding="{Binding MaxItem.BestFocus.BestXStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

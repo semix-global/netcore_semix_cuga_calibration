@@ -1,7 +1,9 @@
+using System.Text;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -23,17 +25,39 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
         set => SetProperty(ref field, value);
     } = new();
 
-    protected override void LoadedElectrodeOffsetResult(CancellationToken cancellationToken)
+    protected override void ImportAODWaveformParams()
     {
-        var chirpAODWaveformElectrodeInitializeCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
-        if (chirpAODWaveformElectrodeInitializeCache.ElectrodeConfigurationResults.Count == 0)
+        try
         {
-            DialogWindowProvider.ShowDialog("Please initialize the chirp electrode configuration as it is currently empty.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            var isSuccess = true;
 
-            return;
+            var stringBuilder = new StringBuilder();
+
+            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+
+            var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.Param.ProductivityInformation));
+
+            if (chirpResult is null)
+            {
+                stringBuilder.AppendLine("Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.Param = chirpResult.GenerateChirpAODWaveformParam;
+                stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
+            }
+
+            DialogWindowProvider.ShowDialog(stringBuilder.ToString(), DialogButtonsEnum.OK, isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
-
-        Cache.Param.ElectrodeConfigurations = chirpAODWaveformElectrodeInitializeCache.ElectrodeConfigurationResults;
+        catch (Exception ex)
+        {
+            DialogWindowProvider.ShowDialog($"""
+                                             Import Parameters Failed
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            Logger.LogError(ex, "Import Parameters Failed");
+        }
     }
 
     protected override void GenerateAODWaveform(CancellationToken cancellationToken)
