@@ -1,9 +1,9 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -114,7 +114,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AOD
                 ScatterPlotControl.GetOrAddScatterLine(
                     1,
                     "Alignment",
-                    [.. Items.Select(t => new Point(t.PrescanFrequency, GuardUtils.IsNotNullAndReturn(t.ProjectMaxPixel)))],
+                    [.. Items.Select(t => new Point(t.PrescanFrequency, Guard.IsNotNullAndReturn(t.ProjectMaxPixel)))],
                     Constants.Category10.GetColor(0));
             }
 

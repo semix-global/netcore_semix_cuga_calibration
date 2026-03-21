@@ -75,6 +75,12 @@
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.WindowInterval}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.WaitTime}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Calibrating Times: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="200"
@@ -174,6 +180,20 @@
                             </DataTemplate>
                         </TabControl.ContentTemplate>
                     </TabControl>
+                </TabItem>
+                <TabItem Header="Status">
+                    <DataGrid Margin="5"
+                              hc:DataGridAttach.ShowRowNumber="True"
+                              Style="{StaticResource DataGrid.Small}"
+                              HeadersVisibility="All"
+                              RowHeaderWidth="60"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              ItemsSource="{Binding CalibratingItem.Item.VerifyMappingStatuses}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Value" Binding="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </TabItem>
             </TabControl>
         </GroupBox>

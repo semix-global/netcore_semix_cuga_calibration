@@ -103,17 +103,22 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point centerPosition, int imageWidth, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, bool isKeepRawImageCIBProfileModeEnum, CancellationToken cancellationToken)
+    public SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, IReadOnlyList<Point> centerPositions, int imageWidth, CIBInformation cibInformation, bool isAutoFocus, bool isKeepRawImageCIBProfileModeEnum, CancellationToken cancellationToken)
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point centerPosition, int imageWidth, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, bool isKeepRawImageCIBProfileModeEnum, bool isCustomAFParam, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point startPosition, Point stopPosition, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, bool isKeepRawImageCIBProfileModeEnum, CancellationToken cancellationToken)
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, IReadOnlyList<Point> centerPositions, int imageWidth, CIBInformation cibInformation, bool isAutoFocus, bool isKeepRawImageCIBProfileModeEnum, bool isCustomAFParam, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point startPosition, Point stopPosition, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, bool isKeepRawImageCIBProfileModeEnum, bool isCustomAFParam, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

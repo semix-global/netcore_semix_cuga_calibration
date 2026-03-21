@@ -141,7 +141,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
             case 1:
                 Cache.Item.RTFCBrightFieldMachinePosition = MicroscopeCalChip.DSWBrightFieldMachineAffinePosition;
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
+                //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition));
 
                 return true;
@@ -330,7 +330,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                    StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
+                    //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
                     StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition));
 
                     selectedReviewItem.IsVerified = false;
@@ -344,15 +344,16 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
                     using var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
                         globalFocusOffsetDTO.ProductivityInformation,
-                        StageCoordinateSystemEnum.Machine,
-                        StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition)),
+                        StageCoordinateSystemEnum.Bright,
+                        StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition),
                         Cache.Item.ImageWidth,
                         Cache.Item.CIBInformation,
                         (true, null),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,
-                        cancellationToken);
+                        cancellationToken,
+                        isCustomAFParam: true);
 
                     var darkFieldFilePath = $"{ImageFileDirectory}\\Verify_({globalFocusOffsetDTO.ProductivityInformation})_Guid({HtmlLogUniqueId}).jpg";
                     darkFieldImageDto.Image.Save(darkFieldFilePath);

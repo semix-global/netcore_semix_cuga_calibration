@@ -132,6 +132,13 @@ public interface ICalibrationCIBService
     SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain);
 
     /// <summary>
+    /// 下发当前位置下的RTFC参数
+    /// </summary>
+    /// <param name="productivityInformation">产率</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation);
+
+    /// <summary>
     /// 读取所有CIB的图片: X 采[单位置]短图
     /// </summary>
     /// <param name="productivityInformation">产率</param>
@@ -142,6 +149,7 @@ public interface ICalibrationCIBService
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
     /// <param name="isKeepRawImageCIBProfileModeEnum">是否返回原图(跳过转换为线性图)</param>
+    /// <param name="isCustomAFParam">是否自定义AF参数</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>CIB对应的图片</returns>
     Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
@@ -153,6 +161,7 @@ public interface ICalibrationCIBService
         bool isForward,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken);
 
     /// <summary>
@@ -165,6 +174,7 @@ public interface ICalibrationCIBService
     /// <param name="cibInformation">CIB</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
     /// <param name="isKeepRawImageCIBProfileModeEnum">是否返回原图(跳过转换为线性图)</param>
+    /// <param name="isCustomAFParam">是否自定义AF参数</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>多个中心位置对应的图片</returns>
     Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
@@ -175,6 +185,7 @@ public interface ICalibrationCIBService
         CIBInformation cibInformation,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken);
 
     /// <summary>
@@ -188,6 +199,7 @@ public interface ICalibrationCIBService
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
     /// <param name="isKeepRawImageCIBProfileModeEnum">是否返回原图(跳过转换为线性图)</param>
+    /// <param name="isCustomAFParam">是否自定义AF参数</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>CIB对应的图片</returns>
     Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
@@ -199,6 +211,7 @@ public interface ICalibrationCIBService
         bool isForward,
         bool isAutoFocus,
         bool isKeepRawImageCIBProfileModeEnum,
+        bool isCustomAFParam,
         CancellationToken cancellationToken);
 
     /// <summary>

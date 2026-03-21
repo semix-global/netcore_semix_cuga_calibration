@@ -1456,7 +1456,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         if (await LoadedingAsync(cancellationToken) == false) return false;
         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
         {
-            DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 

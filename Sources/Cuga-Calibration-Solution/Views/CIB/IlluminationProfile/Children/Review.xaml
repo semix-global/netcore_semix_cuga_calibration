@@ -140,13 +140,14 @@
                         <TabControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBIlluminationProfileDTO}">
                                 <TextBlock>
-                                    <Run Text="{Binding ProductivityInformation}" />
-                                    <Run Text=", " />
-                                    <Run Text="{Binding OpticsApodizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <Run Text=", " />
-                                    <Run Text="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <Run Text=", " />
-                                    <Run Text="{Binding CollectorPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}, {1}, {2}, {3}">
+                                            <Binding Path="ProductivityInformation" />
+                                            <Binding Path="OpticsApodizationModeEnum" Converter="{StaticResource EnumDescriptionConverter}" />
+                                            <Binding Path="OpticsPolarizationModeEnum" Converter="{StaticResource EnumDescriptionConverter}" />
+                                            <Binding Path="CollectorPolarizationModeEnum" Converter="{StaticResource EnumDescriptionConverter}" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
                                 </TextBlock>
                             </DataTemplate>
                         </TabControl.ItemTemplate>

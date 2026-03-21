@@ -19,6 +19,7 @@ using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
@@ -26,7 +27,6 @@ using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -195,7 +195,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.HazeFindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
 
@@ -263,6 +263,17 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.CIBInformations
             }), HtmlLogUniqueId.LoggingHtml());
 
+            var mmdConfigurationList = new List<CIBMMDCache.MMDConfiguration>(Cache.MMDConfigurations);
+
+            foreach (var cibInformation in Cache.CIBInformations)
+            {
+                if (mmdConfigurationList.Any(t => t.CIBInformation == cibInformation)) continue;
+
+                mmdConfigurationList.Add(new CIBMMDCache.MMDConfiguration { CIBInformation = cibInformation });
+            }
+
+            Cache.MMDConfigurations = [.. mmdConfigurationList.DistinctBy(t => t.CIBInformation).OrderBy(t => t.CIBInformation)];
+
             return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t))
                    && ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
         });
@@ -319,7 +330,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.RSquared = 0d;
             Cache.ODFilterRatio = 0d;
 
-            var laserOpticalPowerMeter = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType && t.IsOk);
+            var laserOpticalPowerMeter = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                             && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
+                                                                             && t.IsOk);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -356,13 +369,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-            var prescanAODWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+            var prescanAODWaveformResult = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
             Cache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
             Cache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
 
             Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-            var chirpAODWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+            var chirpAODWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
             Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
             Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
@@ -457,12 +470,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Cache.NotUseODFilterMeasurePowerPoints =
             [
-                ..GeometricSequence.Generate(maxFitMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
+                ..Generate.GeometricSequence(maxFitMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
                     .Select((t, index) =>
                     {
                         if (index == 0) return maxFitMeasurePowerPoint;
 
-                        var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
+                        var solveForX = FindRoots.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
                         return HostEnvironment.IsProduction()
                             ? new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t)
@@ -472,14 +485,14 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             ];
             Cache.UseODFilterMeasurePowerPoints =
             [
-                ..GeometricSequence.Generate(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
+                ..Generate.GeometricSequence(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
                     .Where(t => t < Cache.NotUseODFilterMeasurePowerPoints[0].Y)
                     .Select(t => t * Cache.ODFilterRatio)
                     .Where(t => t < maxFitMeasurePowerPoint.Y)
                     .Where(t => t > minFitMeasurePowerPoint.Y)
                     .Select(t =>
                     {
-                        var solveForX = GeometricSequence.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
+                        var solveForX = FindRoots.SolveForX(Cache.P0, Cache.P1, Cache.P2, Cache.P3, t);
 
                         return HostEnvironment.IsProduction()
                             ? new Point(solveForX.Single(tt => minFitMeasurePowerPoint.X < tt && tt < maxFitMeasurePowerPoint.X), t)

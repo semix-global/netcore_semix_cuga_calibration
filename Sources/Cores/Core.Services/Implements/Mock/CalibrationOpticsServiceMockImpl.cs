@@ -183,7 +183,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     NIOI = SxNIOIEnum.NI,
 #endif
                     Mag = SxMAGEnum.Mid,
-                    Speed = SxSpeedEnum.Low,
+                    Speed = SxSpeedEnum.Mid,
                     IsUsed = true
                 },
                 new CgSwathSpeedInfo
@@ -206,7 +206,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     NIOI = SxNIOIEnum.NI,
 #endif
                     Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.Low,
+                    Speed = SxSpeedEnum.Mid,
                     IsUsed = true
                 },
                 new CgSwathSpeedInfo

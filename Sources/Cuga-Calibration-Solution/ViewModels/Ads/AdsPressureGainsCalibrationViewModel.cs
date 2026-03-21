@@ -341,7 +341,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
                     case 1:
                         if (await Step1CalibrateActionAsync(cancellationToken) == false)
                         {
-                            DialogWindowProvider.ShowDialog($"Auto Calibration Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                            DialogWindowProvider.ShowDialog("Auto Calibration Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                             return false;
                         }
 
@@ -394,7 +394,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
         if (await LoadedingAsync(cancellationToken) == false) return false;
         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
         {
-            DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
@@ -405,7 +405,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             {
                 if (await VerifyCalibrationAsync(ReviewDto!, cancellationToken) == false)
                 {
-                    DialogWindowProvider.ShowDialog($"Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    DialogWindowProvider.ShowDialog("Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;
                 }
 

@@ -404,7 +404,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         var findFocusInterval = SelectMicroscopeFocusCacheItem.FindFocusInterval;
 
         Logger.LogHtmlInformation($"{SelectMicroscopeFocusCacheItem.LensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-        Logger.LogHtmlInformation($"Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
         {
             ResultEcsValue = selectReviewItemDto.EcsValue,
             ResultVoltage = selectReviewItemDto.MicroscopeVoltage,
@@ -705,7 +705,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         if (await LoadedingAsync(cancellationToken) == false) return false;
         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
         {
-            DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 

@@ -921,7 +921,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                         {
                             if (await VerifyCalibrationAsync(ReviewDto, cancellationToken) == false)
                             {
-                                DialogWindowProvider.ShowDialog($"chuckCenter Calibration Review  Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                                DialogWindowProvider.ShowDialog("chuckCenter Calibration Review  Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                                 return false;
                             }
                         }
@@ -1010,7 +1010,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
         if (await LoadedingAsync(cancellationToken) == false) return false;
         if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
         {
-            DialogWindowProvider.ShowDialog($"Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
@@ -1022,7 +1022,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
                 if (await VerifyCalibrationAsync(ReviewDto!, cancellationToken) == false)
                 {
-                    DialogWindowProvider.ShowDialog($"Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    DialogWindowProvider.ShowDialog("Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return false;
                 }
 

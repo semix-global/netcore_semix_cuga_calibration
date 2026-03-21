@@ -144,6 +144,15 @@ public sealed class CIBViewModel(
 
     #region 采图
 
+    public void SetRTFCParam(ProductivityInformation productivityInformation)
+    {
+        laserViewModel.ToggleOpticsMagType(productivityInformation);
+
+        var ret = calibrationCIBService.SetRTFCParam(productivityInformation);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     #region X 采[单位置]短图
 
     public async Task<IReadOnlyList<DarkFieldImageDTO>> GetPMTImagesAsync(
@@ -159,7 +168,8 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -171,6 +181,8 @@ public sealed class CIBViewModel(
             isCustomChirpAODWaveform,
             async () =>
             {
+                if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
+
                 var ret = await calibrationCIBService.GetPMTImagesAsync(
                     productivityInformation,
                     stageCoordinateSystemEnum,
@@ -180,6 +192,7 @@ public sealed class CIBViewModel(
                     isForward,
                     isAutoFocus,
                     isKeepRawImageCIBProfileModeEnum,
+                    isCustomAFParam,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -199,7 +212,8 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -214,7 +228,8 @@ public sealed class CIBViewModel(
             cancellationToken,
             isForward: isForward,
             isAutoFocus: isAutoFocus,
-            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum,
+            isCustomAFParam: isCustomAFParam);
 
         return darkFieldImages.Single();
     }
@@ -235,7 +250,8 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -247,6 +263,8 @@ public sealed class CIBViewModel(
             isCustomChirpAODWaveform,
             async () =>
             {
+                if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
+
                 var ret = await calibrationCIBService.GetPMTImagesAsync(
                     productivityInformation,
                     stageCoordinateSystemEnum,
@@ -255,6 +273,7 @@ public sealed class CIBViewModel(
                     cibInformation,
                     isAutoFocus,
                     isKeepRawImageCIBProfileModeEnum,
+                    isCustomAFParam,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -278,7 +297,8 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -290,6 +310,8 @@ public sealed class CIBViewModel(
             isCustomChirpAODWaveform,
             async () =>
             {
+                if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
+
                 var ret = await calibrationCIBService.GetPMTImagesAsync(
                     productivityInformation,
                     stageCoordinateSystemEnum,
@@ -299,6 +321,7 @@ public sealed class CIBViewModel(
                     isForward,
                     isAutoFocus,
                     isKeepRawImageCIBProfileModeEnum,
+                    isCustomAFParam,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -318,7 +341,8 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool isCustomAFParam = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -333,7 +357,8 @@ public sealed class CIBViewModel(
             cancellationToken,
             isForward: isForward,
             isAutoFocus: isAutoFocus,
-            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum,
+            isCustomAFParam: isCustomAFParam);
 
         return darkFieldImages.Single();
     }
@@ -681,7 +706,8 @@ public sealed class CIBViewModel(
             (false, cibConfiguration),
             (false, laserLightInformation),
             false,
-            cancellationToken);
+            cancellationToken,
+            isCustomAFParam: true);
 
         var quality = calibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
@@ -760,7 +786,8 @@ public sealed class CIBViewModel(
         matchAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize?.IsOk != true)
         {
             logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser X Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
@@ -768,7 +795,10 @@ public sealed class CIBViewModel(
             return false;
         }
 
-        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType && t.PmtId == cibInformation.PMTId);
+        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == productivityInformation.OpticsIlluminationModeEnum
+                                  && t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
+                                  && t.PmtId == cibInformation.PMTId);
         if (ySize?.IsOk != true)
         {
             logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
@@ -796,7 +826,7 @@ public sealed class CIBViewModel(
             isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var matchPoint, out var matchOffset, out matchScore, out matchAngle);
 
             resultImageFilePath = Path.Combine(isSuccess ? saveResultImageFileDirectory : $"{FileHelper.GetFileFullName(templateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({logGuid:N}).jpg");
-            using var temp = darkFieldImage.Image.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - matchPoint.X, matchPoint.Y));
+            using var temp = darkFieldImage.Image.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y));
             temp.Save(resultImageFilePath);
 
             var stageCoordinateSystemMatchOffset = stageCoordinateSystemEnum switch
@@ -821,7 +851,7 @@ public sealed class CIBViewModel(
                 resultPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - matchPoint.X, matchPoint.Y)), new HtmlImageCrossOverlay(true)]),
+                    ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y)), new HtmlImageCrossOverlay(true)]),
                     TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             });

@@ -1,5 +1,5 @@
+using CommunityToolkit.Diagnostics;
 using Microsoft.Xaml.Behaviors;
-using Net.Utilities.Models;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,7 +24,7 @@ public sealed class ComboBoxSelectedItemBehavior : Behavior<ComboBox>
 
     private static void BindableSelectedItemsPropertyChangedCallback(DependencyObject? d, DependencyPropertyChangedEventArgs e)
     {
-        var behavior = GuardUtils.IsNotNullAndAssignableToType<ComboBoxSelectedItemBehavior>(d);
+        var behavior = Guard.IsNotNullAndAssignableToTypeAndReturn<ComboBoxSelectedItemBehavior>(d);
 
         if (e.NewValue is null) return;
 
@@ -53,7 +53,7 @@ public sealed class ComboBoxSelectedItemBehavior : Behavior<ComboBox>
         AssociatedObject.SelectionChanged += OnSelectionChanged;
 
         var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ComboBox));
-        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
+        Guard.IsNotNullAndReturn(itemsSourceDescriptor).AddValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     protected override void OnDetaching()
@@ -63,7 +63,7 @@ public sealed class ComboBoxSelectedItemBehavior : Behavior<ComboBox>
         AssociatedObject.SelectionChanged -= OnSelectionChanged;
 
         var itemsSourceDescriptor = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, typeof(ComboBox));
-        GuardUtils.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
+        Guard.IsNotNullAndReturn(itemsSourceDescriptor).RemoveValueChanged(AssociatedObject, OnItemsSourceChanged);
     }
 
     private void OnItemsSourceChanged(object? sender, EventArgs e)
@@ -97,10 +97,10 @@ public sealed class ComboBoxSelectedItemBehavior : Behavior<ComboBox>
     {
         if (_isUpdatingSelection) return;
 
-        var listBox = GuardUtils.IsNotNullAndAssignableToType<ComboBox>(sender);
+        var listBox = Guard.IsNotNullAndAssignableToTypeAndReturn<ComboBox>(sender);
 
         BindableSelectedItem = listBox.SelectedItem ?? FallbackSelectItem;
 
-        GuardUtils.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemProperty)).UpdateSource();
+        Guard.IsNotNullAndReturn(BindingOperations.GetBindingExpression(this, BindableSelectedItemProperty)).UpdateSource();
     }
 }

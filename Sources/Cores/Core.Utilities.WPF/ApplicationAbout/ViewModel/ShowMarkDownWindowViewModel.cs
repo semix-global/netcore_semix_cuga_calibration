@@ -36,7 +36,7 @@ public partial class ShowMarkDownWindowViewModel(
 
         if (Path.GetExtension(MarkdownPath) != ".md")
         {
-            dialogWindowProvider.ShowDialog($"Error:The file type is not markdown.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+            dialogWindowProvider.ShowDialog("Error:The file type is not markdown.", DialogButtonsEnum.OK, DialogIconEnum.Error);
             return;
         }
 

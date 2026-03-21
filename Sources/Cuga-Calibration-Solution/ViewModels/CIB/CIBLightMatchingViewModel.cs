@@ -12,7 +12,6 @@ using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -200,7 +199,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
 
@@ -209,7 +208,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition != Point.Origin
                     ? Cache.Item.SilicaSphereFindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
 
@@ -288,25 +287,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
             return true;
         });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task AlignmentBlankWaferAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            await Task.Run(() => StageViewModel.AlignmentBlankWafer(), cancellationToken).ConfigureAwait(false);
-
-            DialogWindowProvider.ShowDialog($"{Name}: Alignment Blank Success");
-        }
-        catch (Exception ex)
-        {
-            DialogWindowProvider.ShowDialog($"""
-                                             {Name}: Alignment Blank Failed
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            Logger.LogError(ex, "{@Name}: Alignment Blank Failed", Name);
-        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -390,7 +370,9 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     Logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                     foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
+                    {
                         foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
+                        {
                             foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
@@ -555,18 +537,22 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                     }
                                 }
                             }
+                        }
+                    }
                 }
 
                 async Task SilicaSphereAsync()
                 {
                     var silicaSphereBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition);
                     StageViewModel.SetAbsoluteStageTheta(0);
-                    StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(silicaSphereBFPosition);
+                    StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(silicaSphereBFPosition);
 
                     Logger.LogHtmlInformation("Silica Sphere", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                     foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
+                    {
                         foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
+                        {
                             foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
@@ -619,14 +605,14 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                                         darkFieldImage.Image.Save(imageFilePath);
 
-                                        var histogram = darkFieldImage.Image.GetHistogram(0, 0b0000_1111_1111_1111);
+                                        // var histogram = darkFieldImage.Image.GetHistogram(0, 0b0000_1111_1111_1111);
 
                                         var itemItemData = new CIBLightMatchingDTOItem.Item
                                         {
-                                            PMTValue = HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000),
+                                            PMTValue = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000) /*HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000)*/,
                                             RawImageFilePath = darkFieldImage.RawImageFilePath,
-                                            ImageFilePath = imageFilePath,
-                                            Histogram = histogram
+                                            ImageFilePath = imageFilePath /*,
+                                            Histogram = histogram*/
                                         };
 
                                         itemItem.SilicaSphereItems = [.. itemItem.SilicaSphereItems, itemItemData];
@@ -635,8 +621,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         {
                                             itemItemData.PMTValue,
                                             itemItemData.ImageFilePath,
-                                            itemItemData.RawImageFilePath,
-                                            Histogram = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.Histogram)], string.Empty)
+                                            itemItemData.RawImageFilePath /*,
+                                            Histogram = new HtmlPlot2DLinesChart([(string.Empty, itemItemData.Histogram)], string.Empty)*/
                                         }), HtmlLogUniqueId.LoggingHtml());
                                     }
 
@@ -747,6 +733,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                     }
                                 }
                             }
+                        }
+                    }
                 }
             }
             finally

@@ -73,7 +73,6 @@
                         <hc:NumericUpDown hc:TitleElement.Title="Default Relay Motor Ratio(±): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
-                                          Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.DefaultRelayMotorRatio}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Start Z Sync Relay(mm): "

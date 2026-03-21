@@ -4,12 +4,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-             xmlns:mmd="clr-namespace:Core.Models.Models.CIB.XTC;assembly=Core.Models"
-             xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
+             xmlns:uniformity="clr-namespace:Core.Models.Models.AOD.Uniformity;assembly=Core.Models"
+             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:AODUniformityViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -35,7 +35,7 @@
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
-                            <TextBlock Text="Verify"
+                            <TextBlock Text="Param"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"
@@ -65,7 +65,7 @@
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
-                            <Button Content="Action"
+                            <Button Content="Verify"
                                     Command="{Binding VerifyCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
@@ -92,7 +92,7 @@
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBXTCDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
+                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type uniformity:AODUniformityDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -125,6 +125,9 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="Laser Light" DisplayMemberBinding="{Binding LaserLightInformation}" />
+                            <GridViewColumn Header="Min Rate" DisplayMemberBinding="{Binding Item.VerifyMinRate, StringFormat='0.###'}" />
+                            <GridViewColumn Header="MaxRate" DisplayMemberBinding="{Binding Item.VerifyMaxRate, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -135,31 +138,56 @@
                             <wpf:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
-                            <DataTemplate DataType="{x:Type mmd:CIBXTCDTO}">
-                                <TextBlock Text="{Binding ProductivityInformation}" />
+                            <DataTemplate DataType="{x:Type uniformity:AODUniformityDTO}">
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}, {1}">
+                                            <Binding Path="ProductivityInformation" />
+                                            <Binding Path="LaserLightInformation" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
                             </DataTemplate>
                         </TabControl.ItemTemplate>
                         <TabControl.ContentTemplate>
-                            <DataTemplate DataType="{x:Type mmd:CIBXTCDTO}">
+                            <DataTemplate DataType="{x:Type uniformity:AODUniformityDTO}">
                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <TabControl ItemsSource="{Binding ScatterPlotControls}">
-                                        <i:Interaction.Behaviors>
-                                            <wpf:SelectorAutoSelectFirstBehavior />
-                                        </i:Interaction.Behaviors>
-                                        <TabControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
-                                                <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"
-                                                           Padding="5,2"
-                                                           Style="{StaticResource TextBlockDefaultBold}" />
-                                            </DataTemplate>
-                                        </TabControl.ItemTemplate>
-                                        <TabControl.ContentTemplate>
-                                            <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
-                                                <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                    <ContentControl Content="{Binding Value, Mode=OneWay}" />
-                                                </Border>
-                                            </DataTemplate>
-                                        </TabControl.ContentTemplate>
+                                    <TabControl>
+                                        <TabItem Header="Plots">
+                                            <Grid Margin="5">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <controls:ScatterMultiPlotControl Grid.Column="0"
+                                                                                  Title="Window"
+                                                                                  ScatterLine0Points="{Binding Item.Window, Converter={StaticResource DoublesToPointsConverter}}" />
+                                                <controls:ScatterMultiPlotControl Grid.Column="1" ScatterLine0Points="{Binding Item.VerifyImageHorizontalProjects, Converter={StaticResource DoublesToPointsConverter}}">
+                                                    <controls:ScatterMultiPlotControl.Title>
+                                                        <MultiBinding StringFormat="{}{0} Optics Polarization {1}: [{2:0.###}, {3:0.###}]">
+                                                            <Binding Path="Item.CIBInformation" />
+                                                            <Binding Path="Item.OpticsPolarizationModeEnum" />
+                                                            <Binding Path="Item.VerifyMinRate" />
+                                                            <Binding Path="Item.VerifyMaxRate" />
+                                                        </MultiBinding>
+                                                    </controls:ScatterMultiPlotControl.Title>
+                                                </controls:ScatterMultiPlotControl>
+                                            </Grid>
+                                        </TabItem>
+                                        <TabItem Header="Status">
+                                            <DataGrid Margin="5"
+                                                      hc:DataGridAttach.ShowRowNumber="True"
+                                                      Style="{StaticResource DataGrid.Small}"
+                                                      HeadersVisibility="All"
+                                                      RowHeaderWidth="60"
+                                                      AutoGenerateColumns="False"
+                                                      IsReadOnly="True"
+                                                      ItemsSource="{Binding Item.VerifyMappingStatuses}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Value" Binding="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </TabItem>
                                     </TabControl>
                                 </Border>
                             </DataTemplate>

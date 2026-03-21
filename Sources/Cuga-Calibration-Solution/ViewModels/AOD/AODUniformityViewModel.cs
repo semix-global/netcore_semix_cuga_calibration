@@ -2,14 +2,17 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
+using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.Status;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
+using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
@@ -21,7 +24,6 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -38,9 +40,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
+    public override string CalibrateDirectoryName => $"{Cache.ProductivityInformation}-{Cache.LaserLightInformation}";
 
-    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
+    public override string CalibrateFileName => $"{Cache.ProductivityInformation}-{Cache.LaserLightInformation}";
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -86,6 +88,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     [ObservableProperty]
     private MicroscopeCalChipDTO _microscopeCalChip = new();
 
+    [ObservableProperty]
+    private IReadOnlyList<LaserOpticalPowerMeterDTO> _laserOpticalPowerMeters = [];
+
     #endregion 缓存
 
     #endregion 属性
@@ -99,6 +104,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();
 
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses =
@@ -213,7 +219,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
-                    : GuardUtils.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
 
                 return true;
 
@@ -327,15 +333,20 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             Guard.IsGreaterThanOrEqualTo(Cache.Item.PrescanAODWaveformProfileSegmentCount, 4);
-            Guard.IsTrue((Cache.Item.PrescanAODWaveformProfileSegmentCount & 1) == 0, "It must be even number!");
             Guard.IsLessThanOrEqualTo(Cache.Item.ImageHorizontalProjectsSegmentCount, Cache.ProductivityInformation.YPixel);
+            Guard.IsGreaterThan(Cache.Item.ImageHorizontalProjectsSegmentCount, 0);
+
+            var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
 
             var detectImageDirectory = ImageFileDirectory;
 
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
-            var startPrescanAODWaveformProfileSegmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2 - 1;
-            var stopPrescanAODWaveformProfileSegmentIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2 + 1;
-            var prescanAODWaveformProfileSegmentIndexes = GenerateUtils.LinearIndexRange(0, Cache.Item.PrescanAODWaveformProfileSegmentCount - 1).ToArray();
+            var prescanAODWaveformCount = prescanAODWaveformProfiles[0].Shorts.Count;
+
+            var startPrescanAODWaveformSegmentIndex = (Cache.Item.PrescanAODWaveformProfileSegmentCount - 1) / 2;
+            var stopPrescanAODWaveformSegmentIndex = startPrescanAODWaveformSegmentIndex + 1;
+            var prescanAODWaveformSegmentIndexes = Generate.LinearRangeInt32(0, Cache.Item.PrescanAODWaveformProfileSegmentCount - 1);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -349,9 +360,12 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
                 Cache.Item.ImageHorizontalProjectsSegmentCount,
                 PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                startPrescanAODWaveformProfileSegmentIndex,
-                stopPrescanAODWaveformProfileSegmentIndex,
-                prescanAODWaveformProfileSegmentIndexes,
+                currentOpticsPolarizationModeEnum,
+                currentCollectorPolarizationModeEnum,
+                prescanAODWaveformCount,
+                startPrescanAODWaveformSegmentIndex,
+                stopPrescanAODWaveformSegmentIndex,
+                prescanAODWaveformSegmentIndexes,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -365,6 +379,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             CalibratingItem.PrescanAODWaveformProfileMappings = [];
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
+            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -374,26 +389,47 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             {
                 Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                CalibratingItem.StartWindowItem.Window = GetAndApplyWindow(startPrescanAODWaveformProfileSegmentIndex);
+                var (startWindow, startRegion) = GetWindow(startPrescanAODWaveformSegmentIndex);
+                CalibratingItem.StartWindowItem.Window = startWindow;
                 await CatchImageAsync(
-                    $"{startPrescanAODWaveformProfileSegmentIndex}",
+                    $"{startPrescanAODWaveformSegmentIndex}",
                     hazeBFPosition,
                     detectImageDirectory,
                     CalibratingItem.StartWindowItem,
-                    cancellationToken);
-                CalibratingItem.StartWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, startPrescanAODWaveformProfileSegmentIndex);
+                    cancellationToken,
+                    false);
+                CalibratingItem.StartWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount);
 
-                CalibratingItem.StopWindowItem.Window = GetAndApplyWindow(stopPrescanAODWaveformProfileSegmentIndex);
+                var (stopWindow, stopRegion) = GetWindow(stopPrescanAODWaveformSegmentIndex);
+                CalibratingItem.StopWindowItem.Window = stopWindow;
                 await CatchImageAsync(
-                    $"{stopPrescanAODWaveformProfileSegmentIndex}",
+                    $"{stopPrescanAODWaveformSegmentIndex}",
                     hazeBFPosition,
                     detectImageDirectory,
                     CalibratingItem.StopWindowItem,
                     cancellationToken,
                     false);
-                CalibratingItem.StopWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount, stopPrescanAODWaveformProfileSegmentIndex);
+                CalibratingItem.StopWindowItem.CalculateHorizontalProjectMinPixel(Cache.Item.PrescanAODWaveformProfileSegmentCount);
 
-                var (mappingWindow, mappingRegions) = GetWindow();
+                var linearSplinePrescan = LinearSpline.InterpolateSorted(
+                    [
+                        startRegion.VMiddleIndex,
+                        stopRegion.VMiddleIndex
+                    ],
+                    [
+                        CalibratingItem.IsReverse ? CalibratingItem.StartWindowItem.ImageHorizontalProjects.Count - 1 - CalibratingItem.StartWindowItem.HorizontalProjectMinPixel : CalibratingItem.StartWindowItem.HorizontalProjectMinPixel,
+                        CalibratingItem.IsReverse ? CalibratingItem.StopWindowItem.ImageHorizontalProjects.Count - 1 - CalibratingItem.StopWindowItem.HorizontalProjectMinPixel : CalibratingItem.StopWindowItem.HorizontalProjectMinPixel
+                    ]);
+
+                var prescanToImageIndexMappings = Generate.LinearRangeInt32(0, prescanAODWaveformCount - 1)
+                    .Select(t => new Point(t, linearSplinePrescan.Interpolate(t)))
+                    .ToArray();
+                var startPrescanAODWaveformIndex = (int)prescanToImageIndexMappings.First(t => 0 <= t.Y && t.Y <= CalibratingItem.StartWindowItem.ImageHorizontalProjects.Count - 1).X;
+                if (startPrescanAODWaveformIndex < 0) startPrescanAODWaveformIndex = 0;
+                var stopPrescanAODWaveformIndex = (int)prescanToImageIndexMappings.Last(t => 0 <= t.Y && t.Y <= CalibratingItem.StopWindowItem.ImageHorizontalProjects.Count - 1).X;
+                if (stopPrescanAODWaveformIndex > prescanAODWaveformCount - 1) stopPrescanAODWaveformIndex = prescanAODWaveformCount - 1;
+
+                var (mappingWindow, mappingRegions) = GetWindows();
                 CalibratingItem.MappingWindowItem.Window = mappingWindow;
                 await CatchImageAsync("All",
                     hazeBFPosition,
@@ -401,7 +437,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     CalibratingItem.MappingWindowItem,
                     cancellationToken);
 
-                CalibratingItem.MappingWindowItem.CalculateHorizontalProjectMinPixels(Cache.Item.PrescanAODWaveformProfileSegmentCount, prescanAODWaveformProfileSegmentIndexes);
+                CalibratingItem.MappingWindowItem.CalculateHorizontalProjectMinPixels(mappingRegions, prescanToImageIndexMappings);
 
                 Logger.LogHtmlInformation("Forward & Reverse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
@@ -432,16 +468,32 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     });
                 }
 
-                var leftMappingMinIndexes = GenerateUtils.LinearIndexRange(0, mappingList[0].MappingIndex - 1);
+                if (HostEnvironment.IsDevelopment())
+                {
+                    var mappingChuck = Generate.LinearRangeInt32(1, prescanAODWaveformCount - 1).ChunkSplitEvenly(CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count).ToArray();
+
+                    mappingList =
+                    [
+                        ..Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1)
+                            .Select(t => new AODUniformityDTO.Mapping
+                            {
+                                IsNotLinearSpline = Random.Shared.NextDouble() > 0.5,
+                                ImageHorizontalProjectIndex = t,
+                                LinearSplineMappingIndex = mappingChuck[t][0]
+                            })
+                    ];
+                }
+
+                var leftMappingMinIndexes = Generate.LinearRangeInt32(0, mappingList[0].MappingIndex - 1);
                 for (var i = 0; i < mappingList.Count; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
                     if (i == mappingList.Count - 1)
-                        mappingList[i].MappingIndices = [.. leftMappingMinIndexes, .. GenerateUtils.LinearIndexRange(mappingList[^1].MappingIndex, mappingWindow.Length - 1)];
+                        mappingList[i].MappingIndices = [.. leftMappingMinIndexes, .. Generate.LinearRangeInt32(mappingList[^1].MappingIndex, mappingWindow.Length - 1)];
                     else
                     {
-                        var mappingIndexes = GenerateUtils.LinearIndexRange(mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex);
+                        var mappingIndexes = Generate.LinearRangeInt32(mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex);
                         mappingIndexes = mappingIndexes.Except((int[])[mappingList[i].MappingIndex, mappingList[i + 1].MappingIndex]).ToArray();
 
                         var chunks = mappingIndexes.ChunkSplitEvenly(2).ToArray();
@@ -460,23 +512,21 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                     Plot = new HtmlContainer(CalibratingItem.MappingScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                foreach (var mapping in mappingList)
+                if (HostEnvironment.IsProduction())
                 {
-                    if (HostEnvironment.IsDevelopment())
+                    foreach (var mapping in mappingList)
                     {
-                        if (mapping.MappingIndex < 0 || mapping.MappingIndex >= mappingWindow.Length)
-                        {
-                            mapping.LinearSplineMappingIndex = mappingWindow.Length - 1;
-                            mapping.MappingIndices = [mapping.MappingIndex];
-                        }
+                        Guard.IsGreaterThanOrEqualTo(mapping.MappingIndex, 0);
+                        Guard.IsLessThanOrEqualTo(mapping.MappingIndex, mappingWindow.Length - 1);
+                        if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                     }
-
-                    Guard.IsGreaterThanOrEqualTo(mapping.MappingIndex, 0);
-                    Guard.IsLessThanOrEqualTo(mapping.MappingIndex, mappingWindow.Length - 1);
-                    if (mapping.IsNotLinearSpline) Guard.IsEqualTo(mappingMinIndexes[imageHorizontalProjectMinIndexes.IndexOf(mapping.ImageHorizontalProjectIndex)], mapping.MappingIndex);
                 }
 
-                CalibratingItem.ImageHorizontalProjectMappings = [.. GenerateUtils.LinearIndexRange(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1).ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)];
+                CalibratingItem.ImageHorizontalProjectMappings =
+                [
+                    ..Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1)
+                        .ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)
+                ];
                 CalibratingItem.PrescanAODWaveformProfileMappings =
                 [
                     ..CalibratingItem.ImageHorizontalProjectMappings
@@ -493,34 +543,43 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
                 return true;
 
-                double[] GetAndApplyWindow(int segmentIndex)
+                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex) Region) GetWindow(int segmentIndex)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
-
-                    var window = Generate.LinearVShapeWindowBySegments(
+                    var (window, region) = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        Cache.Item.PrescanAODWaveformProfileSegmentCount + 1,
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount,
                         segmentIndex,
-                        prescanAODWaveformProfileTotalLength).Window;
+                        prescanAODWaveformCount);
 
-                    return window;
+                    return (window, region);
                 }
 
-                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) GetWindow()
+                (double[] Window, (int VStartIndex, int VMiddleIndex, int VStopIndex)[] Regions) GetWindows()
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var prescanAODWaveformProfileTotalLength = prescanAODWaveformProfiles[0].Shorts.Count;
+                    var window = Generate.Repeat(prescanAODWaveformCount, Cache.LaserLightInformation.Coefficient);
 
-                    var (window, regions) = Generate.LinearVShapeWindowBySegments(
+                    var prescanAODWaveformIndexes = Generate.LinearRangeInt32(0, prescanAODWaveformCount - 1).AsSpan()[startPrescanAODWaveformIndex..(stopPrescanAODWaveformIndex + 1)].ToArray();
+
+                    var (windowTemp, regionTemps) = Generate.LinearVShapeWindowBySegments(
                         Cache.LaserLightInformation.Coefficient,
                         Cache.LaserLightInformation.Coefficient / 1000d,
-                        Cache.Item.PrescanAODWaveformProfileSegmentCount + 1,
-                        prescanAODWaveformProfileSegmentIndexes,
-                        prescanAODWaveformProfileTotalLength);
+                        Cache.Item.PrescanAODWaveformProfileSegmentCount,
+                        prescanAODWaveformSegmentIndexes,
+                        prescanAODWaveformIndexes.Length);
+
+                    Vector<double>.Build.Dense(window).SetSubVectorRange(
+                        prescanAODWaveformIndexes[0],
+                        prescanAODWaveformIndexes[^1],
+                        Vector<double>.Build.Dense(windowTemp));
+
+                    var regions = regionTemps
+                        .Select(t => (VStartIndex: t.VStartIndex + startPrescanAODWaveformIndex, VMiddleIndex: t.VMiddleIndex + startPrescanAODWaveformIndex, VStopIndex: t.VStopIndex + startPrescanAODWaveformIndex))
+                        .ToArray();
 
                     return (window, regions);
                 }
@@ -530,7 +589,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 CIBViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
                 CIBViewModel.ToggleProfileMode(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+                OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
+                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
             }
         });
     }
@@ -540,6 +601,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(async () =>
         {
+            var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
+
             var detectImageDirectory = ImageFileDirectory;
 
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
@@ -555,7 +619,11 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.Item.ImageWidth,
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
                 Cache.Item.ImageHorizontalProjectsSegmentCount,
+                Cache.Item.InitializeWindowLinearSpacedCount,
+                Cache.Item.InitializeWindowLinearSpacedRate,
                 PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+                currentOpticsPolarizationModeEnum,
+                currentCollectorPolarizationModeEnum,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -566,6 +634,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             };
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
+            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -575,7 +644,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             {
                 Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                foreach (var coefficient in Enumerable.Range(0, 11).Select(t => 0.5 * Cache.LaserLightInformation.Coefficient + t * 0.05 * Cache.LaserLightInformation.Coefficient))
+                foreach (var coefficient in Generate.LinearSpaced(
+                             Cache.Item.InitializeWindowLinearSpacedCount,
+                             Cache.LaserLightInformation.Coefficient * Cache.Item.InitializeWindowLinearSpacedRate,
+                             Cache.LaserLightInformation.Coefficient))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -589,24 +661,29 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         hazeBFPosition,
                         detectImageDirectory,
                         itemItemData,
-                        cancellationToken);
+                        cancellationToken,
+                        isKeepRawImageCIBProfileModeEnum: true); // todo: 改为4byte线型图不缩放的时候解决
 
                     CalibratingItem.InitializeWindowItem.Items = [.. CalibratingItem.InitializeWindowItem.Items, itemItemData];
                 }
 
-                var itemItems = CalibratingItem.InitializeWindowItem.Items.OrderByDescending(t => t.Window[0]).ToArray();
                 var window = Generate.Repeat(prescanAODWaveformProfiles[0].Shorts.Count, Cache.LaserLightInformation.Coefficient);
-                foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings.Index())
+
+                var itemItems = CalibratingItem.InitializeWindowItem.Items.OrderByDescending(t => t.Window[0]).ToArray();
+                if (itemItems.Length > 0)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    foreach (var (index, imageHorizontalProjectIndexes) in CalibratingItem.ImageHorizontalProjectMappings.Index())
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                    var maximumIndex = Vector<double>.Build.Dense([
-                        ..itemItems.Select(t => Vector<double>.Build.Dense([..t.ImageHorizontalProjects]).SubVectorIndexes(imageHorizontalProjectIndexes).Average())
-                    ]).MaximumIndex();
+                        var maximumIndex = Vector<double>.Build.Dense([
+                            ..itemItems.Select(t => Vector<double>.Build.Dense([..t.ImageHorizontalProjects]).SubVectorIndexes(imageHorizontalProjectIndexes).Average())
+                        ]).MaximumIndex();
 
-                    Vector<double>.Build.Dense(window).SetSubVectorIndexes(
-                        CalibratingItem.PrescanAODWaveformProfileMappings[index],
-                        itemItems[maximumIndex].Window[0]);
+                        Vector<double>.Build.Dense(window).SetSubVectorIndexes(
+                            CalibratingItem.PrescanAODWaveformProfileMappings[index],
+                            itemItems[maximumIndex].Window[0]);
+                    }
                 }
 
                 CalibratingItem.InitializeWindowItem.Window = window;
@@ -623,7 +700,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 CIBViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
                 CIBViewModel.ToggleProfileMode(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+                OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
+                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
             }
         });
     }
@@ -633,6 +712,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(async () =>
         {
+            var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
+
             var detectImageDirectory = ImageFileDirectory;
 
             var cibInformations = ApplicationCookie.CIBInformations;
@@ -650,11 +732,15 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.Item.ImageWidth,
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
                 Cache.Item.ImageHorizontalProjectsSegmentCount,
+                Cache.Item.InitializeWindowLinearSpacedCount,
+                Cache.Item.InitializeWindowLinearSpacedRate,
                 Cache.Item.ImageHorizontalProjectsSkipCout,
                 Cache.Item.ImageHorizontalProjectsSkipLastCout,
                 Cache.Item.WindowLimitRate,
                 Cache.Item.WindowInterval,
                 CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
+                currentOpticsPolarizationModeEnum,
+                currentCollectorPolarizationModeEnum,
                 windowLimitMin,
                 windowLimitMax,
                 detectImageDirectory
@@ -680,12 +766,13 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         CIBInformation = t,
                         WindowLimitMin = windowLimitMin,
                         WindowLimitMax = windowLimitMax
-                    })
+                    }),
+                CalibratingItem.Item
             ];
-
-            var itemItems = CalibratingItem.Items.Concat([CalibratingItem.Item]).ToArray();
+            CalibratingItem.OpticsPolarizationModeEnumMeasurePowers = [];
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
+            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -696,7 +783,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("Uniformity", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var windowIntervals = Generate.Repeat(CalibratingItem.ImageHorizontalProjectMappings.Count, Cache.Item.WindowInterval);
-                var mappingStatuses = Generate.Repeat(CalibratingItem.ImageHorizontalProjectMappings.Count, Status.None);
+                var mappingStatuses = Generate.Repeat(CalibratingItem.ImageHorizontalProjectMappings.Count, AODUniformityDTOItem.Status.None);
 
                 var times = 0;
                 while (true)
@@ -731,14 +818,14 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         cancellationToken.ThrowIfCancellationRequested();
 
                         using var _ = darkFieldImage;
-                        var itemItem = itemItems.Single(t => t.CIBInformation == cibInformations[index]);
+                        var itemItem = CalibratingItem.Items.Single(t => t.CIBInformation == cibInformations[index]);
 
                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImage.Image.Save(imageFilePath);
 
                         var itemItemData = new AODUniformityDTOItem.Item
                         {
-                            Window = CalibratingItem.Item.Window,
+                            Window = [.. CalibratingItem.Item.Window],
                             PrescanAODWaveformProfiles = prescanAODWaveformProfiles,
                             ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
@@ -756,7 +843,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
 
-                    foreach (var itemItem in itemItems)
+                    CalibratingItem.TargetPMTValues = [];
+                    foreach (var itemItem in CalibratingItem.Items)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
@@ -770,7 +858,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                                                      && itemItem.Items[times].MaxRate <= Cache.CalibrateThresholdMax;
                     }
 
-                    var notSkipImageHorizontalProjectIndexes = GenerateUtils.LinearIndexRange(0, CalibratingItem.Item.Items[times].ImageHorizontalProjects.Count - 1)
+                    var notSkipImageHorizontalProjectIndexes = Generate.LinearRangeInt32(0, CalibratingItem.Item.Items[times].ImageHorizontalProjects.Count - 1)
                         .Skip(Cache.Item.ImageHorizontalProjectsSkipCout)
                         .SkipLast(Cache.Item.ImageHorizontalProjectsSkipLastCout)
                         .ToArray();
@@ -786,7 +874,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         var targetPMTValue = CalibratingItem.TargetPMTValues.Get(CalibratingItem.Item.CIBInformation);
                         if (value > targetPMTValue * (Cache.CalibrateThresholdMax - Cache.CalibrateThreshold * 0.5))
                         {
-                            if (mappingStatuses[index] == Status.LessThan) windowIntervals[index] *= 0.5d;
+                            if (mappingStatuses[index] == AODUniformityDTOItem.Status.LessThan) windowIntervals[index] *= 0.5d;
 
                             vector.SetSubVectorIndexes(
                                 CalibratingItem.PrescanAODWaveformProfileMappings[index],
@@ -796,16 +884,16 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                             {
                                 vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMin);
 
-                                mappingStatuses[index] = Status.Ok;
+                                mappingStatuses[index] = AODUniformityDTOItem.Status.OkWindowLimitMin;
                             }
                             else
                             {
-                                mappingStatuses[index] = Status.GreaterThan;
+                                mappingStatuses[index] = AODUniformityDTOItem.Status.GreaterThan;
                             }
                         }
                         else if (value < targetPMTValue * (Cache.CalibrateThresholdMin + Cache.CalibrateThreshold * 0.5))
                         {
-                            if (mappingStatuses[index] == Status.GreaterThan) windowIntervals[index] *= 0.5d;
+                            if (mappingStatuses[index] == AODUniformityDTOItem.Status.GreaterThan) windowIntervals[index] *= 0.5d;
 
                             vector.SetSubVectorIndexes(
                                 CalibratingItem.PrescanAODWaveformProfileMappings[index],
@@ -815,36 +903,93 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                             {
                                 vector.SetSubVectorIndexes(CalibratingItem.PrescanAODWaveformProfileMappings[index], CalibratingItem.Item.WindowLimitMax);
 
-                                mappingStatuses[index] = Status.Ok;
+                                mappingStatuses[index] = AODUniformityDTOItem.Status.OkWindowLimitMax;
                             }
                             else
                             {
-                                mappingStatuses[index] = Status.LessThan;
+                                mappingStatuses[index] = AODUniformityDTOItem.Status.LessThan;
                             }
                         }
                         else
                         {
-                            mappingStatuses[index] = Status.Ok;
+                            mappingStatuses[index] = AODUniformityDTOItem.Status.Ok;
                         }
                     }
 
                     CalibratingItem.Item.Window = window;
-                    CalibratingItem.IsCalibrated = mappingStatuses.All(t => t is Status.Ok or Status.None);
+                    CalibratingItem.Item.Items[times].MappingStatuses = [.. mappingStatuses];
+                    CalibratingItem.Item.VerifyMappingStatuses = [.. mappingStatuses];
 
                     var htmlBullet = new HtmlBullet(new
                     {
                         times,
-                        windowIntervals = new HtmlExpand(string.Empty, new HtmlTable([.. windowIntervals.Index().Select(t => new { t.Index, t.Item })])),
-                        mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([.. mappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
-                        CalibratingItem.ProductivityInformation,
+                        CalibratingItem.Item.CIBInformation,
+                        CalibratingItem.Item.Items[times].MinRate,
+                        CalibratingItem.Item.Items[times].MaxRate,
+                        mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.Item.Items[times].MappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
                         Plot = new HtmlContainer(CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
-                        Plots = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                        Plots = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))]),
+                        windowIntervals = new HtmlExpand(string.Empty, new HtmlTable([.. windowIntervals.Index().Select(t => new { t.Index, t.Item })]))
                     });
 
-                    if (CalibratingItem.IsCalibrated)
+                    if (CalibratingItem.Item.VerifyMappingStatuses.All(t => t is AODUniformityDTOItem.Status.Ok or AODUniformityDTOItem.Status.None or AODUniformityDTOItem.Status.OkWindowLimitMin or AODUniformityDTOItem.Status.OkWindowLimitMax))
                     {
+                        var itemItemData = CalibratingItem.Item.Items
+                            .Select(t => (Judge: new Point(t.MinRate - Cache.CalibrateThresholdMin, t.MaxRate - Cache.CalibrateThresholdMax).ToOriginLength, Result: t))
+                            .OrderBy(t => t.Judge)
+                            .First().Result;
+                        var isOkSelect = Cache.CalibrateThresholdMin <= itemItemData.MinRate
+                                         && itemItemData.MaxRate <= Cache.CalibrateThresholdMax;
+
+                        if (isOkSelect == false)
+                        {
+                            DialogWindowProvider.TryShowDialog($"""
+                                                                {nameof(itemItemData.MinRate).Humanize(LetterCasing.Title)}: {itemItemData.MinRate:0.###}
+                                                                {nameof(itemItemData.MaxRate).Humanize(LetterCasing.Title)}: {itemItemData.MaxRate:0.###}
+                                                                Whether to enable the value?
+                                                                """, out var dialogButtonsEnum, DialogButtonsEnum.OKCancel, DialogIconEnum.Warning);
+                            if (dialogButtonsEnum != DialogResultEnum.OK) return false;
+                        }
+
+                        CalibratingItem.Item.Window = [.. itemItemData.Window];
+                        CalibratingItem.Item.VerifyMinRate = itemItemData.MinRate;
+                        CalibratingItem.Item.VerifyMaxRate = itemItemData.MaxRate;
+                        CalibratingItem.Item.VerifyImageHorizontalProjects = [.. itemItemData.ImageHorizontalProjects];
+                        CalibratingItem.Item.VerifyMappingStatuses = [.. itemItemData.MappingStatuses];
+                        CalibratingItem.IsCalibrated = true;
+
+                        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                                                                   && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
+                                                                                                                   && t.IsOk).MaxMeasurePowerPosition);
+                        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, itemItemData.PrescanAODWaveformProfiles);
+
+                        var pPower = await GetPowerAsync(OpticsPolarizationModeEnum.P);
+                        var sPower = await GetPowerAsync(OpticsPolarizationModeEnum.S);
+                        var cPower = await GetPowerAsync(OpticsPolarizationModeEnum.C);
+                        CalibratingItem.OpticsPolarizationModeEnumMeasurePowers =
+                        [
+                            new KeyValuePair<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnum.P, pPower),
+                            new KeyValuePair<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnum.S, sPower),
+                            new KeyValuePair<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnum.C, cPower)
+                        ];
+
                         LogDetails(true);
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation("Plots", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                        {
+                            CalibratingItem.Item.CIBInformation,
+                            pPower,
+                            sPower,
+                            cPower,
+                            Window = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.Item.Window.ToPoints())], string.Empty),
+                            PrescanAODWaveformProfiles = new HtmlTable([.. itemItemData.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
+                            CalibratingItem.Item.VerifyMinRate,
+                            CalibratingItem.Item.VerifyMaxRate,
+                            ImageHorizontalProjects = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.Item.VerifyImageHorizontalProjects.ToPoints())], string.Empty),
+                            mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.Item.VerifyMappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
+                            itemItemData.RawImageFilePath,
+                            Image = new HtmlImage(itemItemData.ImageFilePath)
+                        }), HtmlLogUniqueId.LoggingHtml());
 
                         break;
                     }
@@ -880,13 +1025,36 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         else Logger.LogHtmlError(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                     }
                 }
+
+                async Task<double> GetPowerAsync(OpticsPolarizationModeEnum opticsPolarizationModeEnum)
+                {
+                    try
+                    {
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
+
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
+                        CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+
+                        await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
+
+                        return LaserViewModel.GetOpticalMeasurePower();
+                    }
+                    finally
+                    {
+                        LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
+                    }
+                }
             }
             finally
             {
                 CIBViewModel.ToggleEnableAGC(cibInformations, true);
                 CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+                OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
+                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
             }
         });
     }
@@ -963,7 +1131,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         string detectImageDirectory,
         AODUniformityDTO.WindowItem windowItem,
         CancellationToken cancellationToken,
-        bool isNeedReverse = true)
+        bool isNeedReverse = true,
+        bool isKeepRawImageCIBProfileModeEnum = false)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -984,7 +1153,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             (false, Cache.Item.CIBConfiguration),
             (true, null),
             false,
-            cancellationToken);
+            cancellationToken,
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
 
         var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
         darkFieldImage.Image.Save(imageFilePath);
@@ -1012,7 +1182,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
+                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.LaserLightInformation == dto.LaserLightInformation) == false),
                 dto
             ];
         }
@@ -1022,12 +1192,4 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     });
 
     #endregion 校准
-
-    private enum Status
-    {
-        None,
-        GreaterThan,
-        LessThan,
-        Ok
-    }
 }

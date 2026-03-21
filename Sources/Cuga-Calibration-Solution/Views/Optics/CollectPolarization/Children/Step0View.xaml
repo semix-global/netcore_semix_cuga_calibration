@@ -36,7 +36,7 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBox Text="{Binding HazeWaferPosition, Converter={StaticResource PointToStringConverter}}"
+                        <TextBox Text="{Binding Cache.HazeWaferPosition, Converter={StaticResource PointToStringConverter}}"
                                  Width="275"
                                  hc:InfoElement.Title="Haze Wafer Position(um): "
                                  hc:InfoElement.TitlePlacement="Left"

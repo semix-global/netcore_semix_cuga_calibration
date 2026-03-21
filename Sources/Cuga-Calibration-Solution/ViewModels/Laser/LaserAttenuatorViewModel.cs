@@ -8,11 +8,12 @@ using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -180,7 +181,9 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
     {
         await InvokeCalibrateAsync(async () =>
         {
-            var laserOpticalPower = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);
+            var laserOpticalPower = LaserOpticalPowerMeters.Single(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                        && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
+                                                                        && t.IsOk);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -213,7 +216,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
             LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.Item.StartCoefficient);
             LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 
-            var coefficients = GenerateUtils.LinearContainsEdgeRange(Cache.Item.StartCoefficient, Cache.Item.StepCoefficient, Cache.Item.StopCoefficient);
+            var coefficients = Generate.LinearRangeContainsEdge(Cache.Item.StartCoefficient, Cache.Item.StepCoefficient, Cache.Item.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
 
             foreach (var coefficient in coefficients)
@@ -236,7 +239,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
                 }
                 finally
                 {
-                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Close);
+                    LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                 }
             }
 

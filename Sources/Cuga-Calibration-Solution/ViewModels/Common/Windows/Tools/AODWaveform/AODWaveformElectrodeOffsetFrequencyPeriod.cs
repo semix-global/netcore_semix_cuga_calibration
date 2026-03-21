@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Core.Utilities;
 using Humanizer;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
@@ -142,15 +142,12 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
                 densityFactor);
             item.FrequencyInterpolationPoints = [.. frequencyInterpolationX.Index().Select(t => new Point(t.Item, frequencyInterpolationY[t.Index]))];
 
-            var (frequencyMaximaX, frequencyMaximaY) = Extremumor.FindMaxima(
-                Vector<double>.Build.Dense([.. item.FrequencyInterpolationPoints.Select(t => t.X)]),
-                Vector<double>.Build.Dense([.. item.FrequencyInterpolationPoints.Select(t => t.Y)]));
+            var (_, frequencyMaxima) = Extremumor.FindMaxima(item.FrequencyInterpolationPoints);
             item.FrequencyMaximaPoints =
             [
-                .. frequencyMaximaY
-                    .Index()
-                    .Where(t => t.Item > frequencyInterpolationY.Average())
-                    .Select(t => new Point(frequencyMaximaX[t.Index], t.Item))
+                .. frequencyMaxima
+                    .Where(t => t.Y > frequencyInterpolationY.Average())
+                    .Select(t => t)
             ];
         }
 
