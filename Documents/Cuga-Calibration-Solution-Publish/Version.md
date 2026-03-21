@@ -341,3 +341,13 @@
 >        #132 转线型图bugfix
 >
 >        \#142 线性图采图接口转换, x pixel size算法MAD NMS 优化
+
+## 2.5.0320
+
+>   1.   校准
+>
+>        #143 LM Silica Spheres 目前改为都是haze方案， calchip校准 明场pixelsize没有的情况下用默认
+>
+>   2.   优化
+>
+>        #143 X Pixel Size算法优化，V Sharp 算法优化，线型图修改不缩放，单元测试算法matlab架构
