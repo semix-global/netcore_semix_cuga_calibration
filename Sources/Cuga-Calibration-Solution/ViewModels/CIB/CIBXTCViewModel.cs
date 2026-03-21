@@ -505,8 +505,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                             ItemItems: g.OrderBy(t => t.CIBInformation.PMTId).ToArray()
                         )).ToArray();
 
-                    CalibratingItem.TargetPixelValues = [];
                     var resultList = new List<bool>();
+                    CalibratingItem.TargetPixelValues = [];
                     foreach (var (pmtId, itemItems) in results)
                     {
                         cancellationToken.ThrowIfCancellationRequested();

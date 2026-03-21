@@ -1246,7 +1246,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                                 out var resultImageFilePath) == false)
                         {
                             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
-                            return;
+                            continue;
                         }
 
                         var actualOffset = (Point)(position - stageMapItem.Point);
