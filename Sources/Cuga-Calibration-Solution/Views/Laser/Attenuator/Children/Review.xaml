@@ -47,6 +47,13 @@
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Threshold}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(Rate): "
+                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Maximum="100"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.RateThreshold}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -111,6 +118,8 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Header="Max Measure Power(mW)" DisplayMemberBinding="{Binding MaxMeasurePower, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Saturation Coefficient" DisplayMemberBinding="{Binding SaturationCoefficient, StringFormat='0.###'}" />
+                            <GridViewColumn Header="RSquared" DisplayMemberBinding="{Binding RSquared, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

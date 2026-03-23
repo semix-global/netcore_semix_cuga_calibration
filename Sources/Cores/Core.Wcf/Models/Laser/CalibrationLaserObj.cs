@@ -260,6 +260,11 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
     public double RSquared { get; set; }
 
     /// <summary>
+    /// 饱和系数
+    /// </summary>
+    public double SaturationCoefficient { get; set; }
+
+    /// <summary>
     /// 系数曲线通过三次多项式拟合后的曲线值
     /// </summary>
     public IReadOnlyList<CgPoint> CoefficientFitMeasurePowerRatePoints { get; set; }

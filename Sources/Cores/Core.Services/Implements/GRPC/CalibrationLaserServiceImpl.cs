@@ -70,6 +70,16 @@ public sealed class CalibrationLaserServiceImpl : BaseService<ICgCalibLaserServi
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<double> GetLaserLightSaturationCoefficient()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetLaserLightSaturationCoefficient(double coefficient)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
