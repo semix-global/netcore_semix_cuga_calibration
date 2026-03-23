@@ -60,6 +60,20 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public double GetLaserLightSaturationCoefficient()
+    {
+        var ret = calibrationLaserService.GetLaserLightSaturationCoefficient();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetLaserLightSaturationCoefficient(double coefficient)
+    {
+        var ret = calibrationLaserService.SetLaserLightSaturationCoefficient(coefficient);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public void ToggleOpticsMagType(ProductivityInformation productivityInformation)
     {
         var ret = calibrationLaserService.ToggleOpticsMagType(productivityInformation);

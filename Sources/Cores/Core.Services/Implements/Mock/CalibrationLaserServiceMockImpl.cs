@@ -84,6 +84,16 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>([.. laserLightInformations.OrderBy(t => t)]);
     }
 
+    public SxExecuteRet<double> GetLaserLightSaturationCoefficient()
+    {
+        return SxExecuteRetHelper.CreateSuccess(1d);
+    }
+
+    public SxExecuteRet<bool> SetLaserLightSaturationCoefficient(double coefficient)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
     {
         Thread.Sleep(100);

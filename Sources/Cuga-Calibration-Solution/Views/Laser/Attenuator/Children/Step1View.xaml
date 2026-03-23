@@ -68,13 +68,13 @@
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StopCoefficient}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(RSquared): "
-                                          hc:TitleElement.TitleWidth="190"
+                        <hc:NumericUpDown hc:TitleElement.Title="Saturation Coefficient: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Maximum="1"
+                                          hc:TitleElement.TitleWidth="190"
+                                          IsReadOnly="True"
+                                          Background="{StaticResource SecondaryRegionBrush}"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Threshold}" />
+                                          Value="{Binding CalibratingItem.SaturationCoefficient, Mode=OneWay}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
