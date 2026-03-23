@@ -46,6 +46,9 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
     private double _rSquared;
 
     [ObservableProperty]
+    private double _saturationCoefficient;
+
+    [ObservableProperty]
     private IReadOnlyList<Point> _fitAttenuatorPoints = [];
 
 #pragma warning disable IDE0079
@@ -143,6 +146,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
         P2 = P2,
         P3 = P3,
         RSquared = RSquared,
+        SaturationCoefficient = SaturationCoefficient,
         FitAttenuatorPoints = [.. FitAttenuatorPoints],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -163,6 +167,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
         P2 = P2,
         P3 = P3,
         RSquared = RSquared,
+        SaturationCoefficient = SaturationCoefficient,
         CoefficientFitMeasurePowerRatePoints = [.. FitAttenuatorPoints.Select(t => t.ToCgPoint())],
         WaitTime = WaitTime,
         IsCalibrated = IsCalibrated,

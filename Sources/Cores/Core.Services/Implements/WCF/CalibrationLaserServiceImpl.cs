@@ -81,6 +81,24 @@ public sealed class CalibrationLaserServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<LaserLightInformation>>(laserLightInformations);
     }
 
+    public SxExecuteRet<double> GetLaserLightSaturationCoefficient()
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetAodCoeff());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0d)
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<bool> SetLaserLightSaturationCoefficient(double coefficient)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetAodCoeff(coefficient));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> ToggleOpticsMagType(ProductivityInformation productivityInformation)
     {
         var c2MProductivityInfo = productivityInformation.AdaptTo();

@@ -14,6 +14,9 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 0.999;
 
+    [ObservableProperty]
+    private double _rateThreshold = 0.05;
+
     public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserAttenuatorCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
@@ -36,4 +39,5 @@ public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stopCoefficient = 1;
+
 }

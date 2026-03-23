@@ -50,6 +50,19 @@ public interface ICalibrationLaserService
     /// <returns>cuga配置的激光光强信息列表</returns>
     SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations();
 
+    /// <summary>
+    /// 读取激光光强饱和系数
+    /// </summary>
+    /// <returns>饱和系数</returns>
+    SxExecuteRet<double> GetLaserLightSaturationCoefficient();
+
+    /// <summary>
+    /// 设置激光光强饱和系数
+    /// </summary>
+    /// <param name="coefficient"></param>
+    /// <returns>是否设置成功</returns>
+    SxExecuteRet<bool> SetLaserLightSaturationCoefficient(double coefficient);
+
     #endregion 激光功率
 
     #region 任意波形发生器Arbitrary Waveform Generator
