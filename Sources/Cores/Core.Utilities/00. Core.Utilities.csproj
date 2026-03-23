@@ -7,21 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.6.0" />
-        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.6.0" />
-        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.6.0" />
-        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.6.0" />
-        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.6.0" />
-        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.6.0" />
-        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.6.0" />
+        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.6.1-preview1.6-xuan" />
+        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.6.1-preview1.6-xuan" />
+        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.6.1-preview1.6-xuan" />
+        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.6.1-preview1.6-xuan" />
+        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.6.1-preview1.6-xuan" />
+        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.6.1-preview1.6-xuan" />
+        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.6.1-preview1.6-xuan" />
 
-        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.6.0" />
+        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.6.1-preview1.6-xuan" />
 
-        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.6.0" />
-        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.6.0" />
+        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.6.1-preview1.6-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.6.1-preview1.6-xuan" />
 
-        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.6.0" />
-        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.6.0" />
+        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.6.1-preview1.6-xuan" />
+        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.6.1-preview1.6-xuan" />
     </ItemGroup>
 
 	<ItemGroup>

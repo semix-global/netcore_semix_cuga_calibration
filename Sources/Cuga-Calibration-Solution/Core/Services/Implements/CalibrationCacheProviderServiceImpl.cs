@@ -27,13 +27,13 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Mapper.Serializations;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text;
+using Net.Utilities.Models.Serializations;
 
 namespace CugaCalibration.Core.Services.Implements;
 

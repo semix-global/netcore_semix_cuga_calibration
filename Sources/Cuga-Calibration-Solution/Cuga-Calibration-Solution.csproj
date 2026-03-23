@@ -19,7 +19,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.VisualStudio.Threading" />
         <PackageReference Include="Microsoft.Extensions.Hosting" />
         <PackageReference Include="NLog.Schema" />
         <PackageReference Include="NLog.Extensions.Hosting" />
