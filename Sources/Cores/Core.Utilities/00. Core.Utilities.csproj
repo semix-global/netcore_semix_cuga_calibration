@@ -24,10 +24,4 @@
         <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.6.1-preview1.6-xuan" />
     </ItemGroup>
 
-	<ItemGroup>
-		<Reference Include="HAlgorithm">
-			<HintPath>..\..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
 </Project>

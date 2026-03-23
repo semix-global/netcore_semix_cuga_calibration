@@ -25,7 +25,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using System.Reactive.Linq;
+using R3;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -364,7 +364,7 @@ public sealed partial class ReviewViewModel(
     {
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
-        var fpsMonitor = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.FpsMonitorMilliseconds)).Subscribe(_ =>
+        var fpsMonitor = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.FpsMonitorMilliseconds), cancellationToken).Subscribe(_ =>
         {
             Fps = _frameCount / (CalibrationConstantsHelper.FpsMonitorMilliseconds / 1000d);
             _frameCount = 0;

@@ -3,6 +3,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
+using System.Windows.Forms;
 using System.ComponentModel;
 
 namespace CugaCalibration.Views;
@@ -25,13 +26,13 @@ public sealed partial class MainWindow
         Closing += OnClosing;
     }
 
-    private void OnContentRendered(object sender, EventArgs e)
+    private void OnContentRendered(object? sender, EventArgs e)
     {
         if (DataContext is not MainWindowViewModel mainWindowViewModel) return;
         if (mainWindowViewModel.IsLoadingOk == false) Close();
     }
 
-    private void OnClosing(object sender, CancelEventArgs e)
+    private void OnClosing(object? sender, CancelEventArgs e)
     {
         if (DataContext is not MainWindowViewModel mainWindowViewModel) return;
         if (mainWindowViewModel.IsLoadingOk == false) return;

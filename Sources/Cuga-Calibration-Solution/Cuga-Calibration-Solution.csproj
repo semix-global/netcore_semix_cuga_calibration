@@ -22,6 +22,7 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" />
         <PackageReference Include="NLog.Schema" />
         <PackageReference Include="NLog.Extensions.Hosting" />
+        <PackageReference Include="R3" />
         <PackageReference Include="System.Data.SQLite.Core" />
         <PackageReference Include="FreeSql.Provider.Sqlite" />
         <PackageReference Include="SourceGenerator.InjectHostDI">

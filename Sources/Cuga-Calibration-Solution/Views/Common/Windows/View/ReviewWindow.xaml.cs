@@ -20,7 +20,7 @@ public sealed partial class ReviewWindow : IRecipient<FrontWindowEvent>
         messenger.RegisterAll(this);
     }
 
-    private void OnClosed(object sender, EventArgs e)
+    private void OnClosed(object? sender, EventArgs e)
     {
         _messenger.UnregisterAll(this);
     }
