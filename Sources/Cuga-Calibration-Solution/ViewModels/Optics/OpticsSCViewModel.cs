@@ -323,8 +323,8 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                 Cache.Item.SCMotorAbsoluteValueL3Center,
                 Cache.Item.IsL1ToL2Direction,
                 Cache.Item.IsL2ToL3Direction,
-                Cache.Item.XZCenterECS,
-                Cache.Item.XZRangeECS,
+                XZCenterECS = Cache.Item.CenterECS,
+                XZRangeECS = Cache.Item.RangeECS,
                 currentMotorAbsoluteValueL1,
                 currentMotorAbsoluteValueL3,
                 detectImageDirectory
@@ -374,8 +374,8 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                     };
                     CalibratingItem.Items = [.. CalibratingItem.Items, item];
 
-                    var startECS = Cache.Item.XZCenterECS - Cache.Item.XZRangeECS;
-                    var stopECS = Cache.Item.XZCenterECS + Cache.Item.XZRangeECS;
+                    var startECS = Cache.Item.CenterECS - Cache.Item.RangeECS;
+                    var stopECS = Cache.Item.CenterECS + Cache.Item.RangeECS;
 
                     using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
                         Cache.Item.ProductivityInformation,

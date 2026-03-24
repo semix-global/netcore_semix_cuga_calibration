@@ -126,13 +126,13 @@
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.XZCenterECS}" />
+                                          Value="{Binding Cache.Item.CenterECS}" />
                         <hc:NumericUpDown hc:TitleElement.Title="X/Z Sync ±Range(ECS): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.XZRangeECS}" />
+                                          Value="{Binding Cache.Item.RangeECS}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

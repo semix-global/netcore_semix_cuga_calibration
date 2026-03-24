@@ -76,8 +76,8 @@ public sealed partial class OpticsSCCacheItem : CalibrationCacheBase
     private bool _isL2ToL3Direction;
 
     [ObservableProperty]
-    private double _xZCenterECS;
+    private double _centerECS;
 
     [ObservableProperty]
-    private double _xZRangeECS;
+    private double _rangeECS;
 }

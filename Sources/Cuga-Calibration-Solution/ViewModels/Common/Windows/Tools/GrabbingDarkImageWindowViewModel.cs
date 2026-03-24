@@ -19,7 +19,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Text;
-using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
@@ -43,19 +42,12 @@ public partial class GrabbingDarkImageWindowViewModel(
     private GrabbingDarkImageWindowCache _cache = new();
 
     [ObservableProperty]
-    private IReadOnlyList<DarkFieldRawScanImageDTO> _selectedItems = [];
-
-    [ObservableProperty]
     private IReadOnlyList<IReadOnlyList<DarkFieldRawScanImageDTO>> _results = [];
-
-    [ObservableProperty]
-    private List<AbstractHtmlElement> _htmlElementList = [];
 
     [RelayCommand]
     private async Task LoadedAsync() => await Task.Run(() =>
     {
         Results = [];
-        HtmlElementList.Clear();
 
         return Cache = cacheProvider.GetOrDefault<GrabbingDarkImageWindowCache>();
     });
@@ -392,13 +384,15 @@ public partial class GrabbingDarkImageWindowViewModel(
 
             var currentStopPosition = currentStartPosition + new Vector(Cache.ScanLength, 0);
 
+            var startECS = Cache.CenterECS - Cache.RangeECS;
+            var stopECS = Cache.CenterECS + Cache.RangeECS;
             var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
                 Cache.ProductivityInformation,
                 Cache.StageCoordinateSystemEnum,
                 currentStartPosition,
                 currentStopPosition,
-                Cache.StartECS,
-                Cache.StopECS,
+                startECS,
+                stopECS,
                 cibInformations,
                 (true, null),
                 (false, Cache.CIBConfiguration),
@@ -418,26 +412,6 @@ public partial class GrabbingDarkImageWindowViewModel(
 
         Results = resultList;
     }, cancellationToken);
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task BestFocusAsync(CancellationToken cancellationToken)
-    {
-        await Task.Run(() =>
-        {
-            try
-            {
-                
-            }
-            catch (Exception ex)
-            {
-                dialogWindowProvider.ShowDialog($"""
-                                                 Best Focus Failed
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogError(ex, "Best Focus Failed");
-            }
-        }, cancellationToken).ConfigureAwait(false);
-    }
 
     private async Task InvokeGetPMTImagesAsync(
         string modeName,

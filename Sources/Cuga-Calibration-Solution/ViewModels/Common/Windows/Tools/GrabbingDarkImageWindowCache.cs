@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
 
@@ -29,10 +28,10 @@ public sealed partial class GrabbingDarkImageWindowCache : ObservableCacheBase
     private double _columnWidth = 15300;
 
     [ObservableProperty]
-    private double _startECS = 6000;
+    private double _centerECS;
 
     [ObservableProperty]
-    private double _stopECS = 7000;
+    private double _rangeECS;
 
     [ObservableProperty]
     private IReadOnlyList<CIBInformation> _cIBInformations = [];
