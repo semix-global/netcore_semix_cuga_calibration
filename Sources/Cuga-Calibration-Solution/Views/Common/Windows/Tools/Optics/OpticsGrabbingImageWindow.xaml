@@ -17,6 +17,7 @@
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Optics"
+           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:OpticsGrabbingImageWindowViewModel}"
@@ -454,6 +455,7 @@
                                                                     Spacing="10">
                                                 <Button Content="Action"
                                                         Command="{Binding GetPMTImagesByXZSyncCommand}"
+                                                        CommandParameter="{x:Static models:Constants.False}"
                                                         hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                         Style="{StaticResource ButtonPrimary.Loading}" />
                                                 <Button Content="Cancel"

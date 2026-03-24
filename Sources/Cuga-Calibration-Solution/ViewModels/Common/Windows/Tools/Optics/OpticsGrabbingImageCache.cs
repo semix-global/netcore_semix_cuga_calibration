@@ -1,9 +1,11 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
@@ -77,4 +79,76 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
 
     [ObservableProperty]
     private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+
+    public object ToHtmlAnonymous(OpticsGrabbingImageTypeEnum opticsGrabbingImageTypeEnum) =>
+        opticsGrabbingImageTypeEnum switch
+        {
+            OpticsGrabbingImageTypeEnum.Width => new
+            {
+                ProductivityInformation,
+                StageCoordinateSystemEnum,
+                ImageWidth,
+                CIBInformations,
+                CalChipSiteModelEnum,
+                CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
+                LaserLightInformation,
+                IsForward,
+                IsAutoFocus,
+                ECS,
+                IsKeepRawImageCIBProfileModeEnum
+            },
+            OpticsGrabbingImageTypeEnum.PTP => new
+            {
+                ProductivityInformation,
+                StageCoordinateSystemEnum,
+                ScanLength,
+                CIBInformations,
+                CalChipSiteModelEnum,
+                CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
+                LaserLightInformation,
+                IsForward,
+                IsAutoFocus,
+                ECS,
+                IsKeepRawImageCIBProfileModeEnum
+            },
+            OpticsGrabbingImageTypeEnum.PEG => new
+            {
+                ProductivityInformation,
+                StageCoordinateSystemEnum,
+                ImageWidth,
+                ColumnCount,
+                ColumnWidth,
+                CIBInformations,
+                CalChipSiteModelEnum,
+                CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
+                LaserLightInformation,
+                IsForward,
+                IsAutoFocus,
+                ECS,
+                IsKeepRawImageCIBProfileModeEnum
+            },
+            OpticsGrabbingImageTypeEnum.XZSync => new
+            {
+                ProductivityInformation,
+                StageCoordinateSystemEnum,
+                ScanLength,
+                CenterECS,
+                RangeECS,
+                CIBInformations,
+                CalChipSiteModelEnum,
+                CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
+                LaserLightInformation,
+                IsForward,
+                IsKeepRawImageCIBProfileModeEnum
+            },
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(opticsGrabbingImageTypeEnum))
+        };
+
+    public enum OpticsGrabbingImageTypeEnum
+    {
+        Width,
+        PTP,
+        PEG,
+        XZSync
+    }
 }

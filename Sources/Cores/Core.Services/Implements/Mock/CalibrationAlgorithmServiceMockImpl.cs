@@ -14,8 +14,6 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using System.IO;
-using MathNet.Numerics;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements.Mock;

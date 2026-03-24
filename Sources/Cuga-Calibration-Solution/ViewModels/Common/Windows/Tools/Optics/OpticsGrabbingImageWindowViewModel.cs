@@ -19,6 +19,8 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -41,6 +43,8 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
     public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public virtual string Name => "Grabbing Dark Image";
+
+    public Guid HtmlLogUniqueId { get; set; }
 
     [ObservableProperty]
     private ApplicationCookie _applicationCookie = new();
@@ -70,7 +74,17 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
         Results = [];
 
         Cache = CacheProvider.GetOrDefault<TCache>();
-    });
+    }).ConfigureAwait(false);
+
+    protected virtual bool InvokeDarkFieldRawScanImageDTO(DarkFieldRawScanImageDTO darkFieldRawScanImage)
+    {
+        Logger.LogHtmlInformation($"{darkFieldRawScanImage.CIBInformation}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+        {
+            Result = new HtmlBullet(darkFieldRawScanImage.ToHtmlAnonymous())
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        return true;
+    }
 
     [RelayCommand]
     private void ImportAODWaveformParams()
@@ -116,10 +130,10 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
         catch (Exception ex)
         {
             DialogWindowProvider.ShowDialog($"""
-                                             Import Parameters Failed
+                                             {Name}: Import Parameters Failed
                                              {ex.Message}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            Logger.LogError(ex, "Import Parameters Failed");
+            Logger.LogError(ex, "{@Name}: Import Parameters Failed", Name);
         }
     }
 
@@ -162,13 +176,13 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                     return;
                 }
 
-                Logger.LogError(ex, "Changed Prescan AOD Waveform Profiles Failed");
+                Logger.LogError(ex, "{@Name}: Changed Prescan AOD Waveform Profiles Failed", Name);
                 DialogWindowProvider.ShowDialog($"""
-                                                 Changed Prescan AOD Waveform Profiles Failed
+                                                 {Name}: Changed Prescan AOD Waveform Profiles Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
             }
-        }, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -217,13 +231,13 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                     return;
                 }
 
-                Logger.LogError(ex, "Changed Chirp AOD Waveform Profiles Failed");
+                Logger.LogError(ex, "{@Name}: Changed Chirp AOD Waveform Profiles Failed", Name);
                 DialogWindowProvider.ShowDialog($"""
-                                                 Changed Chirp AOD Waveform Profiles Failed
+                                                 {Name}: Changed Chirp AOD Waveform Profiles Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
             }
-        }, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -234,7 +248,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task GetPMTImagesByWidthAsync(CancellationToken cancellationToken) => InvokeGetPMTImagesAsync("Width", async startPosition =>
+    private async Task<bool> GetPMTImagesByWidthAsync(CancellationToken cancellationToken) => await InvokeGetPMTImagesAsync(OpticsGrabbingImageCache.OpticsGrabbingImageTypeEnum.Width, async startPosition =>
     {
         if (Cache.IsAutoFocus == false)
         {
@@ -242,7 +256,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             AFViewModel.SetSensorEcsValue(Cache.ECS);
         }
 
-        var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+        var boolList = new List<bool>();
         foreach (var cibInformations in Cache.CIBInformations
                      .GroupBy(t => t.PMTId)
                      .OrderBy(t => t.Key)
@@ -270,21 +284,23 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 cancellationToken,
                 isForward: Cache.IsForward,
                 isAutoFocus: Cache.IsAutoFocus,
-                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum);
+                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
 
             foreach (var darkFieldImage in darkFieldImages)
             {
-                using var _1 = darkFieldImage;
+                using var _ = darkFieldImage;
+
+                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
 
-            resultList.Add(darkFieldImages);
+            Results = [..Results, darkFieldImages];
         }
 
-        Results = resultList;
-    }, cancellationToken);
+        return boolList.All(t => t);
+    }, false).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task GetPMTImagesByPTPAsync(CancellationToken cancellationToken) => InvokeGetPMTImagesAsync("PTP", async startPosition =>
+    private async Task<bool> GetPMTImagesByPTPAsync(CancellationToken cancellationToken) => await InvokeGetPMTImagesAsync(OpticsGrabbingImageCache.OpticsGrabbingImageTypeEnum.PTP, async startPosition =>
     {
         if (Cache.IsAutoFocus == false)
         {
@@ -292,7 +308,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             AFViewModel.SetSensorEcsValue(Cache.ECS);
         }
 
-        var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+        var boolList = new List<bool>();
         foreach (var cibInformations in Cache.CIBInformations
                      .GroupBy(t => t.PMTId)
                      .OrderBy(t => t.Key)
@@ -322,16 +338,18 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 cancellationToken,
                 isForward: Cache.IsForward,
                 isAutoFocus: Cache.IsAutoFocus,
-                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum);
+                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
 
-            resultList.Add(darkFieldRawScanImages);
+            boolList.AddRange(darkFieldRawScanImages.Select(InvokeDarkFieldRawScanImageDTO));
+
+            Results = [..Results, darkFieldRawScanImages];
         }
 
-        Results = resultList;
-    }, cancellationToken);
+        return boolList.All(t => t);
+    }, false).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task GetPMTImagesByPEGAsync(CancellationToken cancellationToken) => InvokeGetPMTImagesAsync("PEG", async startPosition =>
+    private async Task<bool> GetPMTImagesByPEGAsync(CancellationToken cancellationToken) => await InvokeGetPMTImagesAsync(OpticsGrabbingImageCache.OpticsGrabbingImageTypeEnum.PEG, async startPosition =>
     {
         if (Cache.IsAutoFocus == false)
         {
@@ -339,7 +357,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             AFViewModel.SetSensorEcsValue(Cache.ECS);
         }
 
-        var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+        var boolList = new List<bool>();
         foreach (var cibInformations in Cache.CIBInformations
                      .GroupBy(t => t.PMTId)
                      .OrderBy(t => t.Key)
@@ -372,23 +390,25 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 true,
                 cancellationToken,
                 isAutoFocus: Cache.IsAutoFocus,
-                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum);
+                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
 
             foreach (var darkFieldImage in darkFieldImages)
             {
                 using var _ = darkFieldImage;
+
+                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
 
-            resultList.Add(darkFieldImages);
+            Results = [..Results, darkFieldImages];
         }
 
-        Results = resultList;
-    }, cancellationToken);
+        return boolList.All(t => t);
+    }, false).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task GetPMTImagesByXZSyncAsync(CancellationToken cancellationToken) => InvokeGetPMTImagesAsync("XZSync", async startPosition =>
+    private async Task<bool> GetPMTImagesByXZSyncAsync(bool isNotSilent, CancellationToken cancellationToken) => await InvokeGetPMTImagesAsync(OpticsGrabbingImageCache.OpticsGrabbingImageTypeEnum.XZSync, async startPosition =>
     {
-        var resultList = new List<IReadOnlyList<DarkFieldRawScanImageDTO>>();
+        var boolList = new List<bool>();
         foreach (var cibInformations in Cache.CIBInformations
                      .GroupBy(t => t.PMTId)
                      .OrderBy(t => t.Key)
@@ -421,40 +441,35 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 true,
                 cancellationToken,
                 isForward: Cache.IsForward,
-                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum);
+                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
 
             foreach (var darkFieldImage in darkFieldImages)
             {
                 using var _ = darkFieldImage;
+
+                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
 
-            resultList.Add(darkFieldImages);
+            Results = [..Results, darkFieldImages];
         }
 
-        Results = resultList;
-    }, cancellationToken);
+        return boolList.All(t => t);
+    }, isNotSilent).ConfigureAwait(false);
 
-    protected async Task InvokeGetPMTImagesAsync(
-        string modeName,
-        Func<Point, Task> func,
-        CancellationToken cancellationToken)
+    protected async Task<bool> InvokeGetPMTImagesAsync(
+        OpticsGrabbingImageCache.OpticsGrabbingImageTypeEnum opticsGrabbingImageTypeEnum,
+        Func<Point, Task<bool>> func,
+        bool isSilent)
     {
-        await Task.Run(async () =>
+        return await Task.Run(async () =>
         {
+            var title = $"Grabbing Image By {opticsGrabbingImageTypeEnum}";
+            var isSuccess = false;
             try
             {
-                if (DialogWindowProvider.TryShowDialog($"Grabbing Image By {modeName}, Please confirm Param.", out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return;
+                HtmlLogUniqueId = isSilent ? HtmlLogUniqueId : Guid.NewGuid();
 
-                if (Cache.PrescanAODWaveformProfiles.Count > 0)
-                {
-                    foreach (var prescanAODWaveformProfile in Cache.PrescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficient(Cache.LaserLightInformation.Coefficient);
-
-                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.PrescanAODWaveformProfiles);
-                }
-                else LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.LaserLightInformation.Coefficient);
-
-                if (Cache.ChirpAODWaveformProfiles.Count > 0) LaserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
-                else LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 var startPosition = Cache.StageCoordinateSystemEnum switch
                 {
@@ -464,21 +479,73 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
                 };
 
+                var htmlQuote = new HtmlQuote(Cache.ToHtmlAnonymous(opticsGrabbingImageTypeEnum));
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                {
+                    Base = htmlQuote,
+                    startPosition
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                if (isSilent == false)
+                {
+                    if (DialogWindowProvider.TryShowDialog($"""
+                                                            {title}, Please confirm Param.
+                                                            {htmlQuote.ToViewString()}
+                                                            """, out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return false;
+                }
+
+                if (Cache.PrescanAODWaveformProfiles.Count > 0)
+                {
+                    foreach (var prescanAODWaveformProfile in Cache.PrescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficient(Cache.LaserLightInformation.Coefficient);
+
+                    LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.PrescanAODWaveformProfiles);
+
+                    Logger.LogHtmlInformation("Prescan AOD Waveform", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        GeneratePrescanAODWaveformParam = Cache.IsGenerateAODWaveform ? new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()) : new HtmlQuote(new { Cache.PrescanAODWaveformResultFilePath }),
+                        Cache.PrescanAODWaveformResultFilePath,
+                        PrescanAODWaveformProfiles = new HtmlTable([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+                else
+                {
+                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.LaserLightInformation.Coefficient);
+
+                    Logger.LogHtmlInformation("Prescan AOD Waveform", HtmlHeaderLevelEnum.Header4, new HtmlComment("Default"), HtmlLogUniqueId.LoggingHtml());
+                }
+
+                if (Cache.ChirpAODWaveformProfiles.Count > 0)
+                {
+                    LaserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
+
+                    Logger.LogHtmlInformation("Chirp AOD Waveform", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        GenerateChirpAODWaveformParam = Cache.IsGenerateAODWaveform ? new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()) : new HtmlQuote(new { Cache.PrescanAODWaveformResultFilePath }),
+                        Cache.ChirpAODWaveformResultFilePath,
+                        ChirpAODWaveformProfiles = new HtmlTable([.. Cache.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+                else
+                {
+                    LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+
+                    Logger.LogHtmlInformation("Chirp AOD Waveform", HtmlHeaderLevelEnum.Header4, new HtmlComment("Default"), HtmlLogUniqueId.LoggingHtml());
+                }
+
                 try
                 {
                     Move();
 
+                    Logger.LogHtmlInformation("Grabbing Image", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
                     Results = [];
 
-                    await func(startPosition);
+                    isSuccess = await func(startPosition).ConfigureAwait(false);
                 }
                 finally
                 {
                     Move();
                 }
-
-                DialogWindowProvider.ShowDialog($"Grabbing Image By {modeName} Completed.");
-                return;
 
                 void Move()
                 {
@@ -508,20 +575,36 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             }
             catch (Exception ex)
             {
+                if (isSilent) throw;
+
                 if (ex is OperationCanceledException)
                 {
-                    DialogWindowProvider.ShowDialog($"Get PMT Images By {modeName} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                    return;
+                    DialogWindowProvider.ShowDialog($"{Name}: {title} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                 }
-
-                DialogWindowProvider.ShowDialog($"""
-                                                 Get PMT Images By {modeName} Failed
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogError(ex, "Get PMT Images By {ModeName}", modeName);
+                else
+                {
+                    DialogWindowProvider.ShowDialog($"""
+                                                     {Name}: {title} Failed
+                                                     {ex.Message}
+                                                     """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    Logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header4, new HtmlComment($"{title} Failed"), HtmlLogUniqueId.LoggingHtml());
+                }
             }
-        }, cancellationToken).ConfigureAwait(false);
+            finally
+            {
+                if (isSilent == false) Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{title.Replace(" ", string.Empty)}_{(isSuccess ? "OK" : "Failed")}"));
+            }
+
+            if (isSuccess)
+            {
+                if (isSilent == false) DialogWindowProvider.ShowDialog($"{Name}: {title} Success");
+            }
+            else
+                DialogWindowProvider.ShowDialog($"{Name}: {title} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+            return isSuccess;
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -536,7 +619,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to save cache");
+            Logger.LogError(ex, "{@Name}: Failed to save cache", Name);
         }
 
         CloseView(true);

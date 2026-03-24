@@ -12,7 +12,6 @@ using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
@@ -45,8 +44,6 @@ public sealed partial class OpticsBestFocusWindowViewModel(
 
     public override string Name => "Best Focus";
 
-    public Guid HtmlLogUniqueId { get; private set; }
-
     public IReadOnlyList<string> Steps { get; } =
     [
         "Step 1 Alignment",
@@ -54,15 +51,57 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         "Step 3 Best Focus"
     ];
 
-    protected override async Task LoadedAsync() => await Task.Run(() =>
+    protected override async Task LoadedAsync() => await Task.Run(async () =>
     {
+        await base.LoadedAsync().ConfigureAwait(false);
+
         Results = [];
         MicroscopeCalChipCache = recipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-        Cache = CacheProvider.GetOrDefault<OpticsBestFocusCache>();
-    });
+    }).ConfigureAwait(false);
+
+    protected override bool InvokeDarkFieldRawScanImageDTO(DarkFieldRawScanImageDTO darkFieldRawScanImage)
+    {
+        base.InvokeDarkFieldRawScanImageDTO(darkFieldRawScanImage);
+
+        var isSuccess = false;
+
+        var item = new OpticsBestFocusResult { DarkFieldRawScanImage = darkFieldRawScanImage };
+
+        var startECS = Cache.CenterECS - Cache.RangeECS;
+        var stopECS = Cache.CenterECS + Cache.RangeECS;
+        try
+        {
+            var temp = darkFieldRawScanImage.Clone();
+            temp.IsKeepRawImageCIBProfileModeEnum = false;
+            using var image = temp.GetImage();
+
+            item.BestFocus = calibrationAlgorithmService.GetBestFocus(image, startECS, stopECS);
+            item.BestFocus.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
+
+            Logger.LogHtmlInformation("Best Focus OK", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            {
+                Result = new HtmlBullet(item.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            isSuccess = true;
+        }
+        catch (Exception ex)
+        {
+            item.BestFocus.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
+            Logger.LogHtmlError("Best Focus Error", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            {
+                Exception = ex,
+                Result = new HtmlBullet(item.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
+        }
+
+        Results = [..Results, item];
+
+        return isSuccess;
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step0Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken)
     {
         return await InvokeAsync(0, () =>
         {
@@ -86,11 +125,11 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             }), HtmlLogUniqueId.LoggingHtml());
 
             return Task.FromResult(true);
-        }, isNotSilent).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step1Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken)
     {
         return await InvokeAsync(1, () =>
         {
@@ -104,40 +143,27 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             }), HtmlLogUniqueId.LoggingHtml());
 
             return Task.FromResult(true);
-        }, isNotSilent).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step2Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken)
     {
         return await InvokeAsync(2, async () =>
         {
             Results = [];
 
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            if (Cache.PrescanAODWaveformProfiles.Count > 0)
-            {
-                Logger.LogHtmlInformation("Prescan AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-                {
-                    GeneratePrescanAODWaveformParam = Cache.IsGenerateAODWaveform ? new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()) : new HtmlQuote(new { Cache.PrescanAODWaveformResultFilePath }),
-                    Cache.PrescanAODWaveformResultFilePath,
-                    PrescanAODWaveformProfiles = new HtmlTable([.. Cache.PrescanAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-                }), HtmlLogUniqueId.LoggingHtml());
-            }
-
-            if (Cache.ChirpAODWaveformProfiles.Count > 0)
-            {
-                Logger.LogHtmlInformation("Chirp AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-                {
-                    GenerateChirpAODWaveformParam = Cache.IsGenerateAODWaveform ? new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()) : new HtmlQuote(new { Cache.PrescanAODWaveformResultFilePath }),
-                    Cache.ChirpAODWaveformResultFilePath,
-                    ChirpAODWaveformProfiles = new HtmlTable([.. Cache.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
-                }), HtmlLogUniqueId.LoggingHtml());
-            }
-
             MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
             var dswBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.DSWFindBFMachinePosition);
             StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                AlignmentResult = new HtmlQuote(Cache.AlignmentResult.ToHtmlAnonymous()),
+                Cache.MicroscopeLensInformation,
+                Cache.DSWFindBFMachinePosition,
+                dswBFPosition
+            }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
             await
@@ -147,55 +173,10 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 if (GetPMTImagesByXZSyncCommand.CanBeCanceled) GetPMTImagesByXZSyncCommand.Cancel();
             });
 
-            await GetPMTImagesByXZSyncCommand.ExecuteAsync(null);
+            var task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(GetPMTImagesByXZSyncCommand.ExecuteAsync(true));
 
-            Guard.IsNotEmpty(base.Results);
-
-            Logger.LogHtmlInformation("Best Focus", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-            var startECS = Cache.CenterECS - Cache.RangeECS;
-            var stopECS = Cache.CenterECS + Cache.RangeECS;
-
-            var isSuccess = true;
-            foreach (var darkFieldRawScanImages in base.Results)
-            {
-                foreach (var darkFieldRawScanImage in darkFieldRawScanImages)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var item = new OpticsBestFocusResult { DarkFieldRawScanImage = darkFieldRawScanImage };
-
-                    try
-                    {
-                        var temp = darkFieldRawScanImage.Clone();
-                        temp.IsKeepRawImageCIBProfileModeEnum = false;
-                        using var image = temp.GetImage();
-
-                        item.BestFocus = calibrationAlgorithmService.GetBestFocus(image, startECS, stopECS);
-                        item.BestFocus.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
-
-                        Logger.LogHtmlInformation($"{darkFieldRawScanImage.CIBInformation} OK", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                        {
-                            Result = new HtmlBullet(item.ToHtmlAnonymous())
-                        }), HtmlLogUniqueId.LoggingHtml());
-                    }
-                    catch (Exception ex)
-                    {
-                        isSuccess = false;
-                        item.BestFocus.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
-                        Logger.LogHtmlError($"{darkFieldRawScanImage.CIBInformation} Error", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                        {
-                            Exception = ex,
-                            Result = new HtmlBullet(item.ToHtmlAnonymous())
-                        }), HtmlLogUniqueId.LoggingHtml());
-                    }
-
-                    Results = [..Results, item];
-                }
-            }
-
-            return isSuccess;
-        }, isNotSilent).ConfigureAwait(false);
+            return await task.ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -213,8 +194,8 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         var oldMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
         var oldMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
 
-        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync( /* isNotSilent */ false));
-        if (await step0Task == false) return;
+        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync(true));
+        if (await step0Task.ConfigureAwait(false) == false) return;
 
         var newMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
         var newMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
@@ -223,14 +204,14 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         var oldDSWFindBFMachinePosition = Cache.DSWFindBFMachinePosition;
         Cache.DSWFindBFMachinePosition += offset;
 
-        Logger.LogHtmlInformation(Steps[1], HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+        Logger.LogHtmlInformation(Steps[1], HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
         {
             offset,
             oldDSWFindBFMachinePosition,
             Cache.DSWFindBFMachinePosition
         }), HtmlLogUniqueId.LoggingHtml());
 
-        await Step2Command.ExecuteAsync( /* isNotSilent */ false);
+        await Step2Command.ExecuteAsync(true).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -259,9 +240,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
 
             Guard.IsNotEmpty(fileNames);
 
-            Logger.LogHtmlInformation("Best Focus", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-            var isSuccess = true;
+            var boolList = new List<bool>();
             foreach (var fileName in fileNames)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -273,50 +252,22 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                     IsKeepRawImageCIBProfileModeEnum = Cache.IsKeepRawImageCIBProfileModeEnum
                 };
 
-                var item = new OpticsBestFocusResult { DarkFieldRawScanImage = darkFieldRawScanImage };
-
-                try
-                {
-                    var temp = darkFieldRawScanImage.Clone();
-                    temp.IsKeepRawImageCIBProfileModeEnum = false;
-                    using var image = temp.GetImage();
-                    darkFieldRawScanImage.Size = (SizeI)image.GetSize();
-
-                    item.BestFocus = calibrationAlgorithmService.GetBestFocus(image, 0d, 0d);
-                    item.BestFocus.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
-
-                    Logger.LogHtmlInformation($"{darkFieldRawScanImage.RawImageFilePath} OK", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                    {
-                        Result = new HtmlBullet(item.ToHtmlAnonymous())
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
-                catch (Exception ex)
-                {
-                    isSuccess = false;
-                    item.BestFocus.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
-                    Logger.LogHtmlError($"{darkFieldRawScanImage.RawImageFilePath} Error", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                    {
-                        Exception = ex,
-                        Result = new HtmlBullet(item.ToHtmlAnonymous())
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
-
-                Results = [..Results, item];
+                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldRawScanImage));
             }
 
-            return Task.FromResult(isSuccess);
-        }, true).ConfigureAwait(false);
+            return Task.FromResult(boolList.All(t => t));
+        }, false).ConfigureAwait(false);
     }
 
     private async Task<bool> InvokeAsync(
         int stepIndex,
         Func<Task<bool>> func,
-        bool isNotSilent)
+        bool isSilent)
     {
         return await Task.Run(async () =>
         {
-            var isInitHtmlLog = isNotSilent || stepIndex == 0;
-            var isEndHtml = isNotSilent || stepIndex == Steps.Count - 1;
+            var isInitHtmlLog = isSilent == false || stepIndex == 0;
+            var isEndHtml = isSilent == false || stepIndex == Steps.Count - 1;
 
             HtmlLogUniqueId = isInitHtmlLog ? Guid.NewGuid() : HtmlLogUniqueId;
 
@@ -330,10 +281,10 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             }
             catch (Exception ex)
             {
+                if (isSilent) isEndHtml = true;
+
                 if (ex is OperationCanceledException)
                 {
-                    if (isNotSilent == false) isEndHtml = true;
-
                     DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -349,12 +300,12 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             finally
             {
                 if (isEndHtml)
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isNotSilent ? Steps[stepIndex].Replace(" ", string.Empty) : "All")}_{(isSuccess ? "OK" : "Failed")}"));
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isSilent ? "All" : Steps[stepIndex].Replace(" ", string.Empty))}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
             if (isSuccess)
             {
-                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {(isNotSilent ? Steps[stepIndex] : "All")} Success");
+                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {(isSilent ? "All" : Steps[stepIndex])} Success");
             }
             else
                 DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
