@@ -5,9 +5,9 @@ using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools;
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public sealed partial class BestFocusWindowCache : GrabbingDarkImageWindowCache
+public sealed partial class OpticsBestFocusCache : OpticsGrabbingImageCache
 {
     [ObservableProperty]
     private AlignmentResultDto _alignmentResult = new();
@@ -18,7 +18,7 @@ public sealed partial class BestFocusWindowCache : GrabbingDarkImageWindowCache
     [ObservableProperty]
     private Point _dSWFindBFMachinePosition;
 
-    public BestFocusWindowCache()
+    public OpticsBestFocusCache()
     {
         StageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
         CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;

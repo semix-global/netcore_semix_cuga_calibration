@@ -21,21 +21,21 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools;
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-[IOCAppService(ServiceType = typeof(GrabbingDarkImageWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class BestFocusWindowViewModel(
+[IOCAppService(ServiceType = typeof(OpticsBestFocusWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class OpticsBestFocusWindowViewModel(
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
-    ISynchronizationContextProvider contextProvider) : GrabbingDarkImageWindowViewModel
+    ISynchronizationContextProvider contextProvider) : OpticsGrabbingImageWindowViewModel
 {
     [DefaultCache]
     [ObservableProperty]
-    private BestFocusWindowCache _cache = new();
+    private OpticsBestFocusCache _cache = new();
 
     [ObservableProperty]
-    private IReadOnlyList<BestFocusWindowResult> _results = [];
+    private IReadOnlyList<OpticsBestFocusResult> _results = [];
 
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
@@ -55,7 +55,7 @@ public sealed partial class BestFocusWindowViewModel(
     {
         Results = [];
         MicroscopeCalChipCache = recipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-        Cache = CacheProvider.GetOrDefault<BestFocusWindowCache>();
+        Cache = CacheProvider.GetOrDefault<OpticsBestFocusCache>();
     });
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -157,7 +157,7 @@ public sealed partial class BestFocusWindowViewModel(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var item = new BestFocusWindowResult { DarkFieldRawScanImage = darkFieldRawScanImage };
+                    var item = new OpticsBestFocusResult { DarkFieldRawScanImage = darkFieldRawScanImage };
 
                     try
                     {
@@ -260,7 +260,7 @@ public sealed partial class BestFocusWindowViewModel(
                     IsKeepRawImageCIBProfileModeEnum = Cache.IsKeepRawImageCIBProfileModeEnum
                 };
 
-                var item = new BestFocusWindowResult { DarkFieldRawScanImage = darkFieldRawScanImage };
+                var item = new OpticsBestFocusResult { DarkFieldRawScanImage = darkFieldRawScanImage };
 
                 try
                 {

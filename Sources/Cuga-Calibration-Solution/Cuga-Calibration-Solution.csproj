@@ -65,11 +65,11 @@
         <Compile Update="ViewModels\*\*.LoadDepends.cs">
             <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.LoadDepends', '.cs'))</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\GrabbingDarkImageWindowCache.cs">
-            <DependentUpon>GrabbingDarkImageWindowViewModel.cs</DependentUpon>
+        <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsGrabbingImage*.cs">
+            <DependentUpon>OpticsGrabbingImageWindowViewModel.cs</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\BestFocusWindow*.cs">
-            <DependentUpon>BestFocusWindowViewModel.cs</DependentUpon>
+        <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsBestFocus*.cs">
+            <DependentUpon>OpticsBestFocusWindowViewModel.cs</DependentUpon>
         </Compile>
     </ItemGroup>
 

@@ -3,9 +3,9 @@ using Core.Models.Models.Common.DarkField;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools;
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public sealed partial class BestFocusWindowResult : ObservableObject
+public sealed partial class OpticsBestFocusResult : ObservableObject
 {
     [ObservableProperty]
     private DarkFieldRawScanImageDTO _darkFieldRawScanImage = new();

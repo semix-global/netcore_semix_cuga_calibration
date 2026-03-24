@@ -323,8 +323,8 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                 Cache.Item.SCMotorAbsoluteValueL3Center,
                 Cache.Item.IsL1ToL2Direction,
                 Cache.Item.IsL2ToL3Direction,
-                XZCenterECS = Cache.Item.CenterECS,
-                XZRangeECS = Cache.Item.RangeECS,
+                Cache.Item.CenterECS,
+                Cache.Item.RangeECS,
                 currentMotorAbsoluteValueL1,
                 currentMotorAbsoluteValueL3,
                 detectImageDirectory

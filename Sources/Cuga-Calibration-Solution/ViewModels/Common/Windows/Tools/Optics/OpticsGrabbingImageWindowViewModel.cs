@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -6,29 +7,28 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Chuck;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Text;
-using Core.Utilities;
-using Microsoft.Extensions.Options;
-using Net.Utilities.Models;
-using Net.Utilities.WPF.MVVM;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools;
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-[IOCAppService(ServiceType = typeof(GrabbingDarkImageWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public partial class GrabbingDarkImageWindowViewModel : ViewModelBase
+[IOCAppService(ServiceType = typeof(OpticsGrabbingImageWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public partial class OpticsGrabbingImageWindowViewModel : ViewModelBase
 {
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly ILogger<ChuckPrealignerCalibrationViewModel> Logger;
@@ -49,12 +49,12 @@ public partial class GrabbingDarkImageWindowViewModel : ViewModelBase
 
     [DefaultCache]
     [ObservableProperty]
-    private GrabbingDarkImageWindowCache _cache = new();
+    private OpticsGrabbingImageCache _cache = new();
 
     [ObservableProperty]
     private IReadOnlyList<IReadOnlyList<DarkFieldRawScanImageDTO>> _results = [];
 
-    public GrabbingDarkImageWindowViewModel()
+    public OpticsGrabbingImageWindowViewModel()
     {
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         Logger = (ILogger<ChuckPrealignerCalibrationViewModel>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
@@ -73,7 +73,7 @@ public partial class GrabbingDarkImageWindowViewModel : ViewModelBase
     {
         Results = [];
 
-        Cache = CacheProvider.GetOrDefault<GrabbingDarkImageWindowCache>();
+        Cache = CacheProvider.GetOrDefault<OpticsGrabbingImageCache>();
     });
 
     [RelayCommand]

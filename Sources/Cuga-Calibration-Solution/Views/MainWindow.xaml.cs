@@ -3,7 +3,6 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
-using System.Windows.Forms;
 using System.ComponentModel;
 
 namespace CugaCalibration.Views;

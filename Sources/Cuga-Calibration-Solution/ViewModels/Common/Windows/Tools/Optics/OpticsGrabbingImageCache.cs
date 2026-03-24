@@ -5,9 +5,9 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools;
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public partial class GrabbingDarkImageWindowCache : ObservableCacheBase
+public partial class OpticsGrabbingImageCache : ObservableCacheBase
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
