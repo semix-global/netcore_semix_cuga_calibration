@@ -47,7 +47,7 @@
                         <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <TextBlock Text="Grabbing Dark Image"
+                <TextBlock Text="{Binding Name}"
                            HorizontalAlignment="Center"
                            FontSize="13"
                            FontWeight="Bold"
@@ -212,7 +212,7 @@
                                                   Visibility="{Binding Cache.IsGenerateAODWaveform, Converter={StaticResource Boolean2VisibilityConverter}}">
                                             <Border Style="{StaticResource BorderRegion}">
                                                 <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
-                                                                                                      IsVisibleAmplitude="False"
+                                                                                                      IsVisibleDirectoryPath="False"
                                                                                                       DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
                                             </Border>
                                         </Expander>
@@ -256,7 +256,9 @@
                                                   ExpandDirection="Down"
                                                   Visibility="{Binding Cache.IsGenerateAODWaveform, Converter={StaticResource Boolean2VisibilityConverter}}">
                                             <Border Style="{StaticResource BorderRegion}">
-                                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False" DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                    IsVisibleDirectoryPath="False"
+                                                                                                    DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
                                             </Border>
                                         </Expander>
                                         <TextBox Text="{Binding Cache.ChirpAODWaveformResultFilePath}"
@@ -438,12 +440,12 @@
                                                               Value="{Binding Cache.ScanLength}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="Center(ECS): "
                                                               hc:TitleElement.TitlePlacement="Left"
-                                                              hc:TitleElement.TitleWidth="190"
+                                                              hc:TitleElement.TitleWidth="160"
                                                               Style="{StaticResource NumericUpDownExtend}"
                                                               Value="{Binding Cache.CenterECS}" />
                                             <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
                                                               hc:TitleElement.TitlePlacement="Left"
-                                                              hc:TitleElement.TitleWidth="190"
+                                                              hc:TitleElement.TitleWidth="160"
                                                               Minimum="0"
                                                               Style="{StaticResource NumericUpDownExtend}"
                                                               Value="{Binding Cache.RangeECS}" />

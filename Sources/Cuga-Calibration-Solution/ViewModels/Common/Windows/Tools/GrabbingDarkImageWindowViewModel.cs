@@ -42,10 +42,10 @@ public partial class GrabbingDarkImageWindowViewModel : ViewModelBase
 
     public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public virtual string Name { get; } = "Grabbing Dark Image";
+    public virtual string Name => "Grabbing Dark Image";
 
     [ObservableProperty]
-    private ApplicationCookie _applicationCookie;
+    private ApplicationCookie _applicationCookie = new();
 
     [DefaultCache]
     [ObservableProperty]

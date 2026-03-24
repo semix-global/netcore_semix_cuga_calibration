@@ -40,6 +40,8 @@ public sealed partial class BestFocusWindowViewModel(
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
 
+    public override string Name => "Best Focus";
+
     public Guid HtmlLogUniqueId { get; private set; }
 
     public IReadOnlyList<string> Steps { get; } =
