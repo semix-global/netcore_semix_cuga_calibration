@@ -469,54 +469,60 @@
                     </ScrollViewer>
                 </Border>
                 <GridSplitter Grid.Column="1" Width="5" />
-                <GroupBox Grid.Column="2" Header="Images">
+                <GroupBox Grid.Column="2" Header="History">
                     <Border Padding="5" Style="{StaticResource BorderRegion}">
-                        <ListBox Margin="5" ItemsSource="{Binding Results}">
+                        <ListBox Margin="5"
+                                 HorizontalContentAlignment="Stretch"
+                                 ItemsSource="{Binding Results}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <ItemsControl BorderThickness="1"
-                                                  BorderBrush="{StaticResource DarkSuccessBrush}"
-                                                  ItemsSource="{Binding .}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type darkField:DarkFieldRawScanImageDTO}">
-                                                <Border Width="300"
-                                                        Height="360"
-                                                        Margin="2"
-                                                        Style="{StaticResource BorderRegion}">
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto" />
-                                                            <RowDefinition Height="*" />
-                                                        </Grid.RowDefinitions>
-                                                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                                            <i:Interaction.Triggers>
-                                                                <i:EventTrigger EventName="Loaded">
-                                                                    <i:CallMethodAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}}" MethodName="ScrollToEnd" />
-                                                                </i:EventTrigger>
-                                                            </i:Interaction.Triggers>
-                                                            <TextBlock TextWrapping="Wrap"
-                                                                       HorizontalAlignment="Left"
-                                                                       VerticalAlignment="Bottom"
-                                                                       ToolTip="{Binding RawImageFilePath}">
-                                                                <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
-                                                                    <Run Text="{Binding Mode=OneWay}" />
-                                                                </Hyperlink>
-                                                            </TextBlock>
-                                                        </ScrollViewer>
-                                                        <wpfImageViewer:ImageViewerCanvas Grid.Row="1"
-                                                                                          BitmapImageDrawable="{Binding Mode=OneWay, Converter={StaticResource DarkFieldRawScanImageDTOToBitmapImageDrawableConverter}}"
-                                                                                          IsShowCrossLine="True"
-                                                                                          IsToggleAddOrModifyRectROIDrawable="False" />
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                    <Border Margin="-5,5"
+                                            Padding="5"
+                                            BorderThickness="1"
+                                            BorderBrush="{StaticResource DarkSuccessBrush}"
+                                            Style="{StaticResource BorderRegion}">
+                                        <ItemsControl HorizontalContentAlignment="Stretch" ItemsSource="{Binding .}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type darkField:DarkFieldRawScanImageDTO}">
+                                                    <Border Width="300"
+                                                            Height="360"
+                                                            Margin="2"
+                                                            Style="{StaticResource BorderRegion}">
+                                                        <Grid>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="Auto" />
+                                                                <RowDefinition Height="*" />
+                                                            </Grid.RowDefinitions>
+                                                            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                                                <i:Interaction.Triggers>
+                                                                    <i:EventTrigger EventName="Loaded">
+                                                                        <i:CallMethodAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=ScrollViewer}}" MethodName="ScrollToEnd" />
+                                                                    </i:EventTrigger>
+                                                                </i:Interaction.Triggers>
+                                                                <TextBlock TextWrapping="Wrap"
+                                                                           HorizontalAlignment="Left"
+                                                                           VerticalAlignment="Bottom"
+                                                                           ToolTip="{Binding RawImageFilePath}">
+                                                                    <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
+                                                                        <Run Text="{Binding Mode=OneWay}" />
+                                                                    </Hyperlink>
+                                                                </TextBlock>
+                                                            </ScrollViewer>
+                                                            <wpfImageViewer:ImageViewerCanvas Grid.Row="1"
+                                                                                              BitmapImageDrawable="{Binding Mode=OneWay, Converter={StaticResource DarkFieldRawScanImageDTOToBitmapImageDrawableConverter}}"
+                                                                                              IsShowCrossLine="True"
+                                                                                              IsToggleAddOrModifyRectROIDrawable="False" />
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>

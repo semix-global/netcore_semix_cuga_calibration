@@ -28,11 +28,14 @@ public sealed partial class OpticsBestFocusWindowViewModel(
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
-    ISynchronizationContextProvider contextProvider) : OpticsGrabbingImageWindowViewModel
+    ISynchronizationContextProvider contextProvider) : AbstractOpticsGrabbingImageWindowViewModel<OpticsBestFocusCache>
 {
     [DefaultCache]
-    [ObservableProperty]
-    private OpticsBestFocusCache _cache = new();
+    public override OpticsBestFocusCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 
     [ObservableProperty]
     private IReadOnlyList<OpticsBestFocusResult> _results = [];
@@ -183,6 +186,8 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                             Result = new HtmlBullet(item.ToHtmlAnonymous())
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
+
+                    Results = [..Results, item];
                 }
             }
 
@@ -212,11 +217,11 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         var newMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
         var newMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
 
-        var offset = ((newMarkPoint1 - oldMarkPoint1) + (newMarkPoint2 - oldMarkPoint2)) / 2d;
+        var offset = (newMarkPoint1 - oldMarkPoint1 + (newMarkPoint2 - oldMarkPoint2)) / 2d;
         var oldDSWFindBFMachinePosition = Cache.DSWFindBFMachinePosition;
         Cache.DSWFindBFMachinePosition += offset;
 
-        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+        Logger.LogHtmlInformation(Steps[1], HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             offset,
             oldDSWFindBFMachinePosition,
@@ -227,29 +232,33 @@ public sealed partial class OpticsBestFocusWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> ManualStep2Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> ManualStep2Async(CancellationToken cancellationToken)
     {
         return await InvokeAsync(2, () =>
         {
             Results = [];
 
-            var openFileDialog = new OpenFileDialog
-            {
-                Title = "Select files",
-                Multiselect = true,
-                Filter = $"files (*.raw)|*.raw",
-                DefaultExt = ".raw",
-                CheckFileExists = true
-            };
-
             bool? result = null;
-            contextProvider.Send(() => result = openFileDialog.ShowDialog());
+            var fileNames = (string[])[];
+            contextProvider.Send(() =>
+            {
+                var openFileDialog = new OpenFileDialog
+                {
+                    Title = "Select files",
+                    Multiselect = true,
+                    Filter = "files (*.raw)|*.raw",
+                    DefaultExt = ".raw",
+                    CheckFileExists = true
+                };
+                result = openFileDialog.ShowDialog();
+                fileNames = openFileDialog.FileNames;
+            });
             if (result != true) return Task.FromResult(false);
 
             Logger.LogHtmlInformation("Best Focus", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = true;
-            foreach (var fileName in openFileDialog.FileNames)
+            foreach (var fileName in fileNames)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -287,10 +296,12 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                         Result = new HtmlBullet(item.ToHtmlAnonymous())
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
+
+                Results = [..Results, item];
             }
 
             return Task.FromResult(isSuccess);
-        }, isNotSilent).ConfigureAwait(false);
+        }, true).ConfigureAwait(false);
     }
 
     private async Task<bool> InvokeAsync(

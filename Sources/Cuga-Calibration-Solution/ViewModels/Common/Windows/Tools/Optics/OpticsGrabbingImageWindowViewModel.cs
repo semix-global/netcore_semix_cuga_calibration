@@ -9,7 +9,6 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using CugaCalibration.ViewModels.Chuck;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
@@ -27,11 +26,10 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-[IOCAppService(ServiceType = typeof(OpticsGrabbingImageWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public partial class OpticsGrabbingImageWindowViewModel : ViewModelBase
+public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache> : ViewModelBase where TCache : OpticsGrabbingImageCache, new()
 {
     protected readonly IDialogWindowProvider DialogWindowProvider;
-    protected readonly ILogger<ChuckPrealignerCalibrationViewModel> Logger;
+    protected readonly ILogger<AbstractOpticsGrabbingImageWindowViewModel<TCache>> Logger;
     protected readonly MicroscopeViewModel MicroscopeViewModel;
     protected readonly AfViewModel AFViewModel;
     protected readonly LaserViewModel LaserViewModel;
@@ -47,17 +45,15 @@ public partial class OpticsGrabbingImageWindowViewModel : ViewModelBase
     [ObservableProperty]
     private ApplicationCookie _applicationCookie = new();
 
-    [DefaultCache]
-    [ObservableProperty]
-    private OpticsGrabbingImageCache _cache = new();
+    public abstract TCache Cache { get; set; }
 
     [ObservableProperty]
     private IReadOnlyList<IReadOnlyList<DarkFieldRawScanImageDTO>> _results = [];
 
-    public OpticsGrabbingImageWindowViewModel()
+    protected AbstractOpticsGrabbingImageWindowViewModel()
     {
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
-        Logger = (ILogger<ChuckPrealignerCalibrationViewModel>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
+        Logger = (ILogger<AbstractOpticsGrabbingImageWindowViewModel<TCache>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         MicroscopeViewModel = HostApplication.GetRequiredService<MicroscopeViewModel>();
         AFViewModel = HostApplication.GetRequiredService<AfViewModel>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
@@ -73,7 +69,7 @@ public partial class OpticsGrabbingImageWindowViewModel : ViewModelBase
     {
         Results = [];
 
-        Cache = CacheProvider.GetOrDefault<OpticsGrabbingImageCache>();
+        Cache = CacheProvider.GetOrDefault<TCache>();
     });
 
     [RelayCommand]
@@ -470,11 +466,21 @@ public partial class OpticsGrabbingImageWindowViewModel : ViewModelBase
 
                 try
                 {
+                    Move();
+
                     Results = [];
 
                     await func(startPosition);
                 }
                 finally
+                {
+                    Move();
+                }
+
+                DialogWindowProvider.ShowDialog($"Grabbing Image By {modeName} Completed.");
+                return;
+
+                void Move()
                 {
                     switch (Cache.StageCoordinateSystemEnum)
                     {
@@ -499,8 +505,6 @@ public partial class OpticsGrabbingImageWindowViewModel : ViewModelBase
                             break;
                     }
                 }
-
-                DialogWindowProvider.ShowDialog($"Grabbing Image By {modeName} Completed.");
             }
             catch (Exception ex)
             {
@@ -537,4 +541,15 @@ public partial class OpticsGrabbingImageWindowViewModel : ViewModelBase
 
         CloseView(true);
     }
+}
+
+[IOCAppService(ServiceType = typeof(OpticsGrabbingImageWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed class OpticsGrabbingImageWindowViewModel : AbstractOpticsGrabbingImageWindowViewModel<OpticsGrabbingImageCache>
+{
+    [DefaultCache]
+    public override OpticsGrabbingImageCache Cache
+    {
+        get;
+        set => SetProperty(ref field, value);
+    } = new();
 }
