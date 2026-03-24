@@ -149,7 +149,10 @@ public sealed partial class OpticsBestFocusWindowViewModel(
 
             await GetPMTImagesByXZSyncCommand.ExecuteAsync(null);
 
+            Guard.IsNotEmpty(base.Results);
+
             Logger.LogHtmlInformation("Best Focus", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
             var startECS = Cache.CenterECS - Cache.RangeECS;
             var stopECS = Cache.CenterECS + Cache.RangeECS;
 
@@ -194,7 +197,6 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             return isSuccess;
         }, isNotSilent).ConfigureAwait(false);
     }
-
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task AllAsync(CancellationToken cancellationToken)
@@ -254,6 +256,8 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 fileNames = openFileDialog.FileNames;
             });
             if (result != true) return Task.FromResult(false);
+
+            Guard.IsNotEmpty(fileNames);
 
             Logger.LogHtmlInformation("Best Focus", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 

@@ -117,7 +117,7 @@ public static class HImageCommonExtensions1
 
             // 2 ^ ((gray - 1500) / 128) -> [0, 4095]
             using var subHTuple = grayValHTuple - 1500d;
-            using var divHTuple = subHTuple / 128d;
+            using var divHTuple = subHTuple / 128d /* KLA写死128 */;
             using var exp2HTuple = divHTuple.TupleExp2();
             using var intTuple = exp2HTuple.TupleInt();
 

@@ -48,34 +48,46 @@
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <hc:NumericUpDown hc:TitleElement.Title="Dark Current: "
                                                       hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
+                                                      hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.DarkCurrent}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Denominator: "
                                                       hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
+                                                      hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.Denominator}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Scale Factor: "
                                                       hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
+                                                      hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.ScaleFactor}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Min Valid Fraction: "
                                                       hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
+                                                      hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MinValidFraction}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Max Valid Fraction: "
                                                       hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
+                                                      hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MaxValidFraction}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Smooth Log Gain Window: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.SmoothLogGainMul128U12BitWindow}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Smooth Gain Window: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.SmoothGainS16BitWindow}" />
                                     <Expander Header="MMD Configurations"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
@@ -99,6 +111,14 @@
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </Expander>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Set CIB MMD"
+                                    Command="{Binding SetCIBMMDsCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DialogBoxLauncherGeometry}"
+                                    Style="{StaticResource ButtonInfo.Loading}" />
+                        </hc:UniformSpacingPanel>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -257,19 +277,6 @@
                                                     </DataGrid.Columns>
                                                 </DataGrid>
                                             </Popup>
-                                        </Grid>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="Set CIB MMD">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
-                                        <Grid>
-                                            <Button Content="Set"
-                                                    Command="{Binding DataContext.SetCIBMMDCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"
-                                                    Margin="0,2"
-                                                    HorizontalAlignment="Left" />
                                         </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
