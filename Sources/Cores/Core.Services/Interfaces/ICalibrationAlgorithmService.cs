@@ -48,8 +48,10 @@ public interface ICalibrationAlgorithmService
     /// Best Focus
     /// </summary>
     /// <param name="image">图片</param>
+    /// <param name="startECS">开始ECS</param>
+    /// <param name="stopECS">停止ECS</param>
     /// <returns>Best Focus结果</returns>
-    BestFocus GetBestFocus(HImage image);
+    BestFocus GetBestFocus(HImage image, double startECS, double stopECS);
 
     #endregion 清晰度
 

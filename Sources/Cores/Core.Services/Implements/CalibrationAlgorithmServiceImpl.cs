@@ -74,8 +74,10 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (mtfX.D, mtfY.D);
     }
 
-    public BestFocus GetBestFocus(HImage image)
+    public BestFocus GetBestFocus(HImage image, double startECS, double stopECS)
     {
+        var size = (SizeI)image.GetSize();
+
         #region 算法调用
 
         _algorithm.STLR_kla(
@@ -145,7 +147,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.Y)]));
         var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, yFieldTiltFitYPredicted[t.Index])).ToArray();
 
-        return new BestFocus
+        var bestFocus = new BestFocus
         {
             XStrehlRatioPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvXRatioMeanHTuple[t].D))],
             XStrehlRatioFitPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvXValuesHTuple[t].D))],
@@ -168,6 +170,11 @@ public sealed class CalibrationAlgorithmServiceImpl(
             YFieldTiltFitRSquared = yFieldTiltFitRSquared,
             YFieldTiltFitPoints = yFieldTiltFitPoints
         };
+
+        bestFocus.BestXStrehlRatioECS = startECS + bestFocus.BestXStrehlRatioPoint.X / size.Width * (stopECS - startECS);
+        bestFocus.BestYStrehlRatioECS = startECS + bestFocus.BestYStrehlRatioPoint.X / size.Width * (stopECS - startECS);
+
+        return bestFocus;
     }
 
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)

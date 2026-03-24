@@ -52,8 +52,10 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
     }
 
-    public BestFocus GetBestFocus(HImage image)
+    public BestFocus GetBestFocus(HImage image, double startECS, double stopECS)
     {
+        var size = (SizeI)image.GetSize();
+        
         var xStrehlRatioPoints = Generate.LinearRangeInt32(0, 10, 300).Select(i => new Point(i, i is > 100 and < 200 ? Random.Shared.RandomDouble(0.8, 1d) : Random.Shared.RandomDouble(0, 0.3))).ToArray();
 
         var (_, _, _, _, xStrehlRatioFitYPredicted) = PolynomialCurve.Fit2(Vector<double>.Build.Dense([..xStrehlRatioPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..xStrehlRatioPoints.Select(t => t.Y)]));
@@ -74,9 +76,9 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
 
         var yFieldTiltPoints = Enumerable.Range(0, 10).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
         var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.Y)]));
-        var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
+        var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, yFieldTiltFitYPredicted[t.Index])).ToArray();
 
-        return new BestFocus
+        var bestFocus = new BestFocus
         {
             XStrehlRatioPoints = xStrehlRatioPoints,
             XStrehlRatioFitPoints = xStrehlRatioFitPoints,
@@ -99,6 +101,10 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
             YFieldTiltFitRSquared = yFieldTiltFitRSquared,
             YFieldTiltFitPoints = yFieldTiltFitPoints
         };
+        bestFocus.BestXStrehlRatioECS = startECS + bestFocus.BestXStrehlRatioPoint.X / size.Width * (stopECS - startECS);
+        bestFocus.BestYStrehlRatioECS = startECS + bestFocus.BestYStrehlRatioPoint.X / size.Width * (stopECS - startECS);
+        
+        return bestFocus;
     }
 
 

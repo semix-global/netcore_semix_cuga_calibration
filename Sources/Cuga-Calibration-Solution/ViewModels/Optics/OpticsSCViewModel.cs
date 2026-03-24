@@ -393,11 +393,9 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
                     try
                     {
-                        var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image);
+                        var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS);
                         item.BestFocus = bestFocus;
                         item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
-                        item.BestFocus.BestXStrehlRatioECS = startECS + item.BestFocus.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-                        item.BestFocus.BestYStrehlRatioECS = startECS + item.BestFocus.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
 
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                         {

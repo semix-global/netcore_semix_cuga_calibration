@@ -68,6 +68,9 @@
         <Compile Update="ViewModels\Common\Windows\Tools\GrabbingDarkImageWindowCache.cs">
             <DependentUpon>GrabbingDarkImageWindowViewModel.cs</DependentUpon>
         </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\BestFocusWindow*.cs">
+            <DependentUpon>BestFocusWindowViewModel.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>

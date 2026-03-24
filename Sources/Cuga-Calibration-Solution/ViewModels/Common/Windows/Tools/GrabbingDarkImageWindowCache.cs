@@ -7,7 +7,7 @@ using Local.SQL.Cache.Providers.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
-public sealed partial class GrabbingDarkImageWindowCache : ObservableCacheBase
+public partial class GrabbingDarkImageWindowCache : ObservableCacheBase
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
