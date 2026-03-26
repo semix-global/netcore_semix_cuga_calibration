@@ -1,3 +1,5 @@
+using System.IO;
+using System.Text.RegularExpressions;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -5,6 +7,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities.SourceGenerators.Attributes;
@@ -12,6 +15,7 @@ using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
@@ -195,7 +199,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         var oldMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
 
         var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync(true));
-        if (await step0Task.ConfigureAwait(false) == false) return;
+        if (await step0Task.ConfigureAwait(true) == false) return;
 
         var newMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
         var newMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
@@ -245,8 +249,17 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
+                var match = Regex.Match(Path.GetFileName(fileName), @"PMT(\d+)-CH(\d+)");
+
+                var cibInformation = CIBInformation.Default;
+                if (match.Success)
+                    cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(t => t.PMTId == int.Parse(match.Groups[1].Value)
+                                                                                            && t.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
+
                 var darkFieldRawScanImage = new DarkFieldRawScanImageDTO
                 {
+                    CIBInformation = cibInformation,
+                    Size = (SizeI)RawImageFactory.GetSize(fileName).Size,
                     RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,
                     RawImageFilePath = fileName,
                     IsKeepRawImageCIBProfileModeEnum = Cache.IsKeepRawImageCIBProfileModeEnum

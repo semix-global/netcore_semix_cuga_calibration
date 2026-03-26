@@ -479,19 +479,23 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
                 };
 
-                var htmlQuote = new HtmlQuote(Cache.ToHtmlAnonymous(opticsGrabbingImageTypeEnum));
-                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                var htmlBullet = new HtmlBullet(new
                 {
-                    Base = htmlQuote,
+                    Base = new HtmlQuote(Cache.ToHtmlAnonymous(opticsGrabbingImageTypeEnum)),
                     startPosition
-                }), HtmlLogUniqueId.LoggingHtml());
+                });
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
-                if (isSilent == false)
+                if (DialogWindowProvider.TryShowDialog($"""
+                                                        {title}, Please confirm Param.
+                                                        =============================================================
+                                                        {htmlBullet.ToViewString().Replace("; ", Environment.NewLine).Replace("Base: ", string.Empty)}
+                                                        =============================================================
+                                                        """, out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK)
                 {
-                    if (DialogWindowProvider.TryShowDialog($"""
-                                                            {title}, Please confirm Param.
-                                                            {htmlQuote.ToViewString()}
-                                                            """, out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK) return false;
+                    Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                    
+                    return false;
                 }
 
                 if (Cache.PrescanAODWaveformProfiles.Count > 0)
@@ -581,6 +585,8 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 {
                     DialogWindowProvider.ShowDialog($"{Name}: {title} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+                    return false;
                 }
                 else
                 {
