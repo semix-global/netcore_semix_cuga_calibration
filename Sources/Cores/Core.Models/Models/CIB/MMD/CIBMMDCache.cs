@@ -96,6 +96,12 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private double _maxValidFraction = 250000d;
 
     [ObservableProperty]
+    private int _smoothLogGainMul128U12BitWindow = 201;
+
+    [ObservableProperty]
+    private int _smoothGainS16BitWindow = 51;
+
+    [ObservableProperty]
     private IReadOnlyList<MMDConfiguration> _mMDConfigurations = [];
 
     /********** 缓存的结果 **********/

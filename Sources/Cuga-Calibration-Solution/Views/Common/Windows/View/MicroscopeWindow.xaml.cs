@@ -4,7 +4,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.WPF.Helper;
 using Net.Utilities.WPF.MVVM.Events;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Interop;
 
 namespace CugaCalibration.Views.Common.Windows.View;
@@ -23,20 +22,19 @@ public sealed partial class MicroscopeWindow : IRecipient<FrontWindowEvent>
         messenger.RegisterAll(this);
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (_isLoaded) return;
         _isLoaded = true;
 
         WindowStartupLocation = WindowStartupLocation.Manual;
 
-        var primaryScreen = Screen.PrimaryScreen;
         // 设置弹窗的位置在主窗体的左下角
-        Left = primaryScreen.WorkingArea.Left + 10;
-        Top = primaryScreen.WorkingArea.Bottom - RenderSize.Height - 10;
+        Left = SystemParameters.WorkArea.Left + 10;
+        Top = SystemParameters.WorkArea.Bottom - RenderSize.Height - 10;
     }
 
-    private void OnClosed(object sender, EventArgs e)
+    private void OnClosed(object? sender, EventArgs e)
     {
         _messenger.UnregisterAll(this);
     }

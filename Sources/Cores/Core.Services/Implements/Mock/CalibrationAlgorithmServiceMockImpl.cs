@@ -50,126 +50,11 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
     }
 
-    public (
-        Point[] XStrehlRatioPoints,
-        Point[] YStrehlRatioPoints,
-        Point[] GrayPoints,
-        Point BestXStrehlRatioPoint,
-        Point[][] BestXStrehlRatioXPSFPoints,
-        Point[][] BestXStrehlRatioYPSFPoints,
-        Point BestYStrehlRatioPoint,
-        Point[][] BestYStrehlRatioXPSFPoints,
-        Point[][] BestYStrehlRatioYPSFPoints) GetXYStrehlRatios(
-            HImage image,
-            out Point[] xStrehlRatioFitPoints,
-            out Point[] yStrehlRatioFitPoints,
-            out Point[] grayFitPoints,
-            out Point[] bestXStrehlRatioXPSFFitPoints,
-            out Point[] bestXStrehlRatioYPSFFitPoints,
-            out Point[] bestYStrehlRatioXPSFFitPoints,
-            out Point[] bestYStrehlRatioYPSFFitPoints)
+    public BestFocus GetBestFocus(HImage image, double startECS, double stopECS)
     {
-        xStrehlRatioFitPoints =
-        [
-            .. Enumerable.Range(0, 200)
-                .Select(i => new Point(i, Random.Shared.NextDouble()))
-        ];
-
-        yStrehlRatioFitPoints =
-        [
-            .. Enumerable.Range(0, 200)
-                .Select(i => new Point(i, Random.Shared.NextDouble()))
-        ];
-
-        grayFitPoints =
-        [
-            .. Enumerable.Range(0, 200)
-                .Select(i => new Point(i, Random.Shared.RandomDouble(0, 2000)))
-        ];
-
-        bestXStrehlRatioXPSFFitPoints =
-        [
-            .. Enumerable.Range(0, 200)
-                .Select(i => new Point(i, Random.Shared.RandomDouble(0, 2000)))
-        ];
-
-        bestXStrehlRatioYPSFFitPoints =
-        [
-            .. Enumerable.Range(0, 200)
-                .Select(i => new Point(i, Random.Shared.RandomDouble(0, 2000)))
-        ];
-
-        bestYStrehlRatioXPSFFitPoints =
-        [
-            .. Enumerable.Range(0, 200)
-                .Select(i => new Point(i, Random.Shared.RandomDouble(0, 2000)))
-        ];
-
-        bestYStrehlRatioYPSFFitPoints =
-        [
-            .. Enumerable.Range(0, 200)
-                .Select(i => new Point(i, Random.Shared.RandomDouble(0, 2000)))
-        ];
-
-        return (
-            [
-                .. Enumerable.Range(0, 200)
-                    .Select(i => new Point(i, Random.Shared.NextDouble()))
-            ],
-            [
-                .. Enumerable.Range(0, 200)
-                    .Select(i => new Point(i, Random.Shared.NextDouble()))
-            ],
-            [
-                .. Enumerable.Range(0, 200)
-                    .Select(i => new Point(i, Random.Shared.Next(0, 2000)))
-            ],
-            xStrehlRatioFitPoints.Maxima(t => t.Y).First(),
-            [
-                .. Enumerable.Range(0, 10)
-                    .Select<int, Point[]>(_ =>
-                    [
-                        .. Enumerable.Range(0, 200)
-                            .Select(i => new Point(i, Random.Shared.Next(0, 2000)))
-                    ])
-            ],
-            [
-                .. Enumerable.Range(0, 10)
-                    .Select<int, Point[]>(_ =>
-                    [
-                        .. Enumerable.Range(0, 200)
-                            .Select(i => new Point(i, Random.Shared.Next(0, 2000)))
-                    ])
-            ],
-            yStrehlRatioFitPoints.Maxima(t => t.Y).First(),
-            [
-                .. Enumerable.Range(0, 10)
-                    .Select<int, Point[]>(_ =>
-                    [
-                        .. Enumerable.Range(0, 200)
-                            .Select(i => new Point(i, Random.Shared.Next(0, 2000)))
-                    ])
-            ],
-            [
-                .. Enumerable.Range(0, 10)
-                    .Select<int, Point[]>(_ =>
-                    [
-                        .. Enumerable.Range(0, 200)
-                            .Select(i => new Point(i, Random.Shared.Next(0, 2000)))
-                    ])
-            ]);
+        return _calibrationAlgorithmServiceImpl.GetBestFocus(image, startECS, stopECS);
     }
 
-    public (Point Position, double XMTF, double YMTF, double GrayValue)[] MultiModulationTransferFunction(HImage image)
-    {
-        List<(Point Position, double XStrehlRatio, double YStrehlRatio, double GrayValue)> result = [];
-        for (var i = 0; i < 50; i++)
-        {
-            result.Add((new Point(Random.Shared.Next(0, 2000), Random.Shared.Next(0, 2000)), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble()));
-        }
-
-        return [.. result];
-    }
 
     public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)
     {
@@ -313,21 +198,6 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         var drawingImage = new HImage(resultImage);
 
         return (drawingImage, diameter.D, angle.D, new Point(dCol.D, dRow.D), new Point(col.D, row.D));
-    }
-
-    public (List<double> Ch1YList, List<double> Ch2YList) GetCibList(List<HImage> image)
-    {
-        var ch1YList = new List<double>();
-        var ch2YList = new List<double>();
-        for (var i = 0; i < 3; i++)
-        {
-            var listY1 = Random.Shared.Next(1, 6);
-            var listY2 = Random.Shared.Next(1, 6);
-            ch1YList.Add(listY1);
-            ch2YList.Add(listY2);
-        }
-
-        return (ch1YList, ch2YList);
     }
 
 

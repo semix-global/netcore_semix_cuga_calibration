@@ -17,7 +17,6 @@ using Core.Models.Models.Common.Status;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Extensions;
-using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
@@ -33,7 +32,6 @@ using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Channels;
-using Interpolator = Net.Utilities.Algorithms.Modules.Interpolator;
 
 namespace CugaCalibration.ViewModels.AOD;
 
@@ -586,7 +584,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             if (Cache.Item.AlgorithmImageQualityTypeEnum is not AlgorithmImageQualityTypeEnum.StrehlRatio)
                 throw new NotImplementedException("Only Strehl Ratio is implemented in this version.");
 
-            var (
+            /*var (
                 xStrehlRatioPoints,
                 yStrehlRatioPoints,
                 grayPoints,
@@ -630,7 +628,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             channelItemDto.GrayFitPositions = grayFitPoints;
 
             channelItemDto.XBestFocusEcs = xBestFocusXPixel >= 0 && xBestFocusXPixel < ecsInterpolationBuffers.Count ? ecsInterpolationBuffers[Convert.ToInt32(xBestFocusXPixel)].ECS : ecsInterpolationBuffers[0].ECS;
-            channelItemDto.YBestFocusEcs = yBestFocusXPixel >= 0 && yBestFocusXPixel < ecsInterpolationBuffers.Count ? ecsInterpolationBuffers[Convert.ToInt32(yBestFocusXPixel)].ECS : ecsInterpolationBuffers[0].ECS;
+            channelItemDto.YBestFocusEcs = yBestFocusXPixel >= 0 && yBestFocusXPixel < ecsInterpolationBuffers.Count ? ecsInterpolationBuffers[Convert.ToInt32(yBestFocusXPixel)].ECS : ecsInterpolationBuffers[0].ECS;*/
         }
 
         Logger.LogHtmlInformation($"spectralDensity: {aodBestFocusAndAstigmatismDTOItem.SpectralDensity} Times: {index}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new

@@ -11,10 +11,10 @@ using Local.SQL.Cache.Providers.Interfaces;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.Threading;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Threading;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -170,7 +170,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     }
                     else
                     {
-                        if (currentItem.BestYStrehlRatioPoint.Y > Cache.Item.BestYStrehlRatioPoint.Y) Cache.Item = currentItem;
+                        if (currentItem.BestFocus.BestYStrehlRatioPoint.Y > Cache.Item.BestFocus.BestYStrehlRatioPoint.Y) Cache.Item = currentItem;
                     }
                 }
 
@@ -183,9 +183,8 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
                     Cache.Item.ChirpAODWaveformResultFilePath,
                     ChirpAODWaveformProfiles = new HtmlTable([.. Cache.Item.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                    XStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                    YStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                    GrayScatterPlotControl = new HtmlContainer([.. Cache.Item.GrayScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    XStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                    YStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 }), htmlLogUniqueId.LoggingHtml());
 
                 isSuccess = true;
@@ -298,50 +297,10 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 true,
                 cancellationToken);
 
-            item.RawImageFilePath = darkFieldImage.RawImageFilePath;
+            var bestFocus = calibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS);
 
-            var (
-                xStrehlRatioPoints,
-                yStrehlRatioPoints,
-                grayPoints,
-                bestXStrehlRatioPoint,
-                bestXStrehlRatioXPSFPoints,
-                bestXStrehlRatioYPSFPoints,
-                bestYStrehlRatioPoint,
-                bestYStrehlRatioXPSFPoints,
-                bestYStrehlRatioYPSFPoints) = calibrationAlgorithmService.GetXYStrehlRatios(
-                darkFieldImage.Image,
-                out var xStrehlRatioFitPoints,
-                out var yStrehlRatioFitPoints,
-                out var grayFitPoints,
-                out var bestXStrehlRatioXPSFFitPoints,
-                out var bestXStrehlRatioYPSFFitPoints,
-                out var bestYStrehlRatioXPSFFitPoints,
-                out var bestYStrehlRatioYPSFFitPoints);
-
-            item.XStrehlRatioPoints = xStrehlRatioPoints;
-            item.YStrehlRatioPoints = yStrehlRatioPoints;
-            item.GrayPoints = grayPoints;
-            item.BestXStrehlRatioPoint = bestXStrehlRatioPoint;
-            item.BestXStrehlRatioXPSFPoints = bestXStrehlRatioXPSFPoints;
-            item.BestXStrehlRatioYPSFPoints = bestXStrehlRatioYPSFPoints;
-            item.BestYStrehlRatioPoint = bestYStrehlRatioPoint;
-            item.BestYStrehlRatioXPSFPoints = bestYStrehlRatioXPSFPoints;
-            item.BestYStrehlRatioYPSFPoints = bestYStrehlRatioYPSFPoints;
-
-            item.XStrehlRatioFitPoints = xStrehlRatioFitPoints;
-            item.YStrehlRatioFitPoints = yStrehlRatioFitPoints;
-            item.GrayFitPoints = grayFitPoints;
-            item.BestXStrehlRatioXPSFFitPoints = bestXStrehlRatioXPSFFitPoints;
-            item.BestXStrehlRatioYPSFFitPoints = bestXStrehlRatioYPSFFitPoints;
-            item.BestYStrehlRatioXPSFFitPoints = bestYStrehlRatioXPSFFitPoints;
-            item.BestYStrehlRatioYPSFFitPoints = bestYStrehlRatioYPSFFitPoints;
-
-            item.BestGrayPoint = item.GrayFitPoints.Maxima(t => t.Y).First();
-
-            item.BestXStrehlRatioECS = startECS + item.BestXStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-            item.BestYStrehlRatioECS = startECS + item.BestYStrehlRatioPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
-            item.BestGrayECS = startECS + item.BestGrayPoint.X / darkFieldImage.Size.Width * (stopECS - startECS);
+            item.BestFocus = bestFocus;
+            item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
             Cache.Items = [.. Cache.Items, item];
 
@@ -360,9 +319,8 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
                 item.ChirpAODWaveformResultFilePath,
                 ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
-                XStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                YStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                GrayScatterPlotControl = new HtmlContainer([.. Cache.Item.GrayScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                XStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                YStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }), htmlLogUniqueId.LoggingHtml());
         }
     }

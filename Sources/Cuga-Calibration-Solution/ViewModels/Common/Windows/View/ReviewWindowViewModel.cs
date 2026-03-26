@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Reactive.Linq;
+using R3;
 
 namespace CugaCalibration.ViewModels.Common.Windows.View;
 
@@ -24,7 +24,7 @@ public sealed partial class ReviewWindowViewModel(
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
-        var subscribe = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorStageMilliseconds)).Subscribe(_ =>
+        var subscribe = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorStageMilliseconds), cancellationToken).Subscribe(_ =>
         {
             try
             {

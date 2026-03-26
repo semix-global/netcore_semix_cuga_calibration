@@ -104,5 +104,5 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
     private double _xZRangeECS;
 
     [ObservableProperty]
-    private OpticsStrehlRatioQualityTypeEnum _opticsStrehlRatioQualityTypeEnum = OpticsStrehlRatioQualityTypeEnum.Gray;
+    private OpticsStrehlRatioQualityTypeEnum _opticsStrehlRatioQualityTypeEnum = OpticsStrehlRatioQualityTypeEnum.XStrehlRatio;
 }

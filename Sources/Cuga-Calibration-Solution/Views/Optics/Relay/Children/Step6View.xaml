@@ -11,6 +11,7 @@
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsRelayViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -163,15 +164,14 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Relay(mm)" DisplayMemberBinding="{Binding RelayMotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Best X Strehl ECS" DisplayMemberBinding="{Binding BestXStrehlRatioECS, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Best Y Strehl ECS" DisplayMemberBinding="{Binding BestYStrehlRatioECS, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Best Gray ECS" DisplayMemberBinding="{Binding BestGrayECS, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Best X Strehl ECS" DisplayMemberBinding="{Binding BestFocus.BestXStrehlRatioECS, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Best Y Strehl ECS" DisplayMemberBinding="{Binding BestFocus.BestYStrehlRatioECS, StringFormat='0.###'}" />
                             <GridViewColumn Width="400" Header="Raw File Path">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type relay:OpticsRelayDTOXZItem}">
                                         <TextBlock TextWrapping="Wrap">
-                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
-                                                <Run Text="{Binding RawImageFilePath}" />
+                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding BestFocus.RawImageFilePath}">
+                                                <Run Text="{Binding BestFocus.RawImageFilePath}" />
                                             </Hyperlink>
                                         </TextBlock>
                                     </DataTemplate>
@@ -209,26 +209,7 @@
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />
-                                                <TabControl Grid.Row="1">
-                                                    <i:Interaction.Behaviors>
-                                                        <wpf:SelectorAutoSelectFirstBehavior />
-                                                    </i:Interaction.Behaviors>
-                                                    <TabItem Header="Y Strehl Ratio">
-                                                        <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                            <ContentControl Content="{Binding YStrehlRatioScatterPlotControl, Mode=OneWay}" />
-                                                        </Border>
-                                                    </TabItem>
-                                                    <TabItem Header="X Strehl Ratio">
-                                                        <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                            <ContentControl Content="{Binding XStrehlRatioScatterPlotControl, Mode=OneWay}" />
-                                                        </Border>
-                                                    </TabItem>
-                                                    <TabItem Header="Gray">
-                                                        <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                            <ContentControl Content="{Binding GrayScatterPlotControl, Mode=OneWay}" />
-                                                        </Border>
-                                                    </TabItem>
-                                                </TabControl>
+                                                <darkField:BestFocusUserControl Grid.Row="1" DataContext="{Binding BestFocus}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

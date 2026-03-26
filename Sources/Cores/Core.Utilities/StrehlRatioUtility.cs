@@ -138,7 +138,7 @@ public static class StrehlRatioUtility
         double xPointDiameter, double yPointDiameter)
     {
         var (x, y, width, height) = (RectI)rect;
-        var subMatrix = Matrix<double>.Build.DenseOfArray<ushort>(image, null).SubMatrix(x, width, y, height);
+        var subMatrix = Matrix<double>.Build.DenseOfArray(image, null).SubMatrix(x, width, y, height);
 
         var xStrehlRatioList = new List<(double StrehlRatio, double[] Line, double[] FitLine)>();
         for (var i = 0; i < subMatrix.RowCount; i++)

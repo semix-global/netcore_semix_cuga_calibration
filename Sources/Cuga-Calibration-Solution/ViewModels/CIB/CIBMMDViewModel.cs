@@ -221,35 +221,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     #region 校准
 
-    [RelayCommand]
-    private void SetCIBMMD(CIBMMDDTO item)
-    {
-        try
-        {
-            if (item.IsCalibrated == false)
-            {
-                DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} Is Calibrated Failed!");
-
-                return;
-            }
-
-            CIBViewModel.SetMMD(
-                item.CIBInformation,
-                [.. item.LogGainMul128U12BitPoints.Select(t => t.Y)],
-                [.. item.GainS16BitPoints.Select(t => t.Y)]);
-
-            DialogWindowProvider.ShowDialog($"{nameof(SetCIBMMD)} {item.CIBInformation} OK!");
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, nameof(SetCIBMMD));
-            DialogWindowProvider.ShowDialog($"""
-                                             {nameof(SetCIBMMD)} Failed!
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
@@ -706,6 +677,50 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
+    [RelayCommand]
+    private void SetCIBMMDs()
+    {
+        if (SelectedReviewItems.Count == 0) return;
+
+        try
+        {
+            var isSuccess = true;
+
+            var stringBuilder = new StringBuilder();
+
+            foreach (var selectedReviewItem in SelectedReviewItems)
+            {
+                var title = selectedReviewItem.CIBInformation.ToString();
+
+                if (selectedReviewItem.IsCalibrated == false)
+                {
+                    stringBuilder.AppendLine($"Error: {title} calibrated is failed.");
+                    isSuccess = false;
+
+                    continue;
+                }
+
+                CIBViewModel.SetMMD(
+                    selectedReviewItem.CIBInformation,
+                    [.. selectedReviewItem.SmoothLogGainMul128U12BitPoints.Select(t => t.Y)],
+                    [.. selectedReviewItem.SmoothGainS16BitPoints.Select(t => t.Y)]);
+                stringBuilder.AppendLine($"Success: {title} Set OK.");
+            }
+
+            DialogWindowProvider.ShowDialog(stringBuilder.ToString(),
+                DialogButtonsEnum.OK,
+                isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, nameof(SetCIBMMDs));
+            DialogWindowProvider.ShowDialog($"""
+                                             {nameof(SetCIBMMDs)} Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
+
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
     {
@@ -941,7 +956,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 ))
                 .ToArray();
 
-            var logGainMul128U12BitPoints = Enumerable.Range(0, (int)Math.Pow(2, 14)).Select(t => new Point(t, double.NaN)).ToArray();
+            var logGainMul128U12BitPoints = Generate.LinearRangeInt32(0, (int)Math.Pow(2, 14)).Select(t => new Point(t, double.NaN)).ToArray();
             /*
              * logGainMul128U12BitPoints
              * 0 - results.SenseU14Bit[0] 的所有索引: 全部设置为 results.LogGainMultiplication128[0]
@@ -959,7 +974,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 for (var j = startIndex; j <= endIndex; j++) logGainMul128U12BitPoints[j] = new Point(j, yValue);
             }
 
-            var gainS16BitPoints = Enumerable.Range(0, (int)Math.Pow(2, 12)).Select(t => new Point(t, double.NaN)).ToArray();
+            var gainS16BitPoints = Generate.LinearRangeInt32(0, (int)Math.Pow(2, 12)).Select(t => new Point(t, double.NaN)).ToArray();
             /*
              * gainS16BitPoints
              * 0 - results.LogGainMultiplication128[0] 的所有索引: 全部设置为 results.GainS16Bit[0]
@@ -977,8 +992,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 for (var j = startIndex; j <= endIndex; j++) gainS16BitPoints[j] = new Point(j, yValue);
             }
 
+            var logGainMul128U12BitFilter = MovMeanFilter.Smooth(Cache.SmoothLogGainMul128U12BitWindow, Vector<double>.Build.Dense([.. logGainMul128U12BitPoints.Select(t => t.Y)]));
             item.LogGainMul128U12BitPoints = logGainMul128U12BitPoints;
+            item.SmoothLogGainMul128U12BitPoints = [.. logGainMul128U12BitPoints.Index().Select(t => new Point(t.Item.X, logGainMul128U12BitFilter[t.Index]))];
+
+            var gainS16BitFilter = MovMeanFilter.Smooth(Cache.SmoothGainS16BitWindow, Vector<double>.Build.Dense([.. gainS16BitPoints.Select(t => t.Y)]));
             item.GainS16BitPoints = gainS16BitPoints;
+            item.SmoothGainS16BitPoints = [.. gainS16BitPoints.Index().Select(t => new Point(t.Item.X, gainS16BitFilter[t.Index]))];
 
             htmlList.Add(new HtmlBullet(new
             {
