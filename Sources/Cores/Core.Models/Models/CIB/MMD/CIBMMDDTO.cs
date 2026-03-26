@@ -161,13 +161,13 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
                 Constants.Category10.GetColor(0));
 
             var temps = (from item in Items
-                    let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
-                    where itemItems.Length > 0
-                    select new
-                    {
-                        LegendText = $"{item.Coefficient:0.###}",
-                        Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
-                    }
+                         let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
+                         where itemItems.Length > 0
+                         select new
+                         {
+                             LegendText = $"{item.Coefficient:0.###}",
+                             Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
+                         }
                 ).ToArray();
 
             var scatterLines = ScatterPlotControl.GetOrAddScatterLines(1, temps.Length);

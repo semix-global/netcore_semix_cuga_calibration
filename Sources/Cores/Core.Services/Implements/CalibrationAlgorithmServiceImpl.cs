@@ -8,18 +8,18 @@ using Core.Services.Interfaces;
 using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using System.IO;
-using MathNet.Numerics;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements;
@@ -139,30 +139,30 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
         var xs = Generate.LinearRangeInt32(0, hvXListHTuple.Length - 1);
         var xFieldTiltPoints = Generate.LinearRangeInt32(0, hvPlotXHTuple.Length - 1).Select(t => new Point(t, hvPlotXHTuple[t].D)).ToArray();
-        var (xFieldTiltFitSlope, xFieldTiltFitIntercept, xFieldTiltFitRSquared, xFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..xFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..xFieldTiltPoints.Select(t => t.Y)]));
+        var (xFieldTiltFitSlope, xFieldTiltFitIntercept, xFieldTiltFitRSquared, xFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. xFieldTiltPoints.Select(t => t.Y)]));
         var xFieldTiltFitPoints = xFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
 
         var yFieldTiltPoints = Generate.LinearRangeInt32(0, hvPlotYHTuple.Length - 1).Select(t => new Point(t, hvPlotYHTuple[t].D)).ToArray();
-        var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.Y)]));
+        var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. yFieldTiltPoints.Select(t => t.Y)]));
         var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, yFieldTiltFitYPredicted[t.Index])).ToArray();
 
         var bestFocus = new BestFocus
         {
-            XStrehlRatioPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvXRatioMeanHTuple[t].D))],
-            XStrehlRatioFitPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvXValuesHTuple[t].D))],
-            XStrehlRatioColumnPoints = [..xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvXRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvXRatioMaxHTuple[t].D)])],
+            XStrehlRatioPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvXRatioMeanHTuple[t].D))],
+            XStrehlRatioFitPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvXValuesHTuple[t].D))],
+            XStrehlRatioColumnPoints = [.. xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvXRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvXRatioMaxHTuple[t].D)])],
             BestXStrehlRatioPoint = new Point(hvIndXHTuple.D, hvXMaxHTuple.D),
-            XIntraRibbonFieldsPoints = [..xStrehlList.Select<double[], IReadOnlyList<Point>>(t => [..xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
+            XIntraRibbonFieldsPoints = [.. xStrehlList.Select<double[], IReadOnlyList<Point>>(t => [.. xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
             XFieldTiltPoints = xFieldTiltPoints,
             XFieldTiltFitSlope = xFieldTiltFitSlope,
             XFieldTiltFitIntercept = xFieldTiltFitIntercept,
             XFieldTiltFitRSquared = xFieldTiltFitRSquared,
             XFieldTiltFitPoints = xFieldTiltFitPoints,
-            YStrehlRatioPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvYRatioMeanHTuple[t].D))],
-            YStrehlRatioFitPoints = [..xs.Select(t => new Point(hvXListHTuple[t].D, hvYValuesHTuple[t].D))],
-            YStrehlRatioColumnPoints = [..xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvYRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvYRatioMaxHTuple[t].D)])],
+            YStrehlRatioPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvYRatioMeanHTuple[t].D))],
+            YStrehlRatioFitPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvYValuesHTuple[t].D))],
+            YStrehlRatioColumnPoints = [.. xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvYRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvYRatioMaxHTuple[t].D)])],
             BestYStrehlRatioPoint = new Point(hvIndYHTuple.D, hvYMaxHTuple.D),
-            YIntraRibbonFieldsPoints = [..yStrehlList.Select<double[], IReadOnlyList<Point>>(t => [..xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
+            YIntraRibbonFieldsPoints = [.. yStrehlList.Select<double[], IReadOnlyList<Point>>(t => [.. xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
             YFieldTiltPoints = yFieldTiltPoints,
             YFieldTiltFitSlope = yFieldTiltFitSlope,
             YFieldTiltFitIntercept = yFieldTiltFitIntercept,

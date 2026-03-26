@@ -56,10 +56,10 @@ public sealed partial class OpticsSCCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stopLambda;
-    
+
     [ObservableProperty]
     private double _lambdaToL1Coefficient;
-    
+
     [ObservableProperty]
     private double _lambdaToL3Coefficient;
 
@@ -68,7 +68,7 @@ public sealed partial class OpticsSCCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _sCMotorAbsoluteValueL3Center;
-    
+
     [ObservableProperty]
     private bool _isL1ToL2Direction;
 

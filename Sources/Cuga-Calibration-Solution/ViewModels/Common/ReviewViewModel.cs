@@ -24,8 +24,8 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.IO;
 using R3;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common;
 

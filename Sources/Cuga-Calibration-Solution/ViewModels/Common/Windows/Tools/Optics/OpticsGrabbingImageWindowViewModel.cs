@@ -1,5 +1,3 @@
-using System.IO;
-using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -25,6 +23,8 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
+using System.Text;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
@@ -298,7 +298,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
 
-            Results = [..Results, darkFieldImages];
+            Results = [.. Results, darkFieldImages];
         }
 
         return boolList.All(t => t);
@@ -352,7 +352,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldRawScanImage));
             }
 
-            Results = [..Results, darkFieldRawScanImages];
+            Results = [.. Results, darkFieldRawScanImages];
         }
 
         return boolList.All(t => t);
@@ -414,7 +414,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
 
-            Results = [..Results, darkFieldImages];
+            Results = [.. Results, darkFieldImages];
         }
 
         return boolList.All(t => t);
@@ -470,7 +470,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
 
-            Results = [..Results, darkFieldImages];
+            Results = [.. Results, darkFieldImages];
         }
 
         return boolList.All(t => t);

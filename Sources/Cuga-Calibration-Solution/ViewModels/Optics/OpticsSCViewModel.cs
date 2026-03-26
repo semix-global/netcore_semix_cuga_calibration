@@ -10,6 +10,7 @@ using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -18,7 +19,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Text;
-using Net.Utilities.Algorithms.Extensions;
 
 namespace CugaCalibration.ViewModels.Optics;
 

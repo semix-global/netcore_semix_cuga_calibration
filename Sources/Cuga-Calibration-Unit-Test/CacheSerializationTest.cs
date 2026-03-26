@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Serializations;
 using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
@@ -25,7 +26,6 @@ using SourceGenerator.AssemblyMetadata;
 using SourceGenerator.InjectHostDI;
 using System.Collections.Concurrent;
 using System.Windows;
-using Net.Utilities.Models.Serializations;
 using Xunit;
 using Point = Net.Utilities.Models.Geometries.Point;
 

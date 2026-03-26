@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.DarkField;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
@@ -12,7 +13,6 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
-using Core.Models.Models.Common.DarkField;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 

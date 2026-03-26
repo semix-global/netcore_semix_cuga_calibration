@@ -1,5 +1,3 @@
-using System.IO;
-using System.Text.RegularExpressions;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,7 +12,6 @@ using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Win32;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -22,7 +19,8 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM.Providers.Impl;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
@@ -98,7 +96,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             }), HtmlLogUniqueId.LoggingHtml());
         }
 
-        Results = [..Results, item];
+        Results = [.. Results, item];
 
         return isSuccess;
     }

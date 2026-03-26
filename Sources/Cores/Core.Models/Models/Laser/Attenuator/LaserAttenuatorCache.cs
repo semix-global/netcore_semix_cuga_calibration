@@ -39,5 +39,4 @@ public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stopCoefficient = 1;
-
 }
