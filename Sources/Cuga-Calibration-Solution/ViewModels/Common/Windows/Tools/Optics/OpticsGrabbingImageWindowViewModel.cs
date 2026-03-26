@@ -289,6 +289,11 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             foreach (var darkFieldImage in darkFieldImages)
             {
                 using var _ = darkFieldImage;
+            }
+
+            foreach (var darkFieldImage in darkFieldImages)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
 
                 boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
@@ -340,7 +345,12 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 isAutoFocus: Cache.IsAutoFocus,
                 isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
 
-            boolList.AddRange(darkFieldRawScanImages.Select(InvokeDarkFieldRawScanImageDTO));
+            foreach (var darkFieldRawScanImage in darkFieldRawScanImages)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldRawScanImage));
+            }
 
             Results = [..Results, darkFieldRawScanImages];
         }
@@ -395,6 +405,11 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             foreach (var darkFieldImage in darkFieldImages)
             {
                 using var _ = darkFieldImage;
+            }
+
+            foreach (var darkFieldImage in darkFieldImages)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
 
                 boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
@@ -446,6 +461,11 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             foreach (var darkFieldImage in darkFieldImages)
             {
                 using var _ = darkFieldImage;
+            }
+
+            foreach (var darkFieldImage in darkFieldImages)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
 
                 boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
             }
@@ -494,7 +514,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                                                         """, out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK)
                 {
                     Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-                    
+
                     return false;
                 }
 
