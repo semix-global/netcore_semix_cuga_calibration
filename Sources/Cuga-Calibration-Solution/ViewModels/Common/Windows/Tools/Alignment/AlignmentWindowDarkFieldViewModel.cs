@@ -23,7 +23,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Reactive.Linq;
+using R3;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 
@@ -204,7 +204,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
-                var subscribeReview = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorStageMilliseconds)).Subscribe(_ => ReviewViewModel.GetBrightFieldImageMemoryByteArray());
+                var subscribeReview = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorStageMilliseconds), cancellationToken).Subscribe(_ => ReviewViewModel.GetBrightFieldImageMemoryByteArray());
                 cancellationToken.Register(subscribeReview.Dispose);
 #pragma warning restore IDISP001
 #pragma warning restore IDE0079

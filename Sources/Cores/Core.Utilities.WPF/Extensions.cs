@@ -1,4 +1,4 @@
-using Net.Utilities.Models.Geometries;
+﻿using Net.Utilities.Models.Geometries;
 
 namespace Net.Utilities.WPF.MVVM.Providers;
 

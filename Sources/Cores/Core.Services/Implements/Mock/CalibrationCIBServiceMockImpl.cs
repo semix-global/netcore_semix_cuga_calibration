@@ -21,6 +21,7 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 {
     private readonly string _mockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw");
+    private readonly string _xzSyncMockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\20260321_648_0_0_1_short_012997_PMT08-CH2_8.raw");
     private readonly string _cibMMDGainDTOFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\CIBMMDGainRelationshipDTO.xlsx");
 
     private readonly ConcurrentDictionary<CIBInformation, bool> _agcStatusStore = new();
@@ -272,7 +273,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken)
     {
-        var bytes = File.ReadAllBytes(_mockImageFilePath);
+        var bytes = File.ReadAllBytes(_xzSyncMockImageFilePath);
 
         var results = new DarkFieldImageDTO[cibInformations.Count];
 
@@ -282,7 +283,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
             var image = RawImageFactory.CreateImage(bytes);
             var size = (SizeI)image.GetSize();
-            results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
+            results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _xzSyncMockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));

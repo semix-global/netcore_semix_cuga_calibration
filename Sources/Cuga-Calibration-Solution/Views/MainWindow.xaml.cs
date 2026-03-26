@@ -25,13 +25,13 @@ public sealed partial class MainWindow
         Closing += OnClosing;
     }
 
-    private void OnContentRendered(object sender, EventArgs e)
+    private void OnContentRendered(object? sender, EventArgs e)
     {
         if (DataContext is not MainWindowViewModel mainWindowViewModel) return;
         if (mainWindowViewModel.IsLoadingOk == false) Close();
     }
 
-    private void OnClosing(object sender, CancelEventArgs e)
+    private void OnClosing(object? sender, CancelEventArgs e)
     {
         if (DataContext is not MainWindowViewModel mainWindowViewModel) return;
         if (mainWindowViewModel.IsLoadingOk == false) return;

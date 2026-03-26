@@ -661,8 +661,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         hazeBFPosition,
                         detectImageDirectory,
                         itemItemData,
-                        cancellationToken,
-                        isKeepRawImageCIBProfileModeEnum: true); // todo: 改为4byte线型图不缩放的时候解决
+                        cancellationToken);
 
                     CalibratingItem.InitializeWindowItem.Items = [.. CalibratingItem.InitializeWindowItem.Items, itemItemData];
                 }
@@ -1131,8 +1130,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         string detectImageDirectory,
         AODUniformityDTO.WindowItem windowItem,
         CancellationToken cancellationToken,
-        bool isNeedReverse = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool isNeedReverse = true)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -1153,8 +1151,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             (false, Cache.Item.CIBConfiguration),
             (true, null),
             false,
-            cancellationToken,
-            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum);
+            cancellationToken);
 
         var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
         darkFieldImage.Image.Save(imageFilePath);

@@ -59,7 +59,13 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     private IReadOnlyList<Point> _logGainMul128U12BitPoints = [];
 
     [ObservableProperty]
+    private IReadOnlyList<Point> _smoothLogGainMul128U12BitPoints = [];
+
+    [ObservableProperty]
     private IReadOnlyList<Point> _gainS16BitPoints = [];
+
+    [ObservableProperty]
+    private IReadOnlyList<Point> _smoothGainS16BitPoints = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -114,7 +120,11 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 
     partial void OnLogGainMul128U12BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
+    partial void OnSmoothLogGainMul128U12BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
     partial void OnGainS16BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnSmoothGainS16BitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
@@ -183,17 +193,25 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
                 FitLogGainPoints,
                 Constants.Category10.GetColor(1));
 
-            scatterLines = ScatterPlotControl.GetOrAddScatterLines(4, LogGainMul128U12BitPoints.Count > 0 ? 1 : 0);
+            scatterLines = ScatterPlotControl.GetOrAddScatterLines(4, (LogGainMul128U12BitPoints.Count > 0 ? 1 : 0) + (SmoothLogGainMul128U12BitPoints.Count > 0 ? 1 : 0));
             scatterLines.ElementAtOrDefault(0)?.Update(
                 $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 LogGainMul128U12BitPoints,
                 Constants.Category10.GetColor(0));
+            scatterLines.ElementAtOrDefault(1)?.Update(
+                "Smooth",
+                SmoothLogGainMul128U12BitPoints,
+                Constants.Category10.GetColor(1));
 
-            scatterLines = ScatterPlotControl.GetOrAddScatterLines(5, GainS16BitPoints.Count > 0 ? 1 : 0);
+            scatterLines = ScatterPlotControl.GetOrAddScatterLines(5, (GainS16BitPoints.Count > 0 ? 1 : 0) + (SmoothGainS16BitPoints.Count > 0 ? 1 : 0));
             scatterLines.ElementAtOrDefault(0)?.Update(
                 $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 GainS16BitPoints,
                 Constants.Category10.GetColor(0));
+            scatterLines.ElementAtOrDefault(1)?.Update(
+                "Smooth",
+                SmoothGainS16BitPoints,
+                Constants.Category10.GetColor(1));
         }
         finally
         {
@@ -219,7 +237,9 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
         LogGainRSquared = LogGainRSquared,
         FitLogGainPoints = [.. FitLogGainPoints],
         LogGainMul128U12BitPoints = [.. LogGainMul128U12BitPoints],
+        SmoothLogGainMul128U12BitPoints = [.. SmoothLogGainMul128U12BitPoints],
         GainS16BitPoints = [.. GainS16BitPoints],
+        SmoothGainS16BitPoints = [.. SmoothGainS16BitPoints],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -231,8 +251,8 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
     {
         PMTId = CIBInformation.PMTId,
         ChannelId = CIBInformation.ChannelId,
-        LogGainMul128U12Bits = [.. LogGainMul128U12BitPoints.Select(t => t.Y)],
-        GainS16Bits = [.. GainS16BitPoints.Select(t => t.Y)],
+        LogGainMul128U12Bits = [.. SmoothLogGainMul128U12BitPoints.Select(t => t.Y)],
+        GainS16Bits = [.. SmoothGainS16BitPoints.Select(t => t.Y)],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck

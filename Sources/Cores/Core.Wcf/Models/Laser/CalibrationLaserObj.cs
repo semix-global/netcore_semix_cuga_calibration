@@ -751,6 +751,28 @@ public sealed class CalibrationOpticsRelay : CalibrationBase
 }
 
 /// <summary>
+/// Optics SC 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationOpticsSC : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// SC L1,电机位置, **需要下发Optics Motor硬件**
+    /// </summary>
+    public double SCMotorAbsoluteValueL1 { get; set; }
+
+    /// <summary>
+    /// SC L3,电机位置, **需要下发Optics Motor硬件**
+    /// </summary>
+    public double SCMotorAbsoluteValueL3 { get; set; }
+}
+
+/// <summary>
 /// Optics INC 校准
 /// </summary>
 [Serializable]

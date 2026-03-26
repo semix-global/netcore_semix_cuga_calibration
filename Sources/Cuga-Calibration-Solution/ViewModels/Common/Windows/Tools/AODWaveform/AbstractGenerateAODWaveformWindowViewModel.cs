@@ -41,7 +41,8 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TCache,
 
     public abstract string Name { get; }
 
-    protected abstract void LoadedElectrodeOffsetResult(CancellationToken cancellationToken);
+    [RelayCommand]
+    protected abstract void ImportAODWaveformParams();
 
     protected abstract void GenerateAODWaveform(CancellationToken cancellationToken);
 
@@ -56,10 +57,7 @@ public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TCache,
     }
 
     [RelayCommand]
-    private void Loaded() => Cache = CacheProvider.GetOrDefault<TCache>();
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task LoadedElectrodeOffsetResultAsync(CancellationToken cancellationToken) => await InvokeAsync(() => LoadedElectrodeOffsetResult(cancellationToken), "Load AOD Waveform Electrode Offset");
+    private async Task LoadedAsync() => await Task.Run(() => Cache = CacheProvider.GetOrDefault<TCache>());
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task GenerateAODWaveformAsync(CancellationToken cancellationToken) => await InvokeAsync(() => GenerateAODWaveform(cancellationToken), "Generate AOD Waveform Profiles");

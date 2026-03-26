@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
@@ -711,7 +710,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 bestFocusChannelItems.FilePath = originImageFilePath;
                 bestFocusChannelItems.LinearFilePath = linearImageFilePath;
 
-                if (Cache.Item.AlgorithmImageQualityTypeEnum == AlgorithmImageQualityTypeEnum.StrehlRatio)
+                /*if (Cache.Item.AlgorithmImageQualityTypeEnum == AlgorithmImageQualityTypeEnum.StrehlRatio)
                 {
                     var inputDarkFieldImage = Cache.Item.CIBConfiguration is { IsAutoGainControl: true, CIBProfileMode: CIBProfileModeEnum.PMTLog }
                         ? linerImage
@@ -755,7 +754,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     bestFocusChannelItems.XBestFocusQuality = xFitPoints.Maxima(t => t.Y).First().Y;
                 }
                 else
-                    throw new NotImplementedException("It‘s not implemented in this version.");
+                    throw new NotImplementedException("It‘s not implemented in this version.");*/
             }
         }
 

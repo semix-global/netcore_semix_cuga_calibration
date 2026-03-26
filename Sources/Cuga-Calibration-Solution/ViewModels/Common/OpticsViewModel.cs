@@ -48,6 +48,20 @@ public sealed class OpticsViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public (double L1, double L3) GetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        var ret = calibrationOpticsService.GetSCMotorAbsoluteValue(opticsIlluminationModeEnum);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
+    {
+        var ret = calibrationOpticsService.SetSCMotorAbsoluteValue(opticsIlluminationModeEnum, value);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
     {
         var ret = calibrationOpticsService.SetINCMotorAbsoluteValue(opticsIlluminationModeEnum, value);

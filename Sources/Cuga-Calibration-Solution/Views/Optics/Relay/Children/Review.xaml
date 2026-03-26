@@ -10,6 +10,7 @@
              xmlns:optics="clr-namespace:Core.Models.Models.Optics.Relay;assembly=Core.Models"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsRelayViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -164,26 +165,7 @@
                                                                                HorizontalAlignment="Center"
                                                                                Style="{StaticResource TextBlockSubTitleBold}"
                                                                                Foreground="{StaticResource SuccessBrush}" />
-                                                                    <TabControl Grid.Row="1">
-                                                                        <i:Interaction.Behaviors>
-                                                                            <wpf:SelectorAutoSelectFirstBehavior />
-                                                                        </i:Interaction.Behaviors>
-                                                                        <TabItem Header="Y Strehl Ratio">
-                                                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                                                <ContentControl Content="{Binding YStrehlRatioScatterPlotControl, Mode=OneWay}" />
-                                                                            </Border>
-                                                                        </TabItem>
-                                                                        <TabItem Header="X Strehl Ratio">
-                                                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                                                <ContentControl Content="{Binding XStrehlRatioScatterPlotControl, Mode=OneWay}" />
-                                                                            </Border>
-                                                                        </TabItem>
-                                                                        <TabItem Header="Gray">
-                                                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                                                <ContentControl Content="{Binding GrayScatterPlotControl, Mode=OneWay}" />
-                                                                            </Border>
-                                                                        </TabItem>
-                                                                    </TabControl>
+                                                                    <darkField:BestFocusUserControl Grid.Row="1" DataContext="{Binding BestFocus}" />
                                                                 </Grid>
                                                             </Border>
                                                         </DataTemplate>

@@ -115,6 +115,50 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<(double L1, double L3)> GetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        var l1SxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(opticsIlluminationModeEnum switch
+        {
+            OpticsIlluminationModeEnum.OI => CgCommonType.OISC_L,
+            OpticsIlluminationModeEnum.NI => CgCommonType.NISC_L,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+        }));
+        if (l1SxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double L1, double L3)>(l1SxExecuteRet.ErrorMsg, (0d, 0d));
+
+        var l3SxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(opticsIlluminationModeEnum switch
+        {
+            OpticsIlluminationModeEnum.OI => CgCommonType.OISC_R,
+            OpticsIlluminationModeEnum.NI => CgCommonType.NISC_R,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+        }));
+        if (l3SxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double L1, double L3)>(l3SxExecuteRet.ErrorMsg, (0d, 0d));
+
+        return SxExecuteRetHelper.CreateSuccess((l1SxExecuteRet.Anything, l3SxExecuteRet.Anything));
+    }
+
+    public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
+    {
+        var l1SxExecuteRet = Invoke(() => Service?.OpticCommonMove(opticsIlluminationModeEnum switch
+        {
+            OpticsIlluminationModeEnum.OI => CgCommonType.OISC_L,
+            OpticsIlluminationModeEnum.NI => CgCommonType.NISC_L,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+        }, value.L1));
+
+        if (l1SxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(l1SxExecuteRet.ErrorMsg, false);
+
+        var l3SxExecuteRet = Invoke(() => Service?.OpticCommonMove(opticsIlluminationModeEnum switch
+        {
+            OpticsIlluminationModeEnum.OI => CgCommonType.OISC_R,
+            OpticsIlluminationModeEnum.NI => CgCommonType.NISC_R,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+        }, value.L3));
+
+        if (l3SxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(l3SxExecuteRet.ErrorMsg, false);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> ToggleODFilter(bool isEnable)
     {
         var sxExecuteRet = Invoke(() => Service?.SetOD(isEnable ? CgODEnum.OD2_0 : CgODEnum.None));

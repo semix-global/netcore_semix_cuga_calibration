@@ -3,6 +3,5 @@
 public enum OpticsStrehlRatioQualityTypeEnum
 {
     XStrehlRatio,
-    YStrehlRatio,
-    Gray
+    YStrehlRatio
 }

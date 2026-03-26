@@ -2,13 +2,13 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.DarkField;
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.ScottPlot.WPF.Plottables;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
@@ -196,22 +196,18 @@ public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<Opti
     {
         try
         {
-            var relayScatterLines = XZScatterPlotControl.GetOrAddScatterLines(4);
+            var relayScatterLines = XZScatterPlotControl.GetOrAddScatterLines(3);
 
             relayScatterLines[0].Update(
                 XZItems.Count > 0 ? "X Strehl Ratio" : string.Empty,
-                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestXStrehlRatioECS))],
+                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestFocus.BestXStrehlRatioECS))],
                 Constants.Category10.GetColor(0));
             relayScatterLines[1].Update(
                 XZItems.Count > 0 ? "Y Strehl Ratio" : string.Empty,
-                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestYStrehlRatioECS))],
+                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestFocus.BestYStrehlRatioECS))],
                 Constants.Category10.GetColor(1));
-            relayScatterLines[2].Update(
-                XZItems.Count > 0 ? "Gray" : string.Empty,
-                [.. XZItems.Select(t => new Point(t.RelayMotorAbsoluteValue, t.BestGrayECS))],
-                Constants.Category10.GetColor(2));
 
-            relayScatterLines[3].Update(
+            relayScatterLines[2].Update(
                 XZFitRelayPoints.Count > 0 ? $"{PolynomialCurve.ToString1(XZSlope, XZIntercept, XZRSquared, "0.######")}, Ratio = {RelayMotorRatio:0.###}" : string.Empty,
                 XZFitRelayPoints,
                 Constants.Category10.GetColor(3));
@@ -309,251 +305,11 @@ public sealed partial class OpticsRelayDTOXZItem : ObservableObject, ICloneable<
     private double _relayMotorAbsoluteValue;
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _xStrehlRatioPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _xStrehlRatioFitPoints = [];
-
-    [ObservableProperty]
-    private Point _bestXStrehlRatioPoint;
-
-    [ObservableProperty]
-    private double _bestXStrehlRatioECS;
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _yStrehlRatioPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _yStrehlRatioFitPoints = [];
-
-    [ObservableProperty]
-    private Point _bestYStrehlRatioPoint;
-
-    [ObservableProperty]
-    private double _bestYStrehlRatioECS;
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _grayPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _grayFitPoints = [];
-
-    [ObservableProperty]
-    private Point _bestGrayPoint;
-
-    [ObservableProperty]
-    private double _bestGrayECS;
-
-    [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<Point>> _bestXStrehlRatioXPSFPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _bestXStrehlRatioXPSFFitPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<Point>> _bestXStrehlRatioYPSFPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _bestXStrehlRatioYPSFFitPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<Point>> _bestYStrehlRatioXPSFPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _bestYStrehlRatioXPSFFitPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<Point>> _bestYStrehlRatioYPSFPoints = [];
-
-    [ObservableProperty]
-    private IReadOnlyList<Point> _bestYStrehlRatioYPSFFitPoints = [];
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _xStrehlRatioScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _yStrehlRatioScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _grayScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
-
-    public OpticsRelayDTOXZItem()
-    {
-        XStrehlRatioScatterPlotControl.Configure(new Columns(), 3);
-
-        XStrehlRatioScatterPlotControl.SetTitle(0, "X Strehl Ratio(Y: Strehl Ratio - X: px)");
-        XStrehlRatioScatterPlotControl.SetTitle(1, "X PSF(Y: Gray - X: px)");
-        XStrehlRatioScatterPlotControl.SetTitle(2, "Y PSF(Y: Gray - X: px)");
-
-        YStrehlRatioScatterPlotControl.Configure(new Columns(), 3);
-
-        YStrehlRatioScatterPlotControl.SetTitle(0, "Y Strehl Ratio(Y: Strehl Ratio - X: px)");
-        YStrehlRatioScatterPlotControl.SetTitle(1, "X PSF(Y: Gray - X: px)");
-        YStrehlRatioScatterPlotControl.SetTitle(2, "Y PSF(Y: Gray - X: px)");
-
-        GrayScatterPlotControl.SetTitle("Gray(Y: Gray - X: px)");
-    }
-
-    // ReSharper disable UnusedParameterInPartialMethod
-
-    partial void OnXStrehlRatioPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnXStrehlRatioFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnBestXStrehlRatioPointChanged(Point value) => RefreshPlot();
-
-    partial void OnBestXStrehlRatioECSChanged(double value) => RefreshPlot();
-
-    partial void OnYStrehlRatioPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnYStrehlRatioFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnBestYStrehlRatioPointChanged(Point value) => RefreshPlot();
-
-    partial void OnBestYStrehlRatioECSChanged(double value) => RefreshPlot();
-
-    partial void OnGrayPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnGrayFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnBestGrayPointChanged(Point value) => RefreshPlot();
-
-    partial void OnBestGrayECSChanged(double value) => RefreshPlot();
-
-    partial void OnBestXStrehlRatioXPSFPointsChanged(IReadOnlyList<IReadOnlyList<Point>> value) => RefreshPlot();
-
-    partial void OnBestXStrehlRatioXPSFFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnBestXStrehlRatioYPSFPointsChanged(IReadOnlyList<IReadOnlyList<Point>> value) => RefreshPlot();
-
-    partial void OnBestXStrehlRatioYPSFFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnBestYStrehlRatioXPSFPointsChanged(IReadOnlyList<IReadOnlyList<Point>> value) => RefreshPlot();
-
-    partial void OnBestYStrehlRatioXPSFFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    partial void OnBestYStrehlRatioYPSFPointsChanged(IReadOnlyList<IReadOnlyList<Point>> value) => RefreshPlot();
-
-    partial void OnBestYStrehlRatioYPSFFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
-    // ReSharper restore UnusedParameterInPartialMethod
-
-    private void RefreshPlot()
-    {
-        try
-        {
-            RefreshBase(XStrehlRatioScatterPlotControl, XStrehlRatioPoints, XStrehlRatioFitPoints, BestXStrehlRatioPoint, BestXStrehlRatioECS);
-            Refresh(XStrehlRatioScatterPlotControl, 1, BestXStrehlRatioXPSFPoints, BestXStrehlRatioXPSFFitPoints);
-            Refresh(XStrehlRatioScatterPlotControl, 2, BestXStrehlRatioYPSFPoints, BestXStrehlRatioYPSFFitPoints);
-
-            RefreshBase(YStrehlRatioScatterPlotControl, YStrehlRatioPoints, YStrehlRatioFitPoints, BestYStrehlRatioPoint, BestYStrehlRatioECS);
-            Refresh(YStrehlRatioScatterPlotControl, 1, BestYStrehlRatioXPSFPoints, BestYStrehlRatioXPSFFitPoints);
-            Refresh(YStrehlRatioScatterPlotControl, 2, BestYStrehlRatioYPSFPoints, BestYStrehlRatioYPSFFitPoints);
-
-            RefreshBase(GrayScatterPlotControl, GrayPoints, GrayFitPoints, BestGrayPoint, BestGrayECS);
-        }
-        finally
-        {
-            XStrehlRatioScatterPlotControl.AutoScaleRefresh();
-            YStrehlRatioScatterPlotControl.AutoScaleRefresh();
-            GrayScatterPlotControl.AutoScaleRefresh();
-
-            XStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
-            YStrehlRatioScatterPlotControl.Plot.Axes.SetLimitsY(0.05d, 0.3d);
-
-            foreach (var plot in XStrehlRatioScatterPlotControl.Multiplot.GetPlots().Skip(1).Concat(YStrehlRatioScatterPlotControl.Multiplot.GetPlots().Skip(1)))
-            {
-                var fitPoints = plot.GetPlottables().OfType<ScatterLine>().SingleOrDefault()?.ScatterSourcePoints.Points ?? [];
-
-                if (fitPoints.Count > 0)
-                {
-                    var xes = fitPoints.Select(t => t.X).ToArray();
-
-                    var max = xes.Max();
-                    var min = xes.Min();
-                    var length = max - min;
-                    var middle = (max + min) / 2d;
-
-                    plot.Axes.SetLimitsX(middle - length / 8d, middle + length / 8d);
-                }
-            }
-        }
-
-        return;
-
-        void RefreshBase(IScatterPlotControl scatterPlotControl, IReadOnlyList<Point> points, IReadOnlyList<Point> fitPoints, Point bestPoint, double bestECS)
-        {
-            var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
-
-            scatterMarkers[0].Update(string.Empty, points, Colors.Gray, MarkerShape.FilledCircle);
-            scatterMarkers[1].Update($"Best ECS: {bestECS:0.###} ECS", [bestPoint], Colors.Red, MarkerShape.FilledSquare);
-            scatterMarkers[1].MarkerSize = 20;
-
-            var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, 1);
-            scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
-            scatterLines[0].LineWidth = 2;
-            scatterLines[0].MarkerSize = 5;
-            scatterLines[0].MarkerColor = Colors.DarkGreen;
-        }
-
-        void Refresh(IScatterPlotControl scatterPlotControl, int plotIndex, IReadOnlyList<IReadOnlyList<Point>> points, IReadOnlyList<Point> fitPoints)
-        {
-            scatterPlotControl.Clear(plotIndex);
-
-            var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(plotIndex, points.Count);
-
-            foreach (var (index, temp) in points.Index())
-            {
-                scatterMarkers[index].Update(string.Empty, temp, Colors.Gray, MarkerShape.FilledCircle);
-            }
-
-            var scatterLines = scatterPlotControl.GetOrAddScatterLines(plotIndex, 1);
-            scatterLines[0].Update(string.Empty, fitPoints, Colors.Green);
-            scatterLines[0].LineWidth = 2;
-            scatterLines[0].MarkerSize = 5;
-            scatterLines[0].MarkerColor = Colors.DarkGreen;
-        }
-    }
+    private BestFocus _bestFocus = new();
 
     public OpticsRelayDTOXZItem Clone() => new()
     {
         RelayMotorAbsoluteValue = RelayMotorAbsoluteValue,
-        ImageFilePath = ImageFilePath,
-        RawImageFilePath = RawImageFilePath,
-        XStrehlRatioPoints = [.. XStrehlRatioPoints],
-        XStrehlRatioFitPoints = [.. XStrehlRatioFitPoints],
-        BestXStrehlRatioPoint = BestXStrehlRatioPoint,
-        BestXStrehlRatioECS = BestXStrehlRatioECS,
-        YStrehlRatioPoints = [.. YStrehlRatioPoints],
-        YStrehlRatioFitPoints = [.. YStrehlRatioFitPoints],
-        BestYStrehlRatioPoint = BestYStrehlRatioPoint,
-        BestYStrehlRatioECS = BestYStrehlRatioECS,
-        GrayPoints = [.. GrayPoints],
-        GrayFitPoints = [.. GrayFitPoints],
-        BestGrayPoint = BestGrayPoint,
-        BestGrayECS = BestGrayECS,
-        BestXStrehlRatioXPSFPoints = [.. BestXStrehlRatioXPSFPoints.Select<IReadOnlyList<Point>, IReadOnlyList<Point>>(t => [.. t])],
-        BestXStrehlRatioXPSFFitPoints = [.. BestXStrehlRatioXPSFFitPoints],
-        BestXStrehlRatioYPSFPoints = [.. BestXStrehlRatioYPSFPoints.Select<IReadOnlyList<Point>, IReadOnlyList<Point>>(t => [.. t])],
-        BestXStrehlRatioYPSFFitPoints = [.. BestXStrehlRatioYPSFFitPoints],
-        BestYStrehlRatioXPSFPoints = [.. BestYStrehlRatioXPSFPoints.Select<IReadOnlyList<Point>, IReadOnlyList<Point>>(t => [.. t])],
-        BestYStrehlRatioXPSFFitPoints = [.. BestYStrehlRatioXPSFFitPoints],
-        BestYStrehlRatioYPSFPoints = [.. BestYStrehlRatioYPSFPoints.Select<IReadOnlyList<Point>, IReadOnlyList<Point>>(t => [.. t])],
-        BestYStrehlRatioYPSFFitPoints = [.. BestYStrehlRatioYPSFFitPoints]
+        BestFocus = BestFocus.Clone()
     };
 }
