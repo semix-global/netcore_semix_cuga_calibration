@@ -86,4 +86,78 @@ public class ImageTest
         });
 #endif
     }
+
+
+    [Fact]
+    public void Test1()
+    {
+        const string filePath = @"Assets\20260320_63_0_0_1_short_014282_PMT08-CH2_8.raw";
+        // Algorithm.AutoReadRawImage(out var image, filePath);
+        // Algorithm.RotateAndMirror(image, out var image1);
+        // Algorithm.InvertTransformPatchImage128(image1, out var lineImage);
+        // using var _ = lineImage;
+
+        using var originImage = RawImageFactory.CreateImage(filePath);
+        using var lineImage = originImage.RAW12BitsPerPixelLogToLinear();
+
+        #region 算法调用
+
+        Algorithm.STLR_kla(
+            lineImage,
+            out var hvXListHTuple,
+            out var hvXRatioMaxHTuple,
+            out var hvXRatioMeanHTuple,
+            out var hvXRatioMinHTuple,
+            out var hvYRatioMaxHTuple,
+            out var hvYRatioMeanHTuple,
+            out var hvYRatioMinHTuple,
+            out var hvXValuesHTuple,
+            out var hvIndXHTuple,
+            out var hvXMaxHTuple,
+            out var hvYValuesHTuple,
+            out var hvIndYHTuple,
+            out var hvYMaxHTuple,
+            out var hvPlotXHTuple,
+            out var hvPlotYHTuple,
+            out var xStrehlList,
+            out var yStrehlList,
+            out var hvRowBeginXHTuple,
+            out var hvColBeginXHTuple,
+            out var hvRowEndXHTuple,
+            out var hvColEndXHTuple,
+            out var hvKxHTuple,
+            out var hvRowBeginYHTuple,
+            out var hvColBeginYHTuple,
+            out var hvRowEndYHTuple,
+            out var hvColEndYHTuple,
+            out var hvKyHTuple);
+
+        using var _0 = hvXListHTuple;
+        using var _1 = hvXRatioMaxHTuple;
+        using var _2 = hvXRatioMeanHTuple;
+        using var _3 = hvXRatioMinHTuple;
+        using var _4 = hvYRatioMaxHTuple;
+        using var _5 = hvYRatioMeanHTuple;
+        using var _6 = hvYRatioMinHTuple;
+        using var _7 = hvXValuesHTuple;
+        using var _8 = hvIndXHTuple;
+        using var _9 = hvXMaxHTuple;
+        using var _10 = hvYValuesHTuple;
+        using var _11 = hvIndYHTuple;
+        using var _12 = hvYMaxHTuple;
+        using var _13 = hvPlotXHTuple;
+        using var _14 = hvPlotYHTuple;
+        using var _15 = hvRowBeginXHTuple;
+        using var _16 = hvColBeginXHTuple;
+        using var _17 = hvRowEndXHTuple;
+        using var _18 = hvColEndXHTuple;
+        using var _19 = hvKxHTuple;
+        using var _20 = hvRowBeginYHTuple;
+        using var _21 = hvColBeginYHTuple;
+        using var _22 = hvRowEndYHTuple;
+        using var _23 = hvColEndYHTuple;
+        using var _24 = hvKyHTuple;
+
+        #endregion
+    }
 }

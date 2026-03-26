@@ -19,7 +19,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Reactive.Linq;
+using R3;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 

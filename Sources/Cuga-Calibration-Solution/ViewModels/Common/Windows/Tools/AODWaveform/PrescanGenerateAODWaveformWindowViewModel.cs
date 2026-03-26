@@ -2,10 +2,12 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.Enums;
+using System.Text;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -23,17 +25,39 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
         set => SetProperty(ref field, value);
     } = new();
 
-    protected override void LoadedElectrodeOffsetResult(CancellationToken cancellationToken)
+    protected override void ImportAODWaveformParams()
     {
-        var prescanAODWaveformElectrodeInitializeCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
-        if (prescanAODWaveformElectrodeInitializeCache.ElectrodeConfigurationResults.Count == 0)
+        try
         {
-            DialogWindowProvider.ShowDialog("Please initialize the prescan electrode configuration as it is currently empty.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            var isSuccess = true;
 
-            return;
+            var stringBuilder = new StringBuilder();
+
+            var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+
+            var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.Param.ProductivityInformation));
+
+            if (prescanResult is null)
+            {
+                stringBuilder.AppendLine("Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.Param = prescanResult.GeneratePrescanAODWaveformParam;
+                stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
+            }
+
+            DialogWindowProvider.ShowDialog(stringBuilder.ToString(), DialogButtonsEnum.OK, isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
-
-        Cache.Param.ElectrodeConfigurations = prescanAODWaveformElectrodeInitializeCache.ElectrodeConfigurationResults;
+        catch (Exception ex)
+        {
+            DialogWindowProvider.ShowDialog($"""
+                                             Import Parameters Failed
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            Logger.LogError(ex, "Import Parameters Failed");
+        }
     }
 
     protected override void GenerateAODWaveform(CancellationToken cancellationToken)

@@ -14,6 +14,7 @@
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:multiValueConverters="clr-namespace:Core.Utilities.WPF.Converters.MultiValueConverters;assembly=Core.Utilities.WPF"
+           xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformTrainingWindowViewModel}"
@@ -586,7 +587,7 @@
                             <Border Margin="0,5" Style="{StaticResource BorderRegion}">
                                 <TextBlock>
                                     <Run Text="[Best] Y Strehl: " />
-                                    <Run Text="{Binding Cache.Item.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                                    <Run Text="{Binding Cache.Item.BestFocus.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
                                     <Run Text=", " />
                                     <Run Text="P2: " />
                                     <Run Text="{Binding Cache.Item.P2Coefficient, StringFormat='0.######'}" />
@@ -641,7 +642,7 @@
                                 </ListView.ItemContainerStyle>
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                                        <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestFocus.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
                                         <GridViewColumn Header="P2 Coefficient" DisplayMemberBinding="{Binding P2Coefficient, StringFormat='0.######'}" />
                                         <GridViewColumn Header="P3 Coefficient" DisplayMemberBinding="{Binding P3Coefficient, StringFormat='0.######'}" />
                                         <GridViewColumn Header="P4 Coefficient" DisplayMemberBinding="{Binding P4Coefficient, StringFormat='0.######'}" />
@@ -683,8 +684,8 @@
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
                                                     <TextBlock TextWrapping="Wrap">
-                                                        <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
-                                                            <Run Text="{Binding RawImageFilePath}" />
+                                                        <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding BestFocus.RawImageFilePath}">
+                                                            <Run Text="{Binding BestFocus.RawImageFilePath}" />
                                                         </Hyperlink>
                                                     </TextBlock>
                                                 </DataTemplate>
@@ -694,23 +695,7 @@
                                 </ListView.View>
                             </ListView>
                             <GridSplitter Grid.Row="2" Height="5" />
-                            <TabControl Grid.Row="3">
-                                <TabItem Header="Y Strehl Ratio">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                        <ContentControl Content="{Binding Cache.SelectedItem.YStrehlRatioScatterPlotControl, Mode=OneWay}" />
-                                    </Border>
-                                </TabItem>
-                                <TabItem Header="X Strehl Ratio">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                        <ContentControl Content="{Binding Cache.SelectedItem.XStrehlRatioScatterPlotControl, Mode=OneWay}" />
-                                    </Border>
-                                </TabItem>
-                                <TabItem Header="Gray">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                        <ContentControl Content="{Binding Cache.SelectedItem.GrayScatterPlotControl, Mode=OneWay}" />
-                                    </Border>
-                                </TabItem>
-                            </TabControl>
+                            <darkField:BestFocusUserControl Grid.Row="3" DataContext="{Binding Cache.SelectedItem.BestFocus}" />
                         </Grid>
                     </TabItem>
                     <TabItem Header="Best Item">
@@ -728,8 +713,8 @@
                                                    HorizontalAlignment="Left"
                                                    VerticalAlignment="Center" />
                                         <TextBlock TextWrapping="Wrap">
-                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding Cache.Item.RawImageFilePath}">
-                                                <Run Text="{Binding Cache.Item.RawImageFilePath}" />
+                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding Cache.Item.BestFocus.RawImageFilePath}">
+                                                <Run Text="{Binding Cache.Item.BestFocus.RawImageFilePath}" />
                                             </Hyperlink>
                                         </TextBlock>
                                     </StackPanel>
@@ -793,23 +778,7 @@
                                 </hc:UniformSpacingPanel>
                             </Border>
                             <GridSplitter Grid.Row="1" Height="5" />
-                            <TabControl Grid.Row="2">
-                                <TabItem Header="Y Strehl Ratio">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                        <ContentControl Content="{Binding Cache.SelectedItem.YStrehlRatioScatterPlotControl, Mode=OneWay}" />
-                                    </Border>
-                                </TabItem>
-                                <TabItem Header="X Strehl Ratio">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                        <ContentControl Content="{Binding Cache.SelectedItem.XStrehlRatioScatterPlotControl, Mode=OneWay}" />
-                                    </Border>
-                                </TabItem>
-                                <TabItem Header="Gray">
-                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                        <ContentControl Content="{Binding Cache.SelectedItem.GrayScatterPlotControl, Mode=OneWay}" />
-                                    </Border>
-                                </TabItem>
-                            </TabControl>
+                            <darkField:BestFocusUserControl Grid.Row="2" DataContext="{Binding Cache.SelectedItem.BestFocus}" />
                         </Grid>
                     </TabItem>
                 </TabControl>

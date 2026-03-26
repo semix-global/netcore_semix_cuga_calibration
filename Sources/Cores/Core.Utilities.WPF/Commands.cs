@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 
 namespace Core.Utilities.WPF;
 
@@ -16,12 +17,20 @@ public static class Commands
             Guard.IsNotNull(filePath);
 
             filePath = filePath.Replace("/", "\\");
-            // Clipboard.SetText(filePath);
 
             using var _ = Process.Start(new ProcessStartInfo
             {
                 FileName = filePath,
                 UseShellExecute = true
             });
+
+            try
+            {
+                Clipboard.SetText(filePath);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         });
 }
