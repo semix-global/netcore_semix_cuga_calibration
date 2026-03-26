@@ -105,26 +105,22 @@ public static class HImageCommonExtensions1
         {
             Guard.IsEqualTo(@this.GetBitsPerPixel(), 16);
 
-            var (width, height) = (SizeI)@this.GetSize();
+            using var realImage = @this.ConvertImageType("real");
+            var (width, height) = (SizeI)realImage.GetSize();
 
-            using var region = @this.GetDomain();
-            region.GetRegionPoints(out var rowsHTuple, out var columnsHTuple);
+            using var paintImage = new HImage("real", width, height);
+            using var region = paintImage.GetDomain();
 
-            using var _0 = rowsHTuple;
-            using var _1 = columnsHTuple;
+            using var sub = paintImage.PaintRegion(region, 1500d, "fill");
+            using var subImage = realImage.SubImage(sub, 1d, 0d);
 
-            using var grayValHTuple = @this.GetGrayval(rowsHTuple, columnsHTuple);
+            using var div = paintImage.PaintRegion(region, 128d, "fill");
+            using var divImage = subImage.DivImage(div, 1d, 0d);
 
-            // 2 ^ ((gray - 1500) / 128) -> [0, 4095]
-            using var subHTuple = grayValHTuple - 1500d;
-            using var divHTuple = subHTuple / 128d /* KLA写死128 */;
-            using var exp2HTuple = divHTuple.TupleExp2();
-            using var intTuple = exp2HTuple.TupleInt();
+            using var baseValHTuple = new HTuple(2d);
+            using var exp2Image = divImage.ExpImage(baseValHTuple);
 
-            var result = new HImage("uint2", width, height);
-            result.SetGrayval(rowsHTuple, columnsHTuple, intTuple);
-
-            return result;
+            return exp2Image.ConvertImageType("uint2");
         }
 
         /// <summary>
