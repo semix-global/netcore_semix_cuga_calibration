@@ -18,11 +18,11 @@ using Microsoft.Win32;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM.Providers.Impl;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
@@ -30,8 +30,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 public sealed partial class OpticsBestFocusWindowViewModel(
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    ISynchronizationContextProvider contextProvider) : AbstractOpticsGrabbingImageWindowViewModel<OpticsBestFocusCache>
+    ICalibrationAlgorithmService calibrationAlgorithmService) : AbstractOpticsGrabbingImageWindowViewModel<OpticsBestFocusCache>
 {
     [DefaultCache]
     public override OpticsBestFocusCache Cache
@@ -225,22 +224,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         {
             Results = [];
 
-            bool? result = null;
-            var fileNames = (string[])[];
-            contextProvider.Send(() =>
-            {
-                var openFileDialog = new OpenFileDialog
-                {
-                    Title = "Select files",
-                    Multiselect = true,
-                    Filter = "files (*.raw)|*.raw",
-                    DefaultExt = ".raw",
-                    CheckFileExists = true
-                };
-                result = openFileDialog.ShowDialog();
-                fileNames = openFileDialog.FileNames;
-            });
-            if (result != true) return Task.FromResult(false);
+            if (DialogWindowProvider.TryShowSelectFilePathsDialog(".raw", out var fileNames) != true) return Task.FromResult(false);
 
             Guard.IsNotEmpty(fileNames);
 
