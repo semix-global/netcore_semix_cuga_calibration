@@ -528,7 +528,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border Height="850"
-                                            Margin="-5,5"
+                                            Margin="-5,2"
                                             Padding="5"
                                             BorderThickness="1"
                                             BorderBrush="{StaticResource DarkSuccessBrush}"
