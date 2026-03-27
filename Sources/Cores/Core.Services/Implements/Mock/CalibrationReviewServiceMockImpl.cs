@@ -8,6 +8,7 @@ using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Models.Enums.Files;
 using Semix.CoreLib;
 using System.IO;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace Core.Services.Implements.Mock;
@@ -27,7 +28,7 @@ public sealed class CalibrationReviewServiceMockImpl : ICalibrationReviewService
 
     public SxExecuteRet<HImage> GetBrightFieldImage()
     {
-        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(Width, Height, 10, Random.Shared);
+        using var bitmapImage = BitmapImage.Random(Width, Height, 10);
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP004
@@ -40,7 +41,7 @@ public sealed class CalibrationReviewServiceMockImpl : ICalibrationReviewService
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()
     {
-        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(Width, Height, 10, Random.Shared);
+        using var bitmapImage = BitmapImage.Random(Width, Height, 10);
         using var memorySteam = new MemoryStream();
 
         bitmapImage.Save(memorySteam, ImageTypeEnum.Bmp);
