@@ -21,7 +21,7 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 暗场自动聚焦, AB两路灯亮度校准对象
     /// </summary>
-    public CalibrationLaserAutoFocus CalibrationLaserAutoFocus { get; set; } = new CalibrationLaserAutoFocus();
+    public CalibrationLaserAutoFocus CalibrationLaserAutoFocus { get; set; } = new();
 
     /// <summary>
     /// 台面功率计校准对象
@@ -56,7 +56,7 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 暗场相机的Swath扫描正反向误差校准对象列表
     /// </summary>
-    public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = [];
+    public CalibrationCIBLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = [];
 
     /// <summary>
     /// 暗场DOE角度校准对象
@@ -401,12 +401,17 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 /// swath路径正反向扫描offset校准(机械坐标差值)
 /// </summary>
 [Serializable]
-public sealed class CalibrationLaserLineOrientationOffsetItem : CalibrationBase
+public sealed class CalibrationCIBLineOrientationOffsetItem : CalibrationBase
 {
     /// <summary>
     /// 此显微镜镜头下做的校准
     /// </summary>
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
+
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
 
     /// <summary>
     /// Mag类型
@@ -426,7 +431,7 @@ public sealed class CalibrationLaserLineOrientationOffsetItem : CalibrationBase
     /// <summary>
     /// 当前暗场Mag和速度PmtId下的基于<see cref="CgMicroscopeLens"/>倍镜下, 正反向误差值
     /// </summary>
-    public CgPoint Offset { get; set; }
+    public double XOffset { get; set; }
 }
 
 /// <summary>

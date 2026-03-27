@@ -1,4 +1,3 @@
-using Core.Models.Helper;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
@@ -16,6 +15,7 @@ using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.LineCentricity;
+using Core.Models.Models.CIB.LineOrientationOffset;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.XTC;
@@ -24,7 +24,6 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.LineOrientationOffset;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
@@ -273,20 +272,6 @@ public static class CoreWcfModelsExtension
         return isOk;
     }
 
-    public static bool IsOk(this LineOrientationOffsetItemDto[] result, out string errorMessage)
-    {
-        errorMessage = string.Empty;
-
-        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
-                                               && t.ProductivityInformation == applicationCookie.NILowProductivityInformation)?.IsOk == true;
-
-        if (isOk == false)
-            errorMessage = "Laser Line Orientation Offset is Empty";
-
-        return isOk;
-    }
-
     #endregion Laser
 
     public static bool IsOk(this CalibrationSetting result, out string errorMessage)
@@ -400,6 +385,19 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == applicationCookie.CIBInformationPMTIds.Count * applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB  Line Centricity is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this CIBLineOrientationOffsetDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB Line Orientation Offset is Empty";
 
         return isOk;
     }
