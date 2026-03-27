@@ -1,19 +1,16 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Laser.LineOrientationOffset;
+namespace Core.Models.Models.CIB.LineOrientationOffset;
 
-public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, ICloneable<LineOrientationOffsetItemDto>, IAdaptTo<CalibrationLaserLineOrientationOffsetItem>
+public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDtoBase, ICloneable<CIBLineOrientationOffsetDTO>, IAdaptTo<CalibrationCIBLineOrientationOffsetItem>
 {
-    [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
-
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
@@ -36,9 +33,10 @@ public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, I
     private Point _forwardFindDarkMachinePosition;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(XOffset))]
     private Point _reverseFindDarkMachinePosition;
 
-    public Point Offset => ReverseFindDarkMachinePosition - (Vector)ForwardFindDarkMachinePosition;
+    public double XOffset => ReverseFindDarkMachinePosition.X - ForwardFindDarkMachinePosition.X;
 
     [ObservableProperty]
     private string _forwardFilePath = string.Empty;
@@ -54,9 +52,9 @@ public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, I
 
     #region Mapper
 
-    public LineOrientationOffsetItemDto Clone()
+    public CIBLineOrientationOffsetDTO Clone()
     {
-        return new LineOrientationOffsetItemDto
+        return new CIBLineOrientationOffsetDTO
         {
             ProductivityInformation = ProductivityInformation.Clone(),
             MicroscopeLensInformation = MicroscopeLensInformation,
@@ -78,13 +76,16 @@ public sealed partial class LineOrientationOffsetItemDto : CalibrationDtoBase, I
         };
     }
 
-    public CalibrationLaserLineOrientationOffsetItem AdaptTo()
+    public CalibrationCIBLineOrientationOffsetItem AdaptTo()
     {
-        return new CalibrationLaserLineOrientationOffsetItem
+        return new CalibrationCIBLineOrientationOffsetItem
         {
             CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
+            CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+            CgMagTypeEnum = ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(),
+            Speed = ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType(),
             PmtId = PmtId,
-            Offset = Offset.ToCgPoint(),
+            XOffset = XOffset,
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
             IsRequiredCalibrate = IsRequiredSelfCheck

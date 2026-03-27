@@ -292,6 +292,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             {
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
+                Cache.Item.CIBInformation,
                 Cache.Item.LaserLightInformation,
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
