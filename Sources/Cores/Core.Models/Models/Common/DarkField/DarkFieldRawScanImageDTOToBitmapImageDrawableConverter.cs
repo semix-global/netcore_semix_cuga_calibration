@@ -1,10 +1,10 @@
+using Core.Models.Enums.CIB;
 using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.ImageViewer.WPF.Drawables;
 using Net.Utilities.WPF.Converters;
 using System.Globalization;
 using System.Windows;
-using Core.Models.Enums.CIB;
-using Net.Utilities.Graphics.Extensions;
 
 namespace Core.Models.Models.Common.DarkField;
 
