@@ -1,17 +1,17 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Laser.LineOrientationOffset.LaserLineOrientationOffsetCalibrationUserControl"
+<UserControl x:Class="CugaCalibration.Views.CIB.LineOrientationOffset.CIBLineOrientationOffsetUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:childrenView="clr-namespace:CugaCalibration.Views.Laser.LineOrientationOffset.Children"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:cib="clr-namespace:CugaCalibration.ViewModels.CIB"
+             xmlns:children="clr-namespace:CugaCalibration.Views.CIB.LineOrientationOffset.Children"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
-             d:DataContext="{d:DesignInstance Type=cib:CIBLineCentricityViewModel}"
-             d:DesignHeight="900"
+             d:DataContext="{d:DesignInstance Type=viewModels:CIBLineOrientationOffsetViewModel}"
              d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -42,22 +42,15 @@
                         <TextBlock Text="Welcome to calibration!" Style="{StaticResource TextBlockLargeBold}" />
                     </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsCalibrationToVisibilityConverter}}">
-                        <childrenView:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
-                        <childrenView:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
-                        <childrenView:ConfigView Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
-                        <childrenView:Step2View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
-                        <childrenView:Step3View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
-                        <childrenView:Step4View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs5ToVisibilityConverter}}" />
-                        <childrenView:Step5View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs6ToVisibilityConverter}}" />
-                    </Grid>
-                    <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsAutoCalibrationToVisibilityConverter}}">
-                        <childrenView:Step5View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
-                        <childrenView:Step5View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
-                        <childrenView:Step5View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
-                        <childrenView:Review Visibility="{Binding AutoReviewCalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
+                        <children:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
+                        <children:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
+                        <children:Step2View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
+                        <children:Step3View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
+                        <children:Step4View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
+                        <children:Step5View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs5ToVisibilityConverter}}" />
                     </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
-                        <childrenView:Review />
+                        <children:Review />
                     </Grid>
                 </Grid>
             </Border>

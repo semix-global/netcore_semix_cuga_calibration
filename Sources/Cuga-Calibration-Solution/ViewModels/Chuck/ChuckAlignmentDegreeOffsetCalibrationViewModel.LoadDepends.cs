@@ -12,6 +12,7 @@ using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.LineCentricity;
+using Core.Models.Models.CIB.LineOrientationOffset;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.XTC;
@@ -19,7 +20,7 @@ using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.AutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.LineOrientationOffset;
+
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
@@ -212,7 +213,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LineOrientationOffsetItemDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<CIBLineOrientationOffsetDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

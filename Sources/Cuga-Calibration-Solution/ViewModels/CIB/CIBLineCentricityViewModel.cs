@@ -12,6 +12,7 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -76,9 +77,11 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
     #region 缓存
 
+    [RecipeCache]
     [ObservableProperty]
     private CIBLineCentricityCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private CIBLineCentricityDTO[] _calibrations = [];
 
@@ -125,11 +128,10 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        CIBXPixelSizes = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
-
         if (LoadDepends() == false) return false;
 
+        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        CIBXPixelSizes = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
@@ -158,6 +160,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         ];
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
+
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;

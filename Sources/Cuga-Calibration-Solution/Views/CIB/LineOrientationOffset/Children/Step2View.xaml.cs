@@ -1,4 +1,4 @@
-namespace CugaCalibration.Views.Laser.LineOrientationOffset.Children;
+namespace CugaCalibration.Views.CIB.LineOrientationOffset.Children;
 
 public sealed partial class Step2View
 {
