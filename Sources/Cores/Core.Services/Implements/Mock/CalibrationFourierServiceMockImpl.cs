@@ -5,6 +5,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Semix.CoreLib;
 
 namespace Core.Services.Implements.Mock;
@@ -21,7 +22,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 
     public SxExecuteRet<HImage> GetFourierImage(int channelId)
     {
-        using var bitmapImage = BitmapImageGenerate.GenerateRandomImage(2048, 2044, 10, Random.Shared);
+        using var bitmapImage = BitmapImage.Random(2048, 2044, 10);
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP004

@@ -9,8 +9,6 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:lineOrientationOffset="clr-namespace:Core.Models.Models.CIB.LineOrientationOffset;assembly=Core.Models"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-             xmlns:yPixelSize="clr-namespace:Core.Models.Models.CIB.YPixelSize;assembly=Core.Models"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBLineOrientationOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"

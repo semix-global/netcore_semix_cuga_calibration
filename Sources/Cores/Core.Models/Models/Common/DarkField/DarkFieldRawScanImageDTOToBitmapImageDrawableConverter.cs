@@ -1,4 +1,6 @@
+using Core.Models.Enums.CIB;
 using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.ImageViewer.WPF.Drawables;
 using Net.Utilities.WPF.Converters;
 using System.Globalization;
@@ -16,8 +18,12 @@ public sealed class DarkFieldRawScanImageDTOToBitmapImageDrawableConverter : Abs
 
         var bitmapImageDrawable = new BitmapImageDrawable
         {
-            BitmapImage = image.ToBitmapImage(12)
+            BitmapImage = image.ToBitmapImage(darkFieldImageDTO.ImageCIBProfileModeEnum == CIBProfileModeEnum.PMTVoltage ? 16 : 12)
         };
+
+        var (min, max) = bitmapImageDrawable.BitmapImage.GetChannelRange();
+        bitmapImageDrawable.ChannelMinValue = min;
+        bitmapImageDrawable.ChannelMaxValue = max;
 
         return bitmapImageDrawable;
     }
