@@ -61,7 +61,7 @@
                                  hc:TitleElement.TitleWidth="180"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
-                                 Background="LightGray"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}">
                             <TextBox.Text>
                                 <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
@@ -86,7 +86,7 @@
                                  hc:TitleElement.TitleWidth="180"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
-                                 Background="LightGray"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}">
                             <TextBox.Text>
                                 <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">

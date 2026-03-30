@@ -99,14 +99,14 @@
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
-                                 Background="LightGray"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding Cache.CalibrateThresholdMax, Mode=OneWay, StringFormat='0.###'}"
                                  hc:TitleElement.Title="Calibrating Rate Threshold Max: "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
-                                 Background="LightGray"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
                         <StackPanel>
                             <TextBlock Text="Result"

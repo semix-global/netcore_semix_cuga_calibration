@@ -257,22 +257,6 @@ public partial class AODUniformityDTO
             yLines[1].LineWidth = 5;
             yLines[1].LinePattern = LinePattern.Solid;
 
-            /*foreach (var mapping in ImageHorizontalProjectMappings)
-            {
-                if (mapping.Length <= 1) continue;
-
-                ScatterPlotControl.GetOrAddXLine(0, $"{mapping[0]}", mapping[0], Colors.LightGray);
-                ScatterPlotControl.GetOrAddXLine(0, $"{mapping[^1]}", mapping[^1], Colors.LightGray);
-            }
-
-            foreach (var mapping in PrescanAODWaveformProfileMappings)
-            {
-                if (mapping.Length <= 1) continue;
-
-                ScatterPlotControl.GetOrAddXLine(1, $"{mapping[0]}", mapping[0], Colors.LightGray);
-                ScatterPlotControl.GetOrAddXLine(1, $"{mapping[^1]}", mapping[^1], Colors.LightGray);
-            }*/
-
             ScatterPlotControl.GetOrAddYLines(0, 1)[0].Update(
                 TargetPMTValues.TryGetSingle(t => t.Key == Item.CIBInformation, out var targetPMTValueKvp)
                     ? "Target"

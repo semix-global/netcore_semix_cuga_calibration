@@ -9,74 +9,60 @@
              xmlns:cibEnum="clr-namespace:Core.Models.Enums.CIB"
              d:DataContext="{d:DesignInstance Type=pattern:CIBConfiguration}"
              mc:Ignorable="d">
-    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <StackPanel>
-                <TextBlock Text="CIB"
-                           HorizontalAlignment="Center"
-                           FontSize="13"
-                           FontWeight="Bold"
-                           Style="{StaticResource TextBlockDefaultInfo}" />
-            </StackPanel>
-            <GroupBox Header="Control">
-                <hc:UniformSpacingPanel Orientation="Vertical">
-                    <StackPanel Margin="2" Orientation="Horizontal">
-                        <TextBlock Text="AutoGain: "
-                                   Width="150"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center" />
-                        <ToggleButton x:Name="IsAutoGain"
-                                      IsChecked="{Binding IsAutoGainControl}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      Background="{StaticResource DangerBrush}"
-                                      Style="{StaticResource ToggleButtonSwitch}" />
-                    </StackPanel>
-                    <hc:NumericUpDown hc:InfoElement.Title="Gains Voltage(v): "
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="150"
-                                      Minimum="-10"
-                                      Maximum="10"
-                                      Visibility="{Binding Path=IsChecked, ElementName=IsAutoGain, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Gain}" />
-                    <StackPanel Margin="2" Orientation="Horizontal">
-                        <TextBlock Text="L0k:  "
-                                   Width="150"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center" />
-                        <ToggleButton IsChecked="{Binding IsL0K}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      Background="{StaticResource DangerBrush}"
-                                      Style="{StaticResource ToggleButtonSwitch}" />
-                    </StackPanel>
-                </hc:UniformSpacingPanel>
-            </GroupBox>
-            <GroupBox Header="Profile">
-                <hc:UniformSpacingPanel Orientation="Vertical">
-                    <hc:ComboBox hc:InfoElement.Title="Log Mode: "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.TitleWidth="150"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
-                                 SelectedItem="{Binding Path=CIBProfileMode}">
-                        <hc:ComboBox.Style>
-                            <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="hc:ComboBox">
-                                <Style.Triggers>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter Property="Background" Value="LightGray" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </hc:ComboBox.Style>
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
-                </hc:UniformSpacingPanel>
-            </GroupBox>
-        </hc:UniformSpacingPanel>
-    </Border>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <GroupBox Header="CIB Configuration">
+        <Border Style="{StaticResource BorderRegion}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="AutoGain: "
+                               Width="150"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center" />
+                    <ToggleButton IsChecked="{Binding IsAutoGainControl}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Background="{StaticResource DangerBrush}"
+                                  Style="{StaticResource ToggleButtonSwitch}" />
+                </StackPanel>
+                <hc:NumericUpDown hc:TitleElement.Title="Gains Voltage(v): "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="150"
+                                  Minimum="-10"
+                                  Maximum="10"
+                                  Visibility="{Binding IsAutoGainControl, Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                  Style="{StaticResource NumericUpDownExtend}"
+                                  Value="{Binding Gain}" />
+                <StackPanel Margin="2" Orientation="Horizontal">
+                    <TextBlock Text="L0k:  "
+                               Width="150"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center" />
+                    <ToggleButton IsChecked="{Binding IsL0K}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Background="{StaticResource DangerBrush}"
+                                  Style="{StaticResource ToggleButtonSwitch}" />
+                </StackPanel>
+                <ComboBox hc:TitleElement.Title="Log Mode: "
+                          hc:TitleElement.TitlePlacement="Left"
+                          hc:TitleElement.TitleWidth="150"
+                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
+                          SelectedItem="{Binding Path=CIBProfileMode}"
+                          Style="{StaticResource ComboBoxExtend}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </hc:UniformSpacingPanel>
+        </Border>
+    </GroupBox>
 </UserControl>

@@ -193,7 +193,7 @@
                                                              hc:TitleElement.Title="Prescan File Path: "
                                                              hc:TitleElement.TitlePlacement="Left"
                                                              hc:TitleElement.TitleWidth="150"
-                                                             Background="LightGray"
+                                                             Background="{StaticResource SecondaryRegionBrush}"
                                                              IsReadOnly="True"
                                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                              Style="{StaticResource TextBoxExtend}" />
@@ -238,7 +238,7 @@
                                                              hc:TitleElement.Title="Chirp File Path: "
                                                              hc:TitleElement.TitlePlacement="Left"
                                                              hc:TitleElement.TitleWidth="150"
-                                                             Background="LightGray"
+                                                             Background="{StaticResource SecondaryRegionBrush}"
                                                              IsReadOnly="True"
                                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                              Style="{StaticResource TextBoxExtend}" />
