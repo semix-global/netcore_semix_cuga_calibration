@@ -171,7 +171,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
     }
 
-    public SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> ToggleRTFCParam(ProductivityInformation productivityInformation)
     {
         Thread.Sleep(100);
 

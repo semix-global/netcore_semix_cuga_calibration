@@ -136,7 +136,7 @@ public interface ICalibrationCIBService
     /// </summary>
     /// <param name="productivityInformation">产率</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetRTFCParam(ProductivityInformation productivityInformation);
+    SxExecuteRet<bool> ToggleRTFCParam(ProductivityInformation productivityInformation);
 
     /// <summary>
     /// 读取所有CIB的图片: X 采[单位置]短图

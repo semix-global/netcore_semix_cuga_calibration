@@ -145,11 +145,11 @@ public sealed class CIBViewModel(
 
     #region 采图
 
-    public void SetRTFCParam(ProductivityInformation productivityInformation)
+    public void ToggleRTFCParam(ProductivityInformation productivityInformation)
     {
         laserViewModel.ToggleOpticsMagType(productivityInformation);
 
-        var ret = calibrationCIBService.SetRTFCParam(productivityInformation);
+        var ret = calibrationCIBService.ToggleRTFCParam(productivityInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
