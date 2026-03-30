@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Laser.AutoFocus.LaserAutoFocusCalibrationUserControl"
+﻿<UserControl x:Class="CugaCalibration.Views.AutoFocus.DarkAutoFocus.AutoFocusDarkAutoFocusUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,8 +8,9 @@
              xmlns:children="clr-namespace:CugaCalibration.Views.Laser.AutoFocus.Children"
              xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
              wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
-             d:DataContext="{d:DesignInstance Type=viewModels:LaserAutoFocusCalibrationViewModel}"
+             d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusDarkAutoFocusViewModel}"
              d:DesignHeight="900"
              d:DesignWidth="1920"
              mc:Ignorable="d">
@@ -42,12 +43,11 @@
                         <TextBlock Text="Welcome to calibration!" Style="{StaticResource TextBlockLargeBold}" />
                     </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsCalibrationToVisibilityConverter}}">
-                        <children:ConfigView Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
-                        <children:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
-                        <children:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
-                        <children:Step2View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
-                        <children:Step3View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
-                        <children:Step4View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs5ToVisibilityConverter}}" />
+                        <children:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
+                        <children:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
+                        <children:Step2View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
+                        <children:Step3View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
+                        <children:Step4View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
                     </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
                         <children:Review />
@@ -84,9 +84,9 @@
                                 <LineBreak />
                                 <Run Text="2. Switch NSC working mode;" />
                                 <LineBreak />
-                                <Run Text="3. Read the values ​​of Fa, Fb, Na, and Nb and determine whether these four values ​​are within the interval (13000&lt;Na, Nb&lt;16000; 6500&lt;Fa, Fb&lt;8000);" />
+                                <Run Text="3. Read the values of Fa, Fb, Na, and Nb and determine whether these four values ​​are within the interval (13000&lt;Na, Nb&lt;16000; 6500&lt;Fa, Fb&lt;8000);" />
                                 <LineBreak />
-                                <Run Text="4. If the values ​​of Na and Fa are low or high, increase or decrease the current value of lamp A. If the current value of lamp A increases to the upper limit (550mA), the values ​​of Na and Fa still do not reach the set range. Return calibration failed.If the values ​​of Nb and Fb are low or high, increase or decrease the current value of lamp B. If the current value of lamp B increases to the upper limit, the values ​​of Na and Fa still do not reach the set range, and the calibration fails." />
+                                <Run Text="4. If the values of Na and Fa are low or high, increase or decrease the current value of lamp A. If the current value of lamp A increases to the upper limit (550mA), the values ​​of Na and Fa still do not reach the set range. Return calibration failed.If the values ​​of Nb and Fb are low or high, increase or decrease the current value of lamp B. If the current value of lamp B increases to the upper limit, the values ​​of Na and Fa still do not reach the set range, and the calibration fails." />
                                 <LineBreak />
                             </Paragraph>
                             <Paragraph>

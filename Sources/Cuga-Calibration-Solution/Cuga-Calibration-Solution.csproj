@@ -90,30 +90,6 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Page Update="Views\CIB\LineOrientationOffset\Children\Step1View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Views\CIB\LineOrientationOffset\Children\Review.xaml">
-          <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Views\CIB\LineOrientationOffset\Children\Step0View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Views\CIB\LineOrientationOffset\Children\Step2View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Views\CIB\LineOrientationOffset\Children\Step3View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Views\CIB\LineOrientationOffset\Children\Step4View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Views\CIB\LineOrientationOffset\Children\Step5View.xaml">
-          <Generator>MSBuild:Compile</Generator>
-        </Page>
-        <Page Update="Views\CIB\LineOrientationOffset\CIBLineOrientationOffsetUserControl.xaml">
-          <Generator>MSBuild:Compile</Generator>
-        </Page>
     </ItemGroup>
 
     <ItemGroup>

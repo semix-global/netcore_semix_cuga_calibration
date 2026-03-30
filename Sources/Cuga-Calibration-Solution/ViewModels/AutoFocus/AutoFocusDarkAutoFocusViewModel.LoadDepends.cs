@@ -15,9 +15,9 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Optics.Relay;
 using Net.Utilities.WPF.Enums;
 
-namespace CugaCalibration.ViewModels.Laser;
+namespace CugaCalibration.ViewModels.AutoFocus;
 
-public sealed partial class LaserAutoFocusCalibrationViewModel
+public sealed partial class AutoFocusDarkAutoFocusViewModel
 {
     private bool LoadDepends()
     {
