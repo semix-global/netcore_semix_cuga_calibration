@@ -32,6 +32,16 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<double> GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         throw new NotImplementedException();
@@ -58,6 +68,16 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
     }
 
     public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<double> GetCollectorPolarizationMotorAbsoluteValue(int channelId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetCollectorPolarizationMotorAbsoluteValue(int channelId, double value)
     {
         throw new NotImplementedException();
     }
@@ -91,34 +111,22 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode()
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    public SxExecuteRet<bool> SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode(int channelId)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type)
-    {
-        throw new NotImplementedException();
-    }
-
-    public SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val)
+    public SxExecuteRet<bool> SetCollectorPolarizationMode(int channelId, OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
     {
         throw new NotImplementedException();
     }

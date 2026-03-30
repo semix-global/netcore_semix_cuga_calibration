@@ -3,10 +3,6 @@ using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
-#if NETFRAMEWORK
-using Cuga.Data.DataStruct.PMT;
-#endif
-
 namespace Core.Models.Models.Common.DarkField;
 
 public sealed partial class CIBMMDGainRelationshipDTO : ObservableCacheBase, ICloneable<CIBMMDGainRelationshipDTO>

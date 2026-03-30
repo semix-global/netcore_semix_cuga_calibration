@@ -61,6 +61,9 @@ public sealed partial class CIBLineOrientationOffsetCacheItem : CalibrationCache
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
+
+    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]

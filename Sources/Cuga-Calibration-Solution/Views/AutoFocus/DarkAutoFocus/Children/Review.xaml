@@ -4,12 +4,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
              xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
-             d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusDarkAutoFocusViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusDarkAutoFocusViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
              mc:Ignorable="d">
@@ -61,7 +61,7 @@
                                  hc:TitleElement.TitleWidth="180"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
-                                 Background="LightGray"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}">
                             <TextBox.Text>
                                 <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
@@ -86,7 +86,7 @@
                                  hc:TitleElement.TitleWidth="180"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"
-                                 Background="LightGray"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}">
                             <TextBox.Text>
                                 <MultiBinding StringFormat="{}[{0:f3}, {1:f3}]" Mode="OneWay">
@@ -267,25 +267,24 @@
                     <scottplot:WpfPlot Grid.Row="2">
                         <b:Interaction.Behaviors>
                             <behaviors:WpfPlotMultiBehavior Title="Trace Buffer"
-                                                                Plot0Title="Original ECS"
-                                                                Plot0Color="{x:Static scottPlot:Colors.LightGreen}"
-                                                                Plot0="{Binding Review.NSCGainResultDTO.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                Plot1Title="Original NSC"
-                                                                Plot1Color="{x:Static scottPlot:Colors.LightBlue}"
-                                                                Plot1="{Binding Review.NSCGainResultDTO.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                Plot2Title="Original Lvdt"
-                                                                Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                                Plot2="{Binding Review.NSCGainResultDTO.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                Plot3Title="Calibration ECS"
-                                                                Plot3Color="{x:Static scottPlot:Colors.LightGreen}"
-                                                                Plot3="{Binding Calibration.NSCGainResultDTO.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                Plot4Title="Calibration NSC"
-                                                                Plot4Color="{x:Static scottPlot:Colors.LightBlue}"
-                                                                Plot4="{Binding Calibration.NSCGainResultDTO.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                Plot5Title="Calibration Lvdt"
-                                                                Plot5Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                                Plot5="{Binding Calibration.NSCGainResultDTO.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}"
-                                                                />
+                                                            Plot0Title="Original ECS"
+                                                            Plot0Color="{x:Static scottPlot:Colors.LightGreen}"
+                                                            Plot0="{Binding Review.NSCGainResultDTO.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
+                                                            Plot1Title="Original NSC"
+                                                            Plot1Color="{x:Static scottPlot:Colors.LightBlue}"
+                                                            Plot1="{Binding Review.NSCGainResultDTO.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
+                                                            Plot2Title="Original Lvdt"
+                                                            Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
+                                                            Plot2="{Binding Review.NSCGainResultDTO.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}"
+                                                            Plot3Title="Calibration ECS"
+                                                            Plot3Color="{x:Static scottPlot:Colors.LightGreen}"
+                                                            Plot3="{Binding Calibration.NSCGainResultDTO.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
+                                                            Plot4Title="Calibration NSC"
+                                                            Plot4Color="{x:Static scottPlot:Colors.LightBlue}"
+                                                            Plot4="{Binding Calibration.NSCGainResultDTO.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
+                                                            Plot5Title="Calibration Lvdt"
+                                                            Plot5Color="{x:Static scottPlot:Colors.LightCoral}"
+                                                            Plot5="{Binding Calibration.NSCGainResultDTO.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}" />
                         </b:Interaction.Behaviors>
                     </scottplot:WpfPlot>
 

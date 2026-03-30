@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
@@ -33,7 +32,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     private OpticsPolarizationModeEnum _opticsPolarizationModeEnum;
 
     [ObservableProperty]
-    private CollectorPolarizationModeEnum _collectorPolarizationModeEnum;
+    private OpticsCollectorPolarizationModeEnum _opticsCollectorPolarizationModeEnum;
 
     [ObservableProperty]
     private IReadOnlyList<CIBLightMatchingDTOItem> _items = [];
@@ -275,7 +274,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         ProductivityInformation = ProductivityInformation.Clone(),
         OpticsApodizationModeEnum = OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
-        CollectorPolarizationModeEnum = CollectorPolarizationModeEnum,
+        OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
         HazeTargetPMTValues = [.. HazeTargetPMTValues],
         SilicaSphereAveragePMTValues = [.. SilicaSphereAveragePMTValues],
@@ -294,7 +293,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.ToCgPolarizationTypeEnum(),
-        CollectorPolarizationModeEnum = CollectorPolarizationModeEnum.ToCgNDFTypeEnum(),
+        CollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.ToCgNDFTypeEnum(),
         Items = [.. Items.Select(t => t.AdaptTo())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

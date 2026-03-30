@@ -26,7 +26,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBYPixelSizeViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
+public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -266,6 +266,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBChannelId,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -386,6 +387,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBChannelId,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
@@ -517,6 +519,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
                     Cache.ProductivityInformation,
                     Cache.Item.MicroscopeLensInformation,
                     Cache.Item.LaserLightInformation,
+                    OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                     CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.CIBChannelId,
                     Cache.Item.IsDarkFieldAlignment,
@@ -585,6 +588,7 @@ public sealed partial class CIBYPixelSizeViewModel() : CalibrationViewModelBase
             Cache.Item.ImageWidth,
             ApplicationCookie.CIBInformations.Single(t => t.PMTId == cibYPixelSizeDTO.PmtId && t.ChannelId == Cache.Item.CIBChannelId),
             (false, Cache.CalChipSiteModelEnum),
+            (false, Cache.Item.OpticsConfiguration),
             (false, Cache.Item.CIBConfiguration),
             (false, Cache.Item.LaserLightInformation),
             false,

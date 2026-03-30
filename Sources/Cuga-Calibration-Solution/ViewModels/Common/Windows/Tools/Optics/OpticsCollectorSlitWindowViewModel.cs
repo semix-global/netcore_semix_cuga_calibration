@@ -40,9 +40,9 @@ using System.IO;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCacheBase
+public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -62,6 +62,9 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
     #region Haze
 
     [ObservableProperty]
+    private OpticsConfiguration _hazeOpticsConfiguration = new();
+
+    [ObservableProperty]
     private CIBConfiguration _hazeCIBConfiguration = new();
 
     [ObservableProperty]
@@ -79,6 +82,9 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
     #endregion Haze
 
     #region DSW
+
+    [ObservableProperty]
+    private OpticsConfiguration _dSWOpticsConfiguration = new();
 
     [ObservableProperty]
     private CIBConfiguration _dSWCIBConfiguration = new();
@@ -161,9 +167,11 @@ public sealed partial class CollectionFocusAlignOpticsFocusCache : ObservableCac
         ImageWidth = ImageWidthPixel,
         RangeEcs,
         StepEcs,
+        HazeOpticsConfiguration = new HtmlQuote(HazeOpticsConfiguration.ToHtmlAnonymous()),
         HazeCIBConfiguration = new HtmlQuote(HazeCIBConfiguration.ToHtmlAnonymous()),
         HazeLaserLightInformation,
         HazeBrightFieldPosition,
+        DSWOpticsConfiguration = new HtmlQuote(DSWOpticsConfiguration.ToHtmlAnonymous()),
         DSWCIBConfiguration = new HtmlQuote(DSWCIBConfiguration.ToHtmlAnonymous()),
         DSWLaserLightInformation,
         DSWBrightFieldPosition
@@ -256,8 +264,8 @@ public sealed partial class DSWResultItem : ObservableObject
     };
 }
 
-[IOCAppService(ServiceType = typeof(CollectionFocusAlignOpticsFocusWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
+[IOCAppService(ServiceType = typeof(OpticsCollectorSlitWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class OpticsCollectorSlitWindowViewModel(
     IServiceProvider serviceProvider,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
@@ -269,14 +277,14 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     ICacheProvider cacheProvider,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
-    ILogger<CollectionFocusAlignOpticsFocusWindowViewModel> logger) : ViewModelBase
+    ILogger<OpticsCollectorSlitWindowViewModel> logger) : ViewModelBase
 {
     private const string DSW = nameof(DSW);
     private const string Haze = nameof(Haze);
 
     public string Name => "Collection Focus Align Optics Focus";
 
-    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionFocusAlignOpticsFocusWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(OpticsCollectorSlitWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 
@@ -284,7 +292,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
 
     [DefaultCache]
     [ObservableProperty]
-    private CollectionFocusAlignOpticsFocusCache _cache = new();
+    private OpticsCollectorSlitCache _cache = new();
 
     [ObservableProperty]
     private IDictionary<int, IScatterPlotControl> _scatterPlotControls = ImmutableDictionary<int, IScatterPlotControl>.Empty;
@@ -294,7 +302,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
     {
         try
         {
-            Cache = cacheProvider.GetOrDefault<CollectionFocusAlignOpticsFocusCache>();
+            Cache = cacheProvider.GetOrDefault<OpticsCollectorSlitCache>();
 
             if (ScatterPlotControls.Count > 0) return;
 
@@ -392,6 +400,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     Cache.ImageWidthPixel,
                     ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == calibrationSetting.SettingCommonParam.MainCIBInformation.ChannelId),
                     (false, CalChipSiteModelEnum.DswModel),
+                    (false, Cache.DSWOpticsConfiguration),
                     (false, Cache.DSWCIBConfiguration),
                     (false, Cache.DSWLaserLightInformation),
                     false,
@@ -514,6 +523,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(calChipSiteModelEnum))
                 };
 
+                var opticsConfiguration = ObjectHelper.GetPropertyValue<OpticsConfiguration>(Cache, nameof(Cache.HazeOpticsConfiguration).Replace(Haze, name));
                 var cibConfiguration = ObjectHelper.GetPropertyValue<CIBConfiguration>(Cache, nameof(Cache.HazeCIBConfiguration).Replace(Haze, name));
                 var laserLightInformation = ObjectHelper.GetPropertyValue<LaserLightInformation>(Cache, nameof(Cache.HazeLaserLightInformation).Replace(Haze, name));
                 var brightFieldPosition = ObjectHelper.GetPropertyValue<Point>(Cache, nameof(Cache.HazeBrightFieldPosition).Replace(Haze, name));
@@ -564,6 +574,7 @@ public sealed partial class CollectionFocusAlignOpticsFocusWindowViewModel(
                         Cache.ImageWidthPixel,
                         [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PmtId)],
                         (false, calChipSiteModelEnum),
+                        (false, opticsConfiguration),
                         (false, cibConfiguration),
                         (false, laserLightInformation),
                         false,

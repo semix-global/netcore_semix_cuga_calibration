@@ -63,6 +63,9 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
 public sealed partial class AutoFocusCalChipFocusOffsetCacheItem : ObservableValidator
 {
     [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
+
+    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]

@@ -5,7 +5,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.ScottPlot.WPF.WPF;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
@@ -89,13 +88,13 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDtoBase, ICloneable<Da
 
     [ObservableProperty]
     private Point[] _eCSMotorOrigins = [];
-    
+
     [ObservableProperty]
     private Point[] _fitECSMotorOrigins = [];
-    
-    partial void OnECSMotorOriginsChanged(Point[] value)=>RefreshPlot();
-    
-    partial void OnFitECSMotorOriginsChanged(Point[] value)=>RefreshPlot();
+
+    partial void OnECSMotorOriginsChanged(Point[] value) => RefreshPlot();
+
+    partial void OnFitECSMotorOriginsChanged(Point[] value) => RefreshPlot();
 
     #endregion
 
@@ -120,7 +119,7 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDtoBase, ICloneable<Da
         ScatterPlotControl.SetTitle(0, "Slope (Y: ECS - X: AF Motor)");
     }
 
-     private void RefreshPlot()
+    private void RefreshPlot()
     {
         try
         {
@@ -132,11 +131,11 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDtoBase, ICloneable<Da
                     [.. ECSMotorOrigins],
                     0,
                     new Range(0, ECSMotorOrigins.Length - 1));
-            
+
             if (FitECSMotorOrigins.Length > 0)
                 ScatterPlotControl.GetOrAddScatterLine(0,
                     $"F Fit Curve: y = {EcsMotorPositionRelationSlope:0.######}x + {EcsMotorPositionRelationIntercept:0.######} r^2 = {EcsMotorPositionRelationRSquare:0.######})",
-                    [..FitECSMotorOrigins],
+                    [.. FitECSMotorOrigins],
                     1,
                     new Range(0, FitECSMotorOrigins.Length - 1));
         }
@@ -145,7 +144,7 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDtoBase, ICloneable<Da
             ScatterPlotControl.AutoScaleRefresh();
         }
     }
-     
+
     #region Mapper
 
     public DarkAutoFocusDTO Clone() => new()
@@ -161,7 +160,7 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDtoBase, ICloneable<Da
         NscStandard = NscStandard,
         NSCProfileResultDTO = NSCProfileResultDTO.Clone(),
         NSCGainResultDTO = NSCGainResultDTO.Clone(),
-        NSCGainDTOItems = [..NSCGainDTOItems.Select(t => t.Clone())],
+        NSCGainDTOItems = [.. NSCGainDTOItems.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -170,8 +169,8 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDtoBase, ICloneable<Da
         EcsMotorPositionRelationRSquare = EcsMotorPositionRelationRSquare,
         MinAFMotorAbsoluteValue = MinAFMotorAbsoluteValue,
         MaxAFMotorAbsoluteValue = MaxAFMotorAbsoluteValue,
-        ECSMotorOrigins = [..ECSMotorOrigins],
-        FitECSMotorOrigins = [..FitECSMotorOrigins],
+        ECSMotorOrigins = [.. ECSMotorOrigins],
+        FitECSMotorOrigins = [.. FitECSMotorOrigins],
         Id = Id,
         Expiration = Expiration
     };
@@ -299,11 +298,11 @@ public sealed partial class DarkAutoFocusCurrentDTO : ObservableObject, ICloneab
                     $"N Fit Curve: y = {SlopeN:0.######}x + {InterceptN:0.######} r^2 = {RSquaredN:0.######})",
                     FitCurrentPointsN,
                     Constants.Category10.GetColor(2));
-            
-            if(FDomain==Point.Origin||NDomain==Point.Origin) return;
-            
+
+            if (FDomain == Point.Origin || NDomain == Point.Origin) return;
+
             var yLines = ScatterPlotControl.GetOrAddXLines(0, 4);
-            
+
             if (FDomain != Point.Origin)
             {
                 yLines[0].Update(
@@ -474,55 +473,55 @@ public sealed partial class DarkAutoFocusNSCDTO : ObservableObject, ICloneable<D
             if (CalibrationEcs.Count != 0)
                 ScatterPlotControl.GetOrAddScatterLine(0,
                     "ECS",
-                    [..CalibrationEcs.Select((t, i) => new Point(i, t))],
+                    [.. CalibrationEcs.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(0));
 
             if (CalibrationNsc.Count != 0)
                 ScatterPlotControl.GetOrAddScatterLine(0,
                     "NSC",
-                    [..CalibrationNsc.Select((t, i) => new Point(i, t))],
+                    [.. CalibrationNsc.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(1));
 
             if (CalibrationLvdt.Count != 0)
                 ScatterPlotControl.GetOrAddScatterLine(0,
                     "LVDT",
-                    [..CalibrationLvdt.Select((t, i) => new Point(i, t))],
+                    [.. CalibrationLvdt.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(2));
 
             if (CalibrationFa.Count != 0)
                 ScatterPlotControl.GetOrAddScatterLine(0,
                     "FA",
-                    [..CalibrationFa.Select((t, i) => new Point(i, t))],
+                    [.. CalibrationFa.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(3));
 
             if (CalibrationFb.Count != 0)
                 ScatterPlotControl.GetOrAddScatterLine(0,
                     "FB",
-                    [..CalibrationFb.Select((t, i) => new Point(i, t))],
+                    [.. CalibrationFb.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(4));
 
             if (CalibrationNa.Count != 0)
                 ScatterPlotControl.GetOrAddScatterLine(0,
                     "NA",
-                    [..CalibrationNa.Select((t, i) => new Point(i, t))],
+                    [.. CalibrationNa.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(5));
 
             if (CalibrationNb.Count != 0)
                 ScatterPlotControl.GetOrAddScatterLine(0,
                     "NB",
-                    [..CalibrationNb.Select((t, i) => new Point(i, t))],
+                    [.. CalibrationNb.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(6));
 
             if (CalibrationEcsNscPoints.Length != 0)
                 ScatterPlotControl.GetOrAddScatterLine(1,
                     "Ecs Nsc Curve",
-                    [..CalibrationEcsNscPoints],
+                    [.. CalibrationEcsNscPoints],
                     Constants.Category10.GetColor(1));
 
             if (CalibrationEcsNscMaxMins.Length != 0)
                 ScatterPlotControl.GetOrAddScatterLine(1,
                     "Ecs Nsc Slope",
-                    [..CalibrationEcsNscMaxMins],
+                    [.. CalibrationEcsNscMaxMins],
                     Constants.Category10.GetColor(2));
         }
         finally
@@ -539,6 +538,6 @@ public sealed partial class DarkAutoFocusNSCDTO : ObservableObject, ICloneable<D
         NscCurrentSymmetryRatio = NscCurrentSymmetryRatio,
         CalibrationEcs = [.. CalibrationEcs],
         CalibrationNsc = [.. CalibrationNsc],
-        CalibrationLvdt = [.. CalibrationLvdt],
+        CalibrationLvdt = [.. CalibrationLvdt]
     };
 }

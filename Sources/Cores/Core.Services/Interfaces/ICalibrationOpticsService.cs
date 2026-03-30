@@ -19,49 +19,79 @@ public interface ICalibrationOpticsService
     SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations();
 
     /// <summary>
-    /// 获取Relay电极位置
+    /// 读取DOE电机绝对值
+    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// </summary>
+    /// <returns>返回电机位置</returns>
+    SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
+
+    /// <summary>
+    /// 下发DOE电机绝对位置
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// <param name="value">电机位置</param>
+    /// <returns>返回是否下发成功</returns>
+    SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
+
+    /// <summary>
+    /// 获取Relay电机位置
     /// </summary>
     /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
-    /// <returns>Relay电极位置mm</returns>
+    /// <returns>Relay电机位置mm</returns>
     SxExecuteRet<double> GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
 
     /// <summary>
-    /// 设置Relay电极位置
+    /// 设置Relay电机位置
     /// </summary>
     /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
-    /// <param name="value">Relay电极位置mm</param>
+    /// <param name="value">Relay电机位置mm</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
 
     /// <summary>
-    /// 获取INC电极位置
+    /// 获取INC电机位置
     /// </summary>
     /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
-    /// <returns>INC电极位置mm</returns>
+    /// <returns>INC电机位置mm</returns>
     SxExecuteRet<double> GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
 
     /// <summary>
-    /// 设置INC电极位置
+    /// 设置INC电机位置
     /// </summary>
     /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
-    /// <param name="value">INC电极位置mm</param>
+    /// <param name="value">INC电机位置mm</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
 
     /// <summary>
-    /// 获取SC电极位置
+    /// 获取SC电机位置
     /// </summary>
     /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
-    /// <returns>SC电极位置mm</returns>
+    /// <returns>SC电机位置mm</returns>
     SxExecuteRet<(double L1, double L3)> GetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
 
     /// <summary>
-    /// 设置SC电极位置
+    /// 设置SC电机位置
     /// </summary>
     /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
-    /// <param name="value">SC电极位置mm</param>
+    /// <param name="value">SC电机位置mm</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value);
+
+    /// <summary>
+    /// 获取通道采集偏振电机位置
+    /// </summary>
+    /// <param name="channelId">通道ID</param>
+    /// <returns>通道采集偏振电机位置mm</returns>
+    SxExecuteRet<double> GetCollectorPolarizationMotorAbsoluteValue(int channelId);
+
+    /// <summary>
+    /// 设置通道采集偏振电机位置
+    /// </summary>
+    /// <param name="channelId">通道ID</param>
+    /// <param name="value">电机值</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetCollectorPolarizationMotorAbsoluteValue(int channelId, double value);
 
     /// <summary>
     /// 切换照明OD滤光片
@@ -96,54 +126,31 @@ public interface ICalibrationOpticsService
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
 
-    #region DOE
+    /// <summary>
+    /// 切换所有采集偏振
+    /// </summary>
+    /// <returns>偏振</returns>
+    SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode();
 
     /// <summary>
-    /// 获取DOE电机行程范围
-    /// <param name="opticsIlluminationModeEnum">照明方式</param>
+    /// 获取所有采集偏振
     /// </summary>
-    /// <returns>(DOE起点位置mm，DOE终点位置mm，DOE控制精度mm）</returns>
-    SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
-
-    /// <summary>
-    /// 读取DOE电机绝对值
-    /// <param name="opticsIlluminationModeEnum">照明方式</param>
-    /// </summary>
-    /// <returns>返回电机位置</returns>
-    SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
-
-    /// <summary>
-    /// 下发DOE电机绝对位置
-    /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明方式</param>
-    /// <param name="value">电机位置</param>
-    /// <returns>返回是否下发成功</returns>
-    SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value);
-
-    #endregion DOE
-
-    #region CollectPolarization
-
-    /// <summary>
-    /// 设置照明偏振模式
-    /// </summary>
-    /// <param name="OpticsPolarizationModeEnum">照明偏振</param>
+    /// <param name="opticsCollectorPolarizationModeEnum">偏振</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type);
+    SxExecuteRet<bool> SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum);
 
     /// <summary>
-    /// 设置采集偏振某个通道偏振类型，例如P或者S
+    /// 获取通道采集偏振
     /// </summary>
-    /// <param name="collectorPolarizationModeEnum">偏振</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type);
+    /// <param name="channelId">通道ID</param>
+    /// <returns>偏振</returns>
+    SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode(int channelId);
 
     /// <summary>
-    /// 设置采集偏振某个通道NDF电机角度
+    /// 切换通道采集偏振
     /// </summary>
-    /// <param name="collectorPolarizationModeEnum">偏振</param>
+    /// <param name="channelId">通道ID</param>
+    /// <param name="opticsCollectorPolarizationModeEnum">偏振</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val);
-
-    #endregion CollectPolarization
+    SxExecuteRet<bool> SetCollectorPolarizationMode(int channelId, OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum);
 }

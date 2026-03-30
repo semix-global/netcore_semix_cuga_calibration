@@ -296,6 +296,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 AstigmatisPMTId = Cache.CIBInformation.PMTId,
                 AstigmatismChannelId = Cache.CIBInformation.ChannelId,
                 Cache.PMTIds,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -666,6 +667,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 Cache.Item.ImageCollectionConfiguration.ExtensionEndEcs,
                 [.. Cache.PMTIds.OrderBy(t => t).Select(t => ApplicationCookie.CIBInformations.Single(tt => tt.PMTId == t && tt.ChannelId == Cache.CIBInformation.ChannelId))],
                 (false, Cache.CalChipSiteModelEnum),
+                (false, Cache.Item.OpticsConfiguration),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 true,
@@ -679,6 +681,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 Cache.Item.ImageCollectionConfiguration.ExtensionEndEcs,
                 [.. Cache.PMTIds.OrderBy(t => t).Select(t => ApplicationCookie.CIBInformations.Single(tt => tt.PMTId == t && tt.ChannelId == Cache.CIBInformation.ChannelId))],
                 (false, Cache.CalChipSiteModelEnum),
+                (false, Cache.Item.OpticsConfiguration),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 true,
