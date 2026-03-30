@@ -6,8 +6,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusDarkAutoFocusViewModel}"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
+             d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusDarkAutoFocusViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -149,48 +149,48 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <TextBox hc:TitleElement.Title="Current A: "
-                                          hc:TitleElement.TitleWidth="100"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Style="{StaticResource TextBoxExtend}"
-                                          IsReadOnly="False"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Text="{Binding CalibratingItem.CurrentA,Mode=OneWay}" />
-                        <TextBox hc:TitleElement.Title="Current B: "
-                                          hc:TitleElement.TitleWidth="100"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Style="{StaticResource TextBoxExtend}"
-                                          IsReadOnly="False"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Text="{Binding CalibratingItem.CurrentB,Mode=OneWay}" />
-                        <TextBox hc:TitleElement.Title="FA: "
-                                          hc:TitleElement.TitleWidth="100"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Style="{StaticResource TextBoxExtend}"
-                                          IsReadOnly="False"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Text="{Binding CalibratingItem.Fa,Mode=OneWay}" />
-                        <TextBox hc:TitleElement.Title="FB: "
-                                          hc:TitleElement.TitleWidth="100"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Style="{StaticResource TextBoxExtend}"
-                                          IsReadOnly="False"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Text="{Binding CalibratingItem.Fb,Mode=OneWay}" />
-                        <TextBox hc:TitleElement.Title="NA: "
-                                          hc:TitleElement.TitleWidth="100"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Style="{StaticResource TextBoxExtend}"
-                                          IsReadOnly="False"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Text="{Binding CalibratingItem.Na,Mode=OneWay}" />
-                        <TextBox hc:TitleElement.Title="NB: "
-                                          hc:TitleElement.TitleWidth="100"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Style="{StaticResource TextBoxExtend}"
-                                          IsReadOnly="False"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Text="{Binding CalibratingItem.Nb,Mode=OneWay}" />
+                        <TextBox Text="{Binding CalibratingItem.CurrentA, Mode=OneWay}"
+                                 hc:TitleElement.Title="Current A: "
+                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 IsReadOnly="False"
+                                 Background="{StaticResource SecondaryRegionBrush}" />
+                        <TextBox Text="{Binding CalibratingItem.CurrentB, Mode=OneWay}"
+                                 hc:TitleElement.Title="Current B: "
+                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 IsReadOnly="False"
+                                 Background="{StaticResource SecondaryRegionBrush}" />
+                        <TextBox Text="{Binding CalibratingItem.Fa, Mode=OneWay}"
+                                 hc:TitleElement.Title="FA: "
+                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 IsReadOnly="False"
+                                 Background="{StaticResource SecondaryRegionBrush}" />
+                        <TextBox Text="{Binding CalibratingItem.Fb, Mode=OneWay}"
+                                 hc:TitleElement.Title="FB: "
+                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 IsReadOnly="False"
+                                 Background="{StaticResource SecondaryRegionBrush}" />
+                        <TextBox Text="{Binding CalibratingItem.Na, Mode=OneWay}"
+                                 hc:TitleElement.Title="NA: "
+                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 IsReadOnly="False"
+                                 Background="{StaticResource SecondaryRegionBrush}" />
+                        <TextBox Text="{Binding CalibratingItem.Nb, Mode=OneWay}"
+                                 hc:TitleElement.Title="NB: "
+                                 hc:TitleElement.TitleWidth="100"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}"
+                                 IsReadOnly="False"
+                                 Background="{StaticResource SecondaryRegionBrush}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -247,9 +247,15 @@
                                         <Setter Property="VerticalContentAlignment" Value="Center" />
                                     </Style>
                                 </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Header="Current A" Width="100" DisplayMemberBinding="{Binding Current, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Header="FA" Width="100" DisplayMemberBinding="{Binding F, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Header="NA" Width="100" DisplayMemberBinding="{Binding N, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="100"
+                                                Header="Current A"
+                                                DisplayMemberBinding="{Binding Current, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="100"
+                                                Header="FA"
+                                                DisplayMemberBinding="{Binding F, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="100"
+                                                Header="NA"
+                                                DisplayMemberBinding="{Binding N, StringFormat={}{0:f3}}" />
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -280,9 +286,15 @@
                                         <Setter Property="VerticalContentAlignment" Value="Center" />
                                     </Style>
                                 </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Header="Current B" Width="100" DisplayMemberBinding="{Binding Current, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Header="FB" Width="100" DisplayMemberBinding="{Binding F, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Header="NB" Width="100" DisplayMemberBinding="{Binding N, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="100"
+                                                Header="Current B"
+                                                DisplayMemberBinding="{Binding Current, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="100"
+                                                Header="FB"
+                                                DisplayMemberBinding="{Binding F, StringFormat={}{0:f3}}" />
+                                <GridViewColumn Width="100"
+                                                Header="NB"
+                                                DisplayMemberBinding="{Binding N, StringFormat={}{0:f3}}" />
                             </GridView>
                         </ListView.View>
                     </ListView>
