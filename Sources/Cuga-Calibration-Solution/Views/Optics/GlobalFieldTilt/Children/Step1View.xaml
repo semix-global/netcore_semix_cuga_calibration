@@ -7,7 +7,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:optics="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              d:DataContext="{d:DesignInstance Type=optics:OpticsGlobalFieldTiltViewModel}"
@@ -71,7 +70,7 @@
                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                                 <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
                                     <Expander ExpandDirection="Down"
-                                              Header="CIB Configuration"
+                                              Header="Configuration"
                                               IsExpanded="False">
                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                             <StackPanel>
@@ -122,7 +121,8 @@
                                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                                                 </i:Interaction.Behaviors>
                                             </ComboBox>
-                                            <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                                            <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.Item.OpticsConfiguration}" />
+                                            <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                                         </hc:UniformSpacingPanel>
                                     </Expander>
                                 </Border>

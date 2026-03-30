@@ -25,7 +25,7 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeCalChipViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class MicroscopeCalChipViewModel() : CalibrationViewModelBase
+public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBase
 {
     #region 属性
 

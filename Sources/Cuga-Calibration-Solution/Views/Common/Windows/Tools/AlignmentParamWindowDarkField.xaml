@@ -8,7 +8,6 @@
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Alignment"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            d:DataContext="{d:DesignInstance Type=viewModels:AlignmentParamWindowDarkFieldViewModel}"
@@ -136,13 +135,8 @@
                             </hc:ComboBox>
                         </hc:UniformSpacingPanel>
                     </GroupBox>
-                    <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
-                        <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
-                                                            hc:TitleElement.TitleWidth="150"
-                                                            hc:TitleElement.TitlePlacement="Left"
-                                                            hc:TitleElement.Title="Cib Grab Mode: "
-                                                            DataContext="{Binding CIBConfiguration}" />
-                    </hc:UniformSpacingPanel>
+                    <pattern:OpticsConfigurationUserControl DataContext="{Binding OpticsConfiguration}" />
+                    <pattern:CIBConfigurationUserControl DataContext="{Binding CIBConfiguration}" />
                 </hc:UniformSpacingPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>

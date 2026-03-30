@@ -24,7 +24,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using Core.Models.Models.AutoFocus.DarkAutoFocus;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis;
 

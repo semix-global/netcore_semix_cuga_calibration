@@ -292,6 +292,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 stopECS,
                 item.CIBInformation,
                 (true, null),
+                (false, Cache.OpticsConfiguration),
                 (false, Cache.CIBConfiguration),
                 (true, null),
                 true,

@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.AOD.Uniformity;
@@ -34,7 +33,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     private OpticsPolarizationModeEnum _opticsPolarizationModeEnum;
 
     [ObservableProperty]
-    private CollectorPolarizationModeEnum _collectorPolarizationModeEnum;
+    private OpticsCollectorPolarizationModeEnum _opticsCollectorPolarizationModeEnum;
 
     [ObservableProperty]
     private IReadOnlyList<CIBIlluminationProfileDTOItem> _items = [];
@@ -150,7 +149,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
         ProductivityInformation = ProductivityInformation.Clone(),
         OpticsApodizationModeEnum = OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
-        CollectorPolarizationModeEnum = CollectorPolarizationModeEnum,
+        OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
         TargetPMTValues = [.. TargetPMTValues],
         IsCalibrated = IsCalibrated,
@@ -167,7 +166,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         OpticsApodizationModeEnum = (int)OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.ToCgPolarizationTypeEnum(),
-        CollectorPolarizationModeEnum = CollectorPolarizationModeEnum.ToCgNDFTypeEnum(),
+        CollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.ToCgNDFTypeEnum(),
         Items = [.. Items.Select(t => t.AdaptTo())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

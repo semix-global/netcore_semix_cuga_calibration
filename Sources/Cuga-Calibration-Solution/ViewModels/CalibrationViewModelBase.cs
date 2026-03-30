@@ -91,9 +91,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     private OpticsViewModel _opticsViewModel = HostApplication.GetRequiredService<OpticsViewModel>();
 
     [ObservableProperty]
-    private CollectorViewModel _collectorViewModel = HostApplication.GetRequiredService<CollectorViewModel>();
-
-    [ObservableProperty]
     private CIBViewModel _cIBViewModel = HostApplication.GetRequiredService<CIBViewModel>();
 
     [ObservableProperty]

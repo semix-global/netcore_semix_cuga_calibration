@@ -46,6 +46,9 @@ public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase
     private int _cIBChannelId = 3;
 
     [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
+
+    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]

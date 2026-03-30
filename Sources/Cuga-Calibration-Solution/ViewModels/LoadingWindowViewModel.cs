@@ -28,7 +28,6 @@ public sealed partial class LoadingWindowViewModel(
     EFEMViewModel efemViewModel,
     FourierViewModel fourierViewModel,
     OpticsViewModel opticsViewModel,
-    CollectorViewModel collectorViewModel,
     CIBViewModel cibViewModel,
     MonitorViewModel monitorViewModel,
     ICacheProvider cacheProvider,
@@ -71,9 +70,8 @@ public sealed partial class LoadingWindowViewModel(
             if (await ConnectAsync(efemViewModel.Connect, "Connecting EFEM Service", 7).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(fourierViewModel.Connect, "Connecting Fourier Service", 8).ConfigureAwait(false) == false) return;
             if (await ConnectAsync(opticsViewModel.Connect, "Connecting Optics Service", 9).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(collectorViewModel.Connect, "Connecting Collector Service", 10).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(cibViewModel.Connect, "Connecting CIB Service", 11).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Service", 12).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(cibViewModel.Connect, "Connecting CIB Service", 10).ConfigureAwait(false) == false) return;
+            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Service", 11).ConfigureAwait(false) == false) return;
 
             Message = "Connected OK!!!";
 

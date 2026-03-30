@@ -32,13 +32,13 @@ public sealed partial class CollectPolarizationCache : CalibrationCacheBase
     private Point[] _polarizationPositionNDFSListCH3 = [];
 
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH1 = 0;
+    private double _polarizationPositionNDFSCH1;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH2 = 0;
+    private double _polarizationPositionNDFSCH2;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH3 = 0;
+    private double _polarizationPositionNDFSCH3;
 
     [ObservableProperty]
     private Point[] _polarizationPositionNDFPListCH1 = [];
@@ -50,19 +50,22 @@ public sealed partial class CollectPolarizationCache : CalibrationCacheBase
     private Point[] _polarizationPositionNDFPListCH3 = [];
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH1 = 0;
+    private double _polarizationPositionNDFPCH1;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH2 = 0;
+    private double _polarizationPositionNDFPCH2;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH3 = 0;
+    private double _polarizationPositionNDFPCH3;
 
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
+
+    [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

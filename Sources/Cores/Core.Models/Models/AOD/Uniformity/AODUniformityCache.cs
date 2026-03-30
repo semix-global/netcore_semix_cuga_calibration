@@ -69,6 +69,9 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
+
+    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]

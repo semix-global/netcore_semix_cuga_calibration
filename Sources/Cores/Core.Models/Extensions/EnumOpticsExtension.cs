@@ -99,51 +99,44 @@ public static class EnumOpticsExtension
         };
     }
 
-    extension(OpticsChannelModeEnum @this)
+    #endregion Polarization
+
+    #region Collector Polarization
+
+    extension(int @this)
     {
-        public CgNDFCHEnum ToCgChannelTypeEnum() => @this switch
+        public CgNDFCHEnum ToCgNDFChEnum() => @this switch
         {
-            OpticsChannelModeEnum.CH1_NDF => CgNDFCHEnum.CH1_NDF,
-            OpticsChannelModeEnum.CH2_NDF => CgNDFCHEnum.CH2_NDF,
-            OpticsChannelModeEnum.CH3_NDF => CgNDFCHEnum.CH3_NDF,
+            1 => CgNDFCHEnum.CH1_NDF,
+            2 => CgNDFCHEnum.CH2_NDF,
+            3 => CgNDFCHEnum.CH3_NDF,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgNDFCHEnum>(nameof(@this))
-        };
-    }
-
-    extension(CgNDFCHEnum @this)
-    {
-        public OpticsChannelModeEnum ToOpticsChannelModeEnum() => @this switch
-        {
-            CgNDFCHEnum.CH1_NDF => OpticsChannelModeEnum.CH1_NDF,
-            CgNDFCHEnum.CH2_NDF => OpticsChannelModeEnum.CH2_NDF,
-            CgNDFCHEnum.CH3_NDF => OpticsChannelModeEnum.CH3_NDF,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsChannelModeEnum>(nameof(@this))
-        };
-    }
-
-    extension(OpticsNDFTypeEnum @this)
-    {
-        public CgNDFTypeEnum ToCgNDFTypeEnum() => @this switch
-        {
-            OpticsNDFTypeEnum.S => CgNDFTypeEnum.S,
-            OpticsNDFTypeEnum.P => CgNDFTypeEnum.P,
-            OpticsNDFTypeEnum.N => CgNDFTypeEnum.N,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgNDFTypeEnum>(nameof(@this))
         };
     }
 
     extension(CgNDFTypeEnum @this)
     {
-        public OpticsNDFTypeEnum ToOpticsNDFTypeEnum() => @this switch
+        public OpticsCollectorPolarizationModeEnum ToCollectorPolarizationModeEnum() => @this switch
         {
-            CgNDFTypeEnum.S => OpticsNDFTypeEnum.S,
-            CgNDFTypeEnum.P => OpticsNDFTypeEnum.P,
-            CgNDFTypeEnum.N => OpticsNDFTypeEnum.N,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsNDFTypeEnum>(nameof(@this))
+            CgNDFTypeEnum.N => OpticsCollectorPolarizationModeEnum.N,
+            CgNDFTypeEnum.P => OpticsCollectorPolarizationModeEnum.P,
+            CgNDFTypeEnum.S => OpticsCollectorPolarizationModeEnum.S,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsCollectorPolarizationModeEnum>(nameof(@this))
         };
     }
 
-    #endregion Polarization
+    extension(OpticsCollectorPolarizationModeEnum @this)
+    {
+        public CgNDFTypeEnum ToCgNDFTypeEnum() => @this switch
+        {
+            OpticsCollectorPolarizationModeEnum.N => CgNDFTypeEnum.N,
+            OpticsCollectorPolarizationModeEnum.P => CgNDFTypeEnum.P,
+            OpticsCollectorPolarizationModeEnum.S => CgNDFTypeEnum.S,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgNDFTypeEnum>(nameof(@this))
+        };
+    }
+
+    #endregion Collector Polarization
 
     #region OpticsIlluminationMode
 

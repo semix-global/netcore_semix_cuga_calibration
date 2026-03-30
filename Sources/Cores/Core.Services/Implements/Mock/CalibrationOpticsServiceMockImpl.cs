@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
@@ -19,12 +20,16 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationOpticsService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 {
+    private double _currentDOEMotorValue;
     private double _currentRelayMotorValue;
     private double _currentINCMotorValue;
     private double _currentSCL1MotorValue;
     private double _currentSCL3MotorValue;
-    private OpticsApodizationModeEnum _currentOpticsApodizationModeEnum;
+    private double _currentCollectorPolarizationMotorValue;
+    private OpticsApodizationModeEnum _currentOpticsApodizationModeEnum = OpticsApodizationModeEnum.None;
     private OpticsPolarizationModeEnum _currentOpticsPolarizationModeEnum;
+    private OpticsCollectorPolarizationModeEnum _currentOpticsCollectorPolarizationModeEnum;
+    private readonly ConcurrentDictionary<int, OpticsCollectorPolarizationModeEnum> _currentChannelCollectorPolarizationModeEnumDictionary = [];
 
     public SxExecuteRet<bool> Connect()
     {
@@ -229,6 +234,22 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformations.OrderBy(t => t)]);
     }
 
+    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(_currentDOEMotorValue);
+    }
+
+    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    {
+        Thread.Sleep(100);
+
+        _currentDOEMotorValue = value;
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<double> GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
         Thread.Sleep(100);
@@ -278,6 +299,22 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<double> GetCollectorPolarizationMotorAbsoluteValue(int channelId)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(_currentCollectorPolarizationMotorValue);
+    }
+
+    public SxExecuteRet<bool> SetCollectorPolarizationMotorAbsoluteValue(int channelId, double value)
+    {
+        Thread.Sleep(100);
+
+        _currentCollectorPolarizationMotorValue = value;
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> ToggleODFilter(bool isEnable)
     {
         Thread.Sleep(100);
@@ -317,38 +354,34 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
-    {
-        return SxExecuteRetHelper.CreateSuccess((0d, 20d, 1d));
-    }
-
-    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
-    {
-        return SxExecuteRetHelper.CreateSuccess(5d);
-    }
-
-    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type)
+    public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode()
     {
         Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(_currentOpticsCollectorPolarizationModeEnum);
+    }
+
+    public SxExecuteRet<bool> SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
+    {
+        Thread.Sleep(100);
+
+        _currentOpticsCollectorPolarizationModeEnum = opticsCollectorPolarizationModeEnum;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type)
+    public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode(int channelId)
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(true);
+        return SxExecuteRetHelper.CreateSuccess(_currentChannelCollectorPolarizationModeEnumDictionary.GetOrAdd(channelId, _currentOpticsCollectorPolarizationModeEnum));
     }
 
-    public SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val)
+    public SxExecuteRet<bool> SetCollectorPolarizationMode(int channelId, OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
     {
         Thread.Sleep(100);
+
+        _currentChannelCollectorPolarizationModeEnumDictionary.AddOrUpdate(channelId, opticsCollectorPolarizationModeEnum, (_, _) => opticsCollectorPolarizationModeEnum);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }

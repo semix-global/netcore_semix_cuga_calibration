@@ -50,6 +50,7 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
+                        <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

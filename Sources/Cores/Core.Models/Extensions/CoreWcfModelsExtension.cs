@@ -22,7 +22,6 @@ using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
@@ -315,13 +314,13 @@ public static class CoreWcfModelsExtension
         var isOkCount = result.Where(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && applicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
                                           && applicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
-                                          && applicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum)
+                                          && applicationCookie.OpticsCollectorPolarizationModeEnums.Contains(t.OpticsCollectorPolarizationModeEnum)
                                           && t.IsOk)
             .SelectMany(t => t.Items)
             .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
 
         var isOk = isOkCount == applicationCookie.ProductivityInformations.Count
-            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count
+            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.OpticsCollectorPolarizationModeEnums.Count
             * applicationCookie.CIBInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";
@@ -462,13 +461,13 @@ public static class CoreWcfModelsExtension
         var isOkCount = result.Where(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && applicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
                                           && applicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
-                                          && applicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum)
+                                          && applicationCookie.OpticsCollectorPolarizationModeEnums.Contains(t.OpticsCollectorPolarizationModeEnum)
                                           && t.IsOk)
             .SelectMany(t => t.Items)
             .Count(t => applicationCookie.CIBInformations.Contains(t.CIBInformation));
 
         var isOk = isOkCount == applicationCookie.ProductivityInformations.Count
-            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.CollectorPolarizationModeEnums.Count
+            * applicationCookie.OpticsApodizationModeEnums.Count * applicationCookie.OpticsPolarizationModeEnums.Count * applicationCookie.OpticsCollectorPolarizationModeEnums.Count
             * applicationCookie.CIBInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB Light Matching is Empty";

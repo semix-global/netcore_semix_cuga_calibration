@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
-using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
@@ -295,6 +294,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -319,6 +319,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
@@ -337,7 +338,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             Guard.IsGreaterThan(Cache.Item.ImageHorizontalProjectsSegmentCount, 0);
 
             var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
-            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = OpticsViewModel.GetCollectorPolarizationMode();
 
             var detectImageDirectory = ImageFileDirectory;
 
@@ -354,6 +355,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
@@ -379,7 +381,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             CalibratingItem.PrescanAODWaveformProfileMappings = [];
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
-            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+            OpticsViewModel.SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum.N);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -591,7 +593,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
-                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
+                OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
             }
         });
     }
@@ -602,7 +604,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
-            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = OpticsViewModel.GetCollectorPolarizationMode();
 
             var detectImageDirectory = ImageFileDirectory;
 
@@ -614,6 +616,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
@@ -634,7 +637,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             };
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
-            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+            OpticsViewModel.SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum.N);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -701,7 +704,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
-                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
+                OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
             }
         });
     }
@@ -712,7 +715,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
-            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = OpticsViewModel.GetCollectorPolarizationMode();
 
             var detectImageDirectory = ImageFileDirectory;
 
@@ -726,6 +729,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 Cache.LaserLightInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
@@ -771,7 +775,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             CalibratingItem.OpticsPolarizationModeEnumMeasurePowers = [];
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
-            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+            OpticsViewModel.SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum.N);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -802,6 +806,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         Cache.Item.ImageWidth,
                         cibInformations,
                         (true, null),
+                        (false, Cache.Item.OpticsConfiguration),
                         (false, Cache.Item.CIBConfiguration),
                         (true, null),
                         false,
@@ -1034,7 +1039,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         cancellationToken.ThrowIfCancellationRequested();
 
                         OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
-                        CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+                        OpticsViewModel.SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum.N);
 
                         await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 
@@ -1053,7 +1058,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
-                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
+                OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
             }
         });
     }
@@ -1148,6 +1153,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             Cache.Item.ImageWidth,
             Cache.Item.CIBInformation,
             (false, CalChipSiteModelEnum.HazeModel),
+            (false, Cache.Item.OpticsConfiguration),
             (false, Cache.Item.CIBConfiguration),
             (true, null),
             false,

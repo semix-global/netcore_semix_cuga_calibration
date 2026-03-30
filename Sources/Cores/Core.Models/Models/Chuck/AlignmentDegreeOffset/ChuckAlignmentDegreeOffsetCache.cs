@@ -51,8 +51,5 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
 public sealed partial class ChuckAlignmentDegreeOffsetCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
-
-    [ObservableProperty]
     private int _xWidthPixel = 800;
 }
