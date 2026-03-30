@@ -84,10 +84,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
     private List<(double x1, double x2)> defaultXList = [];
 
-    private bool IsX1Stop = false;
-    private bool IsX2Stop = false;
-    private bool IsX3Stop = false;
-    private bool IsX4Stop = false;
+    private bool IsX1Stop;
+    private bool IsX2Stop;
+    private bool IsX3Stop;
+    private bool IsX4Stop;
 
     [ObservableProperty]
     private List<WpfPlotModel> _plotList = [];
