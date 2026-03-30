@@ -1,4 +1,4 @@
-using Core.Models.Enums.Collector;
+using Core.Models.Enums.Optics;
 using Core.Models.Exceptions;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;

@@ -1,4 +1,3 @@
-using Core.Models.Enums.Collector;
 using Core.Models.Helper;
 using Core.Services.Interfaces;
 using Cuga.Interface.Diagnosis;

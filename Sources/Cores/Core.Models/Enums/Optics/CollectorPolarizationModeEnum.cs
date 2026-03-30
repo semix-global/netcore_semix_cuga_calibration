@@ -1,4 +1,4 @@
-﻿namespace Core.Models.Enums.Collector;
+﻿namespace Core.Models.Enums.Optics;
 
 /// <summary>
 /// 采集偏振

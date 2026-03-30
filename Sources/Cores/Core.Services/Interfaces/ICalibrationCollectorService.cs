@@ -1,4 +1,4 @@
-using Core.Models.Enums.Collector;
+using Core.Models.Enums.Optics;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
