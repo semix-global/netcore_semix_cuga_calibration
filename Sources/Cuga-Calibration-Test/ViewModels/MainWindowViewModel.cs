@@ -7,7 +7,7 @@ using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.Laser.AutoFocus;
+using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Setting;
@@ -42,6 +42,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationTest.ViewModels;
@@ -528,7 +529,7 @@ public sealed partial class MainWindowViewModel(
         cacheProvider.SetArray<AdsXGainsItemDto>([], CancellationToken.None);
         cacheProvider.SetArray<AdsYGainsItemDto>([], CancellationToken.None);
         cacheProvider.Set<ChuckGlobalScaleErrorDto>(new ChuckGlobalScaleErrorDto(), CancellationToken.None);
-        cacheProvider.Set<LaserAutoFocusDto>(new LaserAutoFocusDto(), CancellationToken.None);
+        cacheProvider.Set<DarkAutoFocusDTO>(new DarkAutoFocusDTO(), CancellationToken.None);
         cacheProvider.Set<LaserBeamStabilizerObjDto>(new LaserBeamStabilizerObjDto(), CancellationToken.None);
         cacheProvider.SetArray<LaserOpticalPowerMeterDTO>([], CancellationToken.None);
         cacheProvider.SetArray<LaserAttenuatorDTO>([], CancellationToken.None);

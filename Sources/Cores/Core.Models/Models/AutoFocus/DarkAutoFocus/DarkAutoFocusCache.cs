@@ -2,9 +2,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Laser.AutoFocus;
+namespace Core.Models.Models.AutoFocus.DarkAutoFocus;
 
-public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
+public sealed partial class DarkAutoFocusCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -64,7 +64,13 @@ public sealed partial class LaserAutoFocusCache : CalibrationCacheBase
     private double _thresholdCurrentMax = 5500;
 
     [ObservableProperty]
+    private double _findCurrentStart = 0;
+    
+    [ObservableProperty]
     private double _findCurrentStep = 100;
+    
+    [ObservableProperty]
+    private double _findCurrentStop = 5000;
 
     [ObservableProperty]
     private double _lowCoefficient = 0.6d;

@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Enums.Stage;
 using Core.Models.Events;
-using Core.Models.Models.Laser.AutoFocus;
+using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Diagnosis.AdsDiagonosis;
 using MathNet.Numerics.LinearAlgebra;
@@ -24,6 +24,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using Core.Models.Models.AutoFocus.DarkAutoFocus;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Diagnosis;
 
@@ -44,7 +45,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
     public string DiagnosisHtmlLogFileName => string.IsNullOrWhiteSpace(LogHtmlFileName) ? "Diagnosis" : $"Diagnosis-{FileHelper.RemoveInvalidFileName(LogHtmlFileName)}";
 
     [ObservableProperty]
-    private LaserAutoFocusDto _resultLaserAutoFocusDto;
+    private DarkAutoFocusDTO _resultDarkAutoFocusDTO;
 
     [ObservableProperty]
     private StageCoordinateSystemEnum _stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
@@ -168,25 +169,25 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
     private ObservableCollection<AfGetAnyNscData> _afAnyPositionDataList = [];
 
     [ObservableProperty]
-    private ObservableCollection<LaserAutoFocusDto> _nscAnyPositionList = [];
+    private ObservableCollection<DarkAutoFocusDTO> _nscAnyPositionList = [];
 
     [RelayCommand(CanExecute = nameof(IsEnableWindow))]
     private async Task LoadAsync()
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserAutoFocusDto>(out var laserAutoFocusDto, out var errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<DarkAutoFocusDTO>(out var laserAutoFocusDto, out var errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
         }
 
-        ResultLaserAutoFocusDto = laserAutoFocusDto;
+        ResultDarkAutoFocusDTO = laserAutoFocusDto;
     }
 
     [RelayCommand]
     private async Task OnceDianosisActionAsync(CancellationToken cancellationToken)
     {
-        Guard.IsNotNull(ResultLaserAutoFocusDto);
+        Guard.IsNotNull(ResultDarkAutoFocusDTO);
         AfAnyPositionDataList.Clear();
         for (int j = 0; j < SelectPositions.Count; j++)
         {
@@ -208,8 +209,8 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
                 afViewModel.SetSensorNscCompensation(0, 1);
                 await Task.Delay(100, cancellationToken);
 
-                afViewModel.SetSensorCurrentValue(true, ResultLaserAutoFocusDto.CurrentA);
-                afViewModel.SetSensorCurrentValue(false, ResultLaserAutoFocusDto.CurrentB);
+                afViewModel.SetSensorCurrentValue(true, ResultDarkAutoFocusDTO.CurrentA);
+                afViewModel.SetSensorCurrentValue(false, ResultDarkAutoFocusDTO.CurrentB);
                 await Task.Delay(100, cancellationToken);
 
                 afViewModel.ToggleDarkFieldEnable(true);
@@ -323,7 +324,7 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
     [RelayCommand]
     private async Task GetEcsOfMotorActionAsync(CancellationToken cancellationToken)
     {
-        Guard.IsNotNull(ResultLaserAutoFocusDto);
+        Guard.IsNotNull(ResultDarkAutoFocusDTO);
         for (int j = 0; j < SelectPositions.Count; j++)
         {
             if (j >= AfAnyPositionDataList.Count)
@@ -331,16 +332,16 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
             var currentNsc = AfAnyPositionDataList[j].CurrentNsc;
             var nscVector = Vector<double>.Build.DenseOfEnumerable(currentNsc);
             Vector<double> nscIntervalVector;
-            if (ResultLaserAutoFocusDto.IsNscUseMaxValue)
+            if (ResultDarkAutoFocusDTO.IsNscUseMaxValue)
             {
                 var nscMaxIndex = nscVector.MaximumIndex();
                 var nscMinPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
                 var nscMinNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
-                nscIntervalVector = ResultLaserAutoFocusDto.IsNscUsePositiveSlope
+                nscIntervalVector = ResultDarkAutoFocusDTO.IsNscUsePositiveSlope
                     ? nscVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex)
                     : nscVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
 
-                if (ResultLaserAutoFocusDto.IsNscUsePositiveSlope)
+                if (ResultDarkAutoFocusDTO.IsNscUsePositiveSlope)
                 {
                     for (int i = nscMinPositiveLeftIndex; i <= nscMaxIndex; i++)
                     {
@@ -368,11 +369,11 @@ public sealed partial class AfGetAnyNscDiagnosisWindowViewModel(
                 var nscMinIndex = nscVector.MinimumIndex();
                 var nscMaxNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
                 var nscMaxPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
-                nscIntervalVector = ResultLaserAutoFocusDto.IsNscUsePositiveSlope
+                nscIntervalVector = ResultDarkAutoFocusDTO.IsNscUsePositiveSlope
                     ? nscVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex)
                     : nscVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
 
-                if (ResultLaserAutoFocusDto.IsNscUsePositiveSlope)
+                if (ResultDarkAutoFocusDTO.IsNscUsePositiveSlope)
                 {
                     for (int i = nscMinIndex; i <= nscMaxPositiveRightIndex; i++)
                     {

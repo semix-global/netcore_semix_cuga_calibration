@@ -22,7 +22,7 @@ using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.Laser.AutoFocus;
+using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
@@ -35,6 +35,7 @@ using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Interfaces;
 using Net.Utilities.WPF.MVVM;
+using DarkAutoFocusDTO = Core.Models.Models.AutoFocus.DarkAutoFocus.DarkAutoFocusDTO;
 
 namespace Core.Models.Extensions;
 
@@ -252,7 +253,7 @@ public static class CoreWcfModelsExtension
 
     #region Laser
 
-    public static bool IsOk(this LaserAutoFocusDto result, out string errorMessage)
+    public static bool IsOk(this DarkAutoFocusDTO result, out string errorMessage)
     {
         errorMessage = string.Empty;
 
