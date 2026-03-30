@@ -226,7 +226,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             try
             {
-                CalibratingItem = new();
+                CalibratingItem = new DarkAutoFocusDTO();
 
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
@@ -243,9 +243,9 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 var currentBCalibrationTask = Task.Run(() => GetCurrentResultAsync(CalibratingItem.CurrentBDTO, false),
                     cancellationToken);
 
-                Task.WaitAll([currentACalibrationTask, currentBCalibrationTask], cancellationToken);
+                await Task.WhenAll(currentBCalibrationTask, currentBCalibrationTask);
 
-                var result = currentACalibrationTask.Result && currentBCalibrationTask.Result;
+                var result = await currentACalibrationTask && await currentBCalibrationTask;
 
                 if (result)
                 {
@@ -943,8 +943,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             try
             {
-                var afMotorAbsoluteValues = Generate.LinearRange((double)Cache.StartAFMotorAbsoluteValue,
-                    Cache.StepAFMotorAbsoluteValue, Cache.StopAFMotorAbsoluteValue);
+                var afMotorAbsoluteValues = Generate.LinearRangeContainsEdge(Cache.StartAFMotorAbsoluteValue, Cache.StepAFMotorAbsoluteValue, Cache.StopAFMotorAbsoluteValue);
                 var closestIndex = afMotorAbsoluteValues
                     .Index()
                     .OrderBy(x => Math.Abs(x.Item - originPosition))
@@ -1025,13 +1024,6 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
-        if (Review is null)
-        {
-            DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK,
-                DialogIconEnum.Warning);
-            return;
-        }
-
         await InvokeVerifyAsync(async () =>
         {
             Review.IsVerified = false;
@@ -1105,7 +1097,6 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 var fbBuffer = traceBufferList.Select(t => t.Fb).ToArray();
                 var nbBuffer = traceBufferList.Select(t => t.Nb).ToArray();
                 var nscVector = Vector<double>.Build.DenseOfEnumerable(nscBuffer);
-                var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecsBuffer);
 
                 Vector<double> nscIntervalVector;
                 if (Review.IsNscUseMaxValue)
