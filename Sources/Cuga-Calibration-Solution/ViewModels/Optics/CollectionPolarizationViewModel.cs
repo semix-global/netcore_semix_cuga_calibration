@@ -163,6 +163,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.LaserLightInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.CIBInformation
             }), HtmlLogUniqueId.LoggingHtml());
@@ -195,6 +196,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                     Cache.ImageWidth,
                     CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.OpticsConfiguration),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,
@@ -253,6 +255,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                     Cache.ImageWidth,
                     CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.OpticsConfiguration),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,
@@ -311,6 +314,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                     Cache.ImageWidth,
                     CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.OpticsConfiguration),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,
@@ -370,6 +374,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                     Cache.ImageWidth,
                     CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.OpticsConfiguration),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,
@@ -428,6 +433,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                     Cache.ImageWidth,
                     CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.OpticsConfiguration),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,
@@ -486,6 +492,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                     Cache.ImageWidth,
                     CIBInfor,
                     (false, CalChipSiteModelEnum.HazeModel),
+                    (false, Cache.OpticsConfiguration),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,

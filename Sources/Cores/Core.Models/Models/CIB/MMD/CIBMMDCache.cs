@@ -16,6 +16,9 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    
+    [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
 
     [ObservableProperty]
     private IReadOnlyList<CIBInformation> _cIBInformations = [];

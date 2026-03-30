@@ -156,6 +156,7 @@
                                             <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                                         </i:Interaction.Behaviors>
                                     </ComboBox>
+                                    <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
                                     <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                                     <Expander Header="Position"
                                               IsExpanded="False"

@@ -135,9 +135,8 @@
                             </hc:ComboBox>
                         </hc:UniformSpacingPanel>
                     </GroupBox>
-                    <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
-                        <pattern:CIBConfigurationUserControl DataContext="{Binding CIBConfiguration}" />
-                    </hc:UniformSpacingPanel>
+                    <pattern:OpticsConfigurationUserControl DataContext="{Binding OpticsConfiguration}" />
+                    <pattern:CIBConfigurationUserControl DataContext="{Binding CIBConfiguration}" />
                 </hc:UniformSpacingPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>

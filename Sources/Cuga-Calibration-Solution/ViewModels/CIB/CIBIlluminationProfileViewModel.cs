@@ -358,6 +358,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     cibInformations,
                                     (true, null),
                                     (true, null),
+                                    (true, null),
                                     (false, Cache.Item.LaserLightInformation),
                                     false,
                                     cancellationToken,

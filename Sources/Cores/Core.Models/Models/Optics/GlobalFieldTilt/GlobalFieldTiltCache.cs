@@ -71,6 +71,9 @@ public partial class GlobalFieldTiltCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
+    
+    [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

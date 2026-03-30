@@ -289,7 +289,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 IsAutoGain = Cache.CIBConfiguration.IsAutoGainControl,
                 DcGainVoltage = Cache.CIBConfiguration.Gain,
                 IsL0k = Cache.CIBConfiguration.IsL0K,
-                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode
+                CIBProfileTypeEnum = Cache.CIBConfiguration.CIBProfileMode,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -454,6 +456,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             Cache.XWidthPixel,
             CalibrationSetting.SettingCommonParam.MainCIBInformation,
             (false, CalChipSiteModelEnum.ChuckModel),
+            (false, Cache.OpticsConfiguration),
             (false, Cache.CIBConfiguration),
             (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
             false,
@@ -1191,6 +1194,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                         Cache.XWidthPixel,
                         CalibrationSetting.SettingCommonParam.MainCIBInformation,
                         (false, CalChipSiteModelEnum.ChuckModel),
+                        (false, Cache.OpticsConfiguration),
                         (false, Cache.CIBConfiguration),
                         (false, CalibrationSetting.SettingCommonParam.MainLaserLightInformation),
                         false,

@@ -80,6 +80,9 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
 
     [ObservableProperty]
     private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    
+    [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
 
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();

@@ -60,6 +60,9 @@ public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
     private double _stepEcs;
 
     #region Haze
+    
+    [ObservableProperty]
+    private OpticsConfiguration _hazeOpticsConfiguration = new();
 
     [ObservableProperty]
     private CIBConfiguration _hazeCIBConfiguration = new();
@@ -80,6 +83,9 @@ public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
 
     #region DSW
 
+    [ObservableProperty]
+    private OpticsConfiguration _dSWOpticsConfiguration = new();
+    
     [ObservableProperty]
     private CIBConfiguration _dSWCIBConfiguration = new();
 
@@ -161,9 +167,11 @@ public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
         ImageWidth = ImageWidthPixel,
         RangeEcs,
         StepEcs,
+        HazeOpticsConfiguration = new HtmlQuote(HazeOpticsConfiguration.ToHtmlAnonymous()),
         HazeCIBConfiguration = new HtmlQuote(HazeCIBConfiguration.ToHtmlAnonymous()),
         HazeLaserLightInformation,
         HazeBrightFieldPosition,
+        DSWOpticsConfiguration = new HtmlQuote(DSWOpticsConfiguration.ToHtmlAnonymous()),
         DSWCIBConfiguration = new HtmlQuote(DSWCIBConfiguration.ToHtmlAnonymous()),
         DSWLaserLightInformation,
         DSWBrightFieldPosition
@@ -392,6 +400,7 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
                     Cache.ImageWidthPixel,
                     ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == calibrationSetting.SettingCommonParam.MainCIBInformation.ChannelId),
                     (false, CalChipSiteModelEnum.DswModel),
+                    (false, Cache.DSWOpticsConfiguration),
                     (false, Cache.DSWCIBConfiguration),
                     (false, Cache.DSWLaserLightInformation),
                     false,
@@ -514,6 +523,7 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(calChipSiteModelEnum))
                 };
 
+                var opticsConfiguration = ObjectHelper.GetPropertyValue<OpticsConfiguration>(Cache, nameof(Cache.HazeOpticsConfiguration).Replace(Haze, name));
                 var cibConfiguration = ObjectHelper.GetPropertyValue<CIBConfiguration>(Cache, nameof(Cache.HazeCIBConfiguration).Replace(Haze, name));
                 var laserLightInformation = ObjectHelper.GetPropertyValue<LaserLightInformation>(Cache, nameof(Cache.HazeLaserLightInformation).Replace(Haze, name));
                 var brightFieldPosition = ObjectHelper.GetPropertyValue<Point>(Cache, nameof(Cache.HazeBrightFieldPosition).Replace(Haze, name));
@@ -564,6 +574,7 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
                         Cache.ImageWidthPixel,
                         [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PmtId)],
                         (false, calChipSiteModelEnum),
+                        (false, opticsConfiguration),
                         (false, cibConfiguration),
                         (false, laserLightInformation),
                         false,

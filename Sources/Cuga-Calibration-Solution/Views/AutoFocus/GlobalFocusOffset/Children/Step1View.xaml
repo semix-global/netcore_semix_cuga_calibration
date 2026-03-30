@@ -69,6 +69,7 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                             </b:Interaction.Behaviors>
                         </ComboBox>
+                        <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.Item.OpticsConfiguration}" />
                         <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"

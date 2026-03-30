@@ -144,7 +144,14 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <Expander Header="CIB"
+                            <Expander Header="Optics Configuration"
+                                      IsExpanded="False"
+                                      ExpandDirection="Down">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
+                                </Border>
+                            </Expander>
+                            <Expander Header="CIB Configuration"
                                       IsExpanded="False"
                                       ExpandDirection="Down">
                                 <Border Style="{StaticResource BorderRegion}">

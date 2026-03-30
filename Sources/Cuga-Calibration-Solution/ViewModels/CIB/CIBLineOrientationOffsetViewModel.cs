@@ -28,7 +28,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBLineOrientationOffsetViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBLineOrientationOffsetViewModel() : CalibrationViewModelBase
+public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -244,6 +244,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel() : CalibrationVie
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.CIBInformation,
                 Cache.Item.LaserLightInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -387,6 +388,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel() : CalibrationVie
                 Cache.Item.XWidthPixel,
                 Cache.Item.CIBInformation,
                 (false, CalChipSiteModelEnum.ChuckModel),
+                (false, Cache.Item.OpticsConfiguration),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 false,
@@ -450,6 +452,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel() : CalibrationVie
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
@@ -571,6 +574,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel() : CalibrationVie
                     Cache.ProductivityInformation,
                     Cache.Item.MicroscopeLensInformation,
                     Cache.Item.LaserLightInformation,
+                    OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                     CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.CIBInformation,
                     Cache.Item.IsDarkFieldAlignment,
@@ -683,6 +687,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel() : CalibrationVie
                 Cache.Item.XWidthPixel,
                 ApplicationCookie.CIBInformations.Single(t => t.PMTId == lineOrientationOffsetDto.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
                 (false, CalChipSiteModelEnum.ChuckModel),
+                (false, Cache.Item.OpticsConfiguration),
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 false,

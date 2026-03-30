@@ -134,7 +134,12 @@
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <Expander IsExpanded="False"
                                               ExpandDirection="Down"
-                                              Header="CIB">
+                                              Header="Optics Configuration">
+                                        <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.HazeOpticsConfiguration}" />
+                                    </Expander>
+                                    <Expander IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Header="CIB Configuration">
                                         <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.HazeCIBConfiguration}" />
                                     </Expander>
                                     <ComboBox HorizontalAlignment="Left"
@@ -178,7 +183,12 @@
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <Expander IsExpanded="False"
                                               ExpandDirection="Down"
-                                              Header="CIB">
+                                              Header="Optics Configuration">
+                                        <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.DSWOpticsConfiguration}" />
+                                    </Expander>
+                                    <Expander IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Header="CIB Configuration">
                                         <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.DSWCIBConfiguration}" />
                                     </Expander>
                                     <ComboBox HorizontalAlignment="Left"

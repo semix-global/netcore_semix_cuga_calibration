@@ -234,6 +234,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -287,6 +288,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.DSWFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
@@ -311,6 +313,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                 Cache.Item.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.DSWFindBFMachinePosition,
                 Cache.Item.ScanLength,
@@ -386,6 +389,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                         stopECS,
                         Cache.Item.CIBInformation,
                         (true, null),
+                        (false, Cache.Item.OpticsConfiguration),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,
