@@ -6,8 +6,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.CollectPolarization;
-using Core.Models.Models.Setting;
-using Core.Services.Interfaces;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
@@ -24,12 +22,7 @@ using Point = Net.Utilities.Models.Geometries.Point;
 namespace CugaCalibration.ViewModels.Optics;
 
 [IOCAppService(ServiceType = typeof(CollectionPolarizationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CollectionPolarizationViewModel(
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting,
-    ICalibrationFourierService calibrationFlourierService,
-    ICalibrationOpticsService calibrationOpticService,
-    ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
+public sealed partial class CollectionPolarizationViewModel : CalibrationViewModelBase
 {
     #region 界面相关
 
@@ -181,12 +174,12 @@ public sealed partial class CollectionPolarizationViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step2Async(CancellationToken cancellationToken)
     {
-        calibrationOpticService.SetPolarization(OpticsPolarizationModeEnum.P);
+        OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
         return InvokeCalibrateAsync(async () =>
         {
             Cache.PolarizationPositionNDFSListCH1 = [];
             var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 1);
-            calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH1_NDF, OpticsNDFTypeEnum.S);
+            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.S);
 
             double[] angleArray = Generate.LinearRange(
                 Cache.FindAngleMin,
@@ -210,7 +203,7 @@ public sealed partial class CollectionPolarizationViewModel(
                 if (darkFieldImage == null)
                     continue;
 
-                calibrationOpticService.SetNDFRotary(OpticsChannelModeEnum.CH1_NDF, i);
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
                 double pmtValue = darkFieldImage.Image.GetIntensity().Average;
                 Cache.PolarizationPositionNDFSListCH1 = [.. Cache.PolarizationPositionNDFSListCH1, new Point(i, pmtValue)];
@@ -244,7 +237,7 @@ public sealed partial class CollectionPolarizationViewModel(
         {
             Cache.PolarizationPositionNDFSListCH2 = [];
             var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 2);
-            calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH2_NDF, OpticsNDFTypeEnum.S);
+            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.S);
 
             double[] angleArray = Generate.LinearRange(
                 Cache.FindAngleMin,
@@ -268,7 +261,7 @@ public sealed partial class CollectionPolarizationViewModel(
                 if (darkFieldImage == null)
                     continue;
 
-                calibrationOpticService.SetNDFRotary(OpticsChannelModeEnum.CH2_NDF, i);
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
                 double pmtValue = darkFieldImage.Image.GetIntensity().Average;
                 Cache.PolarizationPositionNDFSListCH2 = [.. Cache.PolarizationPositionNDFSListCH2, new Point(i, pmtValue)];
@@ -302,7 +295,7 @@ public sealed partial class CollectionPolarizationViewModel(
         {
             Cache.PolarizationPositionNDFSListCH3 = [];
             var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 3);
-            calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH3_NDF, OpticsNDFTypeEnum.S);
+            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.S);
 
             double[] angleArray = Generate.LinearRange(
                 Cache.FindAngleMin,
@@ -326,7 +319,7 @@ public sealed partial class CollectionPolarizationViewModel(
                 if (darkFieldImage == null)
                     continue;
 
-                calibrationOpticService.SetNDFRotary(OpticsChannelModeEnum.CH3_NDF, i);
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
                 double pmtValue = darkFieldImage.Image.GetIntensity().Average;
                 Cache.PolarizationPositionNDFSListCH3 = [.. Cache.PolarizationPositionNDFSListCH3, new Point(i, pmtValue)];
@@ -356,12 +349,12 @@ public sealed partial class CollectionPolarizationViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step5Async(CancellationToken cancellationToken)
     {
-        calibrationOpticService.SetPolarization(OpticsPolarizationModeEnum.S);
+        OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.S);
         return InvokeCalibrateAsync(async () =>
         {
             Cache.PolarizationPositionNDFPListCH1 = [];
             var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 1);
-            calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH1_NDF, OpticsNDFTypeEnum.P);
+            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.P);
 
             double[] angleArray = Generate.LinearRange(
                 Cache.FindAngleMin,
@@ -385,7 +378,7 @@ public sealed partial class CollectionPolarizationViewModel(
                 if (darkFieldImage == null)
                     continue;
 
-                calibrationOpticService.SetNDFRotary(OpticsChannelModeEnum.CH1_NDF, i);
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
                 double pmtValue = darkFieldImage.Image.GetIntensity().Average;
                 Cache.PolarizationPositionNDFPListCH1 = [.. Cache.PolarizationPositionNDFPListCH1, new Point(i, pmtValue)];
@@ -419,7 +412,7 @@ public sealed partial class CollectionPolarizationViewModel(
         {
             Cache.PolarizationPositionNDFPListCH2 = [];
             var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 2);
-            calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH2_NDF, OpticsNDFTypeEnum.P);
+            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.P);
 
             double[] angleArray = Generate.LinearRange(
                 Cache.FindAngleMin,
@@ -443,7 +436,7 @@ public sealed partial class CollectionPolarizationViewModel(
                 if (darkFieldImage == null)
                     continue;
 
-                calibrationOpticService.SetNDFRotary(OpticsChannelModeEnum.CH2_NDF, i);
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
                 double pmtValue = darkFieldImage.Image.GetIntensity().Average;
                 Cache.PolarizationPositionNDFPListCH2 = [.. Cache.PolarizationPositionNDFPListCH2, new Point(i, pmtValue)];
@@ -477,7 +470,7 @@ public sealed partial class CollectionPolarizationViewModel(
         {
             Cache.PolarizationPositionNDFPListCH3 = [];
             var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 3);
-            calibrationOpticService.SetNDF(OpticsChannelModeEnum.CH3_NDF, OpticsNDFTypeEnum.P);
+            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.P);
 
             double[] angleArray = Generate.LinearRange(
                 Cache.FindAngleMin,
@@ -501,7 +494,7 @@ public sealed partial class CollectionPolarizationViewModel(
                 if (darkFieldImage == null)
                     continue;
 
-                calibrationOpticService.SetNDFRotary(OpticsChannelModeEnum.CH3_NDF, i);
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
                 double pmtValue = darkFieldImage.Image.GetIntensity().Average;
                 Cache.PolarizationPositionNDFPListCH3 = [.. Cache.PolarizationPositionNDFPListCH3, new Point(i, pmtValue)];

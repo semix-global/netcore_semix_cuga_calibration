@@ -16,6 +16,7 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.Runtime.CompilerServices;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace Core.Services.Implements.WCF;
 
@@ -526,7 +527,7 @@ public sealed class CalibrationCIBServiceImpl(
         bool isForward,
         bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken,
-        [CallerMemberName] string name = "")
+        [CallerMemberName] string name = Constants.EmptyString)
     {
         var getDFImgCalibrationRet = GetDFImgCalibration(sxCollectImgParam);
         if (getDFImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>(getDFImgCalibrationRet.Msg, []);

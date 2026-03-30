@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -9,6 +10,7 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Semix.CoreLib;
 
 namespace Core.Services.Implements.WCF;
@@ -61,76 +63,64 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformationList.OrderBy(t => t)]);
     }
 
-    public SxExecuteRet<double> GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => GetMotorAbsoluteValue(opticsIlluminationModeEnum switch
     {
-        var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(opticsIlluminationModeEnum switch
-        {
-            OpticsIlluminationModeEnum.OI => CgCommonType.OI_Relay,
-            OpticsIlluminationModeEnum.NI => CgCommonType.NI_Relay,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        }));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
+        OpticsIlluminationModeEnum.OI => CgCommonType.OI_DOE,
+        OpticsIlluminationModeEnum.NI => CgCommonType.NI_DOE,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+    });
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
-    }
-
-    public SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value) => SetMotorAbsoluteValue(opticsIlluminationModeEnum switch
     {
-        var sxExecuteRet = Invoke(() => Service?.OpticCommonMove(opticsIlluminationModeEnum switch
-        {
-            OpticsIlluminationModeEnum.OI => CgCommonType.OI_Relay,
-            OpticsIlluminationModeEnum.NI => CgCommonType.NI_Relay,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        }, value));
+        OpticsIlluminationModeEnum.OI => CgCommonType.OI_DOE,
+        OpticsIlluminationModeEnum.NI => CgCommonType.NI_DOE,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+    }, value);
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<double> GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    public SxExecuteRet<double> GetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => GetMotorAbsoluteValue(opticsIlluminationModeEnum switch
     {
-        var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(opticsIlluminationModeEnum switch
-        {
-            OpticsIlluminationModeEnum.OI => CgCommonType.OI_INC,
-            OpticsIlluminationModeEnum.NI => CgCommonType.NI_INC,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        }));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
+        OpticsIlluminationModeEnum.OI => CgCommonType.OI_Relay,
+        OpticsIlluminationModeEnum.NI => CgCommonType.NI_Relay,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+    });
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
-    }
-
-    public SxExecuteRet<bool> SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    public SxExecuteRet<bool> SetRelayMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value) => SetMotorAbsoluteValue(opticsIlluminationModeEnum switch
     {
-        var sxExecuteRet = Invoke(() => Service?.OpticCommonMove(opticsIlluminationModeEnum switch
-        {
-            OpticsIlluminationModeEnum.OI => CgCommonType.OI_INC,
-            OpticsIlluminationModeEnum.NI => CgCommonType.NI_INC,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        }, value));
+        OpticsIlluminationModeEnum.OI => CgCommonType.OI_Relay,
+        OpticsIlluminationModeEnum.NI => CgCommonType.NI_Relay,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+    }, value);
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+    public SxExecuteRet<double> GetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => GetMotorAbsoluteValue(opticsIlluminationModeEnum switch
+    {
+        OpticsIlluminationModeEnum.OI => CgCommonType.OI_INC,
+        OpticsIlluminationModeEnum.NI => CgCommonType.NI_INC,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+    });
 
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetINCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value) => SetMotorAbsoluteValue(opticsIlluminationModeEnum switch
+    {
+        OpticsIlluminationModeEnum.OI => CgCommonType.OI_INC,
+        OpticsIlluminationModeEnum.NI => CgCommonType.NI_INC,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
+    }, value);
 
     public SxExecuteRet<(double L1, double L3)> GetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
     {
-        var l1SxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(opticsIlluminationModeEnum switch
+        var l1SxExecuteRet = GetMotorAbsoluteValue(opticsIlluminationModeEnum switch
         {
             OpticsIlluminationModeEnum.OI => CgCommonType.OISC_L,
             OpticsIlluminationModeEnum.NI => CgCommonType.NISC_L,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        }));
+        });
         if (l1SxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double L1, double L3)>(l1SxExecuteRet.ErrorMsg, (0d, 0d));
 
-        var l3SxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(opticsIlluminationModeEnum switch
+        var l3SxExecuteRet = GetMotorAbsoluteValue(opticsIlluminationModeEnum switch
         {
             OpticsIlluminationModeEnum.OI => CgCommonType.OISC_R,
             OpticsIlluminationModeEnum.NI => CgCommonType.NISC_R,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        }));
+        });
         if (l3SxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<(double L1, double L3)>(l3SxExecuteRet.ErrorMsg, (0d, 0d));
 
         return SxExecuteRetHelper.CreateSuccess((l1SxExecuteRet.Anything, l3SxExecuteRet.Anything));
@@ -138,25 +128,40 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
     public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
     {
-        var l1SxExecuteRet = Invoke(() => Service?.OpticCommonMove(opticsIlluminationModeEnum switch
+        var l1SxExecuteRet = SetMotorAbsoluteValue(opticsIlluminationModeEnum switch
         {
             OpticsIlluminationModeEnum.OI => CgCommonType.OISC_L,
             OpticsIlluminationModeEnum.NI => CgCommonType.NISC_L,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        }, value.L1));
-
+        }, value.L1);
         if (l1SxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(l1SxExecuteRet.ErrorMsg, false);
 
-        var l3SxExecuteRet = Invoke(() => Service?.OpticCommonMove(opticsIlluminationModeEnum switch
+        var l3SxExecuteRet = SetMotorAbsoluteValue(opticsIlluminationModeEnum switch
         {
             OpticsIlluminationModeEnum.OI => CgCommonType.OISC_R,
             OpticsIlluminationModeEnum.NI => CgCommonType.NISC_R,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        }, value.L3));
-
+        }, value.L3);
         if (l3SxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(l3SxExecuteRet.ErrorMsg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<double> GetCollectorPolarizationMotorAbsoluteValue(int channelId)
+    {
+        var sxExecuteRet = Invoke(() => Service?.ReadNDFRotary(channelId.ToCgNDFChEnum()));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, 0d);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<bool> SetCollectorPolarizationMotorAbsoluteValue(int channelId, double value)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetNDFRotary(channelId.ToCgNDFChEnum(), value));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> ToggleODFilter(bool isEnable)
@@ -195,72 +200,63 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetDOEMotorRouteRange(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode()
     {
-        var motorType = opticsIlluminationModeEnum switch
-        {
-            OpticsIlluminationModeEnum.OI => CgCommonType.OI_DOE,
-            OpticsIlluminationModeEnum.NI => CgCommonType.NI_DOE,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        };
-        var sxExecuteRet = Invoke(() => Service?.GetOpticRange(motorType));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, (0d, 0d, 0d));
+        var sxExecuteRet = Invoke(() => Service?.ReadNDFType(CgNDFCHEnum.ALL));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<OpticsCollectorPolarizationModeEnum>(sxExecuteRet.ErrorMsg, default);
 
-        return SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.min, sxExecuteRet.Anything.max, 0.001));
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.ToCollectorPolarizationModeEnum());
     }
 
-    public SxExecuteRet<double> GetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum)
+    public SxExecuteRet<bool> SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
     {
-        var motorType = opticsIlluminationModeEnum switch
-        {
-            OpticsIlluminationModeEnum.OI => CgCommonType.OI_DOE,
-            OpticsIlluminationModeEnum.NI => CgCommonType.NI_DOE,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        };
-        var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(motorType));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
+        var sxExecuteRet = Invoke(() => Service?.SetNDF(CgNDFCHEnum.ALL, opticsCollectorPolarizationModeEnum.ToCgNDFTypeEnum()));
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetDOEMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, double value)
+    public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode(int channelId)
     {
-        var motorType = opticsIlluminationModeEnum switch
-        {
-            OpticsIlluminationModeEnum.OI => CgCommonType.OI_DOE,
-            OpticsIlluminationModeEnum.NI => CgCommonType.NI_DOE,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCommonType>(nameof(opticsIlluminationModeEnum))
-        };
-        var sxExecuteRet = Invoke(() => Service?.OpticCommonMove(motorType, value));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+        var sxExecuteRet = Invoke(() => Service?.ReadNDFType(channelId.ToCgNDFChEnum()));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<OpticsCollectorPolarizationModeEnum>(sxExecuteRet.ErrorMsg, default);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.ToCollectorPolarizationModeEnum());
+    }
+
+    public SxExecuteRet<bool> SetCollectorPolarizationMode(int channelId, OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetNDF(channelId.ToCgNDFChEnum(), opticsCollectorPolarizationModeEnum.ToCgNDFTypeEnum()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<double> GetMotorAbsoluteValue(CgCommonType cgCommonType, [CallerMemberName] string name = Constants.EmptyString)
+    {
+        var sxExecuteRetOpticCommonReadPos = Invoke(() => Service?.OpticCommonReadPos(cgCommonType));
+        if (sxExecuteRetOpticCommonReadPos.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetOpticCommonReadPos.ErrorMsg, 0d);
+
+        var sxExecuteRetGetOpticRange = Invoke(() => Service?.GetOpticRange(cgCommonType));
+        if (sxExecuteRetGetOpticRange.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetGetOpticRange.ErrorMsg, 0d);
+
+        Guard.IsBetween(sxExecuteRetOpticCommonReadPos.Anything, sxExecuteRetGetOpticRange.Anything.min, sxExecuteRetGetOpticRange.Anything.max, name);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRetOpticCommonReadPos.Anything);
+    }
+
+    public SxExecuteRet<bool> SetMotorAbsoluteValue(CgCommonType cgCommonType, double value, [CallerMemberName] string name = Constants.EmptyString)
+    {
+        var sxExecuteRetGetOpticRange = Invoke(() => Service?.GetOpticRange(cgCommonType));
+        if (sxExecuteRetGetOpticRange.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetGetOpticRange.ErrorMsg, false);
+
+        Guard.IsBetween(value, sxExecuteRetGetOpticRange.Anything.min, sxExecuteRetGetOpticRange.Anything.max, name);
+
+        var sxExecuteRetOpticCommonMove = Invoke(() => Service?.OpticCommonMove(cgCommonType, value));
+        if (sxExecuteRetOpticCommonMove.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetOpticCommonMove.ErrorMsg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetPolarization(OpticsPolarizationModeEnum type)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetPolarization(type.ToCgPolarizationTypeEnum()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetNDF(OpticsChannelModeEnum ch, OpticsNDFTypeEnum type)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetNDF(ch.ToCgChannelTypeEnum(), type.ToCgNDFTypeEnum()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetNDFRotary(OpticsChannelModeEnum ch, double val)
-    {
-        var sxExecuteRet = Invoke(() => Service?.SetNDFRotary(ch.ToCgChannelTypeEnum(), val));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
     }
 }

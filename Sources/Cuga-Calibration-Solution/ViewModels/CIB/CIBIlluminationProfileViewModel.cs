@@ -282,7 +282,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
             var currentOpticsApodizationModeEnum = OpticsViewModel.GetApodizationMode();
             var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
-            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = OpticsViewModel.GetCollectorPolarizationMode();
             var cibInformations = ApplicationCookie.CIBInformations;
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -326,7 +326,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
                             OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
                             OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
-                            CollectorViewModel.SetPolarizationMode(opticsCollectorPolarizationModeEnum);
+                            OpticsViewModel.SetCollectorPolarizationMode(opticsCollectorPolarizationModeEnum);
                             CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
 
                             var item = new CIBIlluminationProfileDTO(cibInformations)
@@ -482,7 +482,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
             {
                 OpticsViewModel.SetApodizationMode(currentOpticsApodizationModeEnum);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
-                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
+                OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
                 CIBViewModel.ToggleEnableAGC(cibInformations, true);
                 CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);

@@ -321,7 +321,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
             var currentOpticsApodizationModeEnum = OpticsViewModel.GetApodizationMode();
             var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
-            var currentCollectorPolarizationModeEnum = CollectorViewModel.GetPolarizationMode();
+            var currentCollectorPolarizationModeEnum = OpticsViewModel.GetCollectorPolarizationMode();
             var cibInformations = ApplicationCookie.CIBInformations;
 
             try
@@ -379,7 +379,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
                                 OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
-                                CollectorViewModel.SetPolarizationMode(opticsCollectorPolarizationModeEnum);
+                                OpticsViewModel.SetCollectorPolarizationMode(opticsCollectorPolarizationModeEnum);
                                 CIBViewModel.SetLightMatching(cibInformations, 0);
 
                                 var item = new CIBLightMatchingDTO(ApplicationCookie.CIBInformationChannelIds)
@@ -559,7 +559,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
                                 OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
                                 OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
-                                CollectorViewModel.SetPolarizationMode(collectorPolarizationModeEnum);
+                                OpticsViewModel.SetCollectorPolarizationMode(collectorPolarizationModeEnum);
                                 CIBViewModel.SetLightMatching(cibInformations, 0);
 
                                 var item = Calibratings.Single(t => t.ProductivityInformation == Cache.ProductivityInformation
@@ -741,7 +741,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             {
                 OpticsViewModel.SetApodizationMode(currentOpticsApodizationModeEnum);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
-                CollectorViewModel.SetPolarizationMode(currentCollectorPolarizationModeEnum);
+                OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
                 CIBViewModel.ToggleEnableAGC(cibInformations, true);
                 CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetLightMatching(cibInformations, 0);
