@@ -82,15 +82,15 @@ public sealed class CIBViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetCIBConfiguration(IReadOnlyList<CIBInformation> cibInformations, CIBConfiguration cIbConfiguration)
+    public void SetCIBConfiguration(IReadOnlyList<CIBInformation> cibInformations, CIBConfiguration cibConfiguration)
     {
-        ToggleEnableAGC(cibInformations, cIbConfiguration.IsAutoGainControl);
+        ToggleEnableAGC(cibInformations, cibConfiguration.IsAutoGainControl);
 
-        if (cIbConfiguration.IsAutoGainControl == false) SetGain(cibInformations, cIbConfiguration.Gain);
+        if (cibConfiguration.IsAutoGainControl == false) SetGain(cibInformations, cibConfiguration.Gain);
 
-        ToggleEnableL0K(cibInformations, cIbConfiguration.IsL0K);
+        ToggleEnableL0K(cibInformations, cibConfiguration.IsL0K);
 
-        ToggleProfileMode(cibInformations, cIbConfiguration.CIBProfileMode);
+        ToggleProfileMode(cibInformations, cibConfiguration.CIBProfileMode);
     }
 
     public void SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)

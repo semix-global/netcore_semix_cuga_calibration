@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
-             xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
@@ -59,11 +58,7 @@
             </Border>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                    <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
-                                                        hc:TitleElement.TitleWidth="150"
-                                                        hc:TitleElement.TitlePlacement="Left"
-                                                        hc:TitleElement.Title="Cib Grab Mode: "
-                                                        DataContext="{Binding Cache.CIBConfiguration}" />
+                    <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">

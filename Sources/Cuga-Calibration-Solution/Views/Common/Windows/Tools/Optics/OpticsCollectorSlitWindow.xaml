@@ -6,7 +6,6 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Optics"
-           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -136,7 +135,7 @@
                                     <Expander IsExpanded="False"
                                               ExpandDirection="Down"
                                               Header="CIB">
-                                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.HazeCIBConfiguration}" />
+                                        <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.HazeCIBConfiguration}" />
                                     </Expander>
                                     <ComboBox HorizontalAlignment="Left"
                                               hc:TitleElement.TitleWidth="200"
@@ -180,7 +179,7 @@
                                     <Expander IsExpanded="False"
                                               ExpandDirection="Down"
                                               Header="CIB">
-                                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.DSWCIBConfiguration}" />
+                                        <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.DSWCIBConfiguration}" />
                                     </Expander>
                                     <ComboBox HorizontalAlignment="Left"
                                               hc:TitleElement.TitleWidth="200"

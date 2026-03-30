@@ -41,15 +41,18 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     #region Calibrate
 
-    [ObservableProperty] private DarkAutoFocusDTO _calibratingItem = new();
+    [ObservableProperty]
+    private DarkAutoFocusDTO _calibratingItem = new();
 
-    [ObservableProperty] private DarkAutoFocusNSCDTO? _nscStandardSelected;
+    [ObservableProperty]
+    private DarkAutoFocusNSCDTO? _nscStandardSelected;
 
     #endregion Calibrate
 
     #region Review
 
-    [ObservableProperty] private DarkAutoFocusDTO _review;
+    [ObservableProperty]
+    private DarkAutoFocusDTO _review = new();
 
     #endregion Review
 
@@ -57,11 +60,16 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     #region 缓存
 
-    [RecipeCache][ObservableProperty] private DarkAutoFocusCache _cache = new();
+    [RecipeCache]
+    [ObservableProperty]
+    private DarkAutoFocusCache _cache = new();
 
-    [DefaultCache][ObservableProperty] private DarkAutoFocusDTO _calibration = new();
+    [DefaultCache]
+    [ObservableProperty]
+    private DarkAutoFocusDTO _calibration = new();
 
-    [ObservableProperty] private MicroscopeCalChipDTO _microscopeCalChip = new();
+    [ObservableProperty]
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     #endregion 缓存
 
@@ -162,8 +170,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.FindPosition,
-                Cache.MicroscopeLensInformation,
-                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous())
+                Cache.MicroscopeLensInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
@@ -378,10 +385,10 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4,
                     new HtmlBullet(new
-                    { Message = $"{(isA ? "A" : "B")} Current: Intersection of valid current ranges is empty." }),
+                        { Message = $"{(isA ? "A" : "B")} Current: Intersection of valid current ranges is empty." }),
                     HtmlLogUniqueId.LoggingHtml());
 
-                if (HostEnvironment.IsDevelopment() == false)return  false;
+                if (HostEnvironment.IsDevelopment() == false) return false;
             }
 
             #endregion

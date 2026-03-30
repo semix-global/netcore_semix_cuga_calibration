@@ -6,9 +6,9 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:waferEnum="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
              xmlns:algorithmEnum="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
-             xmlns:cibMode="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Recipe"
+             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DesignHeight="700"
              d:DesignWidth="700"
              d:DataContext="{d:DesignInstance Type=viewModels:RecipeSettingViewModel}"
@@ -100,11 +100,7 @@
                       Margin="10"
                       Header="CIB">
                 <hc:UniformSpacingPanel Orientation="Vertical">
-                    <cibMode:CibGrabModeTypeUserControl HorizontalAlignment="Left"
-                                                        hc:InfoElement.TitleWidth="150"
-                                                        hc:InfoElement.TitlePlacement="Left"
-                                                        hc:InfoElement.Title="Cib Grab Mode: "
-                                                        DataContext="{Binding CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration}" />
+                    <pattern:CIBConfigurationUserControl DataContext="{Binding CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration}" />
                 </hc:UniformSpacingPanel>
             </GroupBox>
         </Grid>

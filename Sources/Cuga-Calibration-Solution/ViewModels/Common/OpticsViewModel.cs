@@ -158,4 +158,11 @@ public sealed class OpticsViewModel(
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
+
+    public void SetCIBConfiguration(OpticsConfiguration opticsConfiguration)
+    {
+        SetApodizationMode(opticsConfiguration.OpticsApodizationModeEnum);
+        SetPolarizationMode(opticsConfiguration.OpticsPolarizationModeEnum);
+        SetCollectorPolarizationMode(opticsConfiguration.OpticsCollectorPolarizationModeEnum);
+    }
 }

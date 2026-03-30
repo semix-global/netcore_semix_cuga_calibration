@@ -8,7 +8,6 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              d:DataContext="{d:DesignInstance Type=cib:CIBYPixelSizeViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -70,7 +69,7 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBChannelId}" />
                             </b:Interaction.Behaviors>
                         </ComboBox>
-                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                        <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

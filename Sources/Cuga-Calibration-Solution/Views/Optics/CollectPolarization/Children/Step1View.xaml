@@ -5,7 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
@@ -49,7 +48,7 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
-                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.CIBConfiguration}" />
+                        <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
