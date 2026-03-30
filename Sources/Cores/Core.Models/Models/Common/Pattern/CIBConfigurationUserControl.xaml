@@ -8,6 +8,7 @@
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:cibEnum="clr-namespace:Core.Models.Enums.CIB"
              d:DataContext="{d:DesignInstance Type=pattern:CIBConfiguration}"
+             d:DesignWidth="300"
              mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -22,7 +23,7 @@
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="AutoGain: "
-                               Width="150"
+                               Width="190"
                                HorizontalAlignment="Left"
                                VerticalAlignment="Center" />
                     <ToggleButton IsChecked="{Binding IsAutoGainControl}"
@@ -31,9 +32,9 @@
                                   Background="{StaticResource DangerBrush}"
                                   Style="{StaticResource ToggleButtonSwitch}" />
                 </StackPanel>
-                <hc:NumericUpDown hc:TitleElement.Title="Gains Voltage(v): "
+                <hc:NumericUpDown hc:TitleElement.Title="Gains Voltage(V): "
                                   hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="150"
+                                  hc:TitleElement.TitleWidth="190"
                                   Minimum="-10"
                                   Maximum="10"
                                   Visibility="{Binding IsAutoGainControl, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -41,7 +42,7 @@
                                   Value="{Binding Gain}" />
                 <StackPanel Margin="2" Orientation="Horizontal">
                     <TextBlock Text="L0k:  "
-                               Width="150"
+                               Width="190"
                                HorizontalAlignment="Left"
                                VerticalAlignment="Center" />
                     <ToggleButton IsChecked="{Binding IsL0K}"
@@ -50,9 +51,9 @@
                                   Background="{StaticResource DangerBrush}"
                                   Style="{StaticResource ToggleButtonSwitch}" />
                 </StackPanel>
-                <ComboBox hc:TitleElement.Title="Log Mode: "
+                <ComboBox hc:TitleElement.Title="Profile Mode: "
                           hc:TitleElement.TitlePlacement="Left"
-                          hc:TitleElement.TitleWidth="150"
+                          hc:TitleElement.TitleWidth="190"
                           ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type cibEnum:CIBProfileModeEnum}}}"
                           SelectedItem="{Binding Path=CIBProfileMode}"
                           Style="{StaticResource ComboBoxExtend}">
