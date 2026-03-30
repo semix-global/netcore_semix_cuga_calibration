@@ -20,7 +20,6 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
