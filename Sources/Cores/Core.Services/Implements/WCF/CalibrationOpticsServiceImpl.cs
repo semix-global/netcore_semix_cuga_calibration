@@ -175,7 +175,7 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
     public SxExecuteRet<OpticsApodizationModeEnum> GetApodizationMode()
     {
-        return SxExecuteRetHelper.CreateSuccess(OpticsApodizationModeEnum.Cosine);
+        return SxExecuteRetHelper.CreateSuccess(OpticsApodizationModeEnum.None);
     }
 
     public SxExecuteRet<bool> SetApodizationMode(OpticsApodizationModeEnum opticsApodizationModeEnum)

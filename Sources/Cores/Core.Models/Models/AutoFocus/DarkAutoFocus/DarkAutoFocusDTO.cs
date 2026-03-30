@@ -538,6 +538,6 @@ public sealed partial class DarkAutoFocusNSCDTO : ObservableObject, ICloneable<D
         NscCurrentSymmetryRatio = NscCurrentSymmetryRatio,
         CalibrationEcs = [.. CalibrationEcs],
         CalibrationNsc = [.. CalibrationNsc],
-        CalibrationLvdt = [.. CalibrationLvdt],
+        CalibrationLvdt = [.. CalibrationLvdt]
     };
 }

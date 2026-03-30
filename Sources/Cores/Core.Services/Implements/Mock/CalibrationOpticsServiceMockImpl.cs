@@ -11,6 +11,7 @@ using Semix.CoreLib;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -26,7 +27,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
     private double _currentSCL1MotorValue;
     private double _currentSCL3MotorValue;
     private double _currentCollectorPolarizationMotorValue;
-    private OpticsApodizationModeEnum _currentOpticsApodizationModeEnum;
+    private OpticsApodizationModeEnum _currentOpticsApodizationModeEnum = OpticsApodizationModeEnum.None;
     private OpticsPolarizationModeEnum _currentOpticsPolarizationModeEnum;
     private OpticsCollectorPolarizationModeEnum _currentOpticsCollectorPolarizationModeEnum;
     private readonly ConcurrentDictionary<int, OpticsCollectorPolarizationModeEnum> _currentChannelCollectorPolarizationModeEnumDictionary = [];

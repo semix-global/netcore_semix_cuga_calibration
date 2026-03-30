@@ -270,7 +270,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                         LowCurrentA = CalibratingItem.LowCoefficient * CalibratingItem.CurrentA,
                         LowCurrentB = CalibratingItem.LowCoefficient * CalibratingItem.CurrentB,
                         HighCurrentA = CalibratingItem.HighCoefficient * CalibratingItem.CurrentA,
-                        HighCurrentB = CalibratingItem.HighCoefficient * CalibratingItem.CurrentB,
+                        HighCurrentB = CalibratingItem.HighCoefficient * CalibratingItem.CurrentB
                     }), HtmlLogUniqueId.LoggingHtml());
 
                 return result;
@@ -365,7 +365,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 Domain = $"[{Cache.ThresholdCurrentMin}, {Cache.ThresholdCurrentMax}]",
                 FCurrentRange = $"[{fCurrentMin:0.###}, {fCurrentMax:0.###}]",
                 NCurrentRange = $"[{nCurrentMin:0.###}, {nCurrentMax:0.###}]",
-                IntersectRange = $"[{intersectMin:0.###}, {intersectMax:0.###}]",
+                IntersectRange = $"[{intersectMin:0.###}, {intersectMax:0.###}]"
             });
             if (isA)
                 lightAHtmlContainer.Add(("Intersection", HtmlHeaderLevelEnum.Header4,

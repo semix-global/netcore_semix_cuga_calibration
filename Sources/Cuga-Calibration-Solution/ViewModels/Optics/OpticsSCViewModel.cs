@@ -417,7 +417,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
                             item.Lambda,
                             item.SCMotorAbsoluteValueL1,
                             item.SCMotorAbsoluteValueL3,
-                            item.BestFocus.RawImageFilePath,
+                            item.BestFocus.RawImageFilePath
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
                 }

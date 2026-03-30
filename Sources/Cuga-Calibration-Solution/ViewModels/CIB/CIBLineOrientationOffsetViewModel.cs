@@ -602,7 +602,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel() : CalibrationVie
                 var htmlQuote = new HtmlQuote(new
                 {
                     CalibrationOffset = selectedReviewItem.XOffset,
-                    VerifyOffset = verifyItem.XOffset,
+                    VerifyOffset = verifyItem.XOffset
                 });
 
                 if (isOk)
@@ -673,7 +673,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel() : CalibrationVie
                 lineOrientationOffsetDTO.StartPosition,
                 lineOrientationOffsetDTO.EndPosition,
                 lineOrientationOffsetDTO.XOffset,
-                Points = new HtmlTable([.. positions.Select(t => t)]),
+                Points = new HtmlTable([.. positions.Select(t => t)])
             }), HtmlLogUniqueId.LoggingHtml());
 
             var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
