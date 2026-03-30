@@ -7,8 +7,8 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:darkAutoFocus="clr-namespace:Core.Models.Models.AutoFocus.DarkAutoFocus;assembly=Core.Models"
-             xmlns:autoFocus1="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             d:DataContext="{d:DesignInstance Type=autoFocus1:AutoFocusDarkAutoFocusViewModel}"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
+             d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusDarkAutoFocusViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -45,22 +45,19 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown
-                                          hc:TitleElement.Title="Half Length Ecs: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Half Length Ecs: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.HalfEcsLength}" />
-                        <hc:NumericUpDown
-                                          hc:TitleElement.Title="Speed Ecs(ecs/s): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Speed Ecs(ecs/s): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.SpeedEcsPerSecond}" />
-                        <hc:NumericUpDown
-                                          hc:TitleElement.Title="Nsc Standard(nsc/nm): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Nsc Standard(nsc/nm): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
@@ -68,29 +65,25 @@
                                           IsReadOnly="True"
                                           Background="{StaticResource SecondaryRegionBrush}"
                                           Value="{Binding Cache.NscStandardNscPerNm}" />
-                        <hc:NumericUpDown
-                                          hc:TitleElement.Title="Retry Count: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Retry Count: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.RetryCount}" />
-                        <hc:NumericUpDown
-                                          hc:TitleElement.Title="Calibration Range (nsc/nm): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibration Range (nsc/nm): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.CalibrationThresholdNscNscPerNmRange}" />
-                        <hc:NumericUpDown
-                                          hc:TitleElement.Title="Calibration Symmetry Ratio: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Calibration Symmetry Ratio: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.CalibrationThresholdNscSymmetryRatio}" />
-                        <hc:NumericUpDown
-                                          hc:TitleElement.Title="Threshold Gain: "
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold Gain: "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"

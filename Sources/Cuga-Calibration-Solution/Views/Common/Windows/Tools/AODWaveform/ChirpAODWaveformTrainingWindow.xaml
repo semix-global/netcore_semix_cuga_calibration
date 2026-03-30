@@ -10,7 +10,6 @@
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:multiValueConverters="clr-namespace:Core.Utilities.WPF.Converters.MultiValueConverters;assembly=Core.Utilities.WPF"
@@ -157,7 +156,8 @@
                                             <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                                         </i:Interaction.Behaviors>
                                     </ComboBox>
-                                    <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.CIBConfiguration}" />
+                                    <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
+                                    <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                                     <Expander Header="Position"
                                               IsExpanded="False"
                                               ExpandDirection="Down">

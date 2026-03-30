@@ -148,7 +148,7 @@ public sealed partial class RecipeSettingViewModel(
 
     #region Review字段属性
 
-    private bool _isLoaded = false;
+    private bool _isLoaded;
 
     [ObservableProperty]
     private bool _isReview;

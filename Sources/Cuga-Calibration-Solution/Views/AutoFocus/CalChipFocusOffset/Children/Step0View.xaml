@@ -7,7 +7,6 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusCalChipFocusOffsetViewModel}"
@@ -121,7 +120,8 @@
                                  hc:TitleElement.TitleWidth="190"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <tools:CibGrabModeTypeUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                        <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.Item.OpticsConfiguration}" />
+                        <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

@@ -25,6 +25,9 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
+
+    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
@@ -164,6 +167,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
         GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
         GenerateChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
         CIBInformation = new HtmlQuote(CIBInformation.ToHtmlAnonymous()),
+        OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
         CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
         DSWMachinePosition,
         ScanLength,

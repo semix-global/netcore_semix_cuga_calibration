@@ -98,12 +98,12 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     [ObservableProperty]
     private List<WpfPlotModel> _plotY4Y5Y6List = [];
 
-    private bool IsY1Stop = false;
-    private bool IsY4Stop = false;
-    private bool IsY2Stop = false;
-    private bool IsY5Stop = false;
-    private bool IsY3Stop = false;
-    private bool IsY6Stop = false;
+    private bool IsY1Stop;
+    private bool IsY4Stop;
+    private bool IsY2Stop;
+    private bool IsY5Stop;
+    private bool IsY3Stop;
+    private bool IsY6Stop;
 
     #endregion Calibrate
 

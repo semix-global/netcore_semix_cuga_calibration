@@ -4,8 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusDarkAutoFocusViewModel}"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
+             d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusDarkAutoFocusViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
@@ -34,29 +34,25 @@
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:NumericUpDown 
-                                              hc:TitleElement.Title="Half Length Ecs: "
+                            <hc:NumericUpDown hc:TitleElement.Title="Half Length Ecs: "
                                               hc:TitleElement.TitleWidth="180"
                                               hc:TitleElement.TitlePlacement="Left"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding Cache.HalfEcsLength}" />
-                            <hc:NumericUpDown 
-                                              hc:TitleElement.Title="Speed Ecs(ecs/s): "
+                            <hc:NumericUpDown hc:TitleElement.Title="Speed Ecs(ecs/s): "
                                               hc:TitleElement.TitleWidth="180"
                                               hc:TitleElement.TitlePlacement="Left"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding Cache.SpeedEcsPerSecond}" />
-                            <hc:NumericUpDown 
-                                              hc:TitleElement.Title="Nsc Standard(nsc/nm): "
+                            <hc:NumericUpDown hc:TitleElement.Title="Nsc Standard(nsc/nm): "
                                               hc:TitleElement.TitleWidth="180"
                                               hc:TitleElement.TitlePlacement="Left"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding Cache.NscStandardNscPerNm}" />
-                            <hc:NumericUpDown 
-                                              hc:TitleElement.Title="Threshold Symmetry Ratio: "
+                            <hc:NumericUpDown hc:TitleElement.Title="Threshold Symmetry Ratio: "
                                               hc:TitleElement.TitleWidth="180"
                                               hc:TitleElement.TitlePlacement="Left"
                                               Minimum="1"

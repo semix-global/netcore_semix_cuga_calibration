@@ -8,22 +8,22 @@ namespace Core.Models.Models.Optics.CollectPolarization;
 public sealed partial class CollectPolarizationDTO : CalibrationDtoBase, ICloneable<CollectPolarizationDTO>, IAdaptTo<CalibrationCollectionPolarization>
 {
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH1 = 0;
+    private double _polarizationPositionNDFSCH1;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH2 = 0;
+    private double _polarizationPositionNDFSCH2;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH3 = 0;
+    private double _polarizationPositionNDFSCH3;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH1 = 0;
+    private double _polarizationPositionNDFPCH1;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH2 = 0;
+    private double _polarizationPositionNDFPCH2;
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH3 = 0;
+    private double _polarizationPositionNDFPCH3;
 
     #region Mapper
 

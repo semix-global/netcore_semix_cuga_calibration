@@ -230,6 +230,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -255,6 +256,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
@@ -278,6 +280,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
@@ -317,6 +320,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                         Cache.Item.ImageWidth,
                         Cache.Item.CIBInformation,
                         (false, CalChipSiteModelEnum.HazeModel),
+                        (false, Cache.Item.OpticsConfiguration),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,

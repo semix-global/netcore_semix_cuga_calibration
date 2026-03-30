@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Collector;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Recipe;
@@ -175,9 +174,9 @@ public sealed partial class ApplicationCookie : ObservableObject
     public IReadOnlyList<OpticsPolarizationModeEnum> OpticsPolarizationModeEnums => EnumHelper.Enums<OpticsPolarizationModeEnum>();
 
     /// <summary>
-    /// 采集偏振列表
+    /// 光学采集偏振列表
     /// </summary>
-    public IReadOnlyList<CollectorPolarizationModeEnum> CollectorPolarizationModeEnums => EnumHelper.Enums<CollectorPolarizationModeEnum>();
+    public IReadOnlyList<OpticsCollectorPolarizationModeEnum> OpticsCollectorPolarizationModeEnums => EnumHelper.Enums<OpticsCollectorPolarizationModeEnum>();
 
     /// <summary>
     /// CIB列表

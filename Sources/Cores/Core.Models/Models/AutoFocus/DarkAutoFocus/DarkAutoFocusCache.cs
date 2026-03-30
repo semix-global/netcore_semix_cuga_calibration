@@ -10,9 +10,6 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
-
-    [ObservableProperty]
     private Point _findPosition;
 
     #region Current
@@ -64,11 +61,11 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase
     private double _thresholdCurrentMax = 5500;
 
     [ObservableProperty]
-    private double _findCurrentStart = 0;
-    
+    private double _findCurrentStart;
+
     [ObservableProperty]
     private double _findCurrentStep = 100;
-    
+
     [ObservableProperty]
     private double _findCurrentStop = 5000;
 

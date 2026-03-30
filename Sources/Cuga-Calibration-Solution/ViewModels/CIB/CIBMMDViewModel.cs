@@ -231,6 +231,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
                 Cache.CIBInformations
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -561,6 +562,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 Cache.ImageWidth,
                                 cibInformations,
                                 (true, null),
+                                (false, Cache.OpticsConfiguration),
                                 (true, null),
                                 (true, null),
                                 true,

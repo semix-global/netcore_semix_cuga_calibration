@@ -37,6 +37,7 @@ public sealed class CIBViewModel(
     MicroscopeViewModel microscopeViewModel,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
+    OpticsViewModel opticsViewModel,
     LaserViewModel laserViewModel,
     CalibrationSetting calibrationSetting) : ViewModelBase
 {
@@ -82,15 +83,15 @@ public sealed class CIBViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetCIBConfiguration(IReadOnlyList<CIBInformation> cibInformations, CIBConfiguration cIbConfiguration)
+    public void SetCIBConfiguration(IReadOnlyList<CIBInformation> cibInformations, CIBConfiguration cibConfiguration)
     {
-        ToggleEnableAGC(cibInformations, cIbConfiguration.IsAutoGainControl);
+        ToggleEnableAGC(cibInformations, cibConfiguration.IsAutoGainControl);
 
-        if (cIbConfiguration.IsAutoGainControl == false) SetGain(cibInformations, cIbConfiguration.Gain);
+        if (cibConfiguration.IsAutoGainControl == false) SetGain(cibInformations, cibConfiguration.Gain);
 
-        ToggleEnableL0K(cibInformations, cIbConfiguration.IsL0K);
+        ToggleEnableL0K(cibInformations, cibConfiguration.IsL0K);
 
-        ToggleProfileMode(cibInformations, cIbConfiguration.CIBProfileMode);
+        ToggleProfileMode(cibInformations, cibConfiguration.CIBProfileMode);
     }
 
     public void SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
@@ -162,6 +163,7 @@ public sealed class CIBViewModel(
         int imageWidth,
         IReadOnlyList<CIBInformation> cibInformations,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -176,6 +178,7 @@ public sealed class CIBViewModel(
             centerPosition,
             cibInformations,
             customCalChip,
+            customOpticsConfiguration,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
@@ -206,6 +209,7 @@ public sealed class CIBViewModel(
         int imageWidth,
         CIBInformation cibInformation,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -222,6 +226,7 @@ public sealed class CIBViewModel(
             imageWidth,
             [cibInformation],
             customCalChip,
+            customOpticsConfiguration,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
@@ -245,6 +250,7 @@ public sealed class CIBViewModel(
         int imageWidth,
         CIBInformation cibInformation,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -258,6 +264,7 @@ public sealed class CIBViewModel(
             centerPositions[0],
             [cibInformation],
             customCalChip,
+            customOpticsConfiguration,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
@@ -291,6 +298,7 @@ public sealed class CIBViewModel(
         Point stopPosition,
         IReadOnlyList<CIBInformation> cibInformations,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -305,6 +313,7 @@ public sealed class CIBViewModel(
             startPosition,
             cibInformations,
             customCalChip,
+            customOpticsConfiguration,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
@@ -335,6 +344,7 @@ public sealed class CIBViewModel(
         Point stopPosition,
         CIBInformation cibInformation,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -351,6 +361,7 @@ public sealed class CIBViewModel(
             stopPosition,
             [cibInformation],
             customCalChip,
+            customOpticsConfiguration,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
@@ -376,6 +387,7 @@ public sealed class CIBViewModel(
         double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -388,6 +400,7 @@ public sealed class CIBViewModel(
             startPosition,
             cibInformations,
             customCalChip,
+            customOpticsConfiguration,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
@@ -418,6 +431,7 @@ public sealed class CIBViewModel(
         double stopECS,
         CIBInformation cibInformation,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -434,6 +448,7 @@ public sealed class CIBViewModel(
             stopECS,
             [cibInformation],
             customCalChip,
+            customOpticsConfiguration,
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
@@ -453,6 +468,7 @@ public sealed class CIBViewModel(
         double stopECS,
         IReadOnlyList<CIBInformation> cibInformations,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -487,6 +503,7 @@ public sealed class CIBViewModel(
                 stopECS,
                 currentCIBInformations,
                 customCalChip,
+                customOpticsConfiguration,
                 customCIBConfiguration,
                 customPrescanAODWaveform,
                 isCustomChirpAODWaveform,
@@ -506,6 +523,7 @@ public sealed class CIBViewModel(
         Point centerPosition,
         IReadOnlyList<CIBInformation> cibInformations,
         (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
@@ -542,6 +560,15 @@ public sealed class CIBViewModel(
             }
             else
                 Guard.IsNull(customCalChip.CalChipSiteModelEnum);
+
+            if (customOpticsConfiguration.IsCustom == false)
+            {
+                Guard.IsNotNull(customOpticsConfiguration.OpticsConfiguration);
+
+                opticsViewModel.SetOpticsConfiguration(customOpticsConfiguration.OpticsConfiguration);
+            }
+            else
+                Guard.IsNull(customOpticsConfiguration.OpticsConfiguration);
 
             if (customCIBConfiguration.IsCustom == false)
             {
@@ -669,6 +696,7 @@ public sealed class CIBViewModel(
         Point centerPosition,
         int imageWidth,
         CIBInformation cibInformation,
+        OpticsConfiguration opticsConfiguration,
         CIBConfiguration cibConfiguration,
         LaserLightInformation laserLightInformation,
         string saveResultImageFileDirectory,
@@ -703,6 +731,7 @@ public sealed class CIBViewModel(
             imageWidth,
             cibInformation,
             (true, null),
+            (false, opticsConfiguration),
             (false, cibConfiguration),
             (false, laserLightInformation),
             false,

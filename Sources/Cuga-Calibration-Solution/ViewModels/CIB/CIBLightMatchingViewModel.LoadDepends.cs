@@ -14,7 +14,6 @@ using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;

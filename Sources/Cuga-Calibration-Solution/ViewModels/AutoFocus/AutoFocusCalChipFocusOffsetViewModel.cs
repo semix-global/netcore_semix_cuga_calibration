@@ -208,6 +208,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 Cache.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -247,6 +248,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                     StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
                     800,
                     Cache.CIBInformation,
+                    Cache.Item.OpticsConfiguration,
                     Cache.Item.CIBConfiguration,
                     Cache.Item.LaserLightInformation,
                     detectImageDirectory,
@@ -336,6 +338,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                         Cache.Item.CalChipRTFCBrightFieldMachinePosition,
                         Cache.Item.LaserLightInformation,
                         CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
+                        OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                         detectImageDirectory
                     }), HtmlLogUniqueId.LoggingHtml());
 
@@ -364,6 +367,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                         Cache.ImageWidth,
                         Cache.CIBInformation,
                         (true, null),
+                        (false, Cache.Item.OpticsConfiguration),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,

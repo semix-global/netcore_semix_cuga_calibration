@@ -217,6 +217,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -256,6 +257,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                 Cache.ProductivityInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.CalChipSiteModelEnum,
                 Position = Cache.Item.RTFCBrightFieldMachinePosition,
@@ -277,6 +279,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                     StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition)),
                     800,
                     Cache.Item.CIBInformation,
+                    Cache.Item.OpticsConfiguration,
                     Cache.Item.CIBConfiguration,
                     Cache.Item.LaserLightInformation,
                     detectImageDirectory,
@@ -349,6 +352,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                         Cache.Item.ImageWidth,
                         Cache.Item.CIBInformation,
                         (true, null),
+                        (false, Cache.Item.OpticsConfiguration),
                         (false, Cache.Item.CIBConfiguration),
                         (false, Cache.Item.LaserLightInformation),
                         false,

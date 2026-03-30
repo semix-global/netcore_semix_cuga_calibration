@@ -42,6 +42,9 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
+    private OpticsConfiguration _opticsConfiguration = new();
+
+    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
@@ -90,6 +93,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 ImageWidth,
                 CIBInformations = string.Join(", ", CIBInformations),
                 CalChipSiteModelEnum,
+                OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
                 LaserLightInformation,
                 IsForward,
@@ -104,6 +108,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 ScanLength,
                 CIBInformations = string.Join(", ", CIBInformations),
                 CalChipSiteModelEnum,
+                OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
                 LaserLightInformation,
                 IsForward,
@@ -120,6 +125,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 ColumnWidth,
                 CIBInformations = string.Join(", ", CIBInformations),
                 CalChipSiteModelEnum,
+                OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
                 LaserLightInformation,
                 IsForward,
@@ -136,6 +142,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 RangeECS,
                 CIBInformations = string.Join(", ", CIBInformations),
                 CalChipSiteModelEnum,
+                OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
                 LaserLightInformation,
                 IsForward,

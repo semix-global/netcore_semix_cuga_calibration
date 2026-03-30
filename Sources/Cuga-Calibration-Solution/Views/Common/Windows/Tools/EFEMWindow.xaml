@@ -116,7 +116,7 @@
                                  hc:BorderElement.Circular="True"
                                  BorderThickness="1"
                                  BorderBrush="Black"
-                                 Background="LightGray"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  ItemsSource="{Binding EFEMFoupLoadPort1}">
                             <i:Interaction.Behaviors>
                                 <behaviors:SelectorBehavior BindableSelectedItem="{Binding SelectedFoupItem, Mode=TwoWay}" />
@@ -195,7 +195,7 @@
                                  hc:BorderElement.Circular="True"
                                  BorderThickness="1"
                                  BorderBrush="Black"
-                                 Background="LightGray"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  ItemsSource="{Binding EFEMFoupLoadPort2}">
                             <i:Interaction.Behaviors>
                                 <behaviors:SelectorBehavior BindableSelectedItem="{Binding SelectedFoupItem, Mode=TwoWay}" />

@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,12 +14,12 @@ using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Collections.Concurrent;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 
@@ -42,15 +41,18 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     #region Calibrate
 
-    [ObservableProperty] private DarkAutoFocusDTO _calibratingItem = new();
+    [ObservableProperty]
+    private DarkAutoFocusDTO _calibratingItem = new();
 
-    [ObservableProperty] private DarkAutoFocusNSCDTO? _nscStandardSelected;
+    [ObservableProperty]
+    private DarkAutoFocusNSCDTO? _nscStandardSelected;
 
     #endregion Calibrate
 
     #region Review
 
-    [ObservableProperty] private DarkAutoFocusDTO _review;
+    [ObservableProperty]
+    private DarkAutoFocusDTO _review = new();
 
     #endregion Review
 
@@ -58,11 +60,16 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     #region 缓存
 
-    [RecipeCache][ObservableProperty] private DarkAutoFocusCache _cache = new();
+    [RecipeCache]
+    [ObservableProperty]
+    private DarkAutoFocusCache _cache = new();
 
-    [DefaultCache][ObservableProperty] private DarkAutoFocusDTO _calibration = new();
+    [DefaultCache]
+    [ObservableProperty]
+    private DarkAutoFocusDTO _calibration = new();
 
-    [ObservableProperty] private MicroscopeCalChipDTO _microscopeCalChip = new();
+    [ObservableProperty]
+    private MicroscopeCalChipDTO _microscopeCalChip = new();
 
     #endregion 缓存
 
@@ -163,8 +170,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.FindPosition,
-                Cache.MicroscopeLensInformation,
-                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous())
+                Cache.MicroscopeLensInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
@@ -220,7 +226,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             try
             {
-                CalibratingItem = new();
+                CalibratingItem = new DarkAutoFocusDTO();
 
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
@@ -237,9 +243,9 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 var currentBCalibrationTask = Task.Run(() => GetCurrentResultAsync(CalibratingItem.CurrentBDTO, false),
                     cancellationToken);
 
-                Task.WaitAll([currentACalibrationTask, currentBCalibrationTask], cancellationToken);
+                await Task.WhenAll(currentBCalibrationTask, currentBCalibrationTask);
 
-                var result = currentACalibrationTask.Result && currentBCalibrationTask.Result;
+                var result = await currentACalibrationTask && await currentBCalibrationTask;
 
                 if (result)
                 {
@@ -271,7 +277,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                         LowCurrentA = CalibratingItem.LowCoefficient * CalibratingItem.CurrentA,
                         LowCurrentB = CalibratingItem.LowCoefficient * CalibratingItem.CurrentB,
                         HighCurrentA = CalibratingItem.HighCoefficient * CalibratingItem.CurrentA,
-                        HighCurrentB = CalibratingItem.HighCoefficient * CalibratingItem.CurrentB,
+                        HighCurrentB = CalibratingItem.HighCoefficient * CalibratingItem.CurrentB
                     }), HtmlLogUniqueId.LoggingHtml());
 
                 return result;
@@ -366,7 +372,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 Domain = $"[{Cache.ThresholdCurrentMin}, {Cache.ThresholdCurrentMax}]",
                 FCurrentRange = $"[{fCurrentMin:0.###}, {fCurrentMax:0.###}]",
                 NCurrentRange = $"[{nCurrentMin:0.###}, {nCurrentMax:0.###}]",
-                IntersectRange = $"[{intersectMin:0.###}, {intersectMax:0.###}]",
+                IntersectRange = $"[{intersectMin:0.###}, {intersectMax:0.###}]"
             });
             if (isA)
                 lightAHtmlContainer.Add(("Intersection", HtmlHeaderLevelEnum.Header4,
@@ -377,12 +383,9 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             if (intersectMin > intersectMax)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4,
-                    new HtmlBullet(new
-                    { Message = $"{(isA ? "A" : "B")} Current: Intersection of valid current ranges is empty." }),
-                    HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new { Message = $"{(isA ? "A" : "B")} Current: Intersection of valid current ranges is empty." }), HtmlLogUniqueId.LoggingHtml());
 
-                if (HostEnvironment.IsDevelopment() == false)return  false;
+                if (HostEnvironment.IsDevelopment() == false) return false;
             }
 
             #endregion
@@ -937,8 +940,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             try
             {
-                var afMotorAbsoluteValues = Generate.LinearRange((double)Cache.StartAFMotorAbsoluteValue,
-                    Cache.StepAFMotorAbsoluteValue, Cache.StopAFMotorAbsoluteValue);
+                var afMotorAbsoluteValues = Generate.LinearRangeContainsEdge(Cache.StartAFMotorAbsoluteValue, Cache.StepAFMotorAbsoluteValue, Cache.StopAFMotorAbsoluteValue);
                 var closestIndex = afMotorAbsoluteValues
                     .Index()
                     .OrderBy(x => Math.Abs(x.Item - originPosition))
@@ -1019,13 +1021,6 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
-        if (Review is null)
-        {
-            DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK,
-                DialogIconEnum.Warning);
-            return;
-        }
-
         await InvokeVerifyAsync(async () =>
         {
             Review.IsVerified = false;
@@ -1099,7 +1094,6 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 var fbBuffer = traceBufferList.Select(t => t.Fb).ToArray();
                 var nbBuffer = traceBufferList.Select(t => t.Nb).ToArray();
                 var nscVector = Vector<double>.Build.DenseOfEnumerable(nscBuffer);
-                var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecsBuffer);
 
                 Vector<double> nscIntervalVector;
                 if (Review.IsNscUseMaxValue)
