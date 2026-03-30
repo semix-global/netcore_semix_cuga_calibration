@@ -928,6 +928,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 if (isOk)
                 {
                     selectedReviewItem.XPixelSize = verifyRealUmPerPixel;
+                    selectedReviewItem.XPixelSizeDelta = selectedReviewItem.VerifySplitDifferences.Max() - selectedReviewItem.VerifySplitDifferences.Min();
                     CIBViewModel.SetXPixelSize(selectedReviewItem.ProductivityInformation, selectedReviewItem.XPixelSize);
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
