@@ -59,7 +59,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetCacheItem : CalibrationCac
 
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
-    
+
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 

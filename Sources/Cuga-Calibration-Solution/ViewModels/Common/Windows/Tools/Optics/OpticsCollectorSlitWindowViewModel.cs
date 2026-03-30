@@ -60,7 +60,7 @@ public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
     private double _stepEcs;
 
     #region Haze
-    
+
     [ObservableProperty]
     private OpticsConfiguration _hazeOpticsConfiguration = new();
 
@@ -85,7 +85,7 @@ public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
 
     [ObservableProperty]
     private OpticsConfiguration _dSWOpticsConfiguration = new();
-    
+
     [ObservableProperty]
     private CIBConfiguration _dSWCIBConfiguration = new();
 

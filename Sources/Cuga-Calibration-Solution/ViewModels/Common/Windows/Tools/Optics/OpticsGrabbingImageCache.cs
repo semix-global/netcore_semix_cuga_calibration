@@ -40,7 +40,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
 
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-    
+
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 

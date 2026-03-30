@@ -59,7 +59,7 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private AlgorithmImageQualityTypeEnum _algorithmImageQualityTypeEnum;
-    
+
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 

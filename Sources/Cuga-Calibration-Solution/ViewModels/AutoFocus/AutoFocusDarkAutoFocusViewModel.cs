@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,6 +19,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Collections.Concurrent;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 
@@ -383,10 +383,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             if (intersectMin > intersectMax)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4,
-                    new HtmlBullet(new
-                        { Message = $"{(isA ? "A" : "B")} Current: Intersection of valid current ranges is empty." }),
-                    HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new { Message = $"{(isA ? "A" : "B")} Current: Intersection of valid current ranges is empty." }), HtmlLogUniqueId.LoggingHtml());
 
                 if (HostEnvironment.IsDevelopment() == false) return false;
             }

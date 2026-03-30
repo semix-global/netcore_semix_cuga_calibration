@@ -62,10 +62,10 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _findCurrentStart;
-    
+
     [ObservableProperty]
     private double _findCurrentStep = 100;
-    
+
     [ObservableProperty]
     private double _findCurrentStop = 5000;
 

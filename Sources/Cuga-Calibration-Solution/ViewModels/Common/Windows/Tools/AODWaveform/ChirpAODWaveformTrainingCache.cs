@@ -23,7 +23,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
 
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
-    
+
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 

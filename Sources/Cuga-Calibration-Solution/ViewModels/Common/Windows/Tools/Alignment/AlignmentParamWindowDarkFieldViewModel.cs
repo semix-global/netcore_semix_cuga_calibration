@@ -18,7 +18,7 @@ public sealed partial class AlignmentParamWindowDarkFieldViewModel(ApplicationCo
 
     [ObservableProperty]
     private ObservableCollection<MicroscopeLensInformation> _microscopeLensInformationList = [];
-    
+
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 

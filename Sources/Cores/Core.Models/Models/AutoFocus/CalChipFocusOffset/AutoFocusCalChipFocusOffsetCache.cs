@@ -64,7 +64,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetCacheItem : ObservableVal
 {
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
-    
+
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 

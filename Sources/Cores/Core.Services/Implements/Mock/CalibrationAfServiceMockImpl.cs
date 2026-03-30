@@ -1,4 +1,3 @@
-using System.IO;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
@@ -8,6 +7,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
+using System.IO;
 
 namespace Core.Services.Implements.Mock;
 
@@ -172,14 +172,14 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
 
         var rows = MiniExcel.Query(path, true).Cast<IDictionary<string, object>>();
         var dataList = rows.Select(t =>
-              (Convert.ToDouble(t["OriginalEcs-Y"]),
-               Convert.ToDouble(t["OriginalNsc-Y"]),
-               Convert.ToDouble(t["OriginalLvdt-Y"]),
-               Convert.ToDouble(t["OriginalFa-Y"]),
-               Convert.ToDouble(t["OriginalNa-Y"]),
-               Convert.ToDouble(t["OriginalFb-Y"]),
-               Convert.ToDouble(t["OriginalNb-Y"]))
-             ).ToList();
+            (Convert.ToDouble(t["OriginalEcs-Y"]),
+                Convert.ToDouble(t["OriginalNsc-Y"]),
+                Convert.ToDouble(t["OriginalLvdt-Y"]),
+                Convert.ToDouble(t["OriginalFa-Y"]),
+                Convert.ToDouble(t["OriginalNa-Y"]),
+                Convert.ToDouble(t["OriginalFb-Y"]),
+                Convert.ToDouble(t["OriginalNb-Y"]))
+        ).ToList();
 
         return SxExecuteRetHelper.CreateSuccess(dataList);
     }

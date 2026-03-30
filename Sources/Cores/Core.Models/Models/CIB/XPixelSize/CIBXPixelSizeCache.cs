@@ -40,7 +40,7 @@ public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
-    
+
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 

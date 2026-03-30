@@ -40,7 +40,7 @@ public partial class CalibrationRecipeInfoDto : ObservableObject, ICloneable<Cal
     /// </summary>
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeHighMag = MicroscopeLensInformation.Default;
-    
+
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 

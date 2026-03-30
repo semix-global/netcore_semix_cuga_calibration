@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -12,6 +11,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
 using Semix.CoreLib;
+using System.Runtime.CompilerServices;
 
 namespace Core.Services.Implements.WCF;
 

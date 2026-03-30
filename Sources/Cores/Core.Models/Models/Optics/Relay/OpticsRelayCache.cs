@@ -39,7 +39,7 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private CIBInformation _cIBInformation = CIBInformation.Default;
-    
+
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 

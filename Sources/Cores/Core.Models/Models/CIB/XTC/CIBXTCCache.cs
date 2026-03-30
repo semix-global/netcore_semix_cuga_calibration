@@ -43,7 +43,7 @@ public sealed partial class CIBXTCCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
-    
+
     [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 
