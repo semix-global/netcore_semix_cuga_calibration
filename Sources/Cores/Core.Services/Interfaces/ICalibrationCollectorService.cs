@@ -15,12 +15,12 @@ public interface ICalibrationCollectorService
     /// 切换采集偏振
     /// </summary>
     /// <returns>偏振</returns>
-    SxExecuteRet<CollectorPolarizationModeEnum> GetPolarizationMode();
+    SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetPolarizationMode();
 
     /// <summary>
     /// 切换采集偏振
     /// </summary>
-    /// <param name="collectorPolarizationModeEnum">偏振</param>
+    /// <param name="opticsCollectorPolarizationModeEnum">偏振</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetPolarizationMode(CollectorPolarizationModeEnum collectorPolarizationModeEnum);
+    SxExecuteRet<bool> SetPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum);
 }

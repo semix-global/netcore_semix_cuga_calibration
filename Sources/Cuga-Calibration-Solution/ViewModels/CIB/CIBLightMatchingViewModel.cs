@@ -108,7 +108,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                             && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
                             && ApplicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
-                            && ApplicationCookie.CollectorPolarizationModeEnums.Contains(t.CollectorPolarizationModeEnum))
+                            && ApplicationCookie.OpticsCollectorPolarizationModeEnums.Contains(t.OpticsCollectorPolarizationModeEnum))
                 .Select(t =>
                 {
                     t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
@@ -143,7 +143,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.OpticsApodizationModeEnum)
                 .ThenBy(t => t.OpticsPolarizationModeEnum)
-                .ThenBy(t => t.CollectorPolarizationModeEnum)
+                .ThenBy(t => t.OpticsCollectorPolarizationModeEnum)
         ];
 
         return Reviews.Count > 0;
@@ -373,13 +373,13 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     {
                         foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
                         {
-                            foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
+                            foreach (var opticsCollectorPolarizationModeEnum in ApplicationCookie.OpticsCollectorPolarizationModeEnums)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
                                 OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
                                 OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
-                                CollectorViewModel.SetPolarizationMode(collectorPolarizationModeEnum);
+                                CollectorViewModel.SetPolarizationMode(opticsCollectorPolarizationModeEnum);
                                 CIBViewModel.SetLightMatching(cibInformations, 0);
 
                                 var item = new CIBLightMatchingDTO(ApplicationCookie.CIBInformationChannelIds)
@@ -387,14 +387,14 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                     ProductivityInformation = Cache.ProductivityInformation,
                                     OpticsApodizationModeEnum = opticsApodizationModeEnum,
                                     OpticsPolarizationModeEnum = opticsPolarizationModeEnum,
-                                    CollectorPolarizationModeEnum = collectorPolarizationModeEnum,
+                                    OpticsCollectorPolarizationModeEnum = opticsCollectorPolarizationModeEnum,
                                     Items = [.. cibInformations.Select(t => new CIBLightMatchingDTOItem { CIBInformation = t })]
                                 };
 
                                 Calibratings = [.. Calibratings, item];
                                 SelectedCalibratingItems = [item];
 
-                                Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.CollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                                Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.OpticsCollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                                 var times = 0;
                                 while (true)
@@ -492,7 +492,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         item.ProductivityInformation,
                                         item.OpticsApodizationModeEnum,
                                         item.OpticsPolarizationModeEnum,
-                                        item.CollectorPolarizationModeEnum,
+                                        item.OpticsCollectorPolarizationModeEnum,
                                         Plot = new HtmlContainer([.. item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                                     });
 
@@ -553,7 +553,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     {
                         foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
                         {
-                            foreach (var collectorPolarizationModeEnum in ApplicationCookie.CollectorPolarizationModeEnums)
+                            foreach (var collectorPolarizationModeEnum in ApplicationCookie.OpticsCollectorPolarizationModeEnums)
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -565,13 +565,13 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                 var item = Calibratings.Single(t => t.ProductivityInformation == Cache.ProductivityInformation
                                                                     && t.OpticsApodizationModeEnum == opticsApodizationModeEnum
                                                                     && t.OpticsPolarizationModeEnum == opticsPolarizationModeEnum
-                                                                    && t.CollectorPolarizationModeEnum == collectorPolarizationModeEnum);
+                                                                    && t.OpticsCollectorPolarizationModeEnum == collectorPolarizationModeEnum);
                                 if (item.IsCalibrated == false) break;
                                 item.IsCalibrated = false;
 
                                 SelectedCalibratingItems = [item];
 
-                                Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.CollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                                Logger.LogHtmlInformation($"{item.OpticsApodizationModeEnum.Humanize()}, {item.OpticsPolarizationModeEnum.Humanize()}, {item.OpticsCollectorPolarizationModeEnum.Humanize()}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                                 var times = 0;
                                 while (true)
@@ -686,7 +686,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         item.ProductivityInformation,
                                         item.OpticsApodizationModeEnum,
                                         item.OpticsPolarizationModeEnum,
-                                        item.CollectorPolarizationModeEnum,
+                                        item.OpticsCollectorPolarizationModeEnum,
                                         Plot = new HtmlContainer([.. item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                                     });
 
@@ -768,11 +768,11 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                          .OrderBy(t => t.ProductivityInformation)
                          .ThenBy(t => t.OpticsApodizationModeEnum)
                          .ThenBy(t => t.OpticsPolarizationModeEnum)
-                         .ThenBy(t => t.CollectorPolarizationModeEnum))
+                         .ThenBy(t => t.OpticsCollectorPolarizationModeEnum))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var title = $"{selectedReviewItem.ProductivityInformation}, {selectedReviewItem.OpticsApodizationModeEnum.Humanize()}, {selectedReviewItem.OpticsPolarizationModeEnum.Humanize()}, {selectedReviewItem.CollectorPolarizationModeEnum.Humanize()}";
+                var title = $"{selectedReviewItem.ProductivityInformation}, {selectedReviewItem.OpticsApodizationModeEnum.Humanize()}, {selectedReviewItem.OpticsPolarizationModeEnum.Humanize()}, {selectedReviewItem.OpticsCollectorPolarizationModeEnum.Humanize()}";
 
                 /*if (selectedReviewItem.IsCalibrated == false)
                 {
@@ -796,7 +796,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                     selectedReviewItem.ProductivityInformation,
                     selectedReviewItem.OpticsApodizationModeEnum,
                     selectedReviewItem.OpticsPolarizationModeEnum,
-                    selectedReviewItem.CollectorPolarizationModeEnum,
+                    selectedReviewItem.OpticsCollectorPolarizationModeEnum,
                     Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 
@@ -836,7 +836,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation
                                            || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
                                            || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
-                                           || t.CollectorPolarizationModeEnum != dto.CollectorPolarizationModeEnum),
+                                           || t.OpticsCollectorPolarizationModeEnum != dto.OpticsCollectorPolarizationModeEnum),
                 dto
             ];
         }

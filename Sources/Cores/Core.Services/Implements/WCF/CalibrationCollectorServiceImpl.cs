@@ -27,17 +27,17 @@ public sealed class CalibrationCollectorServiceImpl : BaseService<ICgCalibration
         }, false);
     }
 
-    public SxExecuteRet<CollectorPolarizationModeEnum> GetPolarizationMode()
+    public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetPolarizationMode()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadNDFType(CgNDFCHEnum.ALL));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<CollectorPolarizationModeEnum>(sxExecuteRet.ErrorMsg, default);
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<OpticsCollectorPolarizationModeEnum>(sxExecuteRet.ErrorMsg, default);
 
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.ToCollectorPolarizationModeEnum());
     }
 
-    public SxExecuteRet<bool> SetPolarizationMode(CollectorPolarizationModeEnum collectorPolarizationModeEnum)
+    public SxExecuteRet<bool> SetPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetNDF(CgNDFCHEnum.ALL, collectorPolarizationModeEnum.ToCgNDFTypeEnum()));
+        var sxExecuteRet = Invoke(() => Service?.SetNDF(CgNDFCHEnum.ALL, opticsCollectorPolarizationModeEnum.ToCgNDFTypeEnum()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

@@ -254,23 +254,23 @@ public static class EnumOpticsExtension
 
 #endif
 
-    public static CollectorPolarizationModeEnum ToCollectorPolarizationModeEnum(this CgNDFTypeEnum @this) => @this switch
+    public static OpticsCollectorPolarizationModeEnum ToCollectorPolarizationModeEnum(this CgNDFTypeEnum @this) => @this switch
     {
 #if NETFRAMEWORK
-        CgNDFTypeEnum.None => CollectorPolarizationModeEnum.None,
+        CgNDFTypeEnum.None => OpticsCollectorPolarizationModeEnum.None,
 #endif
-        CgNDFTypeEnum.P => CollectorPolarizationModeEnum.P,
-        CgNDFTypeEnum.S => CollectorPolarizationModeEnum.S,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<CollectorPolarizationModeEnum>(nameof(@this))
+        CgNDFTypeEnum.P => OpticsCollectorPolarizationModeEnum.P,
+        CgNDFTypeEnum.S => OpticsCollectorPolarizationModeEnum.S,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsCollectorPolarizationModeEnum>(nameof(@this))
     };
 
-    public static CgNDFTypeEnum ToCgNDFTypeEnum(this CollectorPolarizationModeEnum @this) => @this switch
+    public static CgNDFTypeEnum ToCgNDFTypeEnum(this OpticsCollectorPolarizationModeEnum @this) => @this switch
     {
 #if NETFRAMEWORK
-        CollectorPolarizationModeEnum.None => CgNDFTypeEnum.None,
+        OpticsCollectorPolarizationModeEnum.None => CgNDFTypeEnum.None,
 #endif
-        CollectorPolarizationModeEnum.P => CgNDFTypeEnum.P,
-        CollectorPolarizationModeEnum.S => CgNDFTypeEnum.S,
+        OpticsCollectorPolarizationModeEnum.P => CgNDFTypeEnum.P,
+        OpticsCollectorPolarizationModeEnum.S => CgNDFTypeEnum.S,
         _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgNDFTypeEnum>(nameof(@this))
     };
 }

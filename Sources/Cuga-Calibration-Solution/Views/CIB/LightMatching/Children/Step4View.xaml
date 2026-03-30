@@ -184,7 +184,7 @@
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Header="Optics Apodization Mode" DisplayMemberBinding="{Binding OpticsApodizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Header="Optics Polarization Mode" DisplayMemberBinding="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                            <GridViewColumn Header="Collector Polarization Mode" DisplayMemberBinding="{Binding CollectorPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                            <GridViewColumn Header="Optics Collector Polarization Mode" DisplayMemberBinding="{Binding OpticsCollectorPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -197,11 +197,13 @@
                         <TabControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
                                 <TextBlock>
-                                    <Run Text="{Binding OpticsApodizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <Run Text=", " />
-                                    <Run Text="{Binding OpticsPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <Run Text=", " />
-                                    <Run Text="{Binding CollectorPolarizationModeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0}, {1}, {2}">
+                                            <Binding Path="OpticsApodizationModeEnum" Converter="{StaticResource EnumDescriptionConverter}" />
+                                            <Binding Path="OpticsPolarizationModeEnum" Converter="{StaticResource EnumDescriptionConverter}" />
+                                            <Binding Path="OpticsCollectorPolarizationModeEnum" Converter="{StaticResource EnumDescriptionConverter}" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
                                 </TextBlock>
                             </DataTemplate>
                         </TabControl.ItemTemplate>

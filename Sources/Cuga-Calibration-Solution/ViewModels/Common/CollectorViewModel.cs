@@ -18,16 +18,16 @@ public sealed class CollectorViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public CollectorPolarizationModeEnum GetPolarizationMode()
+    public OpticsCollectorPolarizationModeEnum GetPolarizationMode()
     {
         var ret = calibrationCollectorService.GetPolarizationMode();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetPolarizationMode(CollectorPolarizationModeEnum collectorPolarizationModeEnum)
+    public void SetPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
     {
-        var ret = calibrationCollectorService.SetPolarizationMode(collectorPolarizationModeEnum);
+        var ret = calibrationCollectorService.SetPolarizationMode(opticsCollectorPolarizationModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

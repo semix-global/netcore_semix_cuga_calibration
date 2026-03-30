@@ -1,9 +1,9 @@
 ﻿namespace Core.Models.Enums.Optics;
 
 /// <summary>
-/// 采集偏振
+/// 照明采集偏振
 /// </summary>
-public enum CollectorPolarizationModeEnum
+public enum OpticsCollectorPolarizationModeEnum
 {
     None,
     P,

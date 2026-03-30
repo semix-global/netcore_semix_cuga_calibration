@@ -378,7 +378,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             CalibratingItem.PrescanAODWaveformProfileMappings = [];
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
-            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+            CollectorViewModel.SetPolarizationMode(OpticsCollectorPolarizationModeEnum.None);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -633,7 +633,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             };
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
-            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+            CollectorViewModel.SetPolarizationMode(OpticsCollectorPolarizationModeEnum.None);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -770,7 +770,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             CalibratingItem.OpticsPolarizationModeEnumMeasurePowers = [];
 
             OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
-            CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+            CollectorViewModel.SetPolarizationMode(OpticsCollectorPolarizationModeEnum.None);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -1033,7 +1033,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         cancellationToken.ThrowIfCancellationRequested();
 
                         OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
-                        CollectorViewModel.SetPolarizationMode(CollectorPolarizationModeEnum.None);
+                        CollectorViewModel.SetPolarizationMode(OpticsCollectorPolarizationModeEnum.None);
 
                         await Task.Delay(TimeSpan.FromSeconds(Cache.Item.WaitTime), cancellationToken).ConfigureAwait(false);
 

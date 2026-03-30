@@ -10,7 +10,7 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationCollectorService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationCollectorServiceMockImpl : ICalibrationCollectorService
 {
-    private CollectorPolarizationModeEnum _currentCollectorPolarizationModeEnum;
+    private OpticsCollectorPolarizationModeEnum _currentOpticsCollectorPolarizationModeEnum;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -19,18 +19,18 @@ public sealed class CalibrationCollectorServiceMockImpl : ICalibrationCollectorS
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<CollectorPolarizationModeEnum> GetPolarizationMode()
+    public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetPolarizationMode()
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(_currentCollectorPolarizationModeEnum);
+        return SxExecuteRetHelper.CreateSuccess(_currentOpticsCollectorPolarizationModeEnum);
     }
 
-    public SxExecuteRet<bool> SetPolarizationMode(CollectorPolarizationModeEnum collectorPolarizationModeEnum)
+    public SxExecuteRet<bool> SetPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
     {
         Thread.Sleep(100);
 
-        _currentCollectorPolarizationModeEnum = collectorPolarizationModeEnum;
+        _currentOpticsCollectorPolarizationModeEnum = opticsCollectorPolarizationModeEnum;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
