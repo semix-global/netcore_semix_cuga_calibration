@@ -1,5 +1,6 @@
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Config;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Interface.Calibration;
@@ -57,6 +58,11 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
     }
 
     public SxExecuteRet<bool> SetChirpAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<HardwareStateConfig> LoadHardwareConfigs()
     {
         throw new NotImplementedException();
     }

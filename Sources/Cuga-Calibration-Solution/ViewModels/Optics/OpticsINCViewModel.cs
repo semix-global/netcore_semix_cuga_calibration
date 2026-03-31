@@ -1,6 +1,8 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.HardwareType;
+using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
@@ -86,6 +88,22 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
         await Task.CompletedTask.ConfigureAwait(false);
 
         if (LoadDepends() == false) return false;
+
+        Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
+
+        if (ApplicationCookie.OpticsIlluminationModeEnums.Contains(OpticsIlluminationModeEnum.OI) &&
+            ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.OIINC].Enabled == false)
+        {
+            DialogWindowProvider.ShowDialog("Please enable the OI INC motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        if (ApplicationCookie.OpticsIlluminationModeEnums.Contains(OpticsIlluminationModeEnum.NI) &&
+            ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.NIINC].Enabled == false)
+        {
+            DialogWindowProvider.ShowDialog("Please enable the NI INC motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 

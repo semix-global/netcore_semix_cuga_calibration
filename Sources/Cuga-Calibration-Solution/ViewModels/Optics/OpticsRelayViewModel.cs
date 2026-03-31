@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
@@ -95,6 +96,22 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         await Task.CompletedTask.ConfigureAwait(false);
 
         if (LoadDepends() == false) return false;
+
+        Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
+
+        if (ApplicationCookie.OpticsIlluminationModeEnums.Contains(OpticsIlluminationModeEnum.OI) &&
+            ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.OIRelay].Enabled == false)
+        {
+            DialogWindowProvider.ShowDialog("Please enable the OI Relay motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        if (ApplicationCookie.OpticsIlluminationModeEnums.Contains(OpticsIlluminationModeEnum.NI) &&
+            ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.NIRelay].Enabled == false)
+        {
+            DialogWindowProvider.ShowDialog("Please enable the NI Relay motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
