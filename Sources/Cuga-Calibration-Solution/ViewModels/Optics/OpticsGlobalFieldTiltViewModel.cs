@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
@@ -115,6 +116,22 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
         if (LoadDepends() == false) return false;
 
+        Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
+
+        if (ApplicationCookie.OpticsIlluminationModeEnums.Contains(OpticsIlluminationModeEnum.OI) &&
+            ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.OIDOE].Enabled == false)
+        {
+            DialogWindowProvider.ShowDialog("Please enable the OI DOE motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
+        if (ApplicationCookie.OpticsIlluminationModeEnums.Contains(OpticsIlluminationModeEnum.NI) &&
+            ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.NIDOE].Enabled == false)
+        {
+            DialogWindowProvider.ShowDialog("Please enable the NI DOE motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
+
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
 
         AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
@@ -175,6 +192,8 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
         switch (CalibrationStepIndex)
         {
+            case 0:
+                return true;
             case 1 or 2:
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.CalChipSiteModelEnum switch

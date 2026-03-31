@@ -1,5 +1,6 @@
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Config;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
@@ -66,5 +67,14 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
         var ret = calibrationConfigService.SetChirpAODWaveformConfiguration(productivityInformation, filePath);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public HardwareStateConfig GetHardwareConfigs()
+    {
+        var ret = calibrationConfigService.LoadHardwareConfigs();
+
+        if (ret.IsSuccess == false) throw new Exception(ret.ErrorMsg);
+
+        return ret.Anything;
     }
 }

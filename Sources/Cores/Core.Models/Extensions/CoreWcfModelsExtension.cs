@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
@@ -228,7 +229,10 @@ public static class CoreWcfModelsExtension
         errorMessage = string.Empty;
 
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        var isOk = result.SingleOrDefault(t => t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk == true;
+        var isOk = result
+                       .SingleOrDefault(t =>
+                           t.ProductivityInformation == applicationCookie.OILowProductivityInformation)?.IsOk ==
+                   true;
 
         if (isOk == false)
             errorMessage = "Chuck Alignment Degree Offset is Empty";
@@ -281,12 +285,14 @@ public static class CoreWcfModelsExtension
         var lensInformationList = HostApplication.GetRequiredService<ApplicationCookie>().MicroscopeLensInformations;
 
         var lensChanged = lensInformationList.Contains(result.SettingCommonParam.LowMicroscopeLensInformation) == false
-                          || lensInformationList.Contains(result.SettingCommonParam.HighMicroscopeLensInformation) == false;
+                          || lensInformationList.Contains(result.SettingCommonParam.HighMicroscopeLensInformation) ==
+                          false;
 
         if (lensChanged)
         {
             var cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
-            result.SettingCommonParam.LowMicroscopeLensInformation = result.SettingCommonParam.HighMicroscopeLensInformation = lensInformationList[0];
+            result.SettingCommonParam.LowMicroscopeLensInformation =
+                result.SettingCommonParam.HighMicroscopeLensInformation = lensInformationList[0];
             cacheProvider.Set(result, CancellationToken.None);
         }
 
@@ -330,24 +336,37 @@ public static class CoreWcfModelsExtension
 
     public static bool IsOk(this OpticsRelayDTO[] result, out string errorMessage)
     {
+        errorMessage = string.Empty;
+
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        Guard.IsNotNull(applicationCookie.HardwareStateConfig);
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum) && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
+        var isOkCount = result
+            .Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
+            .Count(t => t.IsOk);
 
-        errorMessage = isOk ? string.Empty : "Optics Relay is Empty";
+        var isOK = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
+        errorMessage = isOK ? string.Empty : "Optics Relay is Empty";
 
-        return isOk;
+        return isOK;
     }
 
-    public static bool IsOk(this GlobalFieldTiltDTO result, out string errorMessage)
+    public static bool IsOk(this GlobalFieldTiltDTO[] result, out string errorMessage)
     {
         errorMessage = string.Empty;
 
-        var isOk = result.IsOk;
-        if (isOk == false) errorMessage = "Global Field Tilt is Empty";
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        Guard.IsNotNull(applicationCookie.HardwareStateConfig);
 
-        return isOk;
+        var isOkCount = result
+             .Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
+             .Count(t => t.IsOk);
+
+        var isOK = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
+
+        if (isOK == false) errorMessage = "Global Field Tilt is Empty";
+
+        return isOK;
     }
 
     public static bool IsOk(this CIBXPixelSizeDTO[] result, out string errorMessage)
@@ -367,9 +386,11 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
-                                          && t.IsOk);
-        var isOk = isOkCount == applicationCookie.CIBInformationPMTIds.Count * applicationCookie.OpticsMagTypeProductivityInformations.Count;
+        var isOkCount = result.Count(t =>
+            applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+            && t.IsOk);
+        var isOk = isOkCount == applicationCookie.CIBInformationPMTIds.Count *
+            applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB Y Pixel Size is Empty";
 
@@ -382,7 +403,8 @@ public static class CoreWcfModelsExtension
 
         var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                                           && t.IsOk);
-        var isOk = isOkCount == applicationCookie.CIBInformationPMTIds.Count * applicationCookie.OpticsMagTypeProductivityInformations.Count;
+        var isOk = isOkCount == applicationCookie.CIBInformationPMTIds.Count *
+            applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB  Line Centricity is Empty";
 
@@ -406,8 +428,9 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
-                                          && t.IsOk);
+        var isOkCount = result.Count(t =>
+            applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+            && t.IsOk);
         var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Alignment is Empty";
@@ -419,8 +442,9 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
-                                          && t.IsOk);
+        var isOkCount = result.Count(t =>
+            applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+            && t.IsOk);
         var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Delay is Empty";
@@ -432,8 +456,9 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
-                                          && t.IsOk);
+        var isOkCount = result.Count(t =>
+            applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+            && t.IsOk);
         var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Laser Optical Power Meter is Empty";
@@ -445,8 +470,9 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
-                                          && t.IsOk);
+        var isOkCount = result.Count(t =>
+            applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+            && t.IsOk);
         var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Laser Attenuator is Empty";
@@ -479,8 +505,11 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
-                                          && t.IsOk);
+        Guard.IsNotNull(applicationCookie.HardwareStateConfig);
+
+        var isOkCount = result
+            .Where(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+            .Count(t => t.IsOk);
         var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Optics INC is Empty";
@@ -492,8 +521,9 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
-                                          && t.IsOk);
+        var isOkCount = result.Count(t =>
+            applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+            && t.IsOk);
         var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "CIB XTC is Empty";
@@ -506,10 +536,12 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
-                                          && applicationCookie.LaserLightInformations.Contains(t.LaserLightInformation)
-                                          && t.IsOk);
-        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count * applicationCookie.LaserLightInformations.Count;
+        var isOkCount = result.Count(t =>
+            applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+            && applicationCookie.LaserLightInformations.Contains(t.LaserLightInformation)
+            && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count *
+            applicationCookie.LaserLightInformations.Count;
 
         errorMessage = isOk ? string.Empty : "AOD Uniformity is Empty";
 
@@ -524,7 +556,8 @@ public static class CoreWcfModelsExtension
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
 
-        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation) && t.IsOk);
+        var isOkCount = result.Count(t =>
+            applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation) && t.IsOk);
         var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Global Focus Offset is Empty";

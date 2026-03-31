@@ -1,11 +1,14 @@
 using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Config;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
+using Cuga.Data.DataStruct.Config.Engines;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
@@ -21,12 +24,16 @@ using System.IO;
 
 namespace Core.Services.Implements.WCF;
 
-[IOCAppService(ServiceType = typeof(ICalibrationConfigService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
+[IOCAppService(ServiceType = typeof(ICalibrationConfigService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton,
+    IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationConfigServiceImpl(
     ISysUserRepository sysUserRepository,
     ISysUserService sysUserService) : BaseService<ICgCalibrationService>, ICalibrationConfigService
 {
-    private IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum OpticsIlluminationModeEnum, int OpticsMagType)>? _prescanChirpAODWaveConfigs;
+    private IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum
+        OpticsIlluminationModeEnum, int OpticsMagType)>? _prescanChirpAODWaveConfigs;
+
+    private HardwareStateConfig? _hardwareStateConfig;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -43,18 +50,22 @@ public sealed class CalibrationConfigServiceImpl(
 
     public async Task<SxExecuteRet<SysUserDto>> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password)) throw new LoginException("The account or password cannot be empty!");
+        if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
+            throw new LoginException("The account or password cannot be empty!");
 
         var sxExecuteRet = Invoke(() => Service!.UserCheck(user.UserName, user.Password));
         if (sxExecuteRet.IsSuccess == false) throw new LoginException(sxExecuteRet.Msg);
 
         var sysUser = await sysUserRepository
-            .Select
-            .Where(t => t.UserName == user.UserName)
-            .ToOneAsync(cancellationToken).ConfigureAwait(false) ?? throw new LoginException("The account or password is incorrect!");
-        if (sysUser.IsDeleted || sysUser.IsEnabled == false) throw new LoginException("The account has been deactivated and login is prohibited!");
+                          .Select
+                          .Where(t => t.UserName == user.UserName)
+                          .ToOneAsync(cancellationToken).ConfigureAwait(false) ??
+                      throw new LoginException("The account or password is incorrect!");
+        if (sysUser.IsDeleted || sysUser.IsEnabled == false)
+            throw new LoginException("The account has been deactivated and login is prohibited!");
 
-        var sysUserDto = await sysUserService.GetAsync(sysUser.Id, cancellationToken).ConfigureAwait(false) ?? throw new DbException();
+        var sysUserDto = await sysUserService.GetAsync(sysUser.Id, cancellationToken).ConfigureAwait(false) ??
+                         throw new DbException();
 
         sysUserDto.LoginDate = DateTime.Now;
         var isSuccess = await sysUserService.UpdateAsync(sysUserDto, cancellationToken).ConfigureAwait(false);
@@ -79,10 +90,12 @@ public sealed class CalibrationConfigServiceImpl(
         return SxExecuteRetHelper.CreateSuccess($"{sxExecuteRet.Anything}.dat");
     }
 
-    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
+    public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(
+        ProductivityInformation productivityInformation)
     {
         var sxExecuteRet = GetPrescanChirpAODWaveConfigs();
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError<IReadOnlyList<PrescanAODWaveformProfile>>(sxExecuteRet.Msg, []);
 
         var result = sxExecuteRet.Anything
             .Where(t => t.AODWaveformProfile is PrescanAODWaveformProfile
@@ -97,10 +110,12 @@ public sealed class CalibrationConfigServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<PrescanAODWaveformProfile>>(result);
     }
 
-    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(ProductivityInformation productivityInformation)
+    public SxExecuteRet<IReadOnlyList<ChirpAODWaveformProfile>> GetChirpAODWaveProfiles(
+        ProductivityInformation productivityInformation)
     {
         var sxExecuteRet = GetPrescanChirpAODWaveConfigs();
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError<IReadOnlyList<ChirpAODWaveformProfile>>(sxExecuteRet.Msg, []);
 
         var result = sxExecuteRet.Anything
             .Where(t => t.AODWaveformProfile is ChirpAODWaveformProfile
@@ -115,12 +130,15 @@ public sealed class CalibrationConfigServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ChirpAODWaveformProfile>>(result);
     }
 
-    public SxExecuteRet<bool> SetPrescanAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
+    public SxExecuteRet<bool> SetPrescanAODWaveformConfiguration(ProductivityInformation productivityInformation,
+        string filePath)
     {
-        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension, "File Extension is not valid.");
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension,
+            "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
-        var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Prescan, filePath));
+        var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag,
+            productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Prescan, filePath));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
         return sxExecuteRet.IsSuccess == false
@@ -128,12 +146,15 @@ public sealed class CalibrationConfigServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChirpAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath)
+    public SxExecuteRet<bool> SetChirpAODWaveformConfiguration(ProductivityInformation productivityInformation,
+        string filePath)
     {
-        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension, "File Extension is not valid.");
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension,
+            "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
-        var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Chirp, filePath));
+        var sxExecuteRet = Invoke(() => Service!.UpdataAodWavePathConfig(productivityInformation.AdaptTo().Mag,
+            productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), CgWaveType.Chirp, filePath));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
 
         return sxExecuteRet.IsSuccess == false
@@ -141,12 +162,18 @@ public sealed class CalibrationConfigServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    private SxExecuteRet<IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum OpticsIlluminationModeEnum, int OpticsMagType)>> GetPrescanChirpAODWaveConfigs()
+    private SxExecuteRet<IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum
+        OpticsIlluminationModeEnum, int OpticsMagType)>> GetPrescanChirpAODWaveConfigs()
     {
-        if (_prescanChirpAODWaveConfigs is not null) return SxExecuteRetHelper.CreateSuccess(_prescanChirpAODWaveConfigs);
+        if (_prescanChirpAODWaveConfigs is not null)
+            return SxExecuteRetHelper.CreateSuccess(_prescanChirpAODWaveConfigs);
 
         var sxExecuteRet = Invoke(() => Service!.GetAWGFilePath());
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum OpticsIlluminationModeEnum, int OpticsMagType)>>(sxExecuteRet.ErrorMsg, []);
+        if (sxExecuteRet.IsSuccess == false)
+            return SxExecuteRetHelper
+                .CreateError<
+                    IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum
+                        OpticsIlluminationModeEnum, int OpticsMagType)>>(sxExecuteRet.ErrorMsg, []);
 
         var cgElectrodeFileModels = sxExecuteRet.Anything.OrderBy(t => t.Id).ToList();
 
@@ -159,7 +186,9 @@ public sealed class CalibrationConfigServiceImpl(
                 .ToList()
                 .GetRange(0, cgElectrodeFileModels.Count)), "Id is not from 1 to ..");
 
-        var results = new List<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum OpticsIlluminationModeEnum, int OpticsMagType)>();
+        var results =
+            new List<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum
+                OpticsIlluminationModeEnum, int OpticsMagType)>();
 
         foreach (var cgElectrodeFileModel in cgElectrodeFileModels)
         {
@@ -199,5 +228,49 @@ public sealed class CalibrationConfigServiceImpl(
         _prescanChirpAODWaveConfigs = results;
 
         return SxExecuteRetHelper.CreateSuccess(_prescanChirpAODWaveConfigs);
+    }
+
+    public SxExecuteRet<HardwareStateConfig> LoadHardwareConfigs()
+    {
+        if (_hardwareStateConfig is not null) return SxExecuteRetHelper.CreateSuccess(_hardwareStateConfig);
+        var sxExecuteRet = Invoke(() => Service!.GetOpticConfig());
+        if (sxExecuteRet.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, HardwareStateConfig.Default);
+
+        var config = new CgOpticsConfig();
+        var motorDict = new Dictionary<HardwareMotorTypeEnum, HardwareStateDTO>();
+        var fourierDict = new Dictionary<HardwareFourierTypeEnum, HardwareStateDTO>();
+        var clinderDict = new Dictionary<HardwareClinderTypeEnum, HardwareStateDTO>();
+
+        // 转换 Motor
+        foreach (var kv in config.UsedConfig.UsedConfig)
+        {
+            var motorTypeEnum = kv.Key.ToHardwareMotorTypeEnum();
+
+            if (motorTypeEnum is null) continue;
+            motorDict[(HardwareMotorTypeEnum)motorTypeEnum] = new HardwareStateDTO(kv.Value);
+        }
+
+        // 转换 FFT
+        foreach (var kv in config.UsedConfig.UsedFFConfig)
+        {
+            var fourierTypeEnum = kv.Key.ToHardwareFourierTypeEnum();
+
+            if (fourierTypeEnum is null) continue;
+            fourierDict[(HardwareFourierTypeEnum)fourierTypeEnum] = new HardwareStateDTO(kv.Value);
+        }
+
+        // 转换 Clinder
+        foreach (var kv in config.UsedConfig.UsedClinder)
+        {
+            var clinderTypeEnum = kv.Key.ToHardwareClinderTypeEnum();
+
+            if (clinderTypeEnum is null) continue;
+            clinderDict[(HardwareClinderTypeEnum)clinderTypeEnum] = new HardwareStateDTO(kv.Value);
+        }
+
+        _hardwareStateConfig = new HardwareStateConfig(motorDict, fourierDict, clinderDict);
+
+        return SxExecuteRetHelper.CreateSuccess(_hardwareStateConfig);
     }
 }

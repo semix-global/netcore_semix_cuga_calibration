@@ -1,4 +1,5 @@
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Config;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Semix.CoreLib;
@@ -62,4 +63,11 @@ public interface ICalibrationConfigService
     /// <param name="filePath">波形文件路径</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetChirpAODWaveformConfiguration(ProductivityInformation productivityInformation, string filePath);
+
+    /// <summary>
+    /// cuga的硬件状态配置
+    /// </summary>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<HardwareStateConfig> LoadHardwareConfigs();
+
 }

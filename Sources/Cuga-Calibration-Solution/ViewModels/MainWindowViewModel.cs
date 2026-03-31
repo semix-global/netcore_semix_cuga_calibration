@@ -653,7 +653,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsRelayDTO>().IsOk(out _);
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsGlobalFieldTiltViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<GlobalFieldTiltDTO>().IsOk(out _);
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<GlobalFieldTiltDTO>().IsOk(out _);
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBYPixelSizeViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>().IsOk(out _);

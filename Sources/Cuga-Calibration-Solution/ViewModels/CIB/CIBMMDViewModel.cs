@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
+using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
@@ -108,6 +109,14 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         await Task.CompletedTask.ConfigureAwait(false);
 
         if (LoadDepends() == false) return false;
+
+        Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
+
+        if (ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.OD].Enabled == false)
+        {
+            DialogWindowProvider.ShowDialog("Please enable the OD motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
+        }
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
         LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();

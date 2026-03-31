@@ -87,6 +87,7 @@ public sealed partial class LoadingWindowViewModel(
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
+            applicationCookie.HardwareStateConfig = configViewModel.GetHardwareConfigs();
 
             Guard.IsNotNullOrWhiteSpace(applicationCookie.DeviceCode);
             Guard.IsNotEmpty(applicationCookie.MicroscopeLensInformations);
@@ -95,6 +96,7 @@ public sealed partial class LoadingWindowViewModel(
             Guard.IsNotEmpty(applicationCookie.CIBInformations);
 
             calibrationSetting.AdaptIn(cacheProvider.GetOrDefault<CalibrationSetting>());
+
 
             contextProvider.Send(() => CloseView(true));
 
