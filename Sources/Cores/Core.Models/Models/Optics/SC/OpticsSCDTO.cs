@@ -75,7 +75,7 @@ public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsS
 
     public OpticsSCDTO()
     {
-        ScatterPlotControl.SetTitle("SC(Y: Strehl Ratio - X: mm)");
+        ScatterPlotControl.SetTitle("SC(Y: Strehl Ratio - X: λ)");
     }
 
     private void RefreshPlot()
