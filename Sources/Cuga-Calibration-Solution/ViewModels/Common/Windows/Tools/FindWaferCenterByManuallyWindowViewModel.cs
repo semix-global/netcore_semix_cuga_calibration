@@ -33,7 +33,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
     private bool _isEnable = true;
 
     [RelayCommand]
-    private Task FindWaferCenterLoadedAsync()
+    public Task FindWaferCenterLoadedAsync()
     {
         return InvokeAsync(() =>
         {

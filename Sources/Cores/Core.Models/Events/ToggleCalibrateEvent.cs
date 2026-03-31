@@ -14,7 +14,7 @@ public sealed class ToggleCalibrateEvent
 
     public bool? IsNextEnable { get; set; } = false;
 
-    public bool? IsRefreshMenuStatus { get; set; } = false;
+    public bool? IsRefreshWindow { get; set; } = false;
 
     public bool? IsWindowEnable { get; set; } = false;
 
@@ -181,11 +181,11 @@ public static class ToggleCalibrateEventFactory
         });
     }
 
-    public static ValueChangedMessage<ToggleCalibrateEvent> RefreshMenuStatus(bool? value)
+    public static ValueChangedMessage<ToggleCalibrateEvent> RefreshWindow(bool? value)
     {
         return new ValueChangedMessage<ToggleCalibrateEvent>(new ToggleCalibrateEvent
         {
-            IsRefreshMenuStatus = value
+            IsRefreshWindow = value
         });
     }
 

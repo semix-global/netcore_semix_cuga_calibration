@@ -135,7 +135,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        return !IsRecipeCalibrate || CalibrationRecipeService.GetCorrectWaferMapByOffset(true);
+        if (IsRecipeCalibrate) RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -580,9 +581,19 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         SelectMicroscopePixelSizeCacheItem = Cache.CurrentCalibrationCacheItem;
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
-        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopePixelSizeCacheItem.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, out var maskInfo) == false)
-            return false;
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var position);
+        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(
+                CalibrationRecipeDto.ReticleMarkDto,
+                SelectMicroscopePixelSizeCacheItem.WaferMaskTypeEnum,
+                Cache.MicroscopeLensInformation,
+                null,
+                out var maskInfo) == false) return false;
+
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+            originReticle,
+            maskInfo,
+            out var position);
+
         Cache.SetFindFocusPosition(position);
 
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation, true);

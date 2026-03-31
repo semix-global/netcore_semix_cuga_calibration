@@ -4,7 +4,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Pattern;
 
-public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBConfiguration>
+public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBConfiguration>, IAdaptIn<CIBConfiguration, CIBConfiguration>
 {
     [ObservableProperty]
     private int _gain = -2;
@@ -17,6 +17,16 @@ public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBC
 
     [ObservableProperty]
     private CIBProfileModeEnum _cIBProfileMode = CIBProfileModeEnum.PMTLog;
+
+    public CIBConfiguration AdaptIn(CIBConfiguration obj)
+    {
+        Gain = obj.Gain;
+        IsAutoGainControl = obj.IsAutoGainControl;
+        IsL0K = obj.IsL0K;
+        CIBProfileMode = obj.CIBProfileMode;
+
+        return this;
+    }
 
     public CIBConfiguration Clone() => new()
     {

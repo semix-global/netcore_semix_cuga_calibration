@@ -23,12 +23,13 @@
         <File Path="../README.md" />
     </Folder>
     <Folder Name="/01. Cores/">
-        <Project Path="Cores/Core.Utilities/00. Core.Utilities.csproj" />
-        <Project Path="Cores/Core.Utilities.WPF/01. Core.Utilities.WPF.csproj" />
-        <Project Path="Cores/Core.Utilities.SourceGenerators/02. Core.Utilities.SourceGenerators.csproj" />
-        <Project Path="Cores/Core.Wcf/03. Core.Wcf.csproj" />
         <Project Path="Cores/Core.Models/04. Core.Models.csproj" />
+        <Project Path="Cores/Core.Recipe/06. Core.Recipe.csproj" />
         <Project Path="Cores/Core.Services/05. Core.Services.csproj" />
+        <Project Path="Cores/Core.Utilities.SourceGenerators/02. Core.Utilities.SourceGenerators.csproj" />
+        <Project Path="Cores/Core.Utilities.WPF/01. Core.Utilities.WPF.csproj" />
+        <Project Path="Cores/Core.Utilities/00. Core.Utilities.csproj" />
+        <Project Path="Cores/Core.Wcf/03. Core.Wcf.csproj" />
     </Folder>
     <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj" />
     <Project Path="Cuga-Calibration-Test/Cuga-Calibration-Test.csproj" />

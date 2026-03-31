@@ -26,6 +26,7 @@ public sealed class ProductivityInformation :
     IEquatable<ProductivityInformation>,
     IFormattable,
     IAdaptTo<C2MProductivityInfo>,
+    IAdaptIn<ProductivityInformation, ProductivityInformation>,
     /*IAdaptIn<C2MProductivityInfo, ProductivityInformation>,*/
     ICloneable<ProductivityInformation>
 {
@@ -234,6 +235,21 @@ public sealed class ProductivityInformation :
         XSpeedValue = xSpeedValue;
         XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
 
+        return this;
+    }
+
+    public ProductivityInformation AdaptIn(ProductivityInformation obj)
+    {
+        Name = obj.Name;
+        OpticsIlluminationModeEnum = obj.OpticsIlluminationModeEnum;
+        OpticsMagType = obj.OpticsMagType;
+        StageSpeedType = obj.StageSpeedType;
+        XPixelSize = obj.XPixelSize;
+        YPixelSize = obj.YPixelSize;
+        YPixel = obj.YPixel;
+        OriginYPixel = obj.OriginYPixel;
+        SampleRate = obj.SampleRate;
+        XSpeedValue = obj.XSpeedValue;
         return this;
     }
 

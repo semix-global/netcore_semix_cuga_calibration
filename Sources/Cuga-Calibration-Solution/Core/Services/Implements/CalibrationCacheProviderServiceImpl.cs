@@ -3,8 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.Recipe.Info;
 using Core.Models.Models.Setting;
+using Core.Recipe.Models;
 using Core.Utilities;
 using Core.Wcf.Models;
 using Core.Wcf.Models.Ads;
@@ -49,6 +49,7 @@ public class CalibrationCacheProviderServiceImpl(
     ILogger<CalibrationCacheProviderServiceImpl> logger,
     IDialogWindowProvider dialogWindowProvider,
     ApplicationCookie applicationCookie,
+    RecipeCookie recipeCookie,
     CalibrationSetting calibrationSetting) : ICalibrationCacheProvider
 {
     private readonly string _saveResultDirectory = Path.Combine(options.Value.AppHomeDirectory, "CalibrationResult");
@@ -174,7 +175,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                 messageBuilder.AppendLine();
 
-                var originalRecipeDBPath = applicationCookie.CalibrationRecipeDto?.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
+                var originalRecipeDBPath = recipeCookie.SysRecipeInformationDto.RecipeNosqlRecipeDbDataSource;
                 Guard.IsNotNullOrEmpty(originalRecipeDBPath);
                 try
                 {
@@ -335,10 +336,14 @@ public class CalibrationCacheProviderServiceImpl(
                 // Import Recipe Caches
                 var recipesCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CacheCollector.RecipeCaches)]);
 
-                var originalRecipeDBPath = applicationCookie.CalibrationRecipeDto?.CalibrationRecipeInfoDto.RecipeNosqlRecipeDbDataSource;
+                var originalRecipeDBPath = recipeCookie.SysRecipeInformationDto.RecipeNosqlRecipeDbDataSource;
                 Guard.IsNotNullOrEmpty(originalRecipeDBPath);
                 try
                 {
+                    var sysRecipeInformationList = await sysRecipeInformationService
+                        .GetAllAsync(cancellationToken)
+                        .ConfigureAwait(false);
+
                     foreach (var (recipeName, recipeCachesToken) in recipesCaches)
                     {
                         messageBuilder.AppendLine($"=== Recipe: {recipeName} ===");
@@ -347,7 +352,8 @@ public class CalibrationCacheProviderServiceImpl(
                             Guard.IsNotNull(recipeName);
                             var recipeCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(recipeCachesToken);
 
-                            var recipe = (await sysRecipeInformationService.GetByConditionAsync(new SysRecipeInformationDto { RecipeDbName = recipeName }, cancellationToken)).FirstOrDefault();
+
+                            var recipe = sysRecipeInformationList.SingleOrDefault(t => t.RecipeDbName == recipeName);
 
                             var isNewRecipe = false;
                             if (recipe is null)
@@ -356,10 +362,10 @@ public class CalibrationCacheProviderServiceImpl(
                                 {
                                     RecipeDbName = recipeName,
                                     DescribeInformation = $"Imported on {DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}",
-                                    RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeName, new CalibrationRecipeInfoDto().RecipeDbName))
+                                    RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeName, options.Value.RecipeDBName))
                                 };
 
-                                await sysRecipeInformationService.InsertAsync(recipe, cancellationToken);
+                                await sysRecipeInformationService.CreatAsync(recipe, cancellationToken);
                                 isNewRecipe = true;
                             }
 
