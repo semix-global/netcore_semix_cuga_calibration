@@ -9,9 +9,9 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Common.Recipe;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Setting;
+using Core.Recipe.Models;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
@@ -135,7 +135,9 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     public ApplicationCookie ApplicationCookie { get; }
 
-    public CalibrationRecipeDto? CalibrationRecipeDto => ApplicationCookie.CalibrationReviseRecipeDto;
+    public RecipeCookie RecipeCookie { get; }
+
+    public CalibrationRecipeDTO? CalibrationRecipeDto => RecipeCookie.CalibrationReviseRecipeDto;
 
     /// <summary>
     /// 校准名称
@@ -284,6 +286,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         CalibrationRecipeService = HostApplication.GetRequiredService<ICalibrationRecipeService>();
 
         ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        RecipeCookie = HostApplication.GetRequiredService<RecipeCookie>();
         CalibrationSetting = HostApplication.GetRequiredService<CalibrationSetting>();
 
         Messenger.RegisterAll(this);

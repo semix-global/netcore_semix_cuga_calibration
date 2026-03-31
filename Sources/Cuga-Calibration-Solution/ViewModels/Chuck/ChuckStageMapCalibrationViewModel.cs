@@ -165,7 +165,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         await Task.CompletedTask.ConfigureAwait(false);
         StageViewModel.SetEnableStageMap(false);
 
-        return !IsRecipeCalibrate || CalibrationRecipeService.GetCorrectWaferMapByOffset(true);
+        if (IsRecipeCalibrate) RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
+
+        return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
@@ -1422,18 +1424,33 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         switch (stepName)
         {
             case "0":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeLensInformation, Cache.ProductivityInformation, out var maskInfoBrightField) == false)
-                    return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoBrightField, out var positionBright);
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(
+                        CalibrationRecipeDto.ReticleMarkDto,
+                        Cache.WaferMaskTypeEnum,
+                        Cache.HighMicroscopeLensInformation,
+                        Cache.ProductivityInformation, out var maskInfoBrightField) == false) return false;
+
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+                    CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+                    originReticle, maskInfoBrightField,
+                    out var positionBright);
                 Cache.FirstStageMapPosition = Cache.BrightFieldFirstStageMapPosition = StageViewModel.BrightFieldToMachinePosition(positionBright);
                 Cache.TemplateFilePath = Cache.BrightFieldTemplateFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath = Cache.BrightFieldTemplateImageFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
                 break;
 
             case "1":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeLensInformation, Cache.ProductivityInformation, out var maskInfoDarkField) == false)
-                    return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfoDarkField, out var positionDark);
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(
+                        CalibrationRecipeDto.ReticleMarkDto,
+                        Cache.WaferMaskTypeEnum,
+                        Cache.HighMicroscopeLensInformation,
+                        Cache.ProductivityInformation, out var maskInfoDarkField) == false) return false;
+
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+                    CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+                    originReticle,
+                    maskInfoDarkField,
+                    out var positionDark);
                 Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = StageViewModel.DarkFieldToMachinePosition(positionDark);
                 Cache.TemplateFilePath = Cache.DarkFieldTemplateFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;

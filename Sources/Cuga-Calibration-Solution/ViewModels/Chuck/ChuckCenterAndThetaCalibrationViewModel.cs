@@ -117,7 +117,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
         await Task.CompletedTask.ConfigureAwait(false);
         if (IsRecipeCalibrate)
         {
-            if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false) return false;
+            RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
             Cache.ThetaAngle = StageViewModel.GetMachineStageTheta();
             if (await AutomationRecipeInformationAsync() == false) return false;
         }
@@ -970,7 +970,11 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         #region 低倍
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowMicroscopeLensInformation, opticsMagType: null, out var maskInfoLow) == false)
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(
+                CalibrationRecipeDto.ReticleMarkDto,
+                Cache.WaferMaskTypeEnum,
+                Cache.LowMicroscopeLensInformation,
+                productivityInformation: null, out var maskInfoLow) == false)
             return false;
         Cache.LowBaseTemplateFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowBaseTemplateImageFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -979,9 +983,17 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         #region 高倍
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeLensInformation, opticsMagType: null, out var maskInfoHigh) == false)
-            return false;
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(centerReticle, maskInfoHigh, out var highTopPosition);
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(
+                CalibrationRecipeDto.ReticleMarkDto,
+                Cache.WaferMaskTypeEnum,
+                Cache.HighMicroscopeLensInformation,
+                productivityInformation: null, out var maskInfoHigh) == false) return false;
+
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+            centerReticle,
+            maskInfoHigh, out var highTopPosition);
+
         Cache.BaseHighSiteFindPosition = highTopPosition;
         Cache.HighBaseTemplateFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighBaseTemplateImageFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateImageFilePath;

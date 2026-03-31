@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.Recipe.Edit.Common.RecipeCommonSettingUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             xmlns:edit1="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Recipe.Edit"
+             d:DesignHeight="700"
+             d:DesignWidth="700"
+             d:DataContext="{d:DesignInstance Type=edit1:RecipeSettingViewModel}"
+             mc:Ignorable="d">
+    <Border>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <GroupBox Grid.Row="0" Grid.Column="0"
+                      Margin="10"
+                      Header="CIB">
+                <hc:UniformSpacingPanel Orientation="Vertical">
+                    <pattern:CIBConfigurationUserControl DataContext="{Binding CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration}" />
+                </hc:UniformSpacingPanel>
+            </GroupBox>
+        </Grid>
+    </Border>
+</UserControl>

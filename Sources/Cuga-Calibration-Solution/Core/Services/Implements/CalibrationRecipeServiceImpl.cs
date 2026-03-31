@@ -1,9 +1,10 @@
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
-using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
+using Core.Recipe.Models;
+using Core.Recipe.Models.Wafer;
+using Core.Recipe.Models.Wafer.ReticleMask;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.Cache.Providers.Extensions;
@@ -23,24 +24,9 @@ public class CalibrationRecipeServiceImpl(
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider cacheProvider,
     ILogger<CalibrationRecipeServiceImpl> logger,
-    StageViewModel stageViewModel,
-    ApplicationCookie applicationCookie) : ICalibrationRecipeService
+    StageViewModel stageViewModel) : ICalibrationRecipeService
 {
-    public WaferMapCanvasDocument GetWaferMapCanvasDocument()
-    {
-        return applicationCookie.CalibrationRecipeDto is not null
-            ? applicationCookie.CalibrationRecipeDto!.WaferDto.WaferMapCanvasDocument
-            : throw new ArgumentNullException(nameof(applicationCookie.CalibrationRecipeDto));
-    }
-
-    public ReticleMarkDto GetReticleMark()
-    {
-        return applicationCookie.CalibrationRecipeDto is not null
-            ? applicationCookie.CalibrationRecipeDto.WaferDto.ReticleMarkDto
-            : throw new ArgumentNullException(nameof(applicationCookie.CalibrationRecipeDto));
-    }
-
-    public bool GetWaferMapOffset(out Point offset)
+    public bool GetWaferMapOffset(WaferDto waferDto, out Point offset)
     {
         try
         {
@@ -52,7 +38,6 @@ public class CalibrationRecipeServiceImpl(
                 alignmentCacheBrightField.LowMag, alignmentCacheBrightField.HighMag,
                 alignmentCacheBrightField.AlgorithmWaferTypeEnum);
 
-            var waferDto = applicationCookie.CalibrationRecipeDto!.WaferDto;
             // 配方对准结果缓存
             var recipeAlignmentResult = waferDto.AlignmentResultDto;
 
@@ -73,47 +58,39 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetCorrectWaferMapByOffset(bool isAutoAlignment)
+    public CalibrationRecipeDTO GetCorrectWaferMapByOffset(CalibrationRecipeDTO calibrationRecipeDTO, bool isAutoAlignment)
     {
-        try
-        {
-            var originalWaferDto = applicationCookie.CalibrationRecipeDto!.WaferDto;
-            originalWaferDto.WaferMapDataToWaferMapCanvasDocument();
-            var waferDto = originalWaferDto.Clone();
-            waferDto.WaferMapDataToWaferMapCanvasDocument();
-            var offsetPosition = Point.Origin;
-            if (isAutoAlignment && GetWaferMapOffset(out offsetPosition) == false)
-                return false;
-            var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
-            var offset = /* (Vector)waferCenterBrightFieldPosition +*/ (Vector)new Point(xDirection * offsetPosition.X, yDirection * offsetPosition.Y);
+        var originalWaferDto = calibrationRecipeDTO.WaferDto;
+        originalWaferDto.WaferMapDataToWaferMapCanvasDocument();
+        var waferDto = originalWaferDto.Clone();
+        waferDto.WaferMapDataToWaferMapCanvasDocument();
+        var offsetPosition = Point.Origin;
+        if (isAutoAlignment && GetWaferMapOffset(waferDto, out offsetPosition) == false)
+            throw new Exception("Get Wafer map offset failed");
+        var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+        var offset = (Vector)new Point(xDirection * offsetPosition.X, yDirection * offsetPosition.Y);
 
-            waferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint
+        waferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.DieBuilder.OriginalDiePoint
+                                                                      + offset;
+        waferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint
                                                                           + offset;
-            waferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint = originalWaferDto.WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint
-                                                                              + offset;
-            waferDto.WaferMapCanvasDocumentToWaferMapData();
+        waferDto.WaferMapCanvasDocumentToWaferMapData();
 
-            applicationCookie.CalibrationReviseRecipeDto = applicationCookie.CalibrationRecipeDto!.Clone();
-            applicationCookie.CalibrationReviseRecipeDto.WaferDto = waferDto.Clone();
-            applicationCookie.CalibrationReviseRecipeDto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Get correct wafer map by offset failed");
-            return false;
-        }
+        var reviseRecipeDto = calibrationRecipeDTO.Clone();
+        reviseRecipeDto.WaferDto = waferDto.Clone();
+        reviseRecipeDto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
+
+        return reviseRecipeDto;
     }
 
-    public bool GetMicroscopeReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, out ReticleMarkItemDto maskInfo)
+    public bool GetMicroscopeReticleMaskInfo(ReticleMarkDto reticleMarkDto, WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation? productivityInformation, out ReticleMarkItemDto maskInfo)
     {
         try
         {
-            var reticleMaskDto = GetReticleMark();
-            maskInfo = reticleMaskDto.MicrosocpeReticleMarkItemList
+            maskInfo = reticleMarkDto.MicrosocpeReticleMarkItemList
                 .First(t => t.ReticleMaskTypeEnum == waferMaskType
                             && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
+                            && (productivityInformation is null || (t.RecipeDarkFieldTemplateDto.ProductivityInformation == productivityInformation && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty))
                 );
             return true;
         }
@@ -125,28 +102,7 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    [Obsolete]
-    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, out ReticleMarkItemDto maskInfo)
-    {
-        try
-        {
-            var reticleMaskDto = GetReticleMark();
-            maskInfo = reticleMaskDto.ChuckReticleMarkItemList
-                .First(t => t.ReticleMaskTypeEnum == waferMaskType
-                            && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
-                );
-            return true;
-        }
-        catch (Exception ex)
-        {
-            maskInfo = new ReticleMarkItemDto();
-            logger.LogError(ex, "Get chuck reticle mask info failed");
-            return false;
-        }
-    }
-
-    public bool GetChuckReticleMaskInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation productivityInformation, out ReticleMarkItemDto maskInfo)
+    public bool GetChuckReticleMaskInfo(ReticleMarkDto reticleMarkDto, WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation? productivityInformation, out ReticleMarkItemDto maskInfo)
     {
         try
         {
@@ -163,31 +119,7 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    [Obsolete]
-    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, int? opticsMagType, int? stageSpeedEnum, out ReticleMarkItemDto maskInfo)
-    {
-        try
-        {
-            var reticleMaskDto = GetReticleMark();
-            maskInfo = reticleMaskDto.LaserReticleMarkItemList
-                .First(t => t.ReticleMaskTypeEnum == waferMaskType
-                            && (microscopeLensInformation is null || (t.RecipeBrightFieldTemplateDto.MicroscopeLensInformation == microscopeLensInformation && t.RecipeBrightFieldTemplateDto.TemplateFilePath != string.Empty))
-                            && (opticsMagType is null /*|| (t.RecipeDarkFieldTemplateDto.OpticsMagTypeEnum == opticsMagType
-                                                          && (stageSpeedEnum is null || t.RecipeDarkFieldTemplateDto.StageSpeedEnum == stageSpeedEnum)
-                                                          && t.RecipeDarkFieldTemplateDto.TemplateFilePath != string.Empty)*/)
-                );
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            maskInfo = new ReticleMarkItemDto();
-            logger.LogError(ex, "Get laser reticle mask info failed");
-            return false;
-        }
-    }
-
-    public bool GetLaserReticleMaskMachineInfo(WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation productivityInformation, out ReticleMarkItemDto maskInfo)
+    public bool GetLaserReticleMaskMachineInfo(ReticleMarkDto reticleMarkDto, WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation? productivityInformation, out ReticleMarkItemDto maskInfo)
     {
         try
         {
@@ -204,14 +136,13 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetDieMaskBrightFieldPosition(WaferMapDie waferMapDie, ReticleMarkItemDto maskDto, out Point position)
+    public bool GetDieMaskBrightFieldPosition(WaferMapCanvasDocument waferMapCanvasDocument, WaferMapDie waferMapDie, ReticleMarkItemDto maskDto, out Point position)
     {
         try
         {
             var waferPosition = waferMapDie.Rect.Point;
-            var waferMapDocument = GetWaferMapCanvasDocument();
-            var diePitchHeight = waferMapDocument.DieBuilder.DiePitchSize.Height;
-            var scribeSize = waferMapDocument.DieBuilder.DieScribeSize;
+            var diePitchHeight = waferMapCanvasDocument.DieBuilder.DiePitchSize.Height;
+            var scribeSize = waferMapCanvasDocument.DieBuilder.DieScribeSize;
             var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
                                                      + ((Vector)waferPosition
                                                         - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));
@@ -227,14 +158,13 @@ public class CalibrationRecipeServiceImpl(
         }
     }
 
-    public bool GetReticleMaskBrightFieldPosition(WaferMapReticle waferMapReticle, ReticleMarkItemDto maskDto, out Point position)
+    public bool GetReticleMaskBrightFieldPosition(WaferMapCanvasDocument waferMapCanvasDocument, WaferMapReticle waferMapReticle, ReticleMarkItemDto maskDto, out Point position)
     {
         try
         {
             var waferPosition = waferMapReticle.Rect.Point;
-            var waferMapDocument = GetWaferMapCanvasDocument();
-            var diePitchHeight = waferMapDocument.ReticleBuilder.DiePitchSize.Height;
-            var scribeSize = waferMapDocument.ReticleBuilder.DieScribeSize;
+            var diePitchHeight = waferMapCanvasDocument.ReticleBuilder.DiePitchSize.Height;
+            var scribeSize = waferMapCanvasDocument.ReticleBuilder.DieScribeSize;
             var realReticleMaskBrightFieldPosition = maskDto.MaskWaferCellPosition
                                                      + ((Vector)waferPosition
                                                         - (Vector)new Point(0, (diePitchHeight + scribeSize.Height)));

@@ -38,6 +38,7 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
+using Core.Recipe.Models;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Ads;
@@ -45,7 +46,7 @@ using CugaCalibration.ViewModels.AOD;
 using CugaCalibration.ViewModels.AutoFocus;
 using CugaCalibration.ViewModels.Chuck;
 using CugaCalibration.ViewModels.CIB;
-using CugaCalibration.ViewModels.Common.Windows.Management.Recipe;
+using CugaCalibration.ViewModels.Common.Windows.Management.Recipe.Management;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.View;
@@ -68,7 +69,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using AutoFocusDarkAutoFocusViewModel = CugaCalibration.ViewModels.AutoFocus.AutoFocusDarkAutoFocusViewModel;
 
 namespace CugaCalibration.ViewModels;
 
@@ -93,6 +93,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
     [ObservableProperty]
     private ApplicationCookie _applicationCookie;
+
+    [ObservableProperty]
+    private RecipeCookie _recipeCookie;
 
     [ObservableProperty]
     private bool _isLoadingOk;
@@ -170,6 +173,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         ICalibrationCacheProvider calibrationCacheProviderService,
         CalibrationSetting calibrationSetting,
         ApplicationCookie applicationCookie,
+        RecipeCookie recipeCookie,
         IApplicationCookieService applicationCookieService,
         ICalibrationRecipeService calibrationRecipeService)
     {
@@ -183,6 +187,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         _calibrationCacheProviderService = calibrationCacheProviderService;
         _calibrationSetting = calibrationSetting;
         _applicationCookie = applicationCookie;
+        _recipeCookie = recipeCookie;
         _applicationCookieService = applicationCookieService;
         _title = applicationCookie.Title;
         _calibrationRecipeService = calibrationRecipeService;
@@ -208,8 +213,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             return;
         }
 
-        _windowManagerService.ShowDialog(HostApplication.GetRequiredService<RecipeManagementViewModel>());
-        if (ApplicationCookie.CalibrationRecipeDto is null)
+        var recipeManagementViewModel = HostApplication.GetRequiredService<RecipeManagementViewModel>();
+        recipeManagementViewModel.IsLoading = true;
+        showDialog = _windowManagerService.ShowDialog(recipeManagementViewModel);
+        if (showDialog == false)
         {
             return;
         }
@@ -218,6 +225,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
         _windowManagerService.ShowWindow(HostApplication.GetRequiredService<StageWindowViewModel>());
         _windowManagerService.ShowWindow(HostApplication.GetRequiredService<MicroscopeWindowViewModel>());
+
 
         IsLoadingOk = true;
         LoadCalibrationStatus();
@@ -308,7 +316,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         IsAutoCalibrateEnable = false;
         await Task.Run(async () =>
         {
-            if (ApplicationCookie.CalibrationRecipeDto is null)
+            if (RecipeCookie.CalibrationRecipeDto is null)
             {
                 _dialogWindowProvider.ShowDialog("Applied recipe is empty! Please select a recipe!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return;
@@ -486,6 +494,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                     _windowManagerService.ShowDialog(applicationAboutWindowViewModel);
                     break;
 
+                case RecipeManagementViewModel recipeManagementViewModel:
+                    recipeManagementViewModel.IsLoading = false;
+                    _windowManagerService.ShowDialog(recipeManagementViewModel);
+                    break;
+
                 default:
                     _windowManagerService.ShowDialog(viewModelBase);
                     break;
@@ -543,10 +556,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     {
         _contextProvider.Post(() =>
         {
-            if (message.Value.IsRefreshMenuStatus == true)
+            if (message.Value.IsRefreshWindow is true)
             {
                 LoadCalibrationStatus();
                 OnPropertyChanged(nameof(ApplicationCookie));
+                OnPropertyChanged(nameof(RecipeCookie));
                 return; //防止在校准或验证过程中保存setting，导致把公共按钮的状态都禁用
             }
 
@@ -572,8 +586,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     {
         try
         {
-            if (_calibrationRecipeService.GetCorrectWaferMapByOffset(true) == false)
-                return false;
+            RecipeCookie.CalibrationReviseRecipeDto = _calibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
             return true;
         }
         catch (Exception ex)
@@ -590,6 +603,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             try
             {
                 if (IsLoadingOk == false) return;
+
+                var calibrationSetting = _cacheProvider.GetOrDefault<CalibrationSetting>();
+                CalibrationSetting.AdaptIn(calibrationSetting);
 
                 var calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeFocusCalibrationViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>().IsOk(out _);
