@@ -1,4 +1,4 @@
-using Core.Models.Models.Common.Recipe.Wafer.ReticleMask;
+using Core.Recipe.Models.Wafer.ReticleMask;
 using CugaCalibration.ViewModels.Common;
 using Microsoft.Xaml.Behaviors;
 using Net.Utilities.WPF.MVVM;

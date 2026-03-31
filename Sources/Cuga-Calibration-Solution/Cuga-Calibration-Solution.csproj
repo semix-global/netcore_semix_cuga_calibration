@@ -51,8 +51,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Cores\Core.Utilities.SourceGenerators\02. Core.Utilities.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <ProjectReference Include="..\Cores\Core.Models\04. Core.Models.csproj" />
         <ProjectReference Include="..\Cores\Core.Services\05. Core.Services.csproj" />
+        <ProjectReference Include="..\Cores\Core.Recipe\06. Core.Recipe.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -97,6 +97,10 @@
         <None Update="Assets\Data\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Core\Model\" />
     </ItemGroup>
 
 </Project>

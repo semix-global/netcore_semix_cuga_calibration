@@ -19,6 +19,7 @@ public sealed class LaserLightInformation :
     IFormattable,
     IAdaptTo<CgLightConfig>,
     IAdaptIn<CgLightConfig, LaserLightInformation>,
+    IAdaptIn<LaserLightInformation, LaserLightInformation>,
     ICloneable<LaserLightInformation>
 {
     public static readonly LaserLightInformation Default = new();
@@ -121,6 +122,14 @@ public sealed class LaserLightInformation :
         Level = Level,
         Coefficient = Coefficient
     };
+
+    public LaserLightInformation AdaptIn(LaserLightInformation obj)
+    {
+        Level = obj.Level;
+        Coefficient = obj.Coefficient;
+
+        return this;
+    }
 
     #endregion Mapper
 

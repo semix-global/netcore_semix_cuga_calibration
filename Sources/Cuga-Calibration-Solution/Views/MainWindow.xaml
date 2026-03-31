@@ -14,7 +14,6 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
-           Title="{Binding ApplicationCookie.Title, Mode=OneWay}"
            Width="1200"
            Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
@@ -34,13 +33,19 @@
         <converters:MultiValueMouseDoubleClickConverter x:Key="MultiValueMouseDoubleClickConverter" />
     </Window.Resources>
     <hc:Window.NonClientAreaContent>
-        <TextBlock Text="{Binding ApplicationCookie.Title, Mode=OneWay}"
-                   Margin="5,0"
+        <TextBlock Margin="5,0"
                    HorizontalAlignment="Left"
                    FontSize="13"
                    FontWeight="Bold"
                    Foreground="White"
-                   Style="{StaticResource TextBlockDefault}" />
+                   Style="{StaticResource TextBlockDefault}">
+            <TextBlock.Text>
+                <MultiBinding StringFormat="{}{0} [{1}]">
+                    <Binding Path="ApplicationCookie.Title" Mode="OneWay" />
+                    <Binding Path="RecipeCookie.SysRecipeInformationDto.RecipeDbName" Mode="OneWay" />
+                </MultiBinding>
+            </TextBlock.Text>
+        </TextBlock>
     </hc:Window.NonClientAreaContent>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">

@@ -126,8 +126,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         await Task.CompletedTask.ConfigureAwait(false);
         if (IsRecipeCalibrate)
         {
-            if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false)
-                return false;
+            RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
             if (await AutomationRecipeInformationAsync(Cache.MicroscopeLensInformation.LensName) == false) return false;
         }
 
@@ -682,9 +681,18 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
 
-        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum, Cache.MicroscopeLensInformation, null, out var maskInfo) == false)
-            return false;
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, maskInfo, out var position);
+        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(
+                CalibrationRecipeDto.ReticleMarkDto,
+                SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum,
+                Cache.MicroscopeLensInformation,
+                null, out var maskInfo) == false) return false;
+
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+            originReticle,
+            maskInfo,
+            out var position);
+
         Cache.SetFindPosition(position);
         Cache.SetTemplateFilePath(maskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath);
         Cache.SetTemplateImageFilePath(maskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath);

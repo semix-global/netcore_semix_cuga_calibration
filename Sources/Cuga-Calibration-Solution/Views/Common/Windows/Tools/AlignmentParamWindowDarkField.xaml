@@ -74,10 +74,9 @@
                                          hc:TitleElement.Title="BF Low Mag: "
                                          SelectedItem="{Binding Cache.LowMag}"
                                          ItemsSource="{Binding MicroscopeLensInformationList}" />
-                            <hc:ComboBox hc:InfoElement.TitleWidth="120"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="BF Low Size: "
-                                         hc:InfoElement.Necessary="True"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="160"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="BF Low Size: "
                                          SelectedItem="{Binding Cache.LowSizeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
@@ -97,10 +96,9 @@
                                          hc:TitleElement.Title="BF High Mag: "
                                          SelectedItem="{Binding Cache.HighMag}"
                                          ItemsSource="{Binding MicroscopeLensInformationList}" />
-                            <hc:ComboBox hc:InfoElement.TitleWidth="120"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="BF High Size: "
-                                         hc:InfoElement.Necessary="True"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="160"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="BF High Size: "
                                          SelectedItem="{Binding Cache.HighSizeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>

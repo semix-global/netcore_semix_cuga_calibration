@@ -13,7 +13,7 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentResultDto : ObservableObject, ICloneable<AlignmentResultDto>, IAdaptTo<C2MAlignResult>, IAdaptIn<C2MAlignResult, AlignmentResultDto>
+public sealed partial class AlignmentResultDto : ObservableObject, ICloneable<AlignmentResultDto>, IAdaptTo<C2MAlignResult>, IAdaptIn<C2MAlignResult, AlignmentResultDto>, IAdaptIn<AlignmentResultDto, AlignmentResultDto>
 {
     /// <summary>
     /// 对准旋转的角度
@@ -56,6 +56,15 @@ public sealed partial class AlignmentResultDto : ObservableObject, ICloneable<Al
         Degrees = obj.Degrees;
         MarkPoint1 = obj.EndPoint1.ToPoint();
         MarkPoint2 = obj.EndPoint2.ToPoint();
+
+        return this;
+    }
+
+    public AlignmentResultDto AdaptIn(AlignmentResultDto obj)
+    {
+        Degrees = obj.Degrees;
+        MarkPoint1 = obj.MarkPoint1;
+        MarkPoint2 = obj.MarkPoint2;
 
         return this;
     }

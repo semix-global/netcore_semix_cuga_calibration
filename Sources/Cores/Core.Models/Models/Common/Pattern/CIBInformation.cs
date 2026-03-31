@@ -17,6 +17,7 @@ public sealed class CIBInformation :
     IEquatable<CIBInformation>,
     IFormattable,
     IAdaptIn<(int id, int chl, bool used), CIBInformation>,
+    IAdaptIn<CIBInformation, CIBInformation>,
     ICloneable<CIBInformation>
 {
     public static readonly CIBInformation Default = new();
@@ -105,6 +106,14 @@ public sealed class CIBInformation :
 
         PMTId = obj.id;
         ChannelId = obj.chl;
+
+        return this;
+    }
+
+    public CIBInformation AdaptIn(CIBInformation obj)
+    {
+        PMTId = obj.PMTId;
+        ChannelId = obj.ChannelId;
 
         return this;
     }

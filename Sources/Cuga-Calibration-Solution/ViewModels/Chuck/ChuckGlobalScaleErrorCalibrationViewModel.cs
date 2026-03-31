@@ -130,7 +130,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
 
         if (IsRecipeCalibrate)
         {
-            if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false) return false;
+            RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
             if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
         }
 
@@ -854,16 +854,39 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
         var reticleBottom = reticleRows.ElementAt(1);
         var reticleLeft = reticleCols.ElementAt(1);
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowMicroscopeLensInformation, opticsMagType: null, out var baseLowMaskInfo) == false)
-            return false;
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(originReticle, baseLowMaskInfo, out var lowPosition);
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(
+                CalibrationRecipeDto.ReticleMarkDto,
+                Cache.WaferMaskTypeEnum,
+                Cache.LowMicroscopeLensInformation,
+                productivityInformation: null, out var baseLowMaskInfo) == false) return false;
+
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+            originReticle,
+            baseLowMaskInfo,
+            out var lowPosition);
 
         Cache.BaseLowSiteFindPosition = lowPosition;
 
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, baseLowMaskInfo, out var topLowSitePosition);
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, baseLowMaskInfo, out var bottomLowSitePosition);
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleLeft, baseLowMaskInfo, out var leftLowSitePosition);
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleRight, baseLowMaskInfo, out var rightLowSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+            reticleTop,
+            baseLowMaskInfo,
+            out var topLowSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+            reticleBottom,
+            baseLowMaskInfo,
+            out var bottomLowSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+            reticleLeft,
+            baseLowMaskInfo,
+            out var leftLowSitePosition);
+        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+            reticleRight,
+            baseLowMaskInfo,
+            out var rightLowSitePosition);
 
         Cache.TopLowSitePosition = topLowSitePosition;
         Cache.BottomLowSitePosition = bottomLowSitePosition;
@@ -873,8 +896,11 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
         Cache.LowBaseTemplateFilePath = baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.LowBaseTemplateImageFilePath = baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
 
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeLensInformation, opticsMagType: null, out var baseHighMaskInfo) == false)
-            return false;
+        if (CalibrationRecipeService.GetChuckReticleMaskInfo(
+                CalibrationRecipeDto.ReticleMarkDto,
+                Cache.WaferMaskTypeEnum,
+                Cache.HighMicroscopeLensInformation,
+                productivityInformation: null, out var baseHighMaskInfo) == false) return false;
 
         Cache.HighBaseTemplateFilePath = baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
         Cache.HighBaseTemplateImageFilePath = baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;

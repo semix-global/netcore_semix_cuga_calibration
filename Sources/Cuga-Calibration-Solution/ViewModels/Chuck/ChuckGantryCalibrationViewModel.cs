@@ -121,8 +121,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
         if (IsRecipeCalibrate)
         {
-            if (CalibrationRecipeService.GetCorrectWaferMapByOffset(true) == false)
-                return false;
+            RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
             if (await AutomationRecipeInformationAsync("0") == false) return false;
             if (await AutomationRecipeInformationAsync("1") == false) return false;
         }
@@ -691,12 +690,23 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         switch (chuckName)
         {
             case "0":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.LowMicroscopeLensInformation, opticsMagType: null, out var maskInfoLow) == false)
-                    return false;
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleTop, maskInfoLow, out var lowPosition1);
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(
+                        CalibrationRecipeDto.ReticleMarkDto,
+                        Cache.WaferMaskTypeEnum,
+                        Cache.LowMicroscopeLensInformation,
+                        productivityInformation: null, out var maskInfoLow) == false) return false;
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+                    CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+                    reticleTop,
+                    maskInfoLow,
+                    out var lowPosition1);
                 Cache.LowTopPosition = lowPosition1;
 
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(reticleBottom, maskInfoLow, out var lowPosition2);
+                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
+                    CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
+                    reticleBottom,
+                    maskInfoLow,
+                    out var lowPosition2);
                 Cache.LowBottomPosition = lowPosition2;
                 Cache.LowBaseTemplateFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.LowBaseTemplateImageFilePath = maskInfoLow.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
@@ -704,8 +714,11 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 break;
 
             case "1":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(Cache.WaferMaskTypeEnum, Cache.HighMicroscopeLensInformation, opticsMagType: null, out var maskInfoHigh) == false)
-                    return false;
+                if (CalibrationRecipeService.GetChuckReticleMaskInfo(
+                        CalibrationRecipeDto.ReticleMarkDto,
+                        Cache.WaferMaskTypeEnum,
+                        Cache.HighMicroscopeLensInformation,
+                        productivityInformation: null, out var maskInfoHigh) == false) return false;
 
                 Cache.HighBaseTemplateFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateFilePath;
                 Cache.HighBaseTemplateImageFilePath = maskInfoHigh.RecipeBrightFieldTemplateDto.TemplateImageFilePath;

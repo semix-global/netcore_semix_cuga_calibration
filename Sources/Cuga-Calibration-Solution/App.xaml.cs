@@ -1,4 +1,5 @@
 using Core.Models.Helper;
+using Core.Recipe.Services;
 using Core.Services;
 using Core.Utilities;
 using CugaCalibration.Core;
@@ -50,6 +51,7 @@ public sealed partial class App
                         .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationSolutionAssemblyMetadata.Version, app, context.HostingEnvironment)
                         .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                         .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                        .AddRecipeService(context.HostingEnvironment)
                         .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                         .AddScottPlotServices()
                         .AddCoreService(context.HostingEnvironment)

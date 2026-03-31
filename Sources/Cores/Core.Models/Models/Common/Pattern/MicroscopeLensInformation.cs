@@ -19,6 +19,7 @@ public sealed class MicroscopeLensInformation :
     IFormattable,
     IAdaptTo<CgMicroscopeInfo>,
     IAdaptIn<CgMicroscopeInfo, MicroscopeLensInformation>,
+    IAdaptIn<MicroscopeLensInformation, MicroscopeLensInformation>,
     ICloneable<MicroscopeLensInformation>
 {
     public static readonly MicroscopeLensInformation Default = new();
@@ -126,6 +127,15 @@ public sealed class MicroscopeLensInformation :
         LensName = Guard.IsNotNullAndReturn(obj.LensName);
         LensCode = (int)obj.LensCode;
         ObjectiveMagnification = obj.Lens;
+
+        return this;
+    }
+
+    public MicroscopeLensInformation AdaptIn(MicroscopeLensInformation obj)
+    {
+        LensName = obj.LensName;
+        LensCode = obj.LensCode;
+        ObjectiveMagnification = obj.ObjectiveMagnification;
 
         return this;
     }

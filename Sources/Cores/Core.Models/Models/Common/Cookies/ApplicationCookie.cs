@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Common.Recipe;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Helpers.Helpers.Structs;
 
@@ -205,19 +204,7 @@ public sealed partial class ApplicationCookie : ObservableObject
             .Select(c => c.ChannelId)
     ];
 
-    /// <summary>
-    /// 校准当前应用配方
-    /// </summary>
-    [ObservableProperty]
-    private CalibrationRecipeDto? _calibrationRecipeDto;
-
-    /// <summary>
-    /// 校准根据对准差值修正wafermap坐标后的配方
-    /// </summary>
-    [ObservableProperty]
-    private CalibrationRecipeDto? _calibrationReviseRecipeDto;
-
-    public string Title => $"{ApplicationName} [{SysUser.NickName}] {(CalibrationRecipeDto is not null ? $"[{CalibrationRecipeDto.CalibrationRecipeInfoDto.RecipeName}]" : string.Empty)}";
+    public string Title => $"{ApplicationName} [{SysUser.NickName}]";
 
     public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {
