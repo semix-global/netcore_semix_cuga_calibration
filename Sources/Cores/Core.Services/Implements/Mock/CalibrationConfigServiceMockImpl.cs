@@ -1,7 +1,9 @@
 using CommunityToolkit.Diagnostics;
+using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Config;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
@@ -12,7 +14,7 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Models;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Semix.CoreLib;
 using System.IO;
 
@@ -50,7 +52,7 @@ public sealed class CalibrationConfigServiceMockImpl(
         DirectoryHelper.CreateDirectoryIfNotExists(fileCacheDirectoryPath);
         var filesName = Directory.GetFiles(fileCacheDirectoryPath);
 
-        var filePath = filesName.Length > 0 ? filesName.Last() : $"{fileCacheDirectoryPath}\\Result_{Constants.LongFileDateTimeFormat}.dat";
+        var filePath = filesName.Length > 0 ? filesName.Last() : $"{fileCacheDirectoryPath}\\Result_{Net.Utilities.Models.Constants.LongFileDateTimeFormat}.dat";
 
         return SxExecuteRetHelper.CreateSuccess(filePath);
     }
@@ -93,5 +95,32 @@ public sealed class CalibrationConfigServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<HardwareStateConfig> LoadHardwareConfigs()
+    {
+        var motorDict = new Dictionary<HardwareMotorTypeEnum, HardwareStateDTO>();
+        var fourierDict = new Dictionary<HardwareFourierTypeEnum, HardwareStateDTO>();
+        var clinderDict = new Dictionary<HardwareClinderTypeEnum, HardwareStateDTO>();
+
+        // 转换 Motor
+        foreach (var motorTypeEnum in EnumHelper.Enums<HardwareMotorTypeEnum>())
+        {
+            motorDict[motorTypeEnum] = new HardwareStateDTO(true);
+        }
+
+        // 转换 FFT
+        foreach (var fftTypeEnum in EnumHelper.Enums<HardwareFourierTypeEnum>())
+        {
+            fourierDict[fftTypeEnum] = new HardwareStateDTO(true);
+        }
+
+        // 转换 Clinder
+        foreach (var clinderTypeEnum in EnumHelper.Enums<HardwareClinderTypeEnum>())
+        {
+            clinderDict[clinderTypeEnum] = new HardwareStateDTO(true);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(new HardwareStateConfig(motorDict, fourierDict, clinderDict));
     }
 }

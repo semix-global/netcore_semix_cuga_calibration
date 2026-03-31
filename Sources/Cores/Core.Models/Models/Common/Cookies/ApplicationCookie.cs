@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Config;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -205,6 +206,12 @@ public sealed partial class ApplicationCookie : ObservableObject
     ];
 
     public string Title => $"{ApplicationName} [{SysUser.NickName}]";
+
+    /// <summary>
+    /// 硬件状态配置
+    /// </summary>
+    [ObservableProperty]
+    private HardwareStateConfig? _hardwareStateConfig;
 
     public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {
