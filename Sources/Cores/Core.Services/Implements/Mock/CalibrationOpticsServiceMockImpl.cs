@@ -8,6 +8,8 @@ using Cuga.Data.DataStruct.DTO.Swath;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
+using Cuga.Data.DataStruct.Optics;
+
 
 #if NET
 using Semix.GRPC.DTO;
@@ -382,6 +384,13 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         Thread.Sleep(100);
 
         _currentChannelCollectorPolarizationModeEnumDictionary.AddOrUpdate(channelId, opticsCollectorPolarizationModeEnum, (_, _) => opticsCollectorPolarizationModeEnum);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ClinderEXC(OpticsYGhostModeEnum type, bool status)
+    {
+        Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
