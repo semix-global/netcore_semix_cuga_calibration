@@ -130,4 +130,11 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
     {
         throw new NotImplementedException();
     }
+
+    public SxExecuteRet<bool> ClinderEXC(OpticsYGhostModeEnum type, bool status)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
 }
