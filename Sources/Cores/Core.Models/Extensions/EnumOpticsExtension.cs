@@ -36,11 +36,11 @@ public static class EnumOpticsExtension
     extension(CgMagTypeEnum)
     {
         public static CgMagTypeEnum ErrorCgMagTypeEnum =>
-#if NET
+        #if NET
             CgMagTypeEnum.Null;
-#else
+        #else
             CgMagTypeEnum.None;
-#endif
+        #endif
     }
 
     extension(CgMagTypeEnum @this)
@@ -138,7 +138,37 @@ public static class EnumOpticsExtension
 
     #endregion Collector Polarization
 
-    #region OpticsIlluminationMode
+    #region Y Ghost 
+
+    extension(CgClinderType @this)
+    {
+        public OpticsYGhostModeEnum ToYGhostModeEnum() => @this switch
+        {
+            CgClinderType.Magnet => OpticsYGhostModeEnum.Magnet,
+            CgClinderType.OI_Zoos => OpticsYGhostModeEnum.OI_Zoos,
+            CgClinderType.NI_Zoos => OpticsYGhostModeEnum.NI_Zoos,
+            CgClinderType.CH2_Camera => OpticsYGhostModeEnum.CH2_Camera,
+            CgClinderType.CH1_Camera => OpticsYGhostModeEnum.CH1_Camera,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsYGhostModeEnum>(nameof(@this))
+        };
+    }
+
+    extension(OpticsYGhostModeEnum @this)
+    {
+        public CgClinderType ToCgClinderType() => @this switch
+        {
+            OpticsYGhostModeEnum.Magnet => CgClinderType.Magnet,
+            OpticsYGhostModeEnum.OI_Zoos => CgClinderType.OI_Zoos,
+            OpticsYGhostModeEnum.NI_Zoos => CgClinderType.NI_Zoos,
+            OpticsYGhostModeEnum.CH2_Camera => CgClinderType.CH2_Camera,
+            OpticsYGhostModeEnum.CH1_Camera => CgClinderType.CH1_Camera,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgClinderType>(nameof(@this))
+        };
+    }
+
+   #endregion Y Ghost
+
+#region OpticsIlluminationMode
 
     extension(CgNIOIType)
     {

@@ -259,4 +259,14 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
+
+    public SxExecuteRet<bool> ClinderEXC(OpticsYGhostModeEnum type, bool status)
+    {
+        var sxExecuteRet = Invoke(() => Service?.ClinderEXC(type.ToCgClinderType(), status));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
 }
