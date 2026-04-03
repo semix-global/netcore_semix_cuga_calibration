@@ -20,6 +20,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using System.IO;
+using System.Windows.Media;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements;
@@ -497,5 +498,13 @@ public sealed class CalibrationAlgorithmServiceImpl(
     public StageMapDto ExpandStageMapDto(StageMapDto baseStageMap, StageMapDto mergeStageMap, Guid htmlLogUniqueId)
     {
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
+    }
+
+    public HTuple GetPictureGray(HImage image, HTuple bit, out HTuple hv_Histo)
+    {
+        //HOperatorSet.Rgb1ToGray(image, out var grayImage);
+        _algorithm.histo(image, bit, out var hv_histo);   
+        hv_Histo=hv_histo;
+        return hv_Histo;
     }
 }
