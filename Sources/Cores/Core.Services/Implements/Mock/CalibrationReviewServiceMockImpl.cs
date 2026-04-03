@@ -5,6 +5,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
+using Net.Utilities.Graphics.Primitives.Enums.Medias.Imaging;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Enums.Files;
 using Semix.CoreLib;

@@ -14,5 +14,7 @@ public static class WcfConstantHelper
 
     public const string AutoFocusNodeCalibrationName = "AutoFocus";
 
+    public const string PupilFourierCalibrationName = "Fourier";
+
     #endregion 校准大项描述文本
 }

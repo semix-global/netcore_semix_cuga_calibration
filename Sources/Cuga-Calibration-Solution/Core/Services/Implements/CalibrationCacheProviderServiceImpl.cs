@@ -9,6 +9,7 @@ using Core.Utilities;
 using Core.Wcf.Models;
 using Core.Wcf.Models.Ads;
 using Core.Wcf.Models.Chuck;
+using Core.Wcf.Models.Fourier;
 using Core.Wcf.Models.Laser;
 using Core.Wcf.Models.Microscope;
 using CugaCalibration.Core.Services.Interfaces;
@@ -65,7 +66,8 @@ public class CalibrationCacheProviderServiceImpl(
                     CalibrationAdsObj = new CalibrationAdsObj(),
                     CalibrationMicroscopeObj = new CalibrationMicroscopeObj(),
                     CalibrationChuckObj = new CalibrationChuckObj(),
-                    CalibrationLaserObj = new CalibrationLaserObj()
+                    CalibrationLaserObj = new CalibrationLaserObj(),
+                    CalibrationPupilFourierObj = new CalibrationPupilFourierObj()
                 };
 
                 var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();

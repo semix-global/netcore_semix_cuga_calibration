@@ -274,4 +274,13 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     {
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
+
+    public HTuple GetPictureGray(HImage image, HTuple bit, out HTuple hv_Histo)
+    {
+        // 使用 'rgb1_to_gray' 将彩色图像转换为灰度图像
+        HOperatorSet.Rgb1ToGray(image, out var grayImage);        
+        _algorithm.histo(grayImage, bit, out var hv_histo);
+        hv_Histo = hv_histo;
+        return hv_Histo;
+    }
 }
