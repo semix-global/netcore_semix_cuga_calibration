@@ -130,7 +130,8 @@ public class ImageTest
             out var hvColBeginYHTuple,
             out var hvRowEndYHTuple,
             out var hvColEndYHTuple,
-            out var hvKyHTuple);
+            out var hvKyHTuple,
+            out var hvPercentMeanHTuple);
 
         using var _0 = hvXListHTuple;
         using var _1 = hvXRatioMaxHTuple;
@@ -157,6 +158,7 @@ public class ImageTest
         using var _22 = hvRowEndYHTuple;
         using var _23 = hvColEndYHTuple;
         using var _24 = hvKyHTuple;
+        using var _25 = hvPercentMeanHTuple;
 
         #endregion
     }

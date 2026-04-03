@@ -135,6 +135,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         using var _22 = hvRowEndYHTuple;
         using var _23 = hvColEndYHTuple;
         using var _24 = hvKyHTuple;
+        using var _25 = hvPercentMeanHTuple;
 
         #endregion
 
@@ -168,7 +169,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
             YFieldTiltFitSlope = yFieldTiltFitSlope,
             YFieldTiltFitIntercept = yFieldTiltFitIntercept,
             YFieldTiltFitRSquared = yFieldTiltFitRSquared,
-            YFieldTiltFitPoints = yFieldTiltFitPoints
+            YFieldTiltFitPoints = yFieldTiltFitPoints,
+            SpotAreaPercentMean = hvPercentMeanHTuple.D
         };
 
         bestFocus.BestXStrehlRatioECS = startECS + bestFocus.BestXStrehlRatioPoint.X / size.Width * (stopECS - startECS);
