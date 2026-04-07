@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Fourier;
 using Cuga.Data.DataStruct.DTO.Recipe;
+using Cuga.Data.DataStruct.Stage;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System;
@@ -111,26 +112,26 @@ public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDto
 
     public CalibrationPupilSideChannelFlexibleAperture AdaptTo() => new()
     {
-        CgFFBoxBeginPositionCh1 = new System.Drawing.Point((int)Math.Round(CgFFBoxBeginPositionCh1.X), (int)Math.Round(CgFFBoxBeginPositionCh1.Y)),
-        CgFFBoxEndPositionCh1 = new System.Drawing.Point((int)Math.Round(CgFFBoxEndPositionCh1.X), (int)Math.Round(CgFFBoxEndPositionCh1.Y)),
+        CgFFBoxBeginPositionCh1 = new CgPoint((int)Math.Round(CgFFBoxBeginPositionCh1.X), (int)Math.Round(CgFFBoxBeginPositionCh1.Y)),
+        CgFFBoxEndPositionCh1 = new CgPoint((int)Math.Round(CgFFBoxEndPositionCh1.X), (int)Math.Round(CgFFBoxEndPositionCh1.Y)),
         CgFFBoxBeginNumber1Ch1 = CgFFBoxBeginNumber1Ch1,
         CgFFBoxBeginNumber2Ch1 = CgFFBoxBeginNumber2Ch1,
         CgFFBoxEndNumber1Ch1 = CgFFBoxEndNumber1Ch1,
         CgFFBoxEndNumber2Ch1 = CgFFBoxEndNumber2Ch1,
         CgFFBoxRodWidthListCh1 = CgFFBoxRodWidthListCh1.ToList(),
         CgFFBoxHeightRelationPercentListCh1 = CgFFBoxHeightRelationPercentListCh1.ToList(),    
-        CurrentImageRectListFirstCh1 = CurrentImageRectListFirstCh1.Select(r => new Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
+        CurrentImageRectListFirstCh1 = CurrentImageRectListFirstCh1.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
         CgFFBoxAllRodsBeginPercentCh1 = CgFFBoxAllRodsBeginPercentCh1,
 
-        CgFFBoxBeginPositionCh2 = new System.Drawing.Point((int)Math.Round(CgFFBoxBeginPositionCh2.X), (int)Math.Round(CgFFBoxBeginPositionCh2.Y)),
-        CgFFBoxEndPositionCh2 = new System.Drawing.Point((int)Math.Round(CgFFBoxEndPositionCh2.X), (int)Math.Round(CgFFBoxEndPositionCh2.Y)),
+        CgFFBoxBeginPositionCh2 = new CgPoint((int)Math.Round(CgFFBoxBeginPositionCh2.X), (int)Math.Round(CgFFBoxBeginPositionCh2.Y)),
+        CgFFBoxEndPositionCh2 = new CgPoint((int)Math.Round(CgFFBoxEndPositionCh2.X), (int)Math.Round(CgFFBoxEndPositionCh2.Y)),
         CgFFBoxBeginNumber1Ch2 = CgFFBoxBeginNumber1Ch2,
         CgFFBoxBeginNumber2Ch2 = CgFFBoxBeginNumber2Ch2,
         CgFFBoxEndNumber1Ch2 = CgFFBoxEndNumber1Ch2,
         CgFFBoxEndNumber2Ch2 = CgFFBoxEndNumber2Ch2, 
         CgFFBoxRodWidthListCh2 = CgFFBoxRodWidthListCh2.ToList(),  
         CgFFBoxHeightRelationPercentListCh2 = CgFFBoxHeightRelationPercentListCh2.ToList(),
-        CurrentImageRectListFirstCh2 = CurrentImageRectListFirstCh2.Select(r => new Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
+        CurrentImageRectListFirstCh2 = CurrentImageRectListFirstCh2.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
         CgFFBoxAllRodsBeginPercentCh2 = CgFFBoxAllRodsBeginPercentCh2,
 
         IsCalibrated = IsCalibrated,

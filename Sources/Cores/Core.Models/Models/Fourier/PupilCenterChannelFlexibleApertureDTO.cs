@@ -1,5 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Fourier;
+using Cuga.Data.DataStruct.DTO.Recipe;
+using Cuga.Data.DataStruct.Stage;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System;
@@ -12,7 +14,6 @@ using System.Threading.Tasks;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace Core.Models.Models.Fourier;
-
 
 public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationDtoBase, ICloneable<PupilCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>
 {
@@ -110,21 +111,21 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
         CgFFBoxTurnXWidthCh3 = CgFFBoxTurnXWidthCh3.ToList(),
         CgFFBoxTurnXMotorRelationCH3 = CgFFBoxTurnXMotorRelationCH3.ToList(),
         CgFFBoxTurnXMotorPositionCH3 = CgFFBoxTurnXMotorPositionCH3.ToList(),
-        CgFFBoxTurnXRectPositionCH3 = CgFFBoxTurnXRectPositionCH3.Select(r => new Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
-        CgFFBoxTurnXLightHoleCircleCenterCh3 = new System.Drawing.Point((int)Math.Round(CgFFBoxTurnXLightHoleCircleCenterCh3.X), (int)Math.Round(CgFFBoxTurnXLightHoleCircleCenterCh3.Y)),
+        CgFFBoxTurnXRectPositionCH3 = CgFFBoxTurnXRectPositionCH3.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
+        CgFFBoxTurnXLightHoleCircleCenterCh3 = new CgPoint((int)Math.Round(CgFFBoxTurnXLightHoleCircleCenterCh3.X), (int)Math.Round(CgFFBoxTurnXLightHoleCircleCenterCh3.Y)),
         CgFFBoxTurnXLightHoleCircleRadiusCh3 = CgFFBoxTurnXLightHoleCircleRadiusCh3,
         CgFFBoxTurnYAngleCh3 = CgFFBoxTurnYAngleCh3.ToList(),
         CgFFBoxTurnYWidthCh3 = CgFFBoxTurnYWidthCh3.ToList(),
         CgFFBoxTurnYMotorRelationCH3 = CgFFBoxTurnYMotorRelationCH3.ToList(),
         CgFFBoxTurnYMotorPositionCH3 = CgFFBoxTurnYMotorPositionCH3.ToList(),
-        CgFFBoxTurnYRectPositionCH3 = CgFFBoxTurnYRectPositionCH3.Select(r => new Rectangle((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
-        CgFFBoxTurnYLightHoleCircleCenterCh3 = new System.Drawing.Point((int)Math.Round(CgFFBoxTurnYLightHoleCircleCenterCh3.X), (int)Math.Round(CgFFBoxTurnYLightHoleCircleCenterCh3.Y)),
+        CgFFBoxTurnYRectPositionCH3 = CgFFBoxTurnYRectPositionCH3.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
+        CgFFBoxTurnYLightHoleCircleCenterCh3 = new CgPoint((int)Math.Round(CgFFBoxTurnYLightHoleCircleCenterCh3.X), (int)Math.Round(CgFFBoxTurnYLightHoleCircleCenterCh3.Y)),
         CgFFBoxTurnYLightHoleCircleRadiusCh3 = CgFFBoxTurnYLightHoleCircleRadiusCh3,
 
         CgFFBoxPushXWidthCh3 = CgFFBoxPushXWidthCh3,
         CgFFBoxPushXMotorRelationCH3 = CgFFBoxPushXMotorRelationCH3,
         CgFFBoxPushXMotorPositionCH3 = CgFFBoxPushXMotorPositionCH3,
-        CgFFBoxPushXRectPositionCH3 = new Rectangle((int)Math.Round(CgFFBoxPushXRectPositionCH3.X), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Y), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Width), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Height)),
+        CgFFBoxPushXRectPositionCH3 = new RectD((int)Math.Round(CgFFBoxPushXRectPositionCH3.X), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Y), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Width), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Height)),
 
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

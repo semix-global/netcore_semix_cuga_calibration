@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Fourier;
+using Cuga.Data.DataStruct.Stage;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System;
@@ -73,11 +74,11 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
 
     public CalibrationPupilSideChannelSpecularBlocker AdaptTo() => new()
     {
-        CgFFBoxBeginPositionCh1 = new System.Drawing.Point((int)Math.Round(CgFFBoxBeginPositionCh1.X), (int)Math.Round(CgFFBoxBeginPositionCh1.Y)),
+        CgFFBoxBeginPositionCh1 = new CgPoint((int)Math.Round(CgFFBoxBeginPositionCh1.X), (int)Math.Round(CgFFBoxBeginPositionCh1.Y)),
         CgFFBoxBeginNumberCh1 = CgFFBoxBeginNumberCh1,
         CgFFBoxEndNumberCh1 = CgFFBoxEndNumberCh1,
         CgFFBoxMoveDownPercentListCh1 = CgFFBoxMoveDownPercentListCh1,
-        CgFFBoxBeginPositionCh2 = new System.Drawing.Point((int)Math.Round(CgFFBoxBeginPositionCh2.X), (int)Math.Round(CgFFBoxBeginPositionCh2.Y)),
+        CgFFBoxBeginPositionCh2 = new CgPoint((int)Math.Round(CgFFBoxBeginPositionCh2.X), (int)Math.Round(CgFFBoxBeginPositionCh2.Y)),
         CgFFBoxBeginNumberCh2 = CgFFBoxBeginNumberCh2,
         CgFFBoxEndNumberCh2 = CgFFBoxEndNumberCh2,
         CgFFBoxMoveDownPercentListCh2 = CgFFBoxMoveDownPercentListCh2,

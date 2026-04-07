@@ -125,12 +125,7 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
         calibrationFlourierService.SetFFHome(FFCH.Ch3_X);
         calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);   
 
-        var HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
-        Cache.HazeWaferPosition = Cache.HazeWaferPosition != Point.Origin
-          ? Cache.HazeWaferPosition
-          : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
-        Cache.HazeWaferPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition);
-
+        Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition(); 
         StageViewModel.SetAbsoluteStageTheta(0);
         AfViewModel.ToggleDarkFieldEnable(true);    
    

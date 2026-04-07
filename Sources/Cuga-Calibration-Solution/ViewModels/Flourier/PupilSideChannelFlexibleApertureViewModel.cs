@@ -235,7 +235,6 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 {
                     RebuildRectROIDrawableList();
                 });
-                Cache.OriginImageFilePathList1.Clear();
 
                 return true;
 
@@ -246,7 +245,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 {
                     RebuildRectROIDrawableList();
                 });
-                Cache.OriginImageFilePathList2.Clear();
+
                 return true;
 
             case 4:
