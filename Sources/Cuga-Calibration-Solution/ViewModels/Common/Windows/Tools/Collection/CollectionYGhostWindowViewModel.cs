@@ -315,9 +315,37 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 cancellationToken);
 
                 var path = Path.Combine(ImageDirectory, "CH1", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                //PMT8ChPixselAfter[i - 1] = darkFieldImage1.Image.GetIntensity().Average;
                 darkFieldImage1.Image.Save(path);
                 allOpticsPaths1[i - 1] = path;
+
+                if (i == 1)
+                {
+                    YGhostListCH11 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();           
+                }
+                if (i == 2)
+                {
+                    YGhostListCH12 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 3)
+                {
+                    YGhostListCH13 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 4)
+                {
+                    YGhostListCH14 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 5)
+                {
+                    YGhostListCH15 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 6)
+                {
+                    YGhostListCH16 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 7)
+                {
+                    YGhostListCH17 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
 
                 CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 2);
                 using var darkFieldImage2 = await cibViewModel.GetPMTImageAsync(
@@ -337,6 +365,35 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 darkFieldImage2.Image.Save(path);
                 allOpticsPaths2[i - 1] = path;
 
+                if (i == 1)
+                {
+                    YGhostListCH21 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 2)
+                {
+                    YGhostListCH22 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 3)
+                {
+                    YGhostListCH23 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 4)
+                {
+                    YGhostListCH24 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 5)
+                {
+                    YGhostListCH25 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 6)
+                {
+                    YGhostListCH26 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 7)
+                {
+                    YGhostListCH27 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+
                 CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 3);
                 using var darkFieldImage3 = await cibViewModel.GetPMTImageAsync(
                 ApplicationCookie.OILowProductivityInformation,
@@ -355,20 +412,42 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 darkFieldImage3.Image.Save(path);
                 allOpticsPaths3[i - 1] = path;
 
+                if (i == 1)
+                {
+                    YGhostListCH31 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 2)
+                {
+                    YGhostListCH32 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 3)
+                {
+                    YGhostListCH33 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 4)
+                {
+                    YGhostListCH34 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 5)
+                {
+                    YGhostListCH35 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 6)
+                {
+                    YGhostListCH36 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 7)
+                {
+                    YGhostListCH37 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+
                 // 创建新的Point实例，Y坐标增加23
                 Point newPosition = new Point(DarkFieldPosition.X, DarkFieldPosition.Y + 23);
                 CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
                 stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(newPosition, calChipSiteModelEnum);
                 afViewModel.ToggleDarkFieldEnable(true);
             }
-
-            allOpticsPaths1[0] = "F:\\工作文档\\202601\\odd--__first\\CH11 (1).raw";
-            allOpticsPaths1[1] = "F:\\工作文档\\202601\\odd--__first\\CH11 (2).raw";
-            allOpticsPaths1[2] = "F:\\工作文档\\202601\\odd--__first\\CH11 (3).raw";
-            allOpticsPaths1[3] = "F:\\工作文档\\202601\\odd--__first\\CH11 (4).raw";
-            allOpticsPaths1[4] = "F:\\工作文档\\202601\\odd--__first\\CH11 (5).raw";
-            allOpticsPaths1[5] = "F:\\工作文档\\202601\\odd--__first\\CH11 (6).raw";
-            allOpticsPaths1[6] = "F:\\工作文档\\202601\\odd--__first\\CH11 (7).raw";
+         
             PMT8Ch1ImagePath = allOpticsPaths1;
             PMT8Ch2ImagePath = allOpticsPaths2;
             PMT8Ch3ImagePath = allOpticsPaths3;
@@ -525,31 +604,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
     }
 
     public void LoadGhostData()
-    {
-        YGhostListCH11 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[0]).ToArray();
-        YGhostListCH12 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[1]).ToArray();
-        YGhostListCH13 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[2]).ToArray();
-        YGhostListCH14 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[3]).ToArray();
-        YGhostListCH15 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[4]).ToArray();
-        YGhostListCH16 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[5]).ToArray();
-        YGhostListCH17 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[6]).ToArray();
-
-        YGhostListCH21 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[0]).ToArray();
-        YGhostListCH22 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[1]).ToArray();
-        YGhostListCH23 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[2]).ToArray();
-        YGhostListCH24 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[3]).ToArray();
-        YGhostListCH25 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[4]).ToArray();
-        YGhostListCH26 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[5]).ToArray();
-        YGhostListCH27 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[6]).ToArray();
-
-        YGhostListCH31 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[0]).ToArray();
-        YGhostListCH32 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[1]).ToArray();
-        YGhostListCH33 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[2]).ToArray();
-        YGhostListCH34 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[3]).ToArray();
-        YGhostListCH35 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[4]).ToArray();
-        YGhostListCH36 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[5]).ToArray();
-        YGhostListCH37 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[6]).ToArray();
-
+    {           
         double targetY = MoveDownThreshold;
         {
             // 1. 获取基准 X（来自 CH11）
@@ -676,10 +731,10 @@ public sealed partial class CollectionYGhostWindowViewModel(
         }   
     }
 
-    private ObservableCollection<Point> ProcessImageAndGetPoints(string imagePath)
+    private ObservableCollection<Point> ProcessImageAndGetPoints(HImage image0)
     {
        // using var image = new HImage(imagePath);
-        _algorithm.AutoReadRawImage(out var image0,imagePath);
+        //_algorithm.AutoReadRawImage(out var image0,imagePath);
         _algorithm.RotateAndMirror(image0,out var image);
         _algorithm.LightSpot(image, out var yValue);
         var points = new ObservableCollection<Point>();

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Fourier;
+using Cuga.Data.DataStruct.DTO.Recipe;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System;
@@ -64,9 +65,9 @@ public sealed partial class PupilCameraAlignmentDTO : CalibrationDtoBase, IClone
 
     public CalibrationPupilCameraAlignment AdaptTo() => new()
     {
-        RectCh1 = new System.Drawing.Rectangle((int)Math.Round(RectCh1Position.X), (int)Math.Round(RectCh1Position.Y), Ch1ImageWidth, Ch1ImageHeight),
-        RectCh2 = new System.Drawing.Rectangle((int)Math.Round(RectCh2Position.X), (int)Math.Round(RectCh2Position.Y), Ch2ImageWidth, Ch2ImageHeight),
-        RectCh3 = new System.Drawing.Rectangle((int)Math.Round(RectCh3Position.X), (int)Math.Round(RectCh3Position.Y), Ch3ImageWidth, Ch3ImageHeight),
+        RectCh1 = new RectD((int)Math.Round(RectCh1Position.X), (int)Math.Round(RectCh1Position.Y), Ch1ImageWidth, Ch1ImageHeight),
+        RectCh2 = new RectD((int)Math.Round(RectCh2Position.X), (int)Math.Round(RectCh2Position.Y), Ch2ImageWidth, Ch2ImageHeight),
+        RectCh3 = new RectD((int)Math.Round(RectCh3Position.X), (int)Math.Round(RectCh3Position.Y), Ch3ImageWidth, Ch3ImageHeight),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
