@@ -6,7 +6,6 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
-             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusCalChipFocusOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -47,114 +46,55 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(Pos): "
-                                          hc:TitleElement.TitleWidth="250"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Value="{Binding Cache.MotorOffsetThreshold}">
-                            <hc:NumericUpDown.Style>
-                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <hc:UniformSpacingPanel.Style>
+                                <Style TargetType="hc:UniformSpacingPanel">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Setter Property="IsEnabled" Value="False" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Setter Property="IsEnabled" Value="False" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Setter Property="IsEnabled" Value="False" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Setter Property="IsEnabled" Value="False" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}">
-                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Setter Property="IsEnabled" Value="True" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <TextBox hc:TitleElement.Title="RTFC Servo Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="250"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}">
-                            <TextBox.Style>
-                                <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CalibratingItem.DSWRuntimeAfCalibrationResultDTO.IsAFServo}" Value="{x:Static models:Constants.True}">
-                                            <Setter Property="Text" Value="Af" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CalibratingItem.DSWRuntimeAfCalibrationResultDTO.IsAFServo}" Value="{x:Static models:Constants.False}">
-                                            <Setter Property="Text" Value="Relay" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
+                            </hc:UniformSpacingPanel.Style>
+                            <hc:NumericUpDown hc:TitleElement.Title="Half Length Ecs: "
+                                              hc:TitleElement.TitleWidth="180"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.HalfEcsLength}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="Speed Ecs(ecs/s): "
+                                              hc:TitleElement.TitleWidth="180"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.SpeedEcsPerSecond}" />
+                        </hc:UniformSpacingPanel>
                         <hc:NumericUpDown hc:TitleElement.Title="Ecs Value: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="250"
+                                          hc:TitleElement.TitleWidth="180"
                                           IsReadOnly="True"
-                                          Background="{StaticResource SecondaryRegionBrush}">
-                            <hc:NumericUpDown.Style>
-                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.DSWRuntimeAfCalibrationResultDTO.ECSValue}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.ChuckRuntimeAfCalibrationResultDTO.ECSValue}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.HazeRuntimeAfCalibrationResultDTO.ECSValue}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Background="{StaticResource SecondaryRegionBrush}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.CurrentItem.ECSValue}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Motor Value: "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="250"
+                                          hc:TitleElement.TitleWidth="180"
                                           IsReadOnly="True"
-                                          Background="{StaticResource SecondaryRegionBrush}">
-                            <hc:NumericUpDown.Style>
-                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.DSWRuntimeAfCalibrationResultDTO.MotorValue}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.ChuckRuntimeAfCalibrationResultDTO.MotorValue}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.HazeRuntimeAfCalibrationResultDTO.MotorValue}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
-                        <hc:NumericUpDown hc:TitleElement.Title="Dark Field Quality: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="250"
-                                          IsReadOnly="True"
-                                          Background="{StaticResource SecondaryRegionBrush}">
-                            <hc:NumericUpDown.Style>
-                                <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownExtend}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.DSWRuntimeAfCalibrationResultDTO.DarkFieldQuality}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.ChuckRuntimeAfCalibrationResultDTO.DarkFieldQuality}" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                            <Setter Property="Value" Value="{Binding CalibratingItem.HazeRuntimeAfCalibrationResultDTO.DarkFieldQuality}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:NumericUpDown.Style>
-                        </hc:NumericUpDown>
+                                          Background="{StaticResource SecondaryRegionBrush}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.CurrentItem.MotorValue}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -172,5 +112,8 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
+        <GroupBox Grid.Column="2" Header="Plot">
+            <ContentControl Content="{Binding CalibratingItem.CurrentItem.ScatterPlotControl, Mode=OneWay}" />
+        </GroupBox>
     </Grid>
 </UserControl>

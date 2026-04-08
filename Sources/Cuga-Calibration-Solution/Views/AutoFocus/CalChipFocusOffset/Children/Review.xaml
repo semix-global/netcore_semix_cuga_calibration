@@ -5,57 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             xmlns:autoFocus1="clr-namespace:Core.Models.Models.Common.AutoFocus;assembly=Core.Models"
-             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusCalChipFocusOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <DataTemplate x:Key="PersonTemplate" DataType="{x:Type autoFocus1:RuntimeAfCalibrationResultDTO}">
-            <hc:UniformSpacingPanel HorizontalAlignment="Center" Orientation="Vertical">
-                <TextBox hc:TitleElement.Title="RTFC Servo Motor: "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="250"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}">
-                    <TextBox.Style>
-                        <Style BasedOn="{StaticResource TextBoxExtend}" TargetType="TextBox">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsAFServo}" Value="{x:Static models:Constants.True}">
-                                    <Setter Property="Text" Value="Af" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsAFServo}" Value="{x:Static models:Constants.False}">
-                                    <Setter Property="Text" Value="Relay" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBox.Style>
-                </TextBox>
-                <hc:NumericUpDown hc:TitleElement.Title="Ecs Value: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="250"
-                                  IsReadOnly="True"
-                                  Background="{StaticResource SecondaryRegionBrush}"
-                                  Style="{StaticResource NumericUpDownExtend}"
-                                  Value="{Binding ECSValue}" />
-                <hc:NumericUpDown hc:TitleElement.Title="Motor Value: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="250"
-                                  IsReadOnly="True"
-                                  Background="{StaticResource SecondaryRegionBrush}"
-                                  Style="{StaticResource NumericUpDownExtend}"
-                                  Value="{Binding MotorValue}" />
-                <hc:NumericUpDown hc:TitleElement.Title="Dark Field Quality: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="250"
-                                  IsReadOnly="True"
-                                  Background="{StaticResource SecondaryRegionBrush}"
-                                  Style="{StaticResource NumericUpDownExtend}"
-                                  Value="{Binding DarkFieldQuality}" />
-            </hc:UniformSpacingPanel>
-        </DataTemplate>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -83,12 +38,6 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(score): "
-                                          hc:TitleElement.TitleWidth="160"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.VerifyQualityThreshold}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -106,45 +55,43 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
+
         <GroupBox Grid.Column="2" Header="Calibration Data">
-            <UniformGrid>
-                <Border Style="{StaticResource BorderRegion}">
-                    <hc:UniformSpacingPanel HorizontalAlignment="Center" Orientation="Vertical">
-                        <StackPanel>
-                            <TextBlock Text="DSW"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <ContentControl Content="{Binding SelectReview.DSWRuntimeAfCalibrationResultDTO}" ContentTemplate="{StaticResource PersonTemplate}" />
-                    </hc:UniformSpacingPanel>
-                </Border>
-                <Border Style="{StaticResource BorderRegion}">
-                    <hc:UniformSpacingPanel HorizontalAlignment="Center" Orientation="Vertical">
-                        <StackPanel>
-                            <TextBlock Text="Haze"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <ContentControl Content="{Binding SelectReview.HazeRuntimeAfCalibrationResultDTO}" ContentTemplate="{StaticResource PersonTemplate}" />
-                    </hc:UniformSpacingPanel>
-                </Border>
-                <Border Style="{StaticResource BorderRegion}">
-                    <hc:UniformSpacingPanel HorizontalAlignment="Center" Orientation="Vertical">
-                        <StackPanel>
-                            <TextBlock Text="Chuck"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <ContentControl Content="{Binding SelectReview.ChuckRuntimeAfCalibrationResultDTO}" ContentTemplate="{StaticResource PersonTemplate}" />
-                    </hc:UniformSpacingPanel>
-                </Border>
-            </UniformGrid>
+            <ListView x:Name="HistoryListView"
+                      d:SelectedIndex="0"
+                      ItemsSource="{Binding Review.Results}"
+                      Style="{StaticResource ListView.Small}"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      SelectionMode="Extended">
+                <i:Interaction.Behaviors>
+                    <behaviors:ListBoxScrollToCurrentBehavior />
+                </i:Interaction.Behaviors>
+                <ListView.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+                        <GridViewColumn Header="CalChipMode" DisplayMemberBinding="{Binding Value.CalChipSiteModelEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                        <GridViewColumn Header="AF ECS" DisplayMemberBinding="{Binding Value.ECSValue}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
         </GroupBox>
+
     </Grid>
 </UserControl>
