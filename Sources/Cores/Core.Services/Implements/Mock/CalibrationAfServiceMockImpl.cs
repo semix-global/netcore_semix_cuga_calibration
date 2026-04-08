@@ -172,13 +172,13 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
 
         var rows = MiniExcel.Query(path, true).Cast<IDictionary<string, object>>();
         var dataList = rows.Select(t =>
-            (Convert.ToDouble(t["OriginalEcs-Y"]),
-                Convert.ToDouble(t["OriginalNsc-Y"]),
-                Convert.ToDouble(t["OriginalLvdt-Y"]),
-                Convert.ToDouble(t["OriginalFa-Y"]),
-                Convert.ToDouble(t["OriginalNa-Y"]),
-                Convert.ToDouble(t["OriginalFb-Y"]),
-                Convert.ToDouble(t["OriginalNb-Y"]))
+            (Convert.ToDouble(t["ECS-Y"]),
+                Convert.ToDouble(t["NSC-Y"]),
+                Convert.ToDouble(t["LVDT-Y"]),
+                Convert.ToDouble(t["FA-Y"]),
+                Convert.ToDouble(t["NA-Y"]),
+                Convert.ToDouble(t["FB-Y"]),
+                Convert.ToDouble(t["NB-Y"]))
         ).ToList();
 
         return SxExecuteRetHelper.CreateSuccess(dataList);

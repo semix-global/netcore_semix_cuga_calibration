@@ -1207,13 +1207,27 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                                                  """, DialogButtonsEnum.OK,
                     result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
+                if (result)
+                {
+                    AfViewModel.SetSensorNscCompensation(Review.NSCGainResultDTO.NscOffset,
+                        Review.NSCGainResultDTO.NscGain);
+                    await Task.Delay(100, cancellationToken);
+
+                    AfViewModel.SetSensorCurrentValue(true, Review.CurrentA);
+                    AfViewModel.SetSensorCurrentValue(false, Review.CurrentB);
+                    await Task.Delay(100, cancellationToken);
+                }
+
                 return result;
             }
             finally
             {
-                AfViewModel.SetSensorNscCompensation(originOffset, originGain);
-                AfViewModel.SetSensorCurrentValue(true, originCurrentAValue);
-                AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
+                if (Review.IsVerified == false)
+                {
+                    AfViewModel.SetSensorNscCompensation(originOffset, originGain);
+                    AfViewModel.SetSensorCurrentValue(true, originCurrentAValue);
+                    AfViewModel.SetSensorCurrentValue(false, originCurrentBValue);
+                }
             }
         }).ConfigureAwait(false);
     }
