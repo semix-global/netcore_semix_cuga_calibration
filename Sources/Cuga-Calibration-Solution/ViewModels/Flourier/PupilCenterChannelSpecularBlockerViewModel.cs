@@ -79,7 +79,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
     private float _ch3Push = 42.0f;
 
     private HTuple histoOld = new(), histoNew = new();
-  
+
     public ChartShowType[] Ch3ShowTypeValues => Enum.GetValues(typeof(ChartShowType)).Cast<ChartShowType>().ToArray();
 
     [ObservableProperty]
@@ -428,7 +428,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
             //histoNew = hv_Histo;
         }
     }
- 
+
     partial void OnSelectedCh3ShowTypeChanged(ChartShowType value)
     {
         // 执行与所选类型相关的业务逻辑

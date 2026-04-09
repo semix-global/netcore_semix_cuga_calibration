@@ -5,11 +5,6 @@ using Core.Wcf.Models.Fourier;
 using Cuga.Data.DataStruct.Stage;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace Core.Models.Models.Fourier;
@@ -53,7 +48,7 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
     {
         return new PupilSideChannelSpecularBlockerDTO
         {
-            OpticsIlluminationMode = OpticsIlluminationMode,   
+            OpticsIlluminationMode = OpticsIlluminationMode,
             ProductivityInformation = ProductivityInformation.Clone(),
             CgFFBoxBeginPositionCh1 = CgFFBoxBeginPositionCh1,
             CgFFBoxBeginPositionCh2 = CgFFBoxBeginPositionCh2,

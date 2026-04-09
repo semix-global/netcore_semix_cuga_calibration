@@ -1,13 +1,11 @@
 using Core.Models.Extensions;
 using Core.Models.Helper;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Engine.Interface;
 using HalconDotNet;
-using Humanizer;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -15,9 +13,6 @@ using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
-using System.ServiceModel;
-using System.Threading.Channels;
-using static Humanizer.On;
 using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
@@ -49,12 +44,12 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
     }
 
-    public SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation,  double level, Point pos, int width = 800)
+    public SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
         // 类型转换：Core.Models.Models.Common.SxNew.SxOpticsParam -> Semix.WcfTransfer.DTO.SxOpticsParam
         var wcfParam = new Semix.WcfTransfer.DTO.SxOpticsParam
-        {      
-            Magnification = productivityInformation.AdaptTo().Mag,    
+        {
+            Magnification = productivityInformation.AdaptTo().Mag,
             Speed = productivityInformation.AdaptTo().Speed,
             NIOI = productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(),
             LightLevelUnit = level
@@ -87,19 +82,19 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         return SxExecuteRetHelper.CreateSuccess(model);
     }
 
-    public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId,List<(int rodnumber,double rodpos)> rodpostions)
+    public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
     {
         // 枚举跨命名空间转换
         var wcfChannelId = (Semix.WcfTransfer.DTO.FFCH)channelId;
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_CH12(wcfChannelId,rodpostions));
-        
+        var sxExecuteRet = Invoke(() => Service!.FF_Move_CH12(wcfChannelId, rodpostions));
+
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
     {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_CH3X(rpos,lpos,ppos));
+        var sxExecuteRet = Invoke(() => Service!.FF_Move_CH3X(rpos, lpos, ppos));
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
         return SxExecuteRetHelper.CreateSuccess(true);
@@ -128,22 +123,22 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
     }
 
     public SxExecuteRet<double> GetFFLACT(CgFFCHEnum ch)
-    { 
+    {
         var sxExecuteRet = Invoke(() => Service!.FF_GetLACT((Semix.WcfTransfer.DTO.FFCH)ch));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
     public SxExecuteRet<double> GetFFPACT(CgFFCHEnum ch)
-    { 
+    {
         var sxExecuteRet = Invoke(() => Service!.FF_GetPACT((Semix.WcfTransfer.DTO.FFCH)ch));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);    
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
     public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos)
     {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_RPOS_CH3((Semix.WcfTransfer.DTO.FFCH)ch,pos));
+        var sxExecuteRet = Invoke(() => Service!.FF_Move_RPOS_CH3((Semix.WcfTransfer.DTO.FFCH)ch, pos));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
         return SxExecuteRetHelper.CreateSuccess(true);
     }

@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Exceptions;
@@ -74,13 +73,13 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        
+
         return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);        
+        await Task.CompletedTask.ConfigureAwait(false);
 
         return true;
     }
@@ -123,12 +122,12 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
         calibrationFlourierService.SetFFHome(FFCH.Ch1);
         calibrationFlourierService.SetFFHome(FFCH.Ch2);
         calibrationFlourierService.SetFFHome(FFCH.Ch3_X);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);   
+        calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
 
-        Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition(); 
+        Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
         StageViewModel.SetAbsoluteStageTheta(0);
-        AfViewModel.ToggleDarkFieldEnable(true);    
-   
+        AfViewModel.ToggleDarkFieldEnable(true);
+
         SxPos = new Point(Cache.HazeWaferPosition.X, Cache.HazeWaferPosition.Y);
 
         return InvokeCalibrateAsync(() =>
@@ -266,7 +265,7 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
 
     [RelayCommand]
     private async Task OpenImageFileCH1Async()
-    {          
+    {
         var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
         if (ret.IsSuccess == false)
         {

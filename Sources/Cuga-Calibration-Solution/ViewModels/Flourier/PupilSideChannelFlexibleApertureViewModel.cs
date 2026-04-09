@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
@@ -212,20 +211,20 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-    
+
         return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);        
+        await Task.CompletedTask.ConfigureAwait(false);
 
         return true;
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false); 
+        await Task.CompletedTask.ConfigureAwait(false);
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -249,7 +248,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 return true;
 
             case 4:
-                SelectedTabIndex = 0;              
+                SelectedTabIndex = 0;
                 Cache.BitmapImageDrawableCh1.BitmapImage = null;
                 Cache.BitmapImageDrawableCh2.BitmapImage = null;
 
@@ -286,7 +285,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                     //ImageFilePath = filePath;
                     //BitmapImageDrawable.BitmapImage = bitmap;
                     RebuildRectROIDrawableList(); // ✅ 统一入口
-                });   
+                });
                 return true;
         }
     }
@@ -862,7 +861,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (result.IsSuccess == true)
             {
                 //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0,Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                 if (ret.IsSuccess == false)
                 {
                     throw new CugaException(ret.ErrorMsg);

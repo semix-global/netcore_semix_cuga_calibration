@@ -2,10 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Common.Status;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.View;
@@ -54,7 +52,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     public static string LogHtmlFileName => "CollectionCrossTalk_Diagnosis";
 
     public string DiagnosisHtmlLogFileName => string.IsNullOrWhiteSpace(LogHtmlFileName) ? "Diagnosis" : $"Diagnosis-{FileHelper.RemoveInvalidFileName(LogHtmlFileName)}";
- 
+
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
@@ -101,13 +99,13 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     [RelayCommand]
     private void Loaded()
     {
-        BrightFieldPosition = stageViewModel.GetBrightFieldStagePosition(); 
+        BrightFieldPosition = stageViewModel.GetBrightFieldStagePosition();
 
         HtmlLogUniqueId = Guid.NewGuid();
         logger.LogHtmlInformation("Result Params", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
         {
             BrightFieldPosition,
-            ImageWidthPixel 
+            ImageWidthPixel
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
@@ -115,7 +113,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     private Task Step00Async()
     {
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-        {  
+        {
             ProductivityInformation
         }), HtmlLogUniqueId.LoggingHtml());
         return Task.CompletedTask;

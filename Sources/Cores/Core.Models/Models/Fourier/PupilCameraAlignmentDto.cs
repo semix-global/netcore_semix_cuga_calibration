@@ -3,11 +3,6 @@ using Core.Wcf.Models.Fourier;
 using Cuga.Data.DataStruct.DTO.Recipe;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Models.Models.Fourier;
 
@@ -43,7 +38,7 @@ public sealed partial class PupilCameraAlignmentDTO : CalibrationDtoBase, IClone
     #region Mapper  
 
     public PupilCameraAlignmentDTO Clone()
-    { 
+    {
         return new PupilCameraAlignmentDTO
         {
             RectCh1Position = RectCh1Position,

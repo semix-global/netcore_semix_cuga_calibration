@@ -2,7 +2,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
 using HalconDotNet;
@@ -14,7 +13,6 @@ using Net.Utilities.Models.Enums.Files;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
-using System.Runtime.CompilerServices;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
 namespace Core.Services.Implements.GRPC;
@@ -43,8 +41,8 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)  
-    {  
+    public SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    {
         var imageInfo = new ImageInfo(
             width,
             width,
@@ -69,7 +67,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
     }
 
     public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
-    { 
+    {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 

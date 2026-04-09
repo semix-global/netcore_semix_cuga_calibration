@@ -3,12 +3,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Fourier;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace Core.Models.Models.Fourier;

@@ -164,7 +164,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.Shared.NextDouble()).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         Thread.Sleep(100);
 
@@ -173,6 +173,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         var rows = MiniExcel.Query(path, true).Cast<IDictionary<string, object>>();
         var dataList = rows.Select(t =>
             (Convert.ToDouble(t["ECS-Y"]),
+                Convert.ToDouble(t["NSC-Y"]),
                 Convert.ToDouble(t["NSC-Y"]),
                 Convert.ToDouble(t["LVDT-Y"]),
                 Convert.ToDouble(t["FA-Y"]),

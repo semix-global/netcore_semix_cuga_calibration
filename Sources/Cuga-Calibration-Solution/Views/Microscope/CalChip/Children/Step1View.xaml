@@ -48,9 +48,9 @@
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
                         <TextBox Text="{Binding Cache.Item.RightBottomMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                 hc:InfoElement.Title="Right-Bottom Position(um): "
+                                 hc:TitleElement.Title="Right-Bottom Position(um): "
                                  hc:TitleElement.TitleWidth="250"
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                             <hc:UniformSpacingPanel HorizontalAlignment="Left"

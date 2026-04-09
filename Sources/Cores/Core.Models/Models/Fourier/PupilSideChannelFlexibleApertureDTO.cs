@@ -4,13 +4,7 @@ using Cuga.Data.DataStruct.DTO.Recipe;
 using Cuga.Data.DataStruct.Stage;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace Core.Models.Models.Fourier;
@@ -53,7 +47,7 @@ public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDto
     private ObservableCollection<int> _cgFFBoxRodWidthListCh1 = new ObservableCollection<int>();
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = new ObservableCollection<int>(); 
+    private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = new ObservableCollection<int>();
 
     [ObservableProperty]
     private ObservableCollection<int> _cgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<int>();
@@ -79,25 +73,25 @@ public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDto
     {
         return new PupilSideChannelFlexibleApertureDTO
         {
-            CgFFBoxBeginPositionCh1=CgFFBoxBeginPositionCh1,
-            CgFFBoxBeginPositionCh2=CgFFBoxBeginPositionCh2,
+            CgFFBoxBeginPositionCh1 = CgFFBoxBeginPositionCh1,
+            CgFFBoxBeginPositionCh2 = CgFFBoxBeginPositionCh2,
             CgFFBoxEndPositionCh1 = CgFFBoxEndPositionCh1,
             CgFFBoxEndPositionCh2 = CgFFBoxEndPositionCh2,
-            CgFFBoxBeginNumber1Ch1 =CgFFBoxBeginNumber1Ch1,
-            CgFFBoxBeginNumber2Ch1 =CgFFBoxBeginNumber2Ch1,
-            CgFFBoxBeginNumber1Ch2=CgFFBoxBeginNumber1Ch2,
-            CgFFBoxBeginNumber2Ch2=CgFFBoxBeginNumber2Ch2,
-            CgFFBoxEndNumber1Ch1=CgFFBoxEndNumber1Ch1,
-            CgFFBoxEndNumber2Ch1=CgFFBoxEndNumber2Ch1,
-            CgFFBoxEndNumber1Ch2=CgFFBoxEndNumber1Ch2,
-            CgFFBoxEndNumber2Ch2=CgFFBoxEndNumber2Ch2,
-            CgFFBoxRodWidthListCh1=CgFFBoxRodWidthListCh1,
-            CgFFBoxRodWidthListCh2=CgFFBoxRodWidthListCh2,         
-            CgFFBoxHeightRelationPercentListCh1=CgFFBoxHeightRelationPercentListCh1,
-            CgFFBoxHeightRelationPercentListCh2=CgFFBoxHeightRelationPercentListCh2,
+            CgFFBoxBeginNumber1Ch1 = CgFFBoxBeginNumber1Ch1,
+            CgFFBoxBeginNumber2Ch1 = CgFFBoxBeginNumber2Ch1,
+            CgFFBoxBeginNumber1Ch2 = CgFFBoxBeginNumber1Ch2,
+            CgFFBoxBeginNumber2Ch2 = CgFFBoxBeginNumber2Ch2,
+            CgFFBoxEndNumber1Ch1 = CgFFBoxEndNumber1Ch1,
+            CgFFBoxEndNumber2Ch1 = CgFFBoxEndNumber2Ch1,
+            CgFFBoxEndNumber1Ch2 = CgFFBoxEndNumber1Ch2,
+            CgFFBoxEndNumber2Ch2 = CgFFBoxEndNumber2Ch2,
+            CgFFBoxRodWidthListCh1 = CgFFBoxRodWidthListCh1,
+            CgFFBoxRodWidthListCh2 = CgFFBoxRodWidthListCh2,
+            CgFFBoxHeightRelationPercentListCh1 = CgFFBoxHeightRelationPercentListCh1,
+            CgFFBoxHeightRelationPercentListCh2 = CgFFBoxHeightRelationPercentListCh2,
 
             CurrentImageRectListFirstCh1 = CurrentImageRectListFirstCh1,
-            CurrentImageRectListFirstCh2= CurrentImageRectListFirstCh2,
+            CurrentImageRectListFirstCh2 = CurrentImageRectListFirstCh2,
 
             CgFFBoxAllRodsBeginPercentCh1 = CgFFBoxAllRodsBeginPercentCh1,
             CgFFBoxAllRodsBeginPercentCh2 = CgFFBoxAllRodsBeginPercentCh2,
@@ -119,7 +113,7 @@ public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDto
         CgFFBoxEndNumber1Ch1 = CgFFBoxEndNumber1Ch1,
         CgFFBoxEndNumber2Ch1 = CgFFBoxEndNumber2Ch1,
         CgFFBoxRodWidthListCh1 = CgFFBoxRodWidthListCh1.ToList(),
-        CgFFBoxHeightRelationPercentListCh1 = CgFFBoxHeightRelationPercentListCh1.ToList(),    
+        CgFFBoxHeightRelationPercentListCh1 = CgFFBoxHeightRelationPercentListCh1.ToList(),
         CurrentImageRectListFirstCh1 = CurrentImageRectListFirstCh1.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
         CgFFBoxAllRodsBeginPercentCh1 = CgFFBoxAllRodsBeginPercentCh1,
 
@@ -128,8 +122,8 @@ public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDto
         CgFFBoxBeginNumber1Ch2 = CgFFBoxBeginNumber1Ch2,
         CgFFBoxBeginNumber2Ch2 = CgFFBoxBeginNumber2Ch2,
         CgFFBoxEndNumber1Ch2 = CgFFBoxEndNumber1Ch2,
-        CgFFBoxEndNumber2Ch2 = CgFFBoxEndNumber2Ch2, 
-        CgFFBoxRodWidthListCh2 = CgFFBoxRodWidthListCh2.ToList(),  
+        CgFFBoxEndNumber2Ch2 = CgFFBoxEndNumber2Ch2,
+        CgFFBoxRodWidthListCh2 = CgFFBoxRodWidthListCh2.ToList(),
         CgFFBoxHeightRelationPercentListCh2 = CgFFBoxHeightRelationPercentListCh2.ToList(),
         CurrentImageRectListFirstCh2 = CurrentImageRectListFirstCh2.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
         CgFFBoxAllRodsBeginPercentCh2 = CgFFBoxAllRodsBeginPercentCh2,

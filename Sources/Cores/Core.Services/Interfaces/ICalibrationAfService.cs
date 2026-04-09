@@ -142,7 +142,7 @@ public interface ICalibrationAfService
     /// <param name="speedEcs">速度Ecs</param>
     /// <param name="timeSpan">多长时间Buffer</param>
     /// <returns>TraceBuffer ECS NSC Lvdt当前值</returns>
-    SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
+    SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
 
     /// <summary>
     ///  获取传感器: TracesBuffer XZ同步模式下的 触发信号、X机械位置、ECS的Buffer值

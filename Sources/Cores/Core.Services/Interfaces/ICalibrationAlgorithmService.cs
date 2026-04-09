@@ -260,6 +260,6 @@ public interface ICalibrationAlgorithmService
     #endregion Chuck
 
     #region 图片灰度值计算，直方图
-    HTuple GetPictureGray(HImage image, HTuple bit , out HTuple hv_Histo);    
+    HTuple GetPictureGray(HImage image, HTuple bit, out HTuple hv_Histo);
     #endregion 图片灰度值计算，直方图
 }

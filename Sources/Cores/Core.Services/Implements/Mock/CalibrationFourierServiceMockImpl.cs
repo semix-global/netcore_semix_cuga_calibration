@@ -1,8 +1,6 @@
 using Core.Models.Helper;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using Cuga.Data.DataStruct.Optics;
 using HalconDotNet;
 using Net.Utilities.Attributes;
@@ -56,15 +54,15 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         return SxExecuteRetHelper.CreateSuccess(memorySteam.ToArray());
     }
 
-    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()    
-    {        
+    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()
+    {
         var c2MFFRangeModel = new C2MFFRangeModel();
-       
+
         return SxExecuteRetHelper.CreateSuccess(c2MFFRangeModel);
     }
 
     public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
-    {        
+    {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
@@ -74,12 +72,12 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
     }
 
     public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {  
+    {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetFFHome(FFCH ch)
-    {  
+    {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 

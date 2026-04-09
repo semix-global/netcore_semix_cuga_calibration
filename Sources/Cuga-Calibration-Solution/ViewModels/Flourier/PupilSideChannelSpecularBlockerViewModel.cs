@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Fourier;
 using Core.Models.Models.Microscope.CalChip;
@@ -345,7 +344,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
     private Task Step2Async(CancellationToken cancellationToken)
     {
         Cache.Item.ShinyWaferPosition = StageViewModel.GetBrightFieldStagePosition();
-        AfViewModel.ToggleDarkFieldEnable(true);       
+        AfViewModel.ToggleDarkFieldEnable(true);
         SxPos = new Point(Cache.Item.ShinyWaferPosition.X, Cache.Item.ShinyWaferPosition.Y);
 
         return InvokeCalibrateAsync(() =>
@@ -556,16 +555,16 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
             ch12List.Add((j, 0));
         }
 
-        var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level,SxPos, 100);
+        var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level, SxPos, 100);
         if (SelectedTabIndex == 0)
         {
             calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-            ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level,SxPos, 100);
+            ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level, SxPos, 100);
         }
         else if (SelectedTabIndex == 1)
         {
             calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-            ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level,SxPos, 100);
+            ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level, SxPos, 100);
         }
         if (ret.IsSuccess == false)
         {
