@@ -36,11 +36,11 @@ public static class EnumOpticsExtension
     extension(CgMagTypeEnum)
     {
         public static CgMagTypeEnum ErrorCgMagTypeEnum =>
-        #if NET
+#if NET
             CgMagTypeEnum.Null;
-        #else
+#else
             CgMagTypeEnum.None;
-        #endif
+#endif
     }
 
     extension(CgMagTypeEnum @this)
@@ -166,9 +166,9 @@ public static class EnumOpticsExtension
         };
     }
 
-   #endregion Y Ghost
+    #endregion Y Ghost
 
-#region OpticsIlluminationMode
+    #region OpticsIlluminationMode
 
     extension(CgNIOIType)
     {

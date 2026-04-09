@@ -27,9 +27,6 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <hc:Shield Subject="{Binding CalibrationStepIndex, StringFormat={}Cal Chip Step {0}:}"
-                               Status="{Binding CalibrationStepName}"
-                               Color="{StaticResource InfoBrush}" />
                     <hc:Shield Subject="Microscope Cal Chip: "
                                Status="Review"
                                Color="{StaticResource InfoBrush}" />
@@ -39,7 +36,7 @@
                                Color="{StaticResource SuccessBrush}" />
                     <hc:Shield DockPanel.Dock="Bottom"
                                Subject="High Microscope Magnification: "
-                               Status="{Binding Cache.LowMicroscopeLensInformation.LensName}"
+                               Status="{Binding Cache.HighMicroscopeLensInformation}"
                                Color="{StaticResource SuccessBrush}" />
                 </hc:UniformSpacingPanel>
             </hc:UniformSpacingPanel>
@@ -53,13 +50,6 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Dsw Alignment Threshold(°): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="180"
-                                          Minimum="0"
-                                          Increment="0.01"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.DSWAlignmentVerifyThreshold}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Quality Threshold(score): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="180"
@@ -103,9 +93,9 @@
         <GroupBox Grid.Column="2" Header="History">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="4*" />
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="6*" />
                 </Grid.RowDefinitions>
                 <ListView x:Name="ListView"
                           ItemsSource="{Binding SelectReviewItem.Results}"
@@ -157,7 +147,7 @@
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl>
                         <TabItem Header="Images">
-                            <ListBox Margin="5" ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                            <ListBox ItemsSource="{Binding SelectReviewItem.Results}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel Orientation="Horizontal" />

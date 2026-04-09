@@ -134,7 +134,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
 
     [ObservableProperty]
     private Rect _pushRectVertical2 = new();
-  
+
     public ChartShowType[] Ch3ShowTypeValues => Enum.GetValues(typeof(ChartShowType)).Cast<ChartShowType>().ToArray();
 
     public PositionShowType[] Ch3PositionTypeValues => Enum.GetValues(typeof(PositionShowType)).Cast<PositionShowType>().ToArray();
@@ -262,20 +262,20 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
- 
+
         return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);   
+        await Task.CompletedTask.ConfigureAwait(false);
 
         return true;
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);  
+        await Task.CompletedTask.ConfigureAwait(false);
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -316,7 +316,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
         calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
 
         Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
-        AfViewModel.ToggleDarkFieldEnable(true);    
+        AfViewModel.ToggleDarkFieldEnable(true);
         SxPos = new Point(Cache.HazeWaferPosition.X, Cache.HazeWaferPosition.Y);
 
         return InvokeCalibrateAsync(() =>
@@ -795,11 +795,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 {
                     Cache.OriginImageFilePathList11[3] = OriginImageFilePath1;
                     Cache.OriginImageAngleList11[3] = Ch3Angle;
-                }  
+                }
             }
             return true;
         });
-      
+
         Application.Current.Dispatcher.Invoke(() =>
         {
             var newList = new ObservableCollection<RectROIDrawable>();
@@ -889,7 +889,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             }
             return true;
         });
-      
+
         Application.Current.Dispatcher.Invoke(() =>
         {
             // 直接替换集合引用，绑定的依赖属性会收到 PropertyChanged 回调
@@ -1003,7 +1003,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
 
     // 添加具体处理方法的实现（根据你的实际业务需求）
     private void HandleId0()
-    {  
+    {
         if (Cache.BitmapImageDrawable1?.BitmapImage != null)
         {
             // 示例逻辑：创建特定的矩形配置

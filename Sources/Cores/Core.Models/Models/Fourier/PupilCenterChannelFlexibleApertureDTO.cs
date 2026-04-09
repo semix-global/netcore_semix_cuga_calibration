@@ -4,13 +4,7 @@ using Cuga.Data.DataStruct.DTO.Recipe;
 using Cuga.Data.DataStruct.Stage;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace Core.Models.Models.Fourier;
@@ -69,7 +63,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
     public double _cgFFBoxPushXMotorPositionCH3 = 0;
 
     [ObservableProperty]
-    public Rect _cgFFBoxPushXRectPositionCH3 = new Rect();       
+    public Rect _cgFFBoxPushXRectPositionCH3 = new Rect();
 
     #region Mapper  
 

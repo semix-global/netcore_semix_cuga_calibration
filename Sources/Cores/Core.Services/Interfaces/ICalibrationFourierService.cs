@@ -1,5 +1,3 @@
-using Core.Models.Models.Common;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Optics;
 using HalconDotNet;
@@ -40,7 +38,7 @@ public interface ICalibrationFourierService
     /// <returns>傅里叶相机的配置</returns>
     SxExecuteRet<C2MFFRangeModel> GetFourierConfig();
 
-    SxExecuteRet<bool> FF_Move_CH12(FFCH channelId,List<(int rodnumber,double rodpos)> rodpostions);
+    SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions);
 
     SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos);
 

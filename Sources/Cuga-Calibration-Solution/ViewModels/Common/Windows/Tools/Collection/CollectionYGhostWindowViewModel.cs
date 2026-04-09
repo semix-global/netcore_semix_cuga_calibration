@@ -1,56 +1,33 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using Cuga.Data.DataStruct.Optics;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using HalconDotNet;
 using HAlgorithm;
-using HandyControl.Interactivity;
-using Local.SQL.Cache.Providers.Bases;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.Statistics;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
-using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using ScottPlot;
-using ScottPlot.MultiplotLayouts;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
-using Generate = MathNet.Numerics.Generate;
 using Point = Net.Utilities.Models.Geometries.Point;
-using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
@@ -76,7 +53,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
     public IReadOnlyList<int> AvailableChannelIds => ApplicationCookie.CIBInformationChannelIds;
 
     [ObservableProperty]
-    private int _selectedChannelId = -1; 
+    private int _selectedChannelId = -1;
 
     private readonly Algorithm _algorithm = new();
 
@@ -291,15 +268,15 @@ public sealed partial class CollectionYGhostWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step01Async(CancellationToken cancellationToken)
     {
-       calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, true);  
-       {
+        calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, true);
+        {
             var allOpticsPaths1 = new string[7]; // 创建新数组
             var allOpticsPaths2 = new string[7]; // 创建新数组
             var allOpticsPaths3 = new string[7]; // 创建新数组
-                                                 
+
             for (int i = 1; i <= 7; i++)
             {
-                Point DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();                
+                Point DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();
                 var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 1);
                 using var darkFieldImage1 = await cibViewModel.GetPMTImageAsync(
                 ApplicationCookie.OILowProductivityInformation,
@@ -320,7 +297,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
                 if (i == 1)
                 {
-                    YGhostListCH11 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();           
+                    YGhostListCH11 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
                 }
                 if (i == 2)
                 {
@@ -447,11 +424,11 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(newPosition, calChipSiteModelEnum);
                 afViewModel.ToggleDarkFieldEnable(true);
             }
-         
+
             PMT8Ch1ImagePath = allOpticsPaths1;
             PMT8Ch2ImagePath = allOpticsPaths2;
             PMT8Ch3ImagePath = allOpticsPaths3;
-        }     
+        }
 
         logger.LogHtmlInformation("Get ALL PMT Pictures", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
         {
@@ -581,7 +558,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
         }
         return null;
     }
-   
+
     private int? FindClosestXAtY(Point[] points, double targetY)
     {
         if (points == null || points.Length == 0)
@@ -604,7 +581,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
     }
 
     public void LoadGhostData()
-    {           
+    {
         double targetY = MoveDownThreshold;
         {
             // 1. 获取基准 X（来自 CH11）
@@ -646,8 +623,8 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 int offset17 = x17.Value - refX.Value;
                 YGhostListCH17 = YGhostListCH17.Select(p => new Point(p.X - offset17, p.Y)).ToArray();
             }
-        }     
-        
+        }
+
         {
             var refX = FindClosestXAtY(YGhostListCH21, targetY);
 
@@ -728,14 +705,14 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 int offset37 = x37.Value - refX.Value;
                 YGhostListCH37 = YGhostListCH37.Select(p => new Point(p.X - offset37, p.Y)).ToArray();
             }
-        }   
+        }
     }
 
     private ObservableCollection<Point> ProcessImageAndGetPoints(HImage image0)
     {
-       // using var image = new HImage(imagePath);
+        // using var image = new HImage(imagePath);
         //_algorithm.AutoReadRawImage(out var image0,imagePath);
-        _algorithm.RotateAndMirror(image0,out var image);
+        _algorithm.RotateAndMirror(image0, out var image);
         _algorithm.LightSpot(image, out var yValue);
         var points = new ObservableCollection<Point>();
         if (yValue?.Length > 0)
@@ -751,7 +728,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
     private int FindFirstDropPoint(Point[] points)
     {
-        if (points == null || points.Length == 0) return 0; 
+        if (points == null || points.Length == 0) return 0;
         for (int i = 1; i < points.Length; i++)
         {
             double dy = points[i].Y - points[i - 1].Y;

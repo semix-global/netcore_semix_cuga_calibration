@@ -208,19 +208,20 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
         var sxExecuteRet = Invoke(() => Service!.GetUniformAFDiagnosisData(Convert.ToInt32(startEcs), Convert.ToInt32(endEcs), Convert.ToInt32(speedEcs), Convert.ToInt32(timeSpan.TotalMilliseconds)));
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>(sxExecuteRet.Msg, []);
         if (sxExecuteRet.Anything.Ecs.Count == 0 ||
             sxExecuteRet.Anything.Nsc.Count == 0 ||
+            sxExecuteRet.Anything.AFERROR.Count == 0 ||
             sxExecuteRet.Anything.Lvdt.Count == 0 ||
             sxExecuteRet.Anything.Ecs.Count != sxExecuteRet.Anything.Nsc.Count ||
-            sxExecuteRet.Anything.Nsc.Count != sxExecuteRet.Anything.Lvdt.Count) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>>("Nsc Trace buffer is empty", []);
+            sxExecuteRet.Anything.Nsc.Count != sxExecuteRet.Anything.Lvdt.Count) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>("Nsc Trace buffer is empty", []);
 
-        return SxExecuteRetHelper.CreateSuccess<List<(double Ecs, double Nsc, double Lvdt, double Fa, double Na, double Fb, double Nb)>>([
-            .. sxExecuteRet.Anything.Ecs.Select((t, i) => (t, sxExecuteRet.Anything.Nsc[i], sxExecuteRet.Anything.Lvdt[i], sxExecuteRet.Anything.FA[i], sxExecuteRet.Anything.NA[i], sxExecuteRet.Anything.FB[i], sxExecuteRet.Anything.NB[i]))
+        return SxExecuteRetHelper.CreateSuccess<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>([
+            .. sxExecuteRet.Anything.Ecs.Select((t, i) => (t, sxExecuteRet.Anything.Nsc[i], sxExecuteRet.Anything.AFERROR[i],sxExecuteRet.Anything.Lvdt[i], sxExecuteRet.Anything.FA[i], sxExecuteRet.Anything.NA[i], sxExecuteRet.Anything.FB[i], sxExecuteRet.Anything.NB[i]))
         ]);
     }
 

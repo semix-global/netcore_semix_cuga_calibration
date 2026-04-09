@@ -1,13 +1,3 @@
-using Core.Models.Models.Common.Pattern;
-using Humanizer;
-using Local.SQL.DB.Providers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Core.Models.Models.Common.Fourier;
 
 //

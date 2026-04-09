@@ -1,21 +1,6 @@
 using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CugaCalibration.Views.Fourier.PupilCenterChannelFlexibleAperture
 {
@@ -25,7 +10,7 @@ namespace CugaCalibration.Views.Fourier.PupilCenterChannelFlexibleAperture
     [Permission]
     [IOCAppService(ServiceType = typeof(PupilCenterChannelFlexibleApertureUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
     public partial class PupilCenterChannelFlexibleApertureUserControl
-    {        
+    {
         public PupilCenterChannelFlexibleApertureUserControl()
         {
             InitializeComponent();

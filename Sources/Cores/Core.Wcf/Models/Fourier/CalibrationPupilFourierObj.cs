@@ -1,7 +1,7 @@
+using Cuga.Data.DataStruct.DTO.Recipe;
+using Cuga.Data.DataStruct.Stage;
 using System;
 using System.Collections.Generic;
-using Cuga.Data.DataStruct.Stage;
-using Cuga.Data.DataStruct.DTO.Recipe;
 
 namespace Core.Wcf.Models.Fourier;
 

@@ -1,10 +1,5 @@
 using Net.Utilities.WPF.Converters;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Core.Utilities.WPF.Converters;
@@ -33,7 +28,7 @@ public sealed class ListToDoubleConverter : AbstractSingletonConverterBase<ListT
 
             var list = new List<double>();
             foreach (var item in stringArray)
-            {     
+            {
                 if (double.TryParse(
                         item.Trim(),
                         NumberStyles.Float,
@@ -43,7 +38,7 @@ public sealed class ListToDoubleConverter : AbstractSingletonConverterBase<ListT
                     list.Add(number);
                 }
                 else
-                {  
+                {
                     return DependencyProperty.UnsetValue;
                 }
             }
