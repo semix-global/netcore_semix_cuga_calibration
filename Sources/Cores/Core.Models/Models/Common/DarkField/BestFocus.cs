@@ -91,6 +91,9 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
     #endregion
 
     [ObservableProperty]
+    private double _spotAreaPercentMean;
+
+    [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
@@ -165,6 +168,12 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
 
     partial void OnYFieldTiltFitPointsChanged(IReadOnlyList<Point> value) => RefreshYPlot();
 
+    partial void OnSpotAreaPercentMeanChanged(double value)
+    {
+        RefreshXPlot();
+        RefreshYPlot();
+    }
+
     // ReSharper restore UnusedParameterInPartialMethod
 
     private void RefreshXPlot() => Refresh(
@@ -179,7 +188,8 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         XFieldTiltFitPoints,
         XFieldTiltFitIntercept,
         XFieldTiltFitSlope,
-        XFieldTiltFitRSquared);
+        XFieldTiltFitRSquared,
+        SpotAreaPercentMean);
 
     private void RefreshYPlot() => Refresh(
         YStrehlRatioScatterPlotControl,
@@ -193,7 +203,8 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         YFieldTiltFitPoints,
         YFieldTiltFitIntercept,
         YFieldTiltFitSlope,
-        YFieldTiltFitRSquared);
+        YFieldTiltFitRSquared,
+        SpotAreaPercentMean);
 
     private static void Refresh(
         IScatterPlotControl scatterPlotControl,
@@ -207,7 +218,8 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         IReadOnlyList<Point> fieldTiltFitPoints,
         double fieldTiltFitSlope,
         double fieldTiltFitIntercept,
-        double fieldTiltFitRSquared)
+        double fieldTiltFitRSquared,
+        double spotAreaPercentMean)
     {
         try
         {
@@ -226,9 +238,11 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
             if (strehlRatioColumnPoints.Count > 0)
             {
                 var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
-                scatterMarkers[0].Update(string.Empty, strehlRatioPoints, Colors.DarkBlue, MarkerShape.OpenCircle);
+                scatterMarkers[0].Update($"Spot Area Percent: {spotAreaPercentMean:0.####}", strehlRatioPoints, Colors.DarkBlue, MarkerShape.OpenCircle);
                 scatterMarkers[0].MarkerSize = 12;
-                scatterMarkers[1].Update(bestStrehlRatioECS > 0 ? $"Best Strehl: {bestStrehlRatioPoint.Y:0.####}, ECS: {bestStrehlRatioECS:0.###}" : $"Best Strehl: {bestStrehlRatioPoint.Y:0.####}", [bestStrehlRatioPoint], Colors.Red, MarkerShape.Asterisk);
+                scatterMarkers[1].Update(bestStrehlRatioECS > 0
+                    ? $"Best Strehl: {bestStrehlRatioPoint.Y:0.####}, ECS: {bestStrehlRatioECS:0.###}"
+                    : $"Best Strehl: {bestStrehlRatioPoint.Y:0.####}", [bestStrehlRatioPoint], Colors.Red, MarkerShape.Asterisk);
                 scatterMarkers[1].MarkerSize = 30;
             }
 

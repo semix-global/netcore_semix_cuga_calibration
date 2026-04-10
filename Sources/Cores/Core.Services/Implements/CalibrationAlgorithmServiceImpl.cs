@@ -107,7 +107,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
             out var hvColBeginYHTuple,
             out var hvRowEndYHTuple,
             out var hvColEndYHTuple,
-            out var hvKyHTuple);
+            out var hvKyHTuple,
+            out var hvPercentMeanHTuple);
 
         using var _0 = hvXListHTuple;
         using var _1 = hvXRatioMaxHTuple;
