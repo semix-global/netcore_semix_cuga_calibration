@@ -329,7 +329,6 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double DigitalGainPlusMultiplicativeFactors => DigitalGain + MultiplicativeFactors;
 
     partial void OnHazeItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)

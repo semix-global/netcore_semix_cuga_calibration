@@ -57,7 +57,6 @@ public abstract class AbstractAODWaveformProfile :
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public IReadOnlyList<short> Shorts
     {
         get;
@@ -70,7 +69,6 @@ public abstract class AbstractAODWaveformProfile :
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public IReadOnlyList<byte> Bytes
     {
         get;
@@ -86,42 +84,36 @@ public abstract class AbstractAODWaveformProfile :
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public IReadOnlyList<Point> Signals { get; internal set; } = [];
 
     /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FFTSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public IReadOnlyList<Point> FFTSignals { get; internal set; } = [];
 
     /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FrequencyCoefficients"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public IReadOnlyList<Point> FrequencyCoefficients { get; internal set; } = [];
 
     /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalFrequencySignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public IReadOnlyList<Point> FlatnessTotalFrequencySignals { get; internal set; } = [];
 
     /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalPhaseSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public IReadOnlyList<Point> FlatnessTotalPhaseSignals { get; internal set; } = [];
 
     /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalCompensationPhaseSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public IReadOnlyList<Point> FlatnessTotalCompensationPhaseSignals { get; internal set; } = [];
 
     #endregion 波形

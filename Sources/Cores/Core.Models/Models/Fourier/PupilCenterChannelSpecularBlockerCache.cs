@@ -55,7 +55,6 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public PupilCenterChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new PupilCenterChannelSpecularBlockerCacheItem());
 }
 

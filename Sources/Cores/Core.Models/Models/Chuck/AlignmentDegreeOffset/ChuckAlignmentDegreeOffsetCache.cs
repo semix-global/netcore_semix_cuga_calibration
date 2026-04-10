@@ -35,7 +35,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public ChuckAlignmentDegreeOffsetCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new ChuckAlignmentDegreeOffsetCacheItem());
 
     [ObservableProperty]

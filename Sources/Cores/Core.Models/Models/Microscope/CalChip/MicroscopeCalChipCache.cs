@@ -28,7 +28,6 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public MicroscopeCalChipCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, new MicroscopeCalChipCacheItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     #region DSW Alignment

@@ -26,7 +26,6 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public CIBXTCCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBXTCCacheItem());
 }
 

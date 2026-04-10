@@ -24,7 +24,6 @@ public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public CIBLineOrientationOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBLineOrientationOffsetCacheItem());
 }
 

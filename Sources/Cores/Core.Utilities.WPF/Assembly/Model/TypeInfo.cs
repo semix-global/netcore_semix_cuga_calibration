@@ -12,6 +12,5 @@ public partial class TypeInfo : ObservableObject
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public Type? TypeInstance => Type.GetType(AssemblyQualifiedName);
 }

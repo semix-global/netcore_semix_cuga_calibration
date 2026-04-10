@@ -40,25 +40,21 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public MicroscopeCalChipDTOItem DswItem => Results.Get(CalChipSiteModelEnum.DswModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public MicroscopeCalChipDTOItem HazeItem => Results.Get(CalChipSiteModelEnum.HazeModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public MicroscopeCalChipDTOItem ShinyWaferItem => Results.Get(CalChipSiteModelEnum.ShinyWaferModel);
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public MicroscopeCalChipDTOItem UndefineWaferItem => Results.Get(CalChipSiteModelEnum.UndefinedModel);
 
     [ObservableProperty]

@@ -23,7 +23,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBa
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public AutoFocusGlobalFocusOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, new AutoFocusGlobalFocusOffsetCacheItem());
 
     /// <summary>
