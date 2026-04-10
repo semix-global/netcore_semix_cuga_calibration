@@ -19,9 +19,7 @@
         </Grid.ColumnDefinitions>
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-            <hc:UniformSpacingPanel Orientation="Vertical"
-                                    Spacing="2"
-                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="{Binding CalibrationStepList[1].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -172,8 +170,7 @@
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
-                                            Spacing="10"
-                                            Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+                                            Spacing="10">
                         <Button Content="Action"
                                 Command="{Binding Step0CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"

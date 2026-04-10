@@ -467,8 +467,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 AngleOffsetCalibrationResult = CalibrateItem.EfemLoadWaferChuckAbsoluteAngle
             }), HtmlLogUniqueId.LoggingHtml());
 
-            if (IsAutoCalibrate == false)
-                DialogWindowProvider.ShowDialog($"Chuck Prealigner Calibration {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"Chuck Prealigner Calibration {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
             return result;
         });
     }
@@ -538,8 +537,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 AngleOffsetCalibrationResult = CalibrateDTO.ResultItemDto.EfemLoadWaferChuckAbsoluteAngle
             }), HtmlLogUniqueId.LoggingHtml());
 
-            if (IsAutoCalibrate == false)
-                DialogWindowProvider.ShowDialog($"Chuck Prealigner Calibration {(CalibrateDTO.IsCalibrated ? "Success" : "Failed")}!", DialogButtonsEnum.OK, CalibrateDTO.IsCalibrated ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"Chuck Prealigner Calibration {(CalibrateDTO.IsCalibrated ? "Success" : "Failed")}!", DialogButtonsEnum.OK, CalibrateDTO.IsCalibrated ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
             return CalibrateDTO.IsCalibrated;
         });
@@ -559,8 +557,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             var result = await VerifyCalibrationAsync(ReviewDto, cancellationToken);
 
-            if (IsAutoCalibrate == false)
-                DialogWindowProvider.ShowDialog($"Chuck Prealigner Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"Chuck Prealigner Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
             return result;
         }).ConfigureAwait(false);

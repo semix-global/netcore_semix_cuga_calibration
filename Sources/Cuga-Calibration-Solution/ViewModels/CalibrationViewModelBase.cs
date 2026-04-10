@@ -34,13 +34,12 @@ using Net.Utilities.WPF.MVVM.Events;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace CugaCalibration.ViewModels;
 
-public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>, IRecipient<ValueChangedMessage<ToggleAutoCalibrateEvent>>, IDisposable
+public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>, IDisposable
 {
     protected readonly ILogger<CalibrationViewModelBase> Logger;
     protected readonly IMessenger Messenger;
@@ -123,12 +122,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// </summary>
     public virtual List<CalibrationItemStep> CalibrationStepList => [];
 
-    /// <summary>
-    /// 校准步骤名称列表
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<CalibrationItemStep> _autoCalibrationStepList = [];
-
     #endregion 重载只读属性
 
     public CalibrationSetting CalibrationSetting { get; }
@@ -204,22 +197,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     /// </summary>
     public Guid HtmlLogUniqueId { get; set; }
 
-    /// <summary>
-    /// 是否应用配方
-    /// </summary>
-    public bool IsRecipeCalibrate { get; set; }
-
-    /// <summary>
-    /// 是否正在编辑配方
-    /// </summary>
-    public bool IsRecipeEditing { get; set; }
-
-    /// <summary>
-    /// 是否自动化校准
-    /// </summary>
-    [ObservableProperty]
-    private bool _isAutoCalibrate;
-
     #region 校准相关
 
     /// <summary>
@@ -235,20 +212,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
     private int _calibrationStepIndex = -1;
-
-    /// <summary>
-    /// 校准步骤索引
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
-    private int _autoCalibrationStepIndex = -1;
-
-    /// <summary>
-    /// 验证校准步骤索引
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
-    private int _autoReviewCalibrationStepIndex = -1;
 
     /// <summary>
     /// 校准步名称
@@ -302,28 +265,20 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     {
         try
         {
-            if (!IsAutoCalibrate)
+            RefreshToken();
+            await Task.Run(async () =>
             {
-                RefreshToken();
-                await Task.Run(async () =>
+                ViewEnum = CalibrationItemViewEnum.Loading;
+                if (await LoadedingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
-                    //IsAutoCalibrate = false;
-                    ViewEnum = CalibrationItemViewEnum.Loading;
-                    if (await LoadedingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
-                    {
-                        UpdateFailedStatus();
-                        Logger.LogWarning("{@Name}: Loading Failed", Name);
-                        return;
-                    }
+                    UpdateFailedStatus();
+                    Logger.LogWarning("{@Name}: Loading Failed", Name);
+                    return;
+                }
 
-                    UpdateWelcomeStatus();
-                    Logger.LogInformation("{@Name}: Loading Ok!", Name);
-                }, _cancellationTokenSource.Token).ConfigureAwait(false);
-            }
-            else
-            {
-                UpdateAutoCalibrateStatus();
-            }
+                UpdateWelcomeStatus();
+                Logger.LogInformation("{@Name}: Loading Ok!", Name);
+            }, _cancellationTokenSource.Token).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -344,13 +299,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
             await Task.Run(async () =>
             {
                 Monitor();
-
                 ViewEnum = CalibrationItemViewEnum.Loading;
-                if (IsRecipeEditing == false)
-                {
-                    DialogWindowProvider.TryShowDialog("Do you want to enable recipe information!", out var dialogButtonsEnum, DialogButtonsEnum.YesNo, DialogIconEnum.Warning);
-                    IsRecipeCalibrate = dialogButtonsEnum == DialogResultEnum.Yes;
-                }
 
                 if (await CalibratingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
@@ -526,77 +475,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
     }
 
-    /// <summary>
-    /// 自动化校准
-    /// </summary>
-    [RelayCommand]
-    public async Task<bool> AutoCalibrateAsync(CalibrationViewModelBase calibrationViewModelBase)
-    {
-        CheckStatus();
-        var result = false;
-        await Task.Run(async () =>
-        {
-            ViewEnum = CalibrationItemViewEnum.Auto;
-            if (calibrationViewModelBase is not null)
-            {
-                if (await calibrationViewModelBase.AutomationActionAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
-                {
-                    ViewEnum = CalibrationItemViewEnum.Welcome;
-                    Logger.LogWarning("{@Name}: Auto Failed", Name);
-                    UpdateAutoCalibrateStatus();
-                    return;
-                }
-            }
-
-            result = true;
-            UpdateAutoCalibrateStatus();
-            ViewEnum = CalibrationItemViewEnum.Welcome;
-            Logger.LogInformation("{@Name}: Auto Ok!", Name);
-        }, _cancellationTokenSource.Token);
-        return result;
-    }
-
-    /// <summary>
-    /// 自动化验证
-    /// </summary>
-    [RelayCommand]
-    public async Task<bool> AutoReviewAsync(CalibrationViewModelBase calibrationViewModelBase)
-    {
-        CheckStatus();
-        var result = true;
-        await Task.Run(async () =>
-        {
-            ViewEnum = CalibrationItemViewEnum.Auto;
-            if (calibrationViewModelBase is not null)
-            {
-                if (await calibrationViewModelBase.AutomationReviewActionAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
-                    result = false;
-            }
-
-            UpdateAutoCalibrateStatus();
-            ViewEnum = CalibrationItemViewEnum.Welcome;
-            Logger.LogInformation($"{Name}: Auto {(result ? "OK" : "Failed")}!");
-        }, _cancellationTokenSource.Token).ConfigureAwait(false);
-        return result;
-    }
-
-    /// <summary>
-    /// 校准下一步
-    /// </summary>
-    public async Task<bool> AutoStepAsync()
-    {
-        try
-        {
-            await Task.Run(() => { UpdateAutoStepStatus(); });
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Next Exception", Name);
-            return false;
-        }
-    }
-
     #region Event
 
     public void Receive(PropertyChangedMessage<bool> message)
@@ -638,31 +516,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     protected virtual void Monitor() => CheckStatus();
 
-    public virtual void GetAutoCalibrationStep() => AutoCalibrationStepList.ToList();
-
-    public virtual Task<bool> AutomationActionAsync(CancellationToken cancellationToken)
-    {
-        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
-        HtmlLogUniqueId = Guid.NewGuid();
-        AutoReviewCalibrationStepIndex = -1;
-        Logger.LogHtmlInformation($"1. {Name}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
-        return Task.FromResult(true);
-    }
-
-    public virtual Task<bool> AutomationReviewActionAsync(CancellationToken cancellationToken)
-    {
-        Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
-        HtmlLogUniqueId = Guid.NewGuid();
-        AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
-        AutoCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
-        CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName;
-        AutoCalibrationProgress = AutoCalibrationStepIndex / (double)AutoCalibrationStepList.Count * 100;
-
-        return Task.FromResult(true);
-    }
-
-    public virtual Task<bool> AutomationRecipeInformationAsync(string recipeName) => Task.FromResult(true);
-
     #endregion 重载
 
     #region 校准
@@ -679,14 +532,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     protected async Task<bool> InvokeCalibrateAsync(Func<bool> func, string comment = "")
     {
-        if (IsAutoCalibrate)
-        {
-            Logger.LogHtmlInformation($"{AutoCalibrationStepIndex + 1}. {AutoCalibrationStepList[AutoCalibrationStepIndex].StepName}{(string.IsNullOrWhiteSpace(comment) ? string.Empty : $"[{comment}]")}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-        }
-        else
-        {
-            Logger.LogHtmlInformation($"{CalibrationStepIndex + 1}. {CalibrationStepList[CalibrationStepIndex].StepName}{(string.IsNullOrWhiteSpace(comment) ? string.Empty : $"[{comment}]")}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-        }
+        Logger.LogHtmlInformation($"{CalibrationStepIndex + 1}. {CalibrationStepList[CalibrationStepIndex].StepName}{(string.IsNullOrWhiteSpace(comment) ? string.Empty : $"[{comment}]")}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
         var calibrateName = Name.Trim().Replace(" ", "");
         var result = false;
@@ -695,15 +541,9 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
             CheckStatus();
             await Task.Run(() =>
             {
-                if (IsAutoCalibrate)
-                {
-                    result = func.Invoke();
-                }
-                else
-                {
-                    UpdateDisableAll();
-                    result = CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = func.Invoke();
-                }
+                UpdateDisableAll();
+
+                result = CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = func.Invoke();
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
             return result;
         }
@@ -723,24 +563,15 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
         finally
         {
-            if (IsAutoCalibrate)
-            {
-                if (AutoCalibrationStepIndex == AutoCalibrationStepList.Count - 1 || !result)
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.AutoCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{(result ? "OK" : "Failed")}"));
-            }
-            else
-            {
-                UpdatePreviousNextStatus();
-                if (CalibrationStepIndex == CalibrationStepList.Count - 1 || !result)
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.HandleCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{CalibrateHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
-            }
+            UpdatePreviousNextStatus();
+            if (CalibrationStepIndex == CalibrationStepList.Count - 1 || !result)
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.HandleCalibration)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{CalibrateHtmlLogFileName}_{(result ? "OK" : "Failed")}"));
         }
     }
 
     protected async Task<bool> InvokeVerifyAsync(Func<bool> func)
     {
-        if (IsAutoCalibrate == false)
-            HtmlLogUniqueId = Guid.NewGuid();
+        HtmlLogUniqueId = Guid.NewGuid();
         var calibrateName = Name.Trim().Replace(" ", "");
         Logger.LogHtmlInformation($"1. {calibrateName}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
         Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
@@ -751,7 +582,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
             await Task.Run(() =>
             {
-                if (IsAutoCalibrate == false) UpdateDisableAll();
+                UpdateDisableAll();
 
                 result = func.Invoke();
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
@@ -773,10 +604,8 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         finally
         {
             UpdateReviewStatus();
-            if (IsAutoCalibrate)
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.AutoVerify)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
-            else
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.HandleVerify)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
+
+            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.HandleVerify)}_{ApplicationCookie.DeviceCode}_{calibrateName}_{VerifyHtmlFileLogName}_{(result ? "OK" : "Failed")}"));
         }
     }
 
@@ -878,14 +707,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         ViewEnum = CalibrationItemViewEnum.Welcome;
     }
 
-    private void UpdateAutoCalibrateStatus()
-    {
-        UpdateDisableAll();
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
-        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-        //UpdatePreviousNextStatus();
-    }
-
     private void UpdateCalibrateStatus()
     {
         CalibrationStepIndex = int.MinValue;
@@ -929,12 +750,9 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
         if (IsCalibrated)
         {
-            if (!IsAutoCalibrate)
-            {
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
-                HtmlLogUniqueId = Guid.NewGuid();
-                DialogWindowProvider.ShowDialog($"Calibration {Name} Ok!");
-            }
+            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
+            HtmlLogUniqueId = Guid.NewGuid();
+            DialogWindowProvider.ShowDialog($"Calibration {Name} Ok!");
 
             UpdateWelcomeStatus();
         }
@@ -963,18 +781,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsNextEnable(0 <= CalibrationStepIndex && CalibrationStepIndex < CalibrationStepList.Count && CalibrationStepList[CalibrationStepIndex].StepIsNextEnable));
     }
 
-    private void UpdateAutoStepStatus()
-    {
-        UpdateDisableAll();
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
-        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-    }
-
-    public void RefreshAutoStepProgress()
-    {
-        AutoCalibrationProgress = AutoCalibrationStepIndex / (double)AutoCalibrationStepList.Count * 100;
-    }
-
     #endregion 状态更新
 
     public virtual void Dispose()
@@ -982,19 +788,5 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         CancelToken();
 
         GC.SuppressFinalize(this);
-    }
-
-    public void Receive(ValueChangedMessage<ToggleAutoCalibrateEvent> message)
-    {
-        if (message.Value.IsAutoCalibrateEnable.HasValue)
-            IsAutoCalibrate = message.Value.IsAutoCalibrateEnable.Value;
-        if (!IsAutoCalibrate)
-        {
-            IsAutoCalibrate = IsAutoCalibrate;
-            IsRecipeCalibrate = IsAutoCalibrate;
-            CalibrationStepIndex = -1;
-            AutoCalibrationStepIndex = -1;
-            AutoCalibrationProgress = 0d;
-        }
     }
 }

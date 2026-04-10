@@ -17,21 +17,15 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical"
-                                Spacing="10"
-                                IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Global Scale Error Step 3: "
-                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Global Scale Error Step 3: " Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Site Direction: "
                            Status="{Binding Cache.SiteDirection}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}"
-                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="Find Low Position"
@@ -67,8 +61,7 @@
                     </TextBox>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
-                                            Spacing="10"
-                                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                                            Spacing="10">
                         <Button x:Name="ActionButton"
                                 Content="Action"
                                 Command="{Binding Step3CalibrateActionCommand}"

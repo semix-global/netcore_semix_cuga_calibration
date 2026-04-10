@@ -163,9 +163,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
-        StageViewModel.SetEnableStageMap(false);
 
-        if (IsRecipeCalibrate) RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
+        StageViewModel.SetEnableStageMap(false);
 
         return true;
     }
@@ -383,7 +382,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         {
             if (Cache.IsDarkField == false)
             {
-                if (await BrightFieldStep1ActionAsync() == false) return false;
+                if (BrightFieldStep1Action() == false) return false;
             }
             else
             {
@@ -403,28 +402,17 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         });
     }
 
-    private async Task<bool> BrightFieldStep1ActionAsync()
+    private bool BrightFieldStep1Action()
     {
-        if (IsRecipeCalibrate)
+        Cache.TemplateFilePath = Cache.BrightFieldTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+        var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+        if (generateTemplate == false)
         {
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
-            if (await AutomationRecipeInformationAsync("0") == false) return false;
-            var findPosition = StageViewModel.MachineToBrightFieldPosition(Cache.BrightFieldFirstStageMapPosition);
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, findPosition, Cache.HighMicroscopeLensInformation, Cache.TemplateFilePath, TemplateFileDirectory, HtmlLogUniqueId, Name, string.Empty,
-                    out _, out _, out _, out _, out _) == false) return false;
+            DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return false;
         }
-        else
-        {
-            Cache.TemplateFilePath = Cache.BrightFieldTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
-            if (generateTemplate == false)
-            {
-                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return false;
-            }
 
-            Cache.TemplateImageFilePath = Cache.BrightFieldTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
-        }
+        Cache.TemplateImageFilePath = Cache.BrightFieldTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.TemplateFilePath);
 
         var centerPosition = StageViewModel.GetMachineStagePosition();
         Cache.FirstStageMapPosition = Cache.BrightFieldFirstStageMapPosition = HostEnvironment.IsDevelopment()
@@ -436,15 +424,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     private async Task<bool> DarkFieldStep1ActionAsync()
     {
-        if (IsRecipeCalibrate)
-        {
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
-            if (await AutomationRecipeInformationAsync("1") == false) return false;
-            var findPosition = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, findPosition, Cache.HighMicroscopeLensInformation, Cache.TemplateFilePath, TemplateFileDirectory, HtmlLogUniqueId, Name, string.Empty,
-                    out _, out _, out _, out _, out _) == false) return false;
-        }
-
         var brightFieldPosition = StageViewModel.GetBrightFieldStagePosition();
         var centerPosition = StageViewModel.DarkFieldToMachinePosition(brightFieldPosition);
 
@@ -821,34 +800,26 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 Cache.GetParam();
 
                 Logger.LogHtmlInformation("Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                if (IsRecipeCalibrate)
-                {
-                    if (await DarkFieldStep1ActionAsync() == false) return false;
-                    DarkFieldStep2Action();
-                    ReviewDto.VerifyDarkFieldStageMap = ResultChuckStageMapDto.CalibrationDarkFieldStageMap.Clone();
-                }
+
+                if (IsDarkFieldAlignment == false)
+                    StageViewModel.Alignment(
+                        AlignmentCacheBrightField.LowSite1,
+                        AlignmentCacheBrightField.LowSite2,
+                        AlignmentCacheBrightField.HighSite1,
+                        AlignmentCacheBrightField.HighSite2,
+                        AlignmentCacheBrightField.LowMag,
+                        AlignmentCacheBrightField.HighMag,
+                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
                 else
-                {
-                    if (IsDarkFieldAlignment == false)
-                        StageViewModel.Alignment(
-                            AlignmentCacheBrightField.LowSite1,
-                            AlignmentCacheBrightField.LowSite2,
-                            AlignmentCacheBrightField.HighSite1,
-                            AlignmentCacheBrightField.HighSite2,
-                            AlignmentCacheBrightField.LowMag,
-                            AlignmentCacheBrightField.HighMag,
-                            AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
-                    else
-                        StageViewModel.AlignmentDarkField(
-                            AlignmentCacheDarkField.LowSite1,
-                            AlignmentCacheDarkField.LowSite2,
-                            AlignmentCacheDarkField.HighSite1,
-                            AlignmentCacheDarkField.HighSite2,
-                            Cache.ProductivityInformation,
-                            AlignmentCacheDarkField.LowMag,
-                            AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                            opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
-                }
+                    StageViewModel.AlignmentDarkField(
+                        AlignmentCacheDarkField.LowSite1,
+                        AlignmentCacheDarkField.LowSite2,
+                        AlignmentCacheDarkField.HighSite1,
+                        AlignmentCacheDarkField.HighSite2,
+                        Cache.ProductivityInformation,
+                        AlignmentCacheDarkField.LowMag,
+                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
+                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
 
                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                 await DarkFieldGetStageMapAsync(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken, true);
@@ -906,8 +877,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                 Logger.LogHtmlInformation($"Dark Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
 
-                if (IsAutoCalibrate == false)
-                    DialogWindowProvider.ShowDialog($"Verify Dark Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog($"Verify Dark Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
                 if (Save(ReviewDto, cancellationToken) == false)
                 {
@@ -923,12 +893,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 Cache.GetParam();
 
                 Logger.LogHtmlInformation("Bright Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                if (IsRecipeCalibrate)
-                {
-                    if (await BrightFieldStep1ActionAsync() == false) return false;
-                    BrightFieldStep2Action();
-                    ReviewDto!.VerifyBrightFieldStageMap = ResultChuckStageMapDto.CalibrationBrightFieldStageMap.Clone();
-                }
 
                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                 BrightFieldGetStageMap(ReviewDto.VerifyBrightFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyBrightFieldStageMap)), cancellationToken);
@@ -987,8 +951,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                 Logger.LogHtmlInformation($"Bright Field Stage Map Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, htmlQuoteList, HtmlLogUniqueId.LoggingHtml());
 
-                if (IsAutoCalibrate == false)
-                    DialogWindowProvider.ShowDialog($"Verify Bright Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog($"Verify Bright Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
                 #endregion 明场验证
 
@@ -1000,8 +963,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     return false;
                 }
 
-                if (IsAutoCalibrate == false)
-                    DialogWindowProvider.ShowDialog($"Verify {(ReviewDto.IsVerified ? "OK" : "Failed")}!", DialogButtonsEnum.OK, ReviewDto.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                DialogWindowProvider.ShowDialog($"Verify {(ReviewDto.IsVerified ? "OK" : "Failed")}!", DialogButtonsEnum.OK, ReviewDto.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
                 return ReviewDto.IsVerified;
             }
@@ -1321,179 +1283,4 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     }) && EnableDependedCalibrationItems(cancellationToken);
 
     #endregion 校准
-
-    #region 自动化校准
-
-    public override void GetAutoCalibrationStep()
-    {
-        AutoCalibrationStepList =
-        [
-            new CalibrationItemStep { StepName = "loading", StepIndex = 0 },
-            new CalibrationItemStep { StepName = "BF P5", StepIndex = 1 },
-            new CalibrationItemStep { StepName = "BF Find Start Point", StepIndex = 2 },
-            new CalibrationItemStep { StepName = "BF Param", StepIndex = 3 },
-            new CalibrationItemStep { StepName = "BF Stage Map", StepIndex = 4 },
-            new CalibrationItemStep { StepName = "DF P5", StepIndex = 5 },
-            new CalibrationItemStep { StepName = "DF Find Start Point", StepIndex = 6 },
-            new CalibrationItemStep { StepName = "DF Param", StepIndex = 7 },
-            new CalibrationItemStep { StepName = "DF Stage Map", StepIndex = 8 },
-            new CalibrationItemStep { StepName = "Expand To BF", StepIndex = 9 },
-            new CalibrationItemStep { StepName = "Review", StepIndex = 10 }
-        ];
-    }
-
-    public override async Task<bool> AutomationActionAsync(CancellationToken cancellationToken)
-    {
-        GetAutoCalibrationStep();
-        await base.AutomationActionAsync(cancellationToken);
-        CalibrationStepIndex = -1;
-        try
-        {
-            foreach (var item in AutoCalibrationStepList)
-            {
-                switch (item.StepIndex)
-                {
-                    case 0:
-                        if (await LoadedingAsync(cancellationToken) == false) return false;
-                        await InvokeCalibrateAsync(() =>
-                        {
-                            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                            {
-                                Cache.AlgorithmTemplateTypeEnum,
-                                LensName = Cache.HighMicroscopeLensInformation.LensName,
-                                Cache.ProductivityInformation
-                            }), HtmlLogUniqueId.LoggingHtml());
-                            return true;
-                        });
-                        break;
-
-                    case 2 or 6:
-                        if (await Step1CalibrateActionAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 3 or 7:
-                        if (await Step2CalibrateActionAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 4 or 8:
-                        if (await Step3CalibrateActionAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 9:
-                        if (await Step4CalibrateActionAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 10:
-                        if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
-                        return await InvokeCalibrateAsync(async () =>
-                        {
-                            ReviewDto = Calibration.Clone();
-                            return await VerifyCalibrationAsync(cancellationToken);
-                        });
-                }
-
-                await Task.Delay(2000, cancellationToken);
-                if (await AutoNextingAsync(cancellationToken) == false) return false;
-                CalibrationStepIndex++;
-                if (await NextingAsync(cancellationToken) == false) return false;
-            }
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Auto Stage Map Failed!Error:{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-            return false;
-        }
-    }
-
-    public override async Task<bool> AutomationRecipeInformationAsync(string stepName)
-    {
-        await Task.CompletedTask.ConfigureAwait(false);
-        if (IsRecipeCalibrate == false)
-            return true;
-
-        if (CalibrationRecipeDto is null)
-        {
-            DialogWindowProvider.ShowDialog("Revise wafer map is empty!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
-
-        switch (stepName)
-        {
-            case "0":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(
-                        CalibrationRecipeDto.ReticleMarkDto,
-                        Cache.WaferMaskTypeEnum,
-                        Cache.HighMicroscopeLensInformation,
-                        Cache.ProductivityInformation, out var maskInfoBrightField) == false) return false;
-
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
-                    CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
-                    originReticle, maskInfoBrightField,
-                    out var positionBright);
-                Cache.FirstStageMapPosition = Cache.BrightFieldFirstStageMapPosition = StageViewModel.BrightFieldToMachinePosition(positionBright);
-                Cache.TemplateFilePath = Cache.BrightFieldTemplateFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                Cache.TemplateImageFilePath = Cache.BrightFieldTemplateImageFilePath = maskInfoBrightField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
-                break;
-
-            case "1":
-                if (CalibrationRecipeService.GetChuckReticleMaskInfo(
-                        CalibrationRecipeDto.ReticleMarkDto,
-                        Cache.WaferMaskTypeEnum,
-                        Cache.HighMicroscopeLensInformation,
-                        Cache.ProductivityInformation, out var maskInfoDarkField) == false) return false;
-
-                CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
-                    CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
-                    originReticle,
-                    maskInfoDarkField,
-                    out var positionDark);
-                Cache.FirstStageMapPosition = Cache.DarkFieldFirstStageMapPosition = StageViewModel.DarkFieldToMachinePosition(positionDark);
-                Cache.TemplateFilePath = Cache.DarkFieldTemplateFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateFilePath;
-                Cache.TemplateImageFilePath = Cache.DarkFieldTemplateImageFilePath = maskInfoDarkField.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
-                break;
-        }
-
-        return true;
-    }
-
-    private async Task<bool> AutoNextingAsync(CancellationToken cancellationToken)
-    {
-        await Task.Run(() =>
-        {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName;
-            AutoCalibrationStepIndex++;
-        }, cancellationToken);
-        return true;
-    }
-
-    public override async Task<bool> AutomationReviewActionAsync(CancellationToken cancellationToken)
-    {
-        GetAutoCalibrationStep();
-        await base.AutomationReviewActionAsync(cancellationToken);
-        if (await LoadedingAsync(cancellationToken) == false) return false;
-        if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
-        {
-            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        var result = await InvokeVerifyAsync(async () =>
-        {
-            if (await VerifyCalibrationAsync(cancellationToken, true) == false)
-            {
-                DialogWindowProvider.ShowDialog("Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return false;
-            }
-
-            return true;
-        });
-        AutoCalibrationProgress = (AutoCalibrationStepIndex + 1) / (double)AutoCalibrationStepList.Count * 100;
-        return result;
-    }
-
-    #endregion 自动化校准
 }

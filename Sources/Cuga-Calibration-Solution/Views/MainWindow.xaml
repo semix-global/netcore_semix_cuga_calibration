@@ -12,7 +12,6 @@
            xmlns:nlog="clr-namespace:Net.Utilities.WPF.UI.Nlog;assembly=Net.Utilities.WPF"
            xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
            Width="1200"
            Height="800"
@@ -30,7 +29,12 @@
            mc:Ignorable="d">
     <Window.Resources>
         <converters:MultiValueEqualityViewModelConverter x:Key="MultiValueEqualityViewModelConverter" />
-        <converters:MultiValueMouseDoubleClickConverter x:Key="MultiValueMouseDoubleClickConverter" />
+        <valueConverters:ValueConverterGroup x:Key="IntIsLessThan1ToBooleanConverter">
+            <!--  [1, 100000000]之间true  -->
+            <valueConverters:IsInRangeConverter MaxValue="100000000" MinValue="1" />
+            <!--  反转  -->
+            <valueConverters:BoolNegationConverter />
+        </valueConverters:ValueConverterGroup>
     </Window.Resources>
     <hc:Window.NonClientAreaContent>
         <TextBlock Margin="5,0"
@@ -66,14 +70,6 @@
                     <Setter Property="CommandParameter" Value="{Binding .}" />
                     <Setter Property="ItemsSource" Value="{Binding ChildList}" />
                     <Setter Property="Padding" Value="8,3" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsCheckable}" Value="True">
-                            <Setter Property="IsCheckable" Value="True" />
-                            <Setter Property="IsChecked" Value="{Binding DataContext.IsAutoCalibrate, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
-                            <Setter Property="Command" Value="{Binding DataContext.OpenIsCheckedMenuCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
-                            <Setter Property="CommandParameter" Value="{Binding Name}" />
-                        </DataTrigger>
-                    </Style.Triggers>
                 </Style>
             </Menu.ItemContainerStyle>
         </Menu>
@@ -85,21 +81,13 @@
             </Grid.ColumnDefinitions>
 
             <!--#region Left-->
-            <TreeView Margin="5"
-                      ItemsSource="{Binding ApplicationCookie.CalibrationMenu.ChildList}"
-                      IsEnabled="{Binding AutoCalibrationIsRunning}">
+            <TreeView Margin="5" ItemsSource="{Binding ApplicationCookie.CalibrationMenu.ChildList}">
                 <TreeView.ItemContainerStyle>
                     <!--  防止覆盖原有样式  -->
                     <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
                         <Setter Property="IsExpanded" Value="True" />
                         <Style.Triggers>
-                            <DataTrigger Value="True">
-                                <DataTrigger.Binding>
-                                    <MultiBinding Converter="{StaticResource MultiValueMouseDoubleClickConverter}">
-                                        <Binding Path="ChildList.Count" />
-                                        <Binding Path="DataContext.IsAutoCalibrate" RelativeSource="{RelativeSource FindAncestor, AncestorType=Window}" />
-                                    </MultiBinding>
-                                </DataTrigger.Binding>
+                            <DataTrigger Binding="{Binding ChildList.Count, Converter={StaticResource IntIsLessThan1ToBooleanConverter}}" Value="True">
                                 <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.Command" Value="{Binding DataContext.OpenCalibrationCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
                                 <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.CommandParameter" Value="{Binding SysMenuDto.Component}" />
                             </DataTrigger>
@@ -129,19 +117,7 @@
                                   Data="{StaticResource ErrorGeometry}"
                                   Fill="{DynamicResource DarkDangerBrush}"
                                   Stretch="Uniform" />
-                            <CheckBox x:Name="checkBox"
-                                      Content="{Binding SysMenuDto.Name}"
-                                      IsChecked="{Binding IsSelected}"
-                                      Margin="0,0,10,0"
-                                      Tag="{Binding SysMenuDto.Component}"
-                                      Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:MultiSelectorCheckBoxSelectionChangedBehavior SelectionChangedCommand="{Binding DataContext.HandleSelectionChangedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
-                                </i:Interaction.Behaviors>
-                            </CheckBox>
-                            <TextBlock x:Name="textBlock"
-                                       Text="{Binding SysMenuDto.Name}"
-                                       Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
+                            <TextBlock Text="{Binding SysMenuDto.Name}" />
                         </StackPanel>
                         <HierarchicalDataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsCalibrated}" Value="true">
@@ -151,8 +127,6 @@
                             <DataTrigger Binding="{Binding SysMenuDto.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
                                 <Setter TargetName="Path" Property="Data" Value="{x:Null}" />
                                 <Setter TargetName="Path" Property="Margin" Value="0" />
-                                <Setter TargetName="checkBox" Property="Visibility" Value="Collapsed" />
-                                <Setter TargetName="textBlock" Property="Visibility" Value="Visible" />
                             </DataTrigger>
                         </HierarchicalDataTemplate.Triggers>
                     </HierarchicalDataTemplate>
@@ -160,12 +134,12 @@
             </TreeView>
             <!--#endregion-->
 
-            <GridSplitter Grid.Row="0" Grid.Column="1"
+            <GridSplitter Grid.Column="1"
                           Width="10"
                           Margin="-5" />
 
             <!--#region right-->
-            <Grid Grid.Row="0" Grid.Column="2">
+            <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -174,28 +148,14 @@
                 </Grid.RowDefinitions>
                 <!--#region button group-->
                 <hc:UniformSpacingPanel Margin="5,10,5,3" Spacing="10">
-                    <Button Content="AutoCalibrate"
-                            Command="{Binding AutoCalibrateCommand}"
-                            CommandParameter="{Binding SelectReviewList}"
-                            hc:IconElement.Geometry="{StaticResource AutoCalibrationGeometry}"
-                            Style="{StaticResource ButtonSuccess}"
-                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
-                    <Button Content="AutoReview"
-                            Command="{Binding AutoReviewCommand}"
-                            CommandParameter="{Binding SelectReviewList}"
-                            hc:IconElement.Geometry="{StaticResource AutoVerifyGeometry}"
-                            Style="{StaticResource ButtonSuccess}"
-                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
                     <Button Content="Calibrate"
                             Command="{Binding CalibrateCommand}"
                             hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                            Style="{StaticResource ButtonSuccess}"
-                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
+                            Style="{StaticResource ButtonSuccess}" />
                     <Button Content="Review"
                             Command="{Binding ReviewCommand}"
                             hc:IconElement.Geometry="{StaticResource SearchGeometry}"
-                            Style="{StaticResource ButtonSuccess}"
-                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
+                            Style="{StaticResource ButtonSuccess}" />
                     <Button Content="Cancel"
                             Command="{Binding CancelCommand}"
                             hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -203,13 +163,11 @@
                     <Button Content="Previous"
                             Command="{Binding PreviousCommand}"
                             hc:IconElement.Geometry="{StaticResource LeftGeometry}"
-                            Style="{StaticResource ButtonPrimary}"
-                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
+                            Style="{StaticResource ButtonPrimary}" />
                     <Button Content="Next"
                             Command="{Binding NextCommand}"
                             hc:IconElement.Geometry="{StaticResource RightGeometry}"
-                            Style="{StaticResource ButtonPrimary}"
-                            Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
+                            Style="{StaticResource ButtonPrimary}" />
                 </hc:UniformSpacingPanel>
                 <!--#endregion-->
                 <!--#region body-->
@@ -242,28 +200,13 @@
                 <!--#endregion-->
                 <GridSplitter Grid.Row="2"
                               Height="10"
-                              Margin="-5"
-                              IsEnabled="{Binding AutoCalibrationIsRunning}" />
+                              Margin="-5" />
                 <!--#region log-->
                 <Grid Grid.Row="3" Margin="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <hc:StepBar HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontSize="10"
-                                StepIndex="{Binding CalibrationStepIndex}"
-                                ItemsSource="{Binding CalibrationStepList}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
-                        <hc:StepBar.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding StepName}"
-                                           TextWrapping="Wrap"
-                                           TextAlignment="Center" />
-                            </DataTemplate>
-                        </hc:StepBar.ItemTemplate>
-                    </hc:StepBar>
                     <hc:SimplePanel Grid.Row="1">
                         <nlog:NLogViewer MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" TargetName="targetNLogViewer" />
                         <Button Content="Popup"

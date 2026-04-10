@@ -59,8 +59,7 @@
                                 </StackPanel>
                                 <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                         VerticalAlignment="Top"
-                                                        Spacing="10"
-                                                        Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                                                        Spacing="10">
                                     <Button x:Name="ActionButton"
                                             Content="Action"
                                             Command="{Binding Step5Command}"

@@ -125,7 +125,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTOItem : ObservableValid
         ScatterPlotControl.Configure(new Rows(), 2);
 
         ScatterPlotControl.SetTitle(0, "Trace Buffers");
-        ScatterPlotControl.SetTitle(1, "Ecs Nsc Curve And Slope");
+        ScatterPlotControl.SetTitle(1, "Ecs Nsc Curve And Slope (Y: NSC - X: ECS)");
     }
 
     private void RefreshPlot()

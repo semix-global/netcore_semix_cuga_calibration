@@ -18,9 +18,7 @@
         </Grid.ColumnDefinitions>
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-            <hc:UniformSpacingPanel Orientation="Vertical"
-                                    Spacing="2"
-                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="{Binding CalibrationStepList[3].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
                            Status="{Binding CalibrationStepList[3].StepName}"
                            Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -77,8 +75,7 @@
                                       Value="{Binding Cache.WaferDiameter}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
-                                            Spacing="10"
-                                            Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+                                            Spacing="10">
                         <Button Content="Action"
                                 Command="{Binding Step2CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"

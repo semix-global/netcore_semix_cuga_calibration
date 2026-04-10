@@ -98,7 +98,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.CurrentItem.BrightFieldMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                        <TextBox Text="{Binding Cache.Item.CenterMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                                  hc:TitleElement.TitleWidth="180"
                                  hc:TitleElement.Title="Bright Machine Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
