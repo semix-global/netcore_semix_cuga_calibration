@@ -4,6 +4,9 @@
         <RepositoryDirectory>$([System.IO.Path]::GetDirectoryName($(MSBuildThisFileDirectory.TrimEnd('\'))))</RepositoryDirectory>
         <BuildToolsDirectory>$(RepositoryDirectory)\Build</BuildToolsDirectory>
         <SolutionDirectory>$(SolutionDir.TrimEnd('\'))</SolutionDirectory>
+
+        <GitType>GitLab</GitType>
+        <GitURL>http://192.168.0.28:8099/semix/software/publiclibraries/common/Net.Utilities</GitURL>
     </PropertyGroup>
 
     <Import Project="$(BuildToolsDirectory)\Common.Build.props" />
@@ -13,9 +16,5 @@
         <AssemblyVersion>2.5.1.0327</AssemblyVersion>
         <FileVersion>2.5.1.0327</FileVersion>
     </PropertyGroup>
-
-    <ItemGroup>
-        <KeepLanguageAssemblies Include="zh-Hans" />
-    </ItemGroup>
 
 </Project>
