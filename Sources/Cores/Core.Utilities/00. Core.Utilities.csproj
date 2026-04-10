@@ -7,21 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="3.30.1-preview3.30-hanqi" />
-        <PackageReference Include="Net.Utilities.Models" VersionOverride="3.30.1-preview3.30-hanqi" />
-        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="3.30.1-preview3.30-hanqi" />
-        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="3.30.1-preview3.30-hanqi" />
-        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="3.30.1-preview3.30-hanqi" />
-        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="3.30.1-preview3.30-hanqi" />
-        <PackageReference Include="Net.Utilities.IOC" VersionOverride="3.30.1-preview3.30-hanqi" />
+        <PackageReference Include="Net.Utilities.Mapper" />
+        <PackageReference Include="Net.Utilities.Models" />
+        <PackageReference Include="Net.Utilities.DataAnnotations" />
+        <PackageReference Include="Net.Utilities.Helpers" />
+        <PackageReference Include="Net.Utilities.Algorithms" />
+        <PackageReference Include="Net.Utilities.Algorithms.Halcon" />
+        <PackageReference Include="Net.Utilities.IOC" />
 
-        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="3.30.1-preview3.30-hanqi" />
+        <PackageReference Include="Net.Utilities.Nlog" />
 
-        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="3.30.1-preview3.30-hanqi" />
-        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="3.30.1-preview3.30-hanqi" />
+        <PackageReference Include="Net.Utilities.Graphics" />
+        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" />
 
-        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="3.30.1-preview3.30-hanqi" />
-        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="3.30.1-preview3.30-hanqi" />
+        <PackageReference Include="Local.SQL.Cache.Providers" />
+        <PackageReference Include="Local.SQL.DB.Providers" />
     </ItemGroup>
 
 </Project>
