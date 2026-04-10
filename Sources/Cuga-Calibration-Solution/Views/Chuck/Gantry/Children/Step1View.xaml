@@ -154,14 +154,12 @@
                                 Content="Action"
                                 Command="{Binding Step1CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding Step1CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>

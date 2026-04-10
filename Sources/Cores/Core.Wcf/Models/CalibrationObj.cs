@@ -1,6 +1,7 @@
 using Core.Wcf.Models.Ads;
 using Core.Wcf.Models.AutoFocus;
 using Core.Wcf.Models.Chuck;
+using Core.Wcf.Models.Fourier;
 using Core.Wcf.Models.Laser;
 using Core.Wcf.Models.Microscope;
 using System;
@@ -43,4 +44,10 @@ public sealed class CalibrationObj
     /// </summary>
     [Description(WcfConstantHelper.AutoFocusNodeCalibrationName)]
     public CalibrationAutoFocusObj CalibrationAutoFocusObj { get; set; } = new CalibrationAutoFocusObj();
+
+    /// <summary>
+    /// 傅里叶校准对象
+    /// </summary>
+    [Description(WcfConstantHelper.PupilFourierCalibrationName)]
+    public CalibrationPupilFourierObj CalibrationPupilFourierObj { get; set; } = new CalibrationPupilFourierObj();
 }

@@ -49,14 +49,6 @@
                         <children:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
                         <children:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs5ToVisibilityConverter}}" />
                     </Grid>
-                    <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsAutoCalibrationToVisibilityConverter}}">
-                        <children:Step1View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
-                        <children:Step1View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
-                        <children:Step1View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
-                        <children:Step1View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
-                        <children:Step1View Visibility="{Binding AutoCalibrationStepIndex, Converter={StaticResource IntIs5ToVisibilityConverter}}" />
-                        <children:Review Visibility="{Binding AutoReviewCalibrationStepIndex, Converter={StaticResource IntIs6ToVisibilityConverter}}" />
-                    </Grid>
                     <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
                         <children:Review />
                     </Grid>
@@ -105,8 +97,7 @@
                                 VerticalAlignment="Center"
                                 FontSize="10"
                                 StepIndex="{Binding CalibrationStepIndex}"
-                                ItemsSource="{Binding CalibrationStepList}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                                ItemsSource="{Binding CalibrationStepList}">
                         <hc:StepBar.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding StepName}"
@@ -118,28 +109,8 @@
                     <ProgressBar Grid.Row="3"
                                  Margin="5"
                                  Style="{StaticResource ProgressBarSuccess}"
-                                 Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                  Value="{Binding CalibrationProgress, Mode=OneWay}" />
-                    <hc:StepBar Grid.Row="2"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontSize="10"
-                                StepIndex="{Binding AutoCalibrationStepIndex}"
-                                ItemsSource="{Binding AutoCalibrationStepList}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
-                        <hc:StepBar.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding StepName}"
-                                           TextWrapping="Wrap"
-                                           TextAlignment="Center" />
-                            </DataTemplate>
-                        </hc:StepBar.ItemTemplate>
-                    </hc:StepBar>
-                    <ProgressBar Grid.Row="3"
-                                 Margin="5"
-                                 Style="{StaticResource ProgressBarSuccess}"
-                                 Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                 Value="{Binding AutoCalibrationProgress, Mode=OneWay}" />
+
                 </Grid>
             </Border>
         </Grid>

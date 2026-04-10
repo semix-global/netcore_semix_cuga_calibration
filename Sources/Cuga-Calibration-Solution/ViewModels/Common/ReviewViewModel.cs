@@ -47,9 +47,6 @@ public sealed partial class ReviewViewModel(
     private byte[] _bitmapMemoryByteArray = [];
 
     [ObservableProperty]
-    private double _quality;
-
-    [ObservableProperty]
     private double _fps;
 
     #region 服务
@@ -377,16 +374,6 @@ public sealed partial class ReviewViewModel(
     #endregion 服务
 
     #region Command
-
-    [RelayCommand]
-    private async Task GetQualityAsync()
-    {
-        await Task.Run(() =>
-        {
-            using var hImage = GetBrightFieldImage();
-            Quality = GetQuality(hImage);
-        }).ConfigureAwait(false);
-    }
 
     [RelayCommand]
     private void Review(string filePath)

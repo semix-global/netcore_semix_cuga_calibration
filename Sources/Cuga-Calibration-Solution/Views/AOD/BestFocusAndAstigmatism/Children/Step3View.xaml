@@ -176,8 +176,7 @@
                                 </hc:UniformSpacingPanel>
                                 <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                         VerticalAlignment="Top"
-                                                        Spacing="10"
-                                                        Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+                                                        Spacing="10">
                                     <Button Content="Action"
                                             Command="{Binding Step3Command}"
                                             hc:IconElement.Geometry="{StaticResource DownloadGeometry}"

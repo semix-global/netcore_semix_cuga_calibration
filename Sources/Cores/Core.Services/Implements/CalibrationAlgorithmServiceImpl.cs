@@ -498,4 +498,12 @@ public sealed class CalibrationAlgorithmServiceImpl(
     {
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
+
+    public HTuple GetPictureGray(HImage image, HTuple bit, out HTuple hv_Histo)
+    {
+        //HOperatorSet.Rgb1ToGray(image, out var grayImage);
+        _algorithm.histo(image, bit, out var hv_histo);
+        hv_Histo = hv_histo;
+        return hv_Histo;
+    }
 }

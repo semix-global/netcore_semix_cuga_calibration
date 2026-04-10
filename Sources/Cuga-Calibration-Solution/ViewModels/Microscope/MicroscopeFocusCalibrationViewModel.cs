@@ -11,7 +11,6 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -125,9 +124,10 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
+
         AfViewModel.ToggleBrightFieldEnable(false);
         AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
-        if (IsRecipeCalibrate) RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
+
         return true;
     }
 
@@ -218,17 +218,14 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        await InvokeCalibrateAsync(async () =>
+        await InvokeCalibrateAsync(() =>
         {
             var result = StageViewModel.GetBrightFieldStagePosition();
             Cache.SetFindFocusPosition(result);
 
-            if (await AutomationRecipeInformationAsync(Cache.MicroscopeLensInformation.LensName) == false)
-                return false;
-
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                LensName = SelectMicroscopeFocusCacheItem.LensInformation.LensName,
+                SelectMicroscopeFocusCacheItem.LensInformation,
                 SelectMicroscopeFocusCacheItem.FindFocusPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -466,11 +463,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             microscopeFocusItemDto.LensInformation.LensName
         }), HtmlLogUniqueId.LoggingHtml());
 
-        if (!IsAutoCalibrate)
-        {
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({quality:f3}) Old Offset: ({selectReviewItemDto.Quality:f3}) Error: ({error:f3})", DialogButtonsEnum.OK,
-                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-        }
+
+        DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({quality:f3}) Old Offset: ({selectReviewItemDto.Quality:f3}) Error: ({error:f3})", DialogButtonsEnum.OK,
+            result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
         if (result == false)
             return false;
@@ -572,182 +567,4 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     }
 
     #endregion 校准
-
-    #region 自动化校准
-
-    public override void GetAutoCalibrationStep()
-    {
-        SynchronizationContextProvider.Send(() =>
-        {
-            AutoCalibrationStepList.Clear();
-            AutoCalibrationStepList.AddRange([
-                new CalibrationItemStep { StepName = "loading" },
-                .. ApplicationCookie.MicroscopeLensInformations.Select(info => new CalibrationItemStep { StepName = info.LensName }),
-                new CalibrationItemStep { StepName = "Review" }
-            ]);
-        });
-    }
-
-    public override async Task<bool> AutomationActionAsync(CancellationToken cancellationToken)
-    {
-        GetAutoCalibrationStep();
-        await base.AutomationActionAsync(cancellationToken).ConfigureAwait(false);
-        SynchronizationContextProvider.Send(MicroscopeFocusItemDtoList.Clear);
-        foreach (var (calibrationItemStep, stepIndex) in AutoCalibrationStepList.Select((step, index) => (step, index)))
-        {
-            Func<Task<bool>> autoStepAction = stepIndex switch
-            {
-                0 => async () =>
-                {
-                    if (await LoadedingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
-                    await InvokeCalibrateAsync(() =>
-                    {
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                        {
-                            Cache.AlgorithmTemplateTypeEnum
-                        }), HtmlLogUniqueId.LoggingHtml());
-                        return true;
-                    });
-                    if (await AutoStepAsync().ConfigureAwait(false) == false) return false;
-                    return await AutoNextingAsync(cancellationToken).ConfigureAwait(false);
-                }
-                ,
-                var index when index == AutoCalibrationStepList.Count - 1 => async () =>
-                {
-                    AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
-                    if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
-                    var result = await InvokeCalibrateAsync(() =>
-                    {
-                        foreach (var itemReview in ReviewList)
-                        {
-                            SelectReviewItemDto = itemReview;
-                            if (VerifyCalibration(SelectReviewItemDto, cancellationToken) == false)
-                            {
-                                DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.LensInformation.LensName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    }).ConfigureAwait(false);
-                    if (result == false) return false;
-                    AutoCalibrationStepIndex++;
-                    return true;
-                }
-                ,
-                _ => async () =>
-                {
-                    if (await AutoActionStepAsync(calibrationItemStep.StepName, cancellationToken).ConfigureAwait(false) == false)
-                    {
-                        DialogWindowProvider.ShowDialog($"Auto Calibration {calibrationItemStep.StepName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                        return false;
-                    }
-
-                    return true;
-                }
-            };
-
-            if (await autoStepAction().ConfigureAwait(false) == false) return false;
-            AutoCalibrationProgress = AutoCalibrationStepIndex / (double)AutoCalibrationStepList.Count * 100;
-        }
-
-        return true;
-    }
-
-    public override async Task<bool> AutomationRecipeInformationAsync(string microscopeName)
-    {
-        await Task.CompletedTask.ConfigureAwait(false);
-        if (IsRecipeCalibrate == false)
-            return true;
-
-        if (CalibrationRecipeDto is null)
-        {
-            DialogWindowProvider.ShowDialog("Revise wafer map is empty!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformations.Single(t => t.LensName == microscopeName);
-        SelectMicroscopeFocusCacheItem = Cache.CurrentCalibrationCacheItem;
-        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
-
-        if (CalibrationRecipeService.GetMicroscopeReticleMaskInfo(
-                CalibrationRecipeDto.ReticleMarkDto,
-                SelectMicroscopeFocusCacheItem.WaferMaskTypeEnum,
-                Cache.MicroscopeLensInformation,
-                null,
-                out var maskInfo) == false) return false;
-
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
-            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
-            originReticle,
-            maskInfo,
-            out var position);
-
-        Cache.SetFindFocusPosition(position);
-
-        StageViewModel.SetBrightFieldAbsoluteStageXy(position);
-        return true;
-    }
-
-    private async Task<bool> AutoActionStepAsync(string lensName, CancellationToken cancellationToken)
-    {
-        if (await AutomationRecipeInformationAsync(lensName) == false) return false;
-        if (await Step2CalibrateActionAsync(cancellationToken) == false) return false;
-        CalibrationStepIndex = 2;
-        if (await NextingAsync(cancellationToken) == false) return false;
-        return await AutoNextingAsync(cancellationToken);
-    }
-
-    private async Task<bool> AutoNextingAsync(CancellationToken cancellationToken)
-    {
-        await Task.Run(() =>
-        {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName;
-            AutoCalibrationStepIndex++;
-        }, cancellationToken);
-        return true;
-    }
-
-    public override async Task<bool> AutomationReviewActionAsync(CancellationToken cancellationToken)
-    {
-        GetAutoCalibrationStep();
-        await base.AutomationReviewActionAsync(cancellationToken);
-        if (await LoadedingAsync(cancellationToken) == false) return false;
-        if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
-        {
-            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        var result = false;
-        await InvokeVerifyAsync(async () =>
-        {
-            try
-            {
-                foreach (var (_, itemReview) in ReviewList.Select((t, i) => (index: i, itemReview: t)))
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    SelectReviewItemDto = itemReview;
-                    if (await AutomationRecipeInformationAsync(SelectReviewItemDto.LensInformation.LensName) == false) return false;
-                    if (VerifyCalibration(SelectReviewItemDto, cancellationToken) == false)
-                    {
-                        DialogWindowProvider.ShowDialog($"Auto Calibration Review {SelectReviewItemDto.LensInformation.LensName} Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                        return false;
-                    }
-                }
-
-                result = true;
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Review Failed! Error massage:{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-                return false;
-            }
-        });
-        AutoCalibrationProgress = (AutoCalibrationStepIndex + 1) / (double)AutoCalibrationStepList.Count * 100;
-        return result;
-    }
-
-    #endregion 自动化校准
 }

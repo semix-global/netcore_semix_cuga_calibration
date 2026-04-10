@@ -24,3 +24,4 @@ public enum OpticsYGhostModeEnum
     MicroScope,
     OD
 }
+

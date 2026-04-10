@@ -24,7 +24,7 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" Color="{StaticResource InfoBrush}">
+                <hc:Shield Color="{StaticResource InfoBrush}">
                     <hc:Shield.Style>
                         <Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield">
                             <Style.Triggers>
@@ -54,7 +54,6 @@
                 </hc:Shield>
                 <hc:Shield Subject="Microscope Centricity Step : "
                            Status="{Binding CalibrationStepName}"
-                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
@@ -66,9 +65,7 @@
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
-            <Border Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}"
-                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
                         <TextBlock Text="1. Find Position 、Template"
@@ -81,7 +78,6 @@
                              Width="275"
                              hc:InfoElement.Title="Position(um): "
                              hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="{Binding IsAutoCalibrate}"
                              Style="{StaticResource TextBoxExtend}" />
                     <view:CanvasView Width="100"
                                      Height="100"
@@ -135,14 +131,12 @@
                                 Content="Action"
                                 Command="{Binding Step1CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding Step1CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>

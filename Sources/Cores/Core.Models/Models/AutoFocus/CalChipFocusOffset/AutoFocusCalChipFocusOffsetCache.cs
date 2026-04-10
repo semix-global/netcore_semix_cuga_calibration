@@ -16,37 +16,10 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    private double _speedEcsPerSecond = 500;
 
     [ObservableProperty]
-    private Point _chuckRTFCBrightFieldMachinePosition = Point.Origin;
-
-    [ObservableProperty]
-    private int _imageWidth = 1000;
-
-    /// <summary>
-    /// 校准 chuck、dsw、haze rtfc输出的电机offset和校准结果的差值需小于该阈值 
-    /// </summary>
-    [ObservableProperty]
-    private double _motorOffsetThreshold;
-
-    /// <summary>
-    /// 验证时下发校准的结果，暗场采图图像得分和rtfc图像得分差值小于该阈值
-    /// </summary>
-    [ObservableProperty]
-    private double _verifyQualityThreshold;
-
-    /// <summary>
-    /// 电机值cuga当前配置位置，防呆用
-    /// </summary>
-    [ObservableProperty]
-    private double _originAFMotor;
-
-    /// <summary>
-    /// 电机值cuga当前配置位置，防呆用
-    /// </summary>
-    [ObservableProperty]
-    private double _originRelayMotor;
+    private double _halfEcsLength = 250;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -63,14 +36,5 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
 public sealed partial class AutoFocusCalChipFocusOffsetCacheItem : ObservableValidator
 {
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
-
-    [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
-
-    [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
-
-    [ObservableProperty]
-    private Point _calChipRTFCBrightFieldMachinePosition = Point.Origin;
+    private Point _findBrightMachinePosition = Point.Origin;
 }

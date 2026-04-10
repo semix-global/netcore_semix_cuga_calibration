@@ -25,7 +25,7 @@
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Microscope Focus Step 3: "
                            Status="{Binding CalibrationStepList[2].StepName}"
-                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                           
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
@@ -45,14 +45,6 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <hc:SearchBar x:Name="QualitySearchBar"
-                                  Text="{Binding ReviewViewModel.Quality, Mode=OneWay, StringFormat={}{0:f3}}"
-                                  Command="{Binding ReviewViewModel.GetQualityCommand}"
-                                  hc:TitleElement.TitleWidth="180"
-                                  hc:TitleElement.Title="Quality: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  IsReadOnly="True"
-                                  Style="{StaticResource SearchBarExtend}" />
                     <hc:NumericUpDown x:Name="ZLimitMinNumeric"
                                       hc:TitleElement.TitleWidth="180"
                                       hc:TitleElement.Title="Z Limit Min: "
@@ -124,13 +116,13 @@
                                 Content="Action"
                                 Command="{Binding Step2CalibrateActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding Step2CalibrateActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>

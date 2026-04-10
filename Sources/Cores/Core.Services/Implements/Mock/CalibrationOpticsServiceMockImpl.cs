@@ -8,7 +8,6 @@ using Cuga.Data.DataStruct.DTO.Swath;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
-using Cuga.Data.DataStruct.Optics;
 
 
 #if NET

@@ -1,56 +1,33 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using Cuga.Data.DataStruct.Optics;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using HalconDotNet;
 using HAlgorithm;
-using HandyControl.Interactivity;
-using Local.SQL.Cache.Providers.Bases;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.Statistics;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
-using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using ScottPlot;
-using ScottPlot.MultiplotLayouts;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
-using Generate = MathNet.Numerics.Generate;
 using Point = Net.Utilities.Models.Geometries.Point;
-using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
@@ -76,7 +53,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
     public IReadOnlyList<int> AvailableChannelIds => ApplicationCookie.CIBInformationChannelIds;
 
     [ObservableProperty]
-    private int _selectedChannelId = -1; 
+    private int _selectedChannelId = -1;
 
     private readonly Algorithm _algorithm = new();
 
@@ -291,15 +268,15 @@ public sealed partial class CollectionYGhostWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step01Async(CancellationToken cancellationToken)
     {
-       calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, true);  
-       {
+        calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, true);
+        {
             var allOpticsPaths1 = new string[7]; // 创建新数组
             var allOpticsPaths2 = new string[7]; // 创建新数组
             var allOpticsPaths3 = new string[7]; // 创建新数组
-                                                 
+
             for (int i = 1; i <= 7; i++)
             {
-                Point DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();                
+                Point DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();
                 var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 1);
                 using var darkFieldImage1 = await cibViewModel.GetPMTImageAsync(
                 ApplicationCookie.OILowProductivityInformation,
@@ -315,9 +292,37 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 cancellationToken);
 
                 var path = Path.Combine(ImageDirectory, "CH1", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                //PMT8ChPixselAfter[i - 1] = darkFieldImage1.Image.GetIntensity().Average;
                 darkFieldImage1.Image.Save(path);
                 allOpticsPaths1[i - 1] = path;
+
+                if (i == 1)
+                {
+                    YGhostListCH11 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 2)
+                {
+                    YGhostListCH12 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 3)
+                {
+                    YGhostListCH13 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 4)
+                {
+                    YGhostListCH14 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 5)
+                {
+                    YGhostListCH15 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 6)
+                {
+                    YGhostListCH16 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
+                if (i == 7)
+                {
+                    YGhostListCH17 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
+                }
 
                 CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 2);
                 using var darkFieldImage2 = await cibViewModel.GetPMTImageAsync(
@@ -337,6 +342,35 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 darkFieldImage2.Image.Save(path);
                 allOpticsPaths2[i - 1] = path;
 
+                if (i == 1)
+                {
+                    YGhostListCH21 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 2)
+                {
+                    YGhostListCH22 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 3)
+                {
+                    YGhostListCH23 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 4)
+                {
+                    YGhostListCH24 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 5)
+                {
+                    YGhostListCH25 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 6)
+                {
+                    YGhostListCH26 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+                if (i == 7)
+                {
+                    YGhostListCH27 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
+                }
+
                 CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 3);
                 using var darkFieldImage3 = await cibViewModel.GetPMTImageAsync(
                 ApplicationCookie.OILowProductivityInformation,
@@ -355,6 +389,35 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 darkFieldImage3.Image.Save(path);
                 allOpticsPaths3[i - 1] = path;
 
+                if (i == 1)
+                {
+                    YGhostListCH31 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 2)
+                {
+                    YGhostListCH32 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 3)
+                {
+                    YGhostListCH33 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 4)
+                {
+                    YGhostListCH34 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 5)
+                {
+                    YGhostListCH35 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 6)
+                {
+                    YGhostListCH36 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+                if (i == 7)
+                {
+                    YGhostListCH37 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
+                }
+
                 // 创建新的Point实例，Y坐标增加23
                 Point newPosition = new Point(DarkFieldPosition.X, DarkFieldPosition.Y + 23);
                 CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
@@ -362,17 +425,10 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 afViewModel.ToggleDarkFieldEnable(true);
             }
 
-            allOpticsPaths1[0] = "F:\\工作文档\\202601\\odd--__first\\CH11 (1).raw";
-            allOpticsPaths1[1] = "F:\\工作文档\\202601\\odd--__first\\CH11 (2).raw";
-            allOpticsPaths1[2] = "F:\\工作文档\\202601\\odd--__first\\CH11 (3).raw";
-            allOpticsPaths1[3] = "F:\\工作文档\\202601\\odd--__first\\CH11 (4).raw";
-            allOpticsPaths1[4] = "F:\\工作文档\\202601\\odd--__first\\CH11 (5).raw";
-            allOpticsPaths1[5] = "F:\\工作文档\\202601\\odd--__first\\CH11 (6).raw";
-            allOpticsPaths1[6] = "F:\\工作文档\\202601\\odd--__first\\CH11 (7).raw";
             PMT8Ch1ImagePath = allOpticsPaths1;
             PMT8Ch2ImagePath = allOpticsPaths2;
             PMT8Ch3ImagePath = allOpticsPaths3;
-        }     
+        }
 
         logger.LogHtmlInformation("Get ALL PMT Pictures", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
         {
@@ -502,7 +558,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
         }
         return null;
     }
-   
+
     private int? FindClosestXAtY(Point[] points, double targetY)
     {
         if (points == null || points.Length == 0)
@@ -526,30 +582,6 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
     public void LoadGhostData()
     {
-        YGhostListCH11 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[0]).ToArray();
-        YGhostListCH12 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[1]).ToArray();
-        YGhostListCH13 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[2]).ToArray();
-        YGhostListCH14 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[3]).ToArray();
-        YGhostListCH15 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[4]).ToArray();
-        YGhostListCH16 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[5]).ToArray();
-        YGhostListCH17 = ProcessImageAndGetPoints(PMT8Ch1ImagePath[6]).ToArray();
-
-        YGhostListCH21 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[0]).ToArray();
-        YGhostListCH22 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[1]).ToArray();
-        YGhostListCH23 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[2]).ToArray();
-        YGhostListCH24 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[3]).ToArray();
-        YGhostListCH25 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[4]).ToArray();
-        YGhostListCH26 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[5]).ToArray();
-        YGhostListCH27 = ProcessImageAndGetPoints(PMT8Ch2ImagePath[6]).ToArray();
-
-        YGhostListCH31 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[0]).ToArray();
-        YGhostListCH32 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[1]).ToArray();
-        YGhostListCH33 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[2]).ToArray();
-        YGhostListCH34 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[3]).ToArray();
-        YGhostListCH35 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[4]).ToArray();
-        YGhostListCH36 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[5]).ToArray();
-        YGhostListCH37 = ProcessImageAndGetPoints(PMT8Ch3ImagePath[6]).ToArray();
-
         double targetY = MoveDownThreshold;
         {
             // 1. 获取基准 X（来自 CH11）
@@ -591,8 +623,8 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 int offset17 = x17.Value - refX.Value;
                 YGhostListCH17 = YGhostListCH17.Select(p => new Point(p.X - offset17, p.Y)).ToArray();
             }
-        }     
-        
+        }
+
         {
             var refX = FindClosestXAtY(YGhostListCH21, targetY);
 
@@ -673,14 +705,14 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 int offset37 = x37.Value - refX.Value;
                 YGhostListCH37 = YGhostListCH37.Select(p => new Point(p.X - offset37, p.Y)).ToArray();
             }
-        }   
+        }
     }
 
-    private ObservableCollection<Point> ProcessImageAndGetPoints(string imagePath)
+    private ObservableCollection<Point> ProcessImageAndGetPoints(HImage image0)
     {
-       // using var image = new HImage(imagePath);
-        _algorithm.AutoReadRawImage(out var image0,imagePath);
-        _algorithm.RotateAndMirror(image0,out var image);
+        // using var image = new HImage(imagePath);
+        //_algorithm.AutoReadRawImage(out var image0,imagePath);
+        _algorithm.RotateAndMirror(image0, out var image);
         _algorithm.LightSpot(image, out var yValue);
         var points = new ObservableCollection<Point>();
         if (yValue?.Length > 0)
@@ -696,7 +728,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
     private int FindFirstDropPoint(Point[] points)
     {
-        if (points == null || points.Length == 0) return 0; 
+        if (points == null || points.Length == 0) return 0;
         for (int i = 1; i < points.Length; i++)
         {
             double dy = points[i].Y - points[i - 1].Y;

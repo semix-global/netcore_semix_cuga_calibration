@@ -40,7 +40,6 @@
                              hc:InfoElement.Title="Threshold: "
                              hc:TitleElement.TitleWidth="130"
                              hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="{Binding IsAutoCalibrate}"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:NumericUpDown hc:InfoElement.Title="ConcentricThreshold: "
                                       hc:TitleElement.TitleWidth="130"
@@ -67,14 +66,12 @@
                                 Content="Action"
                                 Command="{Binding VerifyActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding VerifyActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" />
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>

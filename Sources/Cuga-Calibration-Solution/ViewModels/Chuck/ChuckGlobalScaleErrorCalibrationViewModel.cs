@@ -128,12 +128,6 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
             AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
         }
 
-        if (IsRecipeCalibrate)
-        {
-            RecipeCookie.CalibrationReviseRecipeDto = CalibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
-            if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
-        }
-
         StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheBrightField.LowSite1.Location);
         return true;
     }
@@ -346,40 +340,38 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
                 Cache.WaferRadius
             }), HtmlLogUniqueId.LoggingHtml());
 
-            if (IsRecipeCalibrate == false)
+
+            // 用BuildDie的方式BuildReticle，防止取到圆外
+            var waferMapReticleBuilder = new WaferMapDieBuilder
             {
-                // 用BuildDie的方式BuildReticle，防止取到圆外
-                var waferMapReticleBuilder = new WaferMapDieBuilder
-                {
-                    DiePitchSize = new Size(Cache.DiePitchWidth * Cache.ReticleDieCountX, Cache.DiePitchHeight * Cache.ReticleDieCountY),
-                    OriginalDiePoint = baseBrightFieldPosition
-                };
+                DiePitchSize = new Size(Cache.DiePitchWidth * Cache.ReticleDieCountX, Cache.DiePitchHeight * Cache.ReticleDieCountY),
+                OriginalDiePoint = baseBrightFieldPosition
+            };
 
-                var reticles = waferMapReticleBuilder.BuildDie(new Circle(Point.Origin, Cache.WaferRadius));
+            var reticles = waferMapReticleBuilder.BuildDie(new Circle(Point.Origin, Cache.WaferRadius));
 
-                var currentColReticles = reticles
-                    .Where(t => t.Index.X == 0)
-                    .OrderBy(t => t.Index.Y).ToArray();
-                var imageCount = currentColReticles.Length;
-                Guard.IsGreaterThan(imageCount, 2);
+            var currentColReticles = reticles
+                .Where(t => t.Index.X == 0)
+                .OrderBy(t => t.Index.Y).ToArray();
+            var imageCount = currentColReticles.Length;
+            Guard.IsGreaterThan(imageCount, 2);
 
-                Cache.TopLowSitePosition = currentColReticles[^1].Rect.Point;
-                Cache.BottomLowSitePosition = currentColReticles[0].Rect.Point;
+            Cache.TopLowSitePosition = currentColReticles[^1].Rect.Point;
+            Cache.BottomLowSitePosition = currentColReticles[0].Rect.Point;
 
-                var currentRowReticles = reticles
-                    .Where(t => t.Index.Y == 0)
-                    .OrderBy(t => t.Index.X).ToArray();
-                imageCount = currentRowReticles.Length;
-                Guard.IsGreaterThan(imageCount, 2);
+            var currentRowReticles = reticles
+                .Where(t => t.Index.Y == 0)
+                .OrderBy(t => t.Index.X).ToArray();
+            imageCount = currentRowReticles.Length;
+            Guard.IsGreaterThan(imageCount, 2);
 
-                Cache.LeftLowSitePosition = currentRowReticles[0].Rect.Point;
-                Cache.RightLowSitePosition = currentRowReticles[^1].Rect.Point;
+            Cache.LeftLowSitePosition = currentRowReticles[0].Rect.Point;
+            Cache.RightLowSitePosition = currentRowReticles[^1].Rect.Point;
 
-                Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-                var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
-                if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
-            }
+            Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
 
             Logger.LogHtmlInformation("Idea Bright Field Positions", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -601,8 +593,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
 
             result = ReviewDto.IsVerified;
 
-            if (IsAutoCalibrate == false)
-                DialogWindowProvider.ShowDialog($"Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
             return result;
         });
@@ -759,207 +750,4 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(AlignmentW
     }
 
     #endregion 算法
-
-    #region 自动化校准
-
-    public override void GetAutoCalibrationStep()
-    {
-        AutoCalibrationStepList =
-        [
-            new CalibrationItemStep { StepName = "loading" },
-            new CalibrationItemStep { StepName = "Find Real Position" },
-            new CalibrationItemStep { StepName = "Review" }
-        ];
-    }
-
-    public override async Task<bool> AutomationActionAsync(CancellationToken cancellationToken)
-    {
-        GetAutoCalibrationStep();
-        await base.AutomationActionAsync(cancellationToken);
-        var result = false;
-        try
-        {
-            foreach (var stepItem in AutoCalibrationStepList.Select((t, index) => (t, index)))
-            {
-                switch (stepItem.index)
-                {
-                    case 0:
-                        if (await LoadedingAsync(cancellationToken) == false) return false;
-                        if (await NextingAsync(cancellationToken) == false) return false;
-                        await InvokeCalibrateAsync(() =>
-                        {
-                            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-                            {
-                                LowMagnification = Cache.LowMicroscopeLensInformation.LensName,
-                                HighMagnification = Cache.HighMicroscopeLensInformation.LensName
-                            }), HtmlLogUniqueId.LoggingHtml());
-                            return true;
-                        });
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 1:
-                        if (await AutomationRecipeInformationAsync("2") == false) return false;
-                        if (await Step4CalibrateActionAsync(cancellationToken) == false) return false;
-                        CalibrationStepIndex = CalibrationStepList.Count - 1;
-                        if (await NextingAsync(cancellationToken) == false) return false;
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 2:
-                        AutoReviewCalibrationStepIndex = AutoCalibrationStepList.Count - 1;
-                        if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
-                        await InvokeCalibrateAsync(async () =>
-                        {
-                            if (await VerifyCalibrationAsync(cancellationToken) == false) return false;
-                            result = true;
-                            return result;
-                        });
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-                }
-
-                AutoCalibrationProgress = AutoCalibrationStepIndex / (double)AutoCalibrationStepList.Count * 100;
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Calibration Failed! Error massage:{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-        }
-
-        return result;
-    }
-
-    public override async Task<bool> AutomationRecipeInformationAsync(string stepName)
-    {
-        await Task.CompletedTask.ConfigureAwait(false);
-        if (IsRecipeCalibrate == false)
-            return true;
-
-        if (CalibrationRecipeDto is null)
-        {
-            DialogWindowProvider.ShowDialog("Revise wafer map is empty!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        var originReticle = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel.Single(t => t.Index is { X: 0, Y: 0 });
-        var reticleRows = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
-            .Where(t => t.Index.X == 0)
-            .OrderBy(t => t.Index.Y).ToList();
-        var reticleCols = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.ReticleModel
-            .Where(t => t.Index.Y == 0)
-            .OrderBy(t => t.Index.X).ToList();
-        var reticleTop = reticleRows.ElementAt(reticleRows.Count - 2);
-        var reticleRight = reticleCols.ElementAt(reticleCols.Count - 2);
-        var reticleBottom = reticleRows.ElementAt(1);
-        var reticleLeft = reticleCols.ElementAt(1);
-
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(
-                CalibrationRecipeDto.ReticleMarkDto,
-                Cache.WaferMaskTypeEnum,
-                Cache.LowMicroscopeLensInformation,
-                productivityInformation: null, out var baseLowMaskInfo) == false) return false;
-
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
-            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
-            originReticle,
-            baseLowMaskInfo,
-            out var lowPosition);
-
-        Cache.BaseLowSiteFindPosition = lowPosition;
-
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
-            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
-            reticleTop,
-            baseLowMaskInfo,
-            out var topLowSitePosition);
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
-            reticleBottom,
-            baseLowMaskInfo,
-            out var bottomLowSitePosition);
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
-            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
-            reticleLeft,
-            baseLowMaskInfo,
-            out var leftLowSitePosition);
-        CalibrationRecipeService.GetReticleMaskBrightFieldPosition(
-            CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument,
-            reticleRight,
-            baseLowMaskInfo,
-            out var rightLowSitePosition);
-
-        Cache.TopLowSitePosition = topLowSitePosition;
-        Cache.BottomLowSitePosition = bottomLowSitePosition;
-        Cache.LeftLowSitePosition = leftLowSitePosition;
-        Cache.RightLowSitePosition = rightLowSitePosition;
-
-        Cache.LowBaseTemplateFilePath = baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
-        Cache.LowBaseTemplateImageFilePath = baseLowMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
-
-        if (CalibrationRecipeService.GetChuckReticleMaskInfo(
-                CalibrationRecipeDto.ReticleMarkDto,
-                Cache.WaferMaskTypeEnum,
-                Cache.HighMicroscopeLensInformation,
-                productivityInformation: null, out var baseHighMaskInfo) == false) return false;
-
-        Cache.HighBaseTemplateFilePath = baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateFilePath;
-        Cache.HighBaseTemplateImageFilePath = baseHighMaskInfo.RecipeBrightFieldTemplateDto.TemplateImageFilePath;
-
-        var waferMapDataInfo = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.DieBuilder.DiePitchSize;
-        Cache.DiePitchHeight = waferMapDataInfo.Height;
-        Cache.DiePitchWidth = waferMapDataInfo.Width;
-        Cache.WaferRadius = CalibrationRecipeDto.WaferDto.WaferMapCanvasDocument.Wafer.Circle.Diameter / 2;
-
-        return true;
-    }
-
-    private async Task<bool> AutoNextingAsync(CancellationToken cancellationToken)
-    {
-        await Task.Run(() =>
-        {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex].StepName;
-            AutoCalibrationStepIndex++;
-        }, cancellationToken);
-        return true;
-    }
-
-    public override async Task<bool> AutomationReviewActionAsync(CancellationToken cancellationToken)
-    {
-        GetAutoCalibrationStep();
-        await base.AutomationReviewActionAsync(cancellationToken);
-        if (await LoadedingAsync(cancellationToken) == false) return false;
-        if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
-        {
-            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        var result = false;
-        await InvokeVerifyAsync(async () =>
-        {
-            try
-            {
-                if (await AutomationRecipeInformationAsync(string.Empty) == false) return false;
-
-                if (await VerifyCalibrationAsync(cancellationToken) == false)
-                {
-                    DialogWindowProvider.ShowDialog("Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return false;
-                }
-
-                result = true;
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Review Failed! Error massage:{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-                return false;
-            }
-        });
-
-        AutoCalibrationProgress = (AutoCalibrationStepIndex + 1) / (double)AutoCalibrationStepList.Count * 100;
-        return result;
-    }
-
-    #endregion 自动化校准
 }

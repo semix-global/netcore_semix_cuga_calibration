@@ -113,4 +113,14 @@ public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
     /// Haze暗场电机值
     /// </summary>
     public double HazeMotorValue { get; set; }
+
+    /// <summary>
+    /// Undefined暗场最佳Ecs
+    /// </summary>
+    public double UndefineEcsValue { get; set; }
+
+    /// <summary>
+    /// ShinyWafer暗场最佳Ecs
+    /// </summary>
+    public double ShinyWaferEcsValue { get; set; }
 }

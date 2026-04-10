@@ -81,10 +81,13 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     private string _highSiteTemplateFilePath = string.Empty;
 
     [ObservableProperty]
-    private double _dSWAlignmentVerifyThreshold;
+    private string _verifyQualityError = string.Empty;
 
     [ObservableProperty]
-    private string _verifyQualityError = string.Empty;
+    private double _speedEcsPerSecond = 500;
+
+    [ObservableProperty]
+    private double _halfEcsLength = 250;
 
     /// <summary>
     /// BF verify清晰度得分和校准结果的清晰度差值需小于该阈值
@@ -102,29 +105,6 @@ public sealed partial class MicroscopeCalChipCacheItem : ObservableValidator
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum;
 
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = $"{nameof(StartECS)}: ")]
-    public double StartECS
-    {
-        get;
-        set => SetProperty(ref field, value, validate: true);
-    } = 1;
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = $"{nameof(StopECS)}: ")]
-    public double StopECS
-    {
-        get;
-        set => SetProperty(ref field, value, validate: true);
-    } = 1;
-
-    [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = $"{nameof(StepECS)}: ")]
-    public double StepECS
-    {
-        get;
-        set => SetProperty(ref field, value, validate: true);
-    } = 1;
-
-    #region Position
-
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CenterMachinePosition))]
     private Point _leftTopMachinePosition;
@@ -134,6 +114,4 @@ public sealed partial class MicroscopeCalChipCacheItem : ObservableValidator
     private Point _rightBottomMachinePosition;
 
     public Point CenterMachinePosition => (LeftTopMachinePosition + (Vector)RightBottomMachinePosition) / 2;
-
-    #endregion Position
 }

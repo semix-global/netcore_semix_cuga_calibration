@@ -17,9 +17,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <hc:UniformSpacingPanel Orientation="Vertical"
-                                Spacing="2"
-                                Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="Chuck Prealigner Step 7: "
                        Status="{Binding CalibrationStepList[6].StepName}"
                        Color="{StaticResource InfoBrush}" />

@@ -4,13 +4,18 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AutoFocus.CalChipFocusOffset;
+using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
+using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Hosting;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -30,12 +35,16 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "DSW Param" },
-        new() { StepName = "DSW RTFC" },
-        new() { StepName = "Haze Param" },
-        new() { StepName = "Haze RTFC" },
         new() { StepName = "Chuck Param" },
-        new() { StepName = "Chuck RTFC" }
+        new() { StepName = "Chuck AF ECS" },
+        new() { StepName = "DSW Param" },
+        new() { StepName = "DSW AF ECS" },
+        new() { StepName = "Undefine Param" },
+        new() { StepName = "Undefine AF ECS" },
+        new() { StepName = "Haze Param" },
+        new() { StepName = "Haze AF ECS" },
+        new() { StepName = "Shiny Wafer Param" },
+        new() { StepName = "Shiny Wafer AF ECS" },
     ];
 
     #region 界面相关
@@ -68,6 +77,9 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
     [ObservableProperty]
     private MicroscopeCalChipDTO _microscopeCalChip = new();
 
+    [ObservableProperty]
+    private DarkAutoFocusDTO _darkAutoFocus = new();
+
     #endregion 缓存
 
     #endregion 属性
@@ -81,6 +93,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
         if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        DarkAutoFocus = CalibrationStatusService.GetCalibration<DarkAutoFocusDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AutoFocusCalChipFocusOffsetCache>();
         Calibration = CacheProvider.GetOrDefault<AutoFocusCalChipFocusOffsetDTO>();
@@ -94,12 +107,9 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+        Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
-        //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
-        StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition == Point.Origin
-            ? MicroscopeCalChip.DSWBrightFieldMachineAffinePosition
-            : Cache.Item.CalChipRTFCBrightFieldMachinePosition));
+        StageViewModel.SetMachineAbsoluteStageXy(Cache.Item.FindBrightMachinePosition);
 
         return true;
     }
@@ -127,27 +137,50 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 return true;
 
             case 1:
-                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
-                StageViewModel.SetAbsoluteStageTheta(0);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition == Point.Origin
-                    ? MicroscopeCalChip.HazeItem.BrightFieldMachinePosition
-                    : Cache.Item.CalChipRTFCBrightFieldMachinePosition));
+                CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition == Point.Origin
+                    ? MicroscopeCalChip.DswItem.BrightFieldMachinePosition
+                    : Cache.Item.FindBrightMachinePosition));
+
                 return true;
 
             case 2:
                 return true;
 
             case 3:
-                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.CalChipRTFCBrightFieldMachinePosition == Point.Origin
-                    ? Point.Origin
-                    : StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition));
+                CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
+                StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition == Point.Origin
+                    ? MicroscopeCalChip.UndefineWaferItem.BrightFieldMachinePosition
+                    : Cache.Item.FindBrightMachinePosition));
+
                 return true;
 
             case 4:
                 return true;
 
             case 5:
+                CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition == Point.Origin
+                    ? MicroscopeCalChip.HazeItem.BrightFieldMachinePosition
+                    : Cache.Item.FindBrightMachinePosition));
+
+                return true;
+
+            case 6:
+                return true;
+
+            case 7:
+                CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
+                StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition == Point.Origin
+                    ? MicroscopeCalChip.ShinyWaferItem.BrightFieldMachinePosition
+                    : Cache.Item.FindBrightMachinePosition));
+
+                return true;
+
+            case 8:
+                return true;
+
+            case 9:
                 IsCalibrated = true;
 
                 return true;
@@ -170,20 +203,35 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 return true;
 
             case 2:
-                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-                //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition));
+                CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+                StageViewModel.SetMachineAbsoluteStageXy(Cache.Item.FindBrightMachinePosition);
                 return true;
 
             case 3:
                 return true;
 
             case 4:
-                Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition));
+                CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition));
                 return true;
 
             case 5:
+                return true;
+
+            case 6:
+                CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
+                StageViewModel.SetCalChipUndefinedBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition));
+                return true;
+
+            case 7:
+                return true;
+
+            case 8:
+                CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition));
+                return true;
+
+            case 9:
                 return true;
 
             default:
@@ -200,99 +248,197 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
     {
         return InvokeCalibrateAsync(() =>
         {
-            Cache.Item.CalChipRTFCBrightFieldMachinePosition = StageViewModel.GetMachineStagePosition();
+            Cache.Item.FindBrightMachinePosition = StageViewModel.GetMachineStagePosition();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.Item.CalChipRTFCBrightFieldMachinePosition,
+                Cache.CalChipSiteModelEnum,
+                Cache.Item.FindBrightMachinePosition,
                 Cache.MicroscopeLensInformation,
                 Cache.ProductivityInformation,
-                Cache.Item.LaserLightInformation,
-                Cache.CIBInformation,
-                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
-                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
-                   && ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation)
-                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation)
-                   && ApplicationCookie.CIBInformations.Contains(Cache.CIBInformation);
+                   && ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1Async(CancellationToken cancellationToken)
+    private async Task Step1Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () =>
+        await InvokeCalibrateAsync(async () =>
         {
-            var detectImageDirectory = ImageFileDirectory;
+            Guard.IsNotNull(CalibratingItem);
 
-            Cache.OriginAFMotor = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
-            Cache.OriginRelayMotor = OpticsViewModel.GetRelayMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum);
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.Item.CalChipRTFCBrightFieldMachinePosition,
-                Cache.OriginAFMotor,
-                Cache.OriginRelayMotor,
-                Cache.MotorOffsetThreshold,
-                detectImageDirectory
+                Cache.MicroscopeLensInformation,
+                Cache.Item.FindBrightMachinePosition,
+                Cache.HalfEcsLength,
+                Cache.SpeedEcsPerSecond
             }), HtmlLogUniqueId.LoggingHtml());
 
-            Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+            CIBViewModel.SetRTFCParam(Cache.ProductivityInformation);
+            await Task.Delay(100, cancellationToken);
 
-            try
+            if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
             {
-                var rtfcResultDTO = await CIBViewModel.RuntimeAFCalibrationAsync(
-                    Cache.ProductivityInformation,
-                    Cache.CalChipSiteModelEnum,
-                    StageCoordinateSystemEnum.Bright,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
-                    800,
-                    Cache.CIBInformation,
-                    Cache.Item.OpticsConfiguration,
-                    Cache.Item.CIBConfiguration,
-                    Cache.Item.LaserLightInformation,
-                    detectImageDirectory,
-                    HtmlLogUniqueId,
-                    cancellationToken);
-
-                switch (Cache.CalChipSiteModelEnum)
+                List<(CalChipSiteModelEnum calchip, double afMotor)> calChipAFMotors = [];
+                foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>())
                 {
-                    case CalChipSiteModelEnum.DswModel:
-                        CalibratingItem.DSWRuntimeAfCalibrationResultDTO = rtfcResultDTO;
-                        break;
-                    case CalChipSiteModelEnum.HazeModel:
-                        CalibratingItem.HazeRuntimeAfCalibrationResultDTO = rtfcResultDTO;
-                        break;
-                    case CalChipSiteModelEnum.ChuckModel:
-                        CalibratingItem.ChuckRuntimeAfCalibrationResultDTO = rtfcResultDTO;
-                        break;
-                    default:
-                        ThrowHelper.ThrowNotSupportedException();
-                        break;
+                    MicroscopeCalChip.CalChipSiteModelEnum = calChipSiteModelEnum;
+                    StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(
+                        StageViewModel.MachineToBrightFieldPosition(
+                            calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
+                                ? Cache.Item.FindBrightMachinePosition
+                                : MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition),
+                        calChipSiteModelEnum);
+
+                    AfViewModel.ToggleDarkFieldEnable(true);
+                    await Task.Delay(100, cancellationToken);
+
+                    var motorValue = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
+                    calChipAFMotors.Add((calChipSiteModelEnum, motorValue));
                 }
 
-                CalibratingItem.IsCalibrated = Math.Abs(CalibratingItem.DswToChuckMotorValue) < Cache.MotorOffsetThreshold
-                                               && Math.Abs(CalibratingItem.HazeToChuckMotorValue) < Cache.MotorOffsetThreshold;
+                if (calChipAFMotors.All(t => Math.Abs(t.afMotor - calChipAFMotors[0].afMotor) <= Constants.Tolerance) == false)
+                {
+                    Logger.LogHtmlError(
+                        "CalChip all AF motor value must be same,please check CUGA diagnosis RTFC param setting!",
+                        HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                        {
+                            AFMotor = new HtmlTable([.. calChipAFMotors.Select(t => new { t.calchip, t.afMotor })])
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    return false;
+                }
+            }
+
+            #region S曲线
+
+            StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(
+                StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition),
+                Cache.CalChipSiteModelEnum);
+
+            AfViewModel.ToggleDarkFieldEnable(true);
+            await Task.Delay(100, cancellationToken);
+
+            var averageEcs = HostEnvironment.IsDevelopment() == false
+                ? AfViewModel.GetSensorAverageEcsValue()
+                : 5600;
+
+            var startEcs = averageEcs - Cache.HalfEcsLength;
+            var endEcs = averageEcs + Cache.HalfEcsLength;
+
+            AfViewModel.SetSensorEcsValue(startEcs);
+            await Task.Delay(100, cancellationToken);
+
+            var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs,
+                Cache.SpeedEcsPerSecond,
+                TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+            var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
+            var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
+
+            CalibratingItem.CurrentItem.Ecs = ecs;
+            CalibratingItem.CurrentItem.Nsc = nsc;
+            CalibratingItem.CurrentItem.MotorValue = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
+
+            #endregion
+
+            #region 找零点区间
+
+            var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecs);
+            var nscVector = Vector<double>.Build.DenseOfEnumerable(nsc);
+
+            Vector<double> nscIntervalVector, ecsIntervalVector;
+            if (DarkAutoFocus.IsNscUseMaxValue)
+            {
+                var nscMaxIndex = nscVector.MaximumIndex();
+                var nscMinPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
+                var nscMinNegativeRightIndex =
+                    nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
+                if (DarkAutoFocus.IsNscUsePositiveSlope)
+                {
+                    nscIntervalVector = nscVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
+                    ecsIntervalVector = ecsVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
+                }
+                else
+                {
+                    nscIntervalVector = nscVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
+                    ecsIntervalVector = ecsVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
+                }
+            }
+            else
+            {
+                var nscMinIndex = nscVector.MinimumIndex();
+                var nscMaxNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
+                var nscMaxPositiveRightIndex =
+                    nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
+
+                if (DarkAutoFocus.IsNscUsePositiveSlope)
+                {
+                    nscIntervalVector = nscVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex);
+                    ecsIntervalVector = ecsVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex);
+                }
+                else
+                {
+                    nscIntervalVector = nscVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
+                    ecsIntervalVector = ecsVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
+                }
+            }
+
+            #endregion
+
+            #region 找AF焦点
+
+            if (averageEcs > ecsIntervalVector[0] && averageEcs < ecsIntervalVector[^1])
+            {
+                CalibratingItem.CurrentItem.EcsNscPoints =
+                    [.. CalibratingItem.CurrentItem.Ecs.Select((t, i) => new Point(t, CalibratingItem.CurrentItem.Nsc[i]))];
+
+                CalibratingItem.CurrentItem.EcsNscMaxMins =
+                [
+                    new Point(ecsIntervalVector[0], nscIntervalVector[0]),
+                    new Point(ecsIntervalVector[^1], nscIntervalVector[^1])
+                ];
+
+                var originEndPointIndex1 = ecsIntervalVector[nscIntervalVector.Index().Where(t => t.Item >= 0).Minima(t => t.Item).First().Index];
+                var originEndPointIndex2 = ecsIntervalVector[nscIntervalVector.Index().Where(t => t.Item < 0).Maxima(t => t.Item).First().Index];
+                CalibratingItem.CurrentItem.ECSValue = (originEndPointIndex1 + originEndPointIndex2) / 2;
+
+                #endregion
+
+                Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    averageEcs,
+                    startEcs,
+                    endEcs,
+                    Result = new HtmlQuote(CalibratingItem.CurrentItem.ToFlatnessHtmlAnonymous())
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                if (CalibrationStepIndex != CalibrationStepList.Count - 1)
+                    return true;
+
+                CalibratingItem.IsCalibrated = true;
                 Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
-                if (CalibrationStepIndex != CalibrationStepList.Count - 1) return true;
-
-                Logger.LogHtmlInformation($"Calibration {(CalibratingItem.IsCalibrated ? "Success" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                Logger.LogHtmlInformation($"Calibration {(CalibratingItem.IsCalibrated ? "Success" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    CalibratingItem.DswToChuckMotorValue,
-                    CalibratingItem.HazeToChuckMotorValue,
-                    CalibratingItem.DswToChuckEcsValue,
-                    CalibratingItem.HazeToChuckEcsValue
+                    Result = new HtmlTable([.. CalibratingItem.Results.Select(t => new { CalChipSiteMode = t.Key, AFMotor = t.Value.MotorValue, ECS = t.Value.ECSValue })])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return CalibratingItem.IsCalibrated;
             }
-            finally
-            {
-                // OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.OriginRelayMotor);
-                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(Cache.OriginAFMotor);
-            }
-        });
+
+            Logger.LogHtmlError(
+                "NSC zero point not found. Please check whether the AF motor, ECS, slope, and other related configurations are correctly set.",
+                HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                {
+                    startEcs,
+                    endEcs,
+                    averageEcs,
+                    Plot = CalibratingItem.CurrentItem.ScatterPlotControl.GetHtmlPlot2DLinesChart(0)
+                }), HtmlLogUniqueId.LoggingHtml());
+            return false;
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -300,17 +446,11 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
     {
         await InvokeVerifyAsync(async () =>
         {
-            Cache.OriginAFMotor = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
-            Cache.OriginRelayMotor = OpticsViewModel.GetRelayMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum);
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
-                Cache.VerifyQualityThreshold,
-                Cache.OriginAFMotor,
-                Cache.OriginRelayMotor,
                 Cache.CalChipSiteModelEnum,
                 Cache.MicroscopeLensInformation,
                 Cache.ProductivityInformation,
-                Cache.CIBInformation
             }), HtmlLogUniqueId.LoggingHtml());
             var errorMessageStringBuilder = new StringBuilder();
             try
@@ -323,10 +463,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var detectImageDirectory = ImageFileDirectory;
-
-                    if (calChipSiteModelEnum is not (CalChipSiteModelEnum.DswModel or CalChipSiteModelEnum.HazeModel or CalChipSiteModelEnum.ChuckModel)) continue;
-
                     var title = calChipSiteModelEnum.ToDescriptionOrString();
 
                     Cache.CalChipSiteModelEnum = calChipSiteModelEnum;
@@ -335,78 +471,23 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
                     Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                     {
-                        Cache.Item.CalChipRTFCBrightFieldMachinePosition,
-                        Cache.Item.LaserLightInformation,
-                        CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                        OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
-                        detectImageDirectory
+                        Cache.Item.FindBrightMachinePosition,
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                    //StageViewModel.SetAbsoluteStageTheta(calChipSiteModelEnum is CalChipSiteModelEnum.DswModel ? MicroscopeCalChip.DSWAlignmentDegree : 0);
-                    StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition), calChipSiteModelEnum);
-
-                    var rtfcResultDTO = calChipSiteModelEnum switch
+                    if (SelectReview.Results.TryGet(calChipSiteModelEnum, out var resultDTO) == false)
                     {
-                        CalChipSiteModelEnum.DswModel => SelectReview.DSWRuntimeAfCalibrationResultDTO,
-                        CalChipSiteModelEnum.HazeModel => SelectReview.HazeRuntimeAfCalibrationResultDTO,
-                        CalChipSiteModelEnum.ChuckModel => SelectReview.ChuckRuntimeAfCalibrationResultDTO,
-                        _ => throw new NotSupportedException()
-                    };
-
-                    if (rtfcResultDTO.IsAFServo)
-                        AfViewModel.SetDarkField(calChipSiteModelEnum, rtfcResultDTO.ECSValue, rtfcResultDTO.MotorValue);
-                    else
-                        ThrowHelper.ThrowNotSupportedException("Relay Servo is not supported.");
-                    // OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum, globalFocusOffsetDTO.RuntimeAfCalibrationResultDTO.MotorValue);
-
-                    using var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
-                        Cache.ProductivityInformation,
-                        StageCoordinateSystemEnum.Bright,
-                        StageViewModel.MachineToBrightFieldPosition(Cache.Item.CalChipRTFCBrightFieldMachinePosition),
-                        Cache.ImageWidth,
-                        Cache.CIBInformation,
-                        (true, null),
-                        (false, Cache.Item.OpticsConfiguration),
-                        (false, Cache.Item.CIBConfiguration),
-                        (false, Cache.Item.LaserLightInformation),
-                        false,
-                        cancellationToken,
-                        isCustomAFParam: true);
-
-                    var darkFieldFilePath = $"{ImageFileDirectory}\\Verify_({calChipSiteModelEnum})_Guid({HtmlLogUniqueId}).jpg";
-                    darkFieldImageDto.Image.Save(darkFieldFilePath);
-
-                    var verifyQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
-                    rtfcResultDTO.DarkFieldFilePath = darkFieldFilePath;
-
-                    var qualityError = Math.Abs(verifyQuality - rtfcResultDTO.DarkFieldQuality);
-                    var verifyResult = qualityError < Cache.VerifyQualityThreshold;
-
-                    var htmlBullet = new HtmlBullet(new
-                    {
-                        rtfcResultDTO.IsAFServo,
-                        rtfcResultDTO.ECSValue,
-                        rtfcResultDTO.MotorValue,
-                        CalibrationQuality = rtfcResultDTO.DarkFieldQuality,
-                        VerifyQuality = verifyQuality,
-                        qualityError,
-                        HtmlTab = new HtmlTab(new
-                        {
-                            Image = new HtmlImage(darkFieldFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                        })
-                    });
-                    rtfcResultDTO.DarkFieldQuality = verifyQuality;
-
-                    if (verifyResult)
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                    else
-                    {
-                        errorMessageStringBuilder.AppendLine($"{title}: Error,Quality:{qualityError}");
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation("Current calchip calibration result cache is no exit!", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                        return false;
                     }
 
-                    result = result && verifyResult;
+                    StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition), calChipSiteModelEnum);
+                    AfViewModel.SetDarkField(calChipSiteModelEnum, resultDTO.ECSValue, resultDTO.MotorValue);
+                    AfViewModel.ToggleDarkFieldEnable(true);
+
+                    await Task.Delay(5000, cancellationToken);
+
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new { CalibrationResult = new HtmlQuote(resultDTO.ToFlatnessHtmlAnonymous()) }), HtmlLogUniqueId.LoggingHtml());
+                    result = true;
                 }
 
                 Review.IsVerified = result;
@@ -423,8 +504,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
             }
             finally
             {
-                // OpticsViewModel.SetRelayMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.OriginRelayMotor);
-                AfViewModel.SetDarkFieldAutoFocusMotorAbsoluteValue(Cache.OriginAFMotor);
+                CIBViewModel.SetRTFCParam(Cache.ProductivityInformation);
             }
         }).ConfigureAwait(false);
     }

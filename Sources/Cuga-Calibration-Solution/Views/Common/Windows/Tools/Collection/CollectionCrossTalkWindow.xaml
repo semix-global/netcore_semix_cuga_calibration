@@ -92,19 +92,19 @@
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <GroupBox Header="Common Params">
                             <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">                                    
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <hc:UniformSpacingPanel Spacing="10">
-                                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                        <ComboBox Width="430"
+                                                  hc:TitleElement.Title="Productivity Information: "
                                                   hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="200"
-                                                  Width="430"
                                                   ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
                                                   Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
                                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
                                         </ComboBox>
-                                    </hc:UniformSpacingPanel>                                    
+                                    </hc:UniformSpacingPanel>
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Select OpticsIlluminationMode And ProductivityInformation"
                                                 Command="{Binding Step00Command}"

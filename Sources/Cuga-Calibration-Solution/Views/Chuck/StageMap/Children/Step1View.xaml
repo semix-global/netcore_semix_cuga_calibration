@@ -22,9 +22,7 @@
         </Grid.ColumnDefinitions>
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-            <hc:UniformSpacingPanel Orientation="Vertical"
-                                    Spacing="2"
-                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="{Binding CalibrationStepList[2].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
                            Status="{Binding CalibrationStepList[2].StepName}"
                            Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}"
@@ -110,9 +108,7 @@
                                      BackgroundImage="{Binding Cache.TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
                 </hc:UniformSpacingPanel>
             </Border>
-            <Border Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}"
-                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
