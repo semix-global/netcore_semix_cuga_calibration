@@ -136,7 +136,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
             offsetPoint = new Point(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
 
             var size = image.GetSize();
-            markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
+            markPoint = (Point)((Size)size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
             return true;
         }
 
@@ -167,7 +167,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         offsetPoint = new Point(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
 
         var size = image.GetSize();
-        markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
+        markPoint = (Point)((Size)size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
 
         return true;
     }

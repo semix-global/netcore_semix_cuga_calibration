@@ -460,7 +460,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                     {
                                         cancellationToken.ThrowIfCancellationRequested();
 
-                                        var channelIdTargetPMTValue = item.HazeTargetPMTValues.GetOrAdd(channelId, itemItems.Average(t => t.HazeItems[times].PMTValue));
+                                        var pmtValue = itemItems.Average(t => t.HazeItems[times].PMTValue);
+                                        var channelIdTargetPMTValue = item.HazeTargetPMTValues.GetOrAdd(channelId, new Lazy<double>(() => pmtValue));
 
                                         foreach (var itemItem in itemItems)
                                         {

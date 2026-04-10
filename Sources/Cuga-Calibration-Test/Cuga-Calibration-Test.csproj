@@ -73,7 +73,7 @@
         </Resource>
         <None Include="..\Cuga-Calibration-Solution\Assets\Data\*.*">
             <Link>Assets\Data\%(Filename)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

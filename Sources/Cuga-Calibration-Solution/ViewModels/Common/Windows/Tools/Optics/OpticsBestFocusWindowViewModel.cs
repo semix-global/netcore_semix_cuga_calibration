@@ -241,7 +241,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 var darkFieldRawScanImage = new DarkFieldRawScanImageDTO
                 {
                     CIBInformation = cibInformation,
-                    Size = (SizeI)RawImageFactory.GetSize(fileName).Size,
+                    Size = (SizeI)RAWImageFactory.GetSize(fileName).Size,
                     RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,
                     RawImageFilePath = fileName,
                     IsKeepRawImageCIBProfileModeEnum = Cache.IsKeepRawImageCIBProfileModeEnum

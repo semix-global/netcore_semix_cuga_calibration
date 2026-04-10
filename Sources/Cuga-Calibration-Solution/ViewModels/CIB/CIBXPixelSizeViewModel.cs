@@ -547,7 +547,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             using var fileSteam = File.OpenRead(CalibratingItem.RawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
-            var (size, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
+            var (size, bodyBytesStartIndex, bodyBytesLength) = RAWImageFactory.GetSize(binaryReader);
             var (_, heightPixel) = (SizeI)size;
             var heightPixelByteLength = heightPixel * 2;
 
@@ -855,7 +855,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 using var fileSteam = File.OpenRead(selectedReviewItem.VerifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
-                var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RawImageFactory.GetSize(binaryReader);
+                var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RAWImageFactory.GetSize(binaryReader);
                 var (_, heightPixel) = (SizeI)verifySize;
                 var heightPixelByteLength = heightPixel * 2;
 
@@ -1005,8 +1005,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         {
             await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-            using var image = RawImageFactory.CreateImage(buffer, sizeI);
-            using var resultImage = Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog ? image.RAW12BitsPerPixelLogToLinear() : image.Clone();
+            using var resultImage = RAWImageFactory.CreateImage(buffer, sizeI, Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog);
 
             var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, resultImage, templateId, out var matchPoint, out _, out var score, out _);
 

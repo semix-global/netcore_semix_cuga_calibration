@@ -514,7 +514,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var pmtIdTargetPixelValue = CalibratingItem.TargetPixelValues.GetOrAdd(pmtId, itemItems.Single(t => t.CIBInformation.ChannelId == CalibrationSetting.SettingCommonParam.MainCIBInformation.ChannelId).Items[times].HorizontalProjectMinPixel);
+                        var horizontalProjectMinPixel = itemItems.Single(t => t.CIBInformation.ChannelId == CalibrationSetting.SettingCommonParam.MainCIBInformation.ChannelId).Items[times].HorizontalProjectMinPixel;
+                        var pmtIdTargetPixelValue = CalibratingItem.TargetPixelValues.GetOrAdd(pmtId, new Lazy<double>(() => horizontalProjectMinPixel));
 
                         foreach (var itemItem in itemItems)
                         {

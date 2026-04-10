@@ -35,6 +35,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using Net.Utilities.Models.Extensions;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Range = ScottPlot.Range;
 using Vector = Net.Utilities.Models.Geometries.Vector;
@@ -360,12 +361,12 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
             var (idealMatrix, valueIsOkMatrix, valueMatrix) = _currentStageMapDto.GetStageMapBilinearArray();
 
             var xResult = BinarySearch.TryValueIndexRange(
-                [.. MatrixUtils.Row(idealMatrix, 0).Select(tt => tt.X)],
+                [.. idealMatrix.Row(0).Select(tt => tt.X)],
                 SearchPoint.X,
                 out var startColumnIndex,
                 out var endColumnIndex); // x方向寻找行
             var yResult = BinarySearch.TryValueIndexRange(
-                [.. MatrixUtils.Column(idealMatrix, 0).Select(tt => tt.Y)],
+                [.. idealMatrix.Column(0).Select(tt => tt.Y)],
                 SearchPoint.Y,
                 out var startRowIndex,
                 out var endRowIndex); // y方向寻找列

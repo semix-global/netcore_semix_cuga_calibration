@@ -168,11 +168,11 @@ public class VSharpTest
 
         #region Mapping VShape
 
-        using var originImage = RawImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}");
-        var originHorizontalProjects = isReverse ? originImage.GetHorizontalProjects().Reverse().ToArray() : originImage.GetHorizontalProjects();
+        using var originImage = RAWImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}", false);
+        var originHorizontalProjects = isReverse ? originImage.GetHorizontalProjects().AsEnumerable().Reverse().ToArray() : originImage.GetHorizontalProjects();
 
         using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
-        var lineHorizontalProjects = isReverse ? lineImage.GetHorizontalProjects().Reverse().ToArray() : lineImage.GetHorizontalProjects();
+        var lineHorizontalProjects = isReverse ? lineImage.GetHorizontalProjects().AsEnumerable().Reverse().ToArray() : lineImage.GetHorizontalProjects();
 
         var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. lineHorizontalProjects])).ToArray();
         var smoothImageHorizontalProjectPoints = smoothImageHorizontalProjects.ToPoints();
@@ -184,9 +184,9 @@ public class VSharpTest
             {
                 var (vStartIndex, vMiddleIndex, vStopIndex) = t;
 
-                return (VStartIndex: (int)Math.Clamp(Math.Floor(prescanToImageIndexMappings[vStartIndex].Y), 0, lineHorizontalProjects.Count - 1),
-                    VMiddleIndex: (int)Math.Clamp(Math.Round(prescanToImageIndexMappings[vMiddleIndex].Y), 0, lineHorizontalProjects.Count - 1),
-                    VStopIndex: (int)Math.Clamp(Math.Ceiling(prescanToImageIndexMappings[vStopIndex].Y), 0, lineHorizontalProjects.Count - 1));
+                return (VStartIndex: (int)Math.Clamp(Math.Floor(prescanToImageIndexMappings[vStartIndex].Y), 0, lineHorizontalProjects.Length - 1),
+                    VMiddleIndex: (int)Math.Clamp(Math.Round(prescanToImageIndexMappings[vMiddleIndex].Y), 0, lineHorizontalProjects.Length - 1),
+                    VStopIndex: (int)Math.Clamp(Math.Ceiling(prescanToImageIndexMappings[vStopIndex].Y), 0, lineHorizontalProjects.Length - 1));
             }).ToArray();
         var vSharps = imageRegions
             .Select(t =>
@@ -227,7 +227,7 @@ public class VSharpTest
         var mappingList = new List<AODUniformityDTO.Mapping>();
 
         var linearSpline = LinearSpline.InterpolateSorted([.. imageHorizontalProjectMinIndexes], [.. mappingMinIndexes]);
-        for (var i = 0; i < lineHorizontalProjects.Count; i++)
+        for (var i = 0; i < lineHorizontalProjects.Length; i++)
         {
             var mappingIndex = linearSpline.Interpolate(i);
 
@@ -436,7 +436,7 @@ public class VSharpTest
     {
         Guard.IsGreaterThan(segmentCount, 4);
 
-        using var originImage = RawImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}");
+        using var originImage = RAWImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}", false);
         var originHorizontalProjects = originImage.GetHorizontalProjects();
 
         using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
@@ -450,7 +450,7 @@ public class VSharpTest
             0d,
             segmentCount,
             Generate.LinearRangeInt32(0, segmentCount - 1),
-            lineHorizontalProjects.Count);
+            lineHorizontalProjects.Length);
         var startIndex = vShapeWindowBySegments.Regions[0].VMiddleIndex;
         var stopIndex = vShapeWindowBySegments.Regions[^1].VMiddleIndex;
 

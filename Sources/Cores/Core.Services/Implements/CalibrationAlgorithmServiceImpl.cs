@@ -302,7 +302,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
                 return false;
             }
 
-            var offset = markPoint - (Point)(size / 2d);
+            var offset = markPoint - (Point)((Size)size / 2d);
             offsetPoint = new Point(offset.X, -offset.Y);
 
             return true;
@@ -389,7 +389,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
             var size = scaleImageTo8Bit.GetSize();
             markPoint = new Point(xHTuple.D, yHTuple.D);
 
-            var offset = markPoint - (Point)(size / 2d);
+            var offset = markPoint - (Point)((Size)size / 2d);
             offsetPoint = new Point(offset.X, -offset.Y);
 
             return true;

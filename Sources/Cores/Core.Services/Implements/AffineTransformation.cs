@@ -8,6 +8,7 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -1202,7 +1203,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
             }
         }
 
-        return new HtmlPlot3DChart(MatrixUtils.ToArrayByRow(point3DMatrix), title, HtmlPlot3DType.Surface);
+        return new HtmlPlot3DChart(point3DMatrix.ToArrayByRow(), title, HtmlPlot3DType.Surface);
     }
 
     private static Point[] ToPoints(

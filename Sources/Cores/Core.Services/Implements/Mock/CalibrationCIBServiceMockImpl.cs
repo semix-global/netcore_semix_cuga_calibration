@@ -197,9 +197,8 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         for (var i = 0; i < results.Length; i++)
         {
             var cibInformation = cibInformations[i];
-
-            var image = RawImageFactory.CreateImage(bytes);
-            var size = (SizeI)image.GetSize();
+            var (size, _, _) = RAWImageFactory.GetSize(bytes);
+            
             results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 
@@ -223,8 +222,8 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
         for (var i = 0; i < results.Length; i++)
         {
-            var image = RawImageFactory.CreateImage(bytes);
-            var size = (SizeI)image.GetSize();
+            var (size, _, _) = RAWImageFactory.GetSize(bytes);
+
             results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 
@@ -251,11 +250,9 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         for (var i = 0; i < results.Length; i++)
         {
             var cibInformation = cibInformations[i];
+            var (size, _, _) = RAWImageFactory.GetSize(binaryReader);
 
-            var (size, _, _) = RawImageFactory.GetSize(binaryReader);
-            var sizeI = (SizeI)size;
-
-            results[i] = new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = sizeI, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum };
+            results[i] = new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results));
@@ -280,9 +277,8 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         for (var i = 0; i < results.Length; i++)
         {
             var cibInformation = cibInformations[i];
-
-            var image = RawImageFactory.CreateImage(bytes);
-            var size = (SizeI)image.GetSize();
+            var (size, _, _) = RAWImageFactory.GetSize(bytes);
+            
             results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _xzSyncMockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 

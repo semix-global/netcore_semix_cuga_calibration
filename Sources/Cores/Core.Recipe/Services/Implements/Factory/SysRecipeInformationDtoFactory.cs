@@ -1,11 +1,11 @@
 using Core.Recipe.Services.Interfaces.Factory;
 using Core.Utilities;
-using Local.SQL.Cache.Providers.Helpers;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using System.IO;
+using Net.Utilities.Helpers.Helpers.Files;
 
 namespace Core.Recipe.Services.Implements.Factory;
 
@@ -32,7 +32,5 @@ public class SysRecipeInformationDtoFactory(IOptions<ApplicationSetting> options
         return cloned;
     }
 
-    private string BuildConnectionString(string recipeName) =>
-        SQLiteHelper.GetConnectionString(
-            Path.Combine(_settings.NosqlDbDataSourceDirectory, recipeName, _settings.RecipeDBName));
+    private string BuildConnectionString(string recipeName) => SQLiteHelper.GetConnectionString(Path.Combine(_settings.NosqlDbDataSourceDirectory, recipeName, _settings.RecipeDBName));
 }

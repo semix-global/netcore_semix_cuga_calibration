@@ -397,7 +397,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     cancellationToken.ThrowIfCancellationRequested();
 
                                     var imageHorizontalProjectsVector = Vector<double>.Build.Dense([.. itemItem.Items[times].ImageHorizontalProjects]);
-                                    var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
+                                    var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, new Lazy<double>(imageHorizontalProjectsVector.Average));
 
                                     itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
                                     itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;

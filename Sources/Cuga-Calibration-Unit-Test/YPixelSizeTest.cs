@@ -4,6 +4,7 @@ using AwesomeAssertions;
 using Core.Utilities;
 using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Xunit;
 
 #if YPixelSizeTest
@@ -23,7 +24,7 @@ public sealed class YPixelSizeTest
     [Fact]
     public void Test()
     {
-        using var originImage = RawImageFactory.CreateImage(@"Assets\YPixelSize\20260227_2486_0_0_1_short_001000_PMT13-CH3_13.raw");
+        using var originImage = RAWImageFactory.CreateImage(@"Assets\YPixelSize\20260227_2486_0_0_1_short_001000_PMT13-CH3_13.raw", false);
 
         Algorithm.InvertTransformPatchImage128(originImage, out var expectedLinearImage);
         using var _0 = originImage;

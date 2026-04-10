@@ -32,6 +32,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
 using System.Text;
+using Core.Models.Enums.CIB;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -725,7 +726,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
                 var bytes = File.ReadAllBytes(bestFocusChannelItems.RawFilePath);
-                using var image = RawImageFactory.CreateImage(bytes);
+                using var image = RAWImageFactory.CreateImage(bytes, Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog);
                 image.Save(originImageFilePath);
 
                 var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(image);
