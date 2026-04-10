@@ -22,7 +22,7 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public OpticsRelayCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new OpticsRelayCacheItem());
+    public OpticsRelayCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new Lazy<OpticsRelayCacheItem>(() => new OpticsRelayCacheItem()));
 }
 
 public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase

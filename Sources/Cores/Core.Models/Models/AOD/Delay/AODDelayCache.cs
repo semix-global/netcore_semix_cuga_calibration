@@ -17,7 +17,7 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AODDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, new AODDelayCacheItem());
+    public AODDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<AODDelayCacheItem>(() => new AODDelayCacheItem()));
 }
 
 public sealed partial class AODDelayCacheItem : CalibrationCacheBase

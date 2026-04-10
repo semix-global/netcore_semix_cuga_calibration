@@ -48,7 +48,7 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBIlluminationProfileCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBIlluminationProfileCacheItem());
+    public CIBIlluminationProfileCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBIlluminationProfileCacheItem>(() => new CIBIlluminationProfileCacheItem()));
 }
 
 public sealed partial class CIBIlluminationProfileCacheItem : CalibrationCacheBase

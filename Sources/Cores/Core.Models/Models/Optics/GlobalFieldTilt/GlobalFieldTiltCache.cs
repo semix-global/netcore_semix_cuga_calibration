@@ -27,7 +27,7 @@ public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public GlobalFieldTiltCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new GlobalFieldTiltCacheItem());
+    public GlobalFieldTiltCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new Lazy<GlobalFieldTiltCacheItem>(() => new GlobalFieldTiltCacheItem()));
 
     [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um

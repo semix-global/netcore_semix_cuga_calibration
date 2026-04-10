@@ -117,7 +117,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
         foreach (var (channelId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);

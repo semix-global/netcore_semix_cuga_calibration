@@ -29,7 +29,7 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBLineCentricityCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBLineCentricityCacheItem());
+    public CIBLineCentricityCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBLineCentricityCacheItem>(() => new CIBLineCentricityCacheItem()));
 }
 
 public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase

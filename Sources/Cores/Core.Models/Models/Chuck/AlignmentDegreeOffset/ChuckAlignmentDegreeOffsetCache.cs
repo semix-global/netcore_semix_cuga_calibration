@@ -35,7 +35,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public ChuckAlignmentDegreeOffsetCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new ChuckAlignmentDegreeOffsetCacheItem());
+    public ChuckAlignmentDegreeOffsetCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new Lazy<ChuckAlignmentDegreeOffsetCacheItem>(() => new ChuckAlignmentDegreeOffsetCacheItem()));
 
     [ObservableProperty]
     private double _nccTypeTemplateMatchScoreThreshold = 0.8;

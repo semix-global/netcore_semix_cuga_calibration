@@ -52,7 +52,7 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AODUniformityCacheItem Item => Items.GetOrAdd((ProductivityInformation, LaserLightInformation), new AODUniformityCacheItem());
+    public AODUniformityCacheItem Item => Items.GetOrAdd((ProductivityInformation, LaserLightInformation), new Lazy<AODUniformityCacheItem>(() => new AODUniformityCacheItem()));
 }
 
 public sealed partial class AODUniformityCacheItem : CalibrationCacheBase

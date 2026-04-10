@@ -35,7 +35,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public MicroscopeCalChipDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, new MicroscopeCalChipDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
+    public MicroscopeCalChipDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, new Lazy<MicroscopeCalChipDTOItem>(() => new MicroscopeCalChipDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum }));
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]

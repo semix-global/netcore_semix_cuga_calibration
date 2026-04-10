@@ -22,7 +22,7 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AODAlignmentCacheItem Item => Items.GetOrAdd(ProductivityInformation, new AODAlignmentCacheItem());
+    public AODAlignmentCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<AODAlignmentCacheItem>(() => new AODAlignmentCacheItem()));
 }
 
 public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase

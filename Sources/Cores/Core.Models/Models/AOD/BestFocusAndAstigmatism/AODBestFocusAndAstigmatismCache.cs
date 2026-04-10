@@ -30,7 +30,7 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AODBestFocusAndAstigmatismCacheItem Item => Items.GetOrAdd((ProductivityInformation, ApodizationModeEnum), new AODBestFocusAndAstigmatismCacheItem());
+    public AODBestFocusAndAstigmatismCacheItem Item => Items.GetOrAdd((ProductivityInformation, ApodizationModeEnum), new Lazy<AODBestFocusAndAstigmatismCacheItem>(() => new AODBestFocusAndAstigmatismCacheItem()));
 
     [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um

@@ -53,7 +53,7 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBLightMatchingCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBLightMatchingCacheItem());
+    public CIBLightMatchingCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBLightMatchingCacheItem>(() => new CIBLightMatchingCacheItem()));
 }
 
 public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase

@@ -294,7 +294,7 @@ public partial class AODUniformityDTO
 
         foreach (var (channelId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
 
             try
             {
