@@ -1242,10 +1242,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             }
 
             SetBestY1Y2Y3Values(selectItemDto, Cache.DefaultSpeedXValue, cancellationToken);
-            if (!IsAutoCalibrate)
-            {
-                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-            }
+
+            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }
 
         return result;
@@ -2014,126 +2012,4 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
     #endregion 校准
 
-    #region 自动化校准
-
-    public override void GetAutoCalibrationStep()
-    {
-        AutoCalibrationStepList =
-        [
-            new CalibrationItemStep { StepName = "Loading" },
-            new CalibrationItemStep { StepName = "Y Positive And Negative Gains" },
-            new CalibrationItemStep { StepName = "Y Positive And Negative HPR" },
-            new CalibrationItemStep { StepName = "Review" }
-        ];
-    }
-
-    public override async Task<bool> AutomationActionAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            GetAutoCalibrationStep();
-            await base.AutomationActionAsync(cancellationToken);
-            var result = false;
-            foreach (var stepItem in AutoCalibrationStepList.Select((t, index) => (t, index)))
-            {
-                switch (stepItem.index)
-                {
-                    case 0:
-                        if (await LoadedingAsync(cancellationToken) == false) return false;
-                        if (await Step0CalibrateActionAsync(cancellationToken) == false) return false;
-                        if (await NextingAsync(cancellationToken) == false) return false;
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 1:
-                        if (await Step1CalibrateActionAsync(cancellationToken) == false) return false;
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 2:
-                        if (await Step2CalibrateActionAsync(cancellationToken) == false) return false;
-                        if (await NextingAsync(cancellationToken) == false) return false;
-                        if (await AutoNextingAsync(cancellationToken) == false) return false;
-                        break;
-
-                    case 3:
-                        if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false) return false;
-                        await InvokeCalibrateAsync(async () =>
-                        {
-                            if (SelectReviewItemDto is not null && await VerifyCaibrationAsync(SelectReviewItemDto, cancellationToken) == false)
-                            {
-                                DialogWindowProvider.ShowDialog("Auto Calibration Review  Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                                return false;
-                            }
-
-                            result = true;
-                            return result;
-                        });
-                        AutoCalibrationStepIndex++;
-                        break;
-
-                    default:
-                        break;
-                }
-
-                AutoCalibrationProgress = AutoCalibrationStepIndex / (double)AutoCalibrationStepList.Count * 100;
-            }
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Auto Calibration Error!");
-            return false;
-        }
-    }
-
-    private async Task<bool> AutoNextingAsync(CancellationToken cancellationToken)
-    {
-        await Task.Run(() =>
-        {
-            CalibrationStepName = AutoCalibrationStepList[AutoCalibrationStepIndex + 1].StepName.ToString();
-            AutoCalibrationStepIndex++;
-            CalibrationStepIndex++;
-        }, cancellationToken);
-        return true;
-    }
-
-    public override async Task<bool> AutomationReviewActionAsync(CancellationToken cancellationToken)
-    {
-        GetAutoCalibrationStep();
-        await base.AutomationReviewActionAsync(cancellationToken);
-        if (await LoadedingAsync(cancellationToken) == false) return false;
-        if (await ReviewingAsync(cancellationToken).ConfigureAwait(false) == false)
-        {
-            DialogWindowProvider.ShowDialog("Please Calibration!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
-        var result = false;
-        await InvokeVerifyAsync(async () =>
-        {
-            try
-            {
-                if (await VerifyCaibrationAsync(SelectReviewItemDto!, cancellationToken) == false)
-                {
-                    DialogWindowProvider.ShowDialog("Auto Calibration Review Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return false;
-                }
-
-                result = true;
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Review Failed! Error massage:{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-                return false;
-            }
-        });
-
-        AutoCalibrationProgress = (AutoCalibrationStepIndex + 1) / (double)AutoCalibrationStepList.Count * 100;
-        return result;
-    }
-
-    #endregion 自动化校准
 }

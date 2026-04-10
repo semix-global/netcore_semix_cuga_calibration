@@ -24,9 +24,7 @@
                 <RowDefinition Height="5" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <hc:UniformSpacingPanel Orientation="Vertical"
-                                    Spacing="2"
-                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 2: "
                            Status="{Binding CalibrationStepList[1].StepName}"
                            Color="{StaticResource InfoBrush}" />

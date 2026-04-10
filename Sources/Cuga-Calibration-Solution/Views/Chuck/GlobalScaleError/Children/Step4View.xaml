@@ -24,7 +24,6 @@
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                     <hc:Shield Subject="Global Scale Error Step 5: "
                                Status="{Binding CalibrationStepList[7].StepName}"
-                               Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                Color="{StaticResource InfoBrush}" />
                 </hc:UniformSpacingPanel>
 
@@ -67,8 +66,7 @@
                                  Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
-                                                Spacing="10"
-                                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}">
+                                                Spacing="10">
                             <Button x:Name="ActionButton"
                                     Content="Action"
                                     Command="{Binding Step4CalibrateActionCommand}"

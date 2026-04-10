@@ -24,7 +24,6 @@
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Collect Polarization Calibration Step 7: "
                            Status="{Binding CalibrationStepList[6].StepName}"
-                           Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Find P Polarization Position Of CH2 NDF: "
@@ -94,13 +93,11 @@
                                 Content="Action"
                                 Command="{Binding Step6Command}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding Step6CancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>

@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Events;
 using Core.Models.Extensions;
 using Core.Models.Helper;
-using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
@@ -39,7 +38,6 @@ using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
-using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Ads;
 using CugaCalibration.ViewModels.AOD;
@@ -68,7 +66,6 @@ using Net.Utilities.WPF.MVVM.Events;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels;
 
@@ -106,18 +103,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     [ObservableProperty]
     private CalibrationSetting _calibrationSetting;
 
-    [ObservableProperty]
-    private ObservableCollection<(string, string)> _selectReviewList = [];
-
-    [ObservableProperty]
-    private ObservableCollection<CalibrationItemStep> _calibrationStepList = [];
-
-    /// <summary>
-    /// 校准步骤索引
-    /// </summary>
-    [ObservableProperty]
-    private int _calibrationStepIndex = -1;
-
     #endregion 界面显示属性
 
     #region 控制按钮
@@ -143,21 +128,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     private bool _isNextEnable;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(AutoCalibrateCommand))]
-    [NotifyCanExecuteChangedFor(nameof(AutoReviewCommand))]
-    private bool _isAutoCalibrateEnable;
-
-    [ObservableProperty]
     private bool _isEnable = true;
-
-    [ObservableProperty]
-    private bool _isAutoCalibrate;
-
-    [ObservableProperty]
-    private double _autoCalibrationProgress;
-
-    [ObservableProperty]
-    private bool _autoCalibrationIsRunning = true;
 
     #endregion 控制按钮
 
@@ -274,91 +245,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         return ActiveItem?.NextAsync() ?? Task.CompletedTask;
     }
 
-    [RelayCommand(CanExecute = nameof(IsAutoCalibrateEnable))]
-    private async Task AutoCalibrateAsync(ObservableCollection<(string, string)> selectReviewList)
-    {
-        IsAutoCalibrateEnable = false;
-        await Task.Run(async () =>
-        {
-            if (UpdateWaferMap() == false)
-            {
-                _dialogWindowProvider.ShowDialog("Update WaferMap Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
-
-            CalibrationStepIndex = 0;
-            foreach (var (spaceName, _) in selectReviewList)
-            {
-                AutoCalibrationIsRunning = false;
-                var abstractCalibrationViewModel = HostApplication.GetRequiredService<CalibrationViewModelBase>(spaceName);
-                ActiveItem = abstractCalibrationViewModel;
-                if (ActiveItem is not null)
-                {
-                    ActiveItem.IsAutoCalibrate = IsAutoCalibrate;
-                    ActiveItem.IsRecipeCalibrate = IsAutoCalibrate;
-                    ActiveItem.CalibrationStepIndex = 0;
-                    ActiveItem.AutoCalibrationStepIndex = 0;
-                    ActiveItem.AutoCalibrationProgress = 0d;
-                    if (await ActiveItem.AutoCalibrateAsync(ActiveItem) == false) return;
-                    CalibrationStepIndex++;
-                    AutoCalibrationProgress = CalibrationStepIndex - 1 / (double)selectReviewList.Count * 100d;
-                }
-            }
-        });
-        AutoCalibrationIsRunning = true;
-        IsEnable = true;
-        IsAutoCalibrateEnable = true;
-    }
-
-    [RelayCommand(CanExecute = nameof(IsAutoCalibrateEnable))]
-    private async Task AutoReviewAsync(ObservableCollection<(string, string)> selectReviewList)
-    {
-        IsAutoCalibrateEnable = false;
-        await Task.Run(async () =>
-        {
-            if (RecipeCookie.CalibrationRecipeDto is null)
-            {
-                _dialogWindowProvider.ShowDialog("Applied recipe is empty! Please select a recipe!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
-
-            if (selectReviewList.Count == 0)
-            {
-                _dialogWindowProvider.ShowDialog("Please select a review ", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
-
-            if (UpdateWaferMap() == false)
-            {
-                _dialogWindowProvider.ShowDialog("Update WaferMap Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
-
-            CalibrationStepIndex = 0;
-            foreach (var (spaceName, _) in selectReviewList)
-            {
-                AutoCalibrationIsRunning = false;
-                IsEnable = false;
-                var abstractCalibrationViewModel = HostApplication.GetRequiredService<CalibrationViewModelBase>(spaceName);
-                ActiveItem = abstractCalibrationViewModel;
-                if (ActiveItem is not null)
-                {
-                    ActiveItem.IsAutoCalibrate = IsAutoCalibrate;
-                    ActiveItem.IsRecipeCalibrate = IsAutoCalibrate;
-                    ActiveItem.CalibrationStepIndex = 0;
-                    ActiveItem.AutoCalibrationStepIndex = 0;
-                    ActiveItem.AutoCalibrationProgress = 0d;
-                    if (await ActiveItem.AutoReviewAsync(ActiveItem) == false) return;
-                    CalibrationStepIndex++;
-                    AutoCalibrationProgress = CalibrationStepIndex / (double)selectReviewList.Count * 100d;
-                }
-            }
-        });
-        IsAutoCalibrateEnable = true;
-        AutoCalibrationIsRunning = true;
-        IsEnable = true;
-    }
-
     [RelayCommand]
     private void OpenCalibration(string viewModel)
     {
@@ -392,27 +278,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         {
             LoadCalibrationStatus();
         }
-    }
-
-    [RelayCommand]
-    private void HandleSelectionChanged(ObservableCollection<(string, string)> selectReviewList)
-    {
-        CalibrationStepList.Clear();
-        CalibrationStepIndex = -1;
-        foreach (var (_, name) in selectReviewList)
-        {
-            var calibrationItem = new CalibrationItemStep { StepName = name };
-            CalibrationStepList.Add(calibrationItem);
-        }
-
-        if (selectReviewList.Count == 0)
-        {
-            IsAutoCalibrateEnable = false;
-            return;
-        }
-        else IsAutoCalibrateEnable = true;
-
-        SelectReviewList = selectReviewList;
     }
 
     [RelayCommand]
@@ -464,7 +329,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                             LoadCalibrationStatus();
 
-
                             break;
                     }
 
@@ -511,39 +375,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     }
 
     [RelayCommand]
-    private async Task OpenIsCheckedMenuAsync(string menuName)
-    {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(menuName)) return;
-            if (menuName == nameof(CalibrationTypeEnum.AutoCalibration))
-            {
-                await CancelAsync();
-                if (!IsAutoCalibrate)
-                {
-                    IsAutoCalibrateEnable = IsAutoCalibrate;
-                    if (ApplicationCookie.CalibrationMenu.ChildList.Count > 0)
-                    {
-                        foreach (var itemChildList in ApplicationCookie.CalibrationMenu.ChildList)
-                        {
-                            foreach (var x in itemChildList.ChildList) x.IsSelected = false;
-                        }
-                    }
-                }
-
-                _contextProvider.Post(() => { _messenger.Send(ToggleAutoCalibrateEventFactory.RefreshAutoCalibrateStatus(IsAutoCalibrate)); });
-            }
-
-            CalibrationStepIndex = -1;
-            SelectReviewList.Clear();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "{@Name}: Load Menu View({@ViewModel}) Failed", nameof(menuName), menuName);
-        }
-    }
-
-    [RelayCommand]
     private void ShowLog()
     {
         var logWindowViewModel = HostApplication.GetRequiredService<LogWindowViewModel>();
@@ -580,20 +411,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     public void Receive(PopupWindowEvent message)
     {
         IsEnable = message.IsPopupWindowEnable;
-    }
-
-    private bool UpdateWaferMap()
-    {
-        try
-        {
-            RecipeCookie.CalibrationReviseRecipeDto = _calibrationRecipeService.GetCorrectWaferMapByOffset(RecipeCookie.CalibrationRecipeDto, true);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Update wafer map failed");
-            return false;
-        }
     }
 
     private void LoadCalibrationStatus()

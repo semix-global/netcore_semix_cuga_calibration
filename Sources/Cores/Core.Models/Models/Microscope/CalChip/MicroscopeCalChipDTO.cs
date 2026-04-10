@@ -28,7 +28,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+    private CalChipSiteModelEnum _calChipSiteModelEnum;
 
     public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>> Results { get; init; } = [];
 
@@ -64,35 +64,25 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
     [ObservableProperty]
     private Point _dSWBrightFieldMachineAffinePosition;
 
-    public void OnPropertyChanged()
-    {
-        OnPropertyChanged(nameof(CurrentItem));
-    }
-
     #region Mapper
 
-    public MicroscopeCalChipDTO Clone()
+    public MicroscopeCalChipDTO Clone() => new()
     {
-        var cloneItems = new ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>>();
-        foreach (var item in Results)
-        {
-            cloneItems.GetOrAdd(item.Key, item.Value.Clone());
-        }
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        DSWAlignmentDegree = DSWAlignmentDegree,
+        DSWBrightFieldMachineAffinePosition = DSWBrightFieldMachineAffinePosition,
+        Results = new ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>>
+        ([
+            .. Results.Select(r => new KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>(r.Key, r.Value.Clone()))
+        ]),
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
+    };
 
-        return new MicroscopeCalChipDTO
-        {
-            CalChipSiteModelEnum = CalChipSiteModelEnum,
-            MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
-            DSWAlignmentDegree = DSWAlignmentDegree,
-            DSWBrightFieldMachineAffinePosition = DSWBrightFieldMachineAffinePosition,
-            Results = cloneItems,
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck,
-            Id = Id,
-            Expiration = Expiration
-        };
-    }
 
     public CalibrationMicroscopeCalChip AdaptTo()
     {
@@ -176,7 +166,7 @@ public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, IClonea
         ScatterPlotControl.Configure(new Columns(), 2);
 
         ScatterPlotControl.SetTitle(0, "Trace Buffers");
-        ScatterPlotControl.SetTitle(1, "Ecs AFError Curve And Slope");
+        ScatterPlotControl.SetTitle(1, "Ecs AFError Curve And Slope (Y: AF Error - X: ECS)");
     }
 
     private void RefreshPlot()

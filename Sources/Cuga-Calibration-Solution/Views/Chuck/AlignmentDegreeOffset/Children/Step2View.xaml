@@ -19,9 +19,7 @@
         </Grid.ColumnDefinitions>
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-            <hc:UniformSpacingPanel Orientation="Vertical"
-                                    Spacing="2"
-                                    Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Chuck Alignment Degree Offset Step : P5" Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Productivity Information: "
@@ -49,8 +47,7 @@
 
             <Border Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}"
-                    Visibility="{Binding IsDarkFieldAlignment, Converter={StaticResource Boolean2VisibilityConverter}}"
-                    IsEnabled="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2BooleanReConverter}}">
+                    Visibility="{Binding IsDarkFieldAlignment, Converter={StaticResource Boolean2VisibilityConverter}}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="8">
                     <StackPanel>
                         <TextBlock Text="Config Param"
@@ -230,8 +227,7 @@
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
-                                            Spacing="10"
-                                            Visibility="{Binding IsAutoCalibrate, Converter={StaticResource Boolean2VisibilityReConverter}}">
+                                            Spacing="10">
                         <Button Content="Action" hc:IconElement.Geometry="{StaticResource DownloadGeometry}">
                             <Button.Style>
                                 <Style BasedOn="{StaticResource ButtonPrimary.Loading}" TargetType="Button">

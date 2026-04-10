@@ -67,13 +67,11 @@
                                 Content="Action"
                                 Command="{Binding VerifyActionCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding VerifyActionCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Visibility="{Binding Path=DataContext.IsAutoCalibrate, Converter={StaticResource BoolNegationToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>

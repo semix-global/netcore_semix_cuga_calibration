@@ -15,8 +15,5 @@ public sealed partial class CalibrationMenu : ObservableObject
     private bool _isCalibrated;
 
     [ObservableProperty]
-    private bool _isSelected;
-
-    [ObservableProperty]
     private List<CalibrationMenu> _childList = [];
 }

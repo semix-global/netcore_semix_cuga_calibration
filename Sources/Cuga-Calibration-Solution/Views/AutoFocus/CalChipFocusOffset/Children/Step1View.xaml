@@ -40,7 +40,7 @@
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
-                            <TextBlock Text="Result"
+                            <TextBlock Text="1. Param"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"
@@ -81,6 +81,13 @@
                                               Style="{StaticResource NumericUpDownExtend}"
                                               Value="{Binding Cache.SpeedEcsPerSecond}" />
                         </hc:UniformSpacingPanel>
+                        <StackPanel>
+                            <TextBlock Text="2. Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
                         <hc:NumericUpDown hc:TitleElement.Title="Ecs Value: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="180"

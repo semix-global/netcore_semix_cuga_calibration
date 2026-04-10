@@ -86,8 +86,9 @@
                                 <Setter Property="VerticalContentAlignment" Value="Center" />
                             </Style>
                         </GridView.ColumnHeaderContainerStyle>
-                        <GridViewColumn Header="CalChipMode" DisplayMemberBinding="{Binding Value.CalChipSiteModelEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                        <GridViewColumn Header="CalChip Mode" DisplayMemberBinding="{Binding Value.CalChipSiteModelEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Header="AF ECS" DisplayMemberBinding="{Binding Value.ECSValue}" />
+                        <GridViewColumn Header="AF Motor" DisplayMemberBinding="{Binding Value.MotorValue, StringFormat={}{0:F3}}" />
                     </GridView>
                 </ListView.View>
             </ListView>
