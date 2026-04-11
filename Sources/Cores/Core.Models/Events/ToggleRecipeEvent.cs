@@ -7,7 +7,6 @@ public sealed class ToggleRecipeEvent
     public bool? IsRefreshRecipeList { get; set; } = false;
 
     public bool? IsEnableWaferMapEdit { get; set; } = false;
-
 }
 
 public static class ToggleRecipeEventFactory

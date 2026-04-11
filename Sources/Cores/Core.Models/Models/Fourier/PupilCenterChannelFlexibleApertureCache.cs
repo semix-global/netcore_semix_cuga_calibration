@@ -105,4 +105,3 @@ public sealed partial class PupilCenterChannelFlexibleApertureCache : Calibratio
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 }
-

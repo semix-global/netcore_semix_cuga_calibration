@@ -359,8 +359,8 @@ public static class CoreWcfModelsExtension
         Guard.IsNotNull(applicationCookie.HardwareStateConfig);
 
         var isOkCount = result
-             .Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
-             .Count(t => t.IsOk);
+            .Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
+            .Count(t => t.IsOk);
 
         var isOK = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
 

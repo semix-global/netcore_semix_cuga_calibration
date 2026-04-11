@@ -187,6 +187,7 @@
                                             DisplayMemberBinding="{Binding Lambda, StringFormat='0.###'}" />
                             <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestFocus.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
                             <GridViewColumn Header="X Strehl" DisplayMemberBinding="{Binding BestFocus.BestXStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
+                            <GridViewColumn Header="Spot Area Percent" DisplayMemberBinding="{Binding BestFocus.SpotAreaPercentMean, StringFormat='0.###'}" />
                             <GridViewColumn Header="L1(mm)" DisplayMemberBinding="{Binding SCMotorAbsoluteValueL1, StringFormat='0.###'}" />
                             <GridViewColumn Header="L3(mm)" DisplayMemberBinding="{Binding SCMotorAbsoluteValueL3, StringFormat='0.###'}" />
                             <GridViewColumn Header="Best X Strehl ECS" DisplayMemberBinding="{Binding BestFocus.BestXStrehlRatioECS, StringFormat='0.###'}" />

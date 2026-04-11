@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
-using System;
-using System.Collections.Generic;
 
 #if NETFRAMEWORK
 using Cuga.Data.DataStruct.PMT;

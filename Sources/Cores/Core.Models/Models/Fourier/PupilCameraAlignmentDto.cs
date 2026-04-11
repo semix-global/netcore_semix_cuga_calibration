@@ -35,7 +35,7 @@ public sealed partial class PupilCameraAlignmentDTO : CalibrationDtoBase, IClone
     [ObservableProperty]
     private int _ch3ImageHeight = 0;
 
-    #region Mapper  
+    #region Mapper
 
     public PupilCameraAlignmentDTO Clone()
     {

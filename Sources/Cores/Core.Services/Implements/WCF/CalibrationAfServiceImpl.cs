@@ -221,7 +221,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
             sxExecuteRet.Anything.Nsc.Count != sxExecuteRet.Anything.Lvdt.Count) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>("Nsc Trace buffer is empty", []);
 
         return SxExecuteRetHelper.CreateSuccess<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>([
-            .. sxExecuteRet.Anything.Ecs.Select((t, i) => (t, sxExecuteRet.Anything.Nsc[i], sxExecuteRet.Anything.AFERROR[i],sxExecuteRet.Anything.Lvdt[i], sxExecuteRet.Anything.FA[i], sxExecuteRet.Anything.NA[i], sxExecuteRet.Anything.FB[i], sxExecuteRet.Anything.NB[i]))
+            .. sxExecuteRet.Anything.Ecs.Select((t, i) => (t, sxExecuteRet.Anything.Nsc[i], sxExecuteRet.Anything.AFERROR[i], sxExecuteRet.Anything.Lvdt[i], sxExecuteRet.Anything.FA[i], sxExecuteRet.Anything.NA[i], sxExecuteRet.Anything.FB[i], sxExecuteRet.Anything.NB[i]))
         ]);
     }
 

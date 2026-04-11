@@ -7,7 +7,6 @@ using Core.Models.Models;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
@@ -460,7 +459,8 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                     {
                                         cancellationToken.ThrowIfCancellationRequested();
 
-                                        var channelIdTargetPMTValue = item.HazeTargetPMTValues.GetOrAdd(channelId, itemItems.Average(t => t.HazeItems[times].PMTValue));
+                                        var pmtValue = itemItems.Average(t => t.HazeItems[times].PMTValue);
+                                        var channelIdTargetPMTValue = item.HazeTargetPMTValues.GetOrAdd(channelId, new Lazy<double>(() => pmtValue));
 
                                         foreach (var itemItem in itemItems)
                                         {

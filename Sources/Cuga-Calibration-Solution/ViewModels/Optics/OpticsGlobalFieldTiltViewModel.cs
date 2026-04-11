@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
@@ -725,7 +726,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
                 var bytes = File.ReadAllBytes(bestFocusChannelItems.RawFilePath);
-                using var image = RawImageFactory.CreateImage(bytes);
+                using var image = RAWImageFactory.CreateImage(bytes, Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog);
                 image.Save(originImageFilePath);
 
                 var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(image);

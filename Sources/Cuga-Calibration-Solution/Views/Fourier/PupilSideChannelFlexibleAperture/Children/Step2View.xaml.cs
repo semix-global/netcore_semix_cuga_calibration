@@ -14,7 +14,6 @@ namespace CugaCalibration.Views.Fourier.PupilSideChannelFlexibleAperture.Childre
 
         private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
         }
     }
 }

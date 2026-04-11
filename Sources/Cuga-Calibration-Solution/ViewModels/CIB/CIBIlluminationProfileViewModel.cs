@@ -7,7 +7,6 @@ using Core.Models.Models;
 using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
@@ -397,7 +396,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     cancellationToken.ThrowIfCancellationRequested();
 
                                     var imageHorizontalProjectsVector = Vector<double>.Build.Dense([.. itemItem.Items[times].ImageHorizontalProjects]);
-                                    var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
+                                    var targetPMTValue = item.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, new Lazy<double>(imageHorizontalProjectsVector.Average));
 
                                     itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
                                     itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;

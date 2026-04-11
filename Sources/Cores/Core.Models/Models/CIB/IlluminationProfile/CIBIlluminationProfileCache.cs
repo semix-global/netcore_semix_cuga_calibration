@@ -22,13 +22,11 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double CalibrateThresholdMin => 1 - CalibrateThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double CalibrateThresholdMax => 1 + CalibrateThreshold;
 
     [ObservableProperty]
@@ -38,13 +36,11 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double ReviewThresholdMin => 1 - ReviewThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBIlluminationProfileCacheItem>> Items { get; init; } = [];
@@ -52,8 +48,7 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
-    public CIBIlluminationProfileCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBIlluminationProfileCacheItem());
+    public CIBIlluminationProfileCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBIlluminationProfileCacheItem>(() => new CIBIlluminationProfileCacheItem()));
 }
 
 public sealed partial class CIBIlluminationProfileCacheItem : CalibrationCacheBase

@@ -3,10 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:CugaCalibration.Views.Fourier.PupilSideChannelSpecularBlocker.Children"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Flourier"
              xmlns:imageViewer="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
-             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:coreConverters="clr-namespace:Core.Utilities.WPF.Converters;assembly=Core.Utilities.WPF"
              d:DesignHeight="900"
@@ -198,4 +195,3 @@
         <!--#endregion-->
     </Grid>
 </UserControl>
-

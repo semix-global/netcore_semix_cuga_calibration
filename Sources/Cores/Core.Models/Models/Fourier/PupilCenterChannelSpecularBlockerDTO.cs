@@ -7,7 +7,6 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Fourier;
 
-
 public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDtoBase, ICloneable<PupilCenterChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilCenterChannelSpecularBlocker>
 {
     [ObservableProperty]
@@ -22,7 +21,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDt
     [ObservableProperty]
     public float _ch3Push = 0.3f;
 
-    #region Mapper  
+    #region Mapper
 
     public PupilCenterChannelSpecularBlockerDTO Clone()
     {
@@ -49,4 +48,3 @@ public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDt
 
     #endregion Mapper
 }
-

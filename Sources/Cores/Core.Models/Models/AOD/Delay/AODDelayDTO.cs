@@ -28,13 +28,11 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double PrescanAODDelay => MaxItem is not null && MaxItem.AODDelay <= 0 ? Math.Abs(MaxItem.AODDelay) : 0d;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double ChirpAODDelay => MaxItem is not null && MaxItem.AODDelay >= 0 ? Math.Abs(MaxItem.AODDelay) : 0d;
 
 #pragma warning disable IDE0079
@@ -133,13 +131,11 @@ public sealed partial class AODDelayDTOItem : ObservableObject, ICloneable<AODDe
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double PrescanAODDelay => AODDelay <= 0 ? Math.Abs(AODDelay) : 0d;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double ChirpAODDelay => AODDelay >= 0 ? Math.Abs(AODDelay) : 0d;
 
     [ObservableProperty]

@@ -547,7 +547,6 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
             DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({chuckGantryObjDto.Offset:f3}) Old Offset: ({selectReviewItemDto.Offset:f3})", DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-
         }, cancellationToken);
         return result;
     }

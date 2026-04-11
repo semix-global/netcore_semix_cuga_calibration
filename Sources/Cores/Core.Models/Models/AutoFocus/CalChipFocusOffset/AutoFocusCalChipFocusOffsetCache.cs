@@ -30,7 +30,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AutoFocusCalChipFocusOffsetCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, new AutoFocusCalChipFocusOffsetCacheItem());
+    public AutoFocusCalChipFocusOffsetCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, new Lazy<AutoFocusCalChipFocusOffsetCacheItem>(() => new AutoFocusCalChipFocusOffsetCacheItem()));
 }
 
 public sealed partial class AutoFocusCalChipFocusOffsetCacheItem : ObservableValidator

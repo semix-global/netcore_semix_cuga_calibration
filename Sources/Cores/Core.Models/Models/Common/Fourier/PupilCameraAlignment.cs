@@ -59,4 +59,3 @@ public sealed partial class C2MFFRangeModel
     //     通道12杆子数量
     public int RodNum;
 }
-

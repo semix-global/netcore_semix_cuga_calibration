@@ -21,5 +21,4 @@ public partial class RecipeValidationResultDTO : ObservableObject
 
     public static RecipeValidationResultDTO Fail(string message)
         => new RecipeValidationResultDTO(false, message);
-
 }

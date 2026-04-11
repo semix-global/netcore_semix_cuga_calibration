@@ -21,11 +21,14 @@ using BitmapImage = Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilCameraAlignmentViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting, ICalibrationFourierService calibrationFlourierService,
+public sealed partial class PupilCameraAlignmentViewModel(
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    CalibrationSetting calibrationSetting,
+    ICalibrationFourierService calibrationFlourierService,
     ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
 {
     #region 界面相关
+
     [ObservableProperty]
     private Point _sxPos = new();
 
@@ -36,6 +39,7 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
         new() { StepName = "Get And Save CH2 Image" },
         new() { StepName = "Get And Save CH3 Image" }
     ];
+
     #endregion 界面相关
 
     #region 缓存
@@ -52,7 +56,7 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
     [ObservableProperty]
     private PupilCameraAlignmentDTO _calibration = new();
 
-    #endregion 缓存 
+    #endregion 缓存
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
@@ -279,6 +283,7 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
                 // 处理错误或返回
                 return;
             }
+
             Cache.BitmapImageDrawableCh1 = new BitmapImageDrawable();
 
             var bitmap = BytesToBitmapImage(originPicture0);
@@ -315,6 +320,7 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
                 // 处理错误或返回
                 return;
             }
+
             Cache.BitmapImageDrawableCh2 = new BitmapImageDrawable();
 
             var bitmap = BytesToBitmapImage(originPicture0);
@@ -350,6 +356,7 @@ public sealed partial class PupilCameraAlignmentViewModel(ICalibrationAlgorithmS
                 // 处理错误或返回
                 return;
             }
+
             Cache.BitmapImageDrawableCh3 = new BitmapImageDrawable();
 
             var bitmap = BytesToBitmapImage(originPicture0);

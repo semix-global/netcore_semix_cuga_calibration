@@ -230,7 +230,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
+                CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -476,7 +476,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
+                CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -715,7 +715,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
+                CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -920,7 +920,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                 StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-            CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
+            CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
             var originPosition = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
 
@@ -1062,7 +1062,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                CIBViewModel.SetRTFCParam(ApplicationCookie.OILowProductivityInformation);
+                CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.SetSensorNscCompensation(Review.NSCGainResultDTO.NscOffset,
                     Review.NSCGainResultDTO.NscGain);

@@ -42,8 +42,10 @@ public sealed class ListToDoubleConverter : AbstractSingletonConverterBase<ListT
                     return DependencyProperty.UnsetValue;
                 }
             }
+
             return list;
         }
+
         return DependencyProperty.UnsetValue;
     }
 }

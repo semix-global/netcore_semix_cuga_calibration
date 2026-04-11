@@ -20,7 +20,6 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public MicroscopeCentricityCacheItem CurrentCalibrationCacheItem =>
         MicroscopeCentricityCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeCentricityCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
 

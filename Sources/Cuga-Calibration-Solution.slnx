@@ -8,11 +8,14 @@
         <File Path="../Build/Common.Build.props" />
         <File Path="../Build/Common.Build.targets" />
         <File Path="../Build/Common.Packages.props" />
+        <File Path="../Build/Nuget.Build.props" />
+        <File Path="../Build/XUnit.Build.props" />
+        <File Path="../Build/Benchmark.Build.props" />
+        <File Path="../Build/Nuget.png" />
     </Folder>
     <Folder Name="/00. Solution Items/01. Format/">
-        <File Path="../Build/.csharpierrc.json" />
         <File Path="../Build/.editorconfig" />
-        <File Path="../Build/ignored-misspelling.dic" />
+        <File Path="../Build/.csharpierrc.json" />
         <File Path="../Build/Settings.XamlStyler" />
     </Folder>
     <Folder Name="/00. Solution Items/02. Git/">

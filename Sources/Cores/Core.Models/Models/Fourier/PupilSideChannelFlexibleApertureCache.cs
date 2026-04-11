@@ -77,21 +77,25 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
 
     [ObservableProperty]
     private int _cgFFBoxBeginNumber1Ch1 = 0;
+
     [ObservableProperty]
     private int _cgFFBoxBeginNumber2Ch1 = 0;
 
     [ObservableProperty]
     private int _cgFFBoxBeginNumber1Ch2 = 0;
+
     [ObservableProperty]
     private int _cgFFBoxBeginNumber2Ch2 = 0;
 
     [ObservableProperty]
     private int _cgFFBoxEndNumber1Ch1 = 0;
+
     [ObservableProperty]
     private int _cgFFBoxEndNumber2Ch1 = 0;
 
     [ObservableProperty]
     private int _cgFFBoxEndNumber1Ch2 = 0;
+
     [ObservableProperty]
     private int _cgFFBoxEndNumber2Ch2 = 0;
 
@@ -125,4 +129,3 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 }
-

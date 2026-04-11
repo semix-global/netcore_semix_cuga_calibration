@@ -31,6 +31,7 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
+using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -1095,9 +1096,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         var realMatrix = stageMapDto.RealMatrix;
         var errorItemList = stageMapDto.ErrorMatrix;
 
-        var idealMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<Point>();
-        var valueIsOkMatrix = isReview && ReviewDto is not null ? new bool[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<bool>();
-        var valueMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : MatrixUtils.EmptyMatrix<Point>();
+        var idealMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : TwoDimensionalArrayExtensions.EmptyMatrix<Point>();
+        var valueIsOkMatrix = isReview && ReviewDto is not null ? new bool[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : TwoDimensionalArrayExtensions.EmptyMatrix<bool>();
+        var valueMatrix = isReview && ReviewDto is not null ? new Point[ReviewDto.ExpandStageMapDto.RowNumber, ReviewDto.ExpandStageMapDto.ColumnNumber] : TwoDimensionalArrayExtensions.EmptyMatrix<Point>();
         if (isReview && ReviewDto is not null)
         {
             for (var i = 0; i < ReviewDto.ExpandStageMapDto.RowNumber; i++)

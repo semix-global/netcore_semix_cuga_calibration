@@ -65,7 +65,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
     [ObservableProperty]
     public Rect _cgFFBoxPushXRectPositionCH3 = new Rect();
 
-    #region Mapper  
+    #region Mapper
 
     public PupilCenterChannelFlexibleApertureDTO Clone()
     {

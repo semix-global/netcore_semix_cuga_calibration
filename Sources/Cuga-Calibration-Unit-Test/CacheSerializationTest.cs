@@ -5,6 +5,7 @@ using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
+using Core.Recipe.Services;
 using Core.Services;
 using Core.Utilities;
 using CugaCalibration.Core;
@@ -26,7 +27,6 @@ using SourceGenerator.AssemblyMetadata;
 using SourceGenerator.InjectHostDI;
 using System.Collections.Concurrent;
 using System.Windows;
-using Xunit;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationUnitTest;
@@ -56,6 +56,7 @@ public sealed class CacheSerializationTest : IDisposable
                     .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationTestAssemblyMetadata.Version, Application, context.HostingEnvironment)
                     .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                     .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddRecipeService(context.HostingEnvironment)
                     .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddScottPlotServices()
                     .AddCoreService(context.HostingEnvironment)

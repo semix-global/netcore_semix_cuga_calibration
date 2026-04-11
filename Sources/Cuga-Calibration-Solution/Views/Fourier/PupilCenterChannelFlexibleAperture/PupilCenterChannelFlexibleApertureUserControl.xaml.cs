@@ -18,6 +18,3 @@ namespace CugaCalibration.Views.Fourier.PupilCenterChannelFlexibleAperture
         }
     }
 }
-
-
-
