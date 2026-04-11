@@ -84,6 +84,11 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserCIBXTCItem[] CalibrationLaserCIBXTCItems { get; set; } = [];
 
     /// <summary>
+    /// CIB AGC Delay 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBAGCDelayItem[] CalibrationLaserCIBAGCDelayItems { get; set; } = [];
+
+    /// <summary>
     /// AOD Uniformity 校准对象列表
     /// </summary>
     public CalibrationLaserAODUniformityItem[] CalibrationLaserAODUniformityItems { get; set; } = [];
@@ -590,6 +595,49 @@ public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
 /// </summary>
 [Serializable]
 public sealed class CalibrationLaserCIBXTCItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 校准结果, **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<Item> Items { get; set; }
+
+    /// <summary>
+    /// 每个CIB的校准结果
+    /// </summary>
+    public sealed class Item
+    {
+        /// <summary>
+        /// CIB PMT ID
+        /// </summary>
+        public int PMTId { get; set; }
+
+        /// <summary>
+        /// CIB Channel ID
+        /// </summary>
+        public int ChannelId { get; set; }
+
+        /// <summary>
+        /// 延迟, **需要下发CIB硬件**
+        /// </summary>
+        public double Delay { get; set; }
+    }
+}
+
+/// <summary>
+/// CIB AGC Delay 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBAGCDelayItem : CalibrationBase
 {
     /// <summary>
     /// 入射方式
