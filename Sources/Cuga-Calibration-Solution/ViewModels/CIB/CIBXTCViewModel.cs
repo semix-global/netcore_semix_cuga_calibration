@@ -313,8 +313,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             CalibratingItem.StartWindowItem = new AODUniformityDTO.WindowItem();
             CalibratingItem.StopWindowItem = new AODUniformityDTO.WindowItem();
 
-            CIBViewModel.ToggleEnableAGC(cibInformations, true);
-            CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+            CIBViewModel.SetAGC(cibInformations, true);
+            CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0);
@@ -381,8 +381,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
             }
@@ -434,8 +434,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 ];
                 CalibratingItem.TargetPixelValues = [];
 
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetDelays(cibDelays);
 
                 var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
@@ -583,8 +583,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetDelays(cibDelays);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));

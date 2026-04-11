@@ -356,7 +356,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.StartCoefficient))]);
             LaserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
 
-            CIBViewModel.ToggleProfileMode(Cache.CIBInformations, CIBProfileModeEnum.PMTVoltage);
+            CIBViewModel.SetCIBProfileModeEnum(Cache.CIBInformations, CIBProfileModeEnum.PMTVoltage);
             CIBViewModel.SetGain(Cache.CIBInformations, Cache.StartGain);
 
             Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -623,8 +623,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(Cache.CIBInformations, true);
-                CIBViewModel.ToggleProfileMode(Cache.CIBInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(Cache.CIBInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(Cache.CIBInformations, CIBProfileModeEnum.PMTLog);
                 OpticsViewModel.ToggleODFilter(false);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);

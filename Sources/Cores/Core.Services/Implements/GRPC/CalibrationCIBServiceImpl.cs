@@ -63,6 +63,16 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<IReadOnlyList<bool>> GetMarker(IReadOnlyList<CIBInformation> cibInformations)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetMarker(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
     {
         throw new NotImplementedException();

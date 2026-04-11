@@ -587,8 +587,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
-                CIBViewModel.ToggleProfileMode(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(ApplicationCookie.CIBInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
@@ -698,8 +698,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
-                CIBViewModel.ToggleProfileMode(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(ApplicationCookie.CIBInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
@@ -1052,8 +1052,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);

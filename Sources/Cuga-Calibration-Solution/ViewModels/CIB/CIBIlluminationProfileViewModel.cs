@@ -303,8 +303,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
             Calibratings = [];
 
-            CIBViewModel.ToggleEnableAGC(cibInformations, true);
-            CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+            CIBViewModel.SetAGC(cibInformations, true);
+            CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
             CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
@@ -483,8 +483,8 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 OpticsViewModel.SetApodizationMode(currentOpticsApodizationModeEnum);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
                 OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
                 StageViewModel.SetAbsoluteStageTheta(0);
                 StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);

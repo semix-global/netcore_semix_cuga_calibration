@@ -55,23 +55,30 @@ public sealed class CIBViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    public void SetAGC(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
         var ret = calibrationCIBService.SetAGC(cibInformations, enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleProfileMode(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
+    public void SetCIBProfileModeEnum(IReadOnlyList<CIBInformation> cibInformations, CIBProfileModeEnum cibProfileModeEnum)
     {
         var ret = calibrationCIBService.SetCIBProfileModeEnum(cibInformations, cibProfileModeEnum);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ToggleEnableL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    public void SetL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable)
     {
         var ret = calibrationCIBService.SetL0K(cibInformations, enable);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetMarker(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    {
+        var ret = calibrationCIBService.SetMarker(cibInformations, enable);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -85,13 +92,13 @@ public sealed class CIBViewModel(
 
     public void SetCIBConfiguration(IReadOnlyList<CIBInformation> cibInformations, CIBConfiguration cibConfiguration)
     {
-        ToggleEnableAGC(cibInformations, cibConfiguration.IsAutoGainControl);
+        SetAGC(cibInformations, cibConfiguration.IsAutoGainControl);
 
         if (cibConfiguration.IsAutoGainControl == false) SetGain(cibInformations, cibConfiguration.Gain);
 
-        ToggleEnableL0K(cibInformations, cibConfiguration.IsL0K);
+        SetL0K(cibInformations, cibConfiguration.IsL0K);
 
-        ToggleProfileMode(cibInformations, cibConfiguration.CIBProfileMode);
+        SetCIBProfileModeEnum(cibInformations, cibConfiguration.CIBProfileMode);
     }
 
     public void SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits)
