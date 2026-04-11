@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models;
+using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -360,12 +360,12 @@ public sealed partial class StageMapWindowViewModel : ViewModelBase
             var (idealMatrix, valueIsOkMatrix, valueMatrix) = _currentStageMapDto.GetStageMapBilinearArray();
 
             var xResult = BinarySearch.TryValueIndexRange(
-                [.. MatrixUtils.Row(idealMatrix, 0).Select(tt => tt.X)],
+                [.. idealMatrix.Row(0).Select(tt => tt.X)],
                 SearchPoint.X,
                 out var startColumnIndex,
                 out var endColumnIndex); // x方向寻找行
             var yResult = BinarySearch.TryValueIndexRange(
-                [.. MatrixUtils.Column(idealMatrix, 0).Select(tt => tt.Y)],
+                [.. idealMatrix.Column(0).Select(tt => tt.Y)],
                 SearchPoint.Y,
                 out var startRowIndex,
                 out var endRowIndex); // y方向寻找列

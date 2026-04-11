@@ -17,8 +17,7 @@ public sealed partial class OpticsINCCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
-    public OpticsINCCacheItem Item => Items.GetOrAdd(ProductivityInformation, new OpticsINCCacheItem());
+    public OpticsINCCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<OpticsINCCacheItem>(() => new OpticsINCCacheItem()));
 }
 
 public sealed partial class OpticsINCCacheItem : CalibrationCacheBase

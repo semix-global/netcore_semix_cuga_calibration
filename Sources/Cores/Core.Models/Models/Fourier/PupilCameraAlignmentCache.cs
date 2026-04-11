@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Fourier;
 
-
 public sealed partial class PupilCameraAlignmentCache : CalibrationCacheBase
 {
     [ObservableProperty]

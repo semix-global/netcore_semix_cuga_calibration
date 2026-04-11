@@ -419,8 +419,8 @@ public sealed partial class MainWindowViewModel(
             case ".raw":
                 // 取反
                 var rawBytes = File.ReadAllBytes(openFileDialog.FileName);
-                var (matrix, _) = RawImageFactory.ToMatrix(rawBytes);
-                var image1 = RawImageFactory.CreateImage(rawBytes);
+                var (matrix, _) = RAWImageFactory.ToMatrix(rawBytes);
+                var image1 = RAWImageFactory.CreateImage(rawBytes, false);
                 var convertToDoubleMatrix = Matrix<double>.Build.DenseOfArray(matrix);
                 image = image1;
                 y = [.. convertToDoubleMatrix.RowSums().Divide(convertToDoubleMatrix.RowCount).Select(t => -t)];
@@ -568,8 +568,8 @@ public sealed partial class MainWindowViewModel(
             var strings = file.Split(["PMT", "Channel"], StringSplitOptions.RemoveEmptyEntries);
 
             var rawBytes = File.ReadAllBytes(file);
-            var (matrix, _) = RawImageFactory.ToMatrix(rawBytes);
-            var image = RawImageFactory.CreateImage(rawBytes);
+            var (matrix, _) = RAWImageFactory.ToMatrix(rawBytes);
+            var image = RAWImageFactory.CreateImage(rawBytes, false);
             using var _ = image;
             var convertToDoubleMatrix = Matrix<double>.Build.DenseOfArray(matrix);
 

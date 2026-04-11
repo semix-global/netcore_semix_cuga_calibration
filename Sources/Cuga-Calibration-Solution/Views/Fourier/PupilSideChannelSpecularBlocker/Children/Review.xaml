@@ -5,11 +5,9 @@
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-             xmlns:local="clr-namespace:CugaCalibration.Views.Fourier.PupilSideChannelSpecularBlocker.Children"
              d:DesignHeight="900"
              d:DesignWidth="1200"
              mc:Ignorable="d">

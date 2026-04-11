@@ -26,8 +26,7 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
-    public CIBXPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new CIBXPixelSizeCacheItem());
+    public CIBXPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBXPixelSizeCacheItem>(() => new CIBXPixelSizeCacheItem()));
 }
 
 public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase

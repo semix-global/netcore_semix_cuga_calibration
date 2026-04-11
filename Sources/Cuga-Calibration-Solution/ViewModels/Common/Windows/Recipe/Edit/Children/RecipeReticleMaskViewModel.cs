@@ -88,12 +88,10 @@ public sealed partial class RecipeReticleMaskViewModel(
     /// WaferMap 子 VM（用于获取 Builder 信息）
     /// </summary>
     public RecipeWaferMapViewModel? WaferMapSubViewModel { get; set; }
+
     public void NotifyAll()
     {
-        contextProvider.Post(() =>
-        {
-            OnPropertyChanged(nameof(EditingDto));
-        });
+        contextProvider.Post(() => { OnPropertyChanged(nameof(EditingDto)); });
     }
 
     [RelayCommand]
@@ -322,17 +320,17 @@ public sealed partial class RecipeReticleMaskViewModel(
             var brightPosition = stageViewModel.GetBrightFieldStagePosition();
 
             var darkFieldImageDto = await cibViewModel.GetPMTImageAsync(
-               maskDto.RecipeDarkFieldTemplateDto.ProductivityInformation,
-               StageCoordinateSystemEnum.Bright,
-               brightPosition,
-               2048,
-               maskDto.RecipeDarkFieldTemplateDto.CIBInformation,
-               (false, CalChipSiteModelEnum.ChuckModel),
-               (false, maskDto.RecipeDarkFieldTemplateDto.OpticsConfiguration),
-               (false, maskDto.RecipeDarkFieldTemplateDto.CIBConfiguration),
-               (false, maskDto.RecipeDarkFieldTemplateDto.LaserLightInformation),
-               false,
-               CancellationToken.None);
+                maskDto.RecipeDarkFieldTemplateDto.ProductivityInformation,
+                StageCoordinateSystemEnum.Bright,
+                brightPosition,
+                2048,
+                maskDto.RecipeDarkFieldTemplateDto.CIBInformation,
+                (false, CalChipSiteModelEnum.ChuckModel),
+                (false, maskDto.RecipeDarkFieldTemplateDto.OpticsConfiguration),
+                (false, maskDto.RecipeDarkFieldTemplateDto.CIBConfiguration),
+                (false, maskDto.RecipeDarkFieldTemplateDto.LaserLightInformation),
+                false,
+                CancellationToken.None);
 
             using var _ = darkFieldImageDto;
 
@@ -373,6 +371,7 @@ public sealed partial class RecipeReticleMaskViewModel(
             _ => throw new ArgumentException("Invalid list name", nameof(name))
         };
     }
+
     private ReticleMarkItemDto GetSelectReticleMaskItem()
     {
         if (SelectReticleMarkItem is null || EditingDto is null)
@@ -385,6 +384,4 @@ public sealed partial class RecipeReticleMaskViewModel(
         var indexed = EditReticleMarkList.Index().FirstOrDefault(t => t.Item.MaskIndex == SelectReticleMarkItem.MaskIndex);
         return EditReticleMarkList[indexed.Index] ?? throw new NullReferenceException(nameof(SelectReticleMarkItem));
     }
-
 }
-

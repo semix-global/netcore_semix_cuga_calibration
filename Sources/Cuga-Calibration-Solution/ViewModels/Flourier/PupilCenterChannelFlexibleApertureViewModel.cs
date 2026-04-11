@@ -18,7 +18,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
-using ScottPlot;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -28,10 +27,11 @@ using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace CugaCalibration.ViewModels.Flourier;
 
-
 [IOCAppService(ServiceType = typeof(PupilCenterChannelFlexibleApertureViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting, ICalibrationFourierService calibrationFlourierService,
+public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    CalibrationSetting calibrationSetting,
+    ICalibrationFourierService calibrationFlourierService,
     ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
 {
     #region 界面相关
@@ -155,6 +155,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
         new() { StepName = "Vertical Rotate Motor,Gear Lever Calibration" },
         new() { StepName = "Horizal Push Lever Calibration" }
     ];
+
     #endregion 界面相关
 
     #region 缓存
@@ -781,22 +782,26 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                     Cache.OriginImageFilePathList11[0] = OriginImageFilePath1;
                     Cache.OriginImageAngleList11[0] = Ch3Angle;
                 }
+
                 if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
                 {
                     Cache.OriginImageFilePathList11[1] = OriginImageFilePath1;
                     Cache.OriginImageAngleList11[1] = Ch3Angle;
                 }
+
                 if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
                 {
                     Cache.OriginImageFilePathList11[2] = OriginImageFilePath1;
                     Cache.OriginImageAngleList11[2] = Ch3Angle;
                 }
+
                 if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
                 {
                     Cache.OriginImageFilePathList11[3] = OriginImageFilePath1;
                     Cache.OriginImageAngleList11[3] = Ch3Angle;
                 }
             }
+
             return true;
         });
 
@@ -832,6 +837,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
                 Cache.BitmapImageDrawable1.BitmapImage = croppedImage.ToBitmapImage();
             }
+
             return true;
         });
     }
@@ -871,22 +877,26 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                     Cache.OriginImageFilePathList21[0] = OriginImageFilePath1;
                     Cache.OriginImageAngleList21[0] = Ch3Angle;
                 }
+
                 if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
                 {
                     Cache.OriginImageFilePathList21[1] = OriginImageFilePath1;
                     Cache.OriginImageAngleList21[1] = Ch3Angle;
                 }
+
                 if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
                 {
                     Cache.OriginImageFilePathList21[2] = OriginImageFilePath1;
                     Cache.OriginImageAngleList21[2] = Ch3Angle;
                 }
+
                 if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
                 {
                     Cache.OriginImageFilePathList21[3] = OriginImageFilePath1;
                     Cache.OriginImageAngleList21[3] = Ch3Angle;
                 }
             }
+
             return true;
         });
 
@@ -923,6 +933,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
                 Cache.BitmapImageDrawable2.BitmapImage = croppedImage.ToBitmapImage();
             }
+
             return true;
         });
     }
@@ -962,6 +973,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 Cache.Ch3Image3 = Cache.BitmapImageDrawable3.BitmapImage;
                 Cache.OriginImageFilePathList31.Add(OriginImageFilePath1);
             }
+
             return true;
         });
     }
@@ -1013,10 +1025,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
 
             // 更新UI线程
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Cache.RectROIDrawableList = newList;
-            });
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
@@ -1030,10 +1039,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             var cartesianRect = Cache.BitmapImageDrawable1.ImageCoordinateToCartesianCoordinate(imageRect);
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
             // 更新UI线程
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Cache.RectROIDrawableList = newList;
-            });
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
@@ -1048,10 +1054,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             var cartesianRect = Cache.BitmapImageDrawable1.ImageCoordinateToCartesianCoordinate(imageRect);
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
             // 更新UI线程
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Cache.RectROIDrawableList = newList;
-            });
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
@@ -1066,10 +1069,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             var cartesianRect = Cache.BitmapImageDrawable1.ImageCoordinateToCartesianCoordinate(imageRect);
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
             // 更新UI线程
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Cache.RectROIDrawableList = newList;
-            });
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
@@ -1079,7 +1079,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
         // 在图像像素坐标系中定义圆（可按需修改为 UI 可配置）
         double centerXImage = rx; // 圆心 X（像素）
         double centerYImage = ry; // 圆心 Y（像素）
-        double radiusPx = radius;      // 半径（像素）
+        double radiusPx = radius; // 半径（像素）
 
         // 把像素坐标的圆心转换为笛卡尔世界坐标
         var centerWorld = Cache.BitmapImageDrawable1.ImageCoordinateToCartesianCoordinate(new Point(centerXImage, centerYImage));
@@ -1142,6 +1142,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
@@ -1156,6 +1157,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
@@ -1170,6 +1172,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         return;
     }
 
@@ -1193,6 +1196,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
@@ -1207,6 +1211,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
@@ -1221,6 +1226,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
@@ -1235,6 +1241,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         return;
     }
 
@@ -1273,6 +1280,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
@@ -1287,6 +1295,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
@@ -1301,6 +1310,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         return;
     }
 
@@ -1324,6 +1334,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
@@ -1338,6 +1349,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
@@ -1352,6 +1364,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
@@ -1366,6 +1379,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 break;
             }
         }
+
         return;
     }
 
@@ -1386,6 +1400,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             Cache.CgFFBoxWidthList3[0] = Ch3Push;
             break;
         }
+
         return;
     }
 
@@ -1406,6 +1421,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             Cache.CgFFBoxWidthList3[1] = Ch3Push;
             break;
         }
+
         return;
     }
 
@@ -1441,6 +1457,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 Cache.OriginImageFilePathList13.Add(OriginImageFilePath1);
                 Cache.OriginImageAngleList13.Add(Ch3Angle60);
             }
+
             return true;
         });
 
@@ -1485,6 +1502,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
                 Cache.OriginImageFilePathList23.Add(OriginImageFilePath1);
                 Cache.OriginImageAngleList23.Add(Ch3Angle60);
             }
+
             return true;
         });
 
@@ -1513,7 +1531,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             _algorithm.FindCircle(xValues, yValues, out var yValue, out var xValue, out var Radius);
             HandleId6(xValue, yValue, Radius);
 
-            double x = xValue.ToDArr().ElementAt(0);  // 或用 ToFArr() 然后转 double
+            double x = xValue.ToDArr().ElementAt(0); // 或用 ToFArr() 然后转 double
             double y = yValue.ToDArr().ElementAt(0);
             ResultPointX = new Point(x, y);
             ResultRadiusX = (float)(Radius.ToDArr().ElementAt(0));
@@ -1538,7 +1556,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
             _algorithm.FindCircle(xValues, yValues, out var yValue, out var xValue, out var Radius);
             HandleId6(xValue, yValue, Radius);
 
-            double x = xValue.ToDArr().ElementAt(0);  // 或用 ToFArr() 然后转 double
+            double x = xValue.ToDArr().ElementAt(0); // 或用 ToFArr() 然后转 double
             double y = yValue.ToDArr().ElementAt(0);
             ResultPointY = new Point(x, y);
             ResultRadiusY = (float)(Radius.ToDArr().ElementAt(0));
@@ -1573,4 +1591,3 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(ICalibra
         return new BitmapImage(bytes, isCopy: true);
     }
 }
-

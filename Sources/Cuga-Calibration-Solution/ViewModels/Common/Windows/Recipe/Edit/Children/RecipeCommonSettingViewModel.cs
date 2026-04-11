@@ -44,8 +44,8 @@ public sealed partial class RecipeCommonSettingViewModel(
 
             dialogWindowProvider.TryShowDialog("Do you want to apply this recipe? ",
                 out DialogResultEnum dialogResultEnum,
-               DialogButtonsEnum.YesNo,
-               DialogIconEnum.Question);
+                DialogButtonsEnum.YesNo,
+                DialogIconEnum.Question);
 
             if (dialogResultEnum == DialogResultEnum.Yes)
             {
@@ -60,8 +60,8 @@ public sealed partial class RecipeCommonSettingViewModel(
         catch (Exception ex)
         {
             dialogWindowProvider.ShowDialog($"Save Recipe failed! {ex.Message}",
-               DialogButtonsEnum.OK,
-               DialogIconEnum.Warning);
+                DialogButtonsEnum.OK,
+                DialogIconEnum.Warning);
         }
     }
 }

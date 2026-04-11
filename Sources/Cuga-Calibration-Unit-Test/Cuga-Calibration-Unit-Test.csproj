@@ -4,31 +4,14 @@
         <TargetFrameworks>net480;net8.0-windows10.0.19041</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <RootNamespace>CugaCalibrationUnitTest</RootNamespace>
-        <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="xunit" />
-        <PackageReference Include="AwesomeAssertions" />
+    <Import Project="$(BuildToolsDirectory)\XUnit.Build.props" />
 
-        <PackageReference Include="coverlet.collector">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="xunit.runner.visualstudio">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="xunit.analyzers">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="AwesomeAssertions.Analyzers">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
+    <ItemGroup>
+        <Reference Include="HAlgorithm">
+            <HintPath>..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
@@ -47,18 +30,6 @@
         <ProjectReference Include="..\Cuga-Calibration-Test\Cuga-Calibration-Test.csproj" />
         <ProjectReference Include="..\Cores\Core.Models\04. Core.Models.csproj" />
         <ProjectReference Include="..\Cores\Core.Services\05. Core.Services.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Assets\**\*.*">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="HAlgorithm">
-            <HintPath>..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
-        </Reference>
     </ItemGroup>
 
 </Project>

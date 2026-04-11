@@ -18,4 +18,3 @@ namespace CugaCalibration.Views.Fourier.PupilCameraAlignment
         }
     }
 }
-

@@ -138,7 +138,7 @@ public static class EnumOpticsExtension
 
     #endregion Collector Polarization
 
-    #region Y Ghost 
+    #region Y Ghost
 
     extension(CgClinderType @this)
     {

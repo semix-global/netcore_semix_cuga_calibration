@@ -12,7 +12,6 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Fourier;
 
-
 public sealed partial class PupilCenterChannelSpecularBlockerCache : CalibrationCacheBase
 {
     [ObservableProperty]
@@ -55,8 +54,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
-    public PupilCenterChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new PupilCenterChannelSpecularBlockerCacheItem());
+    public PupilCenterChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new Lazy<PupilCenterChannelSpecularBlockerCacheItem>(() => new PupilCenterChannelSpecularBlockerCacheItem()));
 }
 
 public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : CalibrationCacheBase
@@ -103,4 +101,3 @@ public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : Calibra
     [ObservableProperty]
     public float _ch3Push = 0.3f;
 }
-

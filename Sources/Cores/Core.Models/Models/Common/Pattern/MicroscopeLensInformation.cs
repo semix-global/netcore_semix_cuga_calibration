@@ -27,7 +27,6 @@ public sealed class MicroscopeLensInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public string LensName
     {
         get;
@@ -43,7 +42,6 @@ public sealed class MicroscopeLensInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double ObjectiveMagnification
     {
         get;

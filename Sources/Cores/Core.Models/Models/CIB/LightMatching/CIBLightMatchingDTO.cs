@@ -117,7 +117,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
         foreach (var (channelId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, GetScatterPlotControl());
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
@@ -329,7 +329,6 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double DigitalGainPlusMultiplicativeFactors => DigitalGain + MultiplicativeFactors;
 
     partial void OnHazeItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)

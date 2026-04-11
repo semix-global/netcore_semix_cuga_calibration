@@ -9,7 +9,6 @@ using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
@@ -853,7 +852,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         cancellationToken.ThrowIfCancellationRequested();
 
                         var imageHorizontalProjectsVector = Vector<double>.Build.Dense([.. itemItem.Items[times].ImageHorizontalProjects.Skip(Cache.Item.ImageHorizontalProjectsSkipCout).SkipLast(Cache.Item.ImageHorizontalProjectsSkipLastCout)]);
-                        var targetPMTValue = CalibratingItem.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, imageHorizontalProjectsVector.Average());
+                        var targetPMTValue = CalibratingItem.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, new Lazy<double>(imageHorizontalProjectsVector.Average));
 
                         itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
                         itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;

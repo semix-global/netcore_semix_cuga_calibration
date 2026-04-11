@@ -35,7 +35,6 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public string Name
     {
         get;
@@ -63,7 +62,6 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double XPixelSize
     {
         get;
@@ -73,7 +71,6 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double YPixelSize
     {
         get;
@@ -83,7 +80,6 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public int YPixel
     {
         get;
@@ -93,7 +89,6 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public int OriginYPixel
     {
         get;
@@ -106,7 +101,6 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double SampleRate
     {
         get;
@@ -119,7 +113,6 @@ public sealed class ProductivityInformation :
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public double XSpeedValue
     {
         get;

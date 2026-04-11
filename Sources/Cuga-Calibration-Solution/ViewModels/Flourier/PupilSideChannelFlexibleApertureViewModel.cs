@@ -31,6 +31,7 @@ namespace CugaCalibration.ViewModels.Flourier;
 public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrationFourierService calibrationFlourierService) : CalibrationViewModelBase
 {
     #region 界面相关
+
     [ObservableProperty]
     private int _selectedTabIndex = 0;
 
@@ -99,14 +100,14 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     [ObservableProperty]
     private ObservableCollection<RodInformation> _setAllRods = new ObservableCollection<RodInformation>
     {
-        new RodInformation("Rod1", 0),  new RodInformation("Rod2", 0),new RodInformation("Rod3", 0), new RodInformation("Rod4", 0),new RodInformation("Rod5", 0),new RodInformation("Rod6", 0),
-        new RodInformation("Rod7", 0),  new RodInformation("Rod8", 0),new RodInformation("Rod9", 0), new RodInformation("Rod10", 0),new RodInformation("Rod11", 0),new RodInformation("Rod12", 0),
-        new RodInformation("Rod13", 0), new RodInformation("Rod14", 0),new RodInformation("Rod15", 0), new RodInformation("Rod16", 0),new RodInformation("Rod17", 0),new RodInformation("Rod18", 0),
-        new RodInformation("Rod19", 0), new RodInformation("Rod20", 0),new RodInformation("Rod21", 0), new RodInformation("Rod22", 0),new RodInformation("Rod23", 0),new RodInformation("Rod24", 0),
-        new RodInformation("Rod25", 0), new RodInformation("Rod26", 0),new RodInformation("Rod27", 0), new RodInformation("Rod28", 0),new RodInformation("Rod29", 0),new RodInformation("Rod30", 0),
-        new RodInformation("Rod31", 0), new RodInformation("Rod32", 0),new RodInformation("Rod33", 0), new RodInformation("Rod34", 0),new RodInformation("Rod35", 0),new RodInformation("Rod36", 0),
-        new RodInformation("Rod37", 0), new RodInformation("Rod38", 0),new RodInformation("Rod39", 0), new RodInformation("Rod40", 0),new RodInformation("Rod41", 0),new RodInformation("Rod42", 0),
-        new RodInformation("Rod43", 0), new RodInformation("Rod44", 0),new RodInformation("Rod45", 0), new RodInformation("Rod46", 0)
+        new RodInformation("Rod1", 0), new RodInformation("Rod2", 0), new RodInformation("Rod3", 0), new RodInformation("Rod4", 0), new RodInformation("Rod5", 0), new RodInformation("Rod6", 0),
+        new RodInformation("Rod7", 0), new RodInformation("Rod8", 0), new RodInformation("Rod9", 0), new RodInformation("Rod10", 0), new RodInformation("Rod11", 0), new RodInformation("Rod12", 0),
+        new RodInformation("Rod13", 0), new RodInformation("Rod14", 0), new RodInformation("Rod15", 0), new RodInformation("Rod16", 0), new RodInformation("Rod17", 0), new RodInformation("Rod18", 0),
+        new RodInformation("Rod19", 0), new RodInformation("Rod20", 0), new RodInformation("Rod21", 0), new RodInformation("Rod22", 0), new RodInformation("Rod23", 0), new RodInformation("Rod24", 0),
+        new RodInformation("Rod25", 0), new RodInformation("Rod26", 0), new RodInformation("Rod27", 0), new RodInformation("Rod28", 0), new RodInformation("Rod29", 0), new RodInformation("Rod30", 0),
+        new RodInformation("Rod31", 0), new RodInformation("Rod32", 0), new RodInformation("Rod33", 0), new RodInformation("Rod34", 0), new RodInformation("Rod35", 0), new RodInformation("Rod36", 0),
+        new RodInformation("Rod37", 0), new RodInformation("Rod38", 0), new RodInformation("Rod39", 0), new RodInformation("Rod40", 0), new RodInformation("Rod41", 0), new RodInformation("Rod42", 0),
+        new RodInformation("Rod43", 0), new RodInformation("Rod44", 0), new RodInformation("Rod45", 0), new RodInformation("Rod46", 0)
     };
 
     // 所有电线杆集合（绑定到 ListBox）
@@ -186,7 +187,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     [ObservableProperty]
     private PupilSideChannelFlexibleApertureDTO _calibration = new();
 
-    #endregion 缓存  
+    #endregion 缓存
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
@@ -230,20 +231,14 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             case 0:
                 Cache.RectROIDrawableList.Clear();
                 InitRodState();
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    RebuildRectROIDrawableList();
-                });
+                Application.Current.Dispatcher.Invoke(() => { RebuildRectROIDrawableList(); });
 
                 return true;
 
             case 2:
                 SelectedTabIndex = 1;
                 InitRodState();
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    RebuildRectROIDrawableList();
-                });
+                Application.Current.Dispatcher.Invoke(() => { RebuildRectROIDrawableList(); });
 
                 return true;
 
@@ -348,8 +343,8 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 Cache.CgFFBoxAllRodsBeginPercentCh1 = Ch12Percentage1 * 100;
                 // 合并奇数和偶数杆（使用 Percent1 的数据，因为宽度不变）
                 var allRods = AllOddRodsCh1Percent1.Concat(AllEvenRodsCh1Percent1)
-                                                   .OrderBy(r => r.Id) // 按杆号升序
-                                                   .ToList();
+                    .OrderBy(r => r.Id) // 按杆号升序
+                    .ToList();
                 Cache.CgFFBoxRodWidthListCh1.Clear();
                 foreach (var rod in allRods)
                 {
@@ -365,8 +360,8 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
                     // 合并所有 Id（去重 + 排序）
                     var allIds = oddDict1.Keys.Concat(evenDict1.Keys)
-                                             .OrderBy(id => id)
-                                             .ToList();
+                        .OrderBy(id => id)
+                        .ToList();
 
                     Cache.CgFFBoxHeightRelationPercentListCh1.Clear();
 
@@ -392,6 +387,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                         }
                         else
                             continue;
+
                         // 计算变化率
                         double rate = (h2 - h1) / ((Ch12Percentage2 - Ch12Percentage1) / 0.1);
                         Cache.CgFFBoxHeightRelationPercentListCh1.Add((int)(rate * 0.1));
@@ -410,9 +406,9 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                     //CgFFBoxRodWidthListCh1 = Cache.CgFFBoxRodWidthListCh1,             
                     //CgFFBoxHeightRelationPercentListCh1 = Cache.CgFFBoxHeightRelationPercentListCh1,
                     CgFFBoxRodWidthListCh1 = Environment.NewLine + string.Join(Environment.NewLine,
-                          Cache.CgFFBoxRodWidthListCh1.Select((width, index) => $"Rod{Cache.CgFFBoxBeginNumber2Ch1 + index}: {width}")),
+                        Cache.CgFFBoxRodWidthListCh1.Select((width, index) => $"Rod{Cache.CgFFBoxBeginNumber2Ch1 + index}: {width}")),
                     CgFFBoxHeightRelationPercentListCh1 = Environment.NewLine + string.Join(Environment.NewLine,
-                          Cache.CgFFBoxHeightRelationPercentListCh1.Select((relation, index) => $"Rod{Cache.CgFFBoxBeginNumber2Ch1 + index}: {relation}")),
+                        Cache.CgFFBoxHeightRelationPercentListCh1.Select((relation, index) => $"Rod{Cache.CgFFBoxBeginNumber2Ch1 + index}: {relation}")),
 
                     RectOddFirstsCh1 = Environment.NewLine + string.Join(Environment.NewLine, CurrentImageRectOddFirstCh1.Select((rect, i) =>
                     {
@@ -425,32 +421,32 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                     RectOddSecondsCh1 = Environment.NewLine + string.Join(Environment.NewLine, CurrentImageRectOddSecondCh1.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(Cache.CgFFBoxBeginNumber2Ch1, Cache.CgFFBoxEndNumber2Ch1),
-                        Math.Abs(Cache.CgFFBoxEndNumber2Ch1 - Cache.CgFFBoxBeginNumber2Ch1) + 1).Where(x => x % 2 == 1).OrderBy(x => x).ToList();
+                            Math.Min(Cache.CgFFBoxBeginNumber2Ch1, Cache.CgFFBoxEndNumber2Ch1),
+                            Math.Abs(Cache.CgFFBoxEndNumber2Ch1 - Cache.CgFFBoxBeginNumber2Ch1) + 1).Where(x => x % 2 == 1).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     })),
                     RectEvenFirstsCh1 = Environment.NewLine + string.Join(Environment.NewLine, CurrentImageRectEvenFirstCh1.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(Cache.CgFFBoxBeginNumber2Ch1, Cache.CgFFBoxEndNumber2Ch1),
-                        Math.Abs(Cache.CgFFBoxEndNumber2Ch1 - Cache.CgFFBoxBeginNumber2Ch1) + 1).Where(x => x % 2 == 0).OrderBy(x => x).ToList();
+                            Math.Min(Cache.CgFFBoxBeginNumber2Ch1, Cache.CgFFBoxEndNumber2Ch1),
+                            Math.Abs(Cache.CgFFBoxEndNumber2Ch1 - Cache.CgFFBoxBeginNumber2Ch1) + 1).Where(x => x % 2 == 0).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     })),
                     RectEvenSecondsCh1 = Environment.NewLine + string.Join(Environment.NewLine, CurrentImageRectEvenSecondCh1.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(Cache.CgFFBoxBeginNumber2Ch1, Cache.CgFFBoxEndNumber2Ch1),
-                        Math.Abs(Cache.CgFFBoxEndNumber2Ch1 - Cache.CgFFBoxBeginNumber2Ch1) + 1).Where(x => x % 2 == 0).OrderBy(x => x).ToList();
+                            Math.Min(Cache.CgFFBoxBeginNumber2Ch1, Cache.CgFFBoxEndNumber2Ch1),
+                            Math.Abs(Cache.CgFFBoxEndNumber2Ch1 - Cache.CgFFBoxBeginNumber2Ch1) + 1).Where(x => x % 2 == 0).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     })),
                     RectAllRodsCh1 = Environment.NewLine + string.Join(Environment.NewLine, Cache.CurrentImageRectListFirstCh1.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(1, 46),
-                        Math.Abs(46 - 1) + 1).OrderBy(x => x).ToList();
+                            Math.Min(1, 46),
+                            Math.Abs(46 - 1) + 1).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     }))
@@ -485,6 +481,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
+
                     if (j == 1)
                     {
                         Logger.LogHtmlInformation("Ch1Image:" + (j + 1), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -497,6 +494,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
+
                     if (j == 2)
                     {
                         Logger.LogHtmlInformation("Ch1Image:" + (j + 1), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -509,6 +507,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
+
                     if (j == 3)
                     {
                         Logger.LogHtmlInformation("Ch1Image:" + (j + 1), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -522,6 +521,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
                 }
+
                 return true;
             });
         }
@@ -557,8 +557,8 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 Cache.CgFFBoxAllRodsBeginPercentCh2 = Ch12Percentage1 * 100;
                 // 合并奇数和偶数杆（使用 Percent1 的数据，因为宽度不变）
                 var allRods = AllOddRodsCh2Percent1.Concat(AllEvenRodsCh2Percent1)
-                                                   .OrderBy(r => r.Id) // 按杆号升序
-                                                   .ToList();
+                    .OrderBy(r => r.Id) // 按杆号升序
+                    .ToList();
                 Cache.CgFFBoxRodWidthListCh2.Clear();
                 foreach (var rod in allRods)
                 {
@@ -574,8 +574,8 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
                     // 合并所有 Id（去重 + 排序）
                     var allIds = oddDict1.Keys.Concat(evenDict1.Keys)
-                                             .OrderBy(id => id)
-                                             .ToList();
+                        .OrderBy(id => id)
+                        .ToList();
 
                     Cache.CgFFBoxHeightRelationPercentListCh2.Clear();
 
@@ -600,6 +600,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                         }
                         else
                             continue;
+
                         // 计算变化率
                         double rate = (h2 - h1) / ((Ch12Percentage2 - Ch12Percentage1) / 0.1);
                         Cache.CgFFBoxHeightRelationPercentListCh2.Add((int)(rate * 0.1));
@@ -618,47 +619,47 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                     //CgFFBoxRodWidthListCh2 = Cache.CgFFBoxRodWidthListCh2,   
                     //CgFFBoxHeightRelationPercentListCh2 = Cache.CgFFBoxHeightRelationPercentListCh2,
                     CgFFBoxRodWidthListCh2 = Environment.NewLine + string.Join(Environment.NewLine,
-                          Cache.CgFFBoxRodWidthListCh2.Select((width, index) => $"Rod{Cache.CgFFBoxBeginNumber2Ch2 + index}: {width}")),
+                        Cache.CgFFBoxRodWidthListCh2.Select((width, index) => $"Rod{Cache.CgFFBoxBeginNumber2Ch2 + index}: {width}")),
                     CgFFBoxHeightRelationPercentListCh2 = Environment.NewLine + string.Join(Environment.NewLine,
-                          Cache.CgFFBoxHeightRelationPercentListCh2.Select((relation, index) => $"Rod{Cache.CgFFBoxBeginNumber2Ch2 + index}: {relation}")),
+                        Cache.CgFFBoxHeightRelationPercentListCh2.Select((relation, index) => $"Rod{Cache.CgFFBoxBeginNumber2Ch2 + index}: {relation}")),
 
                     RectOddFirstsCh2 = Environment.NewLine + string.Join(Environment.NewLine, CurrentImageRectOddFirstCh2.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(Cache.CgFFBoxBeginNumber2Ch2, Cache.CgFFBoxEndNumber2Ch2),
-                        Math.Abs(Cache.CgFFBoxEndNumber2Ch2 - Cache.CgFFBoxBeginNumber2Ch2) + 1).Where(x => x % 2 == 1).OrderBy(x => x).ToList();
+                            Math.Min(Cache.CgFFBoxBeginNumber2Ch2, Cache.CgFFBoxEndNumber2Ch2),
+                            Math.Abs(Cache.CgFFBoxEndNumber2Ch2 - Cache.CgFFBoxBeginNumber2Ch2) + 1).Where(x => x % 2 == 1).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     })),
                     RectOddSecondsCh2 = Environment.NewLine + string.Join(Environment.NewLine, CurrentImageRectOddSecondCh2.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(Cache.CgFFBoxBeginNumber2Ch2, Cache.CgFFBoxEndNumber2Ch2),
-                        Math.Abs(Cache.CgFFBoxEndNumber2Ch2 - Cache.CgFFBoxBeginNumber2Ch2) + 1).Where(x => x % 2 == 1).OrderBy(x => x).ToList();
+                            Math.Min(Cache.CgFFBoxBeginNumber2Ch2, Cache.CgFFBoxEndNumber2Ch2),
+                            Math.Abs(Cache.CgFFBoxEndNumber2Ch2 - Cache.CgFFBoxBeginNumber2Ch2) + 1).Where(x => x % 2 == 1).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     })),
                     RectEvenFirstsCh2 = Environment.NewLine + string.Join(Environment.NewLine, CurrentImageRectEvenFirstCh2.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(Cache.CgFFBoxBeginNumber2Ch2, Cache.CgFFBoxEndNumber2Ch2),
-                        Math.Abs(Cache.CgFFBoxEndNumber2Ch2 - Cache.CgFFBoxBeginNumber2Ch2) + 1).Where(x => x % 2 == 0).OrderBy(x => x).ToList();
+                            Math.Min(Cache.CgFFBoxBeginNumber2Ch2, Cache.CgFFBoxEndNumber2Ch2),
+                            Math.Abs(Cache.CgFFBoxEndNumber2Ch2 - Cache.CgFFBoxBeginNumber2Ch2) + 1).Where(x => x % 2 == 0).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     })),
                     RectEvenSecondsCh2 = Environment.NewLine + string.Join(Environment.NewLine, CurrentImageRectEvenSecondCh2.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(Cache.CgFFBoxBeginNumber2Ch2, Cache.CgFFBoxEndNumber2Ch2),
-                        Math.Abs(Cache.CgFFBoxEndNumber2Ch2 - Cache.CgFFBoxBeginNumber2Ch2) + 1).Where(x => x % 2 == 0).OrderBy(x => x).ToList();
+                            Math.Min(Cache.CgFFBoxBeginNumber2Ch2, Cache.CgFFBoxEndNumber2Ch2),
+                            Math.Abs(Cache.CgFFBoxEndNumber2Ch2 - Cache.CgFFBoxBeginNumber2Ch2) + 1).Where(x => x % 2 == 0).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     })),
                     RectAllRodsCh2 = Environment.NewLine + string.Join(Environment.NewLine, Cache.CurrentImageRectListFirstCh2.Select((rect, i) =>
                     {
                         var oddNums = Enumerable.Range(
-                        Math.Min(1, 46),
-                        Math.Abs(46 - 1) + 1).OrderBy(x => x).ToList();
+                            Math.Min(1, 46),
+                            Math.Abs(46 - 1) + 1).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     }))
@@ -694,6 +695,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
+
                     if (j == 1)
                     {
                         Logger.LogHtmlInformation("Ch2Image:" + (j + 1), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -706,6 +708,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
+
                     if (j == 2)
                     {
                         Logger.LogHtmlInformation("Ch2Image:" + (j + 1), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -718,6 +721,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
+
                     if (j == 3)
                     {
                         Logger.LogHtmlInformation("Ch2Image:" + (j + 1), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
@@ -731,6 +735,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
                 }
+
                 return true;
             });
         }
@@ -783,6 +788,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 previousFirst.PropertyChanged -= OnFirstRectPropertyChanged;
             return;
         }
+
         if (SelectedTabIndex == 0)
         {
             var newList = new ObservableCollection<RectROIDrawable>();
@@ -818,6 +824,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             Cache.RectROIDrawableList = newList;
         }
+
         // 订阅新的第一个矩形
         if (Cache.RectROIDrawableList.FirstOrDefault() is { } newFirst)
             newFirst.PropertyChanged += OnFirstRectPropertyChanged;
@@ -832,6 +839,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (j % 2 == 1)
                 AllOddRodsCh1Percent1.Add(new Pole { Id = j });
         }
+
         var ch12List = new List<(int rodnumber, double rodpos)>();
         var rodNum = 46;
 
@@ -849,6 +857,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             ch12List.Add((j, 0.0));
         }
+
         for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
         {
             if (j % 2 == 1)
@@ -907,6 +916,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (j % 2 == 0)
                 AllEvenRodsCh1Percent1.Add(new Pole { Id = j });
         }
+
         var ch12List = new List<(int rodnumber, double rodpos)>();
         var rodNum = 46;
 
@@ -924,6 +934,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             ch12List.Add((j, 0.0));
         }
+
         for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
         {
             if (j % 2 == 0)
@@ -982,6 +993,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (j % 2 == 1)
                 AllOddRodsCh1Percent2.Add(new Pole { Id = j });
         }
+
         var ch12List = new List<(int rodnumber, double rodpos)>();
         var rodNum = 46;
 
@@ -999,6 +1011,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             ch12List.Add((j, 0.0));
         }
+
         for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
         {
             if (j % 2 == 1)
@@ -1057,6 +1070,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (j % 2 == 0)
                 AllEvenRodsCh1Percent2.Add(new Pole { Id = j });
         }
+
         var ch12List = new List<(int rodnumber, double rodpos)>();
         var rodNum = 46;
 
@@ -1074,6 +1088,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             ch12List.Add((j, 0.0));
         }
+
         for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
         {
             if (j % 2 == 0)
@@ -1132,6 +1147,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (j % 2 == 1)
                 AllOddRodsCh2Percent1.Add(new Pole { Id = j });
         }
+
         var ch12List = new List<(int rodnumber, double rodpos)>();
         var rodNum = 46;
 
@@ -1149,6 +1165,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             ch12List.Add((j, 0.0));
         }
+
         for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
         {
             if (j % 2 == 1)
@@ -1207,6 +1224,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (j % 2 == 0)
                 AllEvenRodsCh2Percent1.Add(new Pole { Id = j });
         }
+
         var ch12List = new List<(int rodnumber, double rodpos)>();
         var rodNum = 46;
 
@@ -1224,6 +1242,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             ch12List.Add((j, 0.0));
         }
+
         for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
         {
             if (j % 2 == 0)
@@ -1282,6 +1301,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (j % 2 == 1)
                 AllOddRodsCh2Percent2.Add(new Pole { Id = j });
         }
+
         var ch12List = new List<(int rodnumber, double rodpos)>();
         var rodNum = 46;
 
@@ -1299,6 +1319,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             ch12List.Add((j, 0.0));
         }
+
         for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
         {
             if (j % 2 == 1)
@@ -1357,6 +1378,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             if (j % 2 == 0)
                 AllEvenRodsCh2Percent2.Add(new Pole { Id = j });
         }
+
         var ch12List = new List<(int rodnumber, double rodpos)>();
         var rodNum = 46;
 
@@ -1374,6 +1396,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             ch12List.Add((j, 0.0));
         }
+
         for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
         {
             if (j % 2 == 0)
@@ -1437,6 +1460,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         rodNum = 46;
 
         for (int j = 1; j <= rodNum; j++)
@@ -1504,6 +1528,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         rodNum = 46;
 
         for (int j = 1; j <= rodNum; j++)
@@ -1571,6 +1596,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         rodNum = 46;
 
         for (int j = 1; j <= rodNum; j++)
@@ -1638,6 +1664,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         rodNum = 46;
 
         for (int j = 1; j <= rodNum; j++)
@@ -1705,6 +1732,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         rodNum = 46;
 
         for (int j = 1; j <= rodNum; j++)
@@ -1772,6 +1800,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         rodNum = 46;
 
         for (int j = 1; j <= rodNum; j++)
@@ -1839,6 +1868,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         rodNum = 46;
 
         for (int j = 1; j <= rodNum; j++)
@@ -1906,6 +1936,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         rodNum = 46;
 
         for (int j = 1; j <= rodNum; j++)
@@ -2001,6 +2032,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 numbers.Add(value);
             }
         }
+
         return numbers;
     }
 
@@ -2026,6 +2058,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 numbers.Add(value);
             }
         }
+
         return numbers;
     }
 
@@ -2045,6 +2078,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var rectOne = Cache.BitmapImageDrawableCh1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
             CurrentImageAxis.Add(rectOne);
         }
+
         for (int j = 0; j < CurrentImageAxis.Count; j++)
         {
             var rect = CurrentImageAxis[j];
@@ -2065,6 +2099,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var rectOne = Cache.BitmapImageDrawableCh1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
             CurrentImageAxis.Add(rectOne);
         }
+
         for (int j = 0; j < CurrentImageAxis.Count; j++)
         {
             var rect = CurrentImageAxis[j];
@@ -2085,6 +2120,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var rectOne = Cache.BitmapImageDrawableCh1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
             CurrentImageAxis.Add(rectOne);
         }
+
         for (int j = 0; j < CurrentImageAxis.Count; j++)
         {
             var rect = CurrentImageAxis[j];
@@ -2105,6 +2141,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var rectOne = Cache.BitmapImageDrawableCh1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
             CurrentImageAxis.Add(rectOne);
         }
+
         for (int j = 0; j < CurrentImageAxis.Count; j++)
         {
             var rect = CurrentImageAxis[j];
@@ -2125,6 +2162,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var rectOne = Cache.BitmapImageDrawableCh2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
             CurrentImageAxis.Add(rectOne);
         }
+
         for (int j = 0; j < CurrentImageAxis.Count; j++)
         {
             var rect = CurrentImageAxis[j];
@@ -2145,6 +2183,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var rectOne = Cache.BitmapImageDrawableCh2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
             CurrentImageAxis.Add(rectOne);
         }
+
         for (int j = 0; j < CurrentImageAxis.Count; j++)
         {
             var rect = CurrentImageAxis[j];
@@ -2165,6 +2204,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var rectOne = Cache.BitmapImageDrawableCh2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
             CurrentImageAxis.Add(rectOne);
         }
+
         for (int j = 0; j < CurrentImageAxis.Count; j++)
         {
             var rect = CurrentImageAxis[j];
@@ -2185,6 +2225,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             var rectOne = Cache.BitmapImageDrawableCh2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
             CurrentImageAxis.Add(rectOne);
         }
+
         for (int j = 0; j < CurrentImageAxis.Count; j++)
         {
             var rect = CurrentImageAxis[j];
@@ -2212,13 +2253,13 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         int end = Cache.CgFFBoxEndNumber2Ch1;
 
         var oddNumbersInRange = Enumerable.Range(begin, end - begin + 1)
-                                          .Where(x => x % 2 == 1)
-                                          .OrderBy(x => x)
-                                          .ToList();
+            .Where(x => x % 2 == 1)
+            .OrderBy(x => x)
+            .ToList();
         var evenNumbersInRange = Enumerable.Range(begin, end - begin + 1)
-                                           .Where(x => x % 2 == 0)
-                                           .OrderBy(x => x)
-                                           .ToList();
+            .Where(x => x % 2 == 0)
+            .OrderBy(x => x)
+            .ToList();
 
         // ===== 4. 构建真实数据映射（用于保留原始 X/Y/W/H）=====
         var realRectMap = new Dictionary<int, Rect>();
@@ -2267,6 +2308,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             for (int i = 0; i < allOddIds.Count; i++)
                 oddXList[i] = i * (avgOddW + 5);
         }
+
         // ===== 7. 为偶数生成完整 X 坐标（同理）=====
         var evenXList = new double[allEvenIds.Count];
         bool hasEvenData = evenNumbersInRange.Count > 0 && CurrentImageRectEvenFirstCh1.Count > 0;
@@ -2320,6 +2362,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 }
             }
         }
+
         // ===== 9. 转为 ObservableCollection =====
         Cache.CurrentImageRectListFirstCh1 = new ObservableCollection<Rect>(fullList);
     }
@@ -2340,13 +2383,13 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         int begin = Cache.CgFFBoxBeginNumber2Ch2;
         int end = Cache.CgFFBoxEndNumber2Ch2;
         var oddNumbersInRange = Enumerable.Range(begin, end - begin + 1)
-                                          .Where(x => x % 2 == 1)
-                                          .OrderBy(x => x)
-                                          .ToList();
+            .Where(x => x % 2 == 1)
+            .OrderBy(x => x)
+            .ToList();
         var evenNumbersInRange = Enumerable.Range(begin, end - begin + 1)
-                                           .Where(x => x % 2 == 0)
-                                           .OrderBy(x => x)
-                                           .ToList();
+            .Where(x => x % 2 == 0)
+            .OrderBy(x => x)
+            .ToList();
 
         // ===== 4. 构建真实数据映射（用于保留原始 X/Y/W/H）=====
         var realRectMap = new Dictionary<int, Rect>();
@@ -2395,6 +2438,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             for (int i = 0; i < allOddIds.Count; i++)
                 oddXList[i] = i * (avgOddW + 5);
         }
+
         // ===== 7. 为偶数生成完整 X 坐标（同理）=====
         var evenXList = new double[allEvenIds.Count];
         bool hasEvenData = evenNumbersInRange.Count > 0 && CurrentImageRectEvenFirstCh2.Count > 0;
@@ -2448,10 +2492,10 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 }
             }
         }
+
         // ===== 9. 转为 ObservableCollection =====
         Cache.CurrentImageRectListFirstCh2 = new ObservableCollection<Rect>(fullList);
     }
-
 }
 
 public partial class RodInformation : ObservableObject
@@ -2488,4 +2532,3 @@ public partial class Pole : ObservableObject
     [ObservableProperty]
     private int _height = 80;
 }
-

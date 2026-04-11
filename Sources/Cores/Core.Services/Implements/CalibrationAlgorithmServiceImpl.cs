@@ -5,7 +5,6 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics;
@@ -107,7 +106,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
             out var hvColBeginYHTuple,
             out var hvRowEndYHTuple,
             out var hvColEndYHTuple,
-            out var hvKyHTuple);
+            out var hvKyHTuple,
+            out var hvPercentMeanHTuple);
 
         using var _0 = hvXListHTuple;
         using var _1 = hvXRatioMaxHTuple;
@@ -134,6 +134,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         using var _22 = hvRowEndYHTuple;
         using var _23 = hvColEndYHTuple;
         using var _24 = hvKyHTuple;
+        using var _25 = hvPercentMeanHTuple;
 
         #endregion
 
@@ -167,7 +168,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
             YFieldTiltFitSlope = yFieldTiltFitSlope,
             YFieldTiltFitIntercept = yFieldTiltFitIntercept,
             YFieldTiltFitRSquared = yFieldTiltFitRSquared,
-            YFieldTiltFitPoints = yFieldTiltFitPoints
+            YFieldTiltFitPoints = yFieldTiltFitPoints,
+            SpotAreaPercentMean = hvPercentMeanHTuple.D
         };
 
         bestFocus.BestXStrehlRatioECS = startECS + bestFocus.BestXStrehlRatioPoint.X / size.Width * (stopECS - startECS);
@@ -299,7 +301,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
                 return false;
             }
 
-            var offset = markPoint - (Point)(size / 2d);
+            var offset = markPoint - (Point)((Size)size / 2d);
             offsetPoint = new Point(offset.X, -offset.Y);
 
             return true;
@@ -386,7 +388,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
             var size = scaleImageTo8Bit.GetSize();
             markPoint = new Point(xHTuple.D, yHTuple.D);
 
-            var offset = markPoint - (Point)(size / 2d);
+            var offset = markPoint - (Point)((Size)size / 2d);
             offsetPoint = new Point(offset.X, -offset.Y);
 
             return true;

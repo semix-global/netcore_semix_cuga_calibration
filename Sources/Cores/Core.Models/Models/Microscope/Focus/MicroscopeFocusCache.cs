@@ -36,7 +36,6 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public MicroscopeFocusCacheItem CurrentCalibrationCacheItem =>
         MicroscopeFocusCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeFocusCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
 

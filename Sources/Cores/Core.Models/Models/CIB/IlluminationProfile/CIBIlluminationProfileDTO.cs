@@ -89,7 +89,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     {
         foreach (var itemItem in Items)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(itemItem.CIBInformation, GetScatterPlotControl());
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(itemItem.CIBInformation, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);

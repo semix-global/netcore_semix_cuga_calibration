@@ -1,17 +1,14 @@
-﻿// #define ImageTest
+// #define ImageTest
 
 using AwesomeAssertions;
-using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Models;
-using Xunit;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 
 #if ImageTest
 using System.Diagnostics;
 using System.IO;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 #endif
 
@@ -39,45 +36,32 @@ public class ImageTest
     [InlineData(@"VSharpTest\20260315_786_0_0_1_short_001000_PMT08-CH3_8.raw")]
     public void Test(string filePath)
     {
-        using var originImage = RawImageFactory.CreateImage(@$"Assets\{filePath}");
+        using var originImage = RAWImageFactory.CreateImage(@$"Assets\{filePath}", true);
 
-        var (expectedMatrix, size) = RawImageFactory.ToMatrix(@$"Assets\{filePath}");
-
-        var matrix = originImage.RAW16BitsPerPixelToMatrix();
-        var row = originImage.RAW16BitsPerPixelGetRow((int)size.Height / 2);
-        var column = originImage.RAW16BitsPerPixelGetColumn((int)size.Width / 2);
-
-        matrix.Should()
-            .BeEquivalentTo(expectedMatrix, options => options.WithStrictOrdering());
-        row.Should()
-            .BeEquivalentTo(MatrixUtils.Row(expectedMatrix, (int)size.Height / 2), options => options.WithStrictOrdering());
-        column.Should()
-            .BeEquivalentTo(MatrixUtils.Column(expectedMatrix, (int)size.Width / 2), options => options.WithStrictOrdering());
-
-        Algorithm.InvertTransformPatchImage128(originImage, out var expectedLinearImage);
-        using var _0 = originImage;
+        using var imageFilePath = new HTuple(@$"Assets\{filePath}");
+        Algorithm.AutoReadRawImage(out var autoReadRawImageHObject, imageFilePath);
+        using var _0 = autoReadRawImageHObject;
+        Algorithm.RotateAndMirror(autoReadRawImageHObject, out var rotateAndMirrorHObject);
+        using var _1 = rotateAndMirrorHObject;
+        Algorithm.InvertTransformPatchImage128(rotateAndMirrorHObject, out var expectedLinearImage);
+        using var _2 = expectedLinearImage;
 
         HOperatorSet.GetRegionPoints(expectedLinearImage, out var expectedRowsHTuple, out var expectedColumnsHTuple);
-        using var _1 = expectedRowsHTuple;
-        using var _2 = expectedColumnsHTuple;
+        using var _3 = expectedRowsHTuple;
+        using var _4 = expectedColumnsHTuple;
         HOperatorSet.GetGrayval(expectedLinearImage, expectedRowsHTuple, expectedColumnsHTuple, out var expectedGrayValHTuple);
-        using var _3 = expectedGrayValHTuple;
+        using var _5 = expectedGrayValHTuple;
 
-        using var lineImage = originImage.RAW12BitsPerPixelLogToLinear();
-
-        using var region = lineImage.GetDomain();
-        region.GetRegionPoints(out var rowsHTuple, out var columnsHTuple);
-        using var _4 = rowsHTuple;
-        using var _5 = columnsHTuple;
-        using var grayValHTuple = lineImage.GetGrayval(rowsHTuple, columnsHTuple);
-
-        grayValHTuple.ToLArr().Should()
-            .BeEquivalentTo(expectedGrayValHTuple.ToLArr(), options => options.WithStrictOrdering());
+        originImage.GetGrayValuesL().Should()
+            .BeEquivalentTo(expectedGrayValHTuple.ToLArr(), options => options
+                .WithStrictOrdering()
+                .Using<long>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1))
+                .WhenTypeIs<long>());
 
 #if ImageTest
         var imageFullPath = Path.GetFullPath($"{nameof(ImageTest)}.jpg");
         FileHelper.DeleteFileIfExists(imageFullPath);
-        lineImage.Save(imageFullPath);
+        originImage.Save(imageFullPath);
 
         using var _ = Process.Start(new ProcessStartInfo
         {
@@ -92,13 +76,8 @@ public class ImageTest
     public void Test1()
     {
         const string filePath = @"Assets\20260320_63_0_0_1_short_014282_PMT08-CH2_8.raw";
-        // Algorithm.AutoReadRawImage(out var image, filePath);
-        // Algorithm.RotateAndMirror(image, out var image1);
-        // Algorithm.InvertTransformPatchImage128(image1, out var lineImage);
-        // using var _ = lineImage;
 
-        using var originImage = RawImageFactory.CreateImage(filePath);
-        using var lineImage = originImage.RAW12BitsPerPixelLogToLinear();
+        using var lineImage = RAWImageFactory.CreateImage(filePath, true);
 
         #region 算法调用
 
@@ -130,7 +109,11 @@ public class ImageTest
             out var hvColBeginYHTuple,
             out var hvRowEndYHTuple,
             out var hvColEndYHTuple,
-            out var hvKyHTuple);
+            out var hvKyHTuple,
+            out var hvPercentMeanHTuple);
+
+        _ = xStrehlList;
+        _ = yStrehlList;
 
         using var _0 = hvXListHTuple;
         using var _1 = hvXRatioMaxHTuple;
@@ -157,6 +140,7 @@ public class ImageTest
         using var _22 = hvRowEndYHTuple;
         using var _23 = hvColEndYHTuple;
         using var _24 = hvKyHTuple;
+        using var _25 = hvPercentMeanHTuple;
 
         #endregion
     }

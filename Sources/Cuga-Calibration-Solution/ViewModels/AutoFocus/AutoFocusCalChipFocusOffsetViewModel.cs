@@ -277,7 +277,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 Cache.SpeedEcsPerSecond
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CIBViewModel.SetRTFCParam(Cache.ProductivityInformation);
+            CIBViewModel.ToggleRTFCParam(Cache.ProductivityInformation);
             await Task.Delay(100, cancellationToken);
 
             if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
@@ -504,7 +504,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
             }
             finally
             {
-                CIBViewModel.SetRTFCParam(Cache.ProductivityInformation);
+                CIBViewModel.ToggleRTFCParam(Cache.ProductivityInformation);
             }
         }).ConfigureAwait(false);
     }
