@@ -7,7 +7,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using MiniExcelLibs;
 using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -198,7 +197,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         {
             var cibInformation = cibInformations[i];
             var (size, _, _) = RAWImageFactory.GetSize(bytes);
-            
+
             results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 
@@ -278,7 +277,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         {
             var cibInformation = cibInformations[i];
             var (size, _, _) = RAWImageFactory.GetSize(bytes);
-            
+
             results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _xzSyncMockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 

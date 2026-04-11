@@ -5,6 +5,7 @@ using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
+using Core.Recipe.Services;
 using Core.Services;
 using Core.Utilities;
 using CugaCalibration.Core;
@@ -26,8 +27,6 @@ using SourceGenerator.AssemblyMetadata;
 using SourceGenerator.InjectHostDI;
 using System.Collections.Concurrent;
 using System.Windows;
-using Core.Recipe.Services;
-using Xunit;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationUnitTest;

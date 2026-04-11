@@ -8,7 +8,6 @@ using Core.Models.Models.Fourier;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using HalconDotNet;
 using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Logging;
@@ -34,11 +33,14 @@ using Size = Net.Utilities.Models.Geometries.Size;
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilSideChannelSpecularBlockerViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting, ICalibrationFourierService calibrationFlourierService,
+public sealed partial class PupilSideChannelSpecularBlockerViewModel(
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    CalibrationSetting calibrationSetting,
+    ICalibrationFourierService calibrationFlourierService,
     ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
 {
     #region 界面相关
+
     [ObservableProperty]
     private int _selectedTabIndex = 0;
 
@@ -124,17 +126,17 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
     [ObservableProperty]
     private ObservableCollection<RodInformation> _setAllRods = new ObservableCollection<RodInformation>
     {
-        new RodInformation("Rod1", 0),  new RodInformation("Rod2", 0),new RodInformation("Rod3", 0), new RodInformation("Rod4", 0),new RodInformation("Rod5", 0),new RodInformation("Rod6", 0),
-        new RodInformation("Rod7", 0), new RodInformation("Rod8", 0),new RodInformation("Rod9", 0), new RodInformation("Rod10", 0),new RodInformation("Rod11", 0),new RodInformation("Rod12", 0),
-        new RodInformation("Rod13", 0), new RodInformation("Rod14", 0),new RodInformation("Rod15", 0), new RodInformation("Rod16", 0),new RodInformation("Rod17", 0),new RodInformation("Rod18", 0),
-        new RodInformation("Rod19", 0), new RodInformation("Rod20", 0),new RodInformation("Rod21", 0), new RodInformation("Rod22", 0),new RodInformation("Rod23", 0),new RodInformation("Rod24", 0),
-        new RodInformation("Rod25", 0), new RodInformation("Rod26", 0),new RodInformation("Rod27", 0), new RodInformation("Rod28", 0),new RodInformation("Rod29", 0),new RodInformation("Rod30", 0),
-        new RodInformation("Rod31", 0), new RodInformation("Rod32", 0),new RodInformation("Rod33", 0), new RodInformation("Rod34", 0),new RodInformation("Rod35", 0),new RodInformation("Rod36", 0),
-        new RodInformation("Rod37", 0), new RodInformation("Rod38", 0),new RodInformation("Rod39", 0), new RodInformation("Rod40", 0),new RodInformation("Rod41", 0),new RodInformation("Rod42", 0),
-        new RodInformation("Rod43", 0), new RodInformation("Rod44", 0),new RodInformation("Rod45", 0), new RodInformation("Rod46", 0)
+        new RodInformation("Rod1", 0), new RodInformation("Rod2", 0), new RodInformation("Rod3", 0), new RodInformation("Rod4", 0), new RodInformation("Rod5", 0), new RodInformation("Rod6", 0),
+        new RodInformation("Rod7", 0), new RodInformation("Rod8", 0), new RodInformation("Rod9", 0), new RodInformation("Rod10", 0), new RodInformation("Rod11", 0), new RodInformation("Rod12", 0),
+        new RodInformation("Rod13", 0), new RodInformation("Rod14", 0), new RodInformation("Rod15", 0), new RodInformation("Rod16", 0), new RodInformation("Rod17", 0), new RodInformation("Rod18", 0),
+        new RodInformation("Rod19", 0), new RodInformation("Rod20", 0), new RodInformation("Rod21", 0), new RodInformation("Rod22", 0), new RodInformation("Rod23", 0), new RodInformation("Rod24", 0),
+        new RodInformation("Rod25", 0), new RodInformation("Rod26", 0), new RodInformation("Rod27", 0), new RodInformation("Rod28", 0), new RodInformation("Rod29", 0), new RodInformation("Rod30", 0),
+        new RodInformation("Rod31", 0), new RodInformation("Rod32", 0), new RodInformation("Rod33", 0), new RodInformation("Rod34", 0), new RodInformation("Rod35", 0), new RodInformation("Rod36", 0),
+        new RodInformation("Rod37", 0), new RodInformation("Rod38", 0), new RodInformation("Rod39", 0), new RodInformation("Rod40", 0), new RodInformation("Rod41", 0), new RodInformation("Rod42", 0),
+        new RodInformation("Rod43", 0), new RodInformation("Rod44", 0), new RodInformation("Rod45", 0), new RodInformation("Rod46", 0)
     };
 
-    #region Calibrate  
+    #region Calibrate
 
     [ObservableProperty]
     private ObservableCollection<PupilSideChannelSpecularBlockerDTO> _resultPupilSideChannelSpecularBlockerDTOList = [];
@@ -503,6 +505,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
 
                 Cache.RectROIDrawableListCh11 = newList;
             }
+
             if (SelectedTabIndex == 1)
             {
                 var currentImageRectListFirstCh2 = PupilSideChannelFlexibleApertureValue.CurrentImageRectListFirstCh2;
@@ -550,6 +553,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         for (int j = 1; j <= rodNum; j++)
         {
             ch12List.Add((j, 0));
@@ -566,6 +570,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
             calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
             ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level, SxPos, 100);
         }
+
         if (ret.IsSuccess == false)
         {
             throw new CugaException(ret.ErrorMsg);
@@ -621,6 +626,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         for (int j = 1; j <= rodNum; j++)
         {
             ch12List.Add((j, 0));
@@ -707,11 +713,13 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
                 var rectOne = Cache.BitmapImageDrawableCh11.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
                 CurrentImageAxis.Add(rectOne);
             }
+
             for (int j = 0; j < CurrentImageAxis.Count; j++)
             {
                 var rect = CurrentImageAxis[j];
                 CurrentImageRectListCh1.Add(rect);
             }
+
             Cache.Item.CgFFBoxMoveDownPercentListCh1.Clear();
             for (int j = 0; j < CurrentImageRectListCh1.Count; j++)
             {
@@ -729,11 +737,13 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
                 var rectOne = Cache.BitmapImageDrawableCh21.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
                 CurrentImageAxis.Add(rectOne);
             }
+
             for (int j = 0; j < CurrentImageAxis.Count; j++)
             {
                 var rect = CurrentImageAxis[j];
                 CurrentImageRectListCh2.Add(rect);
             }
+
             Cache.Item.CgFFBoxMoveDownPercentListCh2.Clear();
             for (int j = 0; j < CurrentImageRectListCh2.Count; j++)
             {
@@ -817,10 +827,12 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         for (int j = 1; j <= rodNum; j++)
         {
             ch12List.Add((j, 0));
         }
+
         calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
         calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
 
@@ -833,17 +845,17 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
         var Ch2Path = string.Empty;
         {
             using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
-            Cache.ProductivityInformation,
-            StageCoordinateSystemEnum.Dark,
-            DarkFieldPosition,
-            ImageWidthPixel,
-            Cache.Item.CIBInformation1,
-            (false, CalChipSiteModelEnum.ShinyWaferModel),
-            (false, Cache.Item.OpticsConfiguration),
-            (false, Cache.Item.CIBConfiguration),
-            (false, Cache.Item.LaserLightInformation),
-            false,
-            cancellationToken);
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Dark,
+                DarkFieldPosition,
+                ImageWidthPixel,
+                Cache.Item.CIBInformation1,
+                (false, CalChipSiteModelEnum.ShinyWaferModel),
+                (false, Cache.Item.OpticsConfiguration),
+                (false, Cache.Item.CIBConfiguration),
+                (false, Cache.Item.LaserLightInformation),
+                false,
+                cancellationToken);
             var path1 = Path.Combine(ImageFileDirectory, "CH1", "__" + "LightShow" + "__" + $"{Guid.NewGuid():N}.jpg");
 
             ReviewImageGrayCh1[0] = darkFieldImage1.Image.GetIntensity().Average;
@@ -852,17 +864,17 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
         }
         {
             using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
-            Cache.ProductivityInformation,
-            StageCoordinateSystemEnum.Dark,
-            DarkFieldPosition,
-            ImageWidthPixel,
-            Cache.Item.CIBInformation2,
-            (false, CalChipSiteModelEnum.ShinyWaferModel),
-            (false, Cache.Item.OpticsConfiguration),
-            (false, Cache.Item.CIBConfiguration),
-            (false, Cache.Item.LaserLightInformation),
-            false,
-            cancellationToken);
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Dark,
+                DarkFieldPosition,
+                ImageWidthPixel,
+                Cache.Item.CIBInformation2,
+                (false, CalChipSiteModelEnum.ShinyWaferModel),
+                (false, Cache.Item.OpticsConfiguration),
+                (false, Cache.Item.CIBConfiguration),
+                (false, Cache.Item.LaserLightInformation),
+                false,
+                cancellationToken);
             var path2 = Path.Combine(ImageFileDirectory, "CH2", "__" + "LightShow" + "__" + $"{Guid.NewGuid():N}.jpg");
 
             ReviewImageGrayCh2[0] = darkFieldImage1.Image.GetIntensity().Average;
@@ -872,7 +884,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
         ReviewImageShowPath = new[]
         {
             Ch1Path, // CH1
-            Ch2Path  // CH2
+            Ch2Path // CH2
         };
     }
 
@@ -889,11 +901,13 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
             var result = config.Anything;
             rodNum = result.RodNum;
         }
+
         {
             for (int j = 1; j <= rodNum; j++)
             {
                 ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh1[j - 1]));
             }
+
             calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
 
             ch12List.Clear();
@@ -901,6 +915,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
             {
                 ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh2[j - 1]));
             }
+
             calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
         }
 
@@ -913,17 +928,17 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
         var Ch2Path = string.Empty;
         {
             using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
-            Cache.ProductivityInformation,
-            StageCoordinateSystemEnum.Dark,
-            DarkFieldPosition,
-            ImageWidthPixel,
-            Cache.Item.CIBInformation1,
-            (false, CalChipSiteModelEnum.ShinyWaferModel),
-            (false, Cache.Item.OpticsConfiguration),
-            (false, Cache.Item.CIBConfiguration),
-            (false, Cache.Item.LaserLightInformation),
-            false,
-            cancellationToken);
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Dark,
+                DarkFieldPosition,
+                ImageWidthPixel,
+                Cache.Item.CIBInformation1,
+                (false, CalChipSiteModelEnum.ShinyWaferModel),
+                (false, Cache.Item.OpticsConfiguration),
+                (false, Cache.Item.CIBConfiguration),
+                (false, Cache.Item.LaserLightInformation),
+                false,
+                cancellationToken);
             var path1 = Path.Combine(ImageFileDirectory, "CH1", "__" + "LightHide" + "__" + $"{Guid.NewGuid():N}.jpg");
 
             ReviewImageGrayCh1[1] = darkFieldImage1.Image.GetIntensity().Average;
@@ -933,17 +948,17 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
 
         {
             using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
-            Cache.ProductivityInformation,
-            StageCoordinateSystemEnum.Dark,
-            DarkFieldPosition,
-            ImageWidthPixel,
-            Cache.Item.CIBInformation2,
-            (false, CalChipSiteModelEnum.ShinyWaferModel),
-            (false, Cache.Item.OpticsConfiguration),
-            (false, Cache.Item.CIBConfiguration),
-            (false, Cache.Item.LaserLightInformation),
-            false,
-            cancellationToken);
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Dark,
+                DarkFieldPosition,
+                ImageWidthPixel,
+                Cache.Item.CIBInformation2,
+                (false, CalChipSiteModelEnum.ShinyWaferModel),
+                (false, Cache.Item.OpticsConfiguration),
+                (false, Cache.Item.CIBConfiguration),
+                (false, Cache.Item.LaserLightInformation),
+                false,
+                cancellationToken);
             var path2 = Path.Combine(ImageFileDirectory, "CH2", "__" + "LightHide" + "__" + $"{Guid.NewGuid():N}.jpg");
 
             ReviewImageGrayCh2[1] = darkFieldImage1.Image.GetIntensity().Average;
@@ -953,7 +968,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
         ReviewImageHidePath = new[]
         {
             Ch1Path, // CH1
-            Ch2Path  // CH2
+            Ch2Path // CH2
         };
     }
 
@@ -971,7 +986,6 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
             ReviewImageGrayCh2After = ReviewImageGrayCh2[1],
             ReviewImageCompareCh1 = ReviewImageCompareCh1,
             ReviewImageCompareCh2 = ReviewImageCompareCh2
-
         }), HtmlLogUniqueId.LoggingHtml());
         return;
     }
@@ -1014,6 +1028,3 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(ICalibratio
         return new BitmapImage(bytes, isCopy: true);
     }
 }
-
-
-

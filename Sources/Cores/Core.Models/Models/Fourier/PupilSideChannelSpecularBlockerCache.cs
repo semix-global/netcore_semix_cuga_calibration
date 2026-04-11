@@ -149,4 +149,3 @@ public sealed partial class PupilSideChannelSpecularBlockerCacheItem : Calibrati
     [ObservableProperty]
     public List<double> _cgFFBoxMoveDownPercentListCh2 = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];
 }
-

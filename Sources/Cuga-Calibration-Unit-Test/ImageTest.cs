@@ -1,14 +1,10 @@
-﻿// #define ImageTest
+// #define ImageTest
 
 using AwesomeAssertions;
-using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
-using Net.Utilities.Models;
-using Net.Utilities.Models.Extensions;
-using Xunit;
 
 #if ImageTest
 using System.Diagnostics;

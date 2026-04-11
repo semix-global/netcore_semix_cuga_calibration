@@ -1,7 +1,5 @@
 using Cuga.Data.DataStruct.DTO.Recipe;
 using Cuga.Data.DataStruct.Stage;
-using System;
-using System.Collections.Generic;
 
 namespace Core.Wcf.Models.Fourier;
 
@@ -35,7 +33,6 @@ public sealed class CalibrationPupilFourierObj
     /// 傅里叶校准, PupilCenterChannelSpecularBlocker对象数据
     /// </summary>
     public CalibrationPupilCenterChannelSpecularBlocker CalibrationPupilCenterChannelSpecularBlocker { get; set; } = new CalibrationPupilCenterChannelSpecularBlocker();
-
 }
 
 /// <summary>
@@ -70,18 +67,21 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
     /// 傅里叶截图可见区域内第一根杆子起始像素坐标, **不需要记录**
     /// </summary> 
     public CgPoint CgFFBoxBeginPositionCh1 { get; set; }
+
     public CgPoint CgFFBoxBeginPositionCh2 { get; set; }
 
     /// <summary>
     /// 傅里叶截图可见区域内最后一根杆子截止像素坐标, **不需要记录**
     /// </summary> 
     public CgPoint CgFFBoxEndPositionCh1 { get; set; }
+
     public CgPoint CgFFBoxEndPositionCh2 { get; set; }
 
     /// <summary>
     /// 傅里叶截图可见区域内第一根杆子编号, **需要记录**
     /// </summary> 
     public int CgFFBoxBeginNumber1Ch1 { get; set; }
+
     public int CgFFBoxBeginNumber2Ch1 { get; set; }
     public int CgFFBoxBeginNumber1Ch2 { get; set; }
     public int CgFFBoxBeginNumber2Ch2 { get; set; }
@@ -90,6 +90,7 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
     /// 傅里叶截图可见区域内最后一根杆子编号, **需要记录**
     /// </summary> 
     public int CgFFBoxEndNumber1Ch1 { get; set; }
+
     public int CgFFBoxEndNumber2Ch1 { get; set; }
     public int CgFFBoxEndNumber1Ch2 { get; set; }
     public int CgFFBoxEndNumber2Ch2 { get; set; }
@@ -106,6 +107,7 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
     /// 每根杆子像素高度和真实高度对应比例换算，按照百分比, 每1%相当于多少像素,**需要记录**
     /// </summary> 
     public List<int> CgFFBoxHeightRelationPercentListCh1 { get; set; }
+
     public List<int> CgFFBoxHeightRelationPercentListCh2 { get; set; }
 
     /// <summary>
@@ -230,24 +232,28 @@ public sealed class CalibrationPupilSideChannelSpecularBlocker : CalibrationBase
     /// 傅里叶截图可见区域内开始移动的第一根杆子像素坐标, **不需要记录**
     /// </summary> 
     public CgPoint CgFFBoxBeginPositionCh1 { get; set; }
+
     public CgPoint CgFFBoxBeginPositionCh2 { get; set; }
 
     /// <summary>
     /// 傅里叶截图可见区域内开始移动的第一根杆子编号, **需要记录**
     /// </summary> 
     public int CgFFBoxBeginNumberCh1 { get; set; }
+
     public int CgFFBoxBeginNumberCh2 { get; set; }
 
     /// <summary>
     /// 傅里叶截图可见区域内开始移动的最后一根杆子编号, **需要记录**
     /// </summary> 
     public int CgFFBoxEndNumberCh1 { get; set; }
+
     public int CgFFBoxEndNumberCh2 { get; set; }
 
     /// <summary>
     /// 傅里叶截图可见区域内每根杆子向下移动百分比, **需要记录**
     /// </summary> 
     public List<double> CgFFBoxMoveDownPercentListCh1 { get; set; }
+
     public List<double> CgFFBoxMoveDownPercentListCh2 { get; set; }
 }
 
@@ -267,4 +273,3 @@ public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBa
     /// </summary> 
     public float Ch3Push { get; set; }
 }
-

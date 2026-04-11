@@ -45,18 +45,21 @@ public interface ICalibrationFourierService
     SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos);
 
     SxExecuteRet<bool> SetFFHome(FFCH ch);
+
     /// <summary>
     /// 获取旋转电机MARK实时位置，只有CH3有（X和Y都有）
     /// </summary>
     /// <param name="channel"></param>
     /// <returns></returns>
     SxExecuteRet<double> GetFFRACT(CgFFCHEnum ch);
+
     /// <summary>
     /// 获取挡杆也就是位移电机实时位置，只有CH3有（X和Y都有）
     /// </summary>
     /// <param name="channel"></param>
     /// <returns></returns>
     SxExecuteRet<double> GetFFLACT(CgFFCHEnum ch);
+
     /// <summary>
     /// 获取推杆目标位置 只有CH3X有（只有X方向有）
     /// </summary>

@@ -3,7 +3,6 @@
 using AwesomeAssertions;
 using MiniExcelLibs;
 using Net.Utilities.Algorithms.Modules;
-using Xunit;
 using Xunit.Abstractions;
 using Point = Net.Utilities.Models.Geometries.Point;
 

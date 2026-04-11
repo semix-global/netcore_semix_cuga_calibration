@@ -4,7 +4,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
-using Core.Utilities;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Mapper.Interfaces;

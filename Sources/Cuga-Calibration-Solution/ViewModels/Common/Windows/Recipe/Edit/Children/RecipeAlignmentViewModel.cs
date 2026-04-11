@@ -207,9 +207,9 @@ public sealed partial class RecipeAlignmentViewModel(
 
         AlignmentCacheDarkFields =
         [
-               .. AlignmentCacheDarkFields.Where(t => (t.ProductivityInformation == alignmentWindowDarkFieldViewModel.Cache.ProductivityInformation
-               && t.OpticsIlluminationModeEnum == alignmentWindowDarkFieldViewModel.Cache.OpticsIlluminationModeEnum) == false),
-               alignmentWindowDarkFieldViewModel.Cache
+            .. AlignmentCacheDarkFields.Where(t => (t.ProductivityInformation == alignmentWindowDarkFieldViewModel.Cache.ProductivityInformation
+                                                    && t.OpticsIlluminationModeEnum == alignmentWindowDarkFieldViewModel.Cache.OpticsIlluminationModeEnum) == false),
+            alignmentWindowDarkFieldViewModel.Cache
         ];
 
         AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(

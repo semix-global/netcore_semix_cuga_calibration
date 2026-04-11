@@ -1,12 +1,9 @@
 // #define YPixelSizeTest
 
 using AwesomeAssertions;
-using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Algorithms.Halcon.Extensions;
-using Xunit;
 
 #if YPixelSizeTest
 using System.IO;

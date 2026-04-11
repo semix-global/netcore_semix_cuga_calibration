@@ -21,7 +21,6 @@ public sealed class HardwareStateConfig(
 
     public IReadOnlyDictionary<HardwareClinderTypeEnum, HardwareStateDTO> ClinderHardwares { get; } = new ReadOnlyDictionary<HardwareClinderTypeEnum, HardwareStateDTO>(
         new Dictionary<HardwareClinderTypeEnum, HardwareStateDTO>(clinders));
-
 }
 
 public record HardwareStateDTO(bool Enabled);

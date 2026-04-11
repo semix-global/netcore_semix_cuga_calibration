@@ -134,23 +134,24 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
             {
                 var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == i);
                 using var darkFieldImage = await cibViewModel.GetPMTImageAsync(
-                ApplicationCookie.NILowProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                DarkFieldPosition,
-                ImageWidthPixel,
-                CIBInfor,
-                (false, CalChipSiteModelEnum.DswModel),
-                (false, OpticsConfiguration),
-                (false, CIBConfiguration),
-                (false, LaserLightInformation),
-                false,
-                cancellationToken);
+                    ApplicationCookie.NILowProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    DarkFieldPosition,
+                    ImageWidthPixel,
+                    CIBInfor,
+                    (false, CalChipSiteModelEnum.DswModel),
+                    (false, OpticsConfiguration),
+                    (false, CIBConfiguration),
+                    (false, LaserLightInformation),
+                    false,
+                    cancellationToken);
 
                 var path1 = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 PMT8ChPixselBefore[i - 1] = darkFieldImage.Image.GetIntensity().Average;
                 darkFieldImage.Image.Save(path1);
                 centerOpticsPaths[i - 1] = path1;
             }
+
             PMT8ChCenterOpticsImagePath = centerOpticsPaths;
         }
 
@@ -180,23 +181,24 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
             {
                 var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == i);
                 using var darkFieldImage = await cibViewModel.GetPMTImageAsync(
-                ApplicationCookie.NILowProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                DarkFieldPosition,
-                ImageWidthPixel,
-                CIBInfor,
-                (false, CalChipSiteModelEnum.DswModel),
-                (false, OpticsConfiguration),
-                (false, CIBConfiguration),
-                (false, LaserLightInformation),
-                false,
-                cancellationToken);
+                    ApplicationCookie.NILowProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    DarkFieldPosition,
+                    ImageWidthPixel,
+                    CIBInfor,
+                    (false, CalChipSiteModelEnum.DswModel),
+                    (false, OpticsConfiguration),
+                    (false, CIBConfiguration),
+                    (false, LaserLightInformation),
+                    false,
+                    cancellationToken);
 
                 var path1 = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 PMT8ChPixselAfter[i - 1] = darkFieldImage.Image.GetIntensity().Average;
                 darkFieldImage.Image.Save(path1);
                 allOpticsPaths[i - 1] = path1;
             }
+
             PMT8ChAllOpticsImagePath = allOpticsPaths;
         }
 
@@ -248,6 +250,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
         {
             logger.LogError(ex, "Failed to save cache");
         }
+
         CloseView(null);
     }
 }

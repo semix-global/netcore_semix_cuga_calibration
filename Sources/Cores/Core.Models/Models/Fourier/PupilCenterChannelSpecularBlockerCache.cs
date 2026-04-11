@@ -12,7 +12,6 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Fourier;
 
-
 public sealed partial class PupilCenterChannelSpecularBlockerCache : CalibrationCacheBase
 {
     [ObservableProperty]
@@ -102,4 +101,3 @@ public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : Calibra
     [ObservableProperty]
     public float _ch3Push = 0.3f;
 }
-

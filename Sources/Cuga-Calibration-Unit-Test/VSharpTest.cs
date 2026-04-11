@@ -3,7 +3,6 @@
 using AwesomeAssertions;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.AOD.Uniformity;
-using Core.Utilities;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
@@ -13,7 +12,6 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.ScottPlot.WPF.WPF;
 using ScottPlot;
-using Xunit;
 using Generate = MathNet.Numerics.Generate;
 using Point = Net.Utilities.Models.Geometries.Point;
 
