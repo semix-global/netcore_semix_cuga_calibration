@@ -1,5 +1,6 @@
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Stage;
+using System;
 
 namespace Core.Wcf.Models.Microscope;
 

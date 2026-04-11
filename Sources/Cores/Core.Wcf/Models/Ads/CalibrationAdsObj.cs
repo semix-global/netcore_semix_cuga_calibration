@@ -1,3 +1,5 @@
+using System;
+
 namespace Core.Wcf.Models.Ads;
 
 /// <summary>

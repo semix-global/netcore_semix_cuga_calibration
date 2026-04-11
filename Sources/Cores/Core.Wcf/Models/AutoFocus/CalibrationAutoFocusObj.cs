@@ -1,5 +1,6 @@
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
+using System;
 
 namespace Core.Wcf.Models.AutoFocus;
 

@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFrameworks>net480;net8.0</TargetFrameworks>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
         <AssemblyName>Cuga.Calibration.Core.Wcf</AssemblyName>
         <RootNamespace>Core.Wcf</RootNamespace>
     </PropertyGroup>
