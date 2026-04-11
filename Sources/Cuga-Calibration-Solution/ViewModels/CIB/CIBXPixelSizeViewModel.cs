@@ -547,13 +547,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
             var (size, bodyBytesStartIndex, bodyBytesLength) = RAWImageFactory.GetSize(binaryReader);
-            var (_, heightPixel) = (SizeI)size;
+            var (_, heightPixel) = size;
             var heightPixelByteLength = heightPixel * 2;
 
             #region RealUmPerPixel
 
-            var windowWidthSize = ((SizeI)templateImageSize).Width * 3;
-            var windowWidthStep = ((SizeI)templateImageSize).Width;
+            var windowWidthSize = templateImageSize.Width * 3;
+            var windowWidthStep = templateImageSize.Width;
             var windowImageAllPixelByteLength = windowWidthSize * heightPixelByteLength;
             var windowStepAllPixelByteLength = windowWidthStep * heightPixelByteLength;
             var totalCount = Math.SlideCount(windowImageAllPixelByteLength, windowStepAllPixelByteLength, bodyBytesLength);
@@ -855,7 +855,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RAWImageFactory.GetSize(binaryReader);
-                var (_, heightPixel) = (SizeI)verifySize;
+                var (_, heightPixel) = verifySize;
                 var heightPixelByteLength = heightPixel * 2;
 
                 using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
