@@ -74,7 +74,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public BestFocus GetBestFocus(HImage image, double startECS, double stopECS)
     {
-        var size = (SizeI)image.GetSize();
+        var size = image.GetSize();
 
         #region 算法调用
 
