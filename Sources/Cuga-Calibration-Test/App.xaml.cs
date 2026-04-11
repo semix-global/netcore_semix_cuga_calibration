@@ -17,6 +17,7 @@ using SourceGenerator.AssemblyMetadata;
 using SourceGenerator.InjectHostDI;
 using System.Globalization;
 using System.Windows;
+using Core.Recipe.Services;
 
 namespace CugaCalibrationTest;
 
@@ -38,6 +39,7 @@ public sealed partial class App
                     .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationTestAssemblyMetadata.Version, app, context.HostingEnvironment)
                     .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                     .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddRecipeService(context.HostingEnvironment)
                     .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddScottPlotServices()
                     .AddCoreService(context.HostingEnvironment)

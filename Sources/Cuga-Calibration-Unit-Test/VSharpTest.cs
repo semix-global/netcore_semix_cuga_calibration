@@ -171,7 +171,7 @@ public class VSharpTest
         using var originImage = RAWImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}", false);
         var originHorizontalProjects = isReverse ? originImage.GetHorizontalProjects().AsEnumerable().Reverse().ToArray() : originImage.GetHorizontalProjects();
 
-        using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
+        using var lineImage = isLog ? RAWImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}", true) : originImage.Copy();
         var lineHorizontalProjects = isReverse ? lineImage.GetHorizontalProjects().AsEnumerable().Reverse().ToArray() : lineImage.GetHorizontalProjects();
 
         var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. lineHorizontalProjects])).ToArray();
@@ -439,7 +439,7 @@ public class VSharpTest
         using var originImage = RAWImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}", false);
         var originHorizontalProjects = originImage.GetHorizontalProjects();
 
-        using var lineImage = isLog ? originImage.RAW12BitsPerPixelLogToLinear() : originImage.Copy();
+        using var lineImage = isLog ? RAWImageFactory.CreateImage(@$"Assets\VSharpTest\{filePath}", true) : originImage.Copy();
         var lineHorizontalProjects = lineImage.GetHorizontalProjects();
 
         var smoothImageHorizontalProjects = SavitzkyGolayFilter.Smooth(3, 51, Vector<double>.Build.Dense([.. lineHorizontalProjects])).ToArray();

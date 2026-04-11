@@ -2,17 +2,16 @@
 
 using AwesomeAssertions;
 using Core.Utilities;
+using HalconDotNet;
 using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Xunit;
 
 #if YPixelSizeTest
-using HalconDotNet;
 using System.IO;
 using System.Diagnostics;
 using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 #endif
 
 namespace CugaCalibrationUnitTest;
@@ -24,20 +23,24 @@ public sealed class YPixelSizeTest
     [Fact]
     public void Test()
     {
-        using var originImage = RAWImageFactory.CreateImage(@"Assets\YPixelSize\20260227_2486_0_0_1_short_001000_PMT13-CH3_13.raw", false);
+        using var lineImage = RAWImageFactory.CreateImage(@"Assets\YPixelSize\20260227_2486_0_0_1_short_001000_PMT13-CH3_13.raw", true);
 
-        Algorithm.InvertTransformPatchImage128(originImage, out var expectedLinearImage);
-        using var _0 = originImage;
+        using var imageFilePath = new HTuple(@"Assets\YPixelSize\20260227_2486_0_0_1_short_001000_PMT13-CH3_13.raw");
+        Algorithm.AutoReadRawImage(out var autoReadRawImageHObject, imageFilePath);
+        using var _0 = autoReadRawImageHObject;
+        Algorithm.RotateAndMirror(autoReadRawImageHObject, out var rotateAndMirrorHObject);
+        using var _1 = rotateAndMirrorHObject;
+        Algorithm.InvertTransformPatchImage128(rotateAndMirrorHObject, out var expectedLinearImage);
+        using var _2 = expectedLinearImage;
 
-        using var lineImage = originImage.RAW12BitsPerPixelLogToLinear();
+        using var saveResultImageHTuple = new HTuple(1);
+        Algorithm.DarkPixSizeCal(expectedLinearImage, saveResultImageHTuple, out var expectedDrawImageHObject, out var expectedMeanTuple);
+        using var _3 = expectedDrawImageHObject;
+        using var _4 = expectedMeanTuple;
 
-        Algorithm.DarkPixSizeCal(expectedLinearImage, 1, out var expectedDrawImageHObject, out var expectedMeanTuple);
-        using var _1 = expectedDrawImageHObject;
-        using var _2 = expectedMeanTuple;
-
-        Algorithm.DarkPixSizeCal(lineImage, 1, out var drawImageHObject, out var meanTuple);
-        using var _3 = drawImageHObject;
-        using var _4 = meanTuple;
+        Algorithm.DarkPixSizeCal(lineImage, saveResultImageHTuple, out var drawImageHObject, out var meanTuple);
+        using var _5 = drawImageHObject;
+        using var _6 = meanTuple;
 
         meanTuple.D.Should().Be(expectedMeanTuple.D);
 

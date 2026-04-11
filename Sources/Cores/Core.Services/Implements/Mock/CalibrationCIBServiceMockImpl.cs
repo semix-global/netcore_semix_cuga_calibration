@@ -21,7 +21,7 @@ namespace Core.Services.Implements.Mock;
 public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 {
     private readonly string _mockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw");
-    private readonly string _xzSyncMockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\20260321_648_0_0_1_short_012997_PMT08-CH2_8.raw");
+    private readonly string _xzSyncMockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test_xz_log.raw");
     private readonly string _cibMMDGainDTOFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\CIBMMDGainRelationshipDTO.xlsx");
 
     private readonly ConcurrentDictionary<CIBInformation, bool> _agcStatusStore = new();

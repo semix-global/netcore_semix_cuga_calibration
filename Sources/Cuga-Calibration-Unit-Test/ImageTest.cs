@@ -13,7 +13,6 @@ using Xunit;
 #if ImageTest
 using System.Diagnostics;
 using System.IO;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 #endif
 
@@ -43,7 +42,8 @@ public class ImageTest
     {
         using var originImage = RAWImageFactory.CreateImage(@$"Assets\{filePath}", true);
 
-        Algorithm.AutoReadRawImage(out var autoReadRawImageHObject, filePath);
+        using var imageFilePath = new HTuple(@$"Assets\{filePath}");
+        Algorithm.AutoReadRawImage(out var autoReadRawImageHObject, imageFilePath);
         using var _0 = autoReadRawImageHObject;
         Algorithm.RotateAndMirror(autoReadRawImageHObject, out var rotateAndMirrorHObject);
         using var _1 = rotateAndMirrorHObject;
@@ -115,6 +115,9 @@ public class ImageTest
             out var hvColEndYHTuple,
             out var hvKyHTuple,
             out var hvPercentMeanHTuple);
+
+        _ = xStrehlList;
+        _ = yStrehlList;
 
         using var _0 = hvXListHTuple;
         using var _1 = hvXRatioMaxHTuple;

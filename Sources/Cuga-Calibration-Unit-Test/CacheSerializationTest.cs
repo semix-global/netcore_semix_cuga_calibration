@@ -26,6 +26,7 @@ using SourceGenerator.AssemblyMetadata;
 using SourceGenerator.InjectHostDI;
 using System.Collections.Concurrent;
 using System.Windows;
+using Core.Recipe.Services;
 using Xunit;
 using Point = Net.Utilities.Models.Geometries.Point;
 
@@ -56,6 +57,7 @@ public sealed class CacheSerializationTest : IDisposable
                     .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationTestAssemblyMetadata.Version, Application, context.HostingEnvironment)
                     .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                     .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddRecipeService(context.HostingEnvironment)
                     .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddScottPlotServices()
                     .AddCoreService(context.HostingEnvironment)

@@ -74,9 +74,9 @@ public partial class AODUniformityDTO
         ScatterPlotControl.Configure(customGridScatterPlotControl, 3,
             plots =>
             {
-                customGridScatterPlotControl.Set(plots[0], new GridCell(0, 0, 2, 3, rowSpan: 2));
-                customGridScatterPlotControl.Set(plots[1], new GridCell(1, 0, 2, 3, rowSpan: 2));
-                customGridScatterPlotControl.Set(plots[2], new GridCell(0, 2, 2, 3, colSpan: 2));
+                customGridScatterPlotControl.Set(plots[0], new GridCell(0, 0, 2, 3, colSpan: 2));
+                customGridScatterPlotControl.Set(plots[1], new GridCell(1, 0, 2, 3, colSpan: 2));
+                customGridScatterPlotControl.Set(plots[2], new GridCell(0, 2, 2, 3, rowSpan: 2));
             });
 
         ScatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
