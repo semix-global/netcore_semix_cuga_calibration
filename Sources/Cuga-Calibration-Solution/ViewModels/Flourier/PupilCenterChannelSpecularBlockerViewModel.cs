@@ -10,7 +10,6 @@ using Core.Models.Models.Fourier;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using Core.Utilities;
 using HalconDotNet;
 using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Logging;
@@ -34,8 +33,10 @@ using Size = Net.Utilities.Models.Geometries.Size;
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilCenterChannelSpecularBlockerViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting, ICalibrationFourierService calibrationFlourierService,
+public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    CalibrationSetting calibrationSetting,
+    ICalibrationFourierService calibrationFlourierService,
     ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
 {
     #region 界面相关
@@ -111,7 +112,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
         new() { StepName = "Pupil Center Channel Specular Blocker Calibration" }
     ];
 
-    #region Calibrate  
+    #region Calibrate
 
     [ObservableProperty]
     private ObservableCollection<PupilCenterChannelSpecularBlockerDTO> _resultPupilCenterChannelSpecularBlockerDTOList = [];
@@ -395,6 +396,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
             calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
             calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
         }
+
         if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
         {
             calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
@@ -475,10 +477,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
 
             // 更新UI线程
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Cache.RectROIDrawableList = newList;
-            });
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
@@ -492,10 +491,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
             var cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
             // 更新UI线程
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Cache.RectROIDrawableList = newList;
-            });
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
@@ -510,10 +506,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
             var cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Cache.RectROIDrawableList = newList;
-            });
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
@@ -528,10 +521,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
             var cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
             // 更新UI线程
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                Cache.RectROIDrawableList = newList;
-            });
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
@@ -558,17 +548,17 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
         {
             {
                 using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
-                Cache.ProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                DarkFieldPosition,
-                ImageWidthPixel,
-                Cache.Item.CIBInformation3,
-                (false, CalChipSiteModelEnum.ShinyWaferModel),
-                (false, Cache.Item.OpticsConfiguration),
-                (false, Cache.Item.CIBConfiguration),
-                (false, Cache.Item.LaserLightInformation),
-                false,
-                cancellationToken);
+                    Cache.ProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    DarkFieldPosition,
+                    ImageWidthPixel,
+                    Cache.Item.CIBInformation3,
+                    (false, CalChipSiteModelEnum.ShinyWaferModel),
+                    (false, Cache.Item.OpticsConfiguration),
+                    (false, Cache.Item.CIBConfiguration),
+                    (false, Cache.Item.LaserLightInformation),
+                    false,
+                    cancellationToken);
                 var path1 = Path.Combine(ImageFileDirectory, "CH3", "__" + "LightShow" + "__" + $"{Guid.NewGuid():N}.jpg");
 
                 ReviewImageGrayCh3[0] = darkFieldImage1.Image.GetIntensity().Average;
@@ -586,6 +576,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
             calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
             calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
         }
+
         if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
         {
             calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
@@ -600,17 +591,17 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
         {
             {
                 using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
-                Cache.ProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                DarkFieldPosition,
-                ImageWidthPixel,
-                Cache.Item.CIBInformation3,
-                (false, CalChipSiteModelEnum.ShinyWaferModel),
-                (false, Cache.Item.OpticsConfiguration),
-                (false, Cache.Item.CIBConfiguration),
-                (false, Cache.Item.LaserLightInformation),
-                false,
-                cancellationToken);
+                    Cache.ProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    DarkFieldPosition,
+                    ImageWidthPixel,
+                    Cache.Item.CIBInformation3,
+                    (false, CalChipSiteModelEnum.ShinyWaferModel),
+                    (false, Cache.Item.OpticsConfiguration),
+                    (false, Cache.Item.CIBConfiguration),
+                    (false, Cache.Item.LaserLightInformation),
+                    false,
+                    cancellationToken);
                 var path1 = Path.Combine(ImageFileDirectory, "CH3", "__" + "LightHide" + "__" + $"{Guid.NewGuid():N}.jpg");
 
                 ReviewImageGrayCh3[1] = darkFieldImage1.Image.GetIntensity().Average;
@@ -672,5 +663,3 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(ICalibrat
         return new BitmapImage(bytes, isCopy: true);
     }
 }
-
-

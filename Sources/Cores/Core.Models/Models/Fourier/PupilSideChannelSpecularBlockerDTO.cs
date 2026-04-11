@@ -9,7 +9,6 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Fourier;
 
-
 public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoBase, ICloneable<PupilSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>
 {
     [ObservableProperty]
@@ -84,4 +83,3 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
 
     #endregion Mapper
 }
-

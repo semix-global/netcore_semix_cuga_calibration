@@ -75,7 +75,7 @@ public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsS
 
     public OpticsSCDTO()
     {
-        ScatterPlotControl.SetTitle("SC(Y: Strehl Ratio - X: mm)");
+        ScatterPlotControl.SetTitle("SC(Y: Strehl Ratio - X: λ)");
     }
 
     private void RefreshPlot()
@@ -84,12 +84,22 @@ public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsS
         {
             if (Items.Count <= 0) return;
 
-            ScatterPlotControl.GetOrAddScatterLine(
-                string.Empty,
+            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(3);
+
+            scatterLines[0].Update(
+                "Y Strehl Ratio",
                 [.. Items.Select(t => new Point(t.Lambda, t.BestFocus.BestYStrehlRatioPoint.Y))],
                 Constants.Category10.GetColor(0));
+            scatterLines[1].Update(
+                "X Strehl Ratio",
+                [.. Items.Select(t => new Point(t.Lambda, t.BestFocus.BestXStrehlRatioPoint.Y))],
+                Constants.Category10.GetColor(1));
+            scatterLines[2].Update(
+                "Spot Area Percent Mean",
+                [.. Items.Select(t => new Point(t.Lambda, t.BestFocus.SpotAreaPercentMean))],
+                Constants.Category10.GetColor(2));
 
-            MaxItem = Items.Maxima(t => t.BestFocus.BestYStrehlRatioPoint.Y).First();
+            MaxItem = Items.Minima(t => t.BestFocus.SpotAreaPercentMean).First();
         }
         finally
         {

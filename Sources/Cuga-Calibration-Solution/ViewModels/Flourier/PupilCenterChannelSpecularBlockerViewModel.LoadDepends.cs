@@ -156,4 +156,3 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel
         return true;
     }
 }
-

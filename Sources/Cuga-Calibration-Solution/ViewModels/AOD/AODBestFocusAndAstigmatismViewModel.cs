@@ -572,7 +572,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
             var bytes = File.ReadAllBytes(channelItemDto.RawFilePath);
-            using var image = RawImageFactory.CreateImage(bytes);
+            using var image = RAWImageFactory.CreateImage(bytes, true);
             image.Save(originImageFilePath);
 
             var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(image);

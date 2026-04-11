@@ -66,16 +66,14 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Remove="Assets\Images\*.*" />
         <Resource Include="Assets\Images\*.*" />
         <Resource Include="..\Cuga-Calibration-Solution\Assets\Images\*.*">
             <Link>Assets\Images\%(Filename)%(Extension)</Link>
         </Resource>
-        <None Update="Assets\Data\*.*">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Include="..\Cuga-Calibration-Solution\Assets\Data\*.*">
             <Link>Assets\Data\%(Filename)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

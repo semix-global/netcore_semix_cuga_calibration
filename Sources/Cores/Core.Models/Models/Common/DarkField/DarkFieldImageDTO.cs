@@ -4,7 +4,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
-using Core.Utilities;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Mapper.Interfaces;
@@ -123,13 +122,11 @@ public partial class DarkFieldRawScanImageDTO :
     {
         var rawBytes = File.ReadAllBytes(RawImageFilePath);
 
-        using var image = RawImageFactory.CreateImage(rawBytes);
-
         return IsKeepRawImageCIBProfileModeEnum
-            ? image.CopyImage()
+            ? RAWImageFactory.CreateImage(rawBytes, false)
             : RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog
-                ? image.RAW12BitsPerPixelLogToLinear()
-                : image.Clone();
+                ? RAWImageFactory.CreateImage(rawBytes, true)
+                : RAWImageFactory.CreateImage(rawBytes, false);
     }
 
     public virtual object ToHtmlAnonymous() => new

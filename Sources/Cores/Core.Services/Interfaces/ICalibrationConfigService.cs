@@ -69,5 +69,4 @@ public interface ICalibrationConfigService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<HardwareStateConfig> LoadHardwareConfigs();
-
 }

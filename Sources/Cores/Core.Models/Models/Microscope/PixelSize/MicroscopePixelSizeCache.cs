@@ -29,7 +29,6 @@ public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
     public MicroscopePixelSizeCacheItem CurrentCalibrationCacheItem =>
         MicroscopePixelSizeCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopePixelSizeCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
 

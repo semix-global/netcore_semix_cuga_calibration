@@ -72,8 +72,7 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-
-    public PupilSideChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new PupilSideChannelSpecularBlockerCacheItem());
+    public PupilSideChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new Lazy<PupilSideChannelSpecularBlockerCacheItem>(() => new PupilSideChannelSpecularBlockerCacheItem()));
 }
 
 public sealed partial class PupilSideChannelSpecularBlockerCacheItem : CalibrationCacheBase
@@ -150,4 +149,3 @@ public sealed partial class PupilSideChannelSpecularBlockerCacheItem : Calibrati
     [ObservableProperty]
     public List<double> _cgFFBoxMoveDownPercentListCh2 = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];
 }
-

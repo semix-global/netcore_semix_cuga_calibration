@@ -33,7 +33,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDtoBase,
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AutoFocusCalChipFocusOffsetDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, new AutoFocusCalChipFocusOffsetDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
+    public AutoFocusCalChipFocusOffsetDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, new Lazy<AutoFocusCalChipFocusOffsetDTOItem>(() => new AutoFocusCalChipFocusOffsetDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum }));
 
     public AutoFocusCalChipFocusOffsetDTO Clone() => new()
     {

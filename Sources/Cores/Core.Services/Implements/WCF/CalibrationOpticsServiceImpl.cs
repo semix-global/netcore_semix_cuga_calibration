@@ -268,5 +268,4 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
-
 }

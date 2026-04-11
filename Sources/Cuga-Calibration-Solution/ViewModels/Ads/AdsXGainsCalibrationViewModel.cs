@@ -1657,5 +1657,4 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     }
 
     #endregion 校准
-
 }

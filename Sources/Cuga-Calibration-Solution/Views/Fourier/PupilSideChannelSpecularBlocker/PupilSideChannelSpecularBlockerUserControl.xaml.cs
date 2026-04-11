@@ -19,4 +19,3 @@ namespace CugaCalibration.Views.Fourier.PupilSideChannelSpecularBlocker
         }
     }
 }
-

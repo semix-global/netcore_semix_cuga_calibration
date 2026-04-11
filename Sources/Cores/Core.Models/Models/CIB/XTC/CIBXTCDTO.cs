@@ -198,7 +198,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
         foreach (var (pmtId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(pmtId, GetScatterPlotControl());
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(pmtId, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
