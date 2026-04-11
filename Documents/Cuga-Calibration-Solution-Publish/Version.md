@@ -351,3 +351,34 @@
 >   2.   优化
 >
 >        #143 X Pixel Size算法优化，V Sharp 算法优化，线型图修改不缩放，单元测试算法matlab架构
+
+## 2.5.0411
+
+>   1.   校准
+>
+>        #88 OI/NI 正反向Offset 
+>        #95 傅里叶校准
+>            Pupil Camera Alignment 
+>            Side、Center Channel Flexible Aperture
+>            Side、Center Channel SpecularBlocker
+>        #135 attenuator增加饱和系数校准 
+>        #144 Dark Auto Focus 灯电流校准改为用拟合直线的方式 
+>        #146 BestFocus2.0 NISC OISC校准 
+>
+>        #151 SC校准bestfocus算法修改方案2.0、LUT方案
+>
+>        #152 BF、DF CalChip 找af焦点改为用S曲线的方式
+>
+>   2.   优化
+>
+>        #118 Y Ghost2.0
+>        #119 Coss talk
+>        #147 多光斑BestFocus诊断工具
+>
+>   3.   架构
+>
+>        #131 读取cuga硬件使能状态，初始化时增加判断
+>        #137 配方管理、配方编辑重构
+>        #148 imageviewer修改为支持拖拽显示亮度以及color模式显示
+>        #150 光学配置
+>        #155 移除自动化框架
