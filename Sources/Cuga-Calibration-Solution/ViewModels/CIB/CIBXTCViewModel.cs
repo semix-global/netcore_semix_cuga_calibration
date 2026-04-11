@@ -44,7 +44,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
-        new() { StepName = "Forward & Reverse " },
+        new() { StepName = "Forward & Reverse" },
         new() { StepName = "XTC" }
     ];
 

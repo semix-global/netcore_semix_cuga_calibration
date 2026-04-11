@@ -17,6 +17,9 @@ namespace Core.Models.Models.CIB.AGCDelay;
 public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
 {
     [ObservableProperty]
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
+    
+    [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -102,6 +105,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
     public CIBAGCDelayDTO Clone() => new()
     {
+        LaserLightInformation = LaserLightInformation.Clone(),
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         TargetPixelValues = [.. TargetPixelValues],

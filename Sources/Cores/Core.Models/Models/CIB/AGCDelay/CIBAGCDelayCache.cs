@@ -19,7 +19,7 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase
     public partial double CalibratingThreshold { get; set; } = 1;
 
     [ObservableProperty]
-    public partial double ReviewThreshold { get; set; } = 1;
+    public partial double ReviewThreshold { get; set; } = 2;
 
     public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBAGCDelayCacheItem>> Items { get; init; } = [];
 
@@ -35,23 +35,17 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
-
-    [ObservableProperty]
     public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
-
-    [ObservableProperty]
     public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    public partial int ImageWidth { get; set; } = 1000;
+    public partial double TargetPMTVoltageValue { get; set; }
 
     [ObservableProperty]
-    public partial int PrescanAODWaveformProfileSegmentCount { get; set; } = 10;
+    public partial int ImageWidth { get; set; } = 1000;
 }
