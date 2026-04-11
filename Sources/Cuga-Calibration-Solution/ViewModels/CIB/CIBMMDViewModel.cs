@@ -111,12 +111,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 
-        if (ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.OD].Enabled == false)
-        {
-            DialogWindowProvider.ShowDialog("Please enable the OD motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
         LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();
 
