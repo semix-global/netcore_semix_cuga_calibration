@@ -18,7 +18,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
-using ScottPlot;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
