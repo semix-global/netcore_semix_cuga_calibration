@@ -7,13 +7,13 @@ namespace Core.Models.Models.Common.Pattern;
 public sealed partial class OpticsConfiguration : ObservableObject, ICloneable<OpticsConfiguration>, IAdaptIn<OpticsConfiguration, OpticsConfiguration>
 {
     [ObservableProperty]
-    private OpticsApodizationModeEnum _opticsApodizationModeEnum = OpticsApodizationModeEnum.None;
+    public partial OpticsApodizationModeEnum OpticsApodizationModeEnum { get; set; } = OpticsApodizationModeEnum.None;
 
     [ObservableProperty]
-    private OpticsPolarizationModeEnum _opticsPolarizationModeEnum = OpticsPolarizationModeEnum.P;
+    public partial OpticsPolarizationModeEnum OpticsPolarizationModeEnum { get; set; } = OpticsPolarizationModeEnum.P;
 
     [ObservableProperty]
-    private OpticsCollectorPolarizationModeEnum _opticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.N;
+    public partial OpticsCollectorPolarizationModeEnum OpticsCollectorPolarizationModeEnum { get; set; } = OpticsCollectorPolarizationModeEnum.N;
 
     public OpticsConfiguration AdaptIn(OpticsConfiguration obj)
     {

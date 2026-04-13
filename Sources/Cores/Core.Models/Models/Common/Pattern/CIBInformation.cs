@@ -10,7 +10,7 @@ using System.Globalization;
 namespace Core.Models.Models.Common.Pattern;
 
 [JsonConverter(typeof(CIBInformationConverter))]
-public sealed class CIBInformation :
+public sealed partial class CIBInformation :
     ObservableObject,
     IComparable<CIBInformation>,
     IComparable,
@@ -22,17 +22,11 @@ public sealed class CIBInformation :
 {
     public static readonly CIBInformation Default = new();
 
-    public int PMTId
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial int PMTId { get; private set; } = -1;
 
-    public int ChannelId
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial int ChannelId { get; private set; } = -1;
 
     private CIBInformation()
     {

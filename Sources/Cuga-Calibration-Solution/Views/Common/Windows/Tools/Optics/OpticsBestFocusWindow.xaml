@@ -500,7 +500,7 @@
                                         </hc:UniformSpacingPanel>
                                         <hc:Divider Content="Manual Import" Margin="0" />
                                         <hc:UniformSpacingPanel Spacing="10">
-                                            <Button Content="All Action"
+                                            <Button Content="Action"
                                                     Command="{Binding ManualStep2Command}"
                                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                     Style="{StaticResource ButtonPrimary.Loading}">
@@ -514,7 +514,7 @@
                                                     </MultiBinding>
                                                 </Button.IsEnabled>
                                             </Button>
-                                            <Button Content="All Cancel"
+                                            <Button Content="Cancel"
                                                     Command="{Binding ManualStep2CancelCommand}"
                                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                     Style="{StaticResource ButtonWarning}" />

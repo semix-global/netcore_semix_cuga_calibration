@@ -626,7 +626,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New ChuckCenter offset: ({SelectCenterAndThetaItemDto.ChuckCenterPosition})", DialogButtonsEnum.OK,
                     result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(new Point(0, 0));
             }
             catch (Exception ex)

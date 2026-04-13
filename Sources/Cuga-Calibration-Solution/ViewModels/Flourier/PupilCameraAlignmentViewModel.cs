@@ -129,7 +129,7 @@ public sealed partial class PupilCameraAlignmentViewModel(
         calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
 
         Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
         AfViewModel.ToggleDarkFieldEnable(true);
 
         SxPos = new Point(Cache.HazeWaferPosition.X, Cache.HazeWaferPosition.Y);

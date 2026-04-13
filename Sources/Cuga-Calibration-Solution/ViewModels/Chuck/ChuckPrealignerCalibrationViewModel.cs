@@ -149,7 +149,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         switch (CalibrationStepIndex)
         {
             case 0:
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location);
                 return true;
@@ -199,7 +199,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 return true;
 
             case 5:
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location);
                 return true;
@@ -433,7 +433,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     {
         return await InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
 
             var alignmentResultDto = StageViewModel.AlignmentVerify(
                 Cache.LowSite1,

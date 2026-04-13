@@ -31,6 +31,12 @@
                 <hc:Shield Subject="Microscope: "
                            Status="{Binding Cache.Item.MicroscopeLensInformation}"
                            Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Laser Light: "
+                           Status="{Binding Cache.Item.LaserLightInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="CIB: "
+                           Status="{Binding Cache.Item.CIBInformation}"
+                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Haze BF Machine Position(um): "
                            Status="{Binding Cache.Item.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />

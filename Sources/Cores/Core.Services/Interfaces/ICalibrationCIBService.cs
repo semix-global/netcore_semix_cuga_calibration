@@ -67,6 +67,21 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable);
 
     /// <summary>
+    /// 获取Marker状态
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <returns>是否启用</returns>
+    SxExecuteRet<IReadOnlyList<bool>> GetMarker(IReadOnlyList<CIBInformation> cibInformations);
+
+    /// <summary>
+    /// 设置Marker状态
+    /// </summary>
+    /// <param name="cibInformations">CIB信息列表</param>
+    /// <param name="enable">是否启用Marker</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetMarker(IReadOnlyList<CIBInformation> cibInformations, bool enable);
+
+    /// <summary>
     /// 设置增益
     /// </summary>
     /// <param name="cibInformations">CIB信息列表</param>
