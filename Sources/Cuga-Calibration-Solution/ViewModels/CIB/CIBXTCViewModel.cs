@@ -453,6 +453,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
+                    CIBViewModel.SetDelays([..cibDelays.Select(t => t.Clone().WithPMTDelay(CalibratingItem.Items.Single(tt => tt.CIBInformation == t.CIBInformation).Delay))]);
                     var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
@@ -520,15 +521,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            itemItem.Items[times].Error = itemItem.Items[times].HorizontalProjectMinPixel - pmtIdTargetPixelValue;
+                            itemItem.Items[times].Error = pmtIdTargetPixelValue - itemItem.Items[times].HorizontalProjectMinPixel;
                             itemItem.Items[times].IsOk = Math.Abs(itemItem.Items[times].Error) <= Cache.CalibratingThreshold;
                             resultList.Add(itemItem.Items[times].IsOk);
 
                             if (itemItem.Items[times].IsOk) continue;
 
                             itemItem.Delay += (CalibratingItem.IsReverse ? -1 : 1) * itemItem.Items[times].Error;
-
-                            CIBViewModel.SetDelays([cibDelays.Single(t => t.CIBInformation == itemItem.CIBInformation).Clone().WithPMTDelay(itemItem.Delay)]);
                         }
                     }
 

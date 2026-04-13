@@ -157,14 +157,14 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                 ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
                     0,
                     title,
-                    [.. windowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                    [.. windowItem.Window.ToPoints()],
                     primaryColor);
 
             if (windowItem.ImageHorizontalProjects.Count > 0)
                 ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
                     1,
                     title,
-                    [.. windowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    [.. windowItem.ImageHorizontalProjects.ToPoints()],
                     primaryColor);
 
             if (windowItem.SmoothImageHorizontalProjects.Count > 0)
@@ -172,7 +172,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                 ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
                     1,
                     $"{title} Smooth",
-                    [.. windowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    [.. windowItem.SmoothImageHorizontalProjects.ToPoints()],
                     secondaryColor);
 
                 ForwardAndReverseScatterPlotControl.GetOrAddXLine(
@@ -224,7 +224,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                             scatterPlotControl.GetOrAddScatterLine(
                                 0,
                                 "Window",
-                                [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                                [.. itemItemData.Window.ToPoints()],
                                 Colors.Red);
 
                             var color = Constants.Turbo.GetColor(i, new Range(0, count - 1));
@@ -233,13 +233,13 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                             scatterPlotControl.GetOrAddScatterLine(
                                 1,
                                 $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
-                                [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                                [.. itemItemData.ImageHorizontalProjects.ToPoints()],
                                 color).IsVisible = i == count - 1;
 
                             scatterPlotControl.GetOrAddScatterLine(
                                 1,
                                 $"Smooth: {i + 1}: {nameof(CIBInformation.ChannelId)}({channelId})",
-                                [.. itemItemData.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                                [.. itemItemData.SmoothImageHorizontalProjects.ToPoints()],
                                 color).IsVisible = i == count - 1;
 
                             scatterPlotControl.GetOrAddXLine(

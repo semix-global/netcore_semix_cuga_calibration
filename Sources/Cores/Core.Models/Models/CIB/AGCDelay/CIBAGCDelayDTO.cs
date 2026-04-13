@@ -11,6 +11,9 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot.WPF.Helper;
+using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.AGCDelay;
 
@@ -18,9 +21,15 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 {
     [ObservableProperty]
     public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
-    
+
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial Point[] LaserLightInformationPMTVoltageValuePoints { get; set; } = [];
 
     [ObservableProperty]
     public partial IReadOnlyList<CIBAGCDelayDTOItem> Items { get; set; } = [];
@@ -76,14 +85,33 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(item.CIBInformation, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
 
             scatterPlotControl.Clear(0);
-            scatterPlotControl.Clear(1);
 
             try
             {
-                if (TargetPixelValues.TryGetSingle(t => t.Key == item.CIBInformation, out var targetPMTValueKvp))
+                var scatterLines = scatterPlotControl.GetOrAddScatterLines(item.Items.Count);
+                var xLines = scatterPlotControl.GetOrAddXLines(item.Items.Count + 1);
+
+                foreach (var (index, itemItemData) in item.Items.Index())
                 {
-                    scatterPlotControl.GetOrAddXLine(1, "Target", targetPMTValueKvp.Value, Colors.Red);
+                    var color = Constants.Turbo.GetColor(index, new Range(0, item.Items.Count - 1));
+                    scatterLines[index].Update(
+                        $"{index + 1}: Delay: {item.Delay:0.###}",
+                        [.. itemItemData.ImageHorizontalProjects.ToPoints()],
+                        color);
+
+                    xLines[index + 1].Update(
+                        $"{index + 1}: Error: {itemItemData.Error:0.###}",
+                        itemItemData.HorizontalProjectMinPixel,
+                        color);
+
+                    scatterLines[index].IsVisible = xLines[index + 1].IsVisible = index == item.Items.Count - 1;
                 }
+
+                xLines[0].Update(TargetPixelValues.TryGetSingle(t => t.Key == item.CIBInformation, out var targetPMTValueKvp)
+                        ? "Target"
+                        : string.Empty,
+                    targetPMTValueKvp.Value,
+                    Colors.Red);
             }
             finally
             {
@@ -96,7 +124,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
     {
         var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
-        scatterPlotControl.SetTitle("Window(Y: PMT Value - X: px)");
+        scatterPlotControl.SetTitle("Horizontal Projects(Y: PMT Value(Voltage) - X: px)");
 
         return scatterPlotControl;
     }
@@ -181,6 +209,18 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
+        public partial IReadOnlyList<double> ImageHorizontalProjects { get; set; } = [];
+
+        [ObservableProperty]
+        public partial int HorizontalProjectMinPixel { get; set; }
+
+        [ObservableProperty]
+        public partial string RawImageFilePath { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        public partial string ImageFilePath { get; set; } = string.Empty;
+
+        [ObservableProperty]
         public partial double Error { get; set; }
 
         [ObservableProperty]
@@ -188,8 +228,23 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
 
         public Item Clone() => new()
         {
+            ImageHorizontalProjects = [.. ImageHorizontalProjects],
+            HorizontalProjectMinPixel = HorizontalProjectMinPixel,
+            RawImageFilePath = RawImageFilePath,
+            ImageFilePath = ImageFilePath,
             Error = Error,
-            IsOk = IsOk
+            IsOk = IsOk,
         };
+
+        public void CalculateHorizontalProjectMinPixel()
+        {
+            var targetValue = ImageHorizontalProjects.Min() + (ImageHorizontalProjects.Max() - ImageHorizontalProjects.Min()) * 2d / 3d;
+            var changedList = ImageHorizontalProjects.ToPoints().Where(t => t.Y < targetValue).ToList();
+
+            var startIndex = Convert.ToInt32(changedList[0].X);
+            var endIndex = Convert.ToInt32(changedList[^1].X);
+
+            HorizontalProjectMinPixel = (startIndex + endIndex) / 2;
+        }
     }
 }
