@@ -114,10 +114,11 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
         {
             var scatterPlotControl = ScatterPlotControls.GetOrAdd(item.CIBInformation, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
 
-            scatterPlotControl.Clear(0);
-
             try
             {
+                var information = scatterPlotControl.GetTitle().Split(['=', '>'], StringSplitOptions.RemoveEmptyEntries);
+                scatterPlotControl.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###}");
+
                 var scatterLines = scatterPlotControl.GetOrAddScatterLines(item.Items.Count);
                 var xLines = scatterPlotControl.GetOrAddXLines(item.Items.Count + 1);
 
@@ -125,23 +126,24 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
                 {
                     var color = Constants.Turbo.GetColor(index, new Range(0, item.Items.Count - 1));
                     scatterLines[index].Update(
-                        $"{index + 1}: Delay: {item.Delay:0.###}",
+                        $"{index + 1}",
                         [.. itemItemData.ImageHorizontalProjects.ToPoints()],
                         color);
 
                     xLines[index + 1].Update(
-                        $"{index + 1}: Error: {itemItemData.Error:0.###}",
+                        $"{index + 1} => Error: {itemItemData.Error:0.###}",
                         itemItemData.HorizontalProjectMinPixel,
                         color);
 
                     scatterLines[index].IsVisible = xLines[index + 1].IsVisible = index == item.Items.Count - 1;
                 }
 
-                xLines[0].Update(TargetPixelValues.TryGetSingle(t => t.Key == item.CIBInformation, out var targetPMTValueKvp)
-                        ? "Target"
-                        : string.Empty,
+                var tryGetSingle = TargetPixelValues.TryGetSingle(t => t.Key == item.CIBInformation, out var targetPMTValueKvp);
+                xLines[0].Update(
+                    "Target",
                     targetPMTValueKvp.Value,
                     Colors.Red);
+                xLines[0].IsVisible = tryGetSingle;
             }
             finally
             {

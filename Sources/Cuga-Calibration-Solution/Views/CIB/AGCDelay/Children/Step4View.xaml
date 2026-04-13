@@ -54,7 +54,7 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.CalibratingRetryTimes}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(Log): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(px): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="200"
                                           Minimum="1"

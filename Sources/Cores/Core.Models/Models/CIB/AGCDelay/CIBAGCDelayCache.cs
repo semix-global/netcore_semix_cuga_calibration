@@ -47,5 +47,5 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double TargetPMTValue { get; set; }
+    public partial double TargetPMTValue { get; set; } = 400;
 }
