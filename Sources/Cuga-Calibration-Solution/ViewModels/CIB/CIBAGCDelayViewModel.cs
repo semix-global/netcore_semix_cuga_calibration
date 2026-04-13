@@ -553,6 +553,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
             }
             finally
             {
+                CIBViewModel.SetMarker(cibInformations, false);
                 CIBViewModel.SetAGC(cibInformations, true);
                 CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0d);
