@@ -5,6 +5,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.CIB.AGCDelay;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities.SourceGenerators.Attributes;
@@ -22,7 +23,6 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
-using Core.Models.Models.Common.Pattern;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -332,7 +332,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                     darkFieldImage.Image.Save(imageFilePath);
 
                     var average = darkFieldImage.Image.GetIntensity().Average;
-                    CalibratingItem.LaserLightInformationPMTVoltageValuePoints = [..CalibratingItem.LaserLightInformationPMTVoltageValuePoints, new Point(laserLightInformation.Coefficient, average)];
+                    CalibratingItem.LaserLightInformationPMTVoltageValuePoints = [.. CalibratingItem.LaserLightInformationPMTVoltageValuePoints, new Point(laserLightInformation.Coefficient, average)];
 
                     if (average < Cache.Item.TargetPMTValue)
                     {
@@ -397,7 +397,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem.TargetPixelValues = [..cibInformations.Select(t => new KeyValuePair<CIBInformation, double>(t, (CalibratingItem.ProductivityInformation.OriginYPixel - 1d) / 2d))];
+            CalibratingItem.TargetPixelValues = [.. cibInformations.Select(t => new KeyValuePair<CIBInformation, double>(t, (CalibratingItem.ProductivityInformation.OriginYPixel - 1d) / 2d))];
             CalibratingItem.Items =
             [
                 .. cibInformations.Select(t => new CIBAGCDelayDTOItem
@@ -434,7 +434,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                     CIBViewModel.SetAGC(cibInformations, false);
                     CIBViewModel.SetMarker(cibInformations, false);
 
-                    CIBViewModel.SetDelays([..cibDelays.Select(t => t.Clone().WithAGCDelay(CalibratingItem.Items.Single(tt => tt.CIBInformation == t.CIBInformation).Delay))]);
+                    CIBViewModel.SetDelays([.. cibDelays.Select(t => t.Clone().WithAGCDelay(CalibratingItem.Items.Single(tt => tt.CIBInformation == t.CIBInformation).Delay))]);
 
                     CIBViewModel.SetAGC(cibInformations, true);
                     CIBViewModel.SetMarker(cibInformations, true);

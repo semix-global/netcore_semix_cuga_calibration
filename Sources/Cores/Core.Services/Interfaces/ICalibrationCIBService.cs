@@ -65,7 +65,7 @@ public interface ICalibrationCIBService
     /// <param name="enable">是否启用L0K</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable);
-    
+
     /// <summary>
     /// 获取Marker状态
     /// </summary>
