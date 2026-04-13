@@ -836,7 +836,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
         calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
         calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
 
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
         StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.ShinyWaferPosition);
         AfViewModel.ToggleDarkFieldEnable(true);
 
@@ -919,7 +919,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
             calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
         }
 
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
         StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.ShinyWaferPosition);
         AfViewModel.ToggleDarkFieldEnable(true);
 

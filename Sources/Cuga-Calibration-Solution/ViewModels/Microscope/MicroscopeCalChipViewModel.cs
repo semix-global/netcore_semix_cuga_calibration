@@ -123,7 +123,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
         AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
 
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
 
 
@@ -157,7 +157,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
         MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.LowMicroscopeLensInformation);
 
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
 
         return true;
     }
@@ -197,7 +197,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 return true;
 
             case 7:
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.HighSite2.Location);
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, Cache.CalChipSiteModelEnum);
@@ -300,7 +300,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
 
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
 
@@ -425,7 +425,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 ImageFileDirectory = detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
             MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
 
@@ -667,7 +667,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     {
         return await InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.Alignment(
                 Cache.LowSite1,
                 Cache.LowSite2,
@@ -726,7 +726,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
                 SelectReviewItem.DSWAlignmentDegree = alignmentResultDto.Degrees;
 
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
                 {
                     SelectReviewItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = calChipSiteModelEnum;

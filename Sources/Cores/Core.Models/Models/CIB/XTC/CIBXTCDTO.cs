@@ -23,19 +23,19 @@ namespace Core.Models.Models.CIB.XTC;
 public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO>, IAdaptTo<CalibrationLaserCIBXTCItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private AODUniformityDTO.WindowItem _startWindowItem = new();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial AODUniformityDTO.WindowItem StartWindowItem { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private AODUniformityDTO.WindowItem _stopWindowItem = new();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial AODUniformityDTO.WindowItem StopWindowItem { get; set; } = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -43,25 +43,27 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXTCDTOItem> _items = [];
+    public partial IReadOnlyList<CIBXTCDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentBag<KeyValuePair<int, double>> _targetPixelValues = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial ConcurrentBag<KeyValuePair<int, double>> TargetPixelValues { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _forwardAndReverseScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IScatterPlotControl ForwardAndReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> _scatterPlotControls = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> ScatterPlotControls { get; set; } = [];
+
+    #region Partial Method
 
     // ReSharper disable UnusedParameterInPartialMethod
 
@@ -124,6 +126,8 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
     // ReSharper restore UnusedParameterInPartialMethod
 
+    #endregion
+
     public CIBXTCDTO()
     {
         ForwardAndReverseScatterPlotControl.Configure(new Columns(), 2);
@@ -157,14 +161,14 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                 ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
                     0,
                     title,
-                    [.. windowItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                    [.. windowItem.Window.ToPoints()],
                     primaryColor);
 
             if (windowItem.ImageHorizontalProjects.Count > 0)
                 ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
                     1,
                     title,
-                    [.. windowItem.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    [.. windowItem.ImageHorizontalProjects.ToPoints()],
                     primaryColor);
 
             if (windowItem.SmoothImageHorizontalProjects.Count > 0)
@@ -172,7 +176,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                 ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
                     1,
                     $"{title} Smooth",
-                    [.. windowItem.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                    [.. windowItem.SmoothImageHorizontalProjects.ToPoints()],
                     secondaryColor);
 
                 ForwardAndReverseScatterPlotControl.GetOrAddXLine(
@@ -224,7 +228,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                             scatterPlotControl.GetOrAddScatterLine(
                                 0,
                                 "Window",
-                                [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
+                                [.. itemItemData.Window.ToPoints()],
                                 Colors.Red);
 
                             var color = Constants.Turbo.GetColor(i, new Range(0, count - 1));
@@ -233,13 +237,13 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
                             scatterPlotControl.GetOrAddScatterLine(
                                 1,
                                 $"{i + 1}: {nameof(CIBInformation.ChannelId)}({channelId}) Error: {itemItemData.Error:0.###}",
-                                [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                                [.. itemItemData.ImageHorizontalProjects.ToPoints()],
                                 color).IsVisible = i == count - 1;
 
                             scatterPlotControl.GetOrAddScatterLine(
                                 1,
                                 $"Smooth: {i + 1}: {nameof(CIBInformation.ChannelId)}({channelId})",
-                                [.. itemItemData.SmoothImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
+                                [.. itemItemData.SmoothImageHorizontalProjects.ToPoints()],
                                 color).IsVisible = i == count - 1;
 
                             scatterPlotControl.GetOrAddXLine(
@@ -309,16 +313,16 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCDTOItem>, IAdaptTo<CalibrationLaserCIBXTCItem.Item>
 {
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<Item> _items = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]
-    private double _delay;
+    public partial double Delay { get; set; }
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -358,10 +362,10 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
     public sealed partial class Item : AODUniformityDTO.WindowItem, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _error;
+        public partial double Error { get; set; }
 
         [ObservableProperty]
-        private bool _isOk;
+        public partial bool IsOk { get; set; }
 
         public new Item Clone()
         {

@@ -9,20 +9,27 @@ namespace Core.Models.Models.Common.DarkField;
 public sealed partial class CIBDelayDTO : ObservableObject, ICloneable<CIBDelayDTO>, IAdaptTo<CgPMTDelayModel>, IAdaptIn<CgPMTDelayModel, CIBDelayDTO>
 {
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private double _pMTDelay;
+    public partial double PMTDelay { get; set; }
 
     [ObservableProperty]
-    private double _senseDelay;
+    public partial double SenseDelay { get; set; }
 
     [ObservableProperty]
-    private double _aGCDelay;
+    public partial double AGCDelay { get; set; }
 
     public CIBDelayDTO WithPMTDelay(double pmtDelay)
     {
         PMTDelay = pmtDelay;
+
+        return this;
+    }
+
+    public CIBDelayDTO WithAGCDelay(double agcDelay)
+    {
+        AGCDelay = agcDelay;
 
         return this;
     }

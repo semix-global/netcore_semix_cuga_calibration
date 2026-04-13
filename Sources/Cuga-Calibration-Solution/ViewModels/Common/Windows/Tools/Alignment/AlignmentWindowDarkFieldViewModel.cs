@@ -212,7 +212,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 // 设置到明场中心、低倍镜、角度为0(上料默认状态)
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
             }
             catch (Exception ex)
             {

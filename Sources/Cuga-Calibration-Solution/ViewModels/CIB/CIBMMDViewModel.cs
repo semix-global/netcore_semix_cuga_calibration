@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
-using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
@@ -111,12 +110,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 
-        if (ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.OD].Enabled == false)
-        {
-            DialogWindowProvider.ShowDialog("Please enable the OD motor!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
-
         MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
         LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();
 
@@ -180,7 +173,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             case 2:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition));
 
                 return true;
@@ -200,7 +193,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Calibratings = [];
 
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.HazeFindBFMachinePosition
                     : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
@@ -266,7 +259,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             Cache.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -362,7 +355,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.StartCoefficient))]);
             LaserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
 
-            CIBViewModel.ToggleProfileMode(Cache.CIBInformations, CIBProfileModeEnum.PMTVoltage);
+            CIBViewModel.SetCIBProfileModeEnum(Cache.CIBInformations, CIBProfileModeEnum.PMTVoltage);
             CIBViewModel.SetGain(Cache.CIBInformations, Cache.StartGain);
 
             Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -525,7 +518,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             #endregion
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
             try
@@ -629,10 +622,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(Cache.CIBInformations, true);
-                CIBViewModel.ToggleProfileMode(Cache.CIBInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(Cache.CIBInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(Cache.CIBInformations, CIBProfileModeEnum.PMTLog);
                 OpticsViewModel.ToggleODFilter(false);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
             }
 

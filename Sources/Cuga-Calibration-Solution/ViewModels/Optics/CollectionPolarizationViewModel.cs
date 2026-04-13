@@ -140,7 +140,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             ? Cache.HazeWaferPosition
             : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
 
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
         StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition));
         AfViewModel.ToggleDarkFieldEnable(true);
 

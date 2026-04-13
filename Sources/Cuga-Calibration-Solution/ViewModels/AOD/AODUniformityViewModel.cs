@@ -58,18 +58,18 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private AODUniformityDTO _calibratingItem = new();
+    public partial AODUniformityDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationAndLaserLightInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationAndLaserLightInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<AODUniformityDTO> _reviews = [];
+    public partial IReadOnlyList<AODUniformityDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<AODUniformityDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<AODUniformityDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -77,17 +77,17 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private AODUniformityCache _cache = new();
+    public partial AODUniformityCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AODUniformityDTO[] _calibrations = [];
+    public partial AODUniformityDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDTO> _laserOpticalPowerMeters = [];
+    public partial IReadOnlyList<LaserOpticalPowerMeterDTO> LaserOpticalPowerMeters { get; set; } = [];
 
     #endregion 缓存
 
@@ -182,7 +182,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
             case 4:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
                 return true;
@@ -214,7 +214,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
             case 2:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
                     : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
@@ -309,7 +309,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         {
             Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             Cache.Item.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -383,7 +383,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             OpticsViewModel.SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum.N);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
             try
@@ -587,9 +587,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
-                CIBViewModel.ToggleProfileMode(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                CIBViewModel.SetAGC(ApplicationCookie.CIBInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
                 OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
@@ -639,7 +639,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             OpticsViewModel.SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum.N);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
             try
@@ -698,9 +698,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(ApplicationCookie.CIBInformations, true);
-                CIBViewModel.ToggleProfileMode(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                CIBViewModel.SetAGC(ApplicationCookie.CIBInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(ApplicationCookie.CIBInformations, CIBProfileModeEnum.PMTLog);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
                 OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
@@ -777,7 +777,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             OpticsViewModel.SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum.N);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
             try
@@ -1052,9 +1052,9 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
                 OpticsViewModel.SetPolarizationMode(currentOpticsPolarizationModeEnum);
                 OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);

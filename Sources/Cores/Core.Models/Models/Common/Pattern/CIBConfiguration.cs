@@ -7,16 +7,16 @@ namespace Core.Models.Models.Common.Pattern;
 public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBConfiguration>, IAdaptIn<CIBConfiguration, CIBConfiguration>
 {
     [ObservableProperty]
-    private int _gain = -2;
+    public partial int Gain { get; set; } = -2;
 
     [ObservableProperty]
-    private bool _isAutoGainControl = true;
+    public partial bool IsAutoGainControl { get; set; } = true;
 
     [ObservableProperty]
-    private bool _isL0K;
+    public partial bool IsL0K { get; set; }
 
     [ObservableProperty]
-    private CIBProfileModeEnum _cIBProfileMode = CIBProfileModeEnum.PMTLog;
+    public partial CIBProfileModeEnum CIBProfileMode { get; set; } = CIBProfileModeEnum.PMTLog;
 
     public CIBConfiguration AdaptIn(CIBConfiguration obj)
     {

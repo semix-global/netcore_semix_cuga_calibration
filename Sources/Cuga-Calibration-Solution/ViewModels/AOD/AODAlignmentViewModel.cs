@@ -155,7 +155,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
             case 3:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
                 return true;
@@ -178,7 +178,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
             case 1:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
                     : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
@@ -252,7 +252,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         {
             Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             Cache.Item.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new

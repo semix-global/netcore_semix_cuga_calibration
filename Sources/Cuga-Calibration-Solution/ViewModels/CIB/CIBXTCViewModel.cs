@@ -44,7 +44,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },
         new() { StepName = "Find Haze Position" },
-        new() { StepName = "Forward & Reverse " },
+        new() { StepName = "Forward & Reverse" },
         new() { StepName = "XTC" }
     ];
 
@@ -53,18 +53,18 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private CIBXTCDTO _calibratingItem = new();
+    public partial CIBXTCDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXTCDTO> _reviews = [];
+    public partial IReadOnlyList<CIBXTCDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXTCDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBXTCDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -72,14 +72,14 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBXTCCache _cache = new();
+    public partial CIBXTCCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBXTCDTO[] _calibrations = [];
+    public partial CIBXTCDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 
@@ -159,7 +159,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
             case 3:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
                 return true;
@@ -185,7 +185,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
             case 1:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
                     : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
@@ -260,7 +260,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         {
             Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             Cache.Item.HazeFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -313,11 +313,11 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             CalibratingItem.StartWindowItem = new AODUniformityDTO.WindowItem();
             CalibratingItem.StopWindowItem = new AODUniformityDTO.WindowItem();
 
-            CIBViewModel.ToggleEnableAGC(cibInformations, true);
-            CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+            CIBViewModel.SetAGC(cibInformations, true);
+            CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
             Logger.LogHtmlInformation("Forward and Reverse", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -381,9 +381,9 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
             }
         });
@@ -434,12 +434,12 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 ];
                 CalibratingItem.TargetPixelValues = [];
 
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetDelays(cibDelays);
 
                 var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
                 Logger.LogHtmlInformation("XTC", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -453,6 +453,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
+                    CIBViewModel.SetDelays([.. cibDelays.Select(t => t.Clone().WithPMTDelay(CalibratingItem.Items.Single(tt => tt.CIBInformation == t.CIBInformation).Delay))]);
                     var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
@@ -520,15 +521,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            itemItem.Items[times].Error = itemItem.Items[times].HorizontalProjectMinPixel - pmtIdTargetPixelValue;
+                            itemItem.Items[times].Error = pmtIdTargetPixelValue - itemItem.Items[times].HorizontalProjectMinPixel;
                             itemItem.Items[times].IsOk = Math.Abs(itemItem.Items[times].Error) <= Cache.CalibratingThreshold;
                             resultList.Add(itemItem.Items[times].IsOk);
 
                             if (itemItem.Items[times].IsOk) continue;
 
                             itemItem.Delay += (CalibratingItem.IsReverse ? -1 : 1) * itemItem.Items[times].Error;
-
-                            CIBViewModel.SetDelays([cibDelays.Single(t => t.CIBInformation == itemItem.CIBInformation).Clone().WithPMTDelay(itemItem.Delay)]);
                         }
                     }
 
@@ -583,10 +582,10 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             }
             finally
             {
-                CIBViewModel.ToggleEnableAGC(cibInformations, true);
-                CIBViewModel.ToggleProfileMode(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC(cibInformations, true);
+                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetDelays(cibDelays);
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
             }
         });
