@@ -52,6 +52,8 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
     [System.Xml.Serialization.XmlIgnore]
     public partial ConcurrentBag<KeyValuePair<CIBInformation, IScatterPlotControl>> ScatterPlotControls { get; set; } = [];
 
+    #region Partial Method
+
     // ReSharper disable UnusedParameterInPartialMethod
 
     partial void OnLaserLightInformationPMTVoltageValuePointsChanged(Point[] value) => RefreshPlot();
@@ -76,6 +78,8 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
     partial void OnTargetPixelValuesChanged(ConcurrentBag<KeyValuePair<CIBInformation, double>> value) => RefreshPlots();
 
     // ReSharper restore UnusedParameterInPartialMethod
+
+    #endregion
 
     public CIBAGCDelayDTO()
     {

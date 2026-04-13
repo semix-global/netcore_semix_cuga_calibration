@@ -53,18 +53,18 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private CIBXTCDTO _calibratingItem = new();
+    public partial CIBXTCDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXTCDTO> _reviews = [];
+    public partial IReadOnlyList<CIBXTCDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXTCDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBXTCDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -72,14 +72,14 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBXTCCache _cache = new();
+    public partial CIBXTCCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBXTCDTO[] _calibrations = [];
+    public partial CIBXTCDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 
