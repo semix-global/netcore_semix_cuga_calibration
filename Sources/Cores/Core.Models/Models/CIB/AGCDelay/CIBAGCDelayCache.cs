@@ -44,8 +44,8 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
     public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    public partial double TargetPMTVoltageValue { get; set; }
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial int ImageWidth { get; set; } = 1000;
+    public partial double TargetPMTValue { get; set; }
 }

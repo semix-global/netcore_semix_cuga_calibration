@@ -32,6 +32,12 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
     public partial Point[] LaserLightInformationPMTVoltageValuePoints { get; set; } = [];
 
     [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+    [ObservableProperty]
     public partial IReadOnlyList<CIBAGCDelayDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
@@ -48,6 +54,8 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
     // ReSharper disable UnusedParameterInPartialMethod
 
+    partial void OnLaserLightInformationPMTVoltageValuePointsChanged(Point[] value) => RefreshPlot();
+
     partial void OnItemsChanged(IReadOnlyList<CIBAGCDelayDTOItem>? oldValue, IReadOnlyList<CIBAGCDelayDTOItem> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
@@ -58,27 +66,45 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
             item.PropertyChanged += ItemOnPropertyChanged;
         }
 
-        RefreshPlot();
+        RefreshPlots();
 
         return;
 
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlots();
     }
 
-    partial void OnTargetPixelValuesChanged(ConcurrentBag<KeyValuePair<CIBInformation, double>> value) => RefreshPlot();
+    partial void OnTargetPixelValuesChanged(ConcurrentBag<KeyValuePair<CIBInformation, double>> value) => RefreshPlots();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
     public CIBAGCDelayDTO()
     {
+        ScatterPlotControl.SetTitle("Laser Light Information(Y: PMT Value(Voltage) - X: Coefficient)");
     }
 
-    public CIBAGCDelayDTO(IReadOnlyList<CIBInformation> cibInformations)
+    public CIBAGCDelayDTO(IReadOnlyList<CIBInformation> cibInformations) : this()
     {
         ScatterPlotControls = [.. cibInformations.Select(t => new KeyValuePair<CIBInformation, IScatterPlotControl>(t, GetScatterPlotControl()))];
     }
 
     private void RefreshPlot()
+    {
+        try
+        {
+            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(1);
+
+            scatterLines[0].Update(
+                string.Empty,
+                LaserLightInformationPMTVoltageValuePoints,
+                Constants.Category10.GetColor(0));
+        }
+        finally
+        {
+            ScatterPlotControl.AutoScaleRefresh();
+        }
+    }
+
+    private void RefreshPlots()
     {
         foreach (var item in Items)
         {

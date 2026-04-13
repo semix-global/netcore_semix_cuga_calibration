@@ -60,6 +60,20 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.CalibratingThreshold}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.LaserLightInformation, Mode=OneWay}"
+                                 hc:TitleElement.Title="Laser Light Information: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -85,9 +99,7 @@
                     </i:Interaction.Behaviors>
                     <TabControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
-                            <TextBlock Text="{Binding Key, StringFormat='PMT Id: {0}'}"
-                                       Padding="5,2"
-                                       Style="{StaticResource TextBlockDefaultBold}" />
+                            <TextBlock Text="{Binding Key}" />
                         </DataTemplate>
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>

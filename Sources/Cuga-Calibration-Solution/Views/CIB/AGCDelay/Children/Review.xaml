@@ -133,9 +133,7 @@
                                         </i:Interaction.Behaviors>
                                         <TabControl.ItemTemplate>
                                             <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
-                                                <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"
-                                                           Padding="5,2"
-                                                           Style="{StaticResource TextBlockDefaultBold}" />
+                                                <TextBlock Text="{Binding Key}" />
                                             </DataTemplate>
                                         </TabControl.ItemTemplate>
                                         <TabControl.ContentTemplate>
