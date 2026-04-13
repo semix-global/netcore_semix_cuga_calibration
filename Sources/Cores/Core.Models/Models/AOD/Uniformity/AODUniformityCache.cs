@@ -10,18 +10,18 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private int _calibratingRetryTimes = 20;
+    public partial int CalibratingRetryTimes { get; set; } = 20;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrateThresholdMin), nameof(CalibrateThresholdMax))]
-    private double _calibrateThreshold = 0.05;
+    public partial double CalibrateThreshold { get; set; } = 0.05;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -35,7 +35,7 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ReviewThresholdMin), nameof(ReviewThresholdMax))]
-    private double _reviewThreshold = 0.05;
+    public partial double ReviewThreshold { get; set; } = 0.05;
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -58,47 +58,47 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
 public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _hazeFindBFMachinePosition;
+    public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private int _prescanAODWaveformProfileSegmentCount = 20;
+    public partial int PrescanAODWaveformProfileSegmentCount { get; set; } = 20;
 
     [ObservableProperty]
-    private int _imageHorizontalProjectsSegmentCount = 100;
+    public partial int ImageHorizontalProjectsSegmentCount { get; set; } = 100;
 
     [ObservableProperty]
-    private int _initializeWindowLinearSpacedCount = 11;
+    public partial int InitializeWindowLinearSpacedCount { get; set; } = 11;
 
     [ObservableProperty]
-    private double _initializeWindowLinearSpacedRate = 0.5;
+    public partial double InitializeWindowLinearSpacedRate { get; set; } = 0.5;
 
     [ObservableProperty]
-    private int _imageHorizontalProjectsSkipCout;
+    public partial int ImageHorizontalProjectsSkipCout { get; set; }
 
     [ObservableProperty]
-    private int _imageHorizontalProjectsSkipLastCout;
+    public partial int ImageHorizontalProjectsSkipLastCout { get; set; }
 
     [ObservableProperty]
-    private double _windowLimitRate = 0.2;
+    public partial double WindowLimitRate { get; set; } = 0.2;
 
     [ObservableProperty]
-    private double _windowInterval = 0.01;
+    public partial double WindowInterval { get; set; } = 0.01;
 
     [ObservableProperty]
-    private double _waitTime = 5;
+    public partial double WaitTime { get; set; } = 5;
 }

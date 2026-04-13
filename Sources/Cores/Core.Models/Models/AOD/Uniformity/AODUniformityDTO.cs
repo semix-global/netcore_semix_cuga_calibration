@@ -21,22 +21,22 @@ namespace Core.Models.Models.AOD.Uniformity;
 public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AODUniformityDTO>, IAdaptTo<CalibrationLaserAODUniformityItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private WindowItem _startWindowItem = new();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial WindowItem StartWindowItem { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private WindowItem _stopWindowItem = new();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial WindowItem StopWindowItem { get; set; } = new();
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -44,52 +44,52 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private WindowItem _mappingWindowItem = new();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial WindowItem MappingWindowItem { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<Mapping> _mappings = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IReadOnlyList<Mapping> Mappings { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<int[]> _imageHorizontalProjectMappings = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IReadOnlyList<int[]> ImageHorizontalProjectMappings { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<int[]> _prescanAODWaveformProfileMappings = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IReadOnlyList<int[]> PrescanAODWaveformProfileMappings { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentBag<KeyValuePair<CIBInformation, double>> _targetPMTValues = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial ConcurrentBag<KeyValuePair<CIBInformation, double>> TargetPMTValues { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private AODUniformityDTOItem _initializeWindowItem = new();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial AODUniformityDTOItem InitializeWindowItem { get; set; } = new();
 
     [ObservableProperty]
-    private AODUniformityDTOItem _item = new();
+    public partial AODUniformityDTOItem Item { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<AODUniformityDTOItem> _items = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IReadOnlyList<AODUniformityDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    private ConcurrentBag<KeyValuePair<OpticsPolarizationModeEnum, double>> _opticsPolarizationModeEnumMeasurePowers = [];
+    public partial ConcurrentBag<KeyValuePair<OpticsPolarizationModeEnum, double>> OpticsPolarizationModeEnumMeasurePowers { get; set; } = [];
 
     #region Mapper
 
@@ -133,31 +133,31 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     public partial class WindowItem : ObservableObject, ICloneable<WindowItem>
     {
         [ObservableProperty]
-        [property: Newtonsoft.Json.JsonIgnore]
-        [property: System.Text.Json.Serialization.JsonIgnore]
-        [property: System.Xml.Serialization.XmlIgnore]
-        private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+        [Newtonsoft.Json.JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [System.Xml.Serialization.XmlIgnore]
+        public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
 
         [ObservableProperty]
-        private IReadOnlyList<double> _window = [];
+        public partial IReadOnlyList<double> Window { get; set; } = [];
 
         [ObservableProperty]
-        private IReadOnlyList<double> _imageHorizontalProjects = [];
+        public partial IReadOnlyList<double> ImageHorizontalProjects { get; set; } = [];
 
         [ObservableProperty]
-        private IReadOnlyList<double> _smoothImageHorizontalProjects = [];
+        public partial IReadOnlyList<double> SmoothImageHorizontalProjects { get; set; } = [];
 
         [ObservableProperty]
-        private int _horizontalProjectMinPixel;
+        public partial int HorizontalProjectMinPixel { get; set; }
 
         [ObservableProperty]
-        private IReadOnlyList<int> _horizontalProjectMinPixels = [];
+        public partial IReadOnlyList<int> HorizontalProjectMinPixels { get; set; } = [];
 
         [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
+        public partial string RawImageFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private string _imageFilePath = string.Empty;
+        public partial string ImageFilePath { get; set; } = string.Empty;
 
         public void CalculateHorizontalProjectMinPixel(int segmentCount)
         {
@@ -221,13 +221,13 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     public sealed partial class Mapping : ObservableObject, ICloneable<Mapping>
     {
         [ObservableProperty]
-        private bool _isNotLinearSpline;
+        public partial bool IsNotLinearSpline { get; set; }
 
         [ObservableProperty]
-        private int _imageHorizontalProjectIndex;
+        public partial int ImageHorizontalProjectIndex { get; set; }
 
         [ObservableProperty]
-        private double _linearSplineMappingIndex;
+        public partial double LinearSplineMappingIndex { get; set; }
 
         [Newtonsoft.Json.JsonIgnore]
         [System.Text.Json.Serialization.JsonIgnore]
@@ -236,7 +236,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         public int MappingIndex => (int)Math.Round(LinearSplineMappingIndex, MidpointRounding.AwayFromZero);
 
         [ObservableProperty]
-        private IReadOnlyList<int> _mappingIndices = [];
+        public partial IReadOnlyList<int> MappingIndices { get; set; } = [];
 
         public Mapping Clone() => new()
         {
@@ -251,43 +251,43 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
 public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<AODUniformityDTOItem>
 {
     [ObservableProperty]
-    private OpticsPolarizationModeEnum _opticsPolarizationModeEnum;
+    public partial OpticsPolarizationModeEnum OpticsPolarizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<Item> _items = [];
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _window = [];
+    public partial IReadOnlyList<double> Window { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private double _windowLimitMin;
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial double WindowLimitMin { get; set; }
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private double _windowLimitMax;
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial double WindowLimitMax { get; set; }
 
     [ObservableProperty]
-    private double _verifyMinRate;
+    public partial double VerifyMinRate { get; set; }
 
     [ObservableProperty]
-    private double _verifyMaxRate;
+    public partial double VerifyMaxRate { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<double> _verifyImageHorizontalProjects = [];
+    public partial IReadOnlyList<double> VerifyImageHorizontalProjects { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Status> _verifyMappingStatuses = [];
+    public partial IReadOnlyList<Status> VerifyMappingStatuses { get; set; } = [];
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -327,16 +327,16 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
     public sealed partial class Item : AODUniformityDTO.WindowItem, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _minRate;
+        public partial double MinRate { get; set; }
 
         [ObservableProperty]
-        private double _maxRate;
+        public partial double MaxRate { get; set; }
 
         [ObservableProperty]
-        private IReadOnlyList<Status> _mappingStatuses = [];
+        public partial IReadOnlyList<Status> MappingStatuses { get; set; } = [];
 
         [ObservableProperty]
-        private bool _isOk;
+        public partial bool IsOk { get; set; }
 
         public new Item Clone()
         {

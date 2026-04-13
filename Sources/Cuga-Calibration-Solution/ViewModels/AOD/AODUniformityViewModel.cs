@@ -58,18 +58,18 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private AODUniformityDTO _calibratingItem = new();
+    public partial AODUniformityDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationAndLaserLightInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationAndLaserLightInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<AODUniformityDTO> _reviews = [];
+    public partial IReadOnlyList<AODUniformityDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<AODUniformityDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<AODUniformityDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -77,17 +77,17 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private AODUniformityCache _cache = new();
+    public partial AODUniformityCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AODUniformityDTO[] _calibrations = [];
+    public partial AODUniformityDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDTO> _laserOpticalPowerMeters = [];
+    public partial IReadOnlyList<LaserOpticalPowerMeterDTO> LaserOpticalPowerMeters { get; set; } = [];
 
     #endregion 缓存
 
