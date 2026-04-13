@@ -19,7 +19,7 @@ using Core.Models.Extensions;
 namespace Core.Models.Models.Common.Pattern;
 
 [JsonConverter(typeof(ProductivityInformationConverter))]
-public sealed class ProductivityInformation :
+public sealed partial class ProductivityInformation :
     ObservableObject,
     IComparable,
     IComparable<ProductivityInformation>,
@@ -32,92 +32,41 @@ public sealed class ProductivityInformation :
 {
     public static readonly ProductivityInformation Default = new();
 
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public string Name
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = "N/A";
+    [ObservableProperty]
+    public partial string Name { get; private set; } = "N/A";
 
-    public OpticsIlluminationModeEnum OpticsIlluminationModeEnum
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = OpticsIlluminationModeEnum.OI;
+    [ObservableProperty]
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; private set; } = OpticsIlluminationModeEnum.OI;
 
-    public int OpticsMagType
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial int OpticsMagType { get; private set; } = -1;
 
-    public int StageSpeedType
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial int StageSpeedType { get; private set; } = -1;
 
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public double XPixelSize
-    {
-        get;
-        set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial double XPixelSize { get; set; } = -1;
 
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public double YPixelSize
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial double YPixelSize { get; private set; } = -1;
 
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public int YPixel
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial int YPixel { get; private set; } = -1;
 
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public int OriginYPixel
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial int OriginYPixel { get; private set; } = -1;
 
     /// <summary>
     /// KHz
     /// </summary>
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public double SampleRate
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial double SampleRate { get; private set; } = -1;
 
     /// <summary>
     /// um/s
     /// </summary>
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public double XSpeedValue
-    {
-        get;
-        set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial double XSpeedValue { get; set; } = -1;
 
     private ProductivityInformation()
     {

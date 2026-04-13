@@ -11,7 +11,7 @@ using System.Globalization;
 namespace Core.Models.Models.Common.Pattern;
 
 [JsonConverter(typeof(LaserLightInformationConverter))]
-public sealed class LaserLightInformation :
+public sealed partial class LaserLightInformation :
     ObservableObject,
     IComparable<LaserLightInformation>,
     IComparable,
@@ -24,17 +24,11 @@ public sealed class LaserLightInformation :
 {
     public static readonly LaserLightInformation Default = new();
 
-    public double Level
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial double Level { get; private set; } = -1;
 
-    public double Coefficient
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial double Coefficient { get; private set; } = -1;
 
     private LaserLightInformation()
     {
