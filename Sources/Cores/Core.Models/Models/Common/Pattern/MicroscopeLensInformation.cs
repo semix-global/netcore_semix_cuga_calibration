@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 namespace Core.Models.Models.Common.Pattern;
 
 [JsonConverter(typeof(MicroscopeLensInformationConverter))]
-public sealed class MicroscopeLensInformation :
+public sealed partial class MicroscopeLensInformation :
     ObservableObject,
     IComparable,
     IComparable<MicroscopeLensInformation>,
@@ -24,29 +24,14 @@ public sealed class MicroscopeLensInformation :
 {
     public static readonly MicroscopeLensInformation Default = new();
 
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public string LensName
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = "N/A";
+    [ObservableProperty]
+    public partial string LensName { get; private set; } = "N/A";
 
-    public int LensCode
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial int LensCode { get; private set; } = -1;
 
-    [JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public double ObjectiveMagnification
-    {
-        get;
-        private set => SetProperty(ref field, value);
-    } = -1;
+    [ObservableProperty]
+    public partial double ObjectiveMagnification { get; private set; } = -1;
 
     private MicroscopeLensInformation()
     {

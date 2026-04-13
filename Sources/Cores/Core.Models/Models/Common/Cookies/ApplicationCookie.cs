@@ -14,67 +14,67 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 程序名称
     /// </summary>
     [ObservableProperty]
-    private string _applicationName = string.Empty;
+    public partial string ApplicationName { get; set; } = string.Empty;
 
     /// <summary>
     /// 设备编码
     /// </summary>
     [ObservableProperty]
-    private string _deviceCode = string.Empty;
+    public partial string DeviceCode { get; set; } = string.Empty;
 
     /// <summary>
     /// 用户
     /// </summary>
     [ObservableProperty]
-    private SysUserDto _sysUser = new();
+    public partial SysUserDto SysUser { get; set; } = new();
 
     /// <summary>
     /// 权限菜单
     /// </summary>
     [ObservableProperty]
-    private List<SysMenuDto> _roleSysMenuList = [];
+    public partial List<SysMenuDto> RoleSysMenuList { get; set; } = [];
 
     /// <summary>
     /// 全部权限菜单权限
     /// </summary>
     [ObservableProperty]
-    private List<SysMenuDto> _allRoleSysMenuList = [];
+    public partial List<SysMenuDto> AllRoleSysMenuList { get; set; } = [];
 
     /// <summary>
     /// 校准菜单
     /// </summary>
     [ObservableProperty]
-    private CalibrationMenu _calibrationMenu = new();
+    public partial CalibrationMenu CalibrationMenu { get; set; } = new();
 
     /// <summary>
     /// 标题栏菜单
     /// </summary>
     [ObservableProperty]
-    private SysMenuDto _titleMenu = new();
+    public partial SysMenuDto TitleMenu { get; set; } = new();
 
     /// <summary>
     /// 系统管理菜单
     /// </summary>
     [ObservableProperty]
-    private List<SystemManageMenu> _systemManageMenuList = [];
+    public partial List<SystemManageMenu> SystemManageMenuList { get; set; } = [];
 
     /// <summary>
     /// 倍镜列表
     /// </summary>
     [ObservableProperty]
-    private IReadOnlyList<MicroscopeLensInformation> _microscopeLensInformations = [];
+    public partial IReadOnlyList<MicroscopeLensInformation> MicroscopeLensInformations { get; set; } = [];
 
     /// <summary>
     /// 激光光强信息列表
     /// </summary>
     [ObservableProperty]
-    private IReadOnlyList<LaserLightInformation> _laserLightInformations = [];
+    public partial IReadOnlyList<LaserLightInformation> LaserLightInformations { get; set; } = [];
 
     /// <summary>
     /// 产率列表
     /// </summary>
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformation> _productivityInformations = [];
+    public partial IReadOnlyList<ProductivityInformation> ProductivityInformations { get; set; } = [];
 
     /// <summary>
     /// 按照MagType分类的产率列表
@@ -182,7 +182,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// CIB列表
     /// </summary>
     [ObservableProperty]
-    private IReadOnlyList<CIBInformation> _cIBInformations = [];
+    public partial IReadOnlyList<CIBInformation> CIBInformations { get; set; } = [];
 
     /// <summary>
     /// CIB的PMT列表
@@ -211,7 +211,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 硬件状态配置
     /// </summary>
     [ObservableProperty]
-    private HardwareStateConfig? _hardwareStateConfig;
+    public partial HardwareStateConfig? HardwareStateConfig { get; set; }
 
     public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {

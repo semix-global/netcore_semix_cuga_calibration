@@ -66,6 +66,10 @@ public sealed class CalibrationCIBServiceImpl(
 
     public SxExecuteRet<bool> SetL0K(IReadOnlyList<CIBInformation> cibInformations, bool enable) => WriteRegister(cibInformations, PMTRegEnum.L0k, enable ? 1 : 0);
 
+    public SxExecuteRet<IReadOnlyList<bool>> GetMarker(IReadOnlyList<CIBInformation> cibInformations) => ReadRegister(cibInformations, PMTRegEnum.MarkMode, value => value == 1);
+
+    public SxExecuteRet<bool> SetMarker(IReadOnlyList<CIBInformation> cibInformations, bool enable) => WriteRegister(cibInformations, PMTRegEnum.MarkMode, enable ? 1 : 0);
+
     public SxExecuteRet<bool> SetGain(IReadOnlyList<CIBInformation> cibInformations, double gain)
     {
         var sxExecuteRet = Invoke(() => Service?.SendDc([.. cibInformations.Select(t => (gain, t.PMTId, t.ChannelId))]));

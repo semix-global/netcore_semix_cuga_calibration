@@ -10,17 +10,16 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _calibratingRetryTimes = 5;
+    public partial int CalibratingRetryTimes { get; set; } = 5;
 
     [ObservableProperty]
-    private double _calibratingThreshold = 1;
+    public partial double CalibratingThreshold { get; set; } = 1;
 
     [ObservableProperty]
-    private double _reviewThreshold = 1;
-
+    public partial double ReviewThreshold { get; set; } = 1;
     public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBXTCCacheItem>> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
@@ -32,26 +31,26 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase
 public sealed partial class CIBXTCCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _hazeFindBFMachinePosition;
+    public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private int _prescanAODWaveformProfileSegmentCount = 10;
+    public partial int PrescanAODWaveformProfileSegmentCount { get; set; } = 10;
 }

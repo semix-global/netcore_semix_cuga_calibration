@@ -183,7 +183,7 @@
                                                       Maximum="10"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StopGain}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Protected PMT Value: "
+                                    <hc:NumericUpDown hc:TitleElement.Title="Protected PMT Value(Voltage): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"

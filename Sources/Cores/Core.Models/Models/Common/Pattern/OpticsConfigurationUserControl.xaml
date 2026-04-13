@@ -4,9 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-             xmlns:optics="clr-namespace:Core.Models.Enums.Optics"
              d:DataContext="{d:DesignInstance Type=pattern:OpticsConfiguration}"
              d:DesignWidth="300"
              mc:Ignorable="d">
@@ -24,7 +22,7 @@
                 <ComboBox hc:TitleElement.Title="Apodization Mode: "
                           hc:TitleElement.TitlePlacement="Left"
                           hc:TitleElement.TitleWidth="190"
-                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsApodizationModeEnum}}}"
+                          ItemsSource="{Binding ApplicationCookie.OpticsApodizationModeEnums, RelativeSource={RelativeSource AncestorType=UserControl}}"
                           SelectedItem="{Binding Path=OpticsApodizationModeEnum}"
                           Style="{StaticResource ComboBoxExtend}">
                     <ComboBox.ItemTemplate>
@@ -36,7 +34,7 @@
                 <ComboBox hc:TitleElement.Title="Polarization Mode: "
                           hc:TitleElement.TitlePlacement="Left"
                           hc:TitleElement.TitleWidth="190"
-                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsPolarizationModeEnum}}}"
+                          ItemsSource="{Binding ApplicationCookie.OpticsPolarizationModeEnums, RelativeSource={RelativeSource AncestorType=UserControl}}"
                           SelectedItem="{Binding Path=OpticsPolarizationModeEnum}"
                           Style="{StaticResource ComboBoxExtend}">
                     <ComboBox.ItemTemplate>
@@ -48,7 +46,7 @@
                 <ComboBox hc:TitleElement.Title="Collector Polarization Mode: "
                           hc:TitleElement.TitlePlacement="Left"
                           hc:TitleElement.TitleWidth="190"
-                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsCollectorPolarizationModeEnum}}}"
+                          ItemsSource="{Binding ApplicationCookie.OpticsCollectorPolarizationModeEnums, RelativeSource={RelativeSource AncestorType=UserControl}}"
                           SelectedItem="{Binding Path=OpticsCollectorPolarizationModeEnum}"
                           Style="{StaticResource ComboBoxExtend}">
                     <ComboBox.ItemTemplate>

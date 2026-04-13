@@ -130,7 +130,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
 
         if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
 
         return true;
     }
@@ -150,7 +150,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
         if (Reviews.All(t => t.IsCalibrated == false))
             return false;
 
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
         MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
@@ -162,7 +162,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
         await Task.CompletedTask.ConfigureAwait(false);
 
         StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-        StageViewModel.SetAbsoluteStageTheta(0);
+        StageViewModel.SetAbsoluteStageTheta(0d);
         return true;
     }
 
@@ -256,7 +256,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
     {
         return InvokeCalibrateAsync(() =>
         {
-            StageViewModel.SetAbsoluteStageTheta(0);
+            StageViewModel.SetAbsoluteStageTheta(0d);
             CalibratingItem = new ChuckAlignmentDegreeOffsetItemDto
             {
                 OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
@@ -325,7 +325,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
             return await InvokeCalibrateAsync(() =>
             {
                 var result = false;
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 if (AlignmentCacheDarkField.IsOk)
                 {
                     DialogWindowProvider.TryShowDialog("Alignment cache is already exist,do you want reset? ", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
@@ -423,7 +423,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel(
 
             foreach (var selectReview in SelectReviews)
             {
-                StageViewModel.SetAbsoluteStageTheta(0);
+                StageViewModel.SetAbsoluteStageTheta(0d);
                 if (VerifyCalibration(selectReview, cancellationToken) == false) result = false;
             }
 

@@ -26,6 +26,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
     private readonly ConcurrentDictionary<CIBInformation, bool> _agcStatusStore = new();
     private readonly ConcurrentDictionary<CIBInformation, CIBProfileModeEnum> _profileModeStore = new();
     private readonly ConcurrentDictionary<CIBInformation, bool> _l0KStatusStore = new();
+    private readonly ConcurrentDictionary<CIBInformation, bool> _markerStatusStore = new();
 
     public SxExecuteRet<bool> Connect()
     {
@@ -93,6 +94,22 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         Thread.Sleep(100);
 
         foreach (var cibInformation in cibInformations) _l0KStatusStore[cibInformation] = enable;
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<IReadOnlyList<bool>> GetMarker(IReadOnlyList<CIBInformation> cibInformations)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<bool>>([.. cibInformations.Select(c => _markerStatusStore.GetOrAdd(c, false))]);
+    }
+
+    public SxExecuteRet<bool> SetMarker(IReadOnlyList<CIBInformation> cibInformations, bool enable)
+    {
+        Thread.Sleep(100);
+
+        foreach (var cibInformation in cibInformations) _markerStatusStore[cibInformation] = enable;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
