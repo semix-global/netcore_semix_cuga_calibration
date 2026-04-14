@@ -12,6 +12,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
@@ -168,7 +169,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             case 0:
                 return true;
 
-            case 1:
+            case 1:   
+
                 return true;
 
             case 2:
@@ -201,6 +203,32 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return true;
 
             case 1:
+                var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+                var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
+                if (prescanResult is null)
+                {
+                    Logger.LogWarning("Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!");
+                    return false;
+                }
+                else
+                {
+                    Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
+                    Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
+                }
+
+                var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+                var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
+                if (chirpResult is null)
+                {
+                    Logger.LogWarning("Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!");
+                    return false;
+                }
+                else
+                {
+                    Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam.Clone();
+                    Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
+                }
+
                 return true;
 
             case 2:
