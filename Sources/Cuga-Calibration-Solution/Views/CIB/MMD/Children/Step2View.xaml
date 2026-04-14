@@ -48,16 +48,7 @@
                                        FontSize="13"
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <ComboBox hc:TitleElement.Title="Productivity Information: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="200"
-                                  ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
-                                  Style="{StaticResource ComboBoxExtend}">
-                            <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
+                        </StackPanel>                      
                         <Expander Header="Prescan AOD Waveform"
                                   IsExpanded="False"
                                   ExpandDirection="Down">
