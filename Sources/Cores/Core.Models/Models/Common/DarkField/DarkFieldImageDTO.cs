@@ -6,6 +6,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -203,6 +204,8 @@ public sealed class DarkFieldImageDTO :
         using var _ = Image;
 
         Image = GetImage();
+
+        Guard.IsTrue(Image.GetSize() == Size);
     }
 
     #endregion Mapper

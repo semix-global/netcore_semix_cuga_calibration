@@ -12,7 +12,6 @@ using Semix.CoreLib;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -64,7 +63,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 508,
                 0,
-                499,
+                508,
                 408,
                 445000
 #if NET
@@ -89,7 +88,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 508,
                 0,
-                507,
+                508,
                 408,
                 222500
 #if NET
@@ -114,7 +113,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1008,
                 0,
-                1007,
+                1008,
                 290,
                 175900
 #if NET
@@ -139,7 +138,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1008,
                 0,
-                1007,
+                1008,
                 290,
                 88060
 #if NET
@@ -164,7 +163,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1500,
                 0,
-                1499,
+                1500,
                 210,
                 87240
 #if NET
@@ -189,7 +188,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1500,
                 0,
-                1499,
+                1500,
                 210,
                 43600
 #if NET
@@ -214,7 +213,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1160,
                 0,
-                1159,
+                1160,
                 200,
                 40000
 #if NET
@@ -239,7 +238,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 },
                 1720,
                 0,
-                1719,
+                1720,
                 200,
                 26880
 #if NET

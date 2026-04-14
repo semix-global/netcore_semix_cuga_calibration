@@ -274,8 +274,7 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
 
         public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation)
         {
-            var imageHorizontalProjects = ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelStartIndex..productivityInformation.OriginYPixelEndIndex].ToArray();
-            // Guard.IsTrue(imageHorizontalProjects.Length == productivityInformation.YPixel);
+            var imageHorizontalProjects = ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelsStartIndex..productivityInformation.OriginYPixelsEndIndex].ToArray();
 
             var (indexes, _) = Extremumor.FindMinima(imageHorizontalProjects.ToPoints());
 
@@ -292,7 +291,7 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
             var startIndex = Convert.ToInt32(changedList[0].X);
             var endIndex = Convert.ToInt32(changedList[^1].X);
 
-            HorizontalProjectMinPixel = productivityInformation.OriginYPixelStartIndex + (startIndex + endIndex) / 2;
+            HorizontalProjectMinPixel = productivityInformation.OriginYPixelsStartIndex + (startIndex + endIndex) / 2;
         }
     }
 }

@@ -402,12 +402,16 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 Cache.Item.TargetPMTValue,
                 Cache.CalibratingRetryTimes,
                 Cache.CalibratingThreshold,
+                CalibratingItem.ProductivityInformation.YPixels,
+                CalibratingItem.ProductivityInformation.OriginYPixels,
+                CalibratingItem.ProductivityInformation.OriginYPixelsStartIndex,
+                CalibratingItem.ProductivityInformation.OriginYPixelsEndIndex,
                 CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
                 CIBDelays = new HtmlExpand(string.Empty, new HtmlTable([.. cibDelays.Select(t => t.ToHtmlAnonymous())])),
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem.TargetPixelValues = [.. cibInformations.Select(t => new KeyValuePair<CIBInformation, double>(t, (CalibratingItem.ProductivityInformation.OriginYPixel - 1d) / 2d))];
+            CalibratingItem.TargetPixelValues = [.. cibInformations.Select(t => new KeyValuePair<CIBInformation, double>(t, (CalibratingItem.ProductivityInformation.OriginYPixels - 1d) / 2d))];
             CalibratingItem.Items =
             [
                 .. cibInformations.Select(t => new CIBAGCDelayDTOItem
@@ -480,9 +484,9 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                         {
                             ImageHorizontalProjects =
                             [
-                                ..Generate.LinearRangeInt32(0, Cache.ProductivityInformation.OriginYPixelStartIndex - 1).Select(_ => horizontalProjects[0]),
+                                ..Generate.LinearRangeInt32(0, Cache.ProductivityInformation.OriginYPixelsStartIndex - 1).Select(_ => horizontalProjects[0]),
                                 ..horizontalProjects,
-                                ..Generate.LinearRangeInt32(Cache.ProductivityInformation.OriginYPixelEndIndex, Cache.ProductivityInformation.OriginYPixel - 1).Select(_ => horizontalProjects[^1]),
+                                ..Generate.LinearRangeInt32(Cache.ProductivityInformation.OriginYPixelsEndIndex, Cache.ProductivityInformation.OriginYPixels - 1).Select(_ => horizontalProjects[^1]),
                             ],
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
@@ -511,7 +515,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                         if (itemItem.Items[times].IsOk) continue;
 
                         itemItem.Delay += itemItem.Items[times].Error;
-                        if (itemItem.Delay < 0) itemItem.Delay += CalibratingItem.ProductivityInformation.OriginYPixel;
+                        if (itemItem.Delay < 0) itemItem.Delay += CalibratingItem.ProductivityInformation.OriginYPixels;
                     }
 
                     var htmlBullet = new HtmlBullet(new

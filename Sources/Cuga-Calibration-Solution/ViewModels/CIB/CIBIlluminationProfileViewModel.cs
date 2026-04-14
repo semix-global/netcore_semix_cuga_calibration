@@ -305,7 +305,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
             CIBViewModel.SetAGC(cibInformations, true);
             CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
-            CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
+            CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixels)]);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
@@ -326,7 +326,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                             OpticsViewModel.SetApodizationMode(opticsApodizationModeEnum);
                             OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
                             OpticsViewModel.SetCollectorPolarizationMode(opticsCollectorPolarizationModeEnum);
-                            CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
+                            CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixels)]);
 
                             var item = new CIBIlluminationProfileDTO(cibInformations)
                             {
@@ -485,7 +485,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 OpticsViewModel.SetCollectorPolarizationMode(currentCollectorPolarizationModeEnum);
                 CIBViewModel.SetAGC(cibInformations, true);
                 CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
-                CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
+                CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixels)]);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
             }

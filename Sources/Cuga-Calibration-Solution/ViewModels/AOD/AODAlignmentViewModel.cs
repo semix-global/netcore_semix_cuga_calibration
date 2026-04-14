@@ -308,7 +308,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 Cache.Item.RangeSkipFitCount,
                 Cache.Threshold,
                 detectImageDirectory,
-                Cache.ProductivityInformation.YPixel
+                Cache.ProductivityInformation.YPixels
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
