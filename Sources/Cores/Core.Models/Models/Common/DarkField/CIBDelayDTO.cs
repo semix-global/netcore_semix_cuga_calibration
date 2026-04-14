@@ -23,6 +23,7 @@ public sealed partial class CIBDelayDTO : ObservableObject, ICloneable<CIBDelayD
     public CIBDelayDTO WithPMTDelay(double pmtDelay)
     {
         PMTDelay = pmtDelay;
+        SenseDelay = pmtDelay;
 
         return this;
     }

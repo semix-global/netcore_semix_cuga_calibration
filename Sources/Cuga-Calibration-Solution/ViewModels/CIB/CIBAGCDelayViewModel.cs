@@ -23,6 +23,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using MathNet.Numerics;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -226,7 +227,11 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
+            var isOk = ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
+
+            if (isOk) LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+
+            return isOk;
         });
     }
 
@@ -261,6 +266,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
             {
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
+                Cache.Item.CIBInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
@@ -275,25 +281,24 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             var detectImageDirectory = ImageFileDirectory;
-            var cibInformations = ApplicationCookie.CIBInformations;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
+                Cache.Item.CIBInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.TargetPMTValue,
-                CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.LaserLightInformationPMTVoltageValuePoints = [];
 
-            CIBViewModel.SetAGC(cibInformations, false);
-            CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTVoltage);
-            CIBViewModel.SetGain(cibInformations, 0d);
+            CIBViewModel.SetAGC([Cache.Item.CIBInformation], false);
+            CIBViewModel.SetCIBProfileModeEnum([Cache.Item.CIBInformation], CIBProfileModeEnum.PMTVoltage);
+            CIBViewModel.SetGain([Cache.Item.CIBInformation], 0d);
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
@@ -310,6 +315,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
             try
             {
+                var lastLaserLightInformation = LaserLightInformation.Default;
                 foreach (var laserLightInformation in ApplicationCookie.LaserLightInformations.OrderBy(t => t))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -336,6 +342,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
                     if (average < Cache.Item.TargetPMTValue)
                     {
+                        lastLaserLightInformation = laserLightInformation;
+
                         Logger.LogHtmlInformation(laserLightInformation.ToString(), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             hazeBFPosition,
@@ -347,7 +355,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                         continue;
                     }
 
-                    CalibratingItem.LaserLightInformation = laserLightInformation;
+                    CalibratingItem.LaserLightInformation = lastLaserLightInformation;
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
                         hazeBFPosition,
@@ -360,16 +368,18 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                     break;
                 }
 
-                Logger.LogHtmlError("No suitable Laser Light Information found!", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                var isOk = CalibratingItem.LaserLightInformation != LaserLightInformation.Default;
 
-                return CalibratingItem.LaserLightInformation != LaserLightInformation.Default;
+                if (isOk == false) Logger.LogHtmlError("No suitable Laser Light Information found!", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+                return isOk;
             }
             finally
             {
-                CIBViewModel.SetAGC(cibInformations, true);
-                CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetAGC([Cache.Item.CIBInformation], true);
+                CIBViewModel.SetCIBProfileModeEnum([Cache.Item.CIBInformation], CIBProfileModeEnum.PMTLog);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
         });
     }
@@ -403,7 +413,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 .. cibInformations.Select(t => new CIBAGCDelayDTOItem
                 {
                     CIBInformation = t,
-                    Delay = CalibratingItem.TargetPixelValues.Get(t)
+                    Delay = 0d
                 })
             ];
 
@@ -465,14 +475,19 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImage.Image.Save(imageFilePath);
-
+                        var horizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
                         var itemItemData = new CIBAGCDelayDTOItem.Item
                         {
-                            ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
+                            ImageHorizontalProjects =
+                            [
+                                ..Generate.LinearRangeInt32(0, Cache.ProductivityInformation.OriginYPixelStartIndex - 1).Select(_ => horizontalProjects[0]),
+                                ..horizontalProjects,
+                                ..Generate.LinearRangeInt32(Cache.ProductivityInformation.OriginYPixelEndIndex, Cache.ProductivityInformation.OriginYPixel - 1).Select(_ => horizontalProjects[^1]),
+                            ],
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
                         };
-                        itemItemData.CalculateHorizontalProjectMinPixel();
+                        itemItemData.CalculateHorizontalProjectMinPixel(CalibratingItem.ProductivityInformation);
 
                         if (HostEnvironment.IsDevelopment()) itemItemData.HorizontalProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
                         itemItem.Items = [.. itemItem.Items, itemItemData];
@@ -556,8 +571,9 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 CIBViewModel.SetMarker(cibInformations, false);
                 CIBViewModel.SetAGC(cibInformations, true);
                 CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
+                CIBViewModel.SetDelays(cibDelays);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
         });
     }

@@ -63,6 +63,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 508
                 },
                 508,
+                0,
+                499,
                 408,
                 445000
 #if NET
@@ -86,6 +88,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 508
                 },
                 508,
+                0,
+                507,
                 408,
                 222500
 #if NET
@@ -109,6 +113,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1008
                 },
                 1008,
+                0,
+                1007,
                 290,
                 175900
 #if NET
@@ -132,6 +138,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1008
                 },
                 1008,
+                0,
+                1007,
                 290,
                 88060
 #if NET
@@ -155,6 +163,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1500
                 },
                 1500,
+                0,
+                1499,
                 210,
                 87240
 #if NET
@@ -178,6 +188,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1500
                 },
                 1500,
+                0,
+                1499,
                 210,
                 43600
 #if NET
@@ -201,6 +213,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1160
                 },
                 1160,
+                0,
+                1159,
                 200,
                 40000
 #if NET
@@ -224,6 +238,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1720
                 },
                 1720,
+                0,
+                1719,
                 200,
                 26880
 #if NET

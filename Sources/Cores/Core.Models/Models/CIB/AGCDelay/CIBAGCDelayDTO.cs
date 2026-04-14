@@ -13,6 +13,10 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
+using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Modules;
+using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.AGCDelay;
@@ -126,7 +130,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
                 {
                     var color = Constants.Turbo.GetColor(index, new Range(0, item.Items.Count - 1));
                     scatterLines[index].Update(
-                        $"{index + 1}",
+                        $"{index + 1} => Current: {itemItemData.HorizontalProjectMinPixel:0.###}",
                         [.. itemItemData.ImageHorizontalProjects.ToPoints()],
                         color);
 
@@ -140,7 +144,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
                 var tryGetSingle = TargetPixelValues.TryGetSingle(t => t.Key == item.CIBInformation, out var targetPMTValueKvp);
                 xLines[0].Update(
-                    "Target",
+                    $"Target: {targetPMTValueKvp.Value:0.###}",
                     targetPMTValueKvp.Value,
                     Colors.Red);
                 xLines[0].IsVisible = tryGetSingle;
@@ -268,15 +272,27 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
             IsOk = IsOk,
         };
 
-        public void CalculateHorizontalProjectMinPixel()
+        public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation)
         {
-            var targetValue = ImageHorizontalProjects.Min() + (ImageHorizontalProjects.Max() - ImageHorizontalProjects.Min()) * 2d / 3d;
-            var changedList = ImageHorizontalProjects.ToPoints().Where(t => t.Y < targetValue).ToList();
+            var imageHorizontalProjects = ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelStartIndex..productivityInformation.OriginYPixelEndIndex].ToArray();
+            // Guard.IsTrue(imageHorizontalProjects.Length == productivityInformation.YPixel);
+
+            var (indexes, _) = Extremumor.FindMinima(imageHorizontalProjects.ToPoints());
+
+            var centerIndex = indexes.OrderBy(t => imageHorizontalProjects[t]).First();
+
+            var temps = Generate.LinearRangeInt32(centerIndex - 30, centerIndex + 30)
+                .Where(t => t >= 0 && t < imageHorizontalProjects.Length)
+                .Select(t => new Point(t, imageHorizontalProjects[t]))
+                .ToArray();
+
+            var targetValue = temps.Min(t => t.Y) + (temps.Max(t => t.Y) - temps.Min(t => t.Y)) * 1d / 4d;
+            var changedList = temps.Where(t => t.Y < targetValue).ToList();
 
             var startIndex = Convert.ToInt32(changedList[0].X);
             var endIndex = Convert.ToInt32(changedList[^1].X);
 
-            HorizontalProjectMinPixel = (startIndex + endIndex) / 2;
+            HorizontalProjectMinPixel = productivityInformation.OriginYPixelStartIndex + (startIndex + endIndex) / 2;
         }
     }
 }

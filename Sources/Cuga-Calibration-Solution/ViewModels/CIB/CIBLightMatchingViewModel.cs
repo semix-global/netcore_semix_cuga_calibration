@@ -748,7 +748,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetLightMatching(cibInformations, 0);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition));
             }
         });
     }

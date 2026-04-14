@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Semix.WcfTransfer.DTO;
 using Core.Models.Extensions;
@@ -55,6 +56,12 @@ public sealed partial class ProductivityInformation :
 
     [ObservableProperty]
     public partial int OriginYPixel { get; private set; } = -1;
+
+    [ObservableProperty]
+    public partial int OriginYPixelStartIndex { get; private set; } = -1;
+
+    [ObservableProperty]
+    public partial int OriginYPixelEndIndex { get; private set; } = -1;
 
     /// <summary>
     /// KHz
@@ -127,10 +134,10 @@ public sealed partial class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out OpticsIlluminationModeEnum opticsIlluminationModeEnum, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double sampleRate,
+    public void Deconstruct(out string name, out OpticsIlluminationModeEnum opticsIlluminationModeEnum, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double originYPixelStartIndex, out double originYPixelEndIndex, out double sampleRate,
         out double xSpeedValue)
-        => (name, opticsIlluminationModeEnum, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate, xSpeedValue) =
-            (Name, OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate, XSpeedValue);
+        => (name, opticsIlluminationModeEnum, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, originYPixelStartIndex, originYPixelEndIndex, sampleRate, xSpeedValue) =
+            (Name, OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, OriginYPixelStartIndex, OriginYPixelEndIndex, SampleRate, XSpeedValue);
 
     #endregion Deconstruct
 
@@ -154,10 +161,12 @@ public sealed partial class ProductivityInformation :
     public ProductivityInformation AdaptIn(C2MProductivityInfo obj,
         CgSwathSpeedInfo swathSpeedInfo,
         double originYPixel,
+        double originYPixelStartIndex,
+        double originYPixelEndIndex,
         double sampleRate,
         double xSpeedValue
 #if NET
-            , OpticsIlluminationModeEnum opticsIlluminationModeEnum
+        , OpticsIlluminationModeEnum opticsIlluminationModeEnum
 #endif
 
     )
@@ -173,6 +182,8 @@ public sealed partial class ProductivityInformation :
         YPixelSize = swathSpeedInfo.YPixelSize;
         YPixel = Convert.ToInt32(swathSpeedInfo.YPixel);
         OriginYPixel = Convert.ToInt32(originYPixel);
+        OriginYPixelStartIndex = Convert.ToInt32(originYPixelStartIndex);
+        OriginYPixelEndIndex = Convert.ToInt32(originYPixelEndIndex);
         SampleRate = sampleRate;
         XSpeedValue = xSpeedValue;
         XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
@@ -190,6 +201,8 @@ public sealed partial class ProductivityInformation :
         YPixelSize = obj.YPixelSize;
         YPixel = obj.YPixel;
         OriginYPixel = obj.OriginYPixel;
+        OriginYPixelStartIndex = obj.OriginYPixelStartIndex;
+        OriginYPixelEndIndex = obj.OriginYPixelEndIndex;
         SampleRate = obj.SampleRate;
         XSpeedValue = obj.XSpeedValue;
         return this;
@@ -205,6 +218,8 @@ public sealed partial class ProductivityInformation :
         YPixelSize = YPixelSize,
         YPixel = YPixel,
         OriginYPixel = OriginYPixel,
+        OriginYPixelStartIndex = OriginYPixelStartIndex,
+        OriginYPixelEndIndex = OriginYPixelEndIndex,
         SampleRate = SampleRate,
         XSpeedValue = XSpeedValue
     };

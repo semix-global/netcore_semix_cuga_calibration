@@ -487,7 +487,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 CIBViewModel.SetCIBProfileModeEnum(cibInformations, CIBProfileModeEnum.PMTLog);
                 CIBViewModel.SetIlluminationProfile(cibInformations, [.. Enumerable.Repeat(1d, Cache.ProductivityInformation.YPixel)]);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
         });
     }

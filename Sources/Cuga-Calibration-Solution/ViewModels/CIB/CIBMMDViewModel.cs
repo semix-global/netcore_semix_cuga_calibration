@@ -654,7 +654,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 CIBViewModel.SetCIBProfileModeEnum(Cache.CIBInformations, CIBProfileModeEnum.PMTLog);
                 OpticsViewModel.ToggleODFilter(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
