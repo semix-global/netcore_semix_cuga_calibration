@@ -75,7 +75,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             }
             else
             {
-                Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam;
+                Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();;
                 stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
             }
 
@@ -90,7 +90,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             }
             else
             {
-                Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam;
+                Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam.Clone();;
                 stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
             }
 
