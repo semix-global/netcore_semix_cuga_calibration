@@ -44,6 +44,14 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
     public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
+    public partial double StartCoefficient { get; set; } = 0.01;
+
+    [ObservableProperty]
+    public partial double StepCoefficient { get; set; } = 0.1;
+
+    [ObservableProperty]
+    public partial double StopCoefficient { get; set; } = 1;
+    [ObservableProperty]
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]

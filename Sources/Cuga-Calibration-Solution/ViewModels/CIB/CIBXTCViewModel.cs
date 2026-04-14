@@ -324,6 +324,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
 
+            var startCurrentHazeBFPosition = CIBViewModel.GetCIBInformationPosition(
+                StageCoordinateSystemEnum.Dark,
+                Cache.ProductivityInformation,
+                Cache.Item.CIBInformation,
+                hazeBFPosition,
+                Cache.Item.MicroscopeLensInformation);
+            
             Logger.LogHtmlInformation("Forward and Reverse", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             try
@@ -349,7 +356,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                     using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
-                        hazeBFPosition,
+                        startCurrentHazeBFPosition,
                         Cache.Item.ImageWidth,
                         Cache.Item.CIBInformation,
                         (false, CalChipSiteModelEnum.HazeModel),
@@ -368,6 +375,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
+                        hazeBFPosition,
+                        startCurrentHazeBFPosition,
                         windowItem.RawImageFilePath,
                         Image = new HtmlImage(windowItem.ImageFilePath)
                     }), HtmlLogUniqueId.LoggingHtml());
@@ -442,6 +451,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+            
+            var startCurrentHazeBFPosition = CIBViewModel.GetCIBInformationPosition(
+                StageCoordinateSystemEnum.Dark,
+                Cache.ProductivityInformation,
+                Cache.Item.CIBInformation,
+                hazeBFPosition,
+                Cache.Item.MicroscopeLensInformation);
 
             Logger.LogHtmlInformation("XTC", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -460,7 +476,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                     var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
-                        hazeBFPosition,
+                        startCurrentHazeBFPosition,
                         Cache.Item.ImageWidth,
                         cibInformations,
                         (true, null),
@@ -496,6 +512,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                         Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                         {
+                            hazeBFPosition,
+                            startCurrentHazeBFPosition,
                             itemItemData.ImageFilePath,
                             itemItemData.RawImageFilePath
                         }), HtmlLogUniqueId.LoggingHtml());

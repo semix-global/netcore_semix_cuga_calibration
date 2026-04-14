@@ -294,6 +294,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
+            CalibratingItem.Coefficient = -1d;
             CalibratingItem.LaserLightInformationPMTVoltageValuePoints = [];
 
             CIBViewModel.SetAGC([Cache.Item.CIBInformation], false);
@@ -315,12 +316,12 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
             try
             {
-                var lastLaserLightInformation = LaserLightInformation.Default;
-                foreach (var laserLightInformation in ApplicationCookie.LaserLightInformations.OrderBy(t => t))
+                var lastCoefficient = CalibratingItem.Coefficient;
+                foreach (var coefficient in Generate.LinearRange(Cache.Item.StartCoefficient, Cache.Item.StepCoefficient, Cache.Item.StopCoefficient))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, laserLightInformation.Coefficient);
+                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, coefficient);
 
                     using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
                         Cache.ProductivityInformation,
@@ -334,17 +335,17 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                         (true, null),
                         false,
                         cancellationToken);
-                    var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), $"{laserLightInformation}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                    var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), $"{coefficient:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     darkFieldImage.Image.Save(imageFilePath);
 
                     var average = darkFieldImage.Image.GetIntensity().Average;
-                    CalibratingItem.LaserLightInformationPMTVoltageValuePoints = [.. CalibratingItem.LaserLightInformationPMTVoltageValuePoints, new Point(laserLightInformation.Coefficient, average)];
+                    CalibratingItem.LaserLightInformationPMTVoltageValuePoints = [.. CalibratingItem.LaserLightInformationPMTVoltageValuePoints, new Point(coefficient, average)];
 
                     if (average < Cache.Item.TargetPMTValue)
                     {
-                        lastLaserLightInformation = laserLightInformation;
+                        lastCoefficient = coefficient;
 
-                        Logger.LogHtmlInformation(laserLightInformation.ToString(), HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                        Logger.LogHtmlInformation($"{coefficient:0.###}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             hazeBFPosition,
                             startCurrentHazeBFPosition,
@@ -355,12 +356,12 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                         continue;
                     }
 
-                    CalibratingItem.LaserLightInformation = lastLaserLightInformation;
+                    CalibratingItem.Coefficient = lastCoefficient;
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
                         hazeBFPosition,
                         startCurrentHazeBFPosition,
-                        CalibratingItem.LaserLightInformation,
+                        CalibratingItem.Coefficient,
                         average,
                         Image = new HtmlImage(imageFilePath)
                     }), HtmlLogUniqueId.LoggingHtml());
@@ -368,7 +369,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                     break;
                 }
 
-                var isOk = CalibratingItem.LaserLightInformation != LaserLightInformation.Default;
+                var isOk = CalibratingItem.Coefficient > 0;
 
                 if (isOk == false) Logger.LogHtmlError("No suitable Laser Light Information found!", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
@@ -453,7 +454,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                     CIBViewModel.SetAGC(cibInformations, true);
                     CIBViewModel.SetMarker(cibInformations, true);
 
-                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, CalibratingItem.LaserLightInformation.Coefficient);
+                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, CalibratingItem.Coefficient);
 
                     var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
@@ -498,6 +499,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
                         Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                         {
+                            hazeBFPosition,
+                            startCurrentHazeBFPosition,
                             itemItemData.ImageFilePath,
                             itemItemData.RawImageFilePath
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -521,10 +524,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                     var htmlBullet = new HtmlBullet(new
                     {
                         times,
-                        hazeBFPosition,
-                        startCurrentHazeBFPosition,
                         CalibratingItem.ProductivityInformation,
-                        CalibratingItem.LaserLightInformation,
+                        CalibratingItem.Coefficient,
                         Plot = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                     });
 

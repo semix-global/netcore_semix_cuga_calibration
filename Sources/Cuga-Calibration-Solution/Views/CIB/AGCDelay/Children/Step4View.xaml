@@ -67,8 +67,8 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.LaserLightInformation, Mode=OneWay}"
-                                 hc:TitleElement.Title="Laser Light Information: "
+                        <TextBox Text="{Binding CalibratingItem.Coefficient, StringFormat='0.###', Mode=OneWay}"
+                                 hc:TitleElement.Title="Result Coefficient: "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"

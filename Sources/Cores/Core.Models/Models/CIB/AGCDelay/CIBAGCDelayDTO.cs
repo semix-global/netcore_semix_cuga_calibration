@@ -13,8 +13,6 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using CommunityToolkit.Diagnostics;
-using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Modules;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
@@ -24,10 +22,10 @@ namespace Core.Models.Models.CIB.AGCDelay;
 public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
 {
     [ObservableProperty]
-    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
+    public partial double Coefficient { get; set; } = -1;
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
@@ -169,8 +167,8 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
     public CIBAGCDelayDTO Clone() => new()
     {
-        LaserLightInformation = LaserLightInformation.Clone(),
         ProductivityInformation = ProductivityInformation.Clone(),
+        Coefficient = Coefficient,
         Items = [.. Items.Select(t => t.Clone())],
         TargetPixelValues = [.. TargetPixelValues],
         IsCalibrated = IsCalibrated,
