@@ -119,7 +119,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
             try
             {
                 var information = scatterPlotControl.GetTitle().Split(['=', '>'], StringSplitOptions.RemoveEmptyEntries);
-                scatterPlotControl.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###}");
+                scatterPlotControl.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###} Delay(0) Error: {item.ZeroDelayError:0.###}");
 
                 var scatterLines = scatterPlotControl.GetOrAddScatterLines(item.Items.Count);
                 var xLines = scatterPlotControl.GetOrAddXLines(item.Items.Count + 1);
@@ -203,6 +203,9 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
     public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]
+    public partial double ZeroDelayError { get; set; }
+
+    [ObservableProperty]
     public partial double Delay { get; set; }
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
@@ -228,6 +231,7 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
+        ZeroDelayError = ZeroDelayError,
         Delay = Delay
     };
 

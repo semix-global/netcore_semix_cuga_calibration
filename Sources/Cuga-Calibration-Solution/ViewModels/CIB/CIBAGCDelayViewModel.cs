@@ -23,6 +23,8 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.DarkField;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Constants = Net.Utilities.Models.Constants;
@@ -79,6 +81,10 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
     [ObservableProperty]
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
+
+    public ProductivityInformation LowProductivityInformation => Cache.ProductivityInformation.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI
+        ? ApplicationCookie.NILowProductivityInformation
+        : ApplicationCookie.OILowProductivityInformation;
 
     #endregion 缓存
 
@@ -227,6 +233,16 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
             {
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
+
+            if (CalibratingStatuses.SingleOrDefault(t => t.SelectedItem == LowProductivityInformation)?.IsCalibrated != true)
+            {
+                var comment = $"Low Productivity Information {LowProductivityInformation} is not calibrated!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
+
+                return false;
+            }
 
             var isOk = ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
 
@@ -410,6 +426,13 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
             var cibInformations = ApplicationCookie.CIBInformations;
             var cibDelays = CIBViewModel.GetDelays(Cache.ProductivityInformation, cibInformations);
 
+            var averageZeroDelayError = 0d;
+            if (Cache.ProductivityInformation != LowProductivityInformation) averageZeroDelayError = Calibrations.Single(t => t.ProductivityInformation == LowProductivityInformation).Items.Average(t => t.ZeroDelayError);
+
+            var initDelay = 0d;
+            initDelay += averageZeroDelayError;
+            if (initDelay < 0d) initDelay += CalibratingItem.ProductivityInformation.OriginYPixels;
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
@@ -426,6 +449,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 CalibratingItem.ProductivityInformation.OriginYPixelsEndIndex,
                 CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
                 CIBDelays = new HtmlExpand(string.Empty, new HtmlTable([.. cibDelays.Select(t => t.ToHtmlAnonymous())])),
+                initDelay,
+                averageZeroDelayError,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -435,7 +460,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 .. cibInformations.Select(t => new CIBAGCDelayDTOItem
                 {
                     CIBInformation = t,
-                    Delay = 0d
+                    ZeroDelayError = averageZeroDelayError,
+                    Delay = initDelay
                 })
             ];
 
@@ -463,80 +489,15 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                    CIBViewModel.SetAGC(cibInformations, false);
-                    CIBViewModel.SetMarker(cibInformations, false);
-
-                    CIBViewModel.SetDelays([.. cibDelays.Select(t => t.Clone().WithAGCDelay(CalibratingItem.Items.Single(tt => tt.CIBInformation == t.CIBInformation).Delay))]);
-
-                    CIBViewModel.SetAGC(cibInformations, true);
-                    CIBViewModel.SetMarker(cibInformations, true);
-
-                    LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, CalibratingItem.Coefficient);
-
-                    var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
-                        Cache.ProductivityInformation,
-                        StageCoordinateSystemEnum.Dark,
-                        startCurrentHazeBFPosition,
-                        Cache.Item.ImageWidth,
+                    var isSuccess = await GetDelayAsync(
                         cibInformations,
-                        (true, null),
-                        (false, Cache.Item.OpticsConfiguration),
-                        (true, null),
-                        (true, null),
-                        false,
+                        cibDelays,
+                        CalibratingItem.Items,
+                        times,
+                        hazeBFPosition,
+                        startCurrentHazeBFPosition,
+                        detectImageDirectory,
                         cancellationToken);
-
-                    Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
-
-                    foreach (var (index, darkFieldImage) in cibPMTImages.Index())
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        using var _ = darkFieldImage;
-                        var itemItem = CalibratingItem.Items[index];
-
-                        var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImage.Image.Save(imageFilePath);
-                        var horizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
-                        var itemItemData = new CIBAGCDelayDTOItem.Item
-                        {
-                            ImageHorizontalProjects =
-                            [
-                                ..Generate.LinearRangeInt32(0, Cache.ProductivityInformation.OriginYPixelsStartIndex - 1).Select(_ => horizontalProjects[0]),
-                                ..horizontalProjects,
-                                ..Generate.LinearRangeInt32(Cache.ProductivityInformation.OriginYPixelsEndIndex, Cache.ProductivityInformation.OriginYPixels - 1).Select(_ => horizontalProjects[^1]),
-                            ],
-                            RawImageFilePath = darkFieldImage.RawImageFilePath,
-                            ImageFilePath = imageFilePath
-                        };
-                        itemItemData.CalculateHorizontalProjectMinPixel(CalibratingItem.ProductivityInformation, Cache.Item.MarkerLengthPixel);
-
-                        if (HostEnvironment.IsDevelopment()) itemItemData.HorizontalProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
-                        itemItem.Items = [.. itemItem.Items, itemItemData];
-
-                        Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
-                        {
-                            hazeBFPosition,
-                            startCurrentHazeBFPosition,
-                            itemItemData.ImageFilePath,
-                            itemItemData.RawImageFilePath
-                        }), HtmlLogUniqueId.LoggingHtml());
-                    }
-
-                    var resultList = new List<bool>();
-                    foreach (var itemItem in CalibratingItem.Items)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        itemItem.Items[times].Error = CalibratingItem.TargetPixelValues.Get(itemItem.CIBInformation) - itemItem.Items[times].HorizontalProjectMinPixel;
-                        itemItem.Items[times].IsOk = Math.Abs(itemItem.Items[times].Error) <= Cache.CalibratingThreshold;
-                        resultList.Add(itemItem.Items[times].IsOk);
-
-                        if (itemItem.Items[times].IsOk) continue;
-
-                        itemItem.Delay += itemItem.Items[times].Error;
-                        if (itemItem.Delay < 0) itemItem.Delay += CalibratingItem.ProductivityInformation.OriginYPixels;
-                    }
 
                     var htmlBullet = new HtmlBullet(new
                     {
@@ -546,7 +507,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                         Plot = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                     });
 
-                    CalibratingItem.IsCalibrated = resultList.All(t => t);
+                    CalibratingItem.IsCalibrated = isSuccess;
 
                     if (CalibratingItem.IsCalibrated)
                     {
@@ -664,6 +625,96 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
             return result;
         }).ConfigureAwait(false);
+    }
+
+    private async Task<bool> GetDelayAsync(
+        IReadOnlyList<CIBInformation> cibInformations,
+        IReadOnlyList<CIBDelayDTO> cibDelays,
+        IReadOnlyList<CIBAGCDelayDTOItem> items,
+        int times,
+        Point hazeBFPosition,
+        Point startCurrentHazeBFPosition,
+        string detectImageDirectory,
+        CancellationToken cancellationToken)
+    {
+        CIBViewModel.SetAGC(cibInformations, false);
+        CIBViewModel.SetMarker(cibInformations, false);
+
+        CIBViewModel.SetDelays([.. cibDelays.Select(t => t.Clone().WithAGCDelay(items.Single(tt => tt.CIBInformation == t.CIBInformation).Delay))]);
+
+        CIBViewModel.SetAGC(cibInformations, true);
+        CIBViewModel.SetMarker(cibInformations, true);
+
+        LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, CalibratingItem.Coefficient);
+
+        var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
+            Cache.ProductivityInformation,
+            StageCoordinateSystemEnum.Dark,
+            startCurrentHazeBFPosition,
+            Cache.Item.ImageWidth,
+            cibInformations,
+            (true, null),
+            (false, Cache.Item.OpticsConfiguration),
+            (true, null),
+            (true, null),
+            false,
+            cancellationToken);
+
+        Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
+
+        foreach (var (index, darkFieldImage) in cibPMTImages.Index())
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            using var _ = darkFieldImage;
+            var itemItem = items[index];
+
+            var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            darkFieldImage.Image.Save(imageFilePath);
+            var horizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+            var itemItemData = new CIBAGCDelayDTOItem.Item
+            {
+                ImageHorizontalProjects =
+                [
+                    ..Generate.LinearRangeInt32(0, Cache.ProductivityInformation.OriginYPixelsStartIndex - 1).Select(_ => horizontalProjects[0]),
+                    ..horizontalProjects,
+                    ..Generate.LinearRangeInt32(Cache.ProductivityInformation.OriginYPixelsEndIndex, Cache.ProductivityInformation.OriginYPixels - 1).Select(_ => horizontalProjects[^1]),
+                ],
+                RawImageFilePath = darkFieldImage.RawImageFilePath,
+                ImageFilePath = imageFilePath
+            };
+            itemItemData.CalculateHorizontalProjectMinPixel(CalibratingItem.ProductivityInformation, Cache.Item.MarkerLengthPixel);
+
+            if (HostEnvironment.IsDevelopment()) itemItemData.HorizontalProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
+            itemItem.Items = [.. itemItem.Items, itemItemData];
+
+            Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            {
+                hazeBFPosition,
+                startCurrentHazeBFPosition,
+                itemItemData.ImageFilePath,
+                itemItemData.RawImageFilePath
+            }), HtmlLogUniqueId.LoggingHtml());
+        }
+
+        var resultList = new List<bool>();
+        foreach (var itemItem in items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            itemItem.Items[times].Error = CalibratingItem.TargetPixelValues.Get(itemItem.CIBInformation) - itemItem.Items[times].HorizontalProjectMinPixel;
+            itemItem.Items[times].IsOk = Math.Abs(itemItem.Items[times].Error) <= Cache.CalibratingThreshold;
+            resultList.Add(itemItem.Items[times].IsOk);
+
+            if (times == 0 && Cache.ProductivityInformation == LowProductivityInformation) itemItem.ZeroDelayError = itemItem.Items[times].Error;
+
+            if (itemItem.Items[times].IsOk) continue;
+
+            itemItem.Delay += itemItem.Items[times].Error;
+            if (itemItem.Delay < 0d) itemItem.Delay += CalibratingItem.ProductivityInformation.OriginYPixels;
+        }
+
+        return resultList.All(t => t);
     }
 
     private bool Save(IReadOnlyList<CIBAGCDelayDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
