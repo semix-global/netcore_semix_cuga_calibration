@@ -51,10 +51,16 @@ public sealed partial class ProductivityInformation :
     public partial double YPixelSize { get; private set; } = -1;
 
     [ObservableProperty]
-    public partial int YPixel { get; private set; } = -1;
+    public partial int YPixels { get; private set; } = -1;
 
     [ObservableProperty]
-    public partial int OriginYPixel { get; private set; } = -1;
+    public partial int OriginYPixels { get; private set; } = -1;
+
+    [ObservableProperty]
+    public partial int OriginYPixelsStartIndex { get; private set; } = -1;
+
+    [ObservableProperty]
+    public partial int OriginYPixelsEndIndex { get; private set; } = -1;
 
     /// <summary>
     /// KHz
@@ -127,10 +133,45 @@ public sealed partial class ProductivityInformation :
 
     #region Deconstruct
 
-    public void Deconstruct(out string name, out OpticsIlluminationModeEnum opticsIlluminationModeEnum, out int opticsMagType, out int stageSpeedType, out double xPixelSize, out double yPixelSize, out int yPixel, out double originYPixel, out double sampleRate,
+    public void Deconstruct(
+        out string name,
+        out OpticsIlluminationModeEnum opticsIlluminationModeEnum,
+        out int opticsMagType,
+        out int stageSpeedType,
+        out double xPixelSize,
+        out double yPixelSize,
+        out int yPixels,
+        out double originYPixels,
+        out double originYPixelsStartIndex,
+        out double originYPixelsEndIndex,
+        out double sampleRate,
         out double xSpeedValue)
-        => (name, opticsIlluminationModeEnum, opticsMagType, stageSpeedType, xPixelSize, yPixelSize, yPixel, originYPixel, sampleRate, xSpeedValue) =
-            (Name, OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType, XPixelSize, YPixelSize, YPixel, OriginYPixel, SampleRate, XSpeedValue);
+        => (
+                name,
+                opticsIlluminationModeEnum,
+                opticsMagType,
+                stageSpeedType,
+                xPixelSize,
+                yPixelSize,
+                yPixels,
+                originYPixels,
+                originYPixelsStartIndex,
+                originYPixelsEndIndex,
+                sampleRate,
+                xSpeedValue) =
+            (
+                Name,
+                OpticsIlluminationModeEnum,
+                OpticsMagType,
+                StageSpeedType,
+                XPixelSize,
+                YPixelSize,
+                YPixels,
+                OriginYPixels,
+                OriginYPixelsStartIndex,
+                OriginYPixelsEndIndex,
+                SampleRate,
+                XSpeedValue);
 
     #endregion Deconstruct
 
@@ -153,11 +194,13 @@ public sealed partial class ProductivityInformation :
 
     public ProductivityInformation AdaptIn(C2MProductivityInfo obj,
         CgSwathSpeedInfo swathSpeedInfo,
-        double originYPixel,
+        double originYPixels,
+        double originYPixelsStartIndex,
+        double originYPixelsEndIndex,
         double sampleRate,
         double xSpeedValue
 #if NET
-            , OpticsIlluminationModeEnum opticsIlluminationModeEnum
+        , OpticsIlluminationModeEnum opticsIlluminationModeEnum
 #endif
 
     )
@@ -171,8 +214,10 @@ public sealed partial class ProductivityInformation :
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
         YPixelSize = swathSpeedInfo.YPixelSize;
-        YPixel = Convert.ToInt32(swathSpeedInfo.YPixel);
-        OriginYPixel = Convert.ToInt32(originYPixel);
+        OriginYPixels = Convert.ToInt32(originYPixels);
+        OriginYPixelsStartIndex = Convert.ToInt32(originYPixelsStartIndex);
+        OriginYPixelsEndIndex = Convert.ToInt32(originYPixelsEndIndex);
+        YPixels = OriginYPixelsEndIndex - OriginYPixelsStartIndex;
         SampleRate = sampleRate;
         XSpeedValue = xSpeedValue;
         XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
@@ -188,8 +233,10 @@ public sealed partial class ProductivityInformation :
         StageSpeedType = obj.StageSpeedType;
         XPixelSize = obj.XPixelSize;
         YPixelSize = obj.YPixelSize;
-        YPixel = obj.YPixel;
-        OriginYPixel = obj.OriginYPixel;
+        YPixels = obj.YPixels;
+        OriginYPixels = obj.OriginYPixels;
+        OriginYPixelsStartIndex = obj.OriginYPixelsStartIndex;
+        OriginYPixelsEndIndex = obj.OriginYPixelsEndIndex;
         SampleRate = obj.SampleRate;
         XSpeedValue = obj.XSpeedValue;
         return this;
@@ -203,8 +250,10 @@ public sealed partial class ProductivityInformation :
         StageSpeedType = StageSpeedType,
         XPixelSize = XPixelSize,
         YPixelSize = YPixelSize,
-        YPixel = YPixel,
-        OriginYPixel = OriginYPixel,
+        YPixels = YPixels,
+        OriginYPixels = OriginYPixels,
+        OriginYPixelsStartIndex = OriginYPixelsStartIndex,
+        OriginYPixelsEndIndex = OriginYPixelsEndIndex,
         SampleRate = SampleRate,
         XSpeedValue = XSpeedValue
     };

@@ -6,6 +6,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -105,9 +106,10 @@ public partial class DarkFieldRawScanImageDTO :
     public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
     {
         Guard.IsNotNull(obj);
+        var (size, _, _) = RAWImageFactory.GetSize(obj.Url);
 
         CIBInformation = CIBInformation.Default.Clone().AdaptIn((obj.PMTId, obj.Channel, true));
-        Size = new SizeI(obj.ImgWidth, obj.ImgHeight);
+        Size = size;
         IsForward = isForward;
         RawImageCIBProfileModeEnum = rawCIBProfileModeEnum;
         RawImageFilePath = obj.Url;
@@ -203,6 +205,8 @@ public sealed class DarkFieldImageDTO :
         using var _ = Image;
 
         Image = GetImage();
+
+        Guard.IsTrue(Image.GetSize() == Size);
     }
 
     #endregion Mapper

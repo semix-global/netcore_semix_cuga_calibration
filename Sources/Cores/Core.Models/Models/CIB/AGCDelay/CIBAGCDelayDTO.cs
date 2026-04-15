@@ -3,6 +3,8 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
+using Microsoft.Extensions.Hosting;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -13,6 +15,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.AGCDelay;
@@ -20,10 +23,10 @@ namespace Core.Models.Models.CIB.AGCDelay;
 public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
 {
     [ObservableProperty]
-    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
+    public partial double Coefficient { get; set; } = -1;
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
@@ -117,7 +120,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
             try
             {
                 var information = scatterPlotControl.GetTitle().Split(['=', '>'], StringSplitOptions.RemoveEmptyEntries);
-                scatterPlotControl.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###}");
+                scatterPlotControl.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###}, Delay(0) Error: {item.ZeroDelayError:0.###}");
 
                 var scatterLines = scatterPlotControl.GetOrAddScatterLines(item.Items.Count);
                 var xLines = scatterPlotControl.GetOrAddXLines(item.Items.Count + 1);
@@ -126,7 +129,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
                 {
                     var color = Constants.Turbo.GetColor(index, new Range(0, item.Items.Count - 1));
                     scatterLines[index].Update(
-                        $"{index + 1}",
+                        $"{index + 1} => Current: {itemItemData.HorizontalProjectMinPixel:0.###}",
                         [.. itemItemData.ImageHorizontalProjects.ToPoints()],
                         color);
 
@@ -140,7 +143,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
                 var tryGetSingle = TargetPixelValues.TryGetSingle(t => t.Key == item.CIBInformation, out var targetPMTValueKvp);
                 xLines[0].Update(
-                    "Target",
+                    $"Target: {targetPMTValueKvp.Value:0.###}",
                     targetPMTValueKvp.Value,
                     Colors.Red);
                 xLines[0].IsVisible = tryGetSingle;
@@ -165,8 +168,8 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
     public CIBAGCDelayDTO Clone() => new()
     {
-        LaserLightInformation = LaserLightInformation.Clone(),
         ProductivityInformation = ProductivityInformation.Clone(),
+        Coefficient = Coefficient,
         Items = [.. Items.Select(t => t.Clone())],
         TargetPixelValues = [.. TargetPixelValues],
         IsCalibrated = IsCalibrated,
@@ -201,6 +204,9 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
     public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]
+    public partial double ZeroDelayError { get; set; }
+
+    [ObservableProperty]
     public partial double Delay { get; set; }
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
@@ -226,6 +232,7 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
+        ZeroDelayError = ZeroDelayError,
         Delay = Delay
     };
 
@@ -265,18 +272,33 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
             RawImageFilePath = RawImageFilePath,
             ImageFilePath = ImageFilePath,
             Error = Error,
-            IsOk = IsOk,
+            IsOk = IsOk
         };
 
-        public void CalculateHorizontalProjectMinPixel()
+        public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation, int markerLengthPixel)
         {
-            var targetValue = ImageHorizontalProjects.Min() + (ImageHorizontalProjects.Max() - ImageHorizontalProjects.Min()) * 2d / 3d;
-            var changedList = ImageHorizontalProjects.ToPoints().Where(t => t.Y < targetValue).ToList();
+            var hostEnvironment = HostApplication.GetRequiredService<IHostEnvironment>();
+
+            var imageHorizontalProjects = hostEnvironment.IsProduction()
+                ? ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelsStartIndex..productivityInformation.OriginYPixelsEndIndex].ToArray()
+                : ImageHorizontalProjects.ToArray();
+
+            var (indexes, _) = Extremumor.FindMinima(imageHorizontalProjects.ToPoints());
+
+            var centerIndex = indexes.OrderBy(t => imageHorizontalProjects[t]).First();
+
+            var temps = Generate.LinearRangeInt32(centerIndex - markerLengthPixel, centerIndex + markerLengthPixel)
+                .Where(t => t >= 0 && t < imageHorizontalProjects.Length)
+                .Select(t => new Point(t, imageHorizontalProjects[t]))
+                .ToArray();
+
+            var targetValue = temps.Min(t => t.Y) + (temps.Max(t => t.Y) - temps.Min(t => t.Y)) * 1d / 4d;
+            var changedList = temps.Where(t => t.Y < targetValue).ToList();
 
             var startIndex = Convert.ToInt32(changedList[0].X);
             var endIndex = Convert.ToInt32(changedList[^1].X);
 
-            HorizontalProjectMinPixel = (startIndex + endIndex) / 2;
+            HorizontalProjectMinPixel = productivityInformation.OriginYPixelsStartIndex + (startIndex + endIndex) / 2;
         }
     }
 }

@@ -13,6 +13,7 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.AGCDelay;
 using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.LineCentricity;
@@ -32,6 +33,7 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
+using Core.Models.Models.Optics.SC;
 using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Interfaces;
 using Net.Utilities.WPF.MVVM;
@@ -513,6 +515,35 @@ public static class CoreWcfModelsExtension
         var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
 
         errorMessage = isOk ? string.Empty : "Optics INC is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this OpticsSCDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        Guard.IsNotNull(applicationCookie.HardwareStateConfig);
+
+        var isOkCount = result
+            .Where(t => applicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
+            .Count(t => t.IsOk);
+
+        var isOk = isOkCount == applicationCookie.OpticsIlluminationModeEnums.Count;
+        errorMessage = isOk ? string.Empty : "Optics SC is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this CIBAGCDelayDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t =>
+            applicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+            && t.IsOk);
+        var isOk = isOkCount == applicationCookie.OpticsMagTypeProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "CIB AGC Delay is Empty";
 
         return isOk;
     }

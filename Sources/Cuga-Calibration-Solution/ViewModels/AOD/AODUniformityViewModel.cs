@@ -333,7 +333,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(async () =>
         {
             Guard.IsGreaterThanOrEqualTo(Cache.Item.PrescanAODWaveformProfileSegmentCount, 4);
-            Guard.IsLessThanOrEqualTo(Cache.Item.ImageHorizontalProjectsSegmentCount, Cache.ProductivityInformation.YPixel);
+            Guard.IsLessThanOrEqualTo(Cache.Item.ImageHorizontalProjectsSegmentCount, Cache.ProductivityInformation.YPixels);
             Guard.IsGreaterThan(Cache.Item.ImageHorizontalProjectsSegmentCount, 0);
 
             var currentOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();

@@ -169,8 +169,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             case 0:
                 return true;
 
-            case 1:   
-
+            case 1:
                 return true;
 
             case 2:
@@ -203,32 +202,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return true;
 
             case 1:
-                var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
-                var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
-                if (prescanResult is null)
-                {
-                    Logger.LogWarning("Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!");
-                    return false;
-                }
-                else
-                {
-                    Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
-                    Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
-                }
-
-                var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
-                var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
-                if (chirpResult is null)
-                {
-                    Logger.LogWarning("Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!");
-                    return false;
-                }
-                else
-                {
-                    Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam.Clone();
-                    Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
-                }
-
                 return true;
 
             case 2:
@@ -256,13 +229,37 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(() =>
         {
             Guard.IsNotEmpty(Cache.CIBInformations);
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+            var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                          && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
+            if (prescanResult is null)
             {
-                Cache.MicroscopeLensInformation,
-                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-                Cache.CIBInformations
-            }), HtmlLogUniqueId.LoggingHtml());
+                const string comment = "Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
+
+                return false;
+            }
+
+            Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
+            Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
+
+            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+            var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                      && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
+            if (chirpResult is null)
+            {
+                const string comment = "Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
+
+                return false;
+            }
+
+            Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam.Clone();
+            Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
 
             var mmdConfigurationList = new List<CIBMMDCache.MMDConfiguration>(Cache.MMDConfigurations);
 
@@ -274,6 +271,16 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             Cache.MMDConfigurations = [.. mmdConfigurationList.DistinctBy(t => t.CIBInformation).OrderBy(t => t.CIBInformation)];
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.MicroscopeLensInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
+                Cache.CIBInformations,
+                OriginGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
+                OriginGenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
+                MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations])),
+            }), HtmlLogUniqueId.LoggingHtml());
 
             return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t))
                    && ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
@@ -398,7 +405,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             #region 获取功率
 
-            var coefficients = Generate.LinearRange(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
+            var coefficients = Generate.LinearRangeContainsEdge(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
             try
@@ -514,7 +521,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var cibmmdGains = CIBViewModel.GetCIBMMDGains(Cache.CIBInformations, Cache.StartGain, Cache.StepGain, Cache.StopGain);
 
             // 获取gain
-            var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
+            var gains = Generate.LinearRangeContainsEdge(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
             Calibratings =
             [
@@ -654,7 +661,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 CIBViewModel.SetCIBProfileModeEnum(Cache.CIBInformations, CIBProfileModeEnum.PMTLog);
                 OpticsViewModel.ToggleODFilter(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
