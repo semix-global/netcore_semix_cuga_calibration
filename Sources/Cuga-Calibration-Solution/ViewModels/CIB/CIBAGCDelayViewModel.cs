@@ -27,6 +27,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.DarkField;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using Net.Utilities.Algorithms.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -328,8 +329,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
             try
             {
-                var lastCoefficient = CalibratingItem.Coefficient;
-                foreach (var coefficient in Generate.LinearRange(Cache.Item.StartCoefficient, Cache.Item.StepCoefficient, Cache.Item.StopCoefficient))
+                foreach (var coefficient in Generate.LinearRangeContainsEdge(Cache.Item.StartCoefficient, Cache.Item.StepCoefficient, Cache.Item.StopCoefficient))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -349,6 +349,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                         cancellationToken);
 
                     Logger.LogHtmlInformation($"{coefficient:0.###}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
                     var averages = new double[cibInformations.Count];
                     foreach (var (index, darkFieldImage) in darkFieldImages.Index())
                     {
@@ -375,24 +376,17 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
                     if (max < Cache.Item.TargetPMTValue)
                     {
-                        lastCoefficient = coefficient;
+                        CalibratingItem.Coefficient = coefficient;
 
                         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                         {
+                            CalibratingItem.Coefficient,
                             max,
                             CIBInformation = cibInformations[maxIndex]
                         }), HtmlLogUniqueId.LoggingHtml());
 
                         continue;
                     }
-
-                    CalibratingItem.Coefficient = lastCoefficient;
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                    {
-                        hazeBFPosition,
-                        max,
-                        CIBInformation = cibInformations[maxIndex]
-                    }), HtmlLogUniqueId.LoggingHtml());
 
                     break;
                 }
@@ -433,7 +427,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
             var initDelay = 0d;
             initDelay += averageZeroDelayError;
-            if (initDelay < 0d) initDelay += CalibratingItem.ProductivityInformation.OriginYPixels;
+            initDelay = CheckDelay(initDelay);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -713,11 +707,13 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
             if (itemItem.Items[times].IsOk) continue;
 
             itemItem.Delay += itemItem.Items[times].Error;
-            if (itemItem.Delay < 0d) itemItem.Delay += CalibratingItem.ProductivityInformation.OriginYPixels;
+            itemItem.Delay = CheckDelay(itemItem.Delay);
         }
 
         return resultList.All(t => t);
     }
+
+    private double CheckDelay(double delay) => delay < 0d ? delay + Cache.ProductivityInformation.OriginYPixels /* 推迟到下一个周期 */ : delay;
 
     private bool Save(IReadOnlyList<CIBAGCDelayDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {

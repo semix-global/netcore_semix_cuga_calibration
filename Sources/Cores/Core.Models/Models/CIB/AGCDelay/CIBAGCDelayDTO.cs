@@ -13,6 +13,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Modules;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
@@ -276,7 +277,11 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
 
         public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation, int markerLengthPixel)
         {
-            var imageHorizontalProjects = ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelsStartIndex..productivityInformation.OriginYPixelsEndIndex].ToArray();
+            var hostEnvironment = HostApplication.GetRequiredService<IHostEnvironment>();
+
+            var imageHorizontalProjects = hostEnvironment.IsProduction()
+                ? ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelsStartIndex..productivityInformation.OriginYPixelsEndIndex].ToArray()
+                : ImageHorizontalProjects.ToArray();
 
             var (indexes, _) = Extremumor.FindMinima(imageHorizontalProjects.ToPoints());
 

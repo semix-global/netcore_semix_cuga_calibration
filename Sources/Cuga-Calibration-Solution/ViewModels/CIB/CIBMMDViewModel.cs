@@ -398,7 +398,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             #region 获取功率
 
-            var coefficients = Generate.LinearRange(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
+            var coefficients = Generate.LinearRangeContainsEdge(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
             try
@@ -514,7 +514,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var cibmmdGains = CIBViewModel.GetCIBMMDGains(Cache.CIBInformations, Cache.StartGain, Cache.StepGain, Cache.StopGain);
 
             // 获取gain
-            var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
+            var gains = Generate.LinearRangeContainsEdge(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
             Calibratings =
             [
