@@ -518,7 +518,7 @@ public static class CoreWcfModelsExtension
 
         return isOk;
     }
-    
+
     public static bool IsOk(this OpticsSCDTO[] result, out string errorMessage)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
@@ -533,7 +533,7 @@ public static class CoreWcfModelsExtension
 
         return isOk;
     }
-    
+
     public static bool IsOk(this CIBAGCDelayDTO[] result, out string errorMessage)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();

@@ -11,7 +11,6 @@
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
-             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -48,7 +47,7 @@
                                        FontSize="13"
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>                      
+                        </StackPanel>
                         <Expander Header="Prescan AOD Waveform"
                                   IsExpanded="False"
                                   ExpandDirection="Down">

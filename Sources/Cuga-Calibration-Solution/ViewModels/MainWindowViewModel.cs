@@ -503,21 +503,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBXTCViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBXTCDTO>().IsOk(out _);
-                
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBAGCDelayViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBAGCDelayDTO>().IsOk(out _);
-                
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<CIBIlluminationProfileViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBIlluminationProfileDTO>().IsOk(out _);
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AODUniformityViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODUniformityDTO>().IsOk(out _);
-                
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsINCViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsINCDTO>().IsOk(out _);  
-                
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsINCDTO>().IsOk(out _);
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsSCViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsSCDTO>().IsOk(out _);         
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsSCDTO>().IsOk(out _);
 
                 #endregion
 

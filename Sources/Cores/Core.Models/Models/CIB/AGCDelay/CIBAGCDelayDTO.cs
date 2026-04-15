@@ -3,6 +3,8 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
+using Microsoft.Extensions.Hosting;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -13,8 +15,6 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using Microsoft.Extensions.Hosting;
-using Net.Utilities.Algorithms.Modules;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
