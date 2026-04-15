@@ -20,11 +20,14 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Chuck.StageMap;
+using Core.Models.Models.CIB.AGCDelay;
+using Core.Models.Models.CIB.IlluminationProfile;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.LineOrientationOffset;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.CIB.XPixelSize;
+using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.Attenuator;
@@ -35,7 +38,9 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Optics.GlobalFieldTilt;
+using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
+using Core.Models.Models.Optics.SC;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
 using CugaCalibration.Core.Services.Interfaces;
@@ -496,8 +501,23 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAttenuatorViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAttenuatorDTO>().IsOk(out _);
 
+                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBXTCViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBXTCDTO>().IsOk(out _);
+                
+                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBAGCDelayViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBAGCDelayDTO>().IsOk(out _);
+                
+                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBIlluminationProfileViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBIlluminationProfileDTO>().IsOk(out _);
+
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AODUniformityViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODUniformityDTO>().IsOk(out _);
+                
+                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsINCViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsINCDTO>().IsOk(out _);  
+                
+                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsSCViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsSCDTO>().IsOk(out _);         
 
                 #endregion
 
