@@ -20,9 +20,10 @@ public sealed partial class CIBDelayDTO : ObservableObject, ICloneable<CIBDelayD
     [ObservableProperty]
     public partial double AGCDelay { get; set; }
 
-    public CIBDelayDTO WithPMTDelay(double pmtDelay)
+    public CIBDelayDTO WithPMTDelayAndSenseDelay(double pmtDelay)
     {
         PMTDelay = pmtDelay;
+        SenseDelay = pmtDelay;
 
         return this;
     }

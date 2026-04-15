@@ -209,6 +209,7 @@ public sealed class CalibrationCIBServiceImpl(
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
         var getPMTImagesRet = await GetPMTImagesAsync(
+            productivityInformation,
             cibInformations,
             new SxCollectImgParam
             {
@@ -315,6 +316,8 @@ public sealed class CalibrationCIBServiceImpl(
 
             result[index] = new DarkFieldImageDTO().AdaptIn(m2CImgSysCollectImgDTO, isForward, getCIBProfileModeEnumRet.Anything[0], isKeepRawImageCIBProfileModeEnum);
 
+            Guard.IsTrue(result[index].Size.Height == productivityInformation.YPixels);
+
             return SxExecuteRetHelper.CreateSuccess(true);
         }, cancellationToken)));
 
@@ -341,6 +344,7 @@ public sealed class CalibrationCIBServiceImpl(
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
         return await GetPMTImagesAsync(
+            productivityInformation,
             cibInformations,
             new SxCollectImgParam
             {
@@ -393,6 +397,7 @@ public sealed class CalibrationCIBServiceImpl(
         var speedECS = Math.Abs(stopECS - startECS) / time;
 
         var getPMTImagesRet = await GetPMTImagesAsync(
+            productivityInformation,
             cibInformations,
             new SxCollectImgParam
             {
@@ -526,6 +531,7 @@ public sealed class CalibrationCIBServiceImpl(
     }
 
     private async Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
+        ProductivityInformation productivityInformation,
         IReadOnlyList<CIBInformation> cibInformations,
         SxCollectImgParam sxCollectImgParam,
         bool isForward,
@@ -551,6 +557,8 @@ public sealed class CalibrationCIBServiceImpl(
             if (m2CImgSysCollectImgDTOs.Length != 1) return SxExecuteRetHelper.CreateError($"{name} Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", false);
 
             result[index] = new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDTOs[0], isForward, getCIBProfileModeEnumRet.Anything[index], isKeepRawImageCIBProfileModeEnum);
+
+            Guard.IsTrue(result[index].Size.Height == productivityInformation.YPixels);
 
             return SxExecuteRetHelper.CreateSuccess(true);
         }, cancellationToken)));

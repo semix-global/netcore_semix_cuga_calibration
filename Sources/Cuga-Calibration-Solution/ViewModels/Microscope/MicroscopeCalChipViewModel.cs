@@ -500,7 +500,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 averageEcs,
                 startEcs,
                 endEcs,
-                Result = new HtmlQuote(CalibratingItem.CurrentItem.ToFlatnessHtmlAnonymous()),
+                Result = new HtmlQuote(CalibratingItem.CurrentItem.ToFlatnessHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.CurrentItem.BrightFieldMachinePosition = Cache.Item.CenterMachinePosition;
@@ -757,7 +757,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        Result = new HtmlQuote(SelectReviewItem.CurrentItem.ToFlatnessHtmlAnonymous()),
+                        Result = new HtmlQuote(SelectReviewItem.CurrentItem.ToFlatnessHtmlAnonymous())
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
 

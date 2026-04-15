@@ -12,7 +12,6 @@ using Semix.CoreLib;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -63,6 +62,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 508
                 },
                 508,
+                0,
+                508,
                 408,
                 445000
 #if NET
@@ -85,6 +86,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixelSize = 0.327,
                     YPixel = 508
                 },
+                508,
+                0,
                 508,
                 408,
                 222500
@@ -109,6 +112,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1008
                 },
                 1008,
+                0,
+                1008,
                 290,
                 175900
 #if NET
@@ -131,6 +136,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixelSize = 0.1635,
                     YPixel = 1008
                 },
+                1008,
+                0,
                 1008,
                 290,
                 88060
@@ -155,6 +162,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1500
                 },
                 1500,
+                0,
+                1500,
                 210,
                 87240
 #if NET
@@ -177,6 +186,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixelSize = 0.11286,
                     YPixel = 1500
                 },
+                1500,
+                0,
                 1500,
                 210,
                 43600
@@ -201,6 +212,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixel = 1160
                 },
                 1160,
+                0,
+                1160,
                 200,
                 40000
 #if NET
@@ -223,6 +236,8 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     YPixelSize = 0.096,
                     YPixel = 1720
                 },
+                1720,
+                0,
                 1720,
                 200,
                 26880

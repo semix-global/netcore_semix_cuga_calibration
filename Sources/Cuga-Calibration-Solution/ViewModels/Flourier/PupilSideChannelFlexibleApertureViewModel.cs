@@ -328,7 +328,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 CgFFBoxBeginNumber1Ch1 = Cache.CgFFBoxBeginNumber1Ch1,
                 CgFFBoxEndNumber1Ch1 = Cache.CgFFBoxEndNumber1Ch1,
                 CgFFBoxBeginNumber2Ch1 = Cache.CgFFBoxBeginNumber2Ch1,
-                CgFFBoxEndNumber2Ch1 = Cache.CgFFBoxEndNumber2Ch1,
+                CgFFBoxEndNumber2Ch1 = Cache.CgFFBoxEndNumber2Ch1
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -542,7 +542,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 CgFFBoxBeginNumber1Ch2 = Cache.CgFFBoxBeginNumber1Ch2,
                 CgFFBoxEndNumber1Ch2 = Cache.CgFFBoxEndNumber1Ch2,
                 CgFFBoxBeginNumber2Ch2 = Cache.CgFFBoxBeginNumber2Ch2,
-                CgFFBoxEndNumber2Ch2 = Cache.CgFFBoxEndNumber2Ch2,
+                CgFFBoxEndNumber2Ch2 = Cache.CgFFBoxEndNumber2Ch2
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });

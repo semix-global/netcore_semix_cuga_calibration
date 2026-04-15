@@ -31,9 +31,6 @@
                 <hc:Shield Subject="Microscope: "
                            Status="{Binding Cache.Item.MicroscopeLensInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="CIB: "
-                           Status="{Binding Cache.Item.CIBInformation}"
-                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">

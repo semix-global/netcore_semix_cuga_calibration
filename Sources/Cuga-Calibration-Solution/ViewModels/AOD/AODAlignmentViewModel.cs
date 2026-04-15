@@ -13,7 +13,6 @@ using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
@@ -188,18 +187,6 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
-                var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
-                var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
-                if (prescanResult is null)
-                {
-                    Logger.LogWarning("Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!");
-                    return false;
-                }
-                else
-                {
-                    Cache.Item.FlatnessGeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
-                    Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
-                }
 
                 return true;
 
@@ -229,9 +216,26 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     {
         return InvokeCalibrateAsync(() =>
         {
+            var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+            var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                          && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
+            if (prescanResult is null)
+            {
+                const string comment = "Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
+
+                return false;
+            }
+
+            Cache.Item.FlatnessGeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
+            Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.ProductivityInformation
+                Cache.ProductivityInformation,
+                OriginGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
@@ -308,7 +312,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 Cache.Item.RangeSkipFitCount,
                 Cache.Threshold,
                 detectImageDirectory,
-                Cache.ProductivityInformation.YPixel
+                Cache.ProductivityInformation.YPixels
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
