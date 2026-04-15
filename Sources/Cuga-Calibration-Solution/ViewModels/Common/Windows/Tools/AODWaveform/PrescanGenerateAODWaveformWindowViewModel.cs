@@ -35,7 +35,7 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
 
             var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
 
-            var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.Param.ProductivityInformation));
+            var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation == Cache.Param.ProductivityInformation);
 
             if (prescanResult is null)
             {
@@ -44,7 +44,7 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
             }
             else
             {
-                Cache.Param = prescanResult.GeneratePrescanAODWaveformParam.Clone();;
+                Cache.Param = prescanResult.GeneratePrescanAODWaveformParam.Clone();
                 stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
             }
 

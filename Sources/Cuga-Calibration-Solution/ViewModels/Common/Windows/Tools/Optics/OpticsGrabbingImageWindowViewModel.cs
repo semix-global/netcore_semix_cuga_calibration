@@ -97,7 +97,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
 
             var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
 
-            var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
+            var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation == Cache.ProductivityInformation);
 
             if (prescanResult is null)
             {
@@ -112,7 +112,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
 
             var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
 
-            var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
+            var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation == Cache.ProductivityInformation);
 
             if (chirpResult is null)
             {

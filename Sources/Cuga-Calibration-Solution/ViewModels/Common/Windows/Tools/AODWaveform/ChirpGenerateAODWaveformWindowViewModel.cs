@@ -35,7 +35,7 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
 
             var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
 
-            var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.Param.ProductivityInformation));
+            var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation == Cache.Param.ProductivityInformation);
 
             if (chirpResult is null)
             {
@@ -44,7 +44,7 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
             }
             else
             {
-                Cache.Param = chirpResult.GenerateChirpAODWaveformParam.Clone();;
+                Cache.Param = chirpResult.GenerateChirpAODWaveformParam.Clone();
                 stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
             }
 

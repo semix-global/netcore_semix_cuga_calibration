@@ -243,6 +243,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
+                Cache.Item.CIBInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
@@ -268,6 +269,9 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
+                Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -298,6 +302,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
@@ -417,6 +423,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
                 Cache.Item.PrescanAODWaveformProfileSegmentCount,
@@ -468,7 +476,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
                     Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                    CIBViewModel.SetDelays([.. cibDelays.Select(t => t.Clone().WithPMTDelay(CalibratingItem.Items.Single(tt => tt.CIBInformation == t.CIBInformation).Delay))]);
+                    CIBViewModel.SetDelays([.. cibDelays.Select(t => t.Clone().WithPMTDelayAndSenseDelay(CalibratingItem.Items.Single(tt => tt.CIBInformation == t.CIBInformation).Delay))]);
                     var cibPMTImages = await CIBViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Dark,
