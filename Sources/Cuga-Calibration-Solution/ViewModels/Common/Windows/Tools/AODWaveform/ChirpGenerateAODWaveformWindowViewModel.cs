@@ -46,6 +46,7 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
             else
             {
                 Cache.Param = chirpResult.GenerateChirpAODWaveformParam.Clone();
+                Cache.Param.ProductivityInformation = Cache.Param.ProductivityInformation.Clone();
                 stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
             }
 

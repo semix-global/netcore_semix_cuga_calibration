@@ -46,6 +46,7 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
             else
             {
                 Cache.Param = prescanResult.GeneratePrescanAODWaveformParam.Clone();
+                Cache.Param.ProductivityInformation = Cache.Param.ProductivityInformation.Clone();
                 stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
             }
 
