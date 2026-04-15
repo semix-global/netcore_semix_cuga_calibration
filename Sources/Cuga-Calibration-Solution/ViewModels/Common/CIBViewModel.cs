@@ -122,8 +122,10 @@ public sealed class CIBViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<CIBDelayDTO> GetDelays(IReadOnlyList<CIBInformation> cibInformations)
+    public IReadOnlyList<CIBDelayDTO> GetDelays(ProductivityInformation productivityInformation, IReadOnlyList<CIBInformation> cibInformations)
     {
+        laserViewModel.ToggleOpticsMagType(productivityInformation);
+
         var ret = calibrationCIBService.GetDelays(cibInformations);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);

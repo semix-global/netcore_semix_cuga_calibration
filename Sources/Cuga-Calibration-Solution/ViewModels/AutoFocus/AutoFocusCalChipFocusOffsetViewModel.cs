@@ -44,7 +44,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
         new() { StepName = "Haze Param" },
         new() { StepName = "Haze AF ECS" },
         new() { StepName = "Shiny Wafer Param" },
-        new() { StepName = "Shiny Wafer AF ECS" },
+        new() { StepName = "Shiny Wafer AF ECS" }
     ];
 
     #region 界面相关
@@ -254,7 +254,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 Cache.CalChipSiteModelEnum,
                 Cache.Item.FindBrightMachinePosition,
                 Cache.MicroscopeLensInformation,
-                Cache.ProductivityInformation,
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
@@ -450,7 +450,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
             {
                 Cache.CalChipSiteModelEnum,
                 Cache.MicroscopeLensInformation,
-                Cache.ProductivityInformation,
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             var errorMessageStringBuilder = new StringBuilder();
             try
@@ -471,7 +471,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
                     Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                     {
-                        Cache.Item.FindBrightMachinePosition,
+                        Cache.Item.FindBrightMachinePosition
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     if (SelectReview.Results.TryGet(calChipSiteModelEnum, out var resultDTO) == false)

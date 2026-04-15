@@ -48,6 +48,12 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Marker Length(px): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.MarkerLengthPixel}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Calibrating Times: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="200"
@@ -67,8 +73,8 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.LaserLightInformation, Mode=OneWay}"
-                                 hc:TitleElement.Title="Laser Light Information: "
+                        <TextBox Text="{Binding CalibratingItem.Coefficient, StringFormat='0.###', Mode=OneWay}"
+                                 hc:TitleElement.Title="Result Coefficient: "
                                  hc:TitleElement.TitleWidth="200"
                                  hc:TitleElement.TitlePlacement="Left"
                                  IsReadOnly="True"

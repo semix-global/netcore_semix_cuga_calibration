@@ -97,7 +97,8 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
 
             var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
 
-            var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
+            var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                          && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
 
             if (prescanResult is null)
             {
@@ -106,13 +107,15 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             }
             else
             {
-                Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam;
+                Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
+                Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
                 stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
             }
 
             var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
 
-            var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.Equals(Cache.ProductivityInformation));
+            var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                      && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
 
             if (chirpResult is null)
             {
@@ -121,7 +124,8 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             }
             else
             {
-                Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam;
+                Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam.Clone();
+                Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
                 stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
             }
 

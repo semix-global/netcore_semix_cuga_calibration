@@ -15,7 +15,6 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     ObservableObject,
     IAdaptTo<AODWaveformGenerator.AODWaveformOffsetConfiguration>,
-    IAdaptIn<AbstractAODWaveformProfile, GenerateAODWaveformElectrodeConfiguration>,
     ICloneable<GenerateAODWaveformElectrodeConfiguration>
 {
     [ObservableProperty]
@@ -81,21 +80,13 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.AdaptTo())]
     };
 
-    [Obsolete]
-    public GenerateAODWaveformElectrodeConfiguration AdaptIn(AbstractAODWaveformProfile obj)
-    {
-        OpticsAODElectrodeEnum = obj.OpticsAODElectrodeEnum;
-        OffsetFrequency = obj.OffsetFrequency;
-        OffsetFrequencyPeriodCoefficient = obj.OffsetFrequencyPeriodCoefficient;
-
-        return this;
-    }
-
     public GenerateAODWaveformElectrodeConfiguration Clone() => new()
     {
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
         OffsetFrequency = OffsetFrequency,
         OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient,
+        Amplitude = Amplitude,
+        IsGenerateAODWaveformZero = IsGenerateAODWaveformZero,
         UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.Clone())]
     };
 
