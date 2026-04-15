@@ -220,7 +220,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0Async(CancellationToken cancellationToken)
+    private Task<bool> Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -238,7 +238,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1Async(CancellationToken cancellationToken)
+    private Task<bool> Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -258,7 +258,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2Async(CancellationToken cancellationToken)
+    private Task<bool> Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -280,7 +280,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3Async(CancellationToken cancellationToken)
+    private Task<bool> Step3Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
@@ -330,7 +330,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 Cache.Item.CIBInformation,
                 hazeBFPosition,
                 Cache.Item.MicroscopeLensInformation);
-            
+
             Logger.LogHtmlInformation("Forward and Reverse", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             try
@@ -403,7 +403,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4Async(CancellationToken cancellationToken)
+    private Task<bool> Step4Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
@@ -413,7 +413,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             var prescanAODWaveformProfiles = ConfigureViewModel.GetPrescanAODWaveProfiles(Cache.ProductivityInformation);
             var prescanAODWaveformCount = prescanAODWaveformProfiles[0].Shorts.Count;
 
-            var cibDelays = CIBViewModel.GetDelays(cibInformations);
+            var cibDelays = CIBViewModel.GetDelays(Cache.ProductivityInformation, cibInformations);
             var prescanAODWaveformSegmentIndexIndex = Cache.Item.PrescanAODWaveformProfileSegmentCount / 2;
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -451,7 +451,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
-            
+
             var startCurrentHazeBFPosition = CIBViewModel.GetCIBInformationPosition(
                 StageCoordinateSystemEnum.Dark,
                 Cache.ProductivityInformation,

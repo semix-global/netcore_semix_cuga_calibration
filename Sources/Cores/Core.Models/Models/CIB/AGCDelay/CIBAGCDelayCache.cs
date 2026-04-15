@@ -35,9 +35,6 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
-
-    [ObservableProperty]
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
@@ -50,10 +47,14 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
     public partial double StepCoefficient { get; set; } = 0.1;
 
     [ObservableProperty]
-    public partial double StopCoefficient { get; set; } = 1;
+    public partial double StopCoefficient { get; set; } = 1d;
+
     [ObservableProperty]
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double TargetPMTValue { get; set; } = 400;
+    public partial double TargetPMTValue { get; set; } = 400d;
+
+    [ObservableProperty]
+    public partial int MarkerLengthPixel { get; set; } = 30;
 }

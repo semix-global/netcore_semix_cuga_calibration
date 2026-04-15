@@ -270,7 +270,7 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
             IsOk = IsOk,
         };
 
-        public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation)
+        public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation, int markerLengthPixel)
         {
             var imageHorizontalProjects = ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelsStartIndex..productivityInformation.OriginYPixelsEndIndex].ToArray();
 
@@ -278,7 +278,7 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
 
             var centerIndex = indexes.OrderBy(t => imageHorizontalProjects[t]).First();
 
-            var temps = Generate.LinearRangeInt32(centerIndex - 30, centerIndex + 30)
+            var temps = Generate.LinearRangeInt32(centerIndex - markerLengthPixel, centerIndex + markerLengthPixel)
                 .Where(t => t >= 0 && t < imageHorizontalProjects.Length)
                 .Select(t => new Point(t, imageHorizontalProjects[t]))
                 .ToArray();
