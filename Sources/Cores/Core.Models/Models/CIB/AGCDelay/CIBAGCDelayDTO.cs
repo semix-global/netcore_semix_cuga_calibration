@@ -119,7 +119,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
             try
             {
                 var information = scatterPlotControl.GetTitle().Split(['=', '>'], StringSplitOptions.RemoveEmptyEntries);
-                scatterPlotControl.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###} Delay(0) Error: {item.ZeroDelayError:0.###}");
+                scatterPlotControl.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###}, Delay(0) Error: {item.ZeroDelayError:0.###}");
 
                 var scatterLines = scatterPlotControl.GetOrAddScatterLines(item.Items.Count);
                 var xLines = scatterPlotControl.GetOrAddXLines(item.Items.Count + 1);

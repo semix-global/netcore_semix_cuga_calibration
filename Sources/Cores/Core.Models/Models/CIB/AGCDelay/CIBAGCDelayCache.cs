@@ -44,7 +44,7 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
     public partial double StartCoefficient { get; set; } = 0.01;
 
     [ObservableProperty]
-    public partial double StepCoefficient { get; set; } = 0.1;
+    public partial double StepCoefficient { get; set; } = 0.01;
 
     [ObservableProperty]
     public partial double StopCoefficient { get; set; } = 1d;

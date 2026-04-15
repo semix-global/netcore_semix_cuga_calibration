@@ -229,11 +229,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var isOk = ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
-
-            if (isOk) LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-
-            return isOk;
+            return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
 

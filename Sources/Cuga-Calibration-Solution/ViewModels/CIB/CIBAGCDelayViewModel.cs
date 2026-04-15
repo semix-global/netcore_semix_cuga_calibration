@@ -244,11 +244,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 return false;
             }
 
-            var isOk = ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
-
-            if (isOk) LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-
-            return isOk;
+            return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
 
@@ -403,7 +399,13 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
                 var isOk = CalibratingItem.Coefficient > 0;
 
-                if (isOk == false) Logger.LogHtmlError("No suitable Laser Light Information found!", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                if (isOk)
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                    {
+                        CalibratingItem.Coefficient,
+                        Plot = new HtmlContainer(CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
+                    }), HtmlLogUniqueId.LoggingHtml());
+                else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("No suitable Laser Light Information found!"), HtmlLogUniqueId.LoggingHtml());
 
                 return isOk;
             }

@@ -152,7 +152,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDtoBase, IClonea
         ApodizationModeEnum,
         AstigmatismBestSpectralDensity = SpectralDensity,
         AstigmatismBestChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
-        Plot = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+        Plot = new HtmlContainer(ScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
     };
 
     public AODBestFocusAndAstigmatismDTO Clone() => new()
