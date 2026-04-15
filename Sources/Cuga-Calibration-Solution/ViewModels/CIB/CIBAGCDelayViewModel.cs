@@ -83,8 +83,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     public ProductivityInformation LowProductivityInformation => Cache.ProductivityInformation.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI
-        ? ApplicationCookie.NILowProductivityInformation
-        : ApplicationCookie.OILowProductivityInformation;
+        ? ApplicationCookie.OILowProductivityInformation
+        : ApplicationCookie.NILowProductivityInformation;
 
     #endregion 缓存
 
@@ -234,7 +234,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            if (CalibratingStatuses.SingleOrDefault(t => t.SelectedItem == LowProductivityInformation)?.IsCalibrated != true)
+            if (Cache.ProductivityInformation != LowProductivityInformation && Calibrations.SingleOrDefault(t => t.ProductivityInformation == LowProductivityInformation)?.IsCalibrated != true)
             {
                 var comment = $"Low Productivity Information {LowProductivityInformation} is not calibrated!";
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
