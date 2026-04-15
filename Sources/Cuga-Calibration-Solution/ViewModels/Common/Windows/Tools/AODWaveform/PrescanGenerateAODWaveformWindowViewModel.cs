@@ -35,7 +35,8 @@ public sealed class PrescanGenerateAODWaveformWindowViewModel : AbstractGenerate
 
             var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
 
-            var prescanResult = prescanCache.Results.FirstOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation == Cache.Param.ProductivityInformation);
+            var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.Param.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                          && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.Param.ProductivityInformation.OpticsMagType);
 
             if (prescanResult is null)
             {

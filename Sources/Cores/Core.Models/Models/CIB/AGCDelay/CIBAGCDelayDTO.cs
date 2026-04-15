@@ -272,7 +272,7 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
             RawImageFilePath = RawImageFilePath,
             ImageFilePath = ImageFilePath,
             Error = Error,
-            IsOk = IsOk,
+            IsOk = IsOk
         };
 
         public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation, int markerLengthPixel)

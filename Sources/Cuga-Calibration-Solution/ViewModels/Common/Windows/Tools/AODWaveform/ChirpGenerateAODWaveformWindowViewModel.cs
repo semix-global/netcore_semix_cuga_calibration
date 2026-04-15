@@ -35,7 +35,8 @@ public sealed class ChirpGenerateAODWaveformWindowViewModel : AbstractGenerateAO
 
             var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
 
-            var chirpResult = chirpCache.Results.FirstOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation == Cache.Param.ProductivityInformation);
+            var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.Param.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                      && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.Param.ProductivityInformation.OpticsMagType);
 
             if (chirpResult is null)
             {

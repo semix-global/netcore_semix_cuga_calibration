@@ -46,15 +46,6 @@
                                  hc:TitleElement.Title="Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <ComboBox hc:TitleElement.Title="Productivity Information: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="200"
-                                 ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
-                                 Style="{StaticResource ComboBoxExtend}">
-                            <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
