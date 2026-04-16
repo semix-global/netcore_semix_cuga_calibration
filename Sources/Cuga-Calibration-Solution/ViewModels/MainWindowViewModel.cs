@@ -392,12 +392,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     {
         _contextProvider.Post(() =>
         {
-            if (message.Value.IsRefreshWindow is true)
+            if (message.Value.IsRefreshWindow.HasValue)
             {
-                LoadCalibrationStatus();
+                if (message.Value.IsRefreshWindow.Value == false) return;
                 OnPropertyChanged(nameof(ApplicationCookie));
-                OnPropertyChanged(nameof(RecipeCookie));
-                return; //防止在校准或验证过程中保存setting，导致把公共按钮的状态都禁用
             }
 
             if (message.Value.IsCalibrateEnable.HasValue)

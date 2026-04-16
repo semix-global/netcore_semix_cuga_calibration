@@ -98,7 +98,7 @@
                                                 Header="MaskIndex" />
                                 <GridViewColumn Width="150" Header="Description">
                                     <GridViewColumn.CellTemplate>
-                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkItemDto}">
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
                                             <hc:SimplePanel>
                                                 <TextBlock Text="{Binding Remark}"
                                                            MinWidth="120"
@@ -109,7 +109,7 @@
                                 </GridViewColumn>
                                 <GridViewColumn Width="200" Header="Mask Type">
                                     <GridViewColumn.CellTemplate>
-                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkItemDto}">
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
                                             <hc:SimplePanel>
                                                 <hc:ComboBox Margin="5"
                                                              HorizontalAlignment="Left"
@@ -129,7 +129,7 @@
                                 </GridViewColumn>
                                 <GridViewColumn Width="300" Header="Position">
                                     <GridViewColumn.CellTemplate>
-                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkItemDto}">
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
                                             <Grid Width="220">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
@@ -179,7 +179,7 @@
                                 </GridViewColumn>
                                 <GridViewColumn Width="350" Header="Bright Template">
                                     <GridViewColumn.CellTemplate>
-                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkItemDto}">
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="*" />
@@ -192,7 +192,7 @@
                                                              hc:InfoElement.TitlePlacement="Left"
                                                              IsEnabled="False"
                                                              ItemsSource="{Binding DataContext.ApplicationCookie.MicroscopeLensInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                             SelectedItem="{Binding RecipeBrightFieldTemplateDto.MicroscopeLensInformation}">
+                                                             SelectedItem="{Binding RecipeBrightFieldTemplateDTO.MicroscopeLensInformation}">
                                                     <hc:ComboBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding LensName}" />
@@ -219,7 +219,7 @@
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <TextBox x:Name="TemplateImagePathTextbox"
-                                                             Text="{Binding RecipeBrightFieldTemplateDto.TemplateImageFilePath}"
+                                                             Text="{Binding RecipeBrightFieldTemplateDTO.TemplateImageFilePath}"
                                                              Margin="0,0,-1,0"
                                                              hc:BorderElement.CornerRadius="4,0,0,4"
                                                              hc:InfoElement.TitlePlacement="Left"
@@ -248,7 +248,7 @@
                                 </GridViewColumn>
                                 <GridViewColumn Width="700" Header="Dark Template">
                                     <GridViewColumn.CellTemplate>
-                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkItemDto}">
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="*" />
@@ -261,19 +261,19 @@
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  IsEnabled="False"
                                                                  ItemsSource="{Binding DataContext.ApplicationCookie.ProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDto.ProductivityInformation}" />
+                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDTO.ProductivityInformation}" />
                                                     <hc:ComboBox Margin="2"
                                                                  hc:InfoElement.Title="CIB Information: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  IsEnabled="False"
                                                                  ItemsSource="{Binding DataContext.ApplicationCookie.CIBInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDto.CIBInformation}" />
+                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDTO.CIBInformation}" />
                                                     <hc:ComboBox Margin="2"
                                                                  hc:InfoElement.Title="Laser Light Information: "
                                                                  hc:InfoElement.TitlePlacement="Left"
                                                                  IsEnabled="False"
                                                                  ItemsSource="{Binding DataContext.ApplicationCookie.LaserLightInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDto.LaserLightInformation}" />
+                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDTO.LaserLightInformation}" />
                                                     <Grid>
                                                         <ToggleButton x:Name="ToggleButtonCIBConfiguration"
                                                                       Content="CIB Configuration"
@@ -287,7 +287,7 @@
                                                                PopupAnimation="Slide"
                                                                IsOpen="{Binding IsChecked, ElementName=ToggleButtonCIBConfiguration, Mode=TwoWay}">
                                                             <Border Style="{StaticResource BorderRegion}">
-                                                                <pattern:CIBConfigurationUserControl DataContext="{Binding RecipeDarkFieldTemplateDto.CIBConfiguration}" />
+                                                                <pattern:CIBConfigurationUserControl DataContext="{Binding RecipeDarkFieldTemplateDTO.CIBConfiguration}" />
                                                             </Border>
                                                         </Popup>
                                                     </Grid>
@@ -313,7 +313,7 @@
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
                                                     <TextBox x:Name="DarkTemplateImagePathTextbox"
-                                                             Text="{Binding RecipeDarkFieldTemplateDto.TemplateImageFilePath}"
+                                                             Text="{Binding RecipeDarkFieldTemplateDTO.TemplateImageFilePath}"
                                                              Margin="0,0,-1,0"
                                                              hc:BorderElement.CornerRadius="4,0,0,4"
                                                              hc:InfoElement.TitlePlacement="Left"

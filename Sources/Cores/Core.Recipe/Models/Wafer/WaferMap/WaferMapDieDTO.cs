@@ -4,7 +4,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Recipe.Models.Wafer.WaferMap;
 
-public sealed partial class WaferMapDieItemDto : ObservableObject, ICloneable<WaferMapDieItemDto>
+public sealed partial class WaferMapDieDTO : ObservableObject, ICloneable<WaferMapDieDTO>
 {
     [ObservableProperty]
     private int _rowIndex;
@@ -18,7 +18,7 @@ public sealed partial class WaferMapDieItemDto : ObservableObject, ICloneable<Wa
     [ObservableProperty]
     private bool _isInWafer;
 
-    public WaferMapDieItemDto Clone() => new()
+    public WaferMapDieDTO Clone() => new()
     {
         RowIndex = RowIndex,
         ColumnIndex = ColumnIndex,

@@ -7,6 +7,8 @@ public sealed class ToggleRecipeEvent
     public bool? IsRefreshRecipeList { get; set; } = false;
 
     public bool? IsEnableWaferMapEdit { get; set; } = false;
+
+    public bool? IsRecipeAlignment { get; set; } = false;
 }
 
 public static class ToggleRecipeEventFactory
@@ -15,15 +17,29 @@ public static class ToggleRecipeEventFactory
     {
         return new ValueChangedMessage<ToggleRecipeEvent>(new ToggleRecipeEvent
         {
-            IsRefreshRecipeList = value
+            IsRefreshRecipeList = value,
+            IsEnableWaferMapEdit = null,
+            IsRecipeAlignment = null
         });
     }
 
-    public static ValueChangedMessage<ToggleRecipeEvent> UpdateIsWaferMapEditEnable(bool value)
+    public static ValueChangedMessage<ToggleRecipeEvent> UpdateIsWaferMapEditEnable(bool? value)
     {
         return new ValueChangedMessage<ToggleRecipeEvent>(new ToggleRecipeEvent
         {
-            IsEnableWaferMapEdit = value
+            IsEnableWaferMapEdit = value,
+            IsRefreshRecipeList = null,
+            IsRecipeAlignment = null
+        });
+    }
+
+    public static ValueChangedMessage<ToggleRecipeEvent> UpdateIsRecipeAlignment(bool? value)
+    {
+        return new ValueChangedMessage<ToggleRecipeEvent>(new ToggleRecipeEvent
+        {
+            IsRecipeAlignment = value,
+            IsRefreshRecipeList = null,
+            IsEnableWaferMapEdit = null
         });
     }
 }

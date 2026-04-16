@@ -4,12 +4,12 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Recipe.Models.Template;
 
-public sealed partial class RecipeBrightFieldTemplateDto : RecipeTemplateDtoBase, ICloneable<RecipeBrightFieldTemplateDto>, IAdaptIn<RecipeBrightFieldTemplateDto, RecipeBrightFieldTemplateDto>
+public sealed partial class RecipeBrightFieldTemplateDTO : RecipeTemplateDTOBase, ICloneable<RecipeBrightFieldTemplateDTO>, IAdaptIn<RecipeBrightFieldTemplateDTO, RecipeBrightFieldTemplateDTO>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
 
-    public RecipeBrightFieldTemplateDto Clone() => new()
+    public RecipeBrightFieldTemplateDTO Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation,
         TemplateId = TemplateId,
@@ -21,7 +21,7 @@ public sealed partial class RecipeBrightFieldTemplateDto : RecipeTemplateDtoBase
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum
     };
 
-    public RecipeBrightFieldTemplateDto AdaptIn(RecipeBrightFieldTemplateDto obj)
+    public RecipeBrightFieldTemplateDTO AdaptIn(RecipeBrightFieldTemplateDTO obj)
     {
         MicroscopeLensInformation = obj.MicroscopeLensInformation;
         TemplateId = obj.TemplateId;
