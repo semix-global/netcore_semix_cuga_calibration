@@ -25,6 +25,8 @@ public sealed class ToggleCalibrateEvent
         IsCancelEnable = null;
         IsPreviousEnable = null;
         IsNextEnable = null;
+        IsRefreshWindow = null;
+        IsWindowEnable = null;
         return this;
     }
 
@@ -35,6 +37,8 @@ public sealed class ToggleCalibrateEvent
         IsCancelEnable = null;
         IsPreviousEnable = null;
         IsNextEnable = null;
+        IsRefreshWindow = null;
+        IsWindowEnable = null;
         return this;
     }
 
@@ -45,6 +49,8 @@ public sealed class ToggleCalibrateEvent
         IsCancelEnable = value;
         IsPreviousEnable = null;
         IsNextEnable = null;
+        IsRefreshWindow = null;
+        IsWindowEnable = null;
         return this;
     }
 
@@ -55,6 +61,8 @@ public sealed class ToggleCalibrateEvent
         IsCancelEnable = null;
         IsPreviousEnable = value;
         IsNextEnable = null;
+        IsRefreshWindow = null;
+        IsWindowEnable = null;
         return this;
     }
 
@@ -65,6 +73,8 @@ public sealed class ToggleCalibrateEvent
         IsCancelEnable = null;
         IsPreviousEnable = null;
         IsNextEnable = value;
+        IsRefreshWindow = null;
+        IsWindowEnable = null;
         return this;
     }
 
@@ -75,6 +85,8 @@ public sealed class ToggleCalibrateEvent
         IsCancelEnable = value;
         IsPreviousEnable = value;
         IsNextEnable = value;
+        IsRefreshWindow = null;
+        IsWindowEnable = null;
         return this;
     }
 
@@ -99,7 +111,9 @@ public static class ToggleCalibrateEventFactory
             IsReviewEnable = null,
             IsCancelEnable = null,
             IsPreviousEnable = null,
-            IsNextEnable = null
+            IsNextEnable = null,
+            IsRefreshWindow = null,
+            IsWindowEnable = null
         });
     }
 
@@ -111,7 +125,9 @@ public static class ToggleCalibrateEventFactory
             IsReviewEnable = value,
             IsCancelEnable = null,
             IsPreviousEnable = null,
-            IsNextEnable = null
+            IsNextEnable = null,
+            IsRefreshWindow = null,
+            IsWindowEnable = null
         });
     }
 
@@ -123,7 +139,9 @@ public static class ToggleCalibrateEventFactory
             IsReviewEnable = null,
             IsCancelEnable = value,
             IsPreviousEnable = null,
-            IsNextEnable = null
+            IsNextEnable = null,
+            IsRefreshWindow = null,
+            IsWindowEnable = null
         });
     }
 
@@ -135,7 +153,9 @@ public static class ToggleCalibrateEventFactory
             IsReviewEnable = null,
             IsCancelEnable = null,
             IsPreviousEnable = value,
-            IsNextEnable = null
+            IsNextEnable = null,
+            IsRefreshWindow = null,
+            IsWindowEnable = null
         });
     }
 
@@ -147,7 +167,9 @@ public static class ToggleCalibrateEventFactory
             IsReviewEnable = null,
             IsCancelEnable = null,
             IsPreviousEnable = null,
-            IsNextEnable = value
+            IsNextEnable = value,
+            IsRefreshWindow = null,
+            IsWindowEnable = null
         });
     }
 
@@ -159,7 +181,9 @@ public static class ToggleCalibrateEventFactory
             IsReviewEnable = value,
             IsCancelEnable = value,
             IsPreviousEnable = value,
-            IsNextEnable = value
+            IsNextEnable = value,
+            IsRefreshWindow = null,
+            IsWindowEnable = null
         });
     }
 
@@ -177,7 +201,13 @@ public static class ToggleCalibrateEventFactory
     {
         return new ValueChangedMessage<ToggleCalibrateEvent>(new ToggleCalibrateEvent
         {
-            IsWindowEnable = value
+            IsWindowEnable = value,
+            IsCalibrateEnable = null,
+            IsRefreshWindow = null,
+            IsReviewEnable = null,
+            IsCancelEnable = null,
+            IsPreviousEnable = null,
+            IsNextEnable = null
         });
     }
 
@@ -185,12 +215,13 @@ public static class ToggleCalibrateEventFactory
     {
         return new ValueChangedMessage<ToggleCalibrateEvent>(new ToggleCalibrateEvent
         {
-            IsRefreshWindow = value
+            IsRefreshWindow = value,
+            IsWindowEnable = null,
+            IsCalibrateEnable = null,
+            IsReviewEnable = null,
+            IsCancelEnable = null,
+            IsPreviousEnable = null,
+            IsNextEnable = null
         });
-    }
-
-    public static ValueChangedMessage<ToggleCalibrateEvent> ToggleCalibrateEvent(ToggleCalibrateEvent toggleCalibrateEvent)
-    {
-        return new ValueChangedMessage<ToggleCalibrateEvent>(toggleCalibrateEvent);
     }
 }

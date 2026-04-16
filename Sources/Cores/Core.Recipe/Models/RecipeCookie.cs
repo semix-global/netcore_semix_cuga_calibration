@@ -16,10 +16,4 @@ public sealed partial class RecipeCookie : ObservableObject
     /// </summary>
     [ObservableProperty]
     private CalibrationRecipeDTO _calibrationRecipeDto = new();
-
-    /// <summary>
-    /// 校准根据对准差值修正wafermap坐标后的配方
-    /// </summary>
-    [ObservableProperty]
-    private CalibrationRecipeDTO _calibrationReviseRecipeDto = new();
 }

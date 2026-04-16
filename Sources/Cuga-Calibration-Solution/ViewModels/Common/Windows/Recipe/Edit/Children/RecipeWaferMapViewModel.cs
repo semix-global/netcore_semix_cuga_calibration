@@ -1,17 +1,18 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Models.Chuck.CenterAndTheta;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using Core.Models.Events;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
 using CugaCalibration.Core.Services.Interfaces;
-using Local.SQL.Cache.Providers.Extensions;
-using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.Graphics.Primitives.ObjectModels;
+using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WaferMap.WPF;
 using Net.Utilities.WaferMap.WPF.Drawables;
@@ -27,16 +28,29 @@ namespace CugaCalibration.ViewModels.Common.Windows.Recipe.Edit.Children;
 /// </summary>
 [IOCAppService(ServiceType = typeof(RecipeWaferMapViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class RecipeWaferMapViewModel(
-    ICacheProvider cacheProvider,
     ILogger<RecipeWaferMapViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     ICalibrationRecipeService calibrationRecipeService,
+    ISynchronizationContextProvider contextProvider,
+    IMessenger messenger,
     StageViewModel stageViewModel,
     MicroscopeViewModel microscopeViewModel,
-    CalibrationSetting calibrationSetting,
-    RecipeCookie recipeCookie) : ViewModelBase
+    CalibrationSetting calibrationSetting) : ViewModelBase, IRecipient<ValueChangedMessage<ToggleRecipeEvent>>
 {
-    // ── 对外暴露 ─────────────────────────────────────────────────────────────
+    #region 属性
+
+    [ObservableProperty]
+    private Point _stageDirection;
+
+    /// <summary>
+    /// 当前编辑中的配方（由主 VM LoadedAsync 赋值）
+    /// </summary>
+    public CalibrationRecipeDTO? EditingDTO { get; private set; }
+
+    #region 界面
+
+    [ObservableProperty]
+    private bool _isAlignmentOk;
 
     [ObservableProperty]
     private WaferMapCanvasViewModel _waferMapCanvasViewModel = new();
@@ -46,22 +60,7 @@ public sealed partial class RecipeWaferMapViewModel(
 
     public SelectionSet<WaferMapDie>? SelectionDies { get; private set; }
 
-    /// <summary>当前编辑中的配方（由主 VM LoadedAsync 赋值）</summary>
-    public CalibrationRecipeDTO? EditingDto { get; set; }
-
-    // ── 属性注入（由主 VM LoadedAsync 赋值） ──────────────────────────────────
-
-    /// <summary>
-    /// 由主 VM 赋值。调用后取消旧 Token 并返回新 Token，
-    /// 用于重启 SelectionDiesAsync 循环。
-    /// </summary>
-    public Func<CancellationToken>? RefreshTokenFunc { get; set; }
-
-    // ── 内部状态 ─────────────────────────────────────────────────────────────
-
-    private Point _stageDirection = Point.Origin;
-
-    // ── WaferMap 尺寸属性（转发到 Document） ─────────────────────────────────
+    //WaferMap 尺寸属性（转发到 Document）
 
     public double WaferRadius
     {
@@ -69,6 +68,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.WaferBuilder.Circle = new Circle(Point.Origin, value);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -79,6 +79,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize = new Size(value, WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Height);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -89,6 +90,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize = new Size(WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Width, value);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -99,6 +101,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize = new Size(value, WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Height);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -109,6 +112,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize = new Size(WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Width, value);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -119,6 +123,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize = new Size(value, WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Height);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -129,6 +134,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize = new Size(WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Width, value);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -139,6 +145,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize = new Size(value, WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Height);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -149,6 +156,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize = new Size(WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Width, value);
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -159,6 +167,7 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount = WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount with { XCount = value };
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
@@ -169,119 +178,103 @@ public sealed partial class RecipeWaferMapViewModel(
         set
         {
             WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount = WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount with { YCount = value };
+            RefreshWaferMapDataDTO();
             OnPropertyChanged();
         }
     }
 
-    // ── 初始化（由主 VM LoadedAsync 调用） ───────────────────────────────────
+    #endregion
+
+    #endregion
 
     public void Initialize(CalibrationRecipeDTO dto, CancellationToken token)
     {
-        EditingDto = dto;
+        EditingDTO = dto;
 
-        if (_stageDirection == Point.Origin)
+        messenger.UnregisterAll(this);
+        messenger.RegisterAll(this);
+
+        if (StageDirection == Point.Origin)
         {
             var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
-            _stageDirection = new Point(xDirection, yDirection);
+            StageDirection = new Point(xDirection, yDirection);
         }
 
         WaferMapCanvasViewModel.Document.Settings.IsShowToggleControlOfIsShowAxes = true;
         WaferMapCanvasViewModel.Document.Settings.IsShowToggleControlOfIsShowCursor = true;
         WaferMapCanvasViewModel.Document.Settings.IsShowToggleControlOfIsShowGrid = true;
 
-        dto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
-        WaferMapCanvasViewModel.Document = dto.WaferDto.WaferMapCanvasDocument;
+        dto.WaferDTO.WaferMapDataToWaferMapCanvasDocument();
+        WaferMapCanvasViewModel.Document = dto.WaferDTO.WaferMapCanvasDocument;
 
         NotifyWaferMapSetting();
-        _ = Task.Factory.StartNew(() => SelectionDiesAsync(token), token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-    }
-
-    // ── Die 选择循环 ─────────────────────────────────────────────────────────
-
-    public async Task SelectionDiesAsync(CancellationToken token)
-    {
-        WaferMapCanvasViewModel.IsToggleSelection = false;
-        WaferMapDieSelectionInputOptions.IsMultipleSelection = false;
-        WaferMapDieSelectionInputOptions.CancellationToken = token;
-        WaferMapDieSelectionInputOptions.Initialize();
-
-        while (!token.IsCancellationRequested)
+        _ = Task.Factory.StartNew(async () =>
         {
-            var inputResult = await WaferMapDieSelectionGetter
-                .RunAsync<WaferMapDieSelectionGetter>(WaferMapCanvasViewModel.Document.Editor, WaferMapDieSelectionInputOptions);
+            WaferMapCanvasViewModel.IsToggleSelection = false;
+            WaferMapDieSelectionInputOptions.IsMultipleSelection = false;
+            WaferMapDieSelectionInputOptions.CancellationToken = token;
+            WaferMapDieSelectionInputOptions.Initialize();
 
-            if (inputResult.Output.Count > 1) continue;
-            if (inputResult.InputResultModeEnum == InputResultModeEnum.Ok)
+            while (!token.IsCancellationRequested)
             {
-                foreach (var die in inputResult.Output)
-                    die.IsSelected = true;
-            }
+                var inputResult = await WaferMapDieSelectionGetter
+                    .RunAsync<WaferMapDieSelectionGetter>(WaferMapCanvasViewModel.Document.Editor, WaferMapDieSelectionInputOptions);
 
-            SelectionDies = inputResult.Output;
-        }
+                if (inputResult.Output.Count > 1) continue;
+                if (inputResult.InputResultModeEnum == InputResultModeEnum.Ok)
+                {
+                    foreach (var die in inputResult.Output)
+                        die.IsSelected = true;
+                }
+
+                SelectionDies = inputResult.Output;
+            }
+        }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
 
-    // ── 刷新 WaferMap ─────────────────────────────────────────────────────────
+    #region 界面
 
     [RelayCommand]
     public async Task RefreshWaferMapAsync(object? name)
     {
         await Task.Run(() =>
         {
-            if (name is null) return;
-            var isReticle = name.ToString() == "Reticle";
-            var currentLens = microscopeViewModel.GetCurrentMicroscopeLensInformation();
-            var configHighLens = calibrationSetting.SettingCommonParam.HighMicroscopeLensInformation;
-            if (currentLens != configHighLens)
+            try
             {
-                dialogWindowProvider.ShowDialog($"The generation wafermap must to be done under a {configHighLens.LensName}. Please re-obtain the origin die coordinates ", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                microscopeViewModel.SwitchMicroscopeLensInformation(configHighLens);
-                return;
-            }
+                // 重新BuildWafer需要重做P5和P8，更新WaferCenter和Alignment结果
+                if (IsAlignmentOk == false)
+                {
+                    dialogWindowProvider.ShowDialog("The wafer map can only be refreshed after the alignment is successful. Please go to the Alignment page to action.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
 
-            if (GenerateWaferMap(recipeCookie.CalibrationRecipeDto) == false)
-                dialogWindowProvider.ShowDialog("Generate Wafer Map Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                if (name is null) return;
+                var currentLens = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+                var configHighLens = calibrationSetting.SettingCommonParam.HighMicroscopeLensInformation;
+                if (currentLens != configHighLens)
+                {
+                    dialogWindowProvider.ShowDialog($"The generation wafermap must to be done under a {configHighLens.LensName}. Please re-obtain the origin die coordinates ", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    microscopeViewModel.SwitchMicroscopeLensInformation(configHighLens);
+                    return;
+                }
+
+                // Build Wafer
+                Guard.IsNotNull(EditingDTO);
+                var originDieWaferPosition = stageViewModel.GetBrightFieldStagePosition();
+                EditingDTO.WaferDTO.WaferMapDataDTO.WaferOriginalDiePoint = originDieWaferPosition;
+                EditingDTO.WaferDTO.WaferMapDataDTO.WaferReticleOriginalDiePoint = originDieWaferPosition;
+
+                EditingDTO.WaferDTO.WaferMapDataToWaferMapCanvasDocument();
+                contextProvider.Send(NotifyWaferMapView);
+            }
+            catch (Exception ex)
+            {
+                dialogWindowProvider.ShowDialog($"Refresh Wafer Map Failed! {ex.Message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
         });
     }
 
-    public bool GenerateWaferMap(CalibrationRecipeDTO dto)
-    {
-        try
-        {
-            if (dto.WaferDto.WaferCenterWaferPosition is null)
-            {
-                dialogWindowProvider.ShowDialog("The wafer center position is not set!",
-                    DialogButtonsEnum.OK,
-                    DialogIconEnum.Warning);
-                return false;
-            }
-
-            var chuckCenter = cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
-            var originDieMachinePosition = stageViewModel.GetMachineStagePosition();
-            var originDieMachineOffset = originDieMachinePosition - chuckCenter.NewBFCenterStagePosition;
-            var originDieWaferPosition =
-                new Point(_stageDirection.X * originDieMachineOffset.X, _stageDirection.Y * originDieMachineOffset.Y)
-                - (Vector)dto.WaferDto.WaferCenterWaferPosition!.Value;
-
-            WaferMapCanvasViewModel.Document.DieBuilder.OriginalDiePoint = originDieWaferPosition;
-            WaferMapCanvasViewModel.Document.ReticleBuilder.OriginalDiePoint = originDieWaferPosition;
-
-            NotifyWaferMapView();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Generate Wafer Map Failed!");
-            return false;
-        }
-    }
-
-    public void SetDocumentFromDto(CalibrationRecipeDTO dto)
-    {
-        dto.WaferDto.WaferMapDataToWaferMapCanvasDocument();
-        WaferMapCanvasViewModel.Document = dto.WaferDto.WaferMapCanvasDocument;
-        NotifyWaferMapView();
-    }
+    #endregion
 
     #region Command
 
@@ -292,25 +285,15 @@ public sealed partial class RecipeWaferMapViewModel(
         {
             try
             {
-                Guard.IsNotNull(EditingDto);
+                Guard.IsNotNull(EditingDTO);
 
-                dialogWindowProvider.TryShowDialog("Do you want to use review mode ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-                var isReview = dialogResult == DialogResultEnum.Yes;
+                if (WaferMapCanvasViewModel.Document.ActiveView is null || SelectionDies is null) return;
 
-                var document = WaferMapCanvasViewModel.Document;
-                if (document.ActiveView is null || SelectionDies is null) return;
+                var waferMapDie = SelectionDies.ElementAt(0);
 
-                var index = SelectionDies.ElementAt(0).Index;
-                var centerPosition = isReview
-                    ? recipeCookie.CalibrationReviseRecipeDto.WaferDto.WaferCenterWaferPosition
-                    : EditingDto.WaferDto.WaferCenterWaferPosition!;
+                calibrationRecipeService.GetWaferMapDieMachinePosition(EditingDTO.WaferDTO, waferMapDie, out var machinePosition);
 
-                var waferPosition = new Point(
-                    document.OriginalDie.Rect.X + index.X * document.DieBuilder.DieSize.Width,
-                    document.OriginalDie.Rect.Y + index.Y * document.DieBuilder.DieSize.Height);
-
-                var position = centerPosition!.Value + (Vector)waferPosition;
-                stageViewModel.SetBrightFieldAbsoluteStageXy(position);
+                stageViewModel.SetMachineAbsoluteStageXy(machinePosition);
             }
             catch (Exception ex)
             {
@@ -320,22 +303,15 @@ public sealed partial class RecipeWaferMapViewModel(
     }
 
     [RelayCommand]
-    public async Task ReviewAsync()
+    private async Task ReviewAsync()
     {
         await Task.Run(() =>
         {
             try
             {
-                Guard.IsNotNull(EditingDto);
+                Guard.IsNotNull(EditingDTO);
 
-                var token = RefreshTokenFunc?.Invoke() ?? CancellationToken.None;
-
-                var reviseRecipeDto = calibrationRecipeService.GetCorrectWaferMapByOffset(EditingDto, true);
-                SetDocumentFromDto(reviseRecipeDto);
-                // todo
-                _ = Task.Factory.StartNew(
-                    () => SelectionDiesAsync(token),
-                    token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                contextProvider.Send(() => calibrationRecipeService.GetCorrectWaferMapByOffset(EditingDTO.WaferDTO, true));
             }
             catch (Exception ex)
             {
@@ -346,16 +322,9 @@ public sealed partial class RecipeWaferMapViewModel(
 
     #endregion
 
-    // ── 通知辅助 ──────────────────────────────────────────────────────────────
+    #region 状态刷新
 
-    public void NotifyWaferMapView()
-    {
-        WaferMapCanvasViewModel.Document.OverlayCrossLine.Point = WaferMapCanvasViewModel.Document.DieBuilder.OriginalDiePoint;
-        WaferMapCanvasViewModel.Document.OverlayCrossLine.IsVisible = true;
-        OnPropertyChanged(nameof(WaferMapCanvasViewModel));
-    }
-
-    public void NotifyWaferMapSetting()
+    private void NotifyWaferMapSetting()
     {
         OnPropertyChanged(nameof(WaferRadius));
         OnPropertyChanged(nameof(WaferDiePitchSizeWidth));
@@ -370,5 +339,37 @@ public sealed partial class RecipeWaferMapViewModel(
         OnPropertyChanged(nameof(WaferReticleDieCountY));
     }
 
-    public Point StageDirection => _stageDirection;
+    private void RefreshWaferMapDataDTO()
+    {
+        if (EditingDTO is null) return;
+        EditingDTO.WaferDTO.WaferMapDataDTO.WaferDiameter = WaferMapCanvasViewModel.Document.WaferBuilder.Circle.Diameter;
+        EditingDTO.WaferDTO.WaferMapDataDTO.CellDieWidth = WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Width;
+        EditingDTO.WaferDTO.WaferMapDataDTO.CellDieHeight = WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Height;
+        EditingDTO.WaferDTO.WaferMapDataDTO.DieScribeWidth = WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Width;
+        EditingDTO.WaferDTO.WaferMapDataDTO.DieScribeHeight = WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Height;
+        EditingDTO.WaferDTO.WaferMapDataDTO.ReticleWidth = WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Width;
+        EditingDTO.WaferDTO.WaferMapDataDTO.ReticleHeight = WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Height;
+        EditingDTO.WaferDTO.WaferMapDataDTO.ReticleScribeWidth = WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Width;
+        EditingDTO.WaferDTO.WaferMapDataDTO.ReticleScribeHeight = WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Height;
+        EditingDTO.WaferDTO.WaferMapDataDTO.ReferenceDieRowNumber = WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount.XCount;
+        EditingDTO.WaferDTO.WaferMapDataDTO.ReferenceDieColumnNumber = WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount.YCount;
+    }
+
+    public void NotifyWaferMapView()
+    {
+        WaferMapCanvasViewModel.Document.OverlayCrossLine.Point = WaferMapCanvasViewModel.Document.DieBuilder.OriginalDiePoint;
+        WaferMapCanvasViewModel.Document.OverlayCrossLine.IsVisible = true;
+        OnPropertyChanged(nameof(WaferMapCanvasViewModel));
+    }
+
+    public void Receive(ValueChangedMessage<ToggleRecipeEvent> message)
+    {
+        contextProvider.Post(() =>
+        {
+            if (message.Value.IsRecipeAlignment.HasValue)
+                IsAlignmentOk = message.Value.IsRecipeAlignment.Value;
+        });
+    }
+
+    #endregion
 }

@@ -6,7 +6,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Recipe.Models.Wafer.ReticleMask;
 
-public sealed partial class ReticleMarkItemDto : ObservableObject, ICloneable<ReticleMarkItemDto>, IAdaptIn<ReticleMarkItemDto, ReticleMarkItemDto>
+public sealed partial class ReticleMarkDTOItem : ObservableObject, ICloneable<ReticleMarkDTOItem>, IAdaptIn<ReticleMarkDTOItem, ReticleMarkDTOItem>
 {
     [ObservableProperty]
     private int _maskIndex;
@@ -21,36 +21,36 @@ public sealed partial class ReticleMarkItemDto : ObservableObject, ICloneable<Re
     private Point _maskWaferCellPosition;
 
     [ObservableProperty]
-    private RecipeBrightFieldTemplateDto _recipeBrightFieldTemplateDto = new();
+    private RecipeBrightFieldTemplateDTO _recipeBrightFieldTemplateDTO = new();
 
     [ObservableProperty]
-    private RecipeDarkFieldTemplateDto _recipeDarkFieldTemplateDto = new();
+    private RecipeDarkFieldTemplateDTO _recipeDarkFieldTemplateDTO = new();
 
-    public ReticleMarkItemDto Clone() => new()
+    public ReticleMarkDTOItem Clone() => new()
     {
         MaskIndex = MaskIndex,
         Remark = Remark,
         ReticleMaskTypeEnum = ReticleMaskTypeEnum,
         MaskWaferCellPosition = MaskWaferCellPosition,
-        RecipeBrightFieldTemplateDto = RecipeBrightFieldTemplateDto.Clone(),
-        RecipeDarkFieldTemplateDto = RecipeDarkFieldTemplateDto.Clone()
+        RecipeBrightFieldTemplateDTO = RecipeBrightFieldTemplateDTO.Clone(),
+        RecipeDarkFieldTemplateDTO = RecipeDarkFieldTemplateDTO.Clone()
     };
 
-    public ReticleMarkItemDto AdaptIn(ReticleMarkItemDto obj)
+    public ReticleMarkDTOItem AdaptIn(ReticleMarkDTOItem obj)
     {
         MaskIndex = obj.MaskIndex;
         Remark = obj.Remark;
         ReticleMaskTypeEnum = obj.ReticleMaskTypeEnum;
         MaskWaferCellPosition = obj.MaskWaferCellPosition;
-        RecipeBrightFieldTemplateDto = new RecipeBrightFieldTemplateDto().AdaptIn(obj.RecipeBrightFieldTemplateDto);
-        RecipeDarkFieldTemplateDto = new RecipeDarkFieldTemplateDto().AdaptIn(obj.RecipeDarkFieldTemplateDto);
+        RecipeBrightFieldTemplateDTO = new RecipeBrightFieldTemplateDTO().AdaptIn(obj.RecipeBrightFieldTemplateDTO);
+        RecipeDarkFieldTemplateDTO = new RecipeDarkFieldTemplateDTO().AdaptIn(obj.RecipeDarkFieldTemplateDTO);
 
         return this;
     }
 
     public override bool Equals(object? obj)
     {
-        if (obj is not ReticleMarkItemDto reticleMarkItemDto)
+        if (obj is not ReticleMarkDTOItem reticleMarkItemDto)
             return false;
         return reticleMarkItemDto.MaskIndex == MaskIndex
                && reticleMarkItemDto.Remark == Remark

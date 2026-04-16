@@ -90,7 +90,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding EditingDto.WaferDto.AlignmentResultDto.Degrees, StringFormat={}{0:f10}}"
+                    <TextBox Text="{Binding EditingDTO.WaferDTO.AlignmentResultDto.Degrees, StringFormat={}{0:f10}}"
                              hc:TitleElement.Title="Degrees(°): "
                              hc:TitleElement.TitlePlacement="Left"
                              hc:TitleElement.TitleWidth="160"

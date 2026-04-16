@@ -1,58 +1,39 @@
+using Core.Recipe.Models.Wafer;
 using Core.Recipe.Models.Wafer.ReticleMask;
-using CugaCalibration.ViewModels.Common;
 using Microsoft.Xaml.Behaviors;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
-using ScottPlot.Interactivity;
-using ScottPlot.Interactivity.UserActionResponses;
 using ScottPlot.Plottables;
 using ScottPlot.WPF;
 using System.Collections.ObjectModel;
 using System.Windows;
-using Point = Net.Utilities.Models.Geometries.Point;
 using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace CugaCalibration.Core.Behaviors;
 
 public sealed class WpfPlotReticleMaskBehavior : Behavior<WpfPlot>
 {
-    private StageViewModel? _stageViewModel;
-
-    public Point WaferCenterBrightFieldPosition
+    public WaferDTO WaferDTO
     {
-        get => (Point)GetValue(WaferCenterBrightFieldPositionProperty);
-        set => SetValue(WaferCenterBrightFieldPositionProperty, value);
+        get => (WaferDTO)GetValue(WaferDTOProperty);
+        set => SetValue(WaferDTOProperty, value);
     }
 
-    public static readonly DependencyProperty WaferCenterBrightFieldPositionProperty = DependencyProperty.Register(
-        nameof(WaferCenterBrightFieldPosition),
-        typeof(Point),
+    public static readonly DependencyProperty WaferDTOProperty = DependencyProperty.Register(
+        nameof(WaferDTO),
+        typeof(WaferDTO),
         typeof(WpfPlotReticleMaskBehavior),
-        new PropertyMetadata(new Point(), PropertyChangedCallback)
+        new PropertyMetadata(new WaferDTO(), PropertyChangedCallback)
     );
 
-    public Size DieSize
+    public ObservableCollection<ReticleMarkDTOItem> ReticleMaskList
     {
-        get => (Size)GetValue(DieSizeProperty);
-        set => SetValue(DieSizeProperty, value);
-    }
-
-    public static readonly DependencyProperty DieSizeProperty = DependencyProperty.Register(
-        nameof(DieSize),
-        typeof(Size),
-        typeof(WpfPlotReticleMaskBehavior),
-        new PropertyMetadata(Size.Empty, PropertyChangedCallback)
-    );
-
-    public ObservableCollection<ReticleMarkItemDto> ReticleMaskList
-    {
-        get => (ObservableCollection<ReticleMarkItemDto>)GetValue(ReticleMaskListProperty);
+        get => (ObservableCollection<ReticleMarkDTOItem>)GetValue(ReticleMaskListProperty);
         set => SetValue(ReticleMaskListProperty, value);
     }
 
     public static readonly DependencyProperty ReticleMaskListProperty = DependencyProperty.Register(
         nameof(ReticleMaskList),
-        typeof(ObservableCollection<ReticleMarkItemDto>),
+        typeof(ObservableCollection<ReticleMarkDTOItem>),
         typeof(WpfPlotReticleMaskBehavior),
         new PropertyMetadata(null, PropertyChangedCallback)
     );
@@ -78,15 +59,6 @@ public sealed class WpfPlotReticleMaskBehavior : Behavior<WpfPlot>
         AssociatedObject.Plot.DataBackground = new BackgroundStyle { Color = Colors.Transparent };
         AssociatedObject.Plot.FigureBackground = new BackgroundStyle { Color = Colors.White };
         AssociatedObject.UserInputProcessor.IsEnabled = true;
-        AssociatedObject.UserInputProcessor.UserActionResponses.Add(new DoubleClickResponse(StandardMouseButtons.Left, (plotControl, pixel) =>
-        {
-            var point = plotControl.GetPlotAtPixel(pixel)?.GetCoordinates(pixel);
-            if (point is null) return;
-
-            _stageViewModel ??= HostApplication.GetRequiredService<StageViewModel>();
-
-            _stageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(new Point(point.Value.X, point.Value.Y));
-        }));
 
         AssociatedObject.Plot.HideAxesAndGrid();
 
@@ -101,8 +73,9 @@ public sealed class WpfPlotReticleMaskBehavior : Behavior<WpfPlot>
 
             const float originMaxLengthPixel = 30;
 
-            AssociatedObject.Plot.Axes.SetLimits(-DieSize.Width * 1.1, DieSize.Width * 1.1, -DieSize.Height * 1.1, DieSize.Height * 1.1);
-            _reticleRectangle = AssociatedObject.Plot.Add.Rectangle(new CoordinateRect(new Coordinates(0, 0), new CoordinateSize(DieSize.Width, DieSize.Height)));
+            var dieSize = new Size(WaferDTO.WaferMapDataDTO.DiePitchWidth, WaferDTO.WaferMapDataDTO.DiePitchHeight);
+            AssociatedObject.Plot.Axes.SetLimits(-dieSize.Width * 1.1, dieSize.Width * 1.1, -dieSize.Height * 1.1, dieSize.Height * 1.1);
+            _reticleRectangle = AssociatedObject.Plot.Add.Rectangle(new CoordinateRect(new Coordinates(0, 0), new CoordinateSize(dieSize.Width, dieSize.Height)));
             _reticleRectangle.LineColor = Colors.Transparent;
             _reticleRectangle.FillColor = Color.FromHex("#F0F0F0");
 

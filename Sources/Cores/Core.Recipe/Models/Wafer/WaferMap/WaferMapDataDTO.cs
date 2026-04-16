@@ -6,14 +6,17 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Recipe.Models.Wafer.WaferMap;
 
-public sealed partial class WaferMapDataDto : ObservableValidator, ICloneable<WaferMapDataDto>, IAdaptIn<WaferMapDataDto, WaferMapDataDto>
+public sealed partial class WaferMapDataDTO : ObservableValidator, ICloneable<WaferMapDataDTO>, IAdaptIn<WaferMapDataDTO, WaferMapDataDTO>
 {
+    [ObservableProperty]
+    private Point _waferCircleCenter;
+
     [ObservableProperty]
     [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Diameter: ")]
     private double _waferDiameter = 300000;
 
     [ObservableProperty]
-    private double _edgeReduceDiePiichNumber;
+    private double _edgeReduceDiePitchNumber;
 
     #region Die
 
@@ -41,7 +44,7 @@ public sealed partial class WaferMapDataDto : ObservableValidator, ICloneable<Wa
 
     public double DiePitchHeight => CellDieHeight + DieScribeHeight;
 
-    public int CellDiePicthRowNumber => (int)(WaferDiameter / DiePitchHeight);
+    public int CellDiePitchRowNumber => (int)(WaferDiameter / DiePitchHeight);
 
     public int CellDiePitchColumnNumber => (int)(WaferDiameter / DiePitchWidth);
 
@@ -79,10 +82,11 @@ public sealed partial class WaferMapDataDto : ObservableValidator, ICloneable<Wa
 
     #endregion Reticle
 
-    public WaferMapDataDto Clone() => new()
+    public WaferMapDataDTO Clone() => new()
     {
+        WaferCircleCenter = WaferCircleCenter,
         WaferDiameter = WaferDiameter,
-        EdgeReduceDiePiichNumber = EdgeReduceDiePiichNumber,
+        EdgeReduceDiePitchNumber = EdgeReduceDiePitchNumber,
 
         WaferOriginalDiePoint = WaferOriginalDiePoint,
         WaferReticleOriginalDiePoint = WaferReticleOriginalDiePoint,
@@ -101,10 +105,11 @@ public sealed partial class WaferMapDataDto : ObservableValidator, ICloneable<Wa
         ReferenceDieColumnNumber = ReferenceDieColumnNumber
     };
 
-    public WaferMapDataDto AdaptIn(WaferMapDataDto obj)
+    public WaferMapDataDTO AdaptIn(WaferMapDataDTO obj)
     {
+        WaferCircleCenter = obj.WaferCircleCenter;
         WaferDiameter = obj.WaferDiameter;
-        EdgeReduceDiePiichNumber = obj.EdgeReduceDiePiichNumber;
+        EdgeReduceDiePitchNumber = obj.EdgeReduceDiePitchNumber;
         WaferOriginalDiePoint = obj.WaferOriginalDiePoint;
         WaferReticleOriginalDiePoint = obj.WaferReticleOriginalDiePoint;
         CellDieWidth = obj.CellDieWidth;
