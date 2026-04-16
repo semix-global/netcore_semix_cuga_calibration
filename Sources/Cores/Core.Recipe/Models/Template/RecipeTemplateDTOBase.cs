@@ -4,7 +4,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Recipe.Models.Template;
 
-public partial class RecipeTemplateDtoBase : ObservableObject
+public partial class RecipeTemplateDTOBase : ObservableObject
 {
     [ObservableProperty]
     private int _templateId;

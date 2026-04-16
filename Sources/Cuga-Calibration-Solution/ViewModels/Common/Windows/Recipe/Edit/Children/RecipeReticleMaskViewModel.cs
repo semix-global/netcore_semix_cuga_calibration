@@ -1,16 +1,15 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
-using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Setting;
 using Core.Recipe.Models;
 using Core.Recipe.Models.Wafer.ReticleMask;
+using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -39,11 +38,11 @@ public sealed partial class RecipeReticleMaskViewModel(
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
     ISynchronizationContextProvider contextProvider,
+    ICalibrationRecipeService calibrationRecipeService,
     MicroscopeViewModel microscopeViewModel,
     ReviewViewModel reviewViewModel,
     CIBViewModel cibViewModel,
     StageViewModel stageViewModel,
-    CalibrationSetting calibrationSetting,
     RecipeCookie recipeCookie,
     ApplicationCookie applicationCookie,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
@@ -53,26 +52,26 @@ public sealed partial class RecipeReticleMaskViewModel(
     public AlignmentWindowDarkFieldViewModel AlignmentWindowDarkFieldViewModel { get; } = alignmentWindowDarkFieldViewModel;
 
     [ObservableProperty]
-    private ReticleMarkItemDto? _selectReticleMarkItem;
+    private ReticleMarkDTOItem? _selectReticleMarkItem;
 
     /// <summary>
     /// 当前 Tab 对应的列表（编辑用）
     /// </summary>
     [ObservableProperty]
-    private ObservableCollection<ReticleMarkItemDto> _editReticleMarkList = [];
+    private ObservableCollection<ReticleMarkDTOItem> _editReticleMarkList = [];
 
     /// <summary>
     /// 用于 ReticleMaskView 绘制的镜像列表
     /// </summary>
     [ObservableProperty]
-    private ObservableCollection<ReticleMarkItemDto> _reticleMarkList = [];
+    private ObservableCollection<ReticleMarkDTOItem> _reticleMarkList = [];
 
     // 内部引用（由主 VM 注入）
 
     /// <summary>
     /// 当前编辑中的配方
     /// </summary>
-    public CalibrationRecipeDTO? EditingDto { get; set; }
+    public CalibrationRecipeDTO? EditingDTO { get; set; }
 
     /// <summary>
     /// 模板目录前缀
@@ -87,11 +86,11 @@ public sealed partial class RecipeReticleMaskViewModel(
     /// <summary>
     /// WaferMap 子 VM（用于获取 Builder 信息）
     /// </summary>
-    public RecipeWaferMapViewModel? WaferMapSubViewModel { get; set; }
+    public RecipeWaferMapViewModel? RecipeWaferMapViewModel { get; set; }
 
     public void NotifyAll()
     {
-        contextProvider.Post(() => { OnPropertyChanged(nameof(EditingDto)); });
+        contextProvider.Post(() => { OnPropertyChanged(nameof(EditingDTO)); });
     }
 
     [RelayCommand]
@@ -100,7 +99,7 @@ public sealed partial class RecipeReticleMaskViewModel(
         if (obj is MouseButtonEventArgs e)
             e.Handled = true;
 
-        if (EditRecipeTypeName.Contains("Wafer")) WaferMapSubViewModel?.NotifyWaferMapView();
+        if (EditRecipeTypeName.Contains("Wafer")) RecipeWaferMapViewModel?.NotifyWaferMapView();
     }
 
     [RelayCommand]
@@ -111,7 +110,7 @@ public sealed partial class RecipeReticleMaskViewModel(
 
     private void RefreshReticleView(object obj)
     {
-        if (EditingDto is null) return;
+        if (EditingDTO is null) return;
 
         var header = obj switch
         {
@@ -124,15 +123,15 @@ public sealed partial class RecipeReticleMaskViewModel(
 
         var listName = header switch
         {
-            "Microscope" => nameof(ReticleMarkDto.MicrosocpeReticleMarkItemList),
-            "Chuck" => nameof(ReticleMarkDto.ChuckReticleMarkItemList),
-            "Laser" => nameof(ReticleMarkDto.LaserReticleMarkItemList),
+            "Microscope" => nameof(ReticleMarkDTO.MicroscopeReticleMarks),
+            "Chuck" => nameof(ReticleMarkDTO.ChuckReticleMarks),
+            "Laser" => nameof(ReticleMarkDTO.LaserReticleMarks),
             _ => null
         };
 
         if (listName is null) return;
 
-        EditReticleMarkList = GetReticleMaskConfigList(listName, EditingDto);
+        EditReticleMarkList = GetReticleMaskConfigList(listName, EditingDTO);
         EditRecipeTypeName = header;
         RefreshReticleMaskView();
     }
@@ -142,9 +141,9 @@ public sealed partial class RecipeReticleMaskViewModel(
     [RelayCommand]
     private void AddMask()
     {
-        if (EditingDto is null) return;
+        if (EditingDTO is null) return;
         var list = EditReticleMarkList;
-        contextProvider.Send(() => list.Add(new ReticleMarkItemDto
+        contextProvider.Send(() => list.Add(new ReticleMarkDTOItem
         {
             MaskIndex = list.Count != 0 ? list.Last().MaskIndex + 1 : 0
         }));
@@ -153,7 +152,7 @@ public sealed partial class RecipeReticleMaskViewModel(
     [RelayCommand]
     private void DeleteMask()
     {
-        if (SelectReticleMarkItem is null || EditingDto is null) return;
+        if (SelectReticleMarkItem is null || EditingDTO is null) return;
         var list = EditReticleMarkList;
         contextProvider.Send(() =>
         {
@@ -168,27 +167,21 @@ public sealed partial class RecipeReticleMaskViewModel(
     {
         try
         {
-            if (WaferMapSubViewModel is null) return;
+            if (RecipeWaferMapViewModel is null) return;
+
+            Guard.IsNotNull(EditingDTO);
+
             var maskDto = GetSelectReticleMaskItem();
-            var waferBuilder = WaferMapSubViewModel.WaferMapCanvasViewModel.Document.WaferBuilder;
-            var reticleBuilder = WaferMapSubViewModel.WaferMapCanvasViewModel.Document.ReticleBuilder;
-            var machinePosition = stageViewModel.GetMachineStagePosition();
 
-            if (machinePosition.ToOriginLength >= waferBuilder.Circle.Radius)
-            {
-                dialogWindowProvider.ShowDialog("The position out of the wafer range!",
-                    DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
+            // 使用P8结果Build Wafer，Wafer坐标等价于明场坐标，可以和机械坐标互相转换
+            var maskMachinePosition = stageViewModel.GetMachineStagePosition();
 
-            var chuckCenter = cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
-            var waferPosition = machinePosition - (Vector)chuckCenter.NewBFCenterStagePosition;
-            var dir = WaferMapSubViewModel.StageDirection;
-            var relativeReticleOriginPosition =
-                new Point(dir.X * waferPosition.X, dir.Y * waferPosition.Y)
-                - (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, reticleBuilder.DiePitchSize.Height + reticleBuilder.DieScribeSize.Height));
+            var waferMapDie = calibrationRecipeService.GetCurrentWaferMapDie(EditingDTO.WaferDTO, maskMachinePosition);
+            var waferMapReticle = calibrationRecipeService.GetCurrentWaferMapReticle(EditingDTO.WaferDTO, maskMachinePosition);
+            var maskWaferPosition = stageViewModel.GetBrightFieldStagePosition();
+            // todo：reticle
 
-            maskDto.MaskWaferCellPosition = relativeReticleOriginPosition;
+            maskDto.MaskWaferCellPosition = maskWaferPosition - (Vector)waferMapDie.Rect.Point;
             RefreshReticleMaskView();
         }
         catch (Exception ex)
@@ -204,27 +197,22 @@ public sealed partial class RecipeReticleMaskViewModel(
     {
         try
         {
-            if (WaferMapSubViewModel is null) return;
+            if (RecipeWaferMapViewModel is null) return;
+
+            Guard.IsNotNull(EditingDTO);
+
             var maskDto = GetSelectReticleMaskItem();
-            microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation);
+            microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation);
 
-            var reticleBuilder = WaferMapSubViewModel.WaferMapCanvasViewModel.Document.ReticleBuilder;
-            var dir = WaferMapSubViewModel.StageDirection;
-            var chuckCenter = cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
-
-            var maskWaferPosition = maskDto.MaskWaferCellPosition
-                                    + (Vector)(reticleBuilder.OriginalDiePoint - (Vector)new Point(0, reticleBuilder.DiePitchSize.Height + reticleBuilder.DieScribeSize.Height));
-
-            var maskMachinePosition = chuckCenter.NewBFCenterStagePosition
-                                      + (Vector)new Point(dir.X * maskWaferPosition.X, dir.Y * maskWaferPosition.Y);
-
-            if (recipeCookie.CalibrationReviseRecipeDto is not null)
-            {
-                var offset = recipeCookie.CalibrationReviseRecipeDto.WaferDto.WaferCenterWaferPosition
-                             - (Vector)recipeCookie.CalibrationRecipeDto!.WaferDto.WaferCenterWaferPosition!;
-                if (offset.HasValue)
-                    maskMachinePosition += (Vector)new Point(dir.X * offset.Value.X, dir.Y * offset.Value.Y);
-            }
+            // todo：reticle
+            var machinePosition = stageViewModel.GetMachineStagePosition();
+            var waferMapDie = calibrationRecipeService.GetCurrentWaferMapDie(EditingDTO.WaferDTO, machinePosition);
+            calibrationRecipeService.GetMaskMachinePosition(
+                EditingDTO.WaferDTO,
+                waferMapDie,
+                maskDto,
+                false,
+                out var maskMachinePosition);
 
             stageViewModel.SetMachineAbsoluteStageXy(maskMachinePosition);
         }
@@ -243,8 +231,8 @@ public sealed partial class RecipeReticleMaskViewModel(
         {
             var maskDto = GetSelectReticleMaskItem();
             if (dialogWindowProvider.TryShowSelectFilePathDialog(".jpg", out var filePath) == false) return;
-            maskDto.RecipeBrightFieldTemplateDto.TemplateImageFilePath = filePath;
-            maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath = FileHelper.GetFileFullName(filePath);
+            maskDto.RecipeBrightFieldTemplateDTO.TemplateImageFilePath = filePath;
+            maskDto.RecipeBrightFieldTemplateDTO.TemplateFilePath = FileHelper.GetFileFullName(filePath);
         }
         catch (Exception ex)
         {
@@ -261,8 +249,8 @@ public sealed partial class RecipeReticleMaskViewModel(
         {
             var maskDto = GetSelectReticleMaskItem();
             if (dialogWindowProvider.TryShowSelectFilePathDialog(".jpg", out var filePath) == false) return;
-            maskDto.RecipeDarkFieldTemplateDto.TemplateImageFilePath = filePath;
-            maskDto.RecipeDarkFieldTemplateDto.TemplateFilePath = FileHelper.GetFileFullName(filePath);
+            maskDto.RecipeDarkFieldTemplateDTO.TemplateImageFilePath = filePath;
+            maskDto.RecipeDarkFieldTemplateDTO.TemplateFilePath = FileHelper.GetFileFullName(filePath);
         }
         catch (Exception ex)
         {
@@ -285,11 +273,11 @@ public sealed partial class RecipeReticleMaskViewModel(
             }
 
             var maskDto = GetSelectReticleMaskItem();
-            maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath =
-                $@"{TemplateFileDirectory}\{EditRecipeTypeName}\BrightField\Ncc\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
+            maskDto.RecipeBrightFieldTemplateDTO.TemplateFilePath =
+                $@"{TemplateFileDirectory}\{EditRecipeTypeName}\BrightField\Ncc\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
 
-            var templateFilePath = maskDto.RecipeBrightFieldTemplateDto.TemplateFilePath;
-            microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDto.MicroscopeLensInformation);
+            var templateFilePath = maskDto.RecipeBrightFieldTemplateDTO.TemplateFilePath;
+            microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation);
             await Task.Delay(3000);
 
             if (!reviewViewModel.TryGenerateTemplate(AlgorithmTemplateTypeEnum.Ncc, templateFilePath, AlgorithmTemplateSizeEnum.Size256))
@@ -299,7 +287,7 @@ public sealed partial class RecipeReticleMaskViewModel(
                 return;
             }
 
-            maskDto.RecipeBrightFieldTemplateDto.TemplateImageFilePath =
+            maskDto.RecipeBrightFieldTemplateDTO.TemplateImageFilePath =
                 CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
         }
         catch (Exception ex)
@@ -320,21 +308,21 @@ public sealed partial class RecipeReticleMaskViewModel(
             var brightPosition = stageViewModel.GetBrightFieldStagePosition();
 
             var darkFieldImageDto = await cibViewModel.GetPMTImageAsync(
-                maskDto.RecipeDarkFieldTemplateDto.ProductivityInformation,
+                maskDto.RecipeDarkFieldTemplateDTO.ProductivityInformation,
                 StageCoordinateSystemEnum.Bright,
                 brightPosition,
                 2048,
-                maskDto.RecipeDarkFieldTemplateDto.CIBInformation,
+                maskDto.RecipeDarkFieldTemplateDTO.CIBInformation,
                 (false, CalChipSiteModelEnum.ChuckModel),
-                (false, maskDto.RecipeDarkFieldTemplateDto.OpticsConfiguration),
-                (false, maskDto.RecipeDarkFieldTemplateDto.CIBConfiguration),
-                (false, maskDto.RecipeDarkFieldTemplateDto.LaserLightInformation),
+                (false, maskDto.RecipeDarkFieldTemplateDTO.OpticsConfiguration),
+                (false, maskDto.RecipeDarkFieldTemplateDTO.CIBConfiguration),
+                (false, maskDto.RecipeDarkFieldTemplateDTO.LaserLightInformation),
                 false,
                 CancellationToken.None);
 
             using var _ = darkFieldImageDto;
 
-            var templateFilePath = $@"{TemplateFileDirectory}\{EditRecipeTypeName}\DarkField\Ncc\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeDarkFieldTemplateDto.ProductivityInformation}_{Guid.NewGuid()}";
+            var templateFilePath = $@"{TemplateFileDirectory}\{EditRecipeTypeName}\DarkField\Ncc\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeDarkFieldTemplateDTO.ProductivityInformation}_{Guid.NewGuid()}";
             var templateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
             darkFieldImageDto.Image.Save(templateImageFilePath);
 
@@ -348,10 +336,10 @@ public sealed partial class RecipeReticleMaskViewModel(
                 return;
             }
 
-            maskDto.RecipeDarkFieldTemplateDto.AlgorithmTemplateTypeEnum = createDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum;
-            maskDto.RecipeDarkFieldTemplateDto.AlgorithmTemplateSizeEnum = createDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum;
-            maskDto.RecipeDarkFieldTemplateDto.TemplateFilePath = createDarkImageTemplateWindowViewModel.TemplateFilePath;
-            maskDto.RecipeDarkFieldTemplateDto.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
+            maskDto.RecipeDarkFieldTemplateDTO.AlgorithmTemplateTypeEnum = createDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum;
+            maskDto.RecipeDarkFieldTemplateDTO.AlgorithmTemplateSizeEnum = createDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum;
+            maskDto.RecipeDarkFieldTemplateDTO.TemplateFilePath = createDarkImageTemplateWindowViewModel.TemplateFilePath;
+            maskDto.RecipeDarkFieldTemplateDTO.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
         }
         catch (Exception ex)
         {
@@ -361,20 +349,20 @@ public sealed partial class RecipeReticleMaskViewModel(
         }
     }
 
-    private static ObservableCollection<ReticleMarkItemDto> GetReticleMaskConfigList(string? name, CalibrationRecipeDTO dto)
+    private static ObservableCollection<ReticleMarkDTOItem> GetReticleMaskConfigList(string? name, CalibrationRecipeDTO dto)
     {
         return name switch
         {
-            nameof(ReticleMarkDto.MicrosocpeReticleMarkItemList) => dto.ReticleMarkDto.MicrosocpeReticleMarkItemList,
-            nameof(ReticleMarkDto.ChuckReticleMarkItemList) => dto.ReticleMarkDto.ChuckReticleMarkItemList,
-            nameof(ReticleMarkDto.LaserReticleMarkItemList) => dto.ReticleMarkDto.LaserReticleMarkItemList,
+            nameof(ReticleMarkDTO.MicroscopeReticleMarks) => dto.ReticleMarkDTO.MicroscopeReticleMarks,
+            nameof(ReticleMarkDTO.ChuckReticleMarks) => dto.ReticleMarkDTO.ChuckReticleMarks,
+            nameof(ReticleMarkDTO.LaserReticleMarks) => dto.ReticleMarkDTO.LaserReticleMarks,
             _ => throw new ArgumentException("Invalid list name", nameof(name))
         };
     }
 
-    private ReticleMarkItemDto GetSelectReticleMaskItem()
+    private ReticleMarkDTOItem GetSelectReticleMaskItem()
     {
-        if (SelectReticleMarkItem is null || EditingDto is null)
+        if (SelectReticleMarkItem is null || EditingDTO is null)
         {
             dialogWindowProvider.ShowDialog("Select Reticle Item Is Empty!",
                 DialogButtonsEnum.OK, DialogIconEnum.Warning);

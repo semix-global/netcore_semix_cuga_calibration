@@ -25,7 +25,7 @@
                       Margin="10"
                       Header="CIB">
                 <hc:UniformSpacingPanel Orientation="Vertical">
-                    <pattern:CIBConfigurationUserControl DataContext="{Binding CalibrationRecipeDto.CalibrationRecipeInfoDto.CIBConfiguration}" />
+                    <pattern:CIBConfigurationUserControl />
                 </hc:UniformSpacingPanel>
             </GroupBox>
         </Grid>

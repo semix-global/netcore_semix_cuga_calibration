@@ -4,7 +4,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Recipe.Models.Template;
 
-public sealed partial class RecipeDarkFieldTemplateDto : RecipeTemplateDtoBase, ICloneable<RecipeDarkFieldTemplateDto>, IAdaptIn<RecipeDarkFieldTemplateDto, RecipeDarkFieldTemplateDto>
+public sealed partial class RecipeDarkFieldTemplateDTO : RecipeTemplateDTOBase, ICloneable<RecipeDarkFieldTemplateDTO>, IAdaptIn<RecipeDarkFieldTemplateDTO, RecipeDarkFieldTemplateDTO>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -24,7 +24,7 @@ public sealed partial class RecipeDarkFieldTemplateDto : RecipeTemplateDtoBase, 
     [ObservableProperty]
     private OpticsConfiguration _opticsConfiguration = new();
 
-    public RecipeDarkFieldTemplateDto Clone() => new()
+    public RecipeDarkFieldTemplateDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
@@ -41,7 +41,7 @@ public sealed partial class RecipeDarkFieldTemplateDto : RecipeTemplateDtoBase, 
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum
     };
 
-    public RecipeDarkFieldTemplateDto AdaptIn(RecipeDarkFieldTemplateDto obj)
+    public RecipeDarkFieldTemplateDTO AdaptIn(RecipeDarkFieldTemplateDTO obj)
     {
         ProductivityInformation = ProductivityInformation.AdaptIn(obj.ProductivityInformation);
         MicroscopeLensInformation = MicroscopeLensInformation.AdaptIn(obj.MicroscopeLensInformation);

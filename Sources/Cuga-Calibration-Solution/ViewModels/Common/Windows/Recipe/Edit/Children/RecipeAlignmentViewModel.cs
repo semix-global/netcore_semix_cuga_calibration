@@ -36,11 +36,15 @@ public sealed partial class RecipeAlignmentViewModel(
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
     FindWaferCenterByManuallyWindowViewModel findWaferCenterByManuallyWindowViewModel,
     StageViewModel stageViewModel,
-    ApplicationCookie applicationCookie) : ViewModelBase
+    ApplicationCookie applicationCookie,
+    RecipeCookie recipeCookie) : ViewModelBase
 {
+    private bool _isCircleCenterUpdatedInSession;
+    private bool _isAlignmentResultUpdatedInSession;
+
     // 对外暴露给主 VM 协调用
     public ApplicationCookie ApplicationCookie => applicationCookie;
-    public CalibrationRecipeDTO? EditingDto { get; set; }
+    public CalibrationRecipeDTO? EditingDTO { get; set; }
 
     [ObservableProperty]
     private AlignmentCacheBrightField _alignmentCacheBrightField = new();
@@ -59,24 +63,12 @@ public sealed partial class RecipeAlignmentViewModel(
 
     public required FindWaferCenterByManuallyWindowViewModel FindWaferCenterByManuallyWindowViewModel { get; set; }
 
-    // 切换到 Alignment Tab 时调用，仅重新广播通知，不重新加载数据，为了解决TabControl延迟加载UI树的问题
-    public void NotifyAll()
-    {
-        contextProvider.Post(() =>
-        {
-            OnPropertyChanged(nameof(AlignmentCacheBrightField));
-            OnPropertyChanged(nameof(AlignmentCacheDarkField));
-            OnPropertyChanged(nameof(AlignmentFindCenterCache));
-            OnPropertyChanged(nameof(Cache));
-            OnPropertyChanged(nameof(ApplicationCookie));
-            OnPropertyChanged(nameof(EditingDto));
-            OnPropertyChanged(nameof(FindWaferCenterByManuallyWindowViewModel));
-        });
-    }
-
     public async Task InitializeAsync(CalibrationRecipeDTO calibrationRecipeDTO)
     {
-        EditingDto = calibrationRecipeDTO;
+        EditingDTO = calibrationRecipeDTO;
+
+        _isCircleCenterUpdatedInSession = false;
+        _isAlignmentResultUpdatedInSession = false;
 
         AlignmentCacheDarkFields = recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
         AlignmentCacheBrightField = recipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
@@ -90,7 +82,9 @@ public sealed partial class RecipeAlignmentViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task FindWaferCenterAsync(CancellationToken cancellationToken)
     {
-        Guard.IsNotNull(EditingDto);
+        Guard.IsNotNull(EditingDTO);
+
+        messenger.Send(ToggleRecipeEventFactory.UpdateIsWaferMapEditEnable(false));
 
         await Task.Run(async () =>
         {
@@ -101,7 +95,9 @@ public sealed partial class RecipeAlignmentViewModel(
                 var result = await FindWaferCenterByManuallyWindowViewModel.ActionAsync(cancellationToken);
                 if (result == false) dialogWindowProvider.ShowDialog("Failed to find wafer center!");
 
-                EditingDto.WaferDto.WaferCenterWaferPosition = FindWaferCenterByManuallyWindowViewModel.Cache.OffsetPosition;
+                EditingDTO.WaferDTO.WaferMapDataDTO.WaferCircleCenter = FindWaferCenterByManuallyWindowViewModel.Cache.OffsetPosition;
+
+                _isCircleCenterUpdatedInSession = true;
             }
             catch (Exception ex)
             {
@@ -109,7 +105,7 @@ public sealed partial class RecipeAlignmentViewModel(
             }
             finally
             {
-                messenger.Send(ToggleRecipeEventFactory.UpdateIsWaferMapEditEnable(EditingDto.WaferDto.RequireActionIsOk()));
+                NotifyAlignmentStatus();
             }
         }, cancellationToken);
     }
@@ -117,7 +113,10 @@ public sealed partial class RecipeAlignmentViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task BrightFiledAlignmentAsync(CancellationToken cancellationToken)
     {
-        Guard.IsNotNull(EditingDto);
+        Guard.IsNotNull(EditingDTO);
+
+        messenger.Send(ToggleRecipeEventFactory.UpdateIsWaferMapEditEnable(false));
+
         if (AlignmentCacheBrightField.IsOk == false) BrightFiledMarkSites();
 
         await Task.Run(() =>
@@ -133,7 +132,9 @@ public sealed partial class RecipeAlignmentViewModel(
                     AlignmentCacheBrightField.HighMag,
                     AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
 
-                EditingDto.WaferDto.AlignmentResultDto = alignmentResult;
+                EditingDTO.WaferDTO.AlignmentResultDto = alignmentResult;
+
+                _isAlignmentResultUpdatedInSession = true;
             }
             catch (Exception ex)
             {
@@ -141,7 +142,7 @@ public sealed partial class RecipeAlignmentViewModel(
             }
             finally
             {
-                messenger.Send(ToggleRecipeEventFactory.UpdateIsWaferMapEditEnable(EditingDto.WaferDto.RequireActionIsOk()));
+                NotifyAlignmentStatus();
             }
         }, cancellationToken);
     }
@@ -149,7 +150,7 @@ public sealed partial class RecipeAlignmentViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task DarkFiledAlignmentAsync(CancellationToken cancellationToken)
     {
-        Guard.IsNotNull(EditingDto);
+        Guard.IsNotNull(EditingDTO);
 
         AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(
             t => t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
@@ -218,6 +219,39 @@ public sealed partial class RecipeAlignmentViewModel(
             , new AlignmentCacheDarkField());
     }
 
+    // 切换到 Alignment Tab 时调用，仅重新广播通知，不重新加载数据，为了解决TabControl延迟加载UI树的问题
+    public void NotifyAll()
+    {
+        contextProvider.Post(() =>
+        {
+            OnPropertyChanged(nameof(AlignmentCacheBrightField));
+            OnPropertyChanged(nameof(AlignmentCacheDarkField));
+            OnPropertyChanged(nameof(AlignmentFindCenterCache));
+            OnPropertyChanged(nameof(Cache));
+            OnPropertyChanged(nameof(EditingDTO));
+            OnPropertyChanged(nameof(FindWaferCenterByManuallyWindowViewModel));
+        });
+    }
+
+    // 只要重做P8或P5，禁用waferMap编辑、禁用Build Wafer，直至P8和P5全部重新做完，则解除限制
+    private void NotifyAlignmentStatus()
+    {
+        Guard.IsNotNull(EditingDTO);
+
+        var isComplete = _isCircleCenterUpdatedInSession
+                         && _isAlignmentResultUpdatedInSession
+                         && EditingDTO.WaferDTO.IsAlignmentResultLegal();
+
+        messenger.Send(ToggleRecipeEventFactory.UpdateIsWaferMapEditEnable(isComplete));
+
+        messenger.Send(ToggleRecipeEventFactory.UpdateIsRecipeAlignment(isComplete));
+        if (isComplete)
+        {
+            _isCircleCenterUpdatedInSession = false;
+            _isAlignmentResultUpdatedInSession = false;
+        }
+    }
+
     public void Save()
     {
         try
@@ -226,7 +260,7 @@ public sealed partial class RecipeAlignmentViewModel(
         }
         catch (Exception ex)
         {
-            dialogWindowProvider.ShowDialog($"Save alignment cache  failed! {ex.Message}",
+            dialogWindowProvider.ShowDialog($"Save alignment cache failed! {ex.Message}",
                 DialogButtonsEnum.OK,
                 DialogIconEnum.Warning);
         }

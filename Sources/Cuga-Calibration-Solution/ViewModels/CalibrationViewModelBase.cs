@@ -130,7 +130,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     public RecipeCookie RecipeCookie { get; }
 
-    public CalibrationRecipeDTO? CalibrationRecipeDto => RecipeCookie.CalibrationReviseRecipeDto;
+    public CalibrationRecipeDTO CalibrationRecipeDto => RecipeCookie.CalibrationRecipeDto;
 
     /// <summary>
     /// 校准名称

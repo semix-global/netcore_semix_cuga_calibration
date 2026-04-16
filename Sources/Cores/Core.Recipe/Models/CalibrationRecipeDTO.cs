@@ -5,24 +5,24 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Recipe.Models;
 
-public partial class CalibrationRecipeDTO : CalibrationRecipeDtoBase, ICloneable<CalibrationRecipeDTO>, IAdaptIn<CalibrationRecipeDTO, CalibrationRecipeDTO>
+public partial class CalibrationRecipeDTO : CalibrationRecipeDTOBase, ICloneable<CalibrationRecipeDTO>, IAdaptIn<CalibrationRecipeDTO, CalibrationRecipeDTO>
 {
     [ObservableProperty]
-    private WaferDto _waferDto = new();
+    private WaferDTO _waferDTO = new();
 
     [ObservableProperty]
-    private ReticleMarkDto _reticleMarkDto = new();
+    private ReticleMarkDTO _reticleMarkDTO = new();
 
     public CalibrationRecipeDTO Clone() => new()
     {
-        WaferDto = WaferDto.Clone(),
-        ReticleMarkDto = ReticleMarkDto.Clone()
+        WaferDTO = WaferDTO.Clone(),
+        ReticleMarkDTO = ReticleMarkDTO.Clone()
     };
 
     public CalibrationRecipeDTO AdaptIn(CalibrationRecipeDTO obj)
     {
-        WaferDto = new WaferDto().AdaptIn(obj.WaferDto);
-        ReticleMarkDto = new ReticleMarkDto().AdaptIn(obj.ReticleMarkDto);
+        WaferDTO = new WaferDTO().AdaptIn(obj.WaferDTO);
+        ReticleMarkDTO = new ReticleMarkDTO().AdaptIn(obj.ReticleMarkDTO);
         CreatedUserId = obj.CreatedUserId;
         CreatedUserName = obj.CreatedUserName;
         Id = obj.Id;
