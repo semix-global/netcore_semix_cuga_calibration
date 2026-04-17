@@ -24,6 +24,7 @@
                           hc:TitleElement.TitleWidth="190"
                           ItemsSource="{Binding ApplicationCookie.OpticsApodizationModeEnums, RelativeSource={RelativeSource AncestorType=UserControl}}"
                           SelectedItem="{Binding Path=OpticsApodizationModeEnum}"
+                          Visibility="{Binding IsEnableOpticsApodizationMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource Boolean2VisibilityConverter}}"
                           Style="{StaticResource ComboBoxExtend}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
