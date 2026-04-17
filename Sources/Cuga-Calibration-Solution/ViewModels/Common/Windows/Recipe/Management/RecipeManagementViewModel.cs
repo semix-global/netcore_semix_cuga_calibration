@@ -259,7 +259,11 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
                 _cacheDatabaseProvider.ChangeDatabase(SelectRecipeInfoDto.RecipeNosqlRecipeDbDataSource, _cancellationTokenSource.Token);
 
                 var (isHas, calibrationRecipeDto) = _cacheProvider.TryGetOrDefault<CalibrationRecipeDTO>();
-                if (isHas == false) ThrowHelper.ThrowArgumentException("Failed to get recipe data! Please make sure the recipe database is complete and valid!");
+                if (isHas == false)
+                {
+                    _dialogWindowProvider.ShowDialog("Failed to read recipe database, will apply default values.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    _cacheProvider.Set(new CalibrationRecipeDTO(), CancellationToken.None);
+                }
 
                 RecipeCookie.CalibrationRecipeDto.AdaptIn(calibrationRecipeDto);
                 RecipeCookie.SysRecipeInformationDto.AdaptIn(SelectRecipeInfoDto);

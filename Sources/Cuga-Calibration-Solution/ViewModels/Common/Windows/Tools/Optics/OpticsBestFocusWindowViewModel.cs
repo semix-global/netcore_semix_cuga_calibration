@@ -63,7 +63,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
     protected override bool InvokeDarkFieldRawScanImageDTO(DarkFieldRawScanImageDTO darkFieldRawScanImage)
     {
         base.InvokeDarkFieldRawScanImageDTO(darkFieldRawScanImage);
-
+        
         var isSuccess = false;
 
         var item = new OpticsBestFocusResult { DarkFieldRawScanImage = darkFieldRawScanImage };

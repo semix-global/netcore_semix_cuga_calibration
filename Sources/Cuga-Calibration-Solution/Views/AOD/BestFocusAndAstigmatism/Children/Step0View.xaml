@@ -9,6 +9,8 @@
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:AODBestFocusAndAstigmatismViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -36,23 +38,31 @@
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
-                                <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                        VerticalAlignment="Top"
-                                                        Spacing="10">
-                                    <Button Content="Action"
-                                            Command="{Binding Step0Command}"
-                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                            Style="{StaticResource ButtonPrimary.Loading}" />
-                                    <Button Content="Cancel"
-                                            Command="{Binding Step0CancelCommand}"
-                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                            Style="{StaticResource ButtonWarning}" />
-                                </hc:UniformSpacingPanel>
-                            </hc:UniformSpacingPanel>
-                        </Border>
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                        <hc:ComboBox HorizontalAlignment="Left"
+                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Cal Chip: "
+                                     SelectedItem="{Binding Cache.Item.CalChipSiteModelEnum}"
+                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}">
+                            <hc:ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </hc:ComboBox.ItemTemplate>
+                        </hc:ComboBox>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step0Command}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step0CancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
                 </ScrollViewer>
             </Border>

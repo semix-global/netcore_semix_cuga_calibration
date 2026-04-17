@@ -5,10 +5,10 @@ using Net.Utilities.Enums;
 namespace CugaCalibration.Views.AOD.BestFocusAndAstigmatism;
 
 [Permission]
-[IOCAppService(ServiceType = typeof(BestFocusAndAstigmatismCalibrationUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class BestFocusAndAstigmatismCalibrationUserControl
+[IOCAppService(ServiceType = typeof(AODBestFocusAndAstigmatismUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class AODBestFocusAndAstigmatismUserControl
 {
-    public BestFocusAndAstigmatismCalibrationUserControl()
+    public AODBestFocusAndAstigmatismUserControl()
     {
         InitializeComponent();
         InitializePermissionControl();

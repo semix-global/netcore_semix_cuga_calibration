@@ -28,7 +28,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
+                           Status="{Binding Cache.Item.MicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Productivity Information: "
@@ -41,8 +41,7 @@
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                   <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <StackPanel>
                                 <TextBlock Text="AOD Wave Config"
                                            HorizontalAlignment="Center"
@@ -70,7 +69,6 @@
                                         Style="{StaticResource ButtonWarning}" />
                             </hc:UniformSpacingPanel>
                         </hc:UniformSpacingPanel>
-                    </Border>
                 </ScrollViewer>
             </Border>
         </Grid>
