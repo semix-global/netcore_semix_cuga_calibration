@@ -16,6 +16,9 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Extensions;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using System.IO;
@@ -33,26 +36,29 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     public string Version => Algorithm.Version;
 
-    public double GetQuality(HImage image)
+    public double GetQuality(BitmapImage image)
     {
         // 适应彩色和灰度图像, 方差越大, 说明图像越清晰
-        _algorithm.LaplaceDefinition(image, out var meanTuple);
+        using var hImage = image.ToHImage();
+        _algorithm.LaplaceDefinition(hImage, out var meanTuple);
         using var _ = meanTuple;
 
         return meanTuple.D;
     }
 
-    public double GetDarkFieldQuality(HImage image)
+    public double GetDarkFieldQuality(BitmapImage image)
     {
-        _algorithm.DarkLaplaceDefinition(image, out var meanTuple);
+        using var hImage = image.ToHImage();
+        _algorithm.DarkLaplaceDefinition(hImage, out var meanTuple);
         using var _ = meanTuple;
 
         return meanTuple.D;
     }
 
-    public (double XQuality, double YQuality) GetXyQuality(HImage image)
+    public (double XQuality, double YQuality) GetXyQuality(BitmapImage image)
     {
-        _algorithm.DarkDefinition(image, out var meanTupleY, out var meanTupleX);
+        using var hImage = image.ToHImage();
+        _algorithm.DarkDefinition(hImage, out var meanTupleY, out var meanTupleX);
 
         using var _1 = meanTupleX;
         using var _2 = meanTupleY;
@@ -60,9 +66,10 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (meanTupleX.D, meanTupleY.D);
     }
 
-    public (double MtfX, double MtfY) ModulationTransferFunction(HImage image, Rect roiRect)
+    public (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect)
     {
-        using var roiImage = image.ToRoi(roiRect);
+        using var hImage = image.ToHImage();
+        using var roiImage = hImage.ToRoi(roiRect);
 
         _algorithm.WuMTF(roiImage, out var mtfX, out var mtfY);
 
@@ -72,14 +79,15 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (mtfX.D, mtfY.D);
     }
 
-    public BestFocus GetBestFocus(HImage image, double startECS, double stopECS)
+    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS)
     {
-        var size = image.GetSize();
+        using var hImage = image.ToHImage();
+        var size = hImage.GetSize();
 
         #region 算法调用
 
         _algorithm.STLR_kla(
-            image,
+            hImage,
             out var hvXListHTuple,
             out var hvXRatioMaxHTuple,
             out var hvXRatioMeanHTuple,
@@ -178,21 +186,25 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return bestFocus;
     }
 
-    public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)
+    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle)
     {
-        _algorithm.CalculatePixSize(image, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
+        using var hImage = image.ToHImage();
+        _algorithm.CalculatePixSize(hImage, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
         using var _1 = xTuple;
         using var _2 = yTuple;
         using var _3 = angleX;
         angle = angleX.D;
-        drawingImage = new HImage(drawingImageObj);
+
+        using var drawingHImage = new HImage(drawingImageObj);
+        drawingImage = drawingHImage.ToBitmapImage();
         return new Size(xTuple.D, yTuple.D);
     }
 
     [Obsolete]
-    public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize)
+    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize)
     {
-        var y = image.Image.GetHorizontalProjects();
+        using var hImage = image.ToHImage();
+        var y = hImage.GetHorizontalProjects();
 
         // 使用AMPD算法找出波峰
         var signal = Vector<double>.Build.DenseOfEnumerable(y.Select(t => -t));
@@ -203,30 +215,38 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return standardMaskSquareYSize / mean;
     }
 
-    public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize, out HImage drawingImage)
+    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage)
     {
-        _algorithm.DarkPixSizeCal(image.Image, 1, out var drawingImageObj, out var meanTuple);
+        using var hImage = image.ToHImage();
+        _algorithm.DarkPixSizeCal(hImage, 1, out var drawingImageObj, out var meanTuple);
 
         using var _ = meanTuple;
 
-        drawingImage = new HImage(drawingImageObj);
+        using var drawingHImage = new HImage(drawingImageObj);
+        drawingImage = drawingHImage.ToBitmapImage();
         return standardMaskSquareYSize / meanTuple.D;
     }
 
-    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, string templateFilePath, Rect rect, out HImage templateImage)
+    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, out BitmapImage templateImage)
     {
-        templateImage = HalconFactory.EmptyHImage;
+        templateImage = BitmapImage.Random(2448, 2048, 10);
 
         try
         {
-            using var scaleImageTo8Bit = image.ScaleImageTo8Bit();
+            using var hImage = image.ToHImage();
+            using var scaleImageTo8Bit = hImage.ScaleImageTo8Bit();
             var temp = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
             DirectoryHelper.CreateFileDirectoryIfNotExists(temp);
             FileHelper.DeleteFileIfExists(temp);
 
             _algorithm.HCreateModelXY(scaleImageTo8Bit, out var templateImageObj, algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateFilePath, rect.X, rect.Y, rect.Width, rect.Height);
 
-            templateImage = new HImage(templateImageObj);
+            using var drawingHImage = new HImage(templateImageObj);
+
+            templateImage.Dispose();
+
+            templateImage = drawingHImage.ToBitmapImage();
+
             return true;
         }
         catch (Exception ex)
@@ -271,7 +291,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
     }
 
-    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
+    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
     {
         markPoint = Point.Origin;
         offsetPoint = Point.Origin;
@@ -280,7 +300,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
         try
         {
-            using var scaleImageTo8Bit = image.ScaleImageTo8Bit();
+            using var hImage = image.ToHImage();
+            using var scaleImageTo8Bit = hImage.ScaleImageTo8Bit();
             _algorithm.HFindModel(scaleImageTo8Bit, algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateId, out var yHTuple, out var xHTuple, out var angleHTuple, out var scoreHTuple);
             using var _1 = yHTuple;
             using var _2 = xHTuple;
@@ -313,14 +334,17 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
     }
 
-    public bool TryGenerateProjectionTemplate(HImage image, string templateFilePath, out HImage templateImage)
+    public bool TryGenerateProjectionTemplate(BitmapImage image, string templateFilePath, out BitmapImage templateImage)
     {
-        templateImage = HalconFactory.EmptyHImage;
+        templateImage = BitmapImage.Random(2448, 2048, 10);
 
         try
         {
-            using var scaleImageTo8Bit = image.ScaleImageTo8Bit();
-            templateImage = scaleImageTo8Bit.Copy();
+            using var hImage = image.ToHImage();
+            using var scaleImageTo8Bit = hImage.ScaleImageTo8Bit();
+
+            templateImage.Dispose();
+            templateImage = scaleImageTo8Bit.ToBitmapImage().Copy();
 
             DirectoryHelper.CreateFileDirectoryIfNotExists($"{templateFilePath}.x.ncc");
             FileHelper.DeleteFileIfExists(templateFilePath);
@@ -372,14 +396,15 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
     }
 
-    public bool TryProjectionTemplateMatchToOffset(HImage image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
+    public bool TryProjectionTemplateMatchToOffset(BitmapImage image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
     {
         markPoint = Point.Origin;
         offsetPoint = Point.Origin;
 
         try
         {
-            using var scaleImageTo8Bit = image.ScaleImageTo8Bit();
+            using var hImage = image.ToHImage();
+            using var scaleImageTo8Bit = hImage.ScaleImageTo8Bit();
             _algorithm.ProjectionFindModel(scaleImageTo8Bit, templateXId, templateYId, out var yHTuple, out var xHTuple);
             using var _1 = yHTuple;
             using var _2 = xHTuple;
@@ -400,11 +425,16 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
     }
 
-    public HImage DarkFieldRawImageToLinearImage(HImage darkFieldRawImage)
+    public BitmapImage DarkFieldRawImageToLinearImage(BitmapImage image)
     {
-        _algorithm.RAWConvertLiner(darkFieldRawImage, out var darkFieldLinearImageHObject);
+        using var hImage = image.ToHImage();
+        _algorithm.RAWConvertLiner(hImage, out var darkFieldLinearImageHObject);
+
         using var _ = darkFieldLinearImageHObject;
-        var darkFieldLinearImage = new HImage(darkFieldLinearImageHObject);
+
+        using var darkFieldLinearHImage = new HImage(darkFieldLinearImageHObject);
+        var darkFieldLinearImage = darkFieldLinearHImage.ToBitmapImage();
+
         return darkFieldLinearImage;
     }
 
@@ -415,12 +445,15 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return (datavge1, data1);
     }
 
-    public (HImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(HImage hazeImage, HImage shinyWaferImage,
+    public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage,
         double rotateAngle)
     {
-        _algorithm.CalculateTwoRegionCenter(hazeImage, shinyWaferImage, out var resultImage, rotateAngle, out var diameter, out var angle, out var dRow, out var dCol, out var row, out var col);
+        using var hHazeImage = hazeImage.ToHImage();
+        using var hShinyWaferImage = shinyWaferImage.ToHImage();
+        _algorithm.CalculateTwoRegionCenter(hHazeImage, hShinyWaferImage, out var resultImage, rotateAngle, out var diameter, out var angle, out var dRow, out var dCol, out var row, out var col);
 
-        var drawingImage = new HImage(resultImage);
+        using var drawingHImage = new HImage(resultImage);
+        var drawingImage = drawingHImage.ToBitmapImage();
 
         return (drawingImage, diameter.D, angle.D, new Point(dCol.D, dRow.D), new Point(col.D, row.D));
     }
@@ -501,10 +534,11 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
 
-    public HTuple GetPictureGray(HImage image, HTuple bit, out HTuple hv_Histo)
+    public HTuple GetPictureGray(BitmapImage image, HTuple bit, out HTuple hv_Histo)
     {
         //HOperatorSet.Rgb1ToGray(image, out var grayImage);
-        _algorithm.histo(image, bit, out var hv_histo);
+        using var hImage = image.ToHImage();
+        _algorithm.histo(hImage, bit, out var hv_histo);
         hv_Histo = hv_histo;
         return hv_Histo;
     }

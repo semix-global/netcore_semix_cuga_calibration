@@ -32,7 +32,7 @@ public partial class LoginWindowViewModel(
     private IReadOnlyList<string> _userNames = [];
 
     [ObservableProperty]
-    private SysUserDto _sysUserDto = new();
+    private SysUserDTO _sysUserDTO = new();
 
     [RelayCommand]
     private async Task LoadedAsync()
@@ -45,7 +45,7 @@ public partial class LoginWindowViewModel(
 
             UserNames = [.. users.OrderBy(t => t.Id).Select(t => t.UserName)];
 
-            if (users.Count > 0) SysUserDto = hostEnvironment.IsProduction() ? new SysUserDto { UserName = users[0].UserName, Password = "t5sne0yd" } : new SysUserDto { UserName = users[0].UserName, Password = "666666" };
+            if (users.Count > 0) SysUserDTO = hostEnvironment.IsProduction() ? new SysUserDTO { UserName = users[0].UserName, Password = "t5sne0yd" } : new SysUserDTO { UserName = users[0].UserName, Password = "666666" };
         }
         catch (Exception ex)
         {
@@ -67,7 +67,7 @@ public partial class LoginWindowViewModel(
                     return;
                 }
 
-                var tempSysUserDto = await configViewModel.LoginAsync(SysUserDto, cancellationToken).ConfigureAwait(false);
+                var tempSysUserDto = await configViewModel.LoginAsync(SysUserDTO, cancellationToken).ConfigureAwait(false);
 
                 await applicationCookieService.UpdateCookieAsync(tempSysUserDto, cancellationToken).ConfigureAwait(false);
 

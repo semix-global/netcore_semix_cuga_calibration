@@ -170,7 +170,7 @@ private static void OnExit(MethodAdviceContext context)
 
 ### 权限数据结构
 
-权限配置通过 `SysMenuDto` 实体管理：
+权限配置通过 `SysMenuDTO` 实体管理：
 
 | 字段 | 说明 |
 |------|------|
@@ -192,7 +192,7 @@ private static void OnExit(MethodAdviceContext context)
 
 1. **管理员免检**: 如果当前用户 `IsAdmin` 为 `true`，将跳过所有权限检查
 2. **DataContext 依赖**: 权限检查依赖 `FrameworkElement.DataContext`，确保在构造函数执行后 DataContext 已绑定
-3. **控件命名**: XAML 中需要权限控制的控件必须设置 `x:Name`，且与 `SysMenuDto.Perms` 匹配
+3. **控件命名**: XAML 中需要权限控制的控件必须设置 `x:Name`，且与 `SysMenuDTO.Perms` 匹配
 4. **IOC 单例**: 建议将 UserControl 注册为单例，避免重复的权限验证
 
 ## 扩展建议
@@ -476,7 +476,7 @@ public static class PermissionHelper
         }
     }
 
-    private static void ApplyPermissionToControl(FrameworkElement root, SysMenuDto detail)
+    private static void ApplyPermissionToControl(FrameworkElement root, SysMenuDTO detail)
     {
         var type = Type.GetType(detail.Component);
         if (type is null) return;

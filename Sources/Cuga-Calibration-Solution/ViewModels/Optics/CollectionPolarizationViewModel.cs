@@ -6,12 +6,14 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.CollectPolarization;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using System.IO;
@@ -206,11 +208,12 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
                 OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
-                double pmtValue = darkFieldImage.Image.GetIntensity().Average;
+                using var hImage = darkFieldImage.Image.ToHImage();
+                double pmtValue = hImage.GetIntensity().Average;
                 Cache.PolarizationPositionNDFSListCH1 = [.. Cache.PolarizationPositionNDFSListCH1, new Point(i, pmtValue)];
 
                 var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH1", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.Save(OriginImageFilePath);
+                darkFieldImage.Image.SaveImage(OriginImageFilePath);
                 Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     ResultImage = new HtmlImage(OriginImageFilePath)
@@ -265,11 +268,12 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
                 OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
-                double pmtValue = darkFieldImage.Image.GetIntensity().Average;
+                using var hImage = darkFieldImage.Image.ToHImage();
+                double pmtValue = hImage.GetIntensity().Average;
                 Cache.PolarizationPositionNDFSListCH2 = [.. Cache.PolarizationPositionNDFSListCH2, new Point(i, pmtValue)];
 
                 var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH2", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.Save(OriginImageFilePath);
+                darkFieldImage.Image.SaveImage(OriginImageFilePath);
                 Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     ResultImage = new HtmlImage(OriginImageFilePath)
@@ -324,11 +328,12 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
                 OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
-                double pmtValue = darkFieldImage.Image.GetIntensity().Average;
+                using var hImage = darkFieldImage.Image.ToHImage();
+                double pmtValue = hImage.GetIntensity().Average;
                 Cache.PolarizationPositionNDFSListCH3 = [.. Cache.PolarizationPositionNDFSListCH3, new Point(i, pmtValue)];
 
                 var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH3", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.Save(OriginImageFilePath);
+                darkFieldImage.Image.SaveImage(OriginImageFilePath);
                 Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     ResultImage = new HtmlImage(OriginImageFilePath)
@@ -384,11 +389,12 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
                 OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
-                double pmtValue = darkFieldImage.Image.GetIntensity().Average;
+                using var hImage = darkFieldImage.Image.ToHImage();
+                double pmtValue = hImage.GetIntensity().Average;
                 Cache.PolarizationPositionNDFPListCH1 = [.. Cache.PolarizationPositionNDFPListCH1, new Point(i, pmtValue)];
 
                 var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH1", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.Save(OriginImageFilePath);
+                darkFieldImage.Image.SaveImage(OriginImageFilePath);
                 Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     ResultImage = new HtmlImage(OriginImageFilePath)
@@ -443,11 +449,12 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
                 OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
-                double pmtValue = darkFieldImage.Image.GetIntensity().Average;
+                using var hImage = darkFieldImage.Image.ToHImage();
+                double pmtValue = hImage.GetIntensity().Average;
                 Cache.PolarizationPositionNDFPListCH2 = [.. Cache.PolarizationPositionNDFPListCH2, new Point(i, pmtValue)];
 
                 var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH2", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.Save(OriginImageFilePath);
+                darkFieldImage.Image.SaveImage(OriginImageFilePath);
                 Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     ResultImage = new HtmlImage(OriginImageFilePath)
@@ -502,11 +509,12 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
                 OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
 
-                double pmtValue = darkFieldImage.Image.GetIntensity().Average;
+                using var hImage = darkFieldImage.Image.ToHImage();
+                double pmtValue = hImage.GetIntensity().Average;
                 Cache.PolarizationPositionNDFPListCH3 = [.. Cache.PolarizationPositionNDFPListCH3, new Point(i, pmtValue)];
 
                 var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH3", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.Save(OriginImageFilePath);
+                darkFieldImage.Image.SaveImage(OriginImageFilePath);
                 Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     ResultImage = new HtmlImage(OriginImageFilePath)

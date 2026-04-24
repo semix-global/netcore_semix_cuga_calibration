@@ -8,12 +8,14 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.INC;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -344,14 +346,15 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
                         cancellationToken);
 
                     var imageFilePath = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    darkFieldImage.Image.Save(imageFilePath);
+                    darkFieldImage.Image.SaveImage(imageFilePath);
 
+                    using var hImage = darkFieldImage.Image.ToHImage();
                     var itemItem = new OpticsINCDTOItem
                     {
                         INCMotorAbsoluteValue = relayMotorAbsoluteValue,
                         ImageFilePath = imageFilePath,
                         RawImageFilePath = darkFieldImage.RawImageFilePath,
-                        PMTValue = darkFieldImage.Image.GetIntensity().Average
+                        PMTValue = hImage.GetIntensity().Average
                     };
 
                     CalibratingItem.Items = [.. CalibratingItem.Items, itemItem];

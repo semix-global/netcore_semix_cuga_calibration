@@ -26,19 +26,19 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 用户
     /// </summary>
     [ObservableProperty]
-    public partial SysUserDto SysUser { get; set; } = new();
+    public partial SysUserDTO SysUser { get; set; } = new();
 
     /// <summary>
     /// 权限菜单
     /// </summary>
     [ObservableProperty]
-    public partial List<SysMenuDto> RoleSysMenuList { get; set; } = [];
+    public partial List<SysMenuDTO> RoleSysMenuList { get; set; } = [];
 
     /// <summary>
     /// 全部权限菜单权限
     /// </summary>
     [ObservableProperty]
-    public partial List<SysMenuDto> AllRoleSysMenuList { get; set; } = [];
+    public partial List<SysMenuDTO> AllRoleSysMenuList { get; set; } = [];
 
     /// <summary>
     /// 校准菜单
@@ -50,7 +50,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 标题栏菜单
     /// </summary>
     [ObservableProperty]
-    public partial SysMenuDto TitleMenu { get; set; } = new();
+    public partial SysMenuDTO TitleMenu { get; set; } = new();
 
     /// <summary>
     /// 系统管理菜单

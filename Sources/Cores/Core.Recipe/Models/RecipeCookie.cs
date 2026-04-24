@@ -9,11 +9,12 @@ public sealed partial class RecipeCookie : ObservableObject
     /// 当前应用配方的数据库信息
     /// </summary>
     [ObservableProperty]
-    private SysRecipeInformationDto _sysRecipeInformationDto = new();
+    private SysRecipeInformationDTO _sysRecipeInformationDTO = new();
 
     /// <summary>
     /// 校准当前应用配方
     /// </summary>
+    // [property:DefaultCache]
     [ObservableProperty]
     private CalibrationRecipeDTO _calibrationRecipeDto = new();
 }

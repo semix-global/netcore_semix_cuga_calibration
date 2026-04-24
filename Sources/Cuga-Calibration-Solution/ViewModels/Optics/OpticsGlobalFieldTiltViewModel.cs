@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.CIB;
 using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
@@ -13,17 +12,17 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.GlobalFieldTilt;
 using Core.Models.Models.Optics.Relay;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -578,7 +577,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
                     var imageFilePath = $@"{ImageFileDirectory}\Verify\{selectedReviewItem.OpticsIlluminationModeEnum}_PMT{pmtId}_Guid{HtmlLogUniqueId.LoggingHtml()}.jpg";
-                    darkFieldImageDto.Image.Save(imageFilePath);
+                    darkFieldImageDto.Image.SaveImage(imageFilePath);
 
                     var bestFocusItem = new GlobalFieldTiltDTOItem.Item
                     {
@@ -725,12 +724,11 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 var originImageFilePath = Path.Combine(filePath, "Origin", fileName);
                 var linearImageFilePath = Path.Combine(filePath, "Linear", fileName);
 
-                var bytes = File.ReadAllBytes(bestFocusChannelItems.RawFilePath);
-                using var image = RAWImageFactory.CreateImage(bytes, Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog);
-                image.Save(originImageFilePath);
+                using var bitmapImage = new BitmapImage(bestFocusChannelItems.RawFilePath);
+                bitmapImage.SaveImage(originImageFilePath);
 
-                var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(image);
-                linerImage.Save(linearImageFilePath);
+                var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(bitmapImage);
+                linerImage.SaveImage(linearImageFilePath);
 
                 bestFocusChannelItems.FilePath = originImageFilePath;
                 bestFocusChannelItems.LinearFilePath = linearImageFilePath;
@@ -847,7 +845,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                         var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
 
                         var imageFilePath = Path.Combine(currentDetectImageDirectory, $"{ecs:0.###}ECS_{quality:0.###}Quality_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImage.Image.Save(imageFilePath);
+                        darkFieldImage.Image.SaveImage(imageFilePath);
 
                         itemItemData.Quality = quality;
                         itemItemData.ImageFilePath = imageFilePath;

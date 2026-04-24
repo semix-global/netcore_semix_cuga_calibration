@@ -286,7 +286,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     }
 
     [RelayCommand]
-    private async Task OpenToolMenuAsync(SysMenuDto sysMenu)
+    private async Task OpenToolMenuAsync(SysMenuDTO sysMenu)
     {
         try
         {

@@ -6,7 +6,7 @@ using Core.Models.Models.Fourier;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using HalconDotNet;
+using Core.Utilities;
 using HAlgorithm;
 using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Attributes;
@@ -770,11 +770,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 if (bitmap == null)
                     return false;
 
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable1.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable1.BitmapImage = croppedImage;
 
                 var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3DegreeX", Ch3Angle + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable1.BitmapImage.Save(OriginImageFilePath1);
+                Cache.BitmapImageDrawable1.BitmapImage.SaveImage(OriginImageFilePath1);
 
                 Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
                 if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
@@ -834,8 +834,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 using var bitmap = BytesToBitmapImage(originPicture0);
                 if (bitmap == null)
                     return false;
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable1.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable1.BitmapImage = croppedImage;
             }
 
             return true;
@@ -865,11 +865,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 if (bitmap == null)
                     return false;
 
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable2.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable2.BitmapImage = croppedImage;
 
                 var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3DegreeY", Ch3Angle + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable2.BitmapImage.Save(OriginImageFilePath1);
+                Cache.BitmapImageDrawable2.BitmapImage.SaveImage(OriginImageFilePath1);
 
                 Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
                 if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
@@ -921,7 +921,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
             calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
 
             var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-            if (ret.IsSuccess == true)
+            if (ret.IsSuccess)
             {
                 var originPicture0 = ret.Anything;
                 if (originPicture0 == null)
@@ -930,8 +930,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 using var bitmap = BytesToBitmapImage(originPicture0);
                 if (bitmap == null)
                     return false;
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable2.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable2.BitmapImage = croppedImage;
             }
 
             return true;
@@ -964,11 +964,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 using var bitmap = BytesToBitmapImage(originPicture0);
                 if (bitmap == null)
                     return false;
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable3.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable3.BitmapImage = croppedImage;
 
                 var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", Ch3Angle + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable3.BitmapImage.Save(OriginImageFilePath1);
+                Cache.BitmapImageDrawable3.BitmapImage.SaveImage(OriginImageFilePath1);
 
                 Cache.Ch3Image3 = Cache.BitmapImageDrawable3.BitmapImage;
                 Cache.OriginImageFilePathList31.Add(OriginImageFilePath1);
@@ -1111,7 +1111,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private void GetVerticalRodRectData11()
     {
         var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnX", Ch3Angle + "_" + Ch3TurnX + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable1.BitmapImage.Save(OriginImageFilePath1);
+        Cache.BitmapImageDrawable1.BitmapImage.SaveImage(OriginImageFilePath1);
 
         if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
         {
@@ -1180,7 +1180,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private void GetVerticalRodRectData12()
     {
         var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnX", Ch3Angle + "_" + Ch3TurnX + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable1.BitmapImage.Save(OriginImageFilePath1);
+        Cache.BitmapImageDrawable1.BitmapImage.SaveImage(OriginImageFilePath1);
 
         if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
         {
@@ -1249,7 +1249,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private void GetHorizalRodRectData21()
     {
         var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnY", Ch3Angle + "_" + Ch3TurnY + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable2.BitmapImage.Save(OriginImageFilePath1);
+        Cache.BitmapImageDrawable2.BitmapImage.SaveImage(OriginImageFilePath1);
 
         if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
         {
@@ -1318,7 +1318,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private void GetHorizalRodRectData22()
     {
         var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnY", Ch3Angle + "_" + Ch3TurnY + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable2.BitmapImage.Save(OriginImageFilePath1);
+        Cache.BitmapImageDrawable2.BitmapImage.SaveImage(OriginImageFilePath1);
 
         if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
         {
@@ -1387,7 +1387,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private void GetVerticalRodRectData31()
     {
         var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", "0" + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable3.BitmapImage.Save(OriginImageFilePath1);
+        Cache.BitmapImageDrawable3.BitmapImage.SaveImage(OriginImageFilePath1);
 
         Cache.Ch3Image3 = Cache.BitmapImageDrawable3.BitmapImage;
         Cache.OriginImageFilePathList32[0] = OriginImageFilePath1;
@@ -1408,7 +1408,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private void GetVerticalRodRectData32()
     {
         var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", "0" + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable3.BitmapImage.Save(OriginImageFilePath1);
+        Cache.BitmapImageDrawable3.BitmapImage.SaveImage(OriginImageFilePath1);
 
         Cache.Ch3Image3 = Cache.BitmapImageDrawable3.BitmapImage;
         Cache.OriginImageFilePathList32[1] = OriginImageFilePath1;
@@ -1448,11 +1448,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 if (bitmap == null)
                     return false;
 
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable1.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable1.BitmapImage = croppedImage;
 
                 var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "Ch3Angle60X", Ch3Angle60 + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable1.BitmapImage.Save(OriginImageFilePath1);
+                Cache.BitmapImageDrawable1.BitmapImage.SaveImage(OriginImageFilePath1);
 
                 Cache.OriginImageFilePathList13.Add(OriginImageFilePath1);
                 Cache.OriginImageAngleList13.Add(Ch3Angle60);
@@ -1493,11 +1493,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 if (bitmap == null)
                     return false;
 
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable2.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable2.BitmapImage = croppedImage;
 
                 var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "Ch3Angle60Y", Ch3Angle60 + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable2.BitmapImage.Save(OriginImageFilePath1);
+                Cache.BitmapImageDrawable2.BitmapImage.SaveImage(OriginImageFilePath1);
 
                 Cache.OriginImageFilePathList23.Add(OriginImageFilePath1);
                 Cache.OriginImageAngleList23.Add(Ch3Angle60);
@@ -1565,10 +1565,12 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         });
     }
 
-    private HImage GetPictureRegion(HImage originImage, int startX, int startY, int width, int height)
+    private BitmapImage GetPictureRegion(BitmapImage originImage, int startX, int startY, int width, int height)
     {
         // 3. 【关键】使用 CropPart 进行真实裁剪 // 参数: 原图, 起始列(Column), 起始行(Row), 宽度, 高度     
-        return originImage.CropPart(startY, startX, width, height);
+        using var hImage = originImage.ToHImage();
+        using var cropHImage = hImage.CropPart(startY, startX, width, height);
+        return cropHImage.ToBitmapImage();
     }
 
     private bool Save(PupilCenterChannelFlexibleApertureDTO itemDto, CancellationToken cancellationToken) => InvokeSave(update =>

@@ -12,13 +12,13 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -429,7 +429,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
             var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.Item.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}.jpg");
             Cache.Item.TemplateFilePath = $"{originImageFilePath}_Template";
-            darkFieldImageDto.Image.Save(originImageFilePath);
+            darkFieldImageDto.Image.SaveImage(originImageFilePath);
 
             Guard.IsTrue(Cache.AlgorithmTemplateTypeEnum != AlgorithmTemplateTypeEnum.Projection);
 
@@ -799,7 +799,11 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false),
+                .. Calibrations
+                    .Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false)
+                    .Where(t =>
+                        t.ProductivityInformation != dto.ProductivityInformation
+                        || ApplicationCookie.CIBInformations.Any(tt => tt.PMTId == t.PmtId)),
                 dto
             ];
         }

@@ -6,17 +6,15 @@ using System.Windows;
 
 namespace Core.Models.Models.Common.DarkField;
 
-public sealed class DarkFieldRawScanImageDTOToBitmapImageDrawableConverter : AbstractSingletonConverterBase<DarkFieldRawScanImageDTOToBitmapImageDrawableConverter>
+public sealed class DarkFieldImageDTOToBitmapImageDrawableConverter : AbstractSingletonConverterBase<DarkFieldRawScanImageDTOToBitmapImageDrawableConverter>
 {
     public override object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not DarkFieldRawScanImageDTO darkFieldImageDTO) return DependencyProperty.UnsetValue;
-
-        var image = darkFieldImageDTO.GetImage();
+        if (value is not DarkFieldImageDTO darkFieldImageDTO) return DependencyProperty.UnsetValue;
 
         var bitmapImageDrawable = new BitmapImageDrawable
         {
-            BitmapImage = image
+            BitmapImage = darkFieldImageDTO.Image
         };
 
         var (min, max) = bitmapImageDrawable.BitmapImage.GetChannelRange();

@@ -235,12 +235,12 @@ public partial class CalibrationCategoryItem : ObservableObject
         if (IsArray)
         {
             if (Type is not null)
-                cacheProvider.SetArray([], Type, cancellationToken);
+                cacheProvider.SetArray( Type,[], cancellationToken);
         }
         else
         {
             if (Type is not null)
-                cacheProvider.Set(Activator.CreateInstance(Type) ?? new object(), Type, cancellationToken);
+                cacheProvider.Set( Type, Activator.CreateInstance(Type) ?? new object(),cancellationToken);
         }
     }
 }

@@ -32,7 +32,7 @@ public sealed class CalibrationConfigServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public async Task<SxExecuteRet<SysUserDto>> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
+    public async Task<SxExecuteRet<SysUserDTO>> LoginAsync(SysUserDTO user, CancellationToken cancellationToken)
     {
         var sysUserDto = await sysUserService.LoginAsync(user, cancellationToken);
 

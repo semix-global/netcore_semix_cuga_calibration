@@ -12,6 +12,8 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using System.IO;
 using Rect = Net.Utilities.Models.Geometries.Rect;
@@ -30,33 +32,33 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
 
     public string Version => Algorithm.Version;
 
-    public double GetQuality(HImage image)
+    public double GetQuality(BitmapImage image)
     {
         return Random.Shared.Next(100, 1000);
     }
 
-    public double GetDarkFieldQuality(HImage image)
+    public double GetDarkFieldQuality(BitmapImage image)
     {
         return Random.Shared.Next(100, 1000);
     }
 
-    public (double XQuality, double YQuality) GetXyQuality(HImage image)
+    public (double XQuality, double YQuality) GetXyQuality(BitmapImage image)
     {
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
     }
 
-    public (double MtfX, double MtfY) ModulationTransferFunction(HImage image, Rect roiRect)
+    public (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect)
     {
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
     }
 
-    public BestFocus GetBestFocus(HImage image, double startECS, double stopECS)
+    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS)
     {
         return _calibrationAlgorithmServiceImpl.GetBestFocus(image, startECS, stopECS);
     }
 
 
-    public Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle)
+    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle)
     {
         var pixelSize = new Size(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
         drawingImage = image.Copy();
@@ -65,37 +67,39 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     }
 
     [Obsolete]
-    public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize)
+    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize)
     {
         return Random.Shared.NextDouble();
     }
 
-    public double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize, out HImage drawingImage)
+    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage)
     {
-        drawingImage = image.Image.Copy();
+        drawingImage = image.Copy();
         return Random.Shared.NextDouble();
     }
 
-    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, string templateFilePath, Rect rect, out HImage templateImage)
+    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, out BitmapImage templateImage)
     {
         if (_isUseMock)
         {
-            templateImage = image.ToRoi(rect);
+            using var mockTemplateImage = image.ToHImage().ToRoi(rect);
             templateFilePath = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
 
             switch (algorithmTemplateTypeEnum)
             {
                 case AlgorithmTemplateTypeEnum.Sharpe:
-                    templateImage.SaveSharpeTemplate(templateFilePath);
+                    mockTemplateImage.SaveSharpeTemplate(templateFilePath);
                     break;
 
                 case AlgorithmTemplateTypeEnum.Ncc:
-                    templateImage.SaveNccTemplate(templateFilePath);
+                    mockTemplateImage.SaveNccTemplate(templateFilePath);
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(algorithmTemplateTypeEnum), algorithmTemplateTypeEnum, null);
             }
+
+            templateImage = mockTemplateImage.ToBitmapImage();
 
             return true;
         }
@@ -127,7 +131,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return _calibrationAlgorithmServiceImpl.TryCleanTemplate(algorithmTemplateTypeEnum, templateId);
     }
 
-    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
+    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
     {
         if (_isUseMock)
         {
@@ -135,15 +139,15 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
             angle = Random.Shared.Next(1, 10);
             offsetPoint = new Point(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
 
-            var size = image.GetSize();
-            markPoint = (Point)((Size)size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
+            var size = new Size(image.Width, image.Height);
+            markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
             return true;
         }
 
         return _calibrationAlgorithmServiceImpl.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out markPoint, out offsetPoint, out score, out angle);
     }
 
-    public bool TryGenerateProjectionTemplate(HImage image, string templateFilePath, out HImage templateImage)
+    public bool TryGenerateProjectionTemplate(BitmapImage image, string templateFilePath, out BitmapImage templateImage)
     {
         templateImage = image.Copy();
         return true;
@@ -162,21 +166,25 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return true;
     }
 
-    public bool TryProjectionTemplateMatchToOffset(HImage image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
+    public bool TryProjectionTemplateMatchToOffset(BitmapImage image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
     {
         offsetPoint = new Point(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
 
-        var size = image.GetSize();
-        markPoint = (Point)((Size)size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
+        var size = new Size(image.Width, image.Height);
+        markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
 
         return true;
     }
 
-    public HImage DarkFieldRawImageToLinearImage(HImage darkFieldRawImage)
+    public BitmapImage DarkFieldRawImageToLinearImage(BitmapImage image)
     {
-        _algorithm.RAWConvertLiner(darkFieldRawImage, out var darkFieldLinearImageHObject);
+        using var hImage = image.ToHImage();
+        _algorithm.RAWConvertLiner(hImage, out var darkFieldLinearImageHObject);
         using var _ = darkFieldLinearImageHObject;
-        var darkFieldLinearImage = new HImage(darkFieldLinearImageHObject);
+
+        using var darkFieldLinearHImage = new HImage(darkFieldLinearImageHObject);
+        var darkFieldLinearImage = darkFieldLinearHImage.ToBitmapImage();
+
         return darkFieldLinearImage;
     }
 
@@ -185,7 +193,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return ([], []);
     }
 
-    public (HImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(HImage hazeImage, HImage shinyWaferImage,
+    public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage,
         double rotateAngle)
     {
         var hazeImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\fftCh3HazeTestImg.jpg");
@@ -195,7 +203,8 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         using var shinyImg = HalconFactory.CreateImage(shinyImagePath);
         _algorithm.CalculateTwoRegionCenter(hazeImg, shinyImg, out var resultImage, rotateAngle, out var diameter, out var angle, out var dRow, out var dCol, out var row, out var col);
 
-        var drawingImage = new HImage(resultImage);
+        using var drawingHImage = new HImage(resultImage);
+        var drawingImage = drawingHImage.ToBitmapImage();
 
         return (drawingImage, diameter.D, angle.D, new Point(dCol.D, dRow.D), new Point(col.D, row.D));
     }
@@ -275,10 +284,11 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
 
-    public HTuple GetPictureGray(HImage image, HTuple bit, out HTuple hv_Histo)
+    public HTuple GetPictureGray(BitmapImage image, HTuple bit, out HTuple hv_Histo)
     {
+        using var hImage = image.ToHImage();
         // 使用 'rgb1_to_gray' 将彩色图像转换为灰度图像
-        HOperatorSet.Rgb1ToGray(image, out var grayImage);
+        HOperatorSet.Rgb1ToGray(hImage, out var grayImage);
         _algorithm.histo(grayImage, bit, out var hv_histo);
         hv_Histo = hv_histo;
         return hv_Histo;

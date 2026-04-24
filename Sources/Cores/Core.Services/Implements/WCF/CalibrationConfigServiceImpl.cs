@@ -48,7 +48,7 @@ public sealed class CalibrationConfigServiceImpl(
         }, false);
     }
 
-    public async Task<SxExecuteRet<SysUserDto>> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
+    public async Task<SxExecuteRet<SysUserDTO>> LoginAsync(SysUserDTO user, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
             throw new LoginException("The account or password cannot be empty!");

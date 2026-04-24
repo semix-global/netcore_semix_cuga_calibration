@@ -20,7 +20,7 @@ public interface ICalibrationConfigService
     /// <param name="user">用户</param>
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>用户</returns>
-    Task<SxExecuteRet<SysUserDto>> LoginAsync(SysUserDto user, CancellationToken cancellationToken);
+    Task<SxExecuteRet<SysUserDTO>> LoginAsync(SysUserDTO user, CancellationToken cancellationToken);
 
     /// <summary>
     /// 读取设备编码

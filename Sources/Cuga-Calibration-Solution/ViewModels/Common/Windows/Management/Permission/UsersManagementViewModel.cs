@@ -40,19 +40,19 @@ public sealed partial class UsersManagementViewModel(
     #region viewmodel
 
     [ObservableProperty]
-    private ObservableCollection<SysUserDto> _userList = [];
+    private ObservableCollection<SysUserDTO> _userList = [];
 
     [ObservableProperty]
-    private ObservableCollection<SysDeptDto> _deptList = [];
+    private ObservableCollection<SysDeptDTO> _deptList = [];
 
     [ObservableProperty]
-    private SysUserDto? _selectSysUserDto = new();
+    private SysUserDTO? _selectSysUserDto = new();
 
     [ObservableProperty]
-    private SysUserDto? _operateSysUserDto = new();
+    private SysUserDTO? _operateSysUserDto = new();
 
     [ObservableProperty]
-    private SysDeptDto? _selectSysDeptDto = new();
+    private SysDeptDTO? _selectSysDeptDto = new();
 
     [ObservableProperty]
     private ObservableCollection<RoleAllocation> _roleAllocationList = [];
@@ -96,7 +96,7 @@ public sealed partial class UsersManagementViewModel(
             UserList.Clear();
             UserList.AddRange(result);
         });
-        //UserList = new ObservableCollection<SysUserDto>(result);
+        //UserList = new ObservableCollection<SysUserDTO>(result);
         return true;
     }
 
@@ -127,7 +127,7 @@ public sealed partial class UsersManagementViewModel(
         switch (OperateCommandIndex)
         {
             case 0 or 2:
-                OperateSysUserDto = new SysUserDto();
+                OperateSysUserDto = new SysUserDTO();
                 SelectSysDeptDto = null;
                 break;
 
@@ -140,7 +140,7 @@ public sealed partial class UsersManagementViewModel(
 
     protected override async Task<bool> RefreshAssociationTableAsync()
     {
-        var roleList = new ObservableCollection<SysRoleDto>(await sysRoleService.GetAllAsync().ConfigureAwait(false));
+        var roleList = new ObservableCollection<SysRoleDTO>(await sysRoleService.GetAllAsync().ConfigureAwait(false));
         RoleAllocationList =
         [
             .. roleList.Select(t =>
@@ -175,6 +175,6 @@ public sealed partial class UsersManagementViewModel(
         private bool _isSelected;
 
         [ObservableProperty]
-        private SysRoleDto _roleDto = new();
+        private SysRoleDTO _roleDto = new();
     }
 }

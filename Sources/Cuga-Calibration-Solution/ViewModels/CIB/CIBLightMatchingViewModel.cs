@@ -7,6 +7,7 @@ using Core.Models.Models;
 using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
@@ -426,11 +428,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         var itemItem = item.Items[index];
 
                                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                                        darkFieldImage.Image.Save(imageFilePath);
+                                        darkFieldImage.Image.SaveImage(imageFilePath);
 
+                                        using var hImage = darkFieldImage.Image.ToHImage();
                                         var itemItemData = new CIBLightMatchingDTOItem.Item
                                         {
-                                            PMTValue = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000),
+                                            PMTValue = HostEnvironment.IsProduction() ? hImage.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000),
                                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                                             ImageFilePath = imageFilePath
                                         };
@@ -605,13 +608,14 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         var itemItem = item.Items[index];
 
                                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                                        darkFieldImage.Image.Save(imageFilePath);
+                                        darkFieldImage.Image.SaveImage(imageFilePath);
 
                                         // var histogram = darkFieldImage.Image.GetHistogram(0, 0b0000_1111_1111_1111);
 
+                                        using var hImage = darkFieldImage.Image.ToHImage();
                                         var itemItemData = new CIBLightMatchingDTOItem.Item
                                         {
-                                            PMTValue = HostEnvironment.IsProduction() ? darkFieldImage.Image.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000) /*HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000)*/,
+                                            PMTValue = HostEnvironment.IsProduction() ? hImage.GetIntensity().Average : Random.Shared.RandomDouble(1000, 2000) /*HostEnvironment.IsProduction() ? histogram.Maxima(t => t.Y).First().X : Random.Shared.RandomDouble(1000, 2000)*/,
                                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                                             ImageFilePath = imageFilePath /*,
                                             Histogram = histogram*/

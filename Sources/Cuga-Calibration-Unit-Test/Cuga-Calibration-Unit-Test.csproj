@@ -32,4 +32,8 @@
         <ProjectReference Include="..\Cores\Core.Services\05. Core.Services.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="halconxl" />
+    </ItemGroup>
+
 </Project>

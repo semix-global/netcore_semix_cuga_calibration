@@ -1,4 +1,4 @@
-using HalconDotNet;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
@@ -16,7 +16,7 @@ public interface ICalibrationReviewService
     /// 获取明场相机的图片
     /// </summary>
     /// <returns>明场相机的图片</returns>
-    SxExecuteRet<HImage> GetBrightFieldImage();
+    SxExecuteRet<BitmapImage> GetBrightFieldImage();
 
     /// <summary>
     /// 获取bitmap memory byte array
