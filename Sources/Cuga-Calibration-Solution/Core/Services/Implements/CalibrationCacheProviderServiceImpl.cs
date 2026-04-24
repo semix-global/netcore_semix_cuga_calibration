@@ -1,5 +1,4 @@
 using CommunityToolkit.Diagnostics;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
@@ -33,6 +32,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text;
+using Local.SQL.Cache.Providers.Serializations;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -157,10 +157,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                         Guard.IsNotNull(data);
 
-                        var jToken = JToken.FromObject(data, PrivateSetterContractResolver.Serializer);
-                        RemoveMetadata(jToken);
-
-                        defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
+                        defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = JToken.FromObject(data, IgnoreCacheItemPropertiesContractResolver.Serializer);
 
                         var count = cacheItem.IsArray ? ((Array)data).Length : 1;
                         messageBuilder.AppendLine($"  [Success] {cacheItem.Type.Name} ({count} items)");
@@ -201,10 +198,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                                 Guard.IsNotNull(data);
 
-                                var jToken = JToken.FromObject(data, PrivateSetterContractResolver.Serializer);
-                                RemoveMetadata(jToken);
-
-                                recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
+                                recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = JToken.FromObject(data, IgnoreCacheItemPropertiesContractResolver.Serializer);
 
                                 var count = cacheItem.IsArray ? ((Array)data).Length : 1;
                                 messageBuilder.AppendLine($"  [Success] {cacheItem.Type.Name} ({count} items)");
@@ -253,29 +247,6 @@ public class CalibrationCacheProviderServiceImpl(
                 return (false, $"Export failed: {ex.Message}");
             }
         }, cancellationToken);
-
-        void RemoveMetadata(JToken jToken)
-        {
-            switch (jToken)
-            {
-                case JArray array:
-                    foreach (var item in array) RemoveMetadata(item);
-
-                    break;
-                case JObject obj:
-                    obj.Remove(nameof(ICacheItem.Id));
-                    obj.Remove(nameof(ICacheItem.Expiration));
-                    obj.Remove(nameof(ICacheItem.CreatedTime));
-                    obj.Remove(nameof(ICacheItem.ModifiedTime));
-                    obj.Remove(nameof(ICacheItem.IsDeleted));
-                    obj.Remove(nameof(ObservableValidator.HasErrors));
-                    obj.Remove(nameof(CalibrationDtoBase.CreatedUserId));
-
-                    foreach (var property in obj.Properties()) RemoveMetadata(property.Value);
-
-                    break;
-            }
-        }
     }
 
     public async Task<(bool IsSuccess, string Message)> TryImportAsync(string filePath, CancellationToken cancellationToken)
