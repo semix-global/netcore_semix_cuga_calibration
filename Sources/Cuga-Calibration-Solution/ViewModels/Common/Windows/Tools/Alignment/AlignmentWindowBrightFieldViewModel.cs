@@ -7,7 +7,6 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;

@@ -5,7 +5,6 @@ using Core.Models.Events;
 using Core.Models.Models.Ads.XGains;
 using Core.Models.Models.Ads.YGains;
 using Core.Utilities;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

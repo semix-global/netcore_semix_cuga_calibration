@@ -56,7 +56,6 @@ using CugaCalibration.ViewModels.Common.Windows.View;
 using CugaCalibration.ViewModels.Laser;
 using CugaCalibration.ViewModels.Microscope;
 using CugaCalibration.ViewModels.Optics;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Microsoft.Extensions.DependencyInjection;

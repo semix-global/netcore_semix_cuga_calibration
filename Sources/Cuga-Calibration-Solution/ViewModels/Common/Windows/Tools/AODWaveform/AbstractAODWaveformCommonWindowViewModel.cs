@@ -4,7 +4,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

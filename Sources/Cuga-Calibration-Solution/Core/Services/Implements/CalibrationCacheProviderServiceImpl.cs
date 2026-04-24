@@ -13,7 +13,6 @@ using Core.Wcf.Models.Fourier;
 using Core.Wcf.Models.Laser;
 using Core.Wcf.Models.Microscope;
 using CugaCalibration.Core.Services.Interfaces;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
@@ -313,7 +312,7 @@ public class CalibrationCacheProviderServiceImpl(
                         if (cacheItem.IsArray)
                         {
                             var array = ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray();
-                            cacheProvider.SetArray( cacheItem.Type, array,cancellationToken);
+                            cacheProvider.SetArray(cacheItem.Type, array, cancellationToken);
                             count = array.Length;
                         }
                         else
@@ -395,7 +394,7 @@ public class CalibrationCacheProviderServiceImpl(
                                     }
                                     else
                                     {
-                                        recipeCacheProvider.Set( cacheItem.Type,data, cancellationToken);
+                                        recipeCacheProvider.Set(cacheItem.Type, data, cancellationToken);
                                         count = 1;
                                     }
 

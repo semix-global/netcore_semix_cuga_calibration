@@ -8,7 +8,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.SC;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Attributes;

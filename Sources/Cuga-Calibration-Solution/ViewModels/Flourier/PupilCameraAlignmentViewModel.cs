@@ -8,7 +8,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;

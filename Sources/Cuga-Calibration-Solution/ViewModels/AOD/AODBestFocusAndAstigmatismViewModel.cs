@@ -16,7 +16,6 @@ using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Modules;

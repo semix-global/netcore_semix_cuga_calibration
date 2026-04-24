@@ -6,7 +6,6 @@ using Core.Recipe.Models.Wafer;
 using Core.Recipe.Models.Wafer.ReticleMask;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

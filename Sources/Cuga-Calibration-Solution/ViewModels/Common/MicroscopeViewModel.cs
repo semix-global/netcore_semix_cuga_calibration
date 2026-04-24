@@ -4,7 +4,6 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;

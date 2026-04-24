@@ -156,8 +156,6 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDtoBase, IClonea
                 ],
                 2,
                 new Range(0, Items.Count - 1));
-
-
         }
         finally
         {
