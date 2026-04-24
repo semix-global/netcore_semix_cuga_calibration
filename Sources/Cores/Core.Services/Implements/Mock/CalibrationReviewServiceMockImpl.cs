@@ -1,9 +1,7 @@
 using Core.Models.Helper;
 using Core.Services.Interfaces;
-using HalconDotNet;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Enums.Files;
@@ -26,16 +24,15 @@ public sealed class CalibrationReviewServiceMockImpl : ICalibrationReviewService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<HImage> GetBrightFieldImage()
+    public SxExecuteRet<BitmapImage> GetBrightFieldImage()
     {
-        using var bitmapImage = BitmapImage.Random(Width, Height, 10);
-
 #pragma warning disable IDE0079
-#pragma warning disable IDISP004
+#pragma warning disable IDISP001
 
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
+        var bitmapImage = BitmapImage.Random(Width, Height, 10);
+        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
 
-#pragma warning restore IDISP004
+#pragma warning restore IDISP001
 #pragma warning restore IDE0079
     }
 

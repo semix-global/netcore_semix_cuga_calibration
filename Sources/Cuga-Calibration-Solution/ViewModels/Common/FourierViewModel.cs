@@ -1,8 +1,8 @@
-﻿using Core.Models.Exceptions;
+using Core.Models.Exceptions;
 using Core.Services.Interfaces;
-using HalconDotNet;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common;
@@ -18,7 +18,7 @@ public sealed class FourierViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public HImage GetFourierImage(int channelId)
+    public BitmapImage GetFourierImage(int channelId)
     {
         var ret = calibrationFourierService.GetFourierImage(channelId);
 

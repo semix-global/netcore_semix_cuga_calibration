@@ -46,7 +46,7 @@
             <TextBlock.Text>
                 <MultiBinding StringFormat="{}{0} [{1}]">
                     <Binding Path="ApplicationCookie.Title" Mode="OneWay" />
-                    <Binding Path="RecipeCookie.SysRecipeInformationDto.RecipeDbName" Mode="OneWay" />
+                    <Binding Path="RecipeCookie.SysRecipeInformationDTO.RecipeDbName" Mode="OneWay" />
                 </MultiBinding>
             </TextBlock.Text>
         </TextBlock>
@@ -89,13 +89,13 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding ChildList.Count, Converter={StaticResource IntIsLessThan1ToBooleanConverter}}" Value="True">
                                 <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.Command" Value="{Binding DataContext.OpenCalibrationCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
-                                <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.CommandParameter" Value="{Binding SysMenuDto.Component}" />
+                                <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.CommandParameter" Value="{Binding SysMenuDTO.Component}" />
                             </DataTrigger>
                             <DataTrigger Value="True">
                                 <DataTrigger.Binding>
                                     <MultiBinding Converter="{StaticResource MultiValueEqualityViewModelConverter}">
                                         <!--  任何一个Binding变动都会触发MultiBinding  -->
-                                        <Binding Mode="OneWay" Path="SysMenuDto.Component" />
+                                        <Binding Mode="OneWay" Path="SysMenuDTO.Component" />
                                         <Binding Mode="OneWay"
                                                  Path="DataContext.ActiveItem"
                                                  RelativeSource="{RelativeSource FindAncestor,
@@ -117,14 +117,14 @@
                                   Data="{StaticResource ErrorGeometry}"
                                   Fill="{DynamicResource DarkDangerBrush}"
                                   Stretch="Uniform" />
-                            <TextBlock Text="{Binding SysMenuDto.Name}" />
+                            <TextBlock Text="{Binding SysMenuDTO.Name}" />
                         </StackPanel>
                         <HierarchicalDataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsCalibrated}" Value="true">
                                 <Setter TargetName="Path" Property="Data" Value="{StaticResource SuccessGeometry}" />
                                 <Setter TargetName="Path" Property="Fill" Value="{StaticResource DarkSuccessBrush}" />
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding SysMenuDto.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
+                            <DataTrigger Binding="{Binding SysMenuDTO.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
                                 <Setter TargetName="Path" Property="Data" Value="{x:Null}" />
                                 <Setter TargetName="Path" Property="Margin" Value="0" />
                             </DataTrigger>

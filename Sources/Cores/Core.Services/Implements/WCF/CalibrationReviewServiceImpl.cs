@@ -3,10 +3,10 @@ using Core.Models.Helper;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
-using HalconDotNet;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Extensions;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
@@ -32,16 +32,29 @@ public sealed class CalibrationReviewServiceImpl : BaseService<ICgCalibrationSer
         }, false);
     }
 
-    public SxExecuteRet<HImage> GetBrightFieldImage()
+    public unsafe SxExecuteRet<BitmapImage> GetBrightFieldImage()
     {
         var bytes = Invoke(() => Service!.GetReviewRawImage());
         var size = GetBrightFieldImagePixelSize();
         var channels = GetChannels();
 
-        if (bytes.IsSuccess == false || size.IsSuccess == false || channels.IsSuccess == false) return SxExecuteRetHelper.CreateError(bytes.ErrorMsg, HalconFactory.EmptyHImage);
+        using var defaultBitmapImage = BitmapImage.Random(2448, 2048, 10);
+        if (bytes.IsSuccess == false || size.IsSuccess == false || channels.IsSuccess == false) return SxExecuteRetHelper.CreateError(bytes.ErrorMsg, defaultBitmapImage);
 
         var (width, height) = (SizeI)size.Anything;
-        return SxExecuteRetHelper.CreateSuccess(HalconFactory.CreateImage(bytes.Anything, width, height, channels.Anything, channels.Anything * 8));
+
+        var imageInfo = ImageInfoFactory.Create(width, height, channels.Anything, channels.Anything * 8);
+
+#pragma warning disable IDE0079
+#pragma warning disable IDISP001
+
+        fixed (byte* ptr = bytes.Anything)
+        {
+            var bitmapImage = new BitmapImage(imageInfo, (IntPtr)ptr);
+            return SxExecuteRetHelper.CreateSuccess(bitmapImage);
+        }
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
     }
 
     public SxExecuteRet<byte[]> GetBrightFieldImageMemoryByteArray()

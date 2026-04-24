@@ -6,13 +6,13 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -419,6 +419,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             {
                 Cache.CalChipSiteModelEnum,
                 Cache.LowMicroscopeLensInformation,
+                Cache.HighMicroscopeLensInformation,
                 FindPosition = StageViewModel.GetMachineStagePosition(),
                 Cache.SpeedEcsPerSecond,
                 Cache.HalfEcsLength,
@@ -427,7 +428,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
             StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
 
             var averageEcs = HostEnvironment.IsDevelopment() == false
                 ? AfViewModel.GetSensorAverageEcsValue()
@@ -489,6 +490,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
             #endregion
 
+            CalibratingItem.CurrentItem.BrightFieldMachinePosition = Cache.Item.CenterMachinePosition;
+
             AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, CalibratingItem.CurrentItem.EcsValue);
             AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, CalibratingItem.CurrentItem.BrightFieldMachinePosition);
 
@@ -502,8 +505,6 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 endEcs,
                 Result = new HtmlQuote(CalibratingItem.CurrentItem.ToFlatnessHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
-
-            CalibratingItem.CurrentItem.BrightFieldMachinePosition = Cache.Item.CenterMachinePosition;
 
             CalibratingItem.IsCalibrated = Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ShinyWaferModel;
 
@@ -816,7 +817,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         microscopeCalChipDTOItem.Quality = quality;
         var filePath = $"{microscopeCalChipDTOItem.FilePath}\\Ecs({microscopeCalChipDTOItem.EcsValue:F3})_Quality({microscopeCalChipDTOItem.Quality:F3})_Guid({HtmlLogUniqueId}).jpg";
 
-        image.Save(filePath);
+        image.SaveImage(filePath);
         microscopeCalChipDTOItem.FilePath = filePath;
     }
 

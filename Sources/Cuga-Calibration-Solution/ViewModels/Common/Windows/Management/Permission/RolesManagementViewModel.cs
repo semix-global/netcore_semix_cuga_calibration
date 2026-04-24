@@ -28,7 +28,7 @@ public sealed partial class RolesManagementViewModel(
 
     public override bool IsSelectedItem => SelectSysRoleDto is not null && SelectSysRoleDto.Id != 0;
 
-    private List<SysMenuDto> allMenuList = [];
+    private List<SysMenuDTO> allMenuList = [];
 
     #endregion 属性
 
@@ -41,16 +41,16 @@ public sealed partial class RolesManagementViewModel(
     private int _isAssignMenu;
 
     [ObservableProperty]
-    private ObservableCollection<SysRoleDto> _roleList = [];
+    private ObservableCollection<SysRoleDTO> _roleList = [];
 
     [ObservableProperty]
-    private SysRoleDto? _selectSysRoleDto = new();
+    private SysRoleDTO? _selectSysRoleDto = new();
 
     [ObservableProperty]
-    private SysRoleDto? _operateSysRoleDto = new();
+    private SysRoleDTO? _operateSysRoleDto = new();
 
     [ObservableProperty]
-    private ObservableCollection<SysMenuDto> _menuAllocationTreeList = [];
+    private ObservableCollection<SysMenuDTO> _menuAllocationTreeList = [];
 
     #endregion viewmodel
 
@@ -119,7 +119,7 @@ public sealed partial class RolesManagementViewModel(
                 break;
 
             case 0 or 2:
-                OperateSysRoleDto = new SysRoleDto();
+                OperateSysRoleDto = new SysRoleDTO();
                 IsAssignMenu = 0;
                 break;
         }

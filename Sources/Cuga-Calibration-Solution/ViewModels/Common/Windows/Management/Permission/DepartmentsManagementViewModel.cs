@@ -30,7 +30,7 @@ public sealed partial class DepartmentsManagementViewModel(
 
     public override bool IsSelectedItem => SelectSysDeptDto is not null && SelectSysDeptDto.Id != 0;
 
-    private List<SysDeptDto> deptList = [];
+    private List<SysDeptDTO> deptList = [];
 
     /// <summary>
     /// 设置父级部门时使用，控制界面禁用状态
@@ -43,19 +43,19 @@ public sealed partial class DepartmentsManagementViewModel(
     #region viewmodel
 
     [ObservableProperty]
-    private ObservableCollection<SysDeptDto> _deptTreeList = [];
+    private ObservableCollection<SysDeptDTO> _deptTreeList = [];
 
     [ObservableProperty]
-    private List<SysUserDto> _userList = [];
+    private List<SysUserDTO> _userList = [];
 
     [ObservableProperty]
-    private SysDeptDto? _operateSysDeptDto;
+    private SysDeptDTO? _operateSysDeptDto;
 
     [ObservableProperty]
-    private SysDeptDto? _selectSysDeptDto = new();
+    private SysDeptDTO? _selectSysDeptDto = new();
 
     [ObservableProperty]
-    private SysUserDto? _selectSysUserDto = new();
+    private SysUserDTO? _selectSysUserDto = new();
 
     #endregion viewmodel
 
@@ -120,21 +120,21 @@ public sealed partial class DepartmentsManagementViewModel(
         switch (OperateCommandIndex)
         {
             case 0:
-                OperateSysDeptDto = new SysDeptDto();
+                OperateSysDeptDto = new SysDeptDTO();
                 SelectSysUserDto = null;
                 break;
 
             case 1: //edit
                 SelectSysUserDto = UserList.SingleOrDefault(s => s.Id == SelectSysDeptDto!.LeaderUserId);
-                SelectSysUserDto ??= new SysUserDto();
+                SelectSysUserDto ??= new SysUserDTO();
                 OperateSysDeptDto = SelectSysDeptDto!.Clone();
                 OperateSysDeptDto.LeaderUserId = SelectSysUserDto!.Id;
                 OperateSysDeptDto.Leader = SelectSysUserDto!.UserName;
                 break;
 
             case 2: //add
-                OperateSysDeptDto = new SysDeptDto { Parent = SelectSysDeptDto!, ParentId = SelectSysDeptDto!.Id == 0 ? Constants.NegInt32Value : SelectSysDeptDto!.Id };
-                SelectSysUserDto = new SysUserDto();
+                OperateSysDeptDto = new SysDeptDTO { Parent = SelectSysDeptDto!, ParentId = SelectSysDeptDto!.Id == 0 ? Constants.NegInt32Value : SelectSysDeptDto!.Id };
+                SelectSysUserDto = new SysUserDTO();
                 break;
         }
 
@@ -156,14 +156,14 @@ public sealed partial class DepartmentsManagementViewModel(
     }
 
     [RelayCommand]
-    private void Selection(SysDeptDto item)
+    private void Selection(SysDeptDTO item)
     {
         if (OperateCommandIndex == 0)
             SelectSysDeptDto = item;
     }
 
     [RelayCommand]
-    private void SetParentDepartment(SysDeptDto item)
+    private void SetParentDepartment(SysDeptDTO item)
     {
         if (OperateCommandIndex != 0 && IsTreeViewEnabled)
         {

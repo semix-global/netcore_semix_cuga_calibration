@@ -4,9 +4,9 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
-using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
@@ -53,6 +53,9 @@ public partial class DarkFieldRawScanImageDTO :
         RawImageFilePath = result;
     }
 
+    // 供子类clone使用
+    protected virtual DarkFieldRawScanImageDTO CreateInstance() => new();
+
     #region IEquatable、IFormattable
 
     public bool Equals(DarkFieldRawScanImageDTO? other) => this == other;
@@ -93,15 +96,17 @@ public partial class DarkFieldRawScanImageDTO :
 
     #region Mapper
 
-    public DarkFieldRawScanImageDTO Clone() => new()
+    public DarkFieldRawScanImageDTO Clone()
     {
-        CIBInformation = CIBInformation.Clone(),
-        Size = Size,
-        IsForward = IsForward,
-        RawImageCIBProfileModeEnum = RawImageCIBProfileModeEnum,
-        RawImageFilePath = RawImageFilePath,
-        IsKeepRawImageCIBProfileModeEnum = IsKeepRawImageCIBProfileModeEnum
-    };
+        var instance = CreateInstance();
+        CIBInformation = CIBInformation.Clone();
+        instance.Size = Size;
+        instance.IsForward = IsForward;
+        instance.RawImageCIBProfileModeEnum = RawImageCIBProfileModeEnum;
+        instance.RawImageFilePath = RawImageFilePath;
+        instance.IsKeepRawImageCIBProfileModeEnum = IsKeepRawImageCIBProfileModeEnum;
+        return instance;
+    }
 
     public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
     {
@@ -120,15 +125,17 @@ public partial class DarkFieldRawScanImageDTO :
 
     #endregion Mapper
 
-    public HImage GetImage()
+    public BitmapImage GetImage()
     {
         var rawBytes = File.ReadAllBytes(RawImageFilePath);
 
-        return IsKeepRawImageCIBProfileModeEnum
+        using var hImage = IsKeepRawImageCIBProfileModeEnum
             ? RAWImageFactory.CreateImage(rawBytes, false)
             : RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog
                 ? RAWImageFactory.CreateImage(rawBytes, true)
                 : RAWImageFactory.CreateImage(rawBytes, false);
+
+        return hImage.ToBitmapImage(RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTVoltage ? 16 : 12);
     }
 
     public virtual object ToHtmlAnonymous() => new
@@ -150,15 +157,13 @@ public sealed class DarkFieldImageDTO :
     IAdaptIn<DarkFieldRawScanImageDTO, DarkFieldImageDTO>,
     IDisposable
 {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP008
-
     [System.Text.Json.Serialization.JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
-    public HImage Image { get; private set; } = HalconFactory.EmptyHImage;
+    public BitmapImage Image { get; private set; } = null!;
 
-#pragma warning restore IDISP008
-#pragma warning restore IDE0079
+#pragma warning disable IDISP005
+    protected override DarkFieldRawScanImageDTO CreateInstance() => new DarkFieldImageDTO();
+#pragma warning restore IDISP005
 
     #region IEquatable
 
@@ -172,7 +177,8 @@ public sealed class DarkFieldImageDTO :
     {
         var darkFieldImage = (DarkFieldImageDTO)base.Clone();
 
-        darkFieldImage.Image = Image.Clone();
+        darkFieldImage.Image?.Dispose();
+        darkFieldImage.Image = Image.Copy();
 
         return darkFieldImage;
     }
@@ -202,11 +208,10 @@ public sealed class DarkFieldImageDTO :
 
     private void Initialize()
     {
-        using var _ = Image;
-
+        Image?.Dispose();
         Image = GetImage();
 
-        Guard.IsTrue(Image.GetSize() == Size);
+        Guard.IsTrue(new SizeI(Image.ImageInfo.Width, Image.ImageInfo.Height) == Size);
     }
 
     #endregion Mapper

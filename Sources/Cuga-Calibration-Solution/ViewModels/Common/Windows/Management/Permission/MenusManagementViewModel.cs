@@ -27,17 +27,17 @@ public sealed partial class MenusManagementViewModel(
 
     public override bool IsEnableEdit => false;
 
-    private List<SysMenuDto> menuList = [];
+    private List<SysMenuDTO> menuList = [];
 
     #endregion 属性
 
     #region viewmodel
 
     [ObservableProperty]
-    private ObservableCollection<SysMenuDto> _menuTreeList = [];
+    private ObservableCollection<SysMenuDTO> _menuTreeList = [];
 
     [ObservableProperty]
-    private SysMenuDto? _operateSysMenuDto;
+    private SysMenuDTO? _operateSysMenuDto;
 
     #endregion viewmodel
 
@@ -73,7 +73,7 @@ public sealed partial class MenusManagementViewModel(
         return true;
     }
 
-    protected override void VariableInitialization() => OperateSysMenuDto = new SysMenuDto();
+    protected override void VariableInitialization() => OperateSysMenuDto = new SysMenuDTO();
 
     #endregion 重载
 

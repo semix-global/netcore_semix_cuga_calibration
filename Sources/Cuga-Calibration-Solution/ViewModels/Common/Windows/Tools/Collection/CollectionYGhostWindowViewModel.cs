@@ -8,14 +8,14 @@ using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.View;
-using HalconDotNet;
 using HAlgorithm;
 using Local.SQL.Cache.Providers.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
@@ -291,7 +291,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                     cancellationToken);
 
                 var path = Path.Combine(ImageDirectory, "CH1", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                darkFieldImage1.Image.Save(path);
+                darkFieldImage1.Image.SaveImage(path);
                 allOpticsPaths1[i - 1] = path;
 
                 if (i == 1)
@@ -344,7 +344,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                     cancellationToken);
 
                 path = Path.Combine(ImageDirectory, "CH2", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                darkFieldImage2.Image.Save(path);
+                darkFieldImage2.Image.SaveImage(path);
                 allOpticsPaths2[i - 1] = path;
 
                 if (i == 1)
@@ -397,7 +397,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                     cancellationToken);
 
                 path = Path.Combine(ImageDirectory, "CH3", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                darkFieldImage3.Image.Save(path);
+                darkFieldImage3.Image.SaveImage(path);
                 allOpticsPaths3[i - 1] = path;
 
                 if (i == 1)
@@ -740,11 +740,10 @@ public sealed partial class CollectionYGhostWindowViewModel(
         }
     }
 
-    private ObservableCollection<Point> ProcessImageAndGetPoints(HImage image0)
+    private ObservableCollection<Point> ProcessImageAndGetPoints(BitmapImage image0)
     {
-        // using var image = new HImage(imagePath);
-        //_algorithm.AutoReadRawImage(out var image0,imagePath);
-        _algorithm.RotateAndMirror(image0, out var image);
+        using var hImage = image0.ToHImage();
+        _algorithm.RotateAndMirror(hImage, out var image);
         _algorithm.LightSpot(image, out var yValue);
         var points = new ObservableCollection<Point>();
         if (yValue?.Length > 0)

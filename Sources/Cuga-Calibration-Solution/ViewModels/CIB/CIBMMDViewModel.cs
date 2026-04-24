@@ -11,6 +11,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using Humanizer;
@@ -26,6 +27,7 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -612,7 +614,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 var (index, darkFieldImage) = t;
                                 using var _ = darkFieldImage;
 
-                                var pmtValue = darkFieldImage.Image.GetIntensity().Average;
+                                using var hImage = darkFieldImage.Image.ToHImage();
+                                var pmtValue = hImage.GetIntensity().Average;
 
                                 var item = noProtectedCIBMMDDtos[index];
                                 var itemItem = item.Items[coefficientIndex];
@@ -643,7 +646,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 void SaveImage()
                                 {
                                     var imageFilePath = Path.Combine(detectImageDirectory, item.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                                    darkFieldImage.Image.Save(imageFilePath);
+                                    darkFieldImage.Image.SaveImage(imageFilePath);
                                     itemItemData.ImageFilePath = imageFilePath;
                                 }
                             }, cancellationToken)));

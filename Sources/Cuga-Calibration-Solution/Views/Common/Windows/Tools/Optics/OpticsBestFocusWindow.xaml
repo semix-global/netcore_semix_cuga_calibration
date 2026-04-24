@@ -560,14 +560,14 @@
                                                         <TextBlock TextWrapping="Wrap"
                                                                    HorizontalAlignment="Left"
                                                                    VerticalAlignment="Bottom"
-                                                                   ToolTip="{Binding DarkFieldRawScanImage.RawImageFilePath}">
-                                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding DarkFieldRawScanImage.RawImageFilePath}">
-                                                                <Run Text="{Binding DarkFieldRawScanImage, Mode=OneWay}" />
+                                                                   ToolTip="{Binding DarkFieldImage.RawImageFilePath}">
+                                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding DarkFieldImage.RawImageFilePath}">
+                                                                <Run Text="{Binding DarkFieldImage, Mode=OneWay}" />
                                                             </Hyperlink>
                                                         </TextBlock>
                                                     </ScrollViewer>
                                                     <wpfImageViewer:ImageViewerCanvas Grid.Row="1"
-                                                                                      BitmapImageDrawable="{Binding DarkFieldRawScanImage, Mode=OneWay, Converter={StaticResource DarkFieldRawScanImageDTOToBitmapImageDrawableConverter}}"
+                                                                                      BitmapImageDrawable="{Binding DarkFieldImage, Mode=OneWay, Converter={StaticResource DarkFieldImageDTOToBitmapImageDrawableConverter}}"
                                                                                       IsShowCrossLine="True"
                                                                                       IsToggleAddOrModifyRectROIDrawable="False" />
                                                 </Grid>

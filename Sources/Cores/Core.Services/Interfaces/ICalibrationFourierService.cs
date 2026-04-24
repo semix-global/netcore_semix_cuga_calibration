@@ -1,6 +1,6 @@
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Optics;
-using HalconDotNet;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
@@ -21,7 +21,7 @@ public interface ICalibrationFourierService
     /// </summary>
     /// <param name="channelId">通道ID</param>
     /// <returns>傅里叶相机的图片</returns>
-    SxExecuteRet<HImage> GetFourierImage(int channelId);
+    SxExecuteRet<BitmapImage> GetFourierImage(int channelId);
 
     /// <summary>
     /// 获取傅里叶相机的图片

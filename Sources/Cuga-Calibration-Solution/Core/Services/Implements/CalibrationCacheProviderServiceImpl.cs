@@ -158,7 +158,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                         Guard.IsNotNull(data);
 
-                        var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                        var jToken = JToken.FromObject(data, PrivateSetterContractResolver.Serializer);
                         RemoveMetadata(jToken);
 
                         defaultCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
@@ -176,7 +176,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                 messageBuilder.AppendLine();
 
-                var originalRecipeDBPath = recipeCookie.SysRecipeInformationDto.RecipeNosqlRecipeDbDataSource;
+                var originalRecipeDBPath = recipeCookie.SysRecipeInformationDTO.RecipeNosqlRecipeDbDataSource;
                 Guard.IsNotNullOrEmpty(originalRecipeDBPath);
                 try
                 {
@@ -202,7 +202,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                                 Guard.IsNotNull(data);
 
-                                var jToken = JToken.FromObject(data, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                                var jToken = JToken.FromObject(data, PrivateSetterContractResolver.Serializer);
                                 RemoveMetadata(jToken);
 
                                 recipeCaches[cacheItem.Type.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)] = jToken;
@@ -231,8 +231,8 @@ public class CalibrationCacheProviderServiceImpl(
                 {
                     [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
                     [nameof(CalibrationDtoBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
-                    [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer),
-                    [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer)
+                    [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.Serializer),
+                    [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.Serializer)
                 };
 
                 FileHelper.SerializeOperate(exportData, filePath);
@@ -306,19 +306,19 @@ public class CalibrationCacheProviderServiceImpl(
                         }
 
                         var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
-                        var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                        var data = jToken.ToObject(targetType, PrivateSetterContractResolver.Serializer);
                         Guard.IsNotNull(data);
 
                         int count;
                         if (cacheItem.IsArray)
                         {
                             var array = ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray();
-                            cacheProvider.SetArray(array, cacheItem.Type, cancellationToken);
+                            cacheProvider.SetArray( cacheItem.Type, array,cancellationToken);
                             count = array.Length;
                         }
                         else
                         {
-                            cacheProvider.Set(data, cacheItem.Type, cancellationToken);
+                            cacheProvider.Set(cacheItem.Type, data, cancellationToken);
                             count = 1;
                         }
 
@@ -337,7 +337,7 @@ public class CalibrationCacheProviderServiceImpl(
                 // Import Recipe Caches
                 var recipesCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CacheCollector.RecipeCaches)]);
 
-                var originalRecipeDBPath = recipeCookie.SysRecipeInformationDto.RecipeNosqlRecipeDbDataSource;
+                var originalRecipeDBPath = recipeCookie.SysRecipeInformationDTO.RecipeNosqlRecipeDbDataSource;
                 Guard.IsNotNullOrEmpty(originalRecipeDBPath);
                 try
                 {
@@ -359,7 +359,7 @@ public class CalibrationCacheProviderServiceImpl(
                             var isNewRecipe = false;
                             if (recipe is null)
                             {
-                                recipe = new SysRecipeInformationDto
+                                recipe = new SysRecipeInformationDTO
                                 {
                                     RecipeDbName = recipeName,
                                     DescribeInformation = $"Imported on {DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}",
@@ -383,19 +383,19 @@ public class CalibrationCacheProviderServiceImpl(
                                     }
 
                                     var targetType = cacheItem.IsArray ? cacheItem.Type.MakeArrayType() : cacheItem.Type;
-                                    var data = jToken.ToObject(targetType, PrivateSetterContractResolver.PrivateSetterAndReplaceJsonSerializer);
+                                    var data = jToken.ToObject(targetType, PrivateSetterContractResolver.Serializer);
                                     Guard.IsNotNull(data);
 
                                     int count;
                                     if (cacheItem.IsArray)
                                     {
                                         var array = ObjectHelper.ConvertToArray(data, cacheItem.Type).Cast<object>().ToArray();
-                                        recipeCacheProvider.SetArray(array, cacheItem.Type, cancellationToken);
+                                        recipeCacheProvider.SetArray(cacheItem.Type, array, cancellationToken);
                                         count = array.Length;
                                     }
                                     else
                                     {
-                                        recipeCacheProvider.Set(data, cacheItem.Type, cancellationToken);
+                                        recipeCacheProvider.Set( cacheItem.Type,data, cancellationToken);
                                         count = 1;
                                     }
 

@@ -157,7 +157,7 @@
                                         </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
-                            </GridViewColumn> 
+                            </GridViewColumn>
                         </GridView>
                     </ListView.View>
                 </ListView>

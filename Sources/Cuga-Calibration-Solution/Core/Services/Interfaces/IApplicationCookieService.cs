@@ -13,7 +13,7 @@ public interface IApplicationCookieService
     /// </summary>
     /// <param name="sysUserDto"></param>
     /// <param name="cancellationToken">取消令牌</param>
-    Task UpdateCookieAsync(SysUserDto sysUserDto, CancellationToken cancellationToken);
+    Task UpdateCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken);
 
     /// <summary>
     /// 根据视图模型查找校准项目
@@ -25,7 +25,7 @@ public interface IApplicationCookieService
     /// 根据组件名称查找子菜单
     /// </summary>
     /// <returns>子菜单</returns>
-    List<SysMenuDto> FindSysMenuListByRecursionComponent(string component);
+    List<SysMenuDTO> FindSysMenuListByRecursionComponent(string component);
 
     /// <summary>
     /// 获得光斑暗场中心相对偏差值（晶圆坐标系）

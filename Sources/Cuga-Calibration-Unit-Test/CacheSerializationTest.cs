@@ -204,8 +204,8 @@ public sealed class CacheSerializationTest : IDisposable
         };
 
         // Act
-        var json = JsonConvert.SerializeObject(foo, PrivateSetterContractResolver.PrivateSetterAndReplaceSettings);
-        var deserialized = JsonConvert.DeserializeObject<Foo>(json, PrivateSetterContractResolver.PrivateSetterAndReplaceSettings);
+        var json = JsonConvert.SerializeObject(foo, PrivateSetterContractResolver.Settings);
+        var deserialized = JsonConvert.DeserializeObject<Foo>(json, PrivateSetterContractResolver.Settings);
 
         // Assert
         json.Should().Contain(nameof(Foo.PublicPropertyPublicSetInt));

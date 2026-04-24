@@ -7,16 +7,17 @@ using Core.Models.Models.Fourier;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.WPF.Enums;
 using System.IO;
-using BitmapImage = Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage;
 
 namespace CugaCalibration.ViewModels.Flourier;
 
@@ -298,7 +299,7 @@ public sealed partial class PupilCameraAlignmentViewModel(
     {
         Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", $"{Guid.NewGuid():N}.jpg");
         //var templateFilePath = $"{originImageFilePath}_Template";
-        Cache.BitmapImageDrawableCh1.BitmapImage.Save(Cache.OriginImageFilePath1);
+        Cache.BitmapImageDrawableCh1.BitmapImage.SaveImage(Cache.OriginImageFilePath1);
 
         Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
     }
@@ -335,7 +336,7 @@ public sealed partial class PupilCameraAlignmentViewModel(
     {
         Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", $"{Guid.NewGuid():N}.jpg");
         //var templateFilePath = $"{originImageFilePath}_Template";
-        Cache.BitmapImageDrawableCh2.BitmapImage.Save(Cache.OriginImageFilePath2);
+        Cache.BitmapImageDrawableCh2.BitmapImage.SaveImage(Cache.OriginImageFilePath2);
 
         Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
     }
@@ -371,7 +372,7 @@ public sealed partial class PupilCameraAlignmentViewModel(
     {
         Cache.OriginImageFilePath3 = Path.Combine(ImageFileDirectory, "CH3", $"{Guid.NewGuid():N}.jpg");
         //var templateFilePath = $"{originImageFilePath}_Template";
-        Cache.BitmapImageDrawableCh3.BitmapImage.Save(Cache.OriginImageFilePath3);
+        Cache.BitmapImageDrawableCh3.BitmapImage.SaveImage(Cache.OriginImageFilePath3);
 
         Cache.Ch3Image = Cache.BitmapImageDrawableCh3.BitmapImage;
     }

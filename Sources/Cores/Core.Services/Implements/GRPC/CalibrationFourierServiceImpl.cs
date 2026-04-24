@@ -4,7 +4,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
-using HalconDotNet;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Enums.Medias.Imaging;
@@ -36,7 +35,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         });
     }
 
-    public SxExecuteRet<HImage> GetFourierImage(int channelId)
+    public SxExecuteRet<BitmapImage> GetFourierImage(int channelId)
     {
         throw new NotImplementedException();
     }

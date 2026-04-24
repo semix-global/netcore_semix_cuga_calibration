@@ -13,14 +13,14 @@ public static class ApplicationProvider
         services.AddSingleton(sp =>
         {
             var applicationName = sp.GetRequiredService<string>();
-            var sysUserDto = sp.GetRequiredService<SysUserDto>();
+            var sysUserDto = sp.GetRequiredService<SysUserDTO>();
 
             var applicationCookie = new ApplicationCookie
             {
                 ApplicationName = applicationName,
                 SysUser = sysUserDto,
                 CalibrationMenu = new CalibrationMenu(),
-                TitleMenu = new SysMenuDto()
+                TitleMenu = new SysMenuDTO()
             };
             return applicationCookie;
         }); // cookie

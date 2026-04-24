@@ -26,6 +26,7 @@
             <converts:MultiProductivityInformationAndLaserLightInformationStatusConvert x:Key="MultiProductivityInformationAndLaserLightInformationStatusConvert" />
             <converts:MultiProductivityInformationToOpticsApodizationsCalibrationStatusesConvert x:Key="MultiProductivityInformationToOpticsApodizationsCalibrationStatusesConvert" />
             <darkField:DarkFieldRawScanImageDTOToBitmapImageDrawableConverter x:Key="DarkFieldRawScanImageDTOToBitmapImageDrawableConverter" />
+            <darkField:DarkFieldImageDTOToBitmapImageDrawableConverter x:Key="DarkFieldImageDTOToBitmapImageDrawableConverter" />
             <valueConverters:ValueConverterGroup x:Key="IntIs0ToVisibilityConverter">
                 <valueConverters:IntegerToBoolConverter TrueValue="0" FalseValue="-999" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />

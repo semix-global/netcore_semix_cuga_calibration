@@ -14,9 +14,9 @@ public class SysRecipeInformationDtoFactory(IOptions<ApplicationSetting> options
 {
     private readonly ApplicationSetting _settings = options.Value;
 
-    public SysRecipeInformationDto Create(string recipeName, string? description = null)
+    public SysRecipeInformationDTO Create(string recipeName, string? description = null)
     {
-        return new SysRecipeInformationDto
+        return new SysRecipeInformationDTO
         {
             RecipeDbName = recipeName,
             DescribeInformation = description ?? recipeName,
@@ -24,7 +24,7 @@ public class SysRecipeInformationDtoFactory(IOptions<ApplicationSetting> options
         };
     }
 
-    public SysRecipeInformationDto CreateFrom(SysRecipeInformationDto source, string newName)
+    public SysRecipeInformationDTO CreateFrom(SysRecipeInformationDTO source, string newName)
     {
         var cloned = source.Clone();
         cloned.RecipeDbName = newName;

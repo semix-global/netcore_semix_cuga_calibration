@@ -39,7 +39,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
     {
         var cibInformations =
             (
-                from pmtId in Enumerable.Range(1, 15)
+                from pmtId in Enumerable.Range(6, 5)
                 from channelId in Enumerable.Range(1, 3)
                 select CIBInformation.Default.Clone().AdaptIn((pmtId, channelId, true))
             )
@@ -215,7 +215,15 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
             var cibInformation = cibInformations[i];
             var (size, _, _) = RAWImageFactory.GetSize(bytes);
 
-            results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
+            try
+            {
+                results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTVoltage, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));

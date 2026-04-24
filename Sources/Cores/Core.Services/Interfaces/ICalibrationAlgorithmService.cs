@@ -2,6 +2,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using HalconDotNet;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Services.Interfaces;
@@ -20,21 +21,21 @@ public interface ICalibrationAlgorithmService
     /// </summary>
     /// <param name="image">图片</param>
     /// <returns>清晰度</returns>
-    double GetQuality(HImage image);
+    double GetQuality(BitmapImage image);
 
     /// <summary>
     /// 获取图片清晰度, 适应彩色和灰度图像, 方差越大, 说明图像越清晰
     /// </summary>
     /// <param name="image">图片</param>
     /// <returns>清晰度</returns>
-    double GetDarkFieldQuality(HImage image);
+    double GetDarkFieldQuality(BitmapImage image);
 
     /// <summary>
     /// 获得暗场图片清晰度得分
     /// </summary>
     /// <param name="image">图片</param>
     /// <returns>清晰度</returns>
-    (double XQuality, double YQuality) GetXyQuality(HImage image);
+    (double XQuality, double YQuality) GetXyQuality(BitmapImage image);
 
     /// <summary>
     /// 获得暗场图片调制传递函数
@@ -42,7 +43,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="image">图片</param>
     /// <param name="roiRect">ROI</param>
     /// <returns>MTF</returns>
-    (double MtfX, double MtfY) ModulationTransferFunction(HImage image, Rect roiRect);
+    (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect);
 
     /// <summary>
     /// Best Focus
@@ -51,7 +52,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="startECS">开始ECS</param>
     /// <param name="stopECS">停止ECS</param>
     /// <returns>Best Focus结果</returns>
-    BestFocus GetBestFocus(HImage image, double startECS, double stopECS);
+    BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS);
 
     #endregion 清晰度
 
@@ -65,7 +66,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="drawingImage">绘图图片</param>
     /// <param name="angle">网格水平夹角</param>
     /// <returns>像素尺寸um</returns>
-    Size GetPixelSize(HImage image, Size standardMaskSquareSize, out HImage drawingImage, out double angle);
+    Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle);
 
     /// <summary>
     /// 传入图片获取Y像素尺寸um
@@ -74,7 +75,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="standardMaskSquareYSize">标准掩膜方块的Y尺寸um</param>
     /// <returns>Y像素尺寸um</returns>
     [Obsolete]
-    double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize);
+    double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize);
 
     /// <summary>
     /// 传入暗场图片获取Y像素尺寸um
@@ -83,7 +84,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="standardMaskSquareYSize">标准掩膜方块的Y尺寸um</param>
     /// <param name="drawingImage">结果可视化图像</param>
     /// <returns>Y像素尺寸um</returns>
-    double GetYPixelSize(DarkFieldImageDTO image, double standardMaskSquareYSize, out HImage drawingImage);
+    double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage);
 
     #endregion 尺寸
 
@@ -98,7 +99,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="rect">尺寸</param>
     /// <param name="templateImage">模板图片</param>
     /// <returns>是否成功</returns>
-    bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, string templateFilePath, Rect rect, out HImage templateImage);
+    bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, out BitmapImage templateImage);
 
     /// <summary>
     /// 读取模板
@@ -128,7 +129,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="score">匹配得分</param>
     /// <param name="angle">匹配角度</param>
     /// <returns>是否成功</returns>
-    bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HImage image, HTuple templateId, out Point markPoint, out Point offset, out double score, out double angle);
+    bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, out Point markPoint, out Point offset, out double score, out double angle);
 
     #region Projection
 
@@ -139,7 +140,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="templateFilePath">模板路径</param>
     /// <param name="templateImage">模板图片</param>
     /// <returns>是否成功</returns>
-    bool TryGenerateProjectionTemplate(HImage image, string templateFilePath, out HImage templateImage);
+    bool TryGenerateProjectionTemplate(BitmapImage image, string templateFilePath, out BitmapImage templateImage);
 
     /// <summary>
     /// 读取模板
@@ -167,7 +168,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="point">位置px</param>
     /// <param name="offset">与中心偏移</param>
     /// <returns>是否成功</returns>
-    bool TryProjectionTemplateMatchToOffset(HImage image, HTuple templateXId, HTuple templateYId, out Point point, out Point offset);
+    bool TryProjectionTemplateMatchToOffset(BitmapImage image, HTuple templateXId, HTuple templateYId, out Point point, out Point offset);
 
     #endregion Projection
 
@@ -178,9 +179,9 @@ public interface ICalibrationAlgorithmService
     /// <summary>
     ///  RAW转线性图（含3*3滤波）
     /// </summary>
-    /// <param name="darkFieldRawImage"></param>
+    /// <param name="image"></param>
     /// <returns></returns>
-    HImage DarkFieldRawImageToLinearImage(HImage darkFieldRawImage);
+    BitmapImage DarkFieldRawImageToLinearImage(BitmapImage image);
 
     /// <summary>
     /// 计算PMTGain数据
@@ -195,7 +196,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="shinyWaferImage">傅里叶相机的ShinyWafer图片</param>
     /// <param name="rotateAngle">图像旋转角度 符号为正：逆时针 符号为负：顺时针</param>
     /// <returns>(结果绘图图像,D型光斑像素直径长度,D型光斑图像水平夹角,D型光斑中心坐标，反射光光斑中心坐标)</returns>
-    (HImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(HImage hazeImage, HImage shinyWaferImage,
+    (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage,
         double rotateAngle);
 
     #endregion 暗场
@@ -261,7 +262,7 @@ public interface ICalibrationAlgorithmService
 
     #region 图片灰度值计算，直方图
 
-    HTuple GetPictureGray(HImage image, HTuple bit, out HTuple hv_Histo);
+    HTuple GetPictureGray(BitmapImage image, HTuple bit, out HTuple hv_Histo);
 
     #endregion 图片灰度值计算，直方图
 }

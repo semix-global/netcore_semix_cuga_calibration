@@ -9,6 +9,7 @@ using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
 using Local.SQL.Cache.Providers.Extensions;
@@ -20,6 +21,7 @@ using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
@@ -824,13 +826,15 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         var itemItem = CalibratingItem.Items.Single(t => t.CIBInformation == cibInformations[index]);
 
                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImage.Image.Save(imageFilePath);
+                        darkFieldImage.Image.SaveImage(imageFilePath);
+
+                        using var hImage = darkFieldImage.Image.ToHImage();
 
                         var itemItemData = new AODUniformityDTOItem.Item
                         {
                             Window = [.. CalibratingItem.Item.Window],
                             PrescanAODWaveformProfiles = prescanAODWaveformProfiles,
-                            ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
+                            ImageHorizontalProjects = hImage.GetHorizontalProjects(),
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
                         };
@@ -1159,9 +1163,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             cancellationToken);
 
         var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-        darkFieldImage.Image.Save(imageFilePath);
+        darkFieldImage.Image.SaveImage(imageFilePath);
 
-        windowItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+        using var hImage = darkFieldImage.Image.ToHImage();
+        windowItem.ImageHorizontalProjects = hImage.GetHorizontalProjects();
         if (isNeedReverse && CalibratingItem.IsReverse) windowItem.ImageHorizontalProjects = [.. windowItem.ImageHorizontalProjects.Reverse()];
 
         windowItem.ImageFilePath = imageFilePath;

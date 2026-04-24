@@ -6,9 +6,9 @@ using Core.Models.Models;
 using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -360,7 +360,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                         isCustomAFParam: true);
 
                     var darkFieldFilePath = $"{ImageFileDirectory}\\Verify_({globalFocusOffsetDTO.ProductivityInformation})_Guid({HtmlLogUniqueId}).jpg";
-                    darkFieldImageDto.Image.Save(darkFieldFilePath);
+                    darkFieldImageDto.Image.SaveImage(darkFieldFilePath);
 
                     var verifyQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
                     selectedReviewItem.RuntimeAfCalibrationResultDTO.DarkFieldFilePath = darkFieldFilePath;

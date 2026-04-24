@@ -8,14 +8,14 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 public sealed partial class OpticsBestFocusResult : ObservableObject
 {
     [ObservableProperty]
-    private DarkFieldRawScanImageDTO _darkFieldRawScanImage = new();
+    private DarkFieldImageDTO _darkFieldImage = new();
 
     [ObservableProperty]
     private BestFocus _bestFocus = new();
 
     public object ToHtmlAnonymous() => new
     {
-        DarkFieldRawScanImageDTO = new HtmlQuote(DarkFieldRawScanImage.ToHtmlAnonymous()),
+        DarkFieldRawScanImageDTO = new HtmlQuote(DarkFieldImage.ToHtmlAnonymous()),
         XStrehlRatioScatterPlotControl = new HtmlContainer([.. BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
         YStrehlRatioScatterPlotControl = new HtmlContainer([.. BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
     };

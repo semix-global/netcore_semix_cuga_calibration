@@ -5,11 +5,9 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Engine.Interface;
-using HalconDotNet;
-using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
@@ -34,14 +32,27 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         }, false);
     }
 
-    public SxExecuteRet<HImage> GetFourierImage(int channelId)
+    public SxExecuteRet<BitmapImage> GetFourierImage(int channelId)
     {
         var sxExecuteRet = Invoke(() => Service!.GetFFReviewImg(channelId));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<HImage>(sxExecuteRet.ErrorMsg, HalconFactory.EmptyHImage);
 
-        using var bitmapImage = new BitmapImage(sxExecuteRet.Anything);
+#pragma warning disable IDE0079
+#pragma warning disable IDISP001
 
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage.ToHImage());
+        var defaultBitmapImage = BitmapImage.Random(2448, 2048, 10);
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, defaultBitmapImage);
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
+
+
+#pragma warning disable IDE0079
+#pragma warning disable IDISP001
+
+        var bitmapImage = new BitmapImage(sxExecuteRet.Anything);
+        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
+
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
     }
 
     public SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
