@@ -127,13 +127,13 @@ public interface ICalibrationOpticsService
     SxExecuteRet<bool> SetPolarizationMode(OpticsPolarizationModeEnum opticsPolarizationModeEnum);
 
     /// <summary>
-    /// 切换所有采集偏振
+    /// 获取所有采集偏振
     /// </summary>
     /// <returns>偏振</returns>
     SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode();
 
     /// <summary>
-    /// 获取所有采集偏振
+    /// 切换所有采集偏振
     /// </summary>
     /// <param name="opticsCollectorPolarizationModeEnum">偏振</param>
     /// <returns>是否成功</returns>
