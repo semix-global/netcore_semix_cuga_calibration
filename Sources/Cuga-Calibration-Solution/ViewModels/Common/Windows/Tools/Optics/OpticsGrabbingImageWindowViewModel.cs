@@ -8,8 +8,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
-using Local.SQL.Cache.Providers.Extensions;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Modules;
@@ -47,12 +46,12 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
     public Guid HtmlLogUniqueId { get; set; }
 
     [ObservableProperty]
-    private ApplicationCookie _applicationCookie = new();
+    public partial ApplicationCookie ApplicationCookie { get; set; }
 
     public abstract TCache Cache { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<DarkFieldRawScanImageDTO>> _results = [];
+    public partial IReadOnlyList<IReadOnlyList<DarkFieldImageDTO>> Results { get; set; } = [];
 
     protected AbstractOpticsGrabbingImageWindowViewModel()
     {
@@ -76,11 +75,11 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
         Cache = CacheProvider.GetOrDefault<TCache>();
     }).ConfigureAwait(false);
 
-    protected virtual bool InvokeDarkFieldRawScanImageDTO(DarkFieldRawScanImageDTO darkFieldRawScanImage)
+    protected virtual bool InvokeDarkFieldImageDTO(DarkFieldImageDTO darkFieldImage)
     {
-        Logger.LogHtmlInformation($"{darkFieldRawScanImage.CIBInformation}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+        Logger.LogHtmlInformation($"{darkFieldImage.CIBInformation}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
-            Result = new HtmlBullet(darkFieldRawScanImage.ToHtmlAnonymous())
+            Result = new HtmlBullet(darkFieldImage.ToHtmlAnonymous())
         }), HtmlLogUniqueId.LoggingHtml());
 
         return true;
@@ -293,14 +292,9 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
 
             foreach (var darkFieldImage in darkFieldImages)
             {
-                using var _ = darkFieldImage;
-            }
-
-            foreach (var darkFieldImage in darkFieldImages)
-            {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
+                boolList.Add(InvokeDarkFieldImageDTO(darkFieldImage));
             }
 
             Results = [.. Results, darkFieldImages];
@@ -351,14 +345,15 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 isAutoFocus: Cache.IsAutoFocus,
                 isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
 
-            foreach (var darkFieldRawScanImage in darkFieldRawScanImages)
+            var darkFieldImages = darkFieldRawScanImages.Select(t => new DarkFieldImageDTO().AdaptIn(t)).ToList();
+            foreach (var darkFieldImage in darkFieldImages)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldRawScanImage));
+                boolList.Add(InvokeDarkFieldImageDTO(darkFieldImage));
             }
 
-            Results = [.. Results, darkFieldRawScanImages];
+            Results = [.. Results, darkFieldImages];
         }
 
         return boolList.All(t => t);
@@ -411,14 +406,9 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
 
             foreach (var darkFieldImage in darkFieldImages)
             {
-                using var _ = darkFieldImage;
-            }
-
-            foreach (var darkFieldImage in darkFieldImages)
-            {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
+                boolList.Add(InvokeDarkFieldImageDTO(darkFieldImage));
             }
 
             Results = [.. Results, darkFieldImages];
@@ -468,14 +458,9 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
 
             foreach (var darkFieldImage in darkFieldImages)
             {
-                using var _ = darkFieldImage;
-            }
-
-            foreach (var darkFieldImage in darkFieldImages)
-            {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldImage));
+                boolList.Add(InvokeDarkFieldImageDTO(darkFieldImage));
             }
 
             Results = [.. Results, darkFieldImages];
@@ -491,6 +476,8 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
     {
         return await Task.Run(async () =>
         {
+            Dispose();
+
             var title = $"Grabbing Image By {opticsGrabbingImageTypeEnum}";
             var isSuccess = false;
             try
@@ -646,6 +633,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
     {
         try
         {
+            Dispose();
             Results = [];
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
@@ -657,6 +645,17 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
         }
 
         CloseView(true);
+    }
+
+    private void Dispose()
+    {
+        foreach (var temps in Results)
+        {
+            foreach (var darkFieldImageDTO in temps)
+            {
+                using var _ = darkFieldImageDTO;
+            }
+        }
     }
 }
 

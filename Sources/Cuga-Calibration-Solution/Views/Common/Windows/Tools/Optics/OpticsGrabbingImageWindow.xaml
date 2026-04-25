@@ -491,7 +491,7 @@
                                             Style="{StaticResource BorderRegion}">
                                         <ListBox HorizontalContentAlignment="Stretch" ItemsSource="{Binding .}">
                                             <ListBox.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type darkField:DarkFieldRawScanImageDTO}">
+                                                <DataTemplate DataType="{x:Type darkField:DarkFieldImageDTO}">
                                                     <Border Height="260"
                                                             Margin="-5,2"
                                                             Padding="5"
@@ -517,7 +517,7 @@
                                                                 </TextBlock>
                                                             </ScrollViewer>
                                                             <wpfImageViewer:ImageViewerCanvas Grid.Row="1"
-                                                                                              BitmapImageDrawable="{Binding Mode=OneWay, Converter={StaticResource DarkFieldRawScanImageDTOToBitmapImageDrawableConverter}}"
+                                                                                              BitmapImageDrawable="{Binding Mode=OneWay, Converter={StaticResource DarkFieldImageDTOToBitmapImageDrawableConverter}}"
                                                                                               IsShowCrossLine="True"
                                                                                               IsToggleAddOrModifyRectROIDrawable="False" />
                                                         </Grid>

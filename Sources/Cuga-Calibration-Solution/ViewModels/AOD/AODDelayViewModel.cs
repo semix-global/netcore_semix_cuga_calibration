@@ -6,12 +6,13 @@ using Core.Models.Models;
 using Core.Models.Models.AOD.Delay;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -359,11 +360,13 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                             cancellationToken);
 
                         var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.AODDelay:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImage.Image.Save(imageFilePath);
+                        darkFieldImage.Image.SaveImage(imageFilePath);
 
                         itemItem.ImageFilePath = imageFilePath;
                         itemItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
-                        itemItem.PMTValue = darkFieldImage.Image.GetIntensity().Average;
+
+                        using var hImage = darkFieldImage.Image.ToHImage();
+                        itemItem.PMTValue = hImage.GetIntensity().Average;
 
                         CalibratingItem.Items = [.. ((IReadOnlyList<AODDelayDTOItem>)[.. CalibratingItem.Items, itemItem]).OrderBy(t => t.AODDelay)];
 

@@ -36,7 +36,7 @@
                         <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <TextBlock Text="{Binding RecipeCookie.SysRecipeInformationDto.RecipeDbName, Mode=OneWay}"
+                <TextBlock Text="{Binding RecipeCookie.SysRecipeInformationDTO.RecipeDbName, Mode=OneWay}"
                            HorizontalAlignment="Center"
                            FontSize="13"
                            FontWeight="Bold"

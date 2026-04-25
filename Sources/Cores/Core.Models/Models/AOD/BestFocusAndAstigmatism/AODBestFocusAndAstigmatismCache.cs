@@ -5,18 +5,13 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
 public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase
 {
-    [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
-
-    [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum;
-
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -35,26 +30,32 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase
     [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um
 
-    [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
-
-    [ObservableProperty]
-    private bool _isDarkFieldAlignment;
-
-    [ObservableProperty]
-    private IReadOnlyList<int> _pMTIds = [];
-
     /// <summary>
-    /// 采样率 count/ms
+    /// 迭代次数
     /// </summary>
     [ObservableProperty]
-    private double _traceBufferSamplingRate = 1d;
+    private int _times = 5;
+
+    [ObservableProperty]
+    private double _xQualityThreshold;
+
+    [ObservableProperty]
+    private double _yQualityThreshold;
+
+    [ObservableProperty]
+    private double _xYBestFocusEcsOffsetThreshold;
 }
 
 public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
-    private bool _isMultiPMTOnceCollection = true;
+    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    private CalChipSiteModelEnum _calChipSiteModelEnum;
+
+    [ObservableProperty]
+    private bool _isDarkFieldAlignment;
 
     [ObservableProperty]
     private AlgorithmImageQualityTypeEnum _algorithmImageQualityTypeEnum;
@@ -66,19 +67,22 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
     private CIBConfiguration _cIBConfiguration = new();
 
     [ObservableProperty]
+    private CIBInformation _cIBInformation = CIBInformation.Default;
+
+    [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private ImageCollectionConfiguration _imageCollectionConfiguration = new() { IsAutoFocus = false, IsForward = true, IsCustomEcs = false };
+    private Point _startPosition;
 
     [ObservableProperty]
-    private double _zMinLimit;
+    private double _scanLength;
 
     [ObservableProperty]
-    private double _zMaxLimit;
+    private double _centerECS;
 
     [ObservableProperty]
-    private double _centerPositionAfEcs;
+    private double _rangeECS;
 
     #region 频率参数
 
@@ -89,6 +93,12 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
     private int _spectralDensityStepCount;
 
     /// <summary>
+    /// 起始频率变化率 
+    /// </summary>
+    [ObservableProperty]
+    private double _startSpectralDensity;
+
+    /// <summary>
     /// Chirp AOD波形频率增长步距 
     /// </summary>
     [ObservableProperty]
@@ -96,28 +106,9 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
 
     #endregion 频率参数
 
-    #region 波形参数
-
     /// <summary>
     /// ChirpAod默认波形生成参数
     /// </summary>
     [ObservableProperty]
     private GenerateChirpAODWaveformParam _defaultGenerateChirpAODWaveformParam = new();
-
-    /// <summary>
-    /// 起始频率变化率 
-    /// </summary>
-    [ObservableProperty]
-    private double _startSpectralDensity;
-
-    #endregion 波形参数
-
-    [ObservableProperty]
-    private double _xQualityThreshold;
-
-    [ObservableProperty]
-    private double _yQualityThreshold;
-
-    [ObservableProperty]
-    private double _xYBestFocusEcsOffsetThreshold;
 }

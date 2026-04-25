@@ -5,10 +5,8 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.Focus;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Extensions;
-using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -507,8 +505,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         microscopeFocusItemDto.FilePath =
             $"{microscopeFocusItemDto.FilePath}\\Index({microscopeFocusItemDto.Index})_Ecs({microscopeFocusItemDto.EcsValue:F3})_Quality({microscopeFocusItemDto.Quality:F3})_Guid({HtmlLogUniqueId}).jpg";
 
-        image.Save(microscopeFocusItemDto.FilePath);
-        using var localImage = HalconFactory.CreateImage(microscopeFocusItemDto.FilePath);
+        image.SaveImage(microscopeFocusItemDto.FilePath);
         var quality = ReviewViewModel.GetQuality(image);
         microscopeFocusItemDto.Quality = quality;
         SynchronizationContextProvider.Send(() =>

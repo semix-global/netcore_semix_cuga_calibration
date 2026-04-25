@@ -7,12 +7,12 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Recipe.Models;
 using Core.Recipe.Models.Wafer.ReticleMask;
+using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -324,7 +324,7 @@ public sealed partial class RecipeReticleMaskViewModel(
 
             var templateFilePath = $@"{TemplateFileDirectory}\{EditRecipeTypeName}\DarkField\Ncc\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeDarkFieldTemplateDTO.ProductivityInformation}_{Guid.NewGuid()}";
             var templateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
-            darkFieldImageDto.Image.Save(templateImageFilePath);
+            darkFieldImageDto.Image.SaveImage(templateImageFilePath);
 
             createDarkImageTemplateWindowViewModel.ImageFilePath = templateImageFilePath;
             createDarkImageTemplateWindowViewModel.TemplateFilePath = templateFilePath;

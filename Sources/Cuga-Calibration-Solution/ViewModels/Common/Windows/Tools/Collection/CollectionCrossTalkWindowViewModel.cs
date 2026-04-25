@@ -7,12 +7,13 @@ using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.View;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
@@ -147,8 +148,9 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                     cancellationToken);
 
                 var path1 = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                PMT8ChPixselBefore[i - 1] = darkFieldImage.Image.GetIntensity().Average;
-                darkFieldImage.Image.Save(path1);
+                using var hImage = darkFieldImage.Image.ToHImage();
+                PMT8ChPixselBefore[i - 1] = hImage.GetIntensity().Average;
+                darkFieldImage.Image.SaveImage(path1);
                 centerOpticsPaths[i - 1] = path1;
             }
 
@@ -194,8 +196,9 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                     cancellationToken);
 
                 var path1 = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                PMT8ChPixselAfter[i - 1] = darkFieldImage.Image.GetIntensity().Average;
-                darkFieldImage.Image.Save(path1);
+                using var hImage = darkFieldImage.Image.ToHImage();
+                PMT8ChPixselAfter[i - 1] = hImage.GetIntensity().Average;
+                darkFieldImage.Image.SaveImage(path1);
                 allOpticsPaths[i - 1] = path1;
             }
 

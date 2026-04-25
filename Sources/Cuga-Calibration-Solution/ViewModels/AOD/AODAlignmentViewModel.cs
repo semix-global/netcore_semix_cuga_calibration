@@ -7,9 +7,9 @@ using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -18,6 +18,7 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -368,11 +369,13 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                         cancellationToken);
 
                     var imageFilePath = Path.Combine(detectImageDirectory, $"{itemItem.PrescanFrequency:0.###}MHz", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    darkFieldImage.Image.Save(imageFilePath);
+                    darkFieldImage.Image.SaveImage(imageFilePath);
 
                     itemItem.ImageFilePath = imageFilePath;
                     itemItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
-                    itemItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+
+                    using var hImage = darkFieldImage.Image.ToHImage();
+                    itemItem.ImageHorizontalProjects = hImage.GetHorizontalProjects();
 
                     CalibratingItem.Items = [.. CalibratingItem.Items, itemItem];
 

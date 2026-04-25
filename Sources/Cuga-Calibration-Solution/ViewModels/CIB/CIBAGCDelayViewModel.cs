@@ -10,8 +10,8 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -19,6 +19,7 @@ using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
@@ -356,9 +357,10 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                         using var _ = darkFieldImage;
 
                         var imageFilePath = Path.Combine(detectImageDirectory, cibInformations[index].ToString(), $"{coefficient:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImage.Image.Save(imageFilePath);
+                        darkFieldImage.Image.SaveImage(imageFilePath);
 
-                        var average = darkFieldImage.Image.GetIntensity().Average;
+                        using var hImage = darkFieldImage.Image.ToHImage();
+                        var average = hImage.GetIntensity().Average;
                         averages[index] = average;
 
                         Logger.LogHtmlInformation(cibInformations[index].ToString(), HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
@@ -666,8 +668,10 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
             var itemItem = items[index];
 
             var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-            darkFieldImage.Image.Save(imageFilePath);
-            var horizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+            darkFieldImage.Image.SaveImage(imageFilePath);
+
+            using var hImage = darkFieldImage.Image.ToHImage();
+            var horizontalProjects = hImage.GetHorizontalProjects();
             var itemItemData = new CIBAGCDelayDTOItem.Item
             {
                 ImageHorizontalProjects =

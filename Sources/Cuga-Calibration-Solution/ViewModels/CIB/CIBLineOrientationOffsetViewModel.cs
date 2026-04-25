@@ -10,11 +10,10 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.SQL.Cache.Providers.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -409,7 +408,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             else
             {
                 var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
-                darkFieldImageDto.Image.Save(filePath);
+                darkFieldImageDto.Image.SaveImage(filePath);
                 CreateDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
                 CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
@@ -745,7 +744,11 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false),
+                .. Calibrations
+                    .Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false)
+                    .Where(t =>
+                        t.ProductivityInformation != dto.ProductivityInformation
+                        || ApplicationCookie.CIBInformations.Any(tt => tt.PMTId == t.PmtId)),
                 dto
             ];
         }

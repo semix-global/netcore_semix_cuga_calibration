@@ -204,10 +204,18 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
 
     public SxExecuteRet<OpticsCollectorPolarizationModeEnum> GetCollectorPolarizationMode()
     {
-        var sxExecuteRet = Invoke(() => Service?.ReadNDFType(CgNDFCHEnum.ALL));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<OpticsCollectorPolarizationModeEnum>(sxExecuteRet.ErrorMsg, default);
+        var sxExecuteRetCh1 = Invoke(() => Service?.ReadNDFType(CgNDFCHEnum.CH1_NDF));
+        if (sxExecuteRetCh1.IsSuccess == false) return SxExecuteRetHelper.CreateError<OpticsCollectorPolarizationModeEnum>(sxExecuteRetCh1.ErrorMsg, default);
+        var sxExecuteRetCh2 = Invoke(() => Service?.ReadNDFType(CgNDFCHEnum.CH2_NDF));
+        if (sxExecuteRetCh2.IsSuccess == false) return SxExecuteRetHelper.CreateError<OpticsCollectorPolarizationModeEnum>(sxExecuteRetCh2.ErrorMsg, default);
+        var sxExecuteRetCh3 = Invoke(() => Service?.ReadNDFType(CgNDFCHEnum.CH3_NDF));
+        if (sxExecuteRetCh3.IsSuccess == false) return SxExecuteRetHelper.CreateError<OpticsCollectorPolarizationModeEnum>(sxExecuteRetCh3.ErrorMsg, default);
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.ToCollectorPolarizationModeEnum());
+        var ch1 = sxExecuteRetCh1.Anything.ToCollectorPolarizationModeEnum();
+        var ch2 = sxExecuteRetCh2.Anything.ToCollectorPolarizationModeEnum();
+        var ch3 = sxExecuteRetCh3.Anything.ToCollectorPolarizationModeEnum();
+
+        return SxExecuteRetHelper.CreateSuccess(new[] { ch1, ch2, ch3 }.Min());
     }
 
     public SxExecuteRet<bool> SetCollectorPolarizationMode(OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)

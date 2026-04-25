@@ -8,12 +8,11 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.Relay;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -508,7 +507,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
                             var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
 
                             var filePath = Path.Combine(currentDetectImageDirectory, $"{ecs:0.###}ECS_{quality:0.###}Quality_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                            darkFieldImage.Image.Save(filePath);
+                            darkFieldImage.Image.SaveImage(filePath);
 
                             itemItemData.Quality = quality;
                             itemItemData.ImageFilePath = filePath;

@@ -1,5 +1,5 @@
 using Core.Models.Models;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 
 namespace CugaCalibration.Core.Services.Interfaces;
 

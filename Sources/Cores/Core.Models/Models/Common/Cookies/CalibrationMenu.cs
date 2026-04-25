@@ -9,7 +9,7 @@ namespace Core.Models.Models.Common.Cookies;
 public sealed partial class CalibrationMenu : ObservableObject
 {
     [ObservableProperty]
-    private SysMenuDto _sysMenuDto = new();
+    private SysMenuDTO _sysMenuDTO = new();
 
     [ObservableProperty]
     private bool _isCalibrated;

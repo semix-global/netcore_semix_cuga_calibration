@@ -7,10 +7,9 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -397,8 +396,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                     PixelSize = pixelSize
                 };
 
-                image.Save(microscopePixelSizeItemDto.OriginFilePath);
-                drawingImage.Save(microscopePixelSizeItemDto.FilePath);
+                image.SaveImage(microscopePixelSizeItemDto.OriginFilePath);
+                drawingImage.SaveImage(microscopePixelSizeItemDto.FilePath);
 
                 var htmlBulletList = new HtmlBullet(new
                 {

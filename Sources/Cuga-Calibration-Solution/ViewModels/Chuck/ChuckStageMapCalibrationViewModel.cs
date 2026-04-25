@@ -17,13 +17,12 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.PixelSize;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -458,7 +457,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         else
         {
             var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
-            darkFieldImageDto.Image.Save(filePath);
+            darkFieldImageDto.Image.SaveImage(filePath);
             createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
             createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.TemplateFilePath;
 

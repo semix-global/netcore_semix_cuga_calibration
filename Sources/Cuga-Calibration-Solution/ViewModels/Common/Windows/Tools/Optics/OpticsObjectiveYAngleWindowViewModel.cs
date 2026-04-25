@@ -11,16 +11,14 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using HalconDotNet;
 using Local.SQL.Cache.Providers.Bases;
-using Local.SQL.Cache.Providers.Extensions;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -247,8 +245,8 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
             }), HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
-            HImage? hazeFourierImage = null;
-            HImage? shinyWaferFourierImage = null;
+            BitmapImage? hazeFourierImage = null;
+            BitmapImage? shinyWaferFourierImage = null;
             try
             {
                 Cache.PrescanAODWaveformResultFilePath = string.Empty;
@@ -281,7 +279,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     hazeFourierImage = fourierViewModel.GetFourierImage(Cache.ChannelId);
 
                     var resultHazeImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    hazeFourierImage.Save(resultHazeImageFilePath);
+                    hazeFourierImage.SaveImage(resultHazeImageFilePath);
                     Cache.Result.HazeImageFilePath = resultHazeImageFilePath;
 
                     logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -319,7 +317,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     shinyWaferFourierImage = fourierViewModel.GetFourierImage(Cache.ChannelId);
 
                     var resultShinyWaferImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    shinyWaferFourierImage.Save(resultShinyWaferImageFilePath);
+                    shinyWaferFourierImage.SaveImage(resultShinyWaferImageFilePath);
                     Cache.Result.ShinyWaferImageFilePath = resultShinyWaferImageFilePath;
 
                     logger.LogHtmlInformation("ShinyWafer", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -350,7 +348,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 var resultImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 using var _ = drawingImage;
-                drawingImage.Save(resultImageFilePath);
+                drawingImage.SaveImage(resultImageFilePath);
                 Cache.Result.ResultImageFilePath = resultImageFilePath;
 
                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(Cache.Result.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());

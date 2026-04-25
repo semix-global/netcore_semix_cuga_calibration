@@ -12,6 +12,7 @@
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:bestFocusAndAstigmatism="clr-namespace:Core.Models.Models.AOD.BestFocusAndAstigmatism;assembly=Core.Models"
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+             xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:AODBestFocusAndAstigmatismViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -34,7 +35,7 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
+                           Status="{Binding Cache.Item.MicroscopeLensInformation.LensName}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Productivity Information: "
@@ -46,281 +47,152 @@
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="CIB Information: "
-                           Status="{Binding Cache.CIBInformation}"
+                           Status="{Binding Cache.Item.CIBInformation}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="Common Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                            <hc:ComboBox HorizontalAlignment="Left"
+                                         hc:TitleElement.TitleWidth="220"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="Algorithm Type: "
+                                         SelectedItem="{Binding Cache.Item.AlgorithmImageQualityTypeEnum}"
+                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmImageQualityTypeEnum}}}">
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                            </hc:ComboBox>
+                            <hc:NumericUpDown hc:TitleElement.Title="Times: "
+                                              hc:TitleElement.TitleWidth="220"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              Increment="1"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.Times}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="XY Best Focus Ecs Offset Threshold: "
+                                              hc:TitleElement.TitleWidth="220"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              Minimum="0"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.XYBestFocusEcsOffsetThreshold}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="X Axis Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding Cache.Item.StartPosition, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.TitleWidth="220"
+                                 hc:TitleElement.Title="Start Bright Field Position(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Cache.Item.ScanLength}"
+                                 hc:TitleElement.TitleWidth="220"
+                                 hc:TitleElement.Title="Scan Length(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <StackPanel>
+                            <TextBlock Text="Z Axis Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
+                                          hc:TitleElement.Title="Center ECS: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.CenterECS}" />
+                        <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
+                                          hc:TitleElement.Title="Range ECS(±ecs): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.RangeECS}" />
+                        <StackPanel>
+                            <TextBlock Text="Chirp AOD Wave Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding Cache.Item.DefaultGenerateChirpAODWaveformParam.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}"
+                                 hc:TitleElement.TitleWidth="220"
+                                 hc:TitleElement.Title="Default SpectralDensity(MHz/mm): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
+                                          hc:TitleElement.Title="Start SpectralDensity(MHz/mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StartSpectralDensity}" />
+                        <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
+                                          hc:TitleElement.Title="Step SpectralDensity(MHz/mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StepSpectralDensity}" />
+                        <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
+                                          hc:TitleElement.Title="Step Count: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:Increment="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.SpectralDensityStepCount}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:TextBox Text="{Binding CalibratingItem.ResultDTO.SpectralDensity, StringFormat='0.###', Mode=OneWay}"
+                                    hc:TitleElement.TitleWidth="220"
+                                    hc:TitleElement.Title="Astigmatism Spectral Density(Mhz/mm): "
+                                    hc:TitleElement.TitlePlacement="Left"
+                                    Background="{StaticResource SecondaryRegionBrush}"
+                                    Style="{StaticResource TextBoxExtend}"
+                                    IsReadOnly="True" />
 
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <StackPanel>
-                                <TextBlock Text="Common Param"
-                                           HorizontalAlignment="Center"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Style="{StaticResource TextBlockDefaultInfo}" />
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Multiple PMT Once Collection: "
-                                               Width="220"
-                                               VerticalAlignment="Center" />
-                                    <ToggleButton IsChecked="{Binding Cache.Item.IsMultiPMTOnceCollection}"
-                                                  VerticalAlignment="Center"
-                                                  Background="{StaticResource DangerBrush}"
-                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                </StackPanel>
-                                <hc:ComboBox HorizontalAlignment="Left"
-                                             hc:TitleElement.TitleWidth="220"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.Title="Algorithm Type: "
-                                             SelectedItem="{Binding Cache.Item.AlgorithmImageQualityTypeEnum}"
-                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmImageQualityTypeEnum}}}">
-                                    <hc:ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                        </DataTemplate>
-                                    </hc:ComboBox.ItemTemplate>
-                                </hc:ComboBox>
-                                <hc:NumericUpDown hc:TitleElement.Title="X Quality Threshold: "
-                                                  hc:TitleElement.TitleWidth="220"
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.Item.XQualityThreshold}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="Y Quality Threshold: "
-                                                  hc:TitleElement.TitleWidth="220"
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.Item.YQualityThreshold}" />
-                                <hc:NumericUpDown hc:TitleElement.Title="XY Best Focus Ecs Offset Threshold: "
-                                                  hc:TitleElement.TitleWidth="220"
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  Minimum="0"
-                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                  Value="{Binding Cache.Item.XYBestFocusEcsOffsetThreshold}" />
-                            </StackPanel>
-                            <StackPanel>
-                                <TextBlock Text="X Axis Param"
-                                           HorizontalAlignment="Center"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Style="{StaticResource TextBlockDefaultInfo}" />
-                            </StackPanel>
-                            <TextBox Text="{Binding Cache.Item.ImageCollectionConfiguration.StartPoint, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="220"
-                                     hc:TitleElement.Title="Start Position(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding Cache.Item.ImageCollectionConfiguration.EndPoint, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="220"
-                                     hc:TitleElement.Title="End Position(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Accelerate Extension Time(s): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.AccelerateExtensionTime}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Uniform Extension Time(s): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.UniformExtensionTime}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="X Speed(um/s): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              IsReadOnly="True"
-                                              Visibility="Collapsed"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Background="{StaticResource SecondaryRegionBrush}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.XSpeedValue, Mode=OneWay}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Accelerate Extension Width(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              IsReadOnly="True"
-                                              Visibility="Collapsed"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Background="{StaticResource SecondaryRegionBrush}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.AccelerateExtensionWidth, Mode=OneWay}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Uniform Extension Width(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              IsReadOnly="True"
-                                              Visibility="Collapsed"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Background="{StaticResource SecondaryRegionBrush}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.UniformExtensionWidth, Mode=OneWay}" />
-                            <TextBox Text="{Binding Cache.Item.ImageCollectionConfiguration.ExtensionStartPoint, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="220"
-                                     hc:TitleElement.Title="Extension Start Position(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Visibility="Collapsed"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding Cache.Item.ImageCollectionConfiguration.ExtensionEndPoint, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.TitleWidth="220"
-                                     hc:TitleElement.Title="Extension End Position(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Visibility="Collapsed"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <StackPanel>
-                                <TextBlock Text="Z Axis Param"
-                                           HorizontalAlignment="Center"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Style="{StaticResource TextBlockDefaultInfo}" />
-                            </StackPanel>
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Z Min Limit(ecs): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Item.ZMinLimit}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Z Max Limit(ecs): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Item.ZMaxLimit}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Start Z Ecs: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              IsReadOnly="True"
-                                              Visibility="Collapsed"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Background="{StaticResource SecondaryRegionBrush}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.ZStartEcs, Mode=OneWay}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="End Z Ecs: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              IsReadOnly="True"
-                                              Visibility="Collapsed"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Background="{StaticResource SecondaryRegionBrush}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.ZEndEcs, Mode=OneWay}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Extension Start Ecs: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Visibility="Collapsed"
-                                              IsReadOnly="True"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Background="{StaticResource SecondaryRegionBrush}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.ExtensionStartEcs, Mode=OneWay}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Extension End Ecs: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Visibility="Collapsed"
-                                              IsReadOnly="True"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Background="{StaticResource SecondaryRegionBrush}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.ExtensionEndEcs, Mode=OneWay}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Z Speed(ecs/s): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Visibility="Collapsed"
-                                              IsReadOnly="True"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Background="{StaticResource SecondaryRegionBrush}"
-                                              Value="{Binding Cache.Item.ImageCollectionConfiguration.ZSpeedValue, Mode=OneWay}" />
-                            <StackPanel>
-                                <TextBlock Text="Chirp AOD Wave Param"
-                                           HorizontalAlignment="Center"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Style="{StaticResource TextBlockDefaultInfo}" />
-                            </StackPanel>
-                            <TextBox Text="{Binding Cache.Item.DefaultGenerateChirpAODWaveformParam.SpectralDensity, Mode=OneWay, StringFormat={}{0:f3}}"
-                                     hc:TitleElement.TitleWidth="220"
-                                     hc:TitleElement.Title="Default SpectralDensity(MHz/mm): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Start SpectralDensity(MHz/mm): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Item.StartSpectralDensity}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Step SpectralDensity(MHz/mm): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Item.StepSpectralDensity}" />
-                            <hc:NumericUpDown hc:TitleElement.TitleWidth="220"
-                                              hc:TitleElement.Title="Step Count: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:Increment="1"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.Item.SpectralDensityStepCount}" />
-                            <StackPanel>
-                                <TextBlock Text="Result"
-                                           HorizontalAlignment="Center"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Style="{StaticResource TextBlockDefaultInfo}" />
-                            </StackPanel>
-                            <hc:TextBox Text="{Binding Cache.Item.CenterPositionAfEcs}"
-                                        hc:TitleElement.TitleWidth="220"
-                                        hc:TitleElement.Title="Center Position Af Ecs: "
-                                        hc:TitleElement.TitlePlacement="Left"
-                                        Style="{StaticResource TextBoxExtend}" />
-                            <hc:TextBox Text="{Binding Cache.TraceBufferSamplingRate, StringFormat='0.###', Mode=OneWay}"
-                                        hc:TitleElement.TitleWidth="220"
-                                        hc:TitleElement.Title="TraceBuffer Sampling Rate(ecs/ms):"
-                                        hc:TitleElement.TitlePlacement="Left"
-                                        Background="{StaticResource SecondaryRegionBrush}"
-                                        Style="{StaticResource TextBoxExtend}"
-                                        IsReadOnly="True" />
-                            <hc:TextBox Text="{Binding CalibratingItem.ProductivityInformation.XSpeedValue, StringFormat='0.###', Mode=OneWay}"
-                                        hc:TitleElement.TitleWidth="220"
-                                        hc:TitleElement.Title="X Speed Value(mm/s):"
-                                        hc:TitleElement.TitlePlacement="Left"
-                                        Background="{StaticResource SecondaryRegionBrush}"
-                                        Style="{StaticResource TextBoxExtend}"
-                                        IsReadOnly="True" />
-                            <hc:TextBox Text="{Binding CalibratingItem.SpectralDensity, StringFormat='0.###', Mode=OneWay}"
-                                        hc:TitleElement.TitleWidth="220"
-                                        hc:TitleElement.Title="Astigmatism Spectral Density(Mhz/mm): "
-                                        hc:TitleElement.TitlePlacement="Left"
-                                        Background="{StaticResource SecondaryRegionBrush}"
-                                        Style="{StaticResource TextBoxExtend}"
-                                        IsReadOnly="True" />
-
-                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                    VerticalAlignment="Top"
-                                                    Spacing="10">
-                                <Button Content="Action"
-                                        Command="{Binding Step5Command}"
-                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                        Style="{StaticResource ButtonPrimary.Loading}" />
-                                <Button Content="Cancel"
-                                        Command="{Binding Step5CancelCommand}"
-                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                        Style="{StaticResource ButtonWarning}" />
-                            </hc:UniformSpacingPanel>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step5Command}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step5CancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
-
-                    </Border>
+                    </hc:UniformSpacingPanel>
                 </ScrollViewer>
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <Grid Column="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="6*" />
-                <RowDefinition Height="5" />
                 <RowDefinition Height="4*" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="6*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="4*" />
                 <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="6*" />
             </Grid.ColumnDefinitions>
             <GroupBox Grid.Row="0" Grid.Column="0"
                       Header="History">
@@ -328,8 +200,7 @@
                           ItemsSource="{Binding CalibratingItem.Items}"
                           Style="{StaticResource ListView.Small}"
                           ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectedItem="{Binding SelectedCalibratingDTOItem}">
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
                     </i:Interaction.Behaviors>
@@ -352,10 +223,10 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding DataContext.CalibratingItem.ProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                            <GridViewColumn Header="Apodization" DisplayMemberBinding="{Binding DataContext.CalibratingItem.ApodizationModeEnum, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource EnumDescriptionConverter}}" />
-                            <GridViewColumn Header="Line Scan Rate" DisplayMemberBinding="{Binding LineScanRate, StringFormat='0.###'}" />
                             <GridViewColumn Header="Spectral Density" DisplayMemberBinding="{Binding SpectralDensity, StringFormat='0.###'}" />
+                            <GridViewColumn Header="X Best Focus" DisplayMemberBinding="{Binding BestFocus.BestXStrehlRatioECS, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Y Best Focus" DisplayMemberBinding="{Binding BestFocus.BestYStrehlRatioECS, StringFormat='0.###'}" />
+                            <GridViewColumn Header="XY Best Focus Offset" DisplayMemberBinding="{Binding XYBestFocusOffsetEcs, StringFormat='0.###'}" />
                             <GridViewColumn Header="Waveform Profiles">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:AODBestFocusAndAstigmatismDTOItem}">
@@ -401,11 +272,6 @@
                             <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
                         </hc:ScrollViewer>
                     </TabItem>
-                    <TabItem Header="TraceBuffer">
-                        <hc:ScrollViewer>
-                            <ContentControl Content="{Binding SelectedItem.ScatterPlotControl, ElementName=HistoryListView, Mode=OneWay}" />
-                        </hc:ScrollViewer>
-                    </TabItem>
                 </TabControl>
             </GroupBox>
 
@@ -413,84 +279,22 @@
                           Grid.ColumnSpan="3" />
 
             <GroupBox Grid.Row="2" Grid.Column="0"
-                      Header="Details">
-                <TabControl ItemsSource="{Binding SelectedItem.ChannelGroupItemDtoList, ElementName=HistoryListView}">
-                    <i:Interaction.Behaviors>
-                        <wpf:SelectorAutoSelectFirstBehavior />
-                    </i:Interaction.Behaviors>
-                    <TabControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding ChannelName}" />
-                        </DataTemplate>
-                    </TabControl.ItemTemplate>
-                    <TabControl.ContentTemplate>
-                        <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelGroupItemDto}">
-                            <ListView ItemsSource="{Binding ChannelItems}"
-                                      Style="{StaticResource ListView.Small}"
-                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                    <wpf:ListBoxSelectedItemsBehavior Type="{x:Type bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelDTOItem}" BindableSelectedItems="{Binding DataContext.SelectedCalibratingChannelItems, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                                </i:Interaction.Behaviors>
-                                <ListView.ItemContainerStyle>
-                                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                        <Style.Triggers>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.View>
-                                    <GridView>
-                                        <GridView.ColumnHeaderContainerStyle>
-                                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                            </Style>
-                                        </GridView.ColumnHeaderContainerStyle>
-                                        <GridViewColumn Header="PMT ID" DisplayMemberBinding="{Binding PmtId}" />
-                                        <GridViewColumn Header="Channel ID" DisplayMemberBinding="{Binding ChannelId}" />
-                                        <GridViewColumn Header="X Best Focus" DisplayMemberBinding="{Binding XBestFocusEcs, StringFormat='0.###'}" />
-                                        <GridViewColumn Header="Y Best Focus" DisplayMemberBinding="{Binding YBestFocusEcs, StringFormat='0.###'}" />
-                                        <GridViewColumn Header="XY Best Focus Offset" DisplayMemberBinding="{Binding XYBestFocusOffsetEcs, StringFormat='0.###'}" />
-                                        <GridViewColumn Width="200" Header="Image">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <hc:ButtonGroup>
-                                                        <Button Content="Origin"
-                                                                Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding OriginFilePath}"
-                                                                d:DataContext="{d:DesignInstance Type=bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelDTOItem}" />
-                                                    </hc:ButtonGroup>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                        </DataTemplate>
-                    </TabControl.ContentTemplate>
-                </TabControl>
-            </GroupBox>
-
-            <GroupBox Grid.Row="2" Grid.Column="2"
+                      Grid.ColumnSpan="3"
                       Header="Details Plot">
-                <TabControl ItemsSource="{Binding SelectedCalibratingChannelItems}" SelectedIndex="0">
+                <TabControl ItemsSource="{Binding SelectedItems, ElementName=HistoryListView}" SelectedIndex="0">
                     <i:Interaction.Behaviors>
                         <wpf:SelectorAutoSelectFirstBehavior />
                     </i:Interaction.Behaviors>
                     <TabControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding PmtId}" />
+                        <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:AODBestFocusAndAstigmatismDTOItem}">
+                            <TextBlock Text="{Binding SpectralDensity}" />
                         </DataTemplate>
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
-                        <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:BestFocusAndAstigmatismChannelDTOItem}">
-                            <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                        <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:AODBestFocusAndAstigmatismDTOItem}">
+                            <Border Height="400" Style="{StaticResource BorderRegion}">
+                                <darkField:BestFocusUserControl Grid.Row="1" DataContext="{Binding BestFocus}" />
+                            </Border>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
                 </TabControl>

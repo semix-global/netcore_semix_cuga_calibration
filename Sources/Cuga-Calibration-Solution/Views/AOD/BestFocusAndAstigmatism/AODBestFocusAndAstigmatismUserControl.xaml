@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.AOD.BestFocusAndAstigmatism.BestFocusAndAstigmatismCalibrationUserControl"
+﻿<UserControl x:Class="CugaCalibration.Views.AOD.BestFocusAndAstigmatism.AODBestFocusAndAstigmatismUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -50,6 +50,9 @@
                             <childrenView:Step3View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs3ToVisibilityConverter}}" />
                             <childrenView:Step4View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs4ToVisibilityConverter}}" />
                             <childrenView:Step5View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs5ToVisibilityConverter}}" />
+                        </Grid>
+                        <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
+                            <childrenView:Review />
                         </Grid>
                         <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}" />
                     </Grid>

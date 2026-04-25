@@ -9,14 +9,15 @@ using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
@@ -369,11 +370,13 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         cancellationToken);
 
                     var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    darkFieldImage.Image.Save(imageFilePath);
+                    darkFieldImage.Image.SaveImage(imageFilePath);
 
                     windowItem.ImageFilePath = imageFilePath;
                     windowItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
-                    windowItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
+
+                    using var hImage = darkFieldImage.Image.ToHImage();
+                    windowItem.ImageHorizontalProjects = hImage.GetHorizontalProjects();
 
                     Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
@@ -500,12 +503,14 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                         var itemItem = CalibratingItem.Items[index];
 
                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImage.Image.Save(imageFilePath);
+                        darkFieldImage.Image.SaveImage(imageFilePath);
+
+                        using var hImage = darkFieldImage.Image.ToHImage();
 
                         var itemItemData = new CIBXTCDTOItem.Item
                         {
                             Window = window,
-                            ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
+                            ImageHorizontalProjects = hImage.GetHorizontalProjects(),
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
                         };

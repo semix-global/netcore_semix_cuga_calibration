@@ -20,7 +20,7 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public async Task<SysUserDto> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
+    public async Task<SysUserDTO> LoginAsync(SysUserDTO user, CancellationToken cancellationToken)
     {
         var ret = await calibrationConfigService.LoginAsync(user, cancellationToken);
 

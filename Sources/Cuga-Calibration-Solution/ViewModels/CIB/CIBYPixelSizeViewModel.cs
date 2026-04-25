@@ -10,10 +10,9 @@ using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.SQL.Cache.Providers.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -21,6 +20,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
+using System.IO;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -594,16 +594,16 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
             false,
             cancellationToken);
 
-        var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, out var drawImageObj);
+        var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage.Image, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, out var drawImageObj);
         cibYPixelSizeDTO.YPixelSize = yPixelSize;
 
-        cibYPixelSizeDTO.FilePath = $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_Guid({HtmlLogUniqueId}).jpg";
-        cibYPixelSizeDTO.DrawImageFilePath = $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_DrawImage_Guid({HtmlLogUniqueId}).jpg";
+        cibYPixelSizeDTO.FilePath = Path.Combine(ImageFileDirectory, $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_Guid({HtmlLogUniqueId}).jpg");
+        cibYPixelSizeDTO.DrawImageFilePath = Path.Combine(ImageFileDirectory, $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_DrawImage_Guid({HtmlLogUniqueId}).jpg");
         cibYPixelSizeDTO.RawFilePath = darkFieldImage.RawImageFilePath;
 
         using var _ = drawImageObj;
-        darkFieldImage.Image.Save(cibYPixelSizeDTO.FilePath);
-        drawImageObj.Save(cibYPixelSizeDTO.DrawImageFilePath);
+        darkFieldImage.Image.SaveImage(cibYPixelSizeDTO.FilePath);
+        drawImageObj.SaveImage(cibYPixelSizeDTO.DrawImageFilePath);
 
         Logger.LogHtmlInformation($"Get Y Pixel Size Success:PMT ID {cibYPixelSizeDTO.PmtId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
@@ -629,7 +629,11 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false),
+                .. Calibrations
+                    .Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false)
+                    .Where(t =>
+                        t.ProductivityInformation != dto.ProductivityInformation
+                        || ApplicationCookie.CIBInformations.Any(tt => tt.PMTId == t.PmtId)),
                 dto
             ];
         }

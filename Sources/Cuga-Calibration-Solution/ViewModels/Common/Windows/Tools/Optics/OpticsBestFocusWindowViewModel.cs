@@ -9,8 +9,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Extensions;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
@@ -60,24 +59,24 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         MicroscopeCalChipCache = recipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
     }).ConfigureAwait(false);
 
-    protected override bool InvokeDarkFieldRawScanImageDTO(DarkFieldRawScanImageDTO darkFieldRawScanImage)
+    protected override bool InvokeDarkFieldImageDTO(DarkFieldImageDTO darkFieldImage)
     {
-        base.InvokeDarkFieldRawScanImageDTO(darkFieldRawScanImage);
+        base.InvokeDarkFieldImageDTO(darkFieldImage);
 
         var isSuccess = false;
 
-        var item = new OpticsBestFocusResult { DarkFieldRawScanImage = darkFieldRawScanImage };
+        var item = new OpticsBestFocusResult { DarkFieldImage = darkFieldImage };
 
         var startECS = Cache.CenterECS - Cache.RangeECS;
         var stopECS = Cache.CenterECS + Cache.RangeECS;
         try
         {
-            var temp = darkFieldRawScanImage.Clone();
+            var temp = darkFieldImage.Clone();
             temp.IsKeepRawImageCIBProfileModeEnum = false;
             using var image = temp.GetImage();
 
             item.BestFocus = calibrationAlgorithmService.GetBestFocus(image, startECS, stopECS);
-            item.BestFocus.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
+            item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
             Logger.LogHtmlInformation("Best Focus OK", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
@@ -88,7 +87,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         }
         catch (Exception ex)
         {
-            item.BestFocus.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
+            item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
             Logger.LogHtmlError("Best Focus Error", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
                 Exception = ex,
@@ -247,7 +246,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                     IsKeepRawImageCIBProfileModeEnum = Cache.IsKeepRawImageCIBProfileModeEnum
                 };
 
-                boolList.Add(InvokeDarkFieldRawScanImageDTO(darkFieldRawScanImage));
+                boolList.Add(InvokeDarkFieldImageDTO(new DarkFieldImageDTO().AdaptIn(darkFieldRawScanImage)));
             }
 
             return Task.FromResult(boolList.All(t => t));

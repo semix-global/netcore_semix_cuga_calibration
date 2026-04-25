@@ -13,12 +13,13 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
-using Local.SQL.Cache.Providers.Extensions;
-using Local.SQL.Cache.Providers.Interfaces;
+using Core.Utilities;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -750,7 +751,7 @@ public sealed class CIBViewModel(
         var quality = calibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
 
         var verifyImageFilePath = Path.Combine(saveResultImageFileDirectory, $"Origin_Score{calChipSiteModelEnum}_Quality{quality:0.###}_({logGuid:N}).jpg");
-        darkFieldImageDto.Image.Save(verifyImageFilePath);
+        darkFieldImageDto.Image.SaveImage(verifyImageFilePath);
 
         var rtfcResult = new RuntimeAfCalibrationResultDTO
         {
@@ -860,11 +861,14 @@ public sealed class CIBViewModel(
         {
             var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
 
-            using var image = darkFieldImage.IsForward ? darkFieldImage.Image : darkFieldImage.Image.HorizontalFlip();
+            using var hImage = darkFieldImage.Image.ToHImage();
+            using var horizontalFlipHImage = hImage.HorizontalFlip();
+
+            using var image = darkFieldImage.IsForward ? darkFieldImage.Image : horizontalFlipHImage.ToBitmapImage();
             isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var matchPoint, out var matchOffset, out matchScore, out matchAngle);
 
             resultImageFilePath = Path.Combine(isSuccess ? saveResultImageFileDirectory : $"{FileHelper.GetFileFullName(templateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({logGuid:N}).jpg");
-            using var temp = darkFieldImage.Image.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y));
+            using var temp = hImage.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y));
             temp.Save(resultImageFilePath);
 
             var stageCoordinateSystemMatchOffset = stageCoordinateSystemEnum switch

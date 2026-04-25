@@ -91,7 +91,7 @@
                            FontSize="20"
                            Foreground="#bdbdbd" />
                 <ComboBox Grid.Row="4"
-                          Text="{Binding SysUserDto.UserName, UpdateSourceTrigger=PropertyChanged}"
+                          Text="{Binding SysUserDTO.UserName, UpdateSourceTrigger=PropertyChanged}"
                           Height="35"
                           Margin="30,10"
                           hc:InfoElement.Placeholder="Name"
@@ -104,7 +104,7 @@
                              hc:InfoElement.Placeholder="Password"
                              Style="{StaticResource PasswordBoxExtend}">
                     <i:Interaction.Behaviors>
-                        <behaviors:PasswordBoxBindingSupportBehavior Password="{Binding SysUserDto.Password}" />
+                        <behaviors:PasswordBoxBindingSupportBehavior Password="{Binding SysUserDTO.Password}" />
                     </i:Interaction.Behaviors>
                 </PasswordBox>
                 <Button Grid.Row="6"

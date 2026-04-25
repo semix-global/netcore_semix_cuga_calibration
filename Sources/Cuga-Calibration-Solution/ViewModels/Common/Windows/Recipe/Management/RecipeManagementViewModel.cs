@@ -8,8 +8,7 @@ using Core.Models.Helper;
 using Core.Recipe.Models;
 using Core.Recipe.Services.Interfaces.Factory;
 using Core.Utilities;
-using Local.SQL.Cache.Providers.Extensions;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,10 +40,10 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
     private RecipeCookie _recipeCookie;
 
     [ObservableProperty]
-    private SysRecipeInformationDto? _selectRecipeInfoDto;
+    private SysRecipeInformationDTO? _selectRecipeInfoDto;
 
     [ObservableProperty]
-    private ObservableCollection<SysRecipeInformationDto> _recipeInfoDtoItems = [];
+    private ObservableCollection<SysRecipeInformationDTO> _recipeInfoDtoItems = [];
 
     private readonly IDialogWindowProvider _dialogWindowProvider;
     private readonly IWindowManagerService _windowManagerService;
@@ -142,7 +141,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
     }
 
     [RelayCommand]
-    private async Task EditRecipeInformationAsync(SysRecipeInformationDto selectedItem)
+    private async Task EditRecipeInformationAsync(SysRecipeInformationDTO selectedItem)
     {
         await Task.Run(async () =>
         {
@@ -169,7 +168,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
     }
 
     [RelayCommand]
-    private async Task DeleteAsync(SysRecipeInformationDto selectedItem)
+    private async Task DeleteAsync(SysRecipeInformationDTO selectedItem)
     {
         try
         {
@@ -179,7 +178,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
             if (dialogResultEnum != DialogResultEnum.Yes)
                 return;
 
-            if (string.Equals(RecipeCookie.SysRecipeInformationDto.RecipeDbName, selectedItem.RecipeDbName, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(RecipeCookie.SysRecipeInformationDTO.RecipeDbName, selectedItem.RecipeDbName, StringComparison.OrdinalIgnoreCase))
                 _dialogWindowProvider.ShowDialog("Cannot delete the currently applied recipe. Please switch to another recipe before deleting", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
             await _sysRecipeInformationService
@@ -222,7 +221,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
     }
 
     [RelayCommand]
-    private async Task InheritAsync(SysRecipeInformationDto selectedItem)
+    private async Task InheritAsync(SysRecipeInformationDTO selectedItem)
     {
         await Task.Run(async () =>
         {
@@ -259,10 +258,14 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
                 _cacheDatabaseProvider.ChangeDatabase(SelectRecipeInfoDto.RecipeNosqlRecipeDbDataSource, _cancellationTokenSource.Token);
 
                 var (isHas, calibrationRecipeDto) = _cacheProvider.TryGetOrDefault<CalibrationRecipeDTO>();
-                if (isHas == false) ThrowHelper.ThrowArgumentException("Failed to get recipe data! Please make sure the recipe database is complete and valid!");
+                if (isHas == false)
+                {
+                    _dialogWindowProvider.ShowDialog("Failed to read recipe database, will apply default values.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    _cacheProvider.Set(new CalibrationRecipeDTO(), CancellationToken.None);
+                }
 
                 RecipeCookie.CalibrationRecipeDto.AdaptIn(calibrationRecipeDto);
-                RecipeCookie.SysRecipeInformationDto.AdaptIn(SelectRecipeInfoDto);
+                RecipeCookie.SysRecipeInformationDTO.AdaptIn(SelectRecipeInfoDto);
 
                 Close();
 
@@ -314,7 +317,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
     [RelayCommand]
     private void Close()
     {
-        var isAppliedRecipe = RecipeInfoDtoItems.SingleOrDefault(t => t.RecipeDbName == RecipeCookie.SysRecipeInformationDto.RecipeDbName) is not null;
+        var isAppliedRecipe = RecipeInfoDtoItems.SingleOrDefault(t => t.RecipeDbName == RecipeCookie.SysRecipeInformationDTO.RecipeDbName) is not null;
         if (isAppliedRecipe == false)
         {
             _dialogWindowProvider.TryShowDialog("The recipe is renamed! Please select again!", out _, DialogButtonsEnum.OK, DialogIconEnum.Warning);

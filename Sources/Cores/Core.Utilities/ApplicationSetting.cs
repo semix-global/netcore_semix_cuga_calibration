@@ -1,4 +1,4 @@
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Net.Utilities.Models;
 
 namespace Core.Utilities;

@@ -9,8 +9,7 @@ using Core.Models.Models.Setting;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Bases;
-using Local.SQL.Cache.Providers.Extensions;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +19,7 @@ using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -325,7 +325,8 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
             {
                 var hazeResultItem = Guard.IsAssignableToTypeAndReturn<HazeResultItem>(item);
 
-                var matrix = Matrix<double>.Build.DenseOfArray(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix());
+                using var hImage = darkFieldImageDto.Image.ToHImage();
+                var matrix = Matrix<double>.Build.DenseOfArray(hImage.RAW16BitsPerPixelToMatrix());
 
                 var baseSize = matrix.RowCount / 3;
                 var remainder = matrix.RowCount % 3;
@@ -408,7 +409,7 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
                 using var _ = darkFieldImageDto;
 
                 var filePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                darkFieldImageDto.Image.Save(filePath);
+                darkFieldImageDto.Image.SaveImage(filePath);
                 createRoiWindowViewModel.ImageFilePath = filePath;
 
                 if (windowManagerService.ShowDialog(createRoiWindowViewModel) == false) ThrowHelper.ThrowOperationCanceledException<bool>("Generate ROI");
@@ -430,8 +431,10 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
             {
                 var dswResultItem = Guard.IsAssignableToTypeAndReturn<DSWResultItem>(item);
 
+                using var hImage = darkFieldImageDto.Image.ToHImage();
+
                 var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) =
-                    StrehlRatioUtility.GetStrehlRatio(darkFieldImageDto.Image.RAW16BitsPerPixelToMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
+                    StrehlRatioUtility.GetStrehlRatio(hImage.RAW16BitsPerPixelToMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
                 dswResultItem.StrehlRatioX = strehlRatioX;
                 dswResultItem.StrehlRatioY = strehlRatioY;
 
@@ -594,7 +597,7 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
                         using var _ = darkFieldImageDto;
 
                         var filePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImageDto.Image.Save(filePath);
+                        darkFieldImageDto.Image.SaveImage(filePath);
 
                         var resultItem = Guard.IsNotNullAndReturn(Activator.CreateInstance(resultItemType));
 

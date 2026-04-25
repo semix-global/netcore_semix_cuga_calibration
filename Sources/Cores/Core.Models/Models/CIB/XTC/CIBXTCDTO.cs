@@ -276,7 +276,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
         scatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
         scatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        scatterPlotControl.SetTitle(2, "Result(Y: Delay - X: PMT Id)");
+        scatterPlotControl.SetTitle(2, "Result(Y: Delay - X: Channel Id)");
         scatterPlotControl.ToggleInvisibleLegendItem(0, false);
         scatterPlotControl.ToggleInvisibleLegendItem(1, false);
 

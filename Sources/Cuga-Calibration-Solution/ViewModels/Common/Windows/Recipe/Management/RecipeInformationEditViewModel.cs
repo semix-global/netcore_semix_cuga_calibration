@@ -20,13 +20,13 @@ public partial class RecipeInformationEditViewModel(
 ) : ViewModelBase
 {
     [ObservableProperty]
-    private SysRecipeInformationDto? _currentSysRecipeInformation;
+    private SysRecipeInformationDTO? _currentSysRecipeInformation;
 
     [ObservableProperty]
-    private SysRecipeInformationDto? _editSysRecipeInformation;
+    private SysRecipeInformationDTO? _editSysRecipeInformation;
 
     public async Task LoadAsync(
-        SysRecipeInformationDto sysRecipeInformationDto)
+        SysRecipeInformationDTO sysRecipeInformationDto)
     {
         await Task.CompletedTask.ConfigureAwait(false);
 

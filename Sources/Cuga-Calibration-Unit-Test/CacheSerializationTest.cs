@@ -11,7 +11,7 @@ using Core.Utilities;
 using CugaCalibration.Core;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.Cache.Providers;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -204,8 +204,8 @@ public sealed class CacheSerializationTest : IDisposable
         };
 
         // Act
-        var json = JsonConvert.SerializeObject(foo, PrivateSetterContractResolver.PrivateSetterAndReplaceSettings);
-        var deserialized = JsonConvert.DeserializeObject<Foo>(json, PrivateSetterContractResolver.PrivateSetterAndReplaceSettings);
+        var json = JsonConvert.SerializeObject(foo, PrivateSetterContractResolver.Settings);
+        var deserialized = JsonConvert.DeserializeObject<Foo>(json, PrivateSetterContractResolver.Settings);
 
         // Assert
         json.Should().Contain(nameof(Foo.PublicPropertyPublicSetInt));

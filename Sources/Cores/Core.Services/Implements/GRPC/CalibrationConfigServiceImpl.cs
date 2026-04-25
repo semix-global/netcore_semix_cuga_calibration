@@ -27,7 +27,7 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
         });
     }
 
-    public Task<SxExecuteRet<SysUserDto>> LoginAsync(SysUserDto user, CancellationToken cancellationToken)
+    public Task<SxExecuteRet<SysUserDTO>> LoginAsync(SysUserDTO user, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

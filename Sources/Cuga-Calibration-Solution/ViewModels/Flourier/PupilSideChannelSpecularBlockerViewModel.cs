@@ -8,8 +8,8 @@ using Core.Models.Models.Fourier;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using HalconDotNet;
-using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -590,20 +590,20 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
 
             if (SelectedTabIndex == 0)
             {
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                Cache.BitmapImageDrawableCh10.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                Cache.BitmapImageDrawableCh10.BitmapImage = croppedImage;
                 Cache.Item.OriginImageFilePathOld1 = Path.Combine(ImageFileDirectory, "CH1", "Initial" + "__" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawableCh10.BitmapImage.Save(Cache.Item.OriginImageFilePathOld1);
+                Cache.BitmapImageDrawableCh10.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathOld1);
                 //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
                 //ImageGrayOldCh1 = hv_Histo.TupleSum();                                
                 HOperatorSet.Intensity(Cache.BitmapImageDrawableCh10.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh10.BitmapImage.ToHImage(), out meanGrayOld1, out var deviation);
             }
             else if (SelectedTabIndex == 1)
             {
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                Cache.BitmapImageDrawableCh20.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                Cache.BitmapImageDrawableCh20.BitmapImage = croppedImage;
                 Cache.Item.OriginImageFilePathOld2 = Path.Combine(ImageFileDirectory, "CH2", "Initial" + "__" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawableCh20.BitmapImage.Save(Cache.Item.OriginImageFilePathOld2);
+                Cache.BitmapImageDrawableCh20.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathOld2);
                 //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
                 //ImageGrayOldCh2 = hv_Histo.TupleSum();
                 HOperatorSet.Intensity(Cache.BitmapImageDrawableCh20.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh20.BitmapImage.ToHImage(), out meanGrayOld2, out var deviation);
@@ -656,10 +656,10 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 if (bitmap == null)
                     return;
 
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                Cache.BitmapImageDrawableCh11.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                Cache.BitmapImageDrawableCh11.BitmapImage = croppedImage;
                 Cache.Item.OriginImageFilePathNew1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage + "__" + Cache.Item.CgFFBoxBeginNumberCh1 + "__" + Cache.Item.CgFFBoxEndNumberCh1 + "__" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawableCh11.BitmapImage.Save(Cache.Item.OriginImageFilePathNew1);
+                Cache.BitmapImageDrawableCh11.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathNew1);
                 Cache.Ch1Image = Cache.BitmapImageDrawableCh11.BitmapImage;
                 //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
                 //ImageGrayNewCh1 = hv_Histo.TupleSum();
@@ -681,10 +681,10 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 if (bitmap == null)
                     return;
 
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                Cache.BitmapImageDrawableCh21.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                Cache.BitmapImageDrawableCh21.BitmapImage = croppedImage;
                 Cache.Item.OriginImageFilePathNew2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage + "__" + Cache.Item.CgFFBoxBeginNumberCh2 + "__" + Cache.Item.CgFFBoxEndNumberCh2 + "__" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawableCh21.BitmapImage.Save(Cache.Item.OriginImageFilePathNew2);
+                Cache.BitmapImageDrawableCh21.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathNew2);
                 Cache.Ch2Image = Cache.BitmapImageDrawableCh21.BitmapImage;
                 //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
                 //ImageGrayNewCh2 = hv_Histo.TupleSum();
@@ -780,10 +780,10 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 if (bitmap == null)
                     return;
 
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                Cache.BitmapImageDrawableCh11.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                Cache.BitmapImageDrawableCh11.BitmapImage = croppedImage;
                 Cache.Item.OriginImageFilePathNew1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage + "__" + Cache.Item.CgFFBoxBeginNumberCh1 + "__" + Cache.Item.CgFFBoxEndNumberCh1 + "__" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawableCh11.BitmapImage.Save(Cache.Item.OriginImageFilePathNew1);
+                Cache.BitmapImageDrawableCh11.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathNew1);
                 Cache.Ch1Image = Cache.BitmapImageDrawableCh11.BitmapImage;
                 HOperatorSet.Intensity(Cache.BitmapImageDrawableCh11.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh11.BitmapImage.ToHImage(), out meanGrayNew1, out var deviation);
             }
@@ -804,10 +804,10 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 if (bitmap == null)
                     return;
 
-                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                Cache.BitmapImageDrawableCh21.BitmapImage = croppedImage.ToBitmapImage();
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                Cache.BitmapImageDrawableCh21.BitmapImage = croppedImage;
                 Cache.Item.OriginImageFilePathNew2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage + "__" + Cache.Item.CgFFBoxBeginNumberCh2 + "__" + Cache.Item.CgFFBoxEndNumberCh2 + "__" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawableCh21.BitmapImage.Save(Cache.Item.OriginImageFilePathNew2);
+                Cache.BitmapImageDrawableCh21.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathNew2);
                 Cache.Ch2Image = Cache.BitmapImageDrawableCh21.BitmapImage;
                 HOperatorSet.Intensity(Cache.BitmapImageDrawableCh21.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh21.BitmapImage.ToHImage(), out meanGrayNew2, out var deviation);
             }
@@ -858,8 +858,9 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 cancellationToken);
             var path1 = Path.Combine(ImageFileDirectory, "CH1", "__" + "LightShow" + "__" + $"{Guid.NewGuid():N}.jpg");
 
-            ReviewImageGrayCh1[0] = darkFieldImage1.Image.GetIntensity().Average;
-            darkFieldImage1.Image.Save(path1);
+            using var hImage = darkFieldImage1.Image.ToHImage();
+            ReviewImageGrayCh1[0] = hImage.GetIntensity().Average;
+            darkFieldImage1.Image.SaveImage(path1);
             Ch1Path = path1;
         }
         {
@@ -877,8 +878,9 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 cancellationToken);
             var path2 = Path.Combine(ImageFileDirectory, "CH2", "__" + "LightShow" + "__" + $"{Guid.NewGuid():N}.jpg");
 
-            ReviewImageGrayCh2[0] = darkFieldImage1.Image.GetIntensity().Average;
-            darkFieldImage1.Image.Save(path2);
+            using var hImage = darkFieldImage1.Image.ToHImage();
+            ReviewImageGrayCh2[0] = hImage.GetIntensity().Average;
+            darkFieldImage1.Image.SaveImage(path2);
             Ch2Path = path2;
         }
         ReviewImageShowPath = new[]
@@ -941,8 +943,9 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 cancellationToken);
             var path1 = Path.Combine(ImageFileDirectory, "CH1", "__" + "LightHide" + "__" + $"{Guid.NewGuid():N}.jpg");
 
-            ReviewImageGrayCh1[1] = darkFieldImage1.Image.GetIntensity().Average;
-            darkFieldImage1.Image.Save(path1);
+            using var hImage = darkFieldImage1.Image.ToHImage();
+            ReviewImageGrayCh1[1] = hImage.GetIntensity().Average;
+            darkFieldImage1.Image.SaveImage(path1);
             Ch1Path = path1;
         }
 
@@ -961,8 +964,9 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 cancellationToken);
             var path2 = Path.Combine(ImageFileDirectory, "CH2", "__" + "LightHide" + "__" + $"{Guid.NewGuid():N}.jpg");
 
-            ReviewImageGrayCh2[1] = darkFieldImage1.Image.GetIntensity().Average;
-            darkFieldImage1.Image.Save(path2);
+            using var hImage = darkFieldImage1.Image.ToHImage();
+            ReviewImageGrayCh2[1] = hImage.GetIntensity().Average;
+            darkFieldImage1.Image.SaveImage(path2);
             Ch2Path = path2;
         }
         ReviewImageHidePath = new[]
@@ -990,10 +994,12 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
         return;
     }
 
-    private HImage GetPictureRegion(HImage originImage, int startX, int startY, int width, int height)
+    private BitmapImage GetPictureRegion(BitmapImage originImage, int startX, int startY, int width, int height)
     {
         // 3. 【关键】使用 CropPart 进行真实裁剪 // 参数: 原图, 起始列(Column), 起始行(Row), 宽度, 高度     
-        return originImage.CropPart(startY, startX, width, height);
+        using var hImage = originImage.ToHImage();
+        using var cropHImage = hImage.CropPart(startY, startX, width, height);
+        return cropHImage.ToBitmapImage();
     }
 
     private bool Save(PupilSideChannelSpecularBlockerDTO itemDto, CancellationToken cancellationToken, bool isSave = true) => InvokeSave(update =>

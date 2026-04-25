@@ -3,10 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Helper;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -69,8 +68,8 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
                     return;
                 }
 
-                using var image = HalconFactory.CreateImage(ImageFilePath);
-                if (new Rect(Point.Origin, image.GetSize()).Contains(Rect) == false)
+                using var image = new BitmapImage(ImageFilePath);
+                if (new Rect(Point.Origin, new Size(image.Width, image.Height)).Contains(Rect) == false)
                 {
                     dialogWindowProvider.ShowDialog("Error: The ROI is out of the size of the image", DialogButtonsEnum.OK, DialogIconEnum.Error);
                     return;
