@@ -10,7 +10,6 @@ using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using HalconDotNet;
-using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;

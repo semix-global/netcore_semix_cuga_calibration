@@ -1,5 +1,3 @@
-
-
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Mapper.Interfaces;
 using System.Collections.ObjectModel;

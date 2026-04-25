@@ -111,5 +111,4 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
     /// </summary>
     [ObservableProperty]
     private GenerateChirpAODWaveformParam _defaultGenerateChirpAODWaveformParam = new();
-
 }
