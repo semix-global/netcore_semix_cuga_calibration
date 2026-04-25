@@ -12,7 +12,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Humanizer;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;

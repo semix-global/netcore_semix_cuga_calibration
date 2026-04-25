@@ -7,7 +7,7 @@ using Core.Models.Helper;
 using Core.Recipe.Models;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.Recipe.Edit.Children;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;

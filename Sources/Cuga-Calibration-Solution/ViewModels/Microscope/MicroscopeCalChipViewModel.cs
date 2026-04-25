@@ -8,7 +8,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Extensions;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

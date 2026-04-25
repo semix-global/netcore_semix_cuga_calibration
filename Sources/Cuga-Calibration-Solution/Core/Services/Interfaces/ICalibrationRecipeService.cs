@@ -52,5 +52,4 @@ public interface ICalibrationRecipeService
     bool GetChuckReticleMaskInfo(ReticleMarkDTO reticleMarkDto, WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation? opticsMagType, out ReticleMarkDTOItem maskInfo);
 
     bool GetLaserReticleMaskMachineInfo(ReticleMarkDTO reticleMarkDto, WaferMaskTypeEnum waferMaskType, MicroscopeLensInformation? microscopeLensInformation, ProductivityInformation? opticsMagType, out ReticleMarkDTOItem maskInfo);
-
 }

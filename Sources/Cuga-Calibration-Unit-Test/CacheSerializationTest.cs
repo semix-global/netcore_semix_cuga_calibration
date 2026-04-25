@@ -11,7 +11,7 @@ using Core.Utilities;
 using CugaCalibration.Core;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.Cache.Providers;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
