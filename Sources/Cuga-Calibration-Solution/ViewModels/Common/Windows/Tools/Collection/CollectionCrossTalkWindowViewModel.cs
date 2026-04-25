@@ -7,7 +7,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.ViewModels.Common.Windows.View;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Halcon.Extensions;

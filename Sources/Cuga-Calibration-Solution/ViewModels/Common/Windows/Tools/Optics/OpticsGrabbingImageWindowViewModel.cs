@@ -8,7 +8,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Modules;

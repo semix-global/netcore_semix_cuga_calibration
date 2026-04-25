@@ -12,7 +12,7 @@ using Core.Services.Interfaces;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Bases;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Modules;

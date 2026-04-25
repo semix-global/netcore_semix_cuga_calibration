@@ -8,7 +8,7 @@ using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.StageMap;
 using Core.Services.Implements;
 using Core.Services.Interfaces;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

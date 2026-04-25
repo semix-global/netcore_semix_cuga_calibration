@@ -1,5 +1,5 @@
 using Core.Models.Models.Setting;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SourceGenerator.InjectHostDI;

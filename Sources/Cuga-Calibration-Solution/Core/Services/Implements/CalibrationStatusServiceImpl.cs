@@ -1,7 +1,7 @@
 using Core.Models.Extensions;
 using Core.Models.Models;
 using CugaCalibration.Core.Services.Interfaces;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 

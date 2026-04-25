@@ -35,7 +35,7 @@ using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Core.Models.Models.Optics.SC;
 using Core.Models.Models.Setting;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using DarkAutoFocusDTO = Core.Models.Models.AutoFocus.DarkAutoFocus.DarkAutoFocusDTO;
 

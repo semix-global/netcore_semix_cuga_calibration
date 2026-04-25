@@ -11,7 +11,7 @@ using Core.Recipe.Models;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Bases;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;

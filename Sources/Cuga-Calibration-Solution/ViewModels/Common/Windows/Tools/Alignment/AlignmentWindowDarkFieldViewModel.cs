@@ -11,7 +11,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;

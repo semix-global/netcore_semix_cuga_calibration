@@ -9,7 +9,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities.SourceGenerators.Attributes;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;

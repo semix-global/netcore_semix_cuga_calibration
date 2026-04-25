@@ -17,7 +17,7 @@ using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 using HalconDotNet;
-using Local.SQL.Cache.Providers.Interfaces;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
