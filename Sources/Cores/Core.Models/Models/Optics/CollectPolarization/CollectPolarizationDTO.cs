@@ -1,10 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Laser;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 
 namespace Core.Models.Models.Optics.CollectPolarization;
 
+[CacheVersion("1.0.0")]
 public sealed partial class CollectPolarizationDTO : CalibrationDtoBase, ICloneable<CollectPolarizationDTO>, IAdaptTo<CalibrationCollectionPolarization>
 {
     [ObservableProperty]

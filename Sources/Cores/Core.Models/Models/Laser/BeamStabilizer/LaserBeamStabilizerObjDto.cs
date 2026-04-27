@@ -1,9 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.BeamStabilizer;
 
+[CacheVersion("1.0.0")]
 public sealed partial class LaserBeamStabilizerObjDto : CalibrationDtoBase, ICloneable<LaserBeamStabilizerObjDto>
 {
     [ObservableProperty]

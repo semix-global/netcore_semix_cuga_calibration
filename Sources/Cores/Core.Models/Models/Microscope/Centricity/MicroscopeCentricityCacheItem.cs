@@ -5,7 +5,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Centricity;
 
-public sealed partial class MicroscopeCentricityCacheItem : CalibrationDtoBase
+public sealed partial class MicroscopeCentricityCacheItem : CalibrationCacheBase
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;

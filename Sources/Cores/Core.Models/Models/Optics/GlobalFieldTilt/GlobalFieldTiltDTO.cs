@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Laser;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -16,6 +17,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.Optics.GlobalFieldTilt;
 
+[CacheVersion("1.0.0")]
 public sealed partial class GlobalFieldTiltDTO : CalibrationDtoBase, ICloneable<GlobalFieldTiltDTO>, IAdaptTo<CalibrationLaserDOEAngle>
 {
     [ObservableProperty]

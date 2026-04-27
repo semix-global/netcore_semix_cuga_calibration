@@ -6,10 +6,12 @@ using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Chuck.StageMap;
 
+[CacheVersion("1.0.0")]
 public sealed partial class ChuckStageMapDto : CalibrationDtoBase, ICloneable<ChuckStageMapDto>, IAdaptTo<CalibrationChuckStageMap>
 {
     [ObservableProperty]

@@ -5,6 +5,7 @@ using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -20,6 +21,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.XTC;
 
+[CacheVersion("1.0.0")]
 public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO>, IAdaptTo<CalibrationLaserCIBXTCItem>
 {
     [ObservableProperty]

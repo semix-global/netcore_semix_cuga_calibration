@@ -3,6 +3,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -14,6 +15,7 @@ using System.ComponentModel;
 
 namespace Core.Models.Models.Chuck.Prealigner;
 
+[CacheVersion("1.0.0")]
 public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<ChuckPrealignerDTO>, IAdaptTo<CalibrationPrealignerObj>
 {
     [ObservableProperty]

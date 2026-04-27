@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Fourier;
 using Cuga.Data.DataStruct.DTO.Recipe;
 using Cuga.Data.DataStruct.Stage;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
@@ -9,6 +10,7 @@ using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace Core.Models.Models.Fourier;
 
+[CacheVersion("1.0.0")]
 public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDtoBase, ICloneable<PupilSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>
 {
     [ObservableProperty]

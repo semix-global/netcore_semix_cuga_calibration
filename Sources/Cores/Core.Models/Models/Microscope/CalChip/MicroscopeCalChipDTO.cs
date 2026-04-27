@@ -4,6 +4,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -18,6 +19,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
+[CacheVersion("1.0.0")]
 public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneable<MicroscopeCalChipDTO>, IAdaptTo<CalibrationMicroscopeCalChip>
 {
     [ObservableProperty]

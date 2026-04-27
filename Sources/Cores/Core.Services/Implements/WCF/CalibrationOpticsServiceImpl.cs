@@ -249,11 +249,6 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         var sxExecuteRetOpticCommonReadPos = Invoke(() => Service?.OpticCommonReadPos(cgCommonType));
         if (sxExecuteRetOpticCommonReadPos.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetOpticCommonReadPos.ErrorMsg, 0d);
 
-        var sxExecuteRetGetOpticRange = Invoke(() => Service?.GetOpticRange(cgCommonType));
-        if (sxExecuteRetGetOpticRange.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetGetOpticRange.ErrorMsg, 0d);
-
-        Guard.IsBetween(sxExecuteRetOpticCommonReadPos.Anything, sxExecuteRetGetOpticRange.Anything.min, sxExecuteRetGetOpticRange.Anything.max, name);
-
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRetOpticCommonReadPos.Anything);
     }
 

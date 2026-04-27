@@ -2,11 +2,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Focus;
 
+[CacheVersion("1.0.0")]
 public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
 {
     [ObservableProperty]

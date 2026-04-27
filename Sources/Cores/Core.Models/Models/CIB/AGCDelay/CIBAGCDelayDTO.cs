@@ -3,6 +3,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
@@ -20,6 +21,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.AGCDelay;
 
+[CacheVersion("1.0.0")]
 public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
 {
     [ObservableProperty]

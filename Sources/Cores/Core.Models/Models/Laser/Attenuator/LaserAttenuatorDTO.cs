@@ -3,6 +3,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -13,6 +14,7 @@ using ScottPlot.MultiplotLayouts;
 
 namespace Core.Models.Models.Laser.Attenuator;
 
+[CacheVersion("1.0.0")]
 public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<CalibrationAttenuatorObj>, ICloneable<LaserAttenuatorDTO>
 {
     [ObservableProperty]

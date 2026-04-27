@@ -7,6 +7,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -21,6 +22,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.IlluminationProfile;
 
+[CacheVersion("1.0.0")]
 public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, ICloneable<CIBIlluminationProfileDTO>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem>
 {
     [ObservableProperty]

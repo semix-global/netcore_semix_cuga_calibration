@@ -3,11 +3,13 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.GlobalScaleError;
 
+[CacheVersion("1.0.0")]
 public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
 {
     [ObservableProperty]
