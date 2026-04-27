@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.DarkField;
 using Core.Wcf.Models.Laser;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -18,6 +19,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.Optics.Relay;
 
+[CacheVersion("1.0.0")]
 public sealed partial class OpticsRelayDTO : CalibrationDtoBase, ICloneable<OpticsRelayDTO>, IAdaptTo<CalibrationOpticsRelay>
 {
     [ObservableProperty]

@@ -1,10 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Ads;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Ads.YGains;
 
+[CacheVersion("1.0.0")]
 public sealed partial class AdsYGainsItemDto : CalibrationDtoBase, ICloneable<AdsYGainsItemDto>, IAdaptTo<CalibrationAdsYGainsItem>
 {
     [ObservableProperty]

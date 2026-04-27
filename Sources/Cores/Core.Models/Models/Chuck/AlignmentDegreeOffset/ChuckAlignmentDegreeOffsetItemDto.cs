@@ -5,10 +5,12 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
 
+[CacheVersion("1.0.0")]
 public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDtoBase, ICloneable<ChuckAlignmentDegreeOffsetItemDto>, IAdaptTo<CalibrationChuckAlignmentDegreeOffsetItem>
 {
     [ObservableProperty]

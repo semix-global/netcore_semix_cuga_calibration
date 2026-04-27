@@ -5,11 +5,13 @@ using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.CIB.LineOrientationOffset;
 
+[CacheVersion("1.0.0")]
 public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDtoBase, ICloneable<CIBLineOrientationOffsetDTO>, IAdaptTo<CalibrationCIBLineOrientationOffsetItem>
 {
     [ObservableProperty]

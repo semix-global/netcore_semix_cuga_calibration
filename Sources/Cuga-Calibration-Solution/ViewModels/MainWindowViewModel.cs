@@ -49,6 +49,7 @@ using CugaCalibration.ViewModels.AOD;
 using CugaCalibration.ViewModels.AutoFocus;
 using CugaCalibration.ViewModels.Chuck;
 using CugaCalibration.ViewModels.CIB;
+using CugaCalibration.ViewModels.Common.Windows.File.Save;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe.Management;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -299,15 +300,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 case MainWindowViewModel:
                     switch (sysMenu.Name)
                     {
-                        case CalibrationConstantsHelper.Save:
-                            var save = await _calibrationCacheProviderService.TrySaveAsync(null, CancellationToken.None);
-                            if (save)
-                                _dialogWindowProvider.ShowDialog("Save Success.");
-                            else
-                                _dialogWindowProvider.ShowDialog("Save Failed! Please save it again.", DialogButtonsEnum.OK, DialogIconEnum.Error);
-
-                            break;
-
                         case CalibrationConstantsHelper.Export:
                             if (_dialogWindowProvider.TryShowSaveFilePathDialog(".json", out var exportPath) == true)
                             {
@@ -335,6 +327,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                             break;
                     }
+
+                    break;
+                case SaveFileWindowViewModel saveFileWindowViewModel:
+                    _windowManagerService.ShowDialog(saveFileWindowViewModel);
 
                     break;
 
@@ -395,6 +391,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             {
                 if (message.Value.IsRefreshWindow.Value == false) return;
                 OnPropertyChanged(nameof(ApplicationCookie));
+                LoadCalibrationStatus();
             }
 
             if (message.Value.IsCalibrateEnable.HasValue)

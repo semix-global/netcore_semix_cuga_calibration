@@ -3,6 +3,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -20,6 +21,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.Laser.OpticalPowerMeter;
 
+[CacheVersion("1.0.0")]
 public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, ICloneable<LaserOpticalPowerMeterDTO>, IAdaptTo<CalibrationLaserOpticalPower>
 {
     [ObservableProperty]

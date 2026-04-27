@@ -10,12 +10,18 @@ namespace Core.Models.Helper;
 
 public static class CalibrationReflectionHelper
 {
+    /// <summary>
+    /// 静态缓存,避免多次反射
+    /// </summary>
+    private static IReadOnlyList<CalibrationCategory> _historyCaches = [];
+
     public record CalibrationCategory(string Description, Type WcfCategoryType, IReadOnlyList<CalibrationCategoryItem> Items);
 
     public sealed record CalibrationCategoryItem(Type WcfModelType, Type CalibrationDtoType, MethodInfo CalibrationDtoToWcfModelMethodInfo, bool IsArray, string Description);
 
     public static IReadOnlyList<CalibrationCategory> GetCalibrationDescriptionList()
     {
+        if (_historyCaches.Count != 0) return _historyCaches;
         var resultList = new List<CalibrationCategory>();
 
         foreach (var fatherPropertyInfo in typeof(CalibrationObj).GetProperties())
@@ -35,6 +41,8 @@ public static class CalibrationReflectionHelper
 
             resultList.Add(calibrationCategory);
         }
+
+        _historyCaches = [.. resultList];
 
         return resultList;
     }

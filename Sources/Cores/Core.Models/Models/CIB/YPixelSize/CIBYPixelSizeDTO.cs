@@ -3,11 +3,13 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.CIB.YPixelSize;
 
+[CacheVersion("1.0.0")]
 public sealed partial class CIBYPixelSizeDTO : CalibrationDtoBase, ICloneable<CIBYPixelSizeDTO>, IAdaptTo<CalibrationLaserPixelSizeItem>
 {
     [ObservableProperty]

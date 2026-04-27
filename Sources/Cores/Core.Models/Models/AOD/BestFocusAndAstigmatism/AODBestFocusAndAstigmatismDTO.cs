@@ -4,6 +4,7 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -20,6 +21,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
+[CacheVersion("1.0.0")]
 public partial class AODBestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable<AODBestFocusAndAstigmatismDTO>
 {
     [ObservableProperty]

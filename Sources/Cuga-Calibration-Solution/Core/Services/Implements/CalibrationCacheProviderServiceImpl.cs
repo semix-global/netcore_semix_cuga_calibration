@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Version;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
 using Core.Utilities;
@@ -45,6 +46,7 @@ public class CalibrationCacheProviderServiceImpl(
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheDatabaseProvider recipeCacheDatabaseProvider,
     ISysRecipeInformationService sysRecipeInformationService,
+    ICalibrationVersionFactory calibrationVersionFactory,
     ILogger<CalibrationCacheProviderServiceImpl> logger,
     IDialogWindowProvider dialogWindowProvider,
     ApplicationCookie applicationCookie,
@@ -53,7 +55,7 @@ public class CalibrationCacheProviderServiceImpl(
 {
     private readonly string _saveResultDirectory = Path.Combine(options.Value.AppHomeDirectory, "CalibrationResult");
 
-    public async Task<bool> TrySaveAsync(string? filePath, CancellationToken cancellationToken)
+    public async Task<bool> TrySaveAsync(CalibrationVersionDTO calibrationVersionDTO, CancellationToken cancellationToken)
     {
         return await Task.Run(() =>
         {
@@ -80,11 +82,16 @@ public class CalibrationCacheProviderServiceImpl(
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var childCalibrationRequiredCache = parentCalibrationRequiredCache.CategoryItems.Single(t => t.TypeInstance == calibrationCategoryItem.CalibrationDtoType);
+                        var versionInfo = calibrationVersionDTO.GetVersionInfo(calibrationCategoryItem.CalibrationDtoType);
+                        if (versionInfo is null) continue;
+
+
+                        var childCalibrationRequiredCache = parentCalibrationRequiredCache.CategoryItems.First(t => t.TypeInstance == calibrationCategoryItem.CalibrationDtoType);
                         if (calibrationCategoryItem.IsArray)
                         {
                             var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType.GetElementType() == calibrationCategoryItem.WcfModelType);
-                            var dtoItems = cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType);
+
+                            var dtoItems = cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType, versionInfo.Id);
                             if (dtoItems is null || dtoItems.Length == 0)
                                 dtoItems = [Guard.IsNotNullAndReturn(Activator.CreateInstance(calibrationCategoryItem.CalibrationDtoType))];
                             var wcfItems = dtoItems.Select(t =>
@@ -100,8 +107,9 @@ public class CalibrationCacheProviderServiceImpl(
                         else
                         {
                             var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType == calibrationCategoryItem.WcfModelType);
-                            var dto = cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType);
-                            var wcfModel = dto is not null ? calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null) : null;
+
+                            var dto = cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType, versionInfo.Id);
+                            var wcfModel = calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null);
                             if (wcfModel is not null)
                             {
                                 Guard.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
@@ -113,7 +121,9 @@ public class CalibrationCacheProviderServiceImpl(
                     wcfCategoryPropertyInfo.SetValue(calibrationObj, wcfCategoryPropertyInfo.GetValue(calibrationObj));
                 }
 
-                FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, filePath ?? $"Result_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.dat"));
+                cacheProvider.Set(calibrationVersionDTO, CancellationToken.None);
+
+                FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, calibrationVersionDTO.ResultFilePath));
 
                 return true;
             }
