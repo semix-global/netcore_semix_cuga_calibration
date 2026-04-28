@@ -244,7 +244,10 @@
                             <Setter Property="wpfAttachedHelper:LoadingHelper.IsShow" Value="True" />
                         </MultiDataTrigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Background" Value="{StaticResource SecondaryRegionBrush}" />
+                            <Setter Property="Background" Value="{StaticResource SecondaryBorderBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="True">
+                            <Setter Property="Background" Value="{StaticResource DangerBrush}" />
                         </Trigger>
                     </Style.Triggers>
                 </Style>
