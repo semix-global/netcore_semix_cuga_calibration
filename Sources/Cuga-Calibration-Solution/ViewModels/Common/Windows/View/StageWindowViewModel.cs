@@ -3,70 +3,43 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using R3;
 
 namespace CugaCalibration.ViewModels.Common.Windows.View;
 
 [IOCAppService(ServiceType = typeof(StageWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class StageWindowViewModel(
+    StatusViewModel statusViewModel,
     StageViewModel stageViewModel,
     IMessenger messenger,
     ILogger<StageWindowViewModel> logger) : PopupWindowViewModelBase(messenger, logger)
 {
     [ObservableProperty]
-    private StageCoordinateSystemEnum _stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
+    public partial StatusViewModel StatusViewModel { get; set; } = statusViewModel;
 
     [ObservableProperty]
-    private bool _isJoystickEnabled;
+    public partial StageCoordinateSystemEnum StageCoordinateSystemEnum { get; set; } = StageCoordinateSystemEnum.Bright;
 
     [ObservableProperty]
-    private Point _brightFieldPosition;
+    public partial bool IsJoystickEnabled { get; set; }
 
     [ObservableProperty]
-    private Point _darkFieldPosition;
+    public partial double StageStep { get; set; } = 1;
 
     [ObservableProperty]
-    private Point _machinePosition;
+    public partial Point GotoPosition { get; set; }
 
     [ObservableProperty]
-    private double _machineTheta;
-
-    [ObservableProperty]
-    private double _stageStep = 1;
-
-    [ObservableProperty]
-    private Point _gotoPosition;
-
-    [ObservableProperty]
-    private double _rotateTheta;
+    public partial double RotateTheta { get; set; }
 
     protected override void Loadeding(CancellationToken cancellationToken)
     {
         IsJoystickEnabled = true;
         stageViewModel.ToggleEnableJoystick(IsJoystickEnabled);
-
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-        var subscribe = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorStageMilliseconds), cancellationToken).Subscribe(_ =>
-        {
-            try
-            {
-                GetPosition();
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Get Position Failed!");
-            }
-        });
-        cancellationToken.Register(subscribe.Dispose /*在适当的时候取消订阅*/); // CancellationTokenRegistration.Dispose() // 注册将被删除, 无CancellationTokenRegistration.Unregister()
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
     }
 
     [RelayCommand]
@@ -83,11 +56,8 @@ public sealed partial class StageWindowViewModel(
     private async Task MoveRelativeStageXyAsync(StageDirectionTypeEnum? stageDirectionLocalEnum)
     {
         if (stageDirectionLocalEnum is null) return;
-        await Task.Run(() =>
-        {
-            stageViewModel.MoveRelativeStageXy(stageDirectionLocalEnum.Value, StageStep);
-            GetPosition();
-        }).ConfigureAwait(false);
+        
+        await Task.Run(() => stageViewModel.MoveRelativeStageXy(stageDirectionLocalEnum.Value, StageStep)).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -95,10 +65,10 @@ public sealed partial class StageWindowViewModel(
     {
         GotoPosition = StageCoordinateSystemEnum switch
         {
-            StageCoordinateSystemEnum.Bright => BrightFieldPosition,
-            StageCoordinateSystemEnum.Dark => DarkFieldPosition,
-            StageCoordinateSystemEnum.Machine => MachinePosition,
-            _ => throw new ArgumentOutOfRangeException()
+            StageCoordinateSystemEnum.Bright => StatusViewModel.BrightFieldPosition,
+            StageCoordinateSystemEnum.Dark => StatusViewModel.DarkFieldPosition,
+            StageCoordinateSystemEnum.Machine => StatusViewModel.MachinePosition,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(StageCoordinateSystemEnum))
         };
     }
 
@@ -106,6 +76,7 @@ public sealed partial class StageWindowViewModel(
     private async Task SetAbsoluteStageXyAsync(CalChipSiteModelEnum? calChipSiteModelEnum)
     {
         if (calChipSiteModelEnum is null) return;
+        
         await Task.Run(() =>
         {
             switch (StageCoordinateSystemEnum)
@@ -126,8 +97,6 @@ public sealed partial class StageWindowViewModel(
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(StageCoordinateSystemEnum));
                     break;
             }
-
-            GetPosition();
         }).ConfigureAwait(false);
     }
 
@@ -143,18 +112,5 @@ public sealed partial class StageWindowViewModel(
             else
                 stageViewModel.MoveRelativeStageTheta(RotateTheta);
         }).ConfigureAwait(false);
-    }
-
-    private void GetPosition()
-    {
-        var resultBright = stageViewModel.GetBrightFieldStagePosition();
-        var resultDark = stageViewModel.GetDarkFieldStagePosition();
-        var resultMachine = stageViewModel.GetMachineStagePosition();
-        var resultMachineStageTheta = stageViewModel.GetMachineStageTheta();
-
-        BrightFieldPosition = resultBright;
-        DarkFieldPosition = resultDark;
-        MachinePosition = resultMachine;
-        MachineTheta = resultMachineStageTheta;
     }
 }

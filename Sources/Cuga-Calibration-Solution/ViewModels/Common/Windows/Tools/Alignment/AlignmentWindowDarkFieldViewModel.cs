@@ -22,7 +22,6 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using R3;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 
@@ -41,34 +40,37 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     private CancellationTokenSource? _cancellationTokenSource;
 
     [ObservableProperty]
-    private ReviewViewModel _reviewViewModel;
+    public partial StatusViewModel StatusViewModel { get; set; }
 
     [ObservableProperty]
-    private StageViewModel _stageViewModel;
+    public partial ReviewViewModel ReviewViewModel { get; set; }
 
     [ObservableProperty]
-    private MicroscopeViewModel _microscopeViewModel;
+    public partial StageViewModel StageViewModel { get; set; }
 
     [ObservableProperty]
-    private LaserViewModel _laserViewModel;
+    public partial MicroscopeViewModel MicroscopeViewModel { get; set; }
 
     [ObservableProperty]
-    private CIBViewModel _cIBViewModel;
+    public partial LaserViewModel LaserViewModel { get; set; }
 
     [ObservableProperty]
-    private AlignmentParamWindowDarkFieldViewModel _alignmentParamWindowDarkFieldViewModel;
+    public partial CIBViewModel CIBViewModel { get; set; }
 
     [ObservableProperty]
-    private AlignmentCacheDarkField _cache = new();
+    public partial AlignmentParamWindowDarkFieldViewModel AlignmentParamWindowDarkFieldViewModel { get; set; }
 
-    [RecipeCache]
     [ObservableProperty]
-    private AlignmentCacheDarkField[] _caches = [];
+    public partial AlignmentCacheDarkField Cache { get; set; } = new();
+
+    [field: RecipeCache]
+    [ObservableProperty]
+    public partial AlignmentCacheDarkField[] Caches { get; set; } = [];
 
     #region 界面
 
     [ObservableProperty]
-    private bool _isShowAlign = true;
+    public partial bool IsShowAlign { get; set; } = true;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CloseCommand))]
@@ -78,7 +80,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [NotifyCanExecuteChangedFor(nameof(AlignmentCommand))]
     [NotifyCanExecuteChangedFor(nameof(AdvancedCommand))]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _isEnable = true;
+    public partial bool IsEnable { get; set; } = true;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CloseCommand))]
@@ -88,7 +90,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [NotifyCanExecuteChangedFor(nameof(AlignmentCommand))]
     [NotifyCanExecuteChangedFor(nameof(AdvancedCommand))]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private bool _isNextEnable;
+    public partial bool IsNextEnable { get; set; }
 
     public bool IsAdvancedEnable => StepIndex == 0;
 
@@ -106,10 +108,10 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [NotifyCanExecuteChangedFor(nameof(AlignmentCommand))]
     [NotifyCanExecuteChangedFor(nameof(AdvancedCommand))]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
-    private int _stepIndex;
+    public partial int StepIndex { get; set; }
 
     [ObservableProperty]
-    private List<AlignmentItemStep> _stepList =
+    public partial List<AlignmentItemStep> StepList { get; set; } =
     [
         new() { StepName = "Low magnification mark point 1" },
         new() { StepName = "Low magnification mark point 2" },
@@ -120,6 +122,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     #endregion 界面
 
     public AlignmentWindowDarkFieldViewModel(
+        StatusViewModel statusViewModel,
         ReviewViewModel reviewViewModel,
         StageViewModel stageViewModel,
         MicroscopeViewModel microscopeViewModel,
@@ -139,16 +142,18 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _logger = logger;
         _contextProvider = contextProvider;
-        _alignmentParamWindowDarkFieldViewModel = alignmentParamWindowDarkFieldViewModel;
+        AlignmentParamWindowDarkFieldViewModel = alignmentParamWindowDarkFieldViewModel;
         _windowManagerService = windowManagerService;
         _calibrationSetting = calibrationSetting;
         _applicationCookie = applicationCookie;
         _calibrationCacheProvider = calibrationCacheProvider;
-        _reviewViewModel = reviewViewModel;
-        _stageViewModel = stageViewModel;
-        _microscopeViewModel = microscopeViewModel;
-        _laserViewModel = laserViewModel;
-        _cIBViewModel = cibViewModel;
+
+        StatusViewModel = statusViewModel;
+        ReviewViewModel = reviewViewModel;
+        StageViewModel = stageViewModel;
+        MicroscopeViewModel = microscopeViewModel;
+        LaserViewModel = laserViewModel;
+        CIBViewModel = cibViewModel;
         messenger.RegisterAll(this);
     }
 
@@ -198,15 +203,6 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Cache.LowSite1.Location = Cache.LowSite2.Location = Cache.HighSite1.Location = Cache.HighSite2.Location = Point.Origin;
                 Cache.LowSite1.Template = Cache.LowSite2.Template = Cache.HighSite1.Template = Cache.HighSite2.Template = null;
                 Advanced();
-
-                ReviewViewModel.Monitor(cancellationToken);
-
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-                var subscribeReview = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorStageMilliseconds), cancellationToken).Subscribe(_ => ReviewViewModel.GetBrightFieldImageMemoryByteArray());
-                cancellationToken.Register(subscribeReview.Dispose);
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
 
                 // 设置到明场中心、低倍镜、角度为0(上料默认状态)
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
