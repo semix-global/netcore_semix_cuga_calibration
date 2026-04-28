@@ -34,6 +34,7 @@ public sealed partial class MainWindow
     private void OnClosing(object? sender, CancelEventArgs e)
     {
         if (DataContext is not MainWindowViewModel mainWindowViewModel) return;
+        if (mainWindowViewModel.StatusViewModel.IsEnable == false) return;
 
         if (mainWindowViewModel.ActiveItem is not null)
         {

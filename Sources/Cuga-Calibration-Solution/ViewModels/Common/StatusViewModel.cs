@@ -30,6 +30,7 @@ public sealed partial class StatusViewModel(
 {
     private readonly ManualResetEventSlim _manualResetEvent = new(false);
     private long _frameCount;
+    public int IsSwitchMicroscopeLensInformationRunning;
     private IDisposable? _disposable0;
     private IDisposable? _disposable1;
 
@@ -86,7 +87,7 @@ public sealed partial class StatusViewModel(
                     DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();
                     MachinePosition = stageViewModel.GetMachineStagePosition();
                     MachineTheta = stageViewModel.GetMachineStageTheta();
-                    MicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+                    if (IsSwitchMicroscopeLensInformationRunning == 0) MicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
                     BitmapMemoryByteArray = reviewViewModel.GetBrightFieldImageMemoryByteArray();
 
                     _frameCount++;

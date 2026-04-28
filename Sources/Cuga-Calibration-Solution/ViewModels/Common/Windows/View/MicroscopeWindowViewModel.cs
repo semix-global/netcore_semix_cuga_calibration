@@ -33,13 +33,19 @@ public sealed partial class MicroscopeWindowViewModel(
     {
         await Task.Run(() =>
         {
+            if (Interlocked.CompareExchange(ref StatusViewModel.IsSwitchMicroscopeLensInformationRunning, 1, 0) == 1) throw new InvalidOperationException("Task is already running");
+
             try
             {
-                microscopeViewModel.SwitchMicroscopeLensInformation(microscopeLensInformation, true);
+                microscopeViewModel.SwitchMicroscopeLensInformation(StatusViewModel.MicroscopeLensInformation, true);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "{@Name}: Switch magnification failed", nameof(MicroscopeWindowViewModel));
+                logger.LogError(ex, "Switch magnification Failed");
+            }
+            finally
+            {
+                Interlocked.Exchange(ref StatusViewModel.IsSwitchMicroscopeLensInformationRunning, 0);
             }
         }).ConfigureAwait(false);
     }

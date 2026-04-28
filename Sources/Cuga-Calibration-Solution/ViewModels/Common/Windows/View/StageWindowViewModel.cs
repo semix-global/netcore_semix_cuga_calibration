@@ -38,8 +38,15 @@ public sealed partial class StageWindowViewModel(
 
     protected override void Loadeding(CancellationToken cancellationToken)
     {
-        IsJoystickEnabled = true;
-        stageViewModel.ToggleEnableJoystick(IsJoystickEnabled);
+        try
+        {
+            IsJoystickEnabled = true;
+            stageViewModel.ToggleEnableJoystick(IsJoystickEnabled);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Toggle Enable Joystick Failed");
+        }
     }
 
     [RelayCommand]
@@ -47,8 +54,15 @@ public sealed partial class StageWindowViewModel(
     {
         await Task.Run(() =>
         {
-            IsJoystickEnabled = !IsJoystickEnabled;
-            stageViewModel.ToggleEnableJoystick(IsJoystickEnabled);
+            try
+            {
+                IsJoystickEnabled = !IsJoystickEnabled;
+                stageViewModel.ToggleEnableJoystick(IsJoystickEnabled);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Toggle Enable Joystick Failed");
+            }
         }).ConfigureAwait(false);
     }
 
@@ -56,8 +70,18 @@ public sealed partial class StageWindowViewModel(
     private async Task MoveRelativeStageXyAsync(StageDirectionTypeEnum? stageDirectionLocalEnum)
     {
         if (stageDirectionLocalEnum is null) return;
-        
-        await Task.Run(() => stageViewModel.MoveRelativeStageXy(stageDirectionLocalEnum.Value, StageStep)).ConfigureAwait(false);
+
+        await Task.Run(() =>
+        {
+            try
+            {
+                stageViewModel.MoveRelativeStageXy(stageDirectionLocalEnum.Value, StageStep);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Move Relative Stage Xy Failed");
+            }
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -76,26 +100,33 @@ public sealed partial class StageWindowViewModel(
     private async Task SetAbsoluteStageXyAsync(CalChipSiteModelEnum? calChipSiteModelEnum)
     {
         if (calChipSiteModelEnum is null) return;
-        
+
         await Task.Run(() =>
         {
-            switch (StageCoordinateSystemEnum)
+            try
             {
-                case StageCoordinateSystemEnum.Bright:
-                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(GotoPosition, calChipSiteModelEnum.Value);
-                    break;
+                switch (StageCoordinateSystemEnum)
+                {
+                    case StageCoordinateSystemEnum.Bright:
+                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(GotoPosition, calChipSiteModelEnum.Value);
+                        break;
 
-                case StageCoordinateSystemEnum.Dark:
-                    stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(GotoPosition, calChipSiteModelEnum.Value);
-                    break;
+                    case StageCoordinateSystemEnum.Dark:
+                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(GotoPosition, calChipSiteModelEnum.Value);
+                        break;
 
-                case StageCoordinateSystemEnum.Machine:
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(GotoPosition);
-                    break;
+                    case StageCoordinateSystemEnum.Machine:
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(GotoPosition);
+                        break;
 
-                default:
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(StageCoordinateSystemEnum));
-                    break;
+                    default:
+                        ThrowHelper.ThrowArgumentOutOfRangeException(nameof(StageCoordinateSystemEnum));
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Set Absolute Stage Xy Failed");
             }
         }).ConfigureAwait(false);
     }
@@ -103,14 +134,21 @@ public sealed partial class StageWindowViewModel(
     [RelayCommand]
     private async Task SetStageThetaAsync(bool? isAbsolute)
     {
+        if (isAbsolute is null) return;
+
         await Task.Run(() =>
         {
-            if (isAbsolute is null) return;
-
-            if (isAbsolute.Value)
-                stageViewModel.SetAbsoluteStageTheta(RotateTheta);
-            else
-                stageViewModel.MoveRelativeStageTheta(RotateTheta);
+            try
+            {
+                if (isAbsolute.Value)
+                    stageViewModel.SetAbsoluteStageTheta(RotateTheta);
+                else
+                    stageViewModel.MoveRelativeStageTheta(RotateTheta);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Set Stage Theta Failed");
+            }
         }).ConfigureAwait(false);
     }
 }
