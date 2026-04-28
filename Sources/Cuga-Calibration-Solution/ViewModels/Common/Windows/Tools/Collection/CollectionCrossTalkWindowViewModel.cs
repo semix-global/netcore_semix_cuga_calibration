@@ -175,7 +175,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     private async Task Step02Async(CancellationToken cancellationToken)
     {
         calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, false);
-        Point DarkFieldPosition = stageWindowViewModel.DarkFieldPosition;
+        Point DarkFieldPosition = stageWindowViewModel.StatusViewModel.DarkFieldPosition;
 
         {
             var allOpticsPaths = new string[3]; // 创建新数组
@@ -222,7 +222,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     [RelayCommand]
     private Task Step03Async()
     {
-        Point DarkFieldPosition = stageWindowViewModel.DarkFieldPosition;
+        Point DarkFieldPosition = stageWindowViewModel.StatusViewModel.DarkFieldPosition;
         PMT8Ch1PixselCompare = PMT8ChPixselBefore[0] / PMT8ChPixselAfter[0];
         PMT8Ch2PixselCompare = PMT8ChPixselBefore[1] / PMT8ChPixselAfter[1];
         PMT8Ch3PixselCompare = PMT8ChPixselBefore[2] / PMT8ChPixselAfter[2];

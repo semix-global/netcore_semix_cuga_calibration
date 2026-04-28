@@ -28,13 +28,13 @@ public sealed partial class MainWindow
     private void OnContentRendered(object? sender, EventArgs e)
     {
         if (DataContext is not MainWindowViewModel mainWindowViewModel) return;
-        if (mainWindowViewModel.IsLoadingOk == false) Close();
+        if (mainWindowViewModel.StatusViewModel.IsEnable == false) Close();
     }
 
     private void OnClosing(object? sender, CancelEventArgs e)
     {
         if (DataContext is not MainWindowViewModel mainWindowViewModel) return;
-        if (mainWindowViewModel.IsLoadingOk == false) return;
+        if (mainWindowViewModel.StatusViewModel.IsEnable == false) return;
 
         if (mainWindowViewModel.ActiveItem is not null)
         {

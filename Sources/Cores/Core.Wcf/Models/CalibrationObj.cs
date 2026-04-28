@@ -12,7 +12,6 @@ namespace Core.Wcf.Models;
 /// <summary>
 /// 校准对象序列化
 /// </summary>
-
 [Serializable]
 public sealed class CalibrationObj
 {

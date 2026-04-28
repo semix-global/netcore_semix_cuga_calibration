@@ -74,7 +74,7 @@
                           VerticalAlignment="Center"
                           ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                 <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding MicroscopeLensInformation, Mode=TwoWay}" />
+                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding StatusViewModel.MicroscopeLensInformation, Mode=TwoWay}" />
                 </i:Interaction.Behaviors>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

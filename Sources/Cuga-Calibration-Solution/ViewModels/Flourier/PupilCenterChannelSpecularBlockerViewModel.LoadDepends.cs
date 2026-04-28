@@ -9,6 +9,7 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.CIB.MMD;
+using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -19,7 +20,6 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Net.Utilities.WPF.Enums;
-using Core.Models.Models.Fourier.CameraAlignment;
 
 namespace CugaCalibration.ViewModels.Flourier;
 

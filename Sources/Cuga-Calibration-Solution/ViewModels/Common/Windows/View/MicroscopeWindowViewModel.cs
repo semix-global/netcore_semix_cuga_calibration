@@ -1,77 +1,51 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using R3;
 
 namespace CugaCalibration.ViewModels.Common.Windows.View;
 
 [IOCAppService(ServiceType = typeof(MicroscopeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class MicroscopeWindowViewModel(
+    StatusViewModel statusViewModel,
     MicroscopeViewModel microscopeViewModel,
     IMessenger messenger,
     ILogger<MicroscopeWindowViewModel> logger,
     ApplicationCookie applicationCookie) : PopupWindowViewModelBase(messenger, logger)
 {
     [ObservableProperty]
-    private ApplicationCookie _applicationCookie = applicationCookie;
-
-    /// <summary>
-    /// 1: Running, 0: Not running
-    /// </summary>
-    private int _isRunning;
+    public partial StatusViewModel StatusViewModel { get; set; } = statusViewModel;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial ApplicationCookie ApplicationCookie { get; set; } = applicationCookie;
 
     protected override void Loadeding(CancellationToken cancellationToken)
     {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-        var subscribe = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorMicroscopeMilliseconds), cancellationToken).Subscribe(_ =>
-        {
-            try
-            {
-                if (_isRunning == 1) return;
-                var result = microscopeViewModel.GetCurrentMicroscopeLensInformation();
-                MicroscopeLensInformation = result;
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Get Magnification Failed!");
-            }
-        });
-        cancellationToken.Register(subscribe.Dispose);
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
     }
 
     [RelayCommand]
-    private async Task SwitchMagnificationAsync()
+    private async Task SwitchMagnificationAsync(MicroscopeLensInformation microscopeLensInformation)
     {
         await Task.Run(() =>
         {
-            if (Interlocked.CompareExchange(ref _isRunning, 1, 0) == 1) throw new InvalidOperationException("Task is already running");
+            if (Interlocked.CompareExchange(ref StatusViewModel.IsSwitchMicroscopeLensInformationRunning, 1, 0) == 1) throw new InvalidOperationException("Task is already running");
 
             try
             {
-                microscopeViewModel.SwitchMicroscopeLensInformation(MicroscopeLensInformation, true);
-                var result = microscopeViewModel.GetCurrentMicroscopeLensInformation();
-                MicroscopeLensInformation = result;
+                microscopeViewModel.SwitchMicroscopeLensInformation(StatusViewModel.MicroscopeLensInformation, true);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "{@Name}: Switch magnification failed", nameof(MicroscopeWindowViewModel));
+                logger.LogError(ex, "Switch magnification Failed");
             }
             finally
             {
-                Interlocked.Exchange(ref _isRunning, 0);
+                Interlocked.Exchange(ref StatusViewModel.IsSwitchMicroscopeLensInformationRunning, 0);
             }
         }).ConfigureAwait(false);
     }

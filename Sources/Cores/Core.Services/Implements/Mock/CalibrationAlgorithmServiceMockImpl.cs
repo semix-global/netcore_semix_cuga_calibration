@@ -307,7 +307,6 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     public double GetImageMeanGray(BitmapImage image, Rect roiRect)
     {
         return _calibrationAlgorithmServiceImpl.GetImageMeanGray(image, roiRect);
-
     }
 
     public (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points)

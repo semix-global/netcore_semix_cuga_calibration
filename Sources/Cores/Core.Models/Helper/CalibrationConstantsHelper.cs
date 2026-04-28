@@ -64,17 +64,7 @@ public static class CalibrationConstantsHelper
     /// <summary>
     /// 平移台监控间隔
     /// </summary>
-    public const int MonitorStageMilliseconds = 1000;
-
-    /// <summary>
-    /// 显微镜监控间隔
-    /// </summary>
-    public const int MonitorMicroscopeMilliseconds = 1000;
-
-    /// <summary>
-    /// Fps监控间隔
-    /// </summary>
-    public const int FpsMonitorMilliseconds = 1000;
+    public const int MonitorMilliseconds = 500;
 
     /// <summary>
     /// 配方数据库注入的key

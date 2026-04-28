@@ -1,7 +1,3 @@
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Windows;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,7 +10,6 @@ using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities.SourceGenerators.Attributes;
 using HalconDotNet;
-using Local.SQL.Cache.Providers.Extensions;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -26,6 +21,10 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Windows;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Rect = Net.Utilities.Models.Geometries.Rect;
@@ -65,9 +64,9 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
 
     [ObservableProperty]
     private bool _isSyncingFromDrag;
-    
+
     [ObservableProperty]
-    private HTuple _meanGrayOld1=new(), _meanGrayOld2=new(), _meanGrayNew1=new(), _meanGrayNew2=new();
+    private HTuple _meanGrayOld1 = new(), _meanGrayOld2 = new(), _meanGrayNew1 = new(), _meanGrayNew2 = new();
 
     // 当 RodNum/ RodWidth/ XStartPixel 改变时自动重建矩形集合
     partial void OnRodNumChanged(int value)
@@ -311,7 +310,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
-                if (!IsCalibrated) CalibrationStepIndex = -1;    
+                if (!IsCalibrated) CalibrationStepIndex = -1;
 
                 return true;
 
@@ -348,7 +347,8 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.Item.ShinyWaferPosition, Cache.ProductivityInformation
+                Cache.Item.ShinyWaferPosition,
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -372,26 +372,26 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                     HtmlTabCh1 = new HtmlTab(new
                     {
                         InitialImageCh1 = new HtmlImage(Cache.Item.OriginImageFilePathOld1, htmlImageOverlays:
-                        [
-                        .. CurrentImageRectListCh1
-                        .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault())
-                        .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh1.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault() + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                        .. CurrentImageRectListCh1
-                        .Index()
-                        .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault())
-                        .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh1.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault() + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                        ]
+                            [
+                                .. CurrentImageRectListCh1
+                                    .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault())
+                                    .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh1.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault() + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                .. CurrentImageRectListCh1
+                                    .Index()
+                                    .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault())
+                                    .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh1.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault() + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                            ]
                         ),
                         ProcessImageCh1 = new HtmlImage(Cache.Item.OriginImageFilePathNew1, htmlImageOverlays:
-                        [
-                        .. CurrentImageRectListCh1
-                        .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault())
-                        .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh1.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault() + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                        .. CurrentImageRectListCh1
-                        .Index()
-                        .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault())
-                        .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh1.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault() + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                        ]
+                            [
+                                .. CurrentImageRectListCh1
+                                    .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault())
+                                    .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh1.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault() + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                .. CurrentImageRectListCh1
+                                    .Index()
+                                    .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault())
+                                    .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh1.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh1.FirstOrDefault() + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                            ]
                         )
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -435,26 +435,26 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                     HtmlTabCh2 = new HtmlTab(new
                     {
                         InitialImageCh2 = new HtmlImage(Cache.Item.OriginImageFilePathOld2, htmlImageOverlays:
-                        [
-                        .. CurrentImageRectListCh2
-                        .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault())
-                        .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh2.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault() + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                        .. CurrentImageRectListCh2
-                        .Index()
-                        .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault())
-                        .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh2.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault() + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                        ]
+                            [
+                                .. CurrentImageRectListCh2
+                                    .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault())
+                                    .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh2.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault() + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                .. CurrentImageRectListCh2
+                                    .Index()
+                                    .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault())
+                                    .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh2.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault() + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                            ]
                         ),
                         ProcessImageCh2 = new HtmlImage(Cache.Item.OriginImageFilePathNew2, htmlImageOverlays:
-                        [
-                        .. CurrentImageRectListCh2
-                        .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault())
-                        .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh2.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault() + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                        .. CurrentImageRectListCh2
-                        .Index()
-                        .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault())
-                        .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh2.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault() + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                        ]
+                            [
+                                .. CurrentImageRectListCh2
+                                    .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault())
+                                    .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh2.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault() + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                .. CurrentImageRectListCh2
+                                    .Index()
+                                    .Skip(Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault())
+                                    .Take(Cache.Item.CgFFBoxBeginAndEndNumberCh2.LastOrDefault() - Cache.Item.CgFFBoxBeginAndEndNumberCh2.FirstOrDefault() + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                            ]
                         )
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -704,22 +704,25 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                     var rectOne = Cache.BitmapImageDrawableCh11.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
                     CurrentImageAxis = [.. CurrentImageAxis, rectOne];
                 }
+
                 for (int j = 0; j < CurrentImageAxis.Count; j++)
                 {
                     var rect = CurrentImageAxis[j];
                     CurrentImageRectListCh1 = [.. CurrentImageRectListCh1, rect];
                 }
+
                 Cache.Item.CgFFBoxMoveDownPercentListCh1.Clear();
                 for (int j = 0; j < CurrentImageRectListCh1.Count; j++)
                 {
                     double relatioin;
                     if ((j + 1) >= PupilSideChannelFlexibleApertureValue.CgFFBoxBeginNumber2Ch1 && (j + 1) <= PupilSideChannelFlexibleApertureValue.CgFFBoxEndNumber2Ch1)
-                        relatioin = PupilSideChannelFlexibleApertureValue.CgFFBoxHeightRelationPercentListCh1[j+1-PupilSideChannelFlexibleApertureValue.CgFFBoxBeginNumber2Ch1];
+                        relatioin = PupilSideChannelFlexibleApertureValue.CgFFBoxHeightRelationPercentListCh1[j + 1 - PupilSideChannelFlexibleApertureValue.CgFFBoxBeginNumber2Ch1];
                     else
                         relatioin = PupilSideChannelFlexibleApertureValue.CgFFBoxHeightRelationPercentListCh1.Average();
 
                     Cache.Item.CgFFBoxMoveDownPercentListCh1.Add(PupilSideChannelFlexibleApertureValue.CgFFBoxAllRodsBeginPercentCh1 + Math.Round((CurrentImageRectListCh1[j].Height - PupilSideChannelFlexibleApertureValue.CurrentImageRectListFirstCh1[j].Height) / relatioin, 2));
                 }
+
                 for (int j = 0; j < Cache.Item.CgFFBoxMoveDownPercentListCh1.Count; j++)
                 {
                     if (Cache.Item.CgFFBoxMoveDownPercentListCh1[j] <= 0)
@@ -737,11 +740,13 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                     var rectOne = Cache.BitmapImageDrawableCh21.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
                     CurrentImageAxis = [.. CurrentImageAxis, rectOne];
                 }
+
                 for (int j = 0; j < CurrentImageAxis.Count; j++)
                 {
                     var rect = CurrentImageAxis[j];
                     CurrentImageRectListCh2 = [.. CurrentImageRectListCh2, rect];
                 }
+
                 Cache.Item.CgFFBoxMoveDownPercentListCh2.Clear();
                 for (int j = 0; j < CurrentImageRectListCh2.Count; j++)
                 {
@@ -753,6 +758,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
 
                     Cache.Item.CgFFBoxMoveDownPercentListCh2.Add(PupilSideChannelFlexibleApertureValue.CgFFBoxAllRodsBeginPercentCh2 + Math.Round((CurrentImageRectListCh2[j].Height - PupilSideChannelFlexibleApertureValue.CurrentImageRectListFirstCh2[j].Height) / relatioin, 2));
                 }
+
                 for (int j = 0; j < Cache.Item.CgFFBoxMoveDownPercentListCh2.Count; j++)
                 {
                     if (Cache.Item.CgFFBoxMoveDownPercentListCh2[j] <= 0)
@@ -772,7 +778,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                 {
                     for (int j = 1; j <= rodNum; j++)
                     {
-                        ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh1[j - 1]/100.0));
+                        ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh1[j - 1] / 100.0));
                     }
 
                     FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
@@ -793,7 +799,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                 {
                     for (int j = 1; j <= rodNum; j++)
                     {
-                        ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh2[j - 1]/100.0));
+                        ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh2[j - 1] / 100.0));
                     }
 
                     FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
@@ -829,6 +835,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
         {
             ch12List.Add((j, 0));
         }
+
         FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
         FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
 
@@ -899,15 +906,17 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
         {
             for (int j = 1; j <= rodNum; j++)
             {
-                ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh1[j - 1]/100.0));
+                ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh1[j - 1] / 100.0));
             }
+
             FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
 
             ch12List.Clear();
             for (int j = 1; j <= rodNum; j++)
             {
-                ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh2[j - 1]/100.0));
+                ch12List.Add((j, Cache.Item.CgFFBoxMoveDownPercentListCh2[j - 1] / 100.0));
             }
+
             FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
         }
 
@@ -1008,10 +1017,10 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                 if (dialogButtonsEnum == DialogResultEnum.Retry) return false;
             }
             else
-            {                
+            {
                 foreach (var (index, pupilSideChannelSpecularBlockerDTO) in ResultPupilSideChannelSpecularBlockerDTOList.Select((dto, i) => (i, dto)))
                 {
-                    if(pupilSideChannelSpecularBlockerDTO.ProductivityInformation==Cache.ProductivityInformation)
+                    if (pupilSideChannelSpecularBlockerDTO.ProductivityInformation == Cache.ProductivityInformation)
                     {
                         pupilSideChannelSpecularBlockerDTO.IsVerified = true;
 

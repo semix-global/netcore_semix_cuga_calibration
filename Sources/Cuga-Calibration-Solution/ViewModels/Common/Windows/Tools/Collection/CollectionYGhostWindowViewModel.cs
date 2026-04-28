@@ -251,7 +251,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
         calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, true);
 
         Point DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();
-        Point DarkFieldPosition2 = stageWindowViewModel.DarkFieldPosition;
+        Point DarkFieldPosition2 = stageWindowViewModel.StatusViewModel.DarkFieldPosition;
 
         logger.LogHtmlInformation("Get PMT of 8 Pictures", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
         {
