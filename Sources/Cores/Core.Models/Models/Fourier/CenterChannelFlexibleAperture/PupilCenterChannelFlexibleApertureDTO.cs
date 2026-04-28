@@ -65,7 +65,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
     public double _cgFFBoxPushXMotorPositionCh3 = 0;
 
     [ObservableProperty]
-    public Rect _cgFFBoxPushXRectPositionCh3 = new Rect();       
+    public Rect _cgFFBoxPushXRectPositionCh3 = new Rect();
 
     #region Mapper
 

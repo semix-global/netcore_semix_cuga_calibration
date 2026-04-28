@@ -17,5 +17,4 @@ public static class BitmapImageExtensions
 
         public SizeI GetSize() => new(bitmapImage.Width, bitmapImage.Height);
     }
-
 }

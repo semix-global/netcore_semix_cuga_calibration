@@ -169,8 +169,8 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                 Cache.FindAngleInterval,
                 Cache.FindAngleMax);
             {
-                if(angleArray[^1]<Cache.FindAngleMax)
-                angleArray= [.. angleArray, Cache.FindAngleMax];
+                if (angleArray[^1] < Cache.FindAngleMax)
+                    angleArray = [.. angleArray, Cache.FindAngleMax];
 
                 foreach (double i in angleArray)
                 {
@@ -236,7 +236,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             Cache.PolarizationPositionNDFSCH2 = pointWithMinY.X;
 
             pointWithMinY = Cache.PolarizationPositionNDFSListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFSCH3 = pointWithMinY.X;           
+            Cache.PolarizationPositionNDFSCH3 = pointWithMinY.X;
 
             double[] values = { Cache.PolarizationPositionNDFSCH1, Cache.PolarizationPositionNDFSCH2, Cache.PolarizationPositionNDFSCH3 };
             Cache.FindAngleMin = values.Average() - 30;
@@ -309,7 +309,6 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                 {
                     ResultImage = new HtmlImage(originImageFilePath)
                 }), HtmlLogUniqueId.LoggingHtml());
-
 
 
                 OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[1].ChannelId, i);
