@@ -65,8 +65,5 @@ public sealed partial class CollectPolarizationCache : CalibrationCacheBase
     private CIBInformation _cIBInformation = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
-
-    [ObservableProperty]
     private CIBConfiguration _cIBConfiguration = new();
 }
