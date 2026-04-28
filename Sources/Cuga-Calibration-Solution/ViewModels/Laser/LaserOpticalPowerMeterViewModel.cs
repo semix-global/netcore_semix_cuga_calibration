@@ -455,8 +455,8 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto
+                dto,
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }
 

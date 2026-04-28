@@ -537,8 +537,8 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.LensInformation != dto.LensInformation),
-                dto
+                dto,
+                .. Calibrations.Where(t => t.LensInformation != dto.LensInformation)
             ];
         }
 

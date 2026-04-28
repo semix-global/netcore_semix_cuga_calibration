@@ -838,11 +838,11 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
+                dto,
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation
                                            || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
                                            || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
-                                           || t.OpticsCollectorPolarizationModeEnum != dto.OpticsCollectorPolarizationModeEnum),
-                dto
+                                           || t.OpticsCollectorPolarizationModeEnum != dto.OpticsCollectorPolarizationModeEnum)
             ];
         }
 

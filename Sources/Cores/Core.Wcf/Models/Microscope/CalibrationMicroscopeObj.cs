@@ -42,6 +42,8 @@ public sealed class CalibrationMicroscopeFocusItem : CalibrationBase
     /// </summary>
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
 
+    public string CgMicroscopeLensString => CgMicroscopeLens.ToString();
+
     /// <summary>
     /// 当前镜头的最佳清晰高度(绝对ECS), **需要下发AF硬件**
     /// </summary>
@@ -63,6 +65,8 @@ public sealed class CalibrationMicroscopeCalChip : CalibrationBase
     /// 此显微镜镜头下做的校准
     /// </summary>
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
+
+    public string CgMicroscopeLensString => CgMicroscopeLens.ToString();
 
     /// <summary>
     /// 基于<see cref="CgMicroscopeLens"/>倍镜下做的校准, DSW对准角度
@@ -121,6 +125,8 @@ public sealed class CalibrationMicroscopePixelSizeItem : CalibrationBase
     /// </summary>
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
 
+    public string CgMicroscopeLensString => CgMicroscopeLens.ToString();
+
     /// <summary>
     /// 当前镜头的X方向和Y方向1像素转尺寸, 单位um/pixel(SizePerPixel), **Cuga内部使用**
     /// </summary>
@@ -137,6 +143,8 @@ public sealed class CalibrationMicroscopeCentricityItem : CalibrationBase
     /// 显微镜镜头
     /// </summary>
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
+
+    public string CgMicroscopeLensString => CgMicroscopeLens.ToString();
 
     /// <summary>
     /// 当前镜头的中心位置偏差[相对距离](都是和150X偏差显微镜(当前镜头 - 150X镜头), 所以可以通过这个可以计算任意两个镜头差), **Cuga内部使用**

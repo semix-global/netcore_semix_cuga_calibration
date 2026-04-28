@@ -8,13 +8,11 @@ using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.View;
-using HAlgorithm;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -42,6 +40,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
     IOptions<ApplicationSetting> options,
     ICalibrationOpticsService calibrationOpticsService,
     ICalibrationStatusService calibrationStatusService,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
     CreateRoiWindowViewModel createRoiWindowViewModel,
     ApplicationCookie applicationCookie,
     ICacheProvider cacheProvider,
@@ -53,8 +52,6 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
     [ObservableProperty]
     private int _selectedChannelId = -1;
-
-    private readonly Algorithm _algorithm = new();
 
     private const string DSW = nameof(DSW);
     private const string Haze = nameof(Haze);
@@ -742,17 +739,13 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
     private ObservableCollection<Point> ProcessImageAndGetPoints(BitmapImage image0)
     {
-        using var hImage = image0.ToHImage();
-        _algorithm.RotateAndMirror(hImage, out var image);
-        _algorithm.LightSpot(image, out var yValue);
+        using var mirrorImage = calibrationAlgorithmService.RotateAndMirrorImage(image0);
+        var yArray = calibrationAlgorithmService.GetImageGrayYProjectionsPixels(mirrorImage);
         var points = new ObservableCollection<Point>();
-        if (yValue?.Length > 0)
+
+        for (var j = 0; j < yArray.Length; j++)
         {
-            var yArray = yValue.ToDArr();
-            for (int j = 0; j < yArray.Length; j++)
-            {
-                points.Add(new Point(j, yArray[j]));
-            }
+            points.Add(new Point(j, yArray[j]));
         }
 
         return points;

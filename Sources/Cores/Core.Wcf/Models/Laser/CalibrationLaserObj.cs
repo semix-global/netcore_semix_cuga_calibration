@@ -187,10 +187,15 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
+
 
     /// <summary>
     /// 测试的功率系数
@@ -219,10 +224,14 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
 
     /// <summary>
     /// 最大的功率系数台面功率计的平均值P
@@ -290,10 +299,14 @@ public sealed class CalibrationLaserAodDelayItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// 暗场Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
 
     /// <summary>
     /// 当前暗场Mag的Prescan AOD 延迟时间(绝对延迟时间), **需要下发Laser硬件**
@@ -317,10 +330,14 @@ public sealed class CalibrationLaserPixelSizeItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// 暗场Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
 
     /// <summary>
     /// 暗场相机ID
@@ -344,15 +361,21 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
+    public string CgMagType => CgMagTypeEnum.ToString();
+
     /// <summary>
     /// 速度
     /// </summary>
     public CgSpeedLevelType Speed { get; set; }
+
+    public string SpeedString => Speed.ToString();
 
     /// <summary>
     /// 当前暗场Mag和速度下的X方向1像素转尺寸, 单位um/pixel, **Cuga内部使用**
@@ -376,20 +399,28 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// 此显微镜镜头下做的校准
     /// </summary>
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
+
+    public string CgMicroscopeLensString => CgMicroscopeLens.ToString();
 
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
+    public string CgMagType => CgMagTypeEnum.ToString();
+
     /// <summary>
     /// 速度
     /// </summary>
     public CgSpeedLevelType Speed { get; set; }
+
+    public string SpeedString => Speed.ToString();
 
     /// <summary>
     /// 暗场相机ID
@@ -413,20 +444,28 @@ public sealed class CalibrationCIBLineOrientationOffsetItem : CalibrationBase
     /// </summary>
     public CgMicroscopeLens CgMicroscopeLens { get; set; }
 
+    public string CgMicroscopeLensString => CgMicroscopeLens.ToString();
+
     /// <summary>
     /// 入射方式
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
 
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
+    public string CgMagType => CgMagTypeEnum.ToString();
+
     /// <summary>
     /// 速度
     /// </summary>
     public CgSpeedLevelType Speed { get; set; }
+
+    public string SpeedString => Speed.ToString();
 
     /// <summary>
     /// 暗场相机ID
@@ -449,6 +488,8 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
 
     public CalibrationChirpAODWaveformResult[] ChirpAODWaveformResultList { get; set; }
 }
@@ -538,15 +579,21 @@ public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
+    public string CgMagType => CgMagTypeEnum.ToString();
+
     /// <summary>
     /// 速度
     /// </summary>
     public CgSpeedLevelType Speed { get; set; }
+
+    public string SpeedString => Speed.ToString();
 
     /// <summary>
     /// 光学 Apodization
@@ -558,10 +605,14 @@ public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
     /// </summary>
     public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
 
+    public string OpticsPolarizationMode => OpticsPolarizationModeEnum.ToString();
+
     /// <summary>
     /// 采集偏振
     /// </summary>
     public CgNDFTypeEnum CollectorPolarizationModeEnum { get; set; }
+
+    public string CollectorPolarizationMode => CollectorPolarizationModeEnum.ToString();
 
     /// <summary>
     /// 校准结果, **需要下发CIB硬件**
@@ -601,10 +652,14 @@ public sealed class CalibrationLaserCIBXTCItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
 
     /// <summary>
     /// 校准结果, **需要下发CIB硬件**
@@ -644,10 +699,14 @@ public sealed class CalibrationLaserCIBAGCDelayItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
 
     /// <summary>
     /// 校准结果, **需要下发CIB硬件**
@@ -687,15 +746,21 @@ public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
+    public string CgMagType => CgMagTypeEnum.ToString();
+
     /// <summary>
     /// 速度
     /// </summary>
     public CgSpeedLevelType Speed { get; set; }
+
+    public string SpeedString => Speed.ToString();
 
     /// <summary>
     /// 光学 Apodization
@@ -707,10 +772,14 @@ public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
     /// </summary>
     public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
 
+    public string OpticsPolarizationMode => OpticsPolarizationModeEnum.ToString();
+
     /// <summary>
     /// 采集偏振
     /// </summary>
     public CgNDFTypeEnum CollectorPolarizationModeEnum { get; set; }
+
+    public string CollectorPolarizationMode => CollectorPolarizationModeEnum.ToString();
 
     /// <summary>
     /// 校准结果, **需要下发CIB硬件**
@@ -750,10 +819,14 @@ public sealed class CalibrationLaserAODUniformityItem : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
 
     /// <summary>
     /// 波形功率系数(1表示100%, 0表示0%)
@@ -769,6 +842,8 @@ public sealed class CalibrationLaserAODUniformityItem : CalibrationBase
     /// Uniformitiy 校准结果使用的偏振
     /// </summary>
     public CgPolarizationTypeEnum OpticsPolarizationModeEnum { get; set; }
+
+    public string OpticsPolarizationMode => OpticsPolarizationModeEnum.ToString();
 
     /// <summary>
     /// Uniformity 校准结果, **需要下发AOD硬件**
@@ -786,6 +861,8 @@ public sealed class CalibrationOpticsRelay : CalibrationBase
     /// 入射方式
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
 
     /// <summary>
     /// 斜率(ECS/mm), **Cuga内部使用**
@@ -814,6 +891,8 @@ public sealed class CalibrationOpticsSC : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// SC L1,电机位置, **需要下发Optics Motor硬件**
     /// </summary>
@@ -836,15 +915,21 @@ public sealed class CalibrationOpticsINC : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
+    public string CgMagType => CgMagTypeEnum.ToString();
+
     /// <summary>
     /// 速度
     /// </summary>
     public CgSpeedLevelType Speed { get; set; }
+
+    public string SpeedString => Speed.ToString();
 
     /// <summary>
     /// INC电机位置, **需要下发Optics Motor硬件**
@@ -862,6 +947,8 @@ public sealed class CalibrationLaserDOEAngle : CalibrationBase
     /// 入射方式
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
 
     public double DOEAngle { get; set; }
 }

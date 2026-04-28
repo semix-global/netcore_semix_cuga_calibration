@@ -22,6 +22,11 @@ public class CalibrationBase
     public bool IsRequiredCalibrate { get; set; } = false;
 
     /// <summary>
+    /// 校准结果版本号
+    /// </summary>
+    public string Version { get; set; }
+
+    /// <summary>
     /// 是否Ok
     /// </summary>
     [JsonIgnore]
