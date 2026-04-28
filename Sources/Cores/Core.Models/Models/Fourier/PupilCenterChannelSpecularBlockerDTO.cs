@@ -2,11 +2,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Fourier;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 
 namespace Core.Models.Models.Fourier;
 
+[CacheVersion("1.0.0")]
 public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDtoBase, ICloneable<PupilCenterChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilCenterChannelSpecularBlocker>
 {
     [ObservableProperty]

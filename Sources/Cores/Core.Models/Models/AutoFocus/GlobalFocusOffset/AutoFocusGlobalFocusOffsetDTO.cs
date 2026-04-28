@@ -6,10 +6,12 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.AutoFocus;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.AutoFocus.GlobalFocusOffset;
 
+[CacheVersion("1.0.0")]
 public sealed partial class AutoFocusGlobalFocusOffsetDTO : CalibrationDtoBase, ICloneable<AutoFocusGlobalFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusGlobalFocusOffset>
 {
     [ObservableProperty]

@@ -1188,8 +1188,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.LaserLightInformation == dto.LaserLightInformation) == false),
-                dto
+                dto,
+                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.LaserLightInformation == dto.LaserLightInformation) == false)
             ];
         }
 

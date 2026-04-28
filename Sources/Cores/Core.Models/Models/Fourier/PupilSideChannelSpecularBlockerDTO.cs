@@ -3,12 +3,14 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Fourier;
 using Cuga.Data.DataStruct.Stage;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 
 namespace Core.Models.Models.Fourier;
 
+[CacheVersion("1.0.0")]
 public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoBase, ICloneable<PupilSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>
 {
     [ObservableProperty]

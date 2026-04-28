@@ -1078,8 +1078,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.CIBInformation != dto.CIBInformation),
-                dto
+                dto,
+                .. Calibrations.Where(t => t.CIBInformation != dto.CIBInformation)
             ];
         }
 

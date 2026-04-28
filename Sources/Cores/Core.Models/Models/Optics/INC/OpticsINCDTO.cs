@@ -4,6 +4,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -14,6 +15,7 @@ using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace Core.Models.Models.Optics.INC;
 
+[CacheVersion("1.0.0")]
 public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<OpticsINCDTO>, IAdaptTo<CalibrationOpticsINC>
 {
     [ObservableProperty]

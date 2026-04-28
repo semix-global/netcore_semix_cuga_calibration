@@ -3,6 +3,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.DarkField;
 using Core.Wcf.Models.Laser;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -13,6 +14,7 @@ using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace Core.Models.Models.Optics.SC;
 
+[CacheVersion("1.0.0")]
 public sealed partial class OpticsSCDTO : CalibrationDtoBase, ICloneable<OpticsSCDTO>, IAdaptTo<CalibrationOpticsSC>
 {
     [ObservableProperty]

@@ -5,6 +5,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.AutoFocus;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -19,6 +20,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AutoFocus.CalChipFocusOffset;
 
+[CacheVersion("1.0.0")]
 public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDtoBase, ICloneable<AutoFocusCalChipFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusCalChipFocusOffset>
 {
     [ObservableProperty]

@@ -16,6 +16,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 
@@ -29,6 +30,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
     private readonly ICacheProvider _cacheProvider;
     private readonly ISynchronizationContextProvider _synchronizationContextProvider;
     private readonly ICalibrationCacheProvider _calibrationCacheProviderService;
+    private readonly ICalibrationVersionFactory _calibrationVersionFactory;
     private readonly ConfigViewModel _configViewModel;
     private bool _isLoadSuccess;
 
@@ -50,6 +52,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
         ICacheProvider cacheProvider,
         ISynchronizationContextProvider synchronizationContextProvider,
         ICalibrationCacheProvider calibrationCacheProviderService,
+        ICalibrationVersionFactory calibrationVersionFactory,
         ConfigViewModel configureViewModel)
     {
         _messenger = messenger;
@@ -59,6 +62,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
         _cacheProvider = cacheProvider;
         _synchronizationContextProvider = synchronizationContextProvider;
         _calibrationCacheProviderService = calibrationCacheProviderService;
+        _calibrationVersionFactory = calibrationVersionFactory;
         _configViewModel = configureViewModel;
 
         _messenger.RegisterAll(this);
@@ -190,7 +194,10 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
 
             // 序列化覆盖原先的result
             var appliedFilePath = _configViewModel.GetAppliedCalibrateResultFilePath();
-            var save = await _calibrationCacheProviderService.TrySaveAsync(appliedFilePath, CancellationToken.None);
+
+            var calibrationVersionDTO = _calibrationVersionFactory.CreateInstanceFromCurrentDatabase(Path.GetFileName(appliedFilePath));
+
+            var save = await _calibrationCacheProviderService.TrySaveAsync(calibrationVersionDTO, CancellationToken.None);
             if (save)
                 _dialogWindowProvider.ShowDialog("Save Success.");
             else

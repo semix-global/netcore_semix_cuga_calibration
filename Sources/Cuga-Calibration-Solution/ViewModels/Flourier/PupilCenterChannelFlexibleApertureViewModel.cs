@@ -7,7 +7,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using HAlgorithm;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
@@ -34,8 +33,6 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
 {
     #region 界面相关
-
-    private readonly Algorithm _algorithm = new();
 
     [ObservableProperty]
     private Point[] _circlePointX = new Point[4];
@@ -1519,21 +1516,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            List<double> yValues = new List<double>();
-            List<double> xValues = new List<double>();
-            for (int i = 0; i < CirclePointX.Count(); i++)
-            {
-                yValues.Add(CirclePointX[i].Y);
-                xValues.Add(CirclePointX[i].X);
-            }
+            var circleInfo = calibrationAlgorithmService.FitCircle(CirclePointX);
+            ResultPointX = circleInfo.CenterPosition;
+            ResultRadiusX = (float)circleInfo.Radius;
 
-            _algorithm.FindCircle(xValues, yValues, out var yValue, out var xValue, out var Radius);
-            HandleId6(xValue, yValue, Radius);
-
-            double x = xValue.ToDArr().ElementAt(0); // 或用 ToFArr() 然后转 double
-            double y = yValue.ToDArr().ElementAt(0);
-            ResultPointX = new Point(x, y);
-            ResultRadiusX = (float)(Radius.ToDArr().ElementAt(0));
+            HandleId6(ResultPointX.X, ResultPointX.Y, ResultRadiusX);
 
             return true;
         });
@@ -1544,22 +1531,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            List<double> yValues = new List<double>();
-            List<double> xValues = new List<double>();
-            for (int i = 0; i < CirclePointY.Count(); i++)
-            {
-                yValues.Add(CirclePointY[i].Y);
-                xValues.Add(CirclePointY[i].X);
-            }
+            var circleInfo = calibrationAlgorithmService.FitCircle(CirclePointY);
+            ResultPointY = circleInfo.CenterPosition;
+            ResultRadiusY = (float)circleInfo.Radius;
 
-            _algorithm.FindCircle(xValues, yValues, out var yValue, out var xValue, out var Radius);
-            HandleId6(xValue, yValue, Radius);
-
-            double x = xValue.ToDArr().ElementAt(0); // 或用 ToFArr() 然后转 double
-            double y = yValue.ToDArr().ElementAt(0);
-            ResultPointY = new Point(x, y);
-            ResultRadiusY = (float)(Radius.ToDArr().ElementAt(0));
-
+            HandleId6(ResultPointY.X, ResultPointY.Y, ResultRadiusY);
             return true;
         });
     }

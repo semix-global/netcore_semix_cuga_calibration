@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Pattern;
+using Local.SQL.Cache.Providers.Bases;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -15,6 +16,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Alignment;
 
+[CacheVersion("1.0.0")]
 public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AODAlignmentDTO>
 {
     [ObservableProperty]

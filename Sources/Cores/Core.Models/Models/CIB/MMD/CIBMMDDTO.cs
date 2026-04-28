@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -14,6 +15,7 @@ using System.ComponentModel;
 
 namespace Core.Models.Models.CIB.MMD;
 
+[CacheVersion("1.0.0")]
 public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO>, IAdaptTo<CalibrationLaserCIBMMDItem>
 {
     [ObservableProperty]

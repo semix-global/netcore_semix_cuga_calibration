@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Wcf.Models.Laser;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -13,6 +14,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AutoFocus.DarkAutoFocus;
 
+[CacheVersion("1.0.0")]
 public sealed partial class DarkAutoFocusDTO : CalibrationDtoBase, ICloneable<DarkAutoFocusDTO>, IAdaptTo<CalibrationLaserAutoFocus>
 {
     [ObservableProperty]

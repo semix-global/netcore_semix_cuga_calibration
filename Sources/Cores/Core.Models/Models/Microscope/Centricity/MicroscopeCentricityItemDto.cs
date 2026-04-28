@@ -3,11 +3,13 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Microscope.Centricity;
 
+[CacheVersion("1.0.0")]
 public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, ICloneable<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>
 {
     [ObservableProperty]
