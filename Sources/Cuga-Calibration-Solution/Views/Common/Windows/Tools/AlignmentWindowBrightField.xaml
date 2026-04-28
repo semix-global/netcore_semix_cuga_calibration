@@ -94,9 +94,9 @@
                                          ShowAxes="True"
                                          ShowCursor="False"
                                          ShowGrid="False"
-                                         BackgroundImage="{Binding ReviewViewModel.BitmapMemoryByteArray, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}">
+                                         BackgroundImage="{Binding StatusViewModel.BitmapMemoryByteArray, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}">
                             <i:Interaction.Behaviors>
-                                <behaviors:CanvasViewerFpsBehavior FpsValue="{Binding ReviewViewModel.Fps}" />
+                                <behaviors:CanvasViewerFpsBehavior FpsValue="{Binding StatusViewModel.Fps}" />
                                 <behaviors:CanvasViewerClickBehavior Command="{Binding ReviewViewModel.MousePilotCommand}" />
                             </i:Interaction.Behaviors>
                         </view:CanvasView>

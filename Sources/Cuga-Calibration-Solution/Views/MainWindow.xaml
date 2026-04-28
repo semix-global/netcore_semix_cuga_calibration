@@ -59,169 +59,199 @@
             <i:InvokeCommandAction Command="{Binding ClosedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
-    <DockPanel IsEnabled="{Binding IsLoadingOk}">
-        <Menu DockPanel.Dock="Top"
-              IsEnabled="{Binding IsEnable}"
-              ItemsSource="{Binding ApplicationCookie.TitleMenu.ChildList}">
-            <Menu.ItemContainerStyle>
-                <Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="MenuItem">
-                    <Setter Property="Header" Value="{Binding Name}" />
-                    <Setter Property="Command" Value="{Binding DataContext.OpenToolMenuCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
-                    <Setter Property="CommandParameter" Value="{Binding .}" />
-                    <Setter Property="ItemsSource" Value="{Binding ChildList}" />
-                    <Setter Property="Padding" Value="8,3" />
-                </Style>
-            </Menu.ItemContainerStyle>
-        </Menu>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="282" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <!--#region Left-->
-            <TreeView Margin="5" ItemsSource="{Binding ApplicationCookie.CalibrationMenu.ChildList}">
-                <TreeView.ItemContainerStyle>
-                    <!--  防止覆盖原有样式  -->
-                    <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
-                        <Setter Property="IsExpanded" Value="True" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ChildList.Count, Converter={StaticResource IntIsLessThan1ToBooleanConverter}}" Value="True">
-                                <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.Command" Value="{Binding DataContext.OpenCalibrationCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
-                                <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.CommandParameter" Value="{Binding SysMenuDTO.Component}" />
-                            </DataTrigger>
-                            <DataTrigger Value="True">
-                                <DataTrigger.Binding>
-                                    <MultiBinding Converter="{StaticResource MultiValueEqualityViewModelConverter}">
-                                        <!--  任何一个Binding变动都会触发MultiBinding  -->
-                                        <Binding Mode="OneWay" Path="SysMenuDTO.Component" />
-                                        <Binding Mode="OneWay"
-                                                 Path="DataContext.ActiveItem"
-                                                 RelativeSource="{RelativeSource FindAncestor,
-                                                                                 AncestorType=Window}" />
-                                    </MultiBinding>
-                                </DataTrigger.Binding>
-                                <Setter Property="Foreground" Value="{StaticResource DarkAccentBrush}" />
-                            </DataTrigger>
-                        </Style.Triggers>
+    <Grid>
+        <DockPanel IsEnabled="{Binding StatusViewModel.IsEnable}">
+            <Menu DockPanel.Dock="Top"
+                  IsEnabled="{Binding IsEnable}"
+                  ItemsSource="{Binding ApplicationCookie.TitleMenu.ChildList}">
+                <Menu.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="MenuItem">
+                        <Setter Property="Header" Value="{Binding Name}" />
+                        <Setter Property="Command" Value="{Binding DataContext.OpenToolMenuCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
+                        <Setter Property="CommandParameter" Value="{Binding .}" />
+                        <Setter Property="ItemsSource" Value="{Binding ChildList}" />
+                        <Setter Property="Padding" Value="8,3" />
                     </Style>
-                </TreeView.ItemContainerStyle>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding ChildList}">
-                        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                            <Path x:Name="Path"
-                                  Width="10"
-                                  Height="10"
-                                  Margin="0,0,10,0"
-                                  Data="{StaticResource ErrorGeometry}"
-                                  Fill="{DynamicResource DarkDangerBrush}"
-                                  Stretch="Uniform" />
-                            <TextBlock Text="{Binding SysMenuDTO.Name}" />
-                        </StackPanel>
-                        <HierarchicalDataTemplate.Triggers>
-                            <DataTrigger Binding="{Binding IsCalibrated}" Value="true">
-                                <Setter TargetName="Path" Property="Data" Value="{StaticResource SuccessGeometry}" />
-                                <Setter TargetName="Path" Property="Fill" Value="{StaticResource DarkSuccessBrush}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding SysMenuDTO.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
-                                <Setter TargetName="Path" Property="Data" Value="{x:Null}" />
-                                <Setter TargetName="Path" Property="Margin" Value="0" />
-                            </DataTrigger>
-                        </HierarchicalDataTemplate.Triggers>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-            <!--#endregion-->
+                </Menu.ItemContainerStyle>
+            </Menu>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="282" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <GridSplitter Grid.Column="1"
-                          Width="10"
-                          Margin="-5" />
-
-            <!--#region right-->
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="230" />
-                </Grid.RowDefinitions>
-                <!--#region button group-->
-                <hc:UniformSpacingPanel Margin="5,10,5,3" Spacing="10">
-                    <Button Content="Calibrate"
-                            Command="{Binding CalibrateCommand}"
-                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                            Style="{StaticResource ButtonSuccess}" />
-                    <Button Content="Review"
-                            Command="{Binding ReviewCommand}"
-                            hc:IconElement.Geometry="{StaticResource SearchGeometry}"
-                            Style="{StaticResource ButtonSuccess}" />
-                    <Button Content="Cancel"
-                            Command="{Binding CancelCommand}"
-                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                            Style="{StaticResource ButtonWarning}" />
-                    <Button Content="Previous"
-                            Command="{Binding PreviousCommand}"
-                            hc:IconElement.Geometry="{StaticResource LeftGeometry}"
-                            Style="{StaticResource ButtonPrimary}" />
-                    <Button Content="Next"
-                            Command="{Binding NextCommand}"
-                            hc:IconElement.Geometry="{StaticResource RightGeometry}"
-                            Style="{StaticResource ButtonPrimary}" />
-                </hc:UniformSpacingPanel>
-                <!--#endregion-->
-                <!--#region body-->
-                <ContentControl Grid.Row="1">
-                    <ContentControl.Style>
-                        <Style BasedOn="{StaticResource {x:Type ContentControl}}" TargetType="{x:Type ContentControl}">
+                <!--#region Left-->
+                <TreeView Margin="5" ItemsSource="{Binding ApplicationCookie.CalibrationMenu.ChildList}">
+                    <TreeView.ItemContainerStyle>
+                        <!--  防止覆盖原有样式  -->
+                        <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="True" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:Constants.True}">
-                                    <Setter Property="Content">
-                                        <Setter.Value>
-                                            <Viewbox Width="800" Height="800">
-                                                <Image HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       Source="pack://application:,,,/Cuga-Calibration-Solution;component/Assets/Images/Logo1.png" />
-                                            </Viewbox>
-                                        </Setter.Value>
-                                    </Setter>
+                                <DataTrigger Binding="{Binding ChildList.Count, Converter={StaticResource IntIsLessThan1ToBooleanConverter}}" Value="True">
+                                    <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.Command" Value="{Binding DataContext.OpenCalibrationCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
+                                    <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.CommandParameter" Value="{Binding SysMenuDTO.Component}" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:Constants.False}">
-                                    <Setter Property="Content">
-                                        <Setter.Value>
-                                            <ContentControl Content="{Binding ActiveItem, Converter={StaticResource ViewModel2ViewConverter}}" />
-                                        </Setter.Value>
-                                    </Setter>
+                                <DataTrigger Value="True">
+                                    <DataTrigger.Binding>
+                                        <MultiBinding Converter="{StaticResource MultiValueEqualityViewModelConverter}">
+                                            <!--  任何一个Binding变动都会触发MultiBinding  -->
+                                            <Binding Mode="OneWay" Path="SysMenuDTO.Component" />
+                                            <Binding Mode="OneWay"
+                                                     Path="DataContext.ActiveItem"
+                                                     RelativeSource="{RelativeSource FindAncestor,
+                                                                                     AncestorType=Window}" />
+                                        </MultiBinding>
+                                    </DataTrigger.Binding>
+                                    <Setter Property="Foreground" Value="{StaticResource DarkAccentBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </ContentControl.Style>
-                </ContentControl>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding ChildList}">
+                            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                <Path x:Name="Path"
+                                      Width="10"
+                                      Height="10"
+                                      Margin="0,0,10,0"
+                                      Data="{StaticResource ErrorGeometry}"
+                                      Fill="{DynamicResource DarkDangerBrush}"
+                                      Stretch="Uniform" />
+                                <TextBlock Text="{Binding SysMenuDTO.Name}" />
+                            </StackPanel>
+                            <HierarchicalDataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsCalibrated}" Value="true">
+                                    <Setter TargetName="Path" Property="Data" Value="{StaticResource SuccessGeometry}" />
+                                    <Setter TargetName="Path" Property="Fill" Value="{StaticResource DarkSuccessBrush}" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding SysMenuDTO.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
+                                    <Setter TargetName="Path" Property="Data" Value="{x:Null}" />
+                                    <Setter TargetName="Path" Property="Margin" Value="0" />
+                                </DataTrigger>
+                            </HierarchicalDataTemplate.Triggers>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
                 <!--#endregion-->
-                <GridSplitter Grid.Row="2"
-                              Height="10"
+
+                <GridSplitter Grid.Column="1"
+                              Width="10"
                               Margin="-5" />
-                <!--#region log-->
-                <Grid Grid.Row="3" Margin="5">
+
+                <!--#region right-->
+                <Grid Grid.Column="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="230" />
                     </Grid.RowDefinitions>
-                    <hc:SimplePanel Grid.Row="1">
-                        <nlog:NLogViewer MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" TargetName="targetNLogViewer" />
-                        <Button Content="Popup"
-                                Command="{Binding ShowLogCommand}"
-                                Margin="6"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Top"
-                                hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                                Style="{StaticResource ButtonDefault.Small}" />
-                    </hc:SimplePanel>
-                </Grid>
+                    <!--#region button group-->
+                    <hc:UniformSpacingPanel Margin="5,10,5,3" Spacing="10">
+                        <Button Content="Calibrate"
+                                Command="{Binding CalibrateCommand}"
+                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                Style="{StaticResource ButtonSuccess}" />
+                        <Button Content="Review"
+                                Command="{Binding ReviewCommand}"
+                                hc:IconElement.Geometry="{StaticResource SearchGeometry}"
+                                Style="{StaticResource ButtonSuccess}" />
+                        <Button Content="Cancel"
+                                Command="{Binding CancelCommand}"
+                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                Style="{StaticResource ButtonWarning}" />
+                        <Button Content="Previous"
+                                Command="{Binding PreviousCommand}"
+                                hc:IconElement.Geometry="{StaticResource LeftGeometry}"
+                                Style="{StaticResource ButtonPrimary}" />
+                        <Button Content="Next"
+                                Command="{Binding NextCommand}"
+                                hc:IconElement.Geometry="{StaticResource RightGeometry}"
+                                Style="{StaticResource ButtonPrimary}" />
+                    </hc:UniformSpacingPanel>
+                    <!--#endregion-->
+                    <!--#region body-->
+                    <ContentControl Grid.Row="1">
+                        <ContentControl.Style>
+                            <Style BasedOn="{StaticResource {x:Type ContentControl}}" TargetType="{x:Type ContentControl}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:Constants.True}">
+                                        <Setter Property="Content">
+                                            <Setter.Value>
+                                                <Viewbox Width="800" Height="800">
+                                                    <Image HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           Source="pack://application:,,,/Cuga-Calibration-Solution;component/Assets/Images/Logo1.png" />
+                                                </Viewbox>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding ActiveItem, Converter={x:Static valueConverters:NullToBoolConverter.Instance}}" Value="{x:Static constants:Constants.False}">
+                                        <Setter Property="Content">
+                                            <Setter.Value>
+                                                <ContentControl Content="{Binding ActiveItem, Converter={StaticResource ViewModel2ViewConverter}}" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+                    <!--#endregion-->
+                    <GridSplitter Grid.Row="2"
+                                  Height="10"
+                                  Margin="-5" />
+                    <!--#region log-->
+                    <Grid Grid.Row="3" Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <hc:SimplePanel Grid.Row="1">
+                            <nlog:NLogViewer MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" TargetName="targetNLogViewer" />
+                            <Button Content="Popup"
+                                    Command="{Binding ShowLogCommand}"
+                                    Margin="6"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                    Style="{StaticResource ButtonDefault.Small}" />
+                        </hc:SimplePanel>
+                    </Grid>
 
+                    <!--#endregion-->
+                </Grid>
                 <!--#endregion-->
             </Grid>
-            <!--#endregion-->
-        </Grid>
-    </DockPanel>
+        </DockPanel>
+        <Button Content="Refresh Cookie"
+                Command="{Binding StatusViewModel.RefreshCookieCommand}"
+                CommandParameter="{x:Static constants:Constants.False}"
+                Margin="1"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                IsEnabled="{Binding StatusViewModel.IsEnable, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}">
+            <Button.Style>
+                <Style BasedOn="{StaticResource ButtonDefault.Small}" TargetType="Button">
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding StatusViewModel.IsEnable}" Value="{x:Static constants:Constants.False}" />
+                                <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="{x:Static constants:Constants.False}" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="wpfAttachedHelper:LoadingHelper.IsShow" Value="True" />
+                        </MultiDataTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="{StaticResource SecondaryBorderBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="True">
+                            <Setter Property="Background" Value="{StaticResource DangerBrush}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+    </Grid>
 </hc:Window>

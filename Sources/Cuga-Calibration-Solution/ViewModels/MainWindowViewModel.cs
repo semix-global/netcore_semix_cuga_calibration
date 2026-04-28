@@ -30,6 +30,11 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Fourier.CameraAlignment;
+using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
+using Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
+using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
+using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -49,11 +54,13 @@ using CugaCalibration.ViewModels.AOD;
 using CugaCalibration.ViewModels.AutoFocus;
 using CugaCalibration.ViewModels.Chuck;
 using CugaCalibration.ViewModels.CIB;
+using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.File.Save;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe.Management;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.View;
+using CugaCalibration.ViewModels.Flourier;
 using CugaCalibration.ViewModels.Laser;
 using CugaCalibration.ViewModels.Microscope;
 using CugaCalibration.ViewModels.Optics;
@@ -86,27 +93,26 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     private readonly IMessenger _messenger;
     private readonly ICalibrationCacheProvider _calibrationCacheProviderService;
     private readonly IApplicationCookieService _applicationCookieService;
-    private readonly ICalibrationRecipeService _calibrationRecipeService;
 
     #region 界面显示属性
 
     [ObservableProperty]
-    private string _title;
+    public partial string Title { get; set; }
 
     [ObservableProperty]
-    private ApplicationCookie _applicationCookie;
+    public partial ApplicationCookie ApplicationCookie { get; set; }
 
     [ObservableProperty]
-    private RecipeCookie _recipeCookie;
+    public partial RecipeCookie RecipeCookie { get; set; }
 
     [ObservableProperty]
-    private bool _isLoadingOk;
+    public partial StatusViewModel StatusViewModel { get; set; }
 
     [ObservableProperty]
-    private CalibrationViewModelBase? _activeItem;
+    public partial CalibrationViewModelBase? ActiveItem { get; set; }
 
     [ObservableProperty]
-    private CalibrationSetting _calibrationSetting;
+    public partial CalibrationSetting CalibrationSetting { get; set; }
 
     #endregion 界面显示属性
 
@@ -114,26 +120,26 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CalibrateCommand))]
-    private bool _isCalibrateEnable;
+    public partial bool IsCalibrateEnable { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ReviewCommand))]
-    private bool _isReviewEnable;
+    public partial bool IsReviewEnable { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CancelCommand))]
-    private bool _isCancelEnable;
+    public partial bool IsCancelEnable { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(PreviousCommand))]
-    private bool _isPreviousEnable;
+    public partial bool IsPreviousEnable { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(NextCommand))]
-    private bool _isNextEnable;
+    public partial bool IsNextEnable { get; set; }
 
     [ObservableProperty]
-    private bool _isEnable = true;
+    public partial bool IsEnable { get; set; } = true;
 
     #endregion 控制按钮
 
@@ -150,8 +156,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         CalibrationSetting calibrationSetting,
         ApplicationCookie applicationCookie,
         RecipeCookie recipeCookie,
-        IApplicationCookieService applicationCookieService,
-        ICalibrationRecipeService calibrationRecipeService)
+        StatusViewModel statusViewModel,
+        IApplicationCookieService applicationCookieService)
     {
         _messenger = messenger;
         _logger = logger;
@@ -161,12 +167,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         _dialogWindowProvider = dialogWindowProvider;
         _windowManagerService = windowManagerService;
         _calibrationCacheProviderService = calibrationCacheProviderService;
-        _calibrationSetting = calibrationSetting;
-        _applicationCookie = applicationCookie;
-        _recipeCookie = recipeCookie;
+        CalibrationSetting = calibrationSetting;
+        ApplicationCookie = applicationCookie;
+        RecipeCookie = recipeCookie;
+        StatusViewModel = statusViewModel;
         _applicationCookieService = applicationCookieService;
-        _title = applicationCookie.Title;
-        _calibrationRecipeService = calibrationRecipeService;
+        Title = applicationCookie.Title;
         _messenger.RegisterAll(this);
     }
 
@@ -175,44 +181,54 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     [RelayCommand]
     private void Loaded()
     {
-        IsLoadingOk = false;
-
-        var showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoginWindowViewModel>());
-        if (showDialog == false)
+        var isLoadingOk = false;
+        try
         {
-            return;
-        }
+            var showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoginWindowViewModel>());
+            if (showDialog == false)
+            {
+                return;
+            }
 
-        showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
-        if (showDialog == false)
+            showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
+            if (showDialog == false)
+            {
+                return;
+            }
+
+            var recipeManagementViewModel = HostApplication.GetRequiredService<RecipeManagementViewModel>();
+            recipeManagementViewModel.IsLoading = true;
+            showDialog = _windowManagerService.ShowDialog(recipeManagementViewModel);
+            if (showDialog == false)
+            {
+                return;
+            }
+
+            Title = ApplicationCookie.Title;
+
+            _windowManagerService.ShowWindow(HostApplication.GetRequiredService<StageWindowViewModel>());
+            _windowManagerService.ShowWindow(HostApplication.GetRequiredService<MicroscopeWindowViewModel>());
+
+            isLoadingOk = true;
+        }
+        finally
         {
-            return;
+            if (isLoadingOk) LoadCalibrationStatus();
+            StatusViewModel.Monitor(isLoadingOk);
         }
-
-        var recipeManagementViewModel = HostApplication.GetRequiredService<RecipeManagementViewModel>();
-        recipeManagementViewModel.IsLoading = true;
-        showDialog = _windowManagerService.ShowDialog(recipeManagementViewModel);
-        if (showDialog == false)
-        {
-            return;
-        }
-
-        Title = ApplicationCookie.Title;
-
-        _windowManagerService.ShowWindow(HostApplication.GetRequiredService<StageWindowViewModel>());
-        _windowManagerService.ShowWindow(HostApplication.GetRequiredService<MicroscopeWindowViewModel>());
-
-
-        IsLoadingOk = true;
-        LoadCalibrationStatus();
     }
 
     [RelayCommand]
     private void Closed()
     {
+#pragma warning disable IDISP007
+
+        StatusViewModel.Dispose();
         _messenger.UnregisterAll(this);
         _recipeCacheProvider.Dispose();
         _cacheProvider.Dispose();
+
+#pragma warning restore IDISP007
     }
 
     [RelayCommand(CanExecute = nameof(IsCalibrateEnable))]
@@ -418,8 +434,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         {
             try
             {
-                if (IsLoadingOk == false) return;
-
                 var calibrationSetting = _cacheProvider.GetOrDefault<CalibrationSetting>();
                 CalibrationSetting.AdaptIn(calibrationSetting);
 
@@ -520,6 +534,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AutoFocusCalChipFocusOffsetViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AutoFocusCalChipFocusOffsetDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCameraAlignmentViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilCameraAlignmentDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilSideChannelFlexibleApertureViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilSideChannelFlexibleApertureDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilSideChannelSpecularBlockerViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<PupilSideChannelSpecularBlockerDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCenterChannelFlexibleApertureViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilCenterChannelFlexibleApertureDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCenterChannelSpecularBlockerViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<PupilCenterChannelSpecularBlockerDTO>().IsOk(out _);
             }
             catch (Exception ex)
             {

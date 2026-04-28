@@ -25,8 +25,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <RichTextBox Grid.Row="1"
-                                 Margin="5"
+                    <RichTextBox Margin="5"
                                  Padding="5"
                                  FontSize="14"
                                  IsReadOnly="True"
@@ -67,7 +66,6 @@
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50" />
-                <RowDefinition Height="50" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="50" />
                 <RowDefinition Height="Auto" />
@@ -77,46 +75,9 @@
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
-                    <hc:NumericUpDown Width="155"
-                                      Margin="0,0,0,5"
-                                      hc:InfoElement.Title="Rod Number: "
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding RodNum}" />
-                    <hc:NumericUpDown Width="155"
-                                      Margin="0,0,0,5"
-                                      hc:InfoElement.Title="    Rod Width: "
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding RodWidth}" />
-                    <hc:NumericUpDown Width="155"
-                                      Margin="0,0,0,5"
-                                      hc:InfoElement.Title="    Rod Hight: "
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      Minimum="10"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding RodHight}" />
-                    <hc:NumericUpDown Width="235"
-                                      Margin="0,0,0,5"
-                                      hc:InfoElement.Title="    X Start Pixel Of First Rod: "
-                                      hc:InfoElement.TitlePlacement="Left"
-                                      hc:InfoElement.ShowClearButton="True"
-                                      Minimum="1"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding XStartPixel}" />
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Grid.Row="1"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
                     <hc:NumericUpDown Width="185"
                                       Margin="0,0,0,5"
-                                      hc:InfoElement.Title="Move Rods First(%): "
+                                      hc:InfoElement.Title="Move Rods First: "
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.ShowClearButton="True"
                                       Minimum="0"
@@ -126,7 +87,7 @@
                                       Value="{Binding Ch12Percentage1, StringFormat={}{0:f1}}" />
                     <hc:NumericUpDown Width="205"
                                       Margin="0,0,0,5"
-                                      hc:InfoElement.Title="Move Rods Second(%): "
+                                      hc:InfoElement.Title="Move Rods Second: "
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.ShowClearButton="True"
                                       Minimum="0"
@@ -134,13 +95,17 @@
                                       Increment="0.1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Ch12Percentage2, StringFormat={}{0:f1}}" />
-                    <Button Content="Get Odd Rod Image(First)" Command="{Binding GetImageOddFirstCH2Command}" />
-                    <Button Content="Set Odd Rod Result(First)" Command="{Binding RefreshOddFirstCH2Command}" />
-                    <Button Content="Get Odd Rod Image(Second)" Command="{Binding GetImageOddSecondCH2Command}" />
-                    <Button Content="Set Odd Rod Result(Second)" Command="{Binding RefreshOddSecondCH2Command}" />
+                    <Button Content="Get Odd Rod Image(First)"
+                            Command="{Binding GetImageOddFirstCh2Command}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
+                    <Button Content="Set Odd Rod Result(First)" Command="{Binding RefreshOddFirstCh2Command}" />
+                    <Button Content="Get Odd Rod Image(Second)"
+                            Command="{Binding GetImageOddSecondCh2Command}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
+                    <Button Content="Set Odd Rod Result(Second)" Command="{Binding RefreshOddSecondCh2Command}" />
                 </hc:UniformSpacingPanel>
             </Border>
-            <Border Grid.Row="2"
+            <Border Grid.Row="1"
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
@@ -159,19 +124,24 @@
                                             <TextBox Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
                                                      VerticalContentAlignment="Center"
-                                                     IsReadOnly="True" />
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                         <StackPanel Margin="0,0,10,0" Orientation="Horizontal">
                                             <TextBlock Text="Width:" />
                                             <TextBox Text="{Binding Width, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
-                                                     VerticalContentAlignment="Center" />
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Height:" />
                                             <TextBox Text="{Binding Height, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
-                                                     VerticalContentAlignment="Center" />
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -193,19 +163,24 @@
                                             <TextBox Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
                                                      VerticalContentAlignment="Center"
-                                                     IsReadOnly="True" />
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                         <StackPanel Margin="0,0,10,0" Orientation="Horizontal">
                                             <TextBlock Text="Width:" />
                                             <TextBox Text="{Binding Width, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
-                                                     VerticalContentAlignment="Center" />
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Height:" />
                                             <TextBox Text="{Binding Height, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
-                                                     VerticalContentAlignment="Center" />
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -214,13 +189,13 @@
                     </ListBox>
                 </hc:UniformSpacingPanel>
             </Border>
-            <Border Grid.Row="3"
+            <Border Grid.Row="2"
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
                     <hc:NumericUpDown Width="185"
                                       Margin="0,0,0,5"
-                                      hc:InfoElement.Title="Move Rods First(%): "
+                                      hc:InfoElement.Title="Move Rods First: "
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.ShowClearButton="True"
                                       Minimum="0"
@@ -230,7 +205,7 @@
                                       Value="{Binding Ch12Percentage1, StringFormat={}{0:f1}}" />
                     <hc:NumericUpDown Width="205"
                                       Margin="0,0,0,5"
-                                      hc:InfoElement.Title="Move Rods Second(%): "
+                                      hc:InfoElement.Title="Move Rods Second: "
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.ShowClearButton="True"
                                       Minimum="0"
@@ -238,13 +213,17 @@
                                       Increment="0.1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Ch12Percentage2, StringFormat={}{0:f1}}" />
-                    <Button Content="Get Even Rod Image(First)" Command="{Binding GetImageEvenFirstCH2Command}" />
-                    <Button Content="Set Even Rod Result(First)" Command="{Binding RefreshEvenFirstCH2Command}" />
-                    <Button Content="Get Even Rod Image(Second)" Command="{Binding GetImageEvenSecondCH2Command}" />
-                    <Button Content="Set Even Rod Result(Second)" Command="{Binding RefreshEvenSecondCH2Command}" />
+                    <Button Content="Get Even Rod Image(First)"
+                            Command="{Binding GetImageEvenFirstCh2Command}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
+                    <Button Content="Set Even Rod Result(First)" Command="{Binding RefreshEvenFirstCh2Command}" />
+                    <Button Content="Get Even Rod Image(Second)"
+                            Command="{Binding GetImageEvenSecondCh2Command}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
+                    <Button Content="Set Even Rod Result(Second)" Command="{Binding RefreshEvenSecondCh2Command}" />
                 </hc:UniformSpacingPanel>
             </Border>
-            <Border Grid.Row="4"
+            <Border Grid.Row="3"
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Horizontal" Spacing="2">
@@ -263,19 +242,24 @@
                                             <TextBox Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
                                                      VerticalContentAlignment="Center"
-                                                     IsReadOnly="True" />
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                         <StackPanel Margin="0,0,10,0" Orientation="Horizontal">
                                             <TextBlock Text="Width:" />
                                             <TextBox Text="{Binding Width, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
-                                                     VerticalContentAlignment="Center" />
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Height:" />
                                             <TextBox Text="{Binding Height, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
-                                                     VerticalContentAlignment="Center" />
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -297,19 +281,24 @@
                                             <TextBox Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
                                                      VerticalContentAlignment="Center"
-                                                     IsReadOnly="True" />
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                         <StackPanel Margin="0,0,10,0" Orientation="Horizontal">
                                             <TextBlock Text="Width:" />
                                             <TextBox Text="{Binding Width, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
-                                                     VerticalContentAlignment="Center" />
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Height:" />
                                             <TextBox Text="{Binding Height, StringFormat={}{0:F1}, UpdateSourceTrigger=PropertyChanged}"
                                                      Width="70"
-                                                     VerticalContentAlignment="Center" />
+                                                     VerticalContentAlignment="Center"
+                                                     IsReadOnly="True"
+                                                     Background="LightGray" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
@@ -318,7 +307,7 @@
                     </ListBox>
                 </hc:UniformSpacingPanel>
             </Border>
-            <Border Grid.Row="5"
+            <Border Grid.Row="4"
                     Padding="1"
                     CornerRadius="3"
                     BorderBrush="{StaticResource PrimaryBrush}"

@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 
 public sealed partial class PupilCenterChannelSpecularBlockerCache : CalibrationCacheBase
 {
@@ -90,7 +90,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : Calibra
     private float _imageGrayNewCh3 = 0;
 
     [ObservableProperty]
-    public int _ch3Angle = 1;
+    public float _ch3Angle = 1;
 
     [ObservableProperty]
     public float _ch3TurnX = 0.2f;

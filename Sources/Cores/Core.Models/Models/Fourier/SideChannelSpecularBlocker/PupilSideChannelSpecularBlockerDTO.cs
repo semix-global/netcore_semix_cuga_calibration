@@ -1,14 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Fourier;
-using Cuga.Data.DataStruct.Stage;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
-
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
 [CacheVersion("1.0.0")]
 public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoBase, ICloneable<PupilSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>
@@ -26,16 +27,10 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
     public Point _cgFFBoxBeginPositionCh2 = Point.Origin;
 
     [ObservableProperty]
-    public int _cgFFBoxBeginNumberCh1 = 1;
+    public List<int> _cgFFBoxBeginAndEndNumberCh1 = new();
 
     [ObservableProperty]
-    public int _cgFFBoxBeginNumberCh2 = 1;
-
-    [ObservableProperty]
-    public int _cgFFBoxEndNumberCh1 = 3;
-
-    [ObservableProperty]
-    public int _cgFFBoxEndNumberCh2 = 3;
+    public List<int> _cgFFBoxBeginAndEndNumberCh2 = new();
 
     [ObservableProperty]
     public List<double> _cgFFBoxMoveDownPercentListCh1 = new List<double> { 0.3 };
@@ -53,10 +48,8 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
             ProductivityInformation = ProductivityInformation.Clone(),
             CgFFBoxBeginPositionCh1 = CgFFBoxBeginPositionCh1,
             CgFFBoxBeginPositionCh2 = CgFFBoxBeginPositionCh2,
-            CgFFBoxBeginNumberCh1 = CgFFBoxBeginNumberCh1,
-            CgFFBoxBeginNumberCh2 = CgFFBoxBeginNumberCh2,
-            CgFFBoxEndNumberCh1 = CgFFBoxEndNumberCh1,
-            CgFFBoxEndNumberCh2 = CgFFBoxEndNumberCh2,
+            CgFFBoxBeginAndEndNumberCh1 = CgFFBoxBeginAndEndNumberCh1,
+            CgFFBoxBeginAndEndNumberCh2 = CgFFBoxBeginAndEndNumberCh2,
             CgFFBoxMoveDownPercentListCh1 = CgFFBoxMoveDownPercentListCh1,
             CgFFBoxMoveDownPercentListCh2 = CgFFBoxMoveDownPercentListCh2,
 
@@ -70,13 +63,10 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
 
     public CalibrationPupilSideChannelSpecularBlocker AdaptTo() => new()
     {
-        CgFFBoxBeginPositionCh1 = new CgPoint((int)Math.Round(CgFFBoxBeginPositionCh1.X), (int)Math.Round(CgFFBoxBeginPositionCh1.Y)),
-        CgFFBoxBeginNumberCh1 = CgFFBoxBeginNumberCh1,
-        CgFFBoxEndNumberCh1 = CgFFBoxEndNumberCh1,
+        CgNIOITypeEnum = ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         CgFFBoxMoveDownPercentListCh1 = CgFFBoxMoveDownPercentListCh1,
-        CgFFBoxBeginPositionCh2 = new CgPoint((int)Math.Round(CgFFBoxBeginPositionCh2.X), (int)Math.Round(CgFFBoxBeginPositionCh2.Y)),
-        CgFFBoxBeginNumberCh2 = CgFFBoxBeginNumberCh2,
-        CgFFBoxEndNumberCh2 = CgFFBoxEndNumberCh2,
         CgFFBoxMoveDownPercentListCh2 = CgFFBoxMoveDownPercentListCh2,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

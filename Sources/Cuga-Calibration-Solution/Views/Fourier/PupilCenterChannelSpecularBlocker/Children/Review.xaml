@@ -53,6 +53,17 @@
                                                   SelectedItem="{Binding Cache.Item.LaserLightInformation}"
                                                   ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
                                                   Style="{StaticResource ComboBoxExtend}" />
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
+                                                      Style="{StaticResource ComboBoxExtend}">
+                                                <i:Interaction.Behaviors>
+                                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                </i:Interaction.Behaviors>
+                                            </ComboBox>
+                                        </hc:UniformSpacingPanel>
                                         <ComboBox hc:TitleElement.Title="CIB Information Ch3: "
                                                   hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="200"

@@ -6,7 +6,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.CollectPolarization;
-using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -30,12 +29,8 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
     [
         new() { StepName = "Select Haze Wafer Position" },
         new() { StepName = "Set Laser Light And CIB Configuration" },
-        new() { StepName = "Get S Polarization Position Of CH1" },
-        new() { StepName = "Get S Polarization Position Of CH2" },
-        new() { StepName = "Get S Polarization Position Of CH3" },
-        new() { StepName = "Get P Polarization Position Of CH1" },
-        new() { StepName = "Get P Polarization Position Of CH2" },
-        new() { StepName = "Get P Polarization Position Of CH3" }
+        new() { StepName = "Get S Polarization Position Of CH123" },
+        new() { StepName = "Get P Polarization Position Of CH123" }
     ];
 
     #endregion 界面相关
@@ -103,22 +98,6 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
             case 3:
 
-                return true;
-
-            case 4:
-
-                return true;
-
-            case 5:
-
-                return true;
-
-            case 6:
-
-                return true;
-
-            case 7:
-
                 Save(ResultCollectItemDto, cancellationToken);
                 IsCalibrated = true;
                 return true;
@@ -163,9 +142,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.LaserLightInformation,
-                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.CIBInformation
+                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.LaserLightInformations.Contains(Cache.LaserLightInformation);
@@ -179,54 +156,103 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         return InvokeCalibrateAsync(async () =>
         {
             Cache.PolarizationPositionNDFSListCH1 = [];
-            var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 1);
-            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.S);
+            Cache.PolarizationPositionNDFSListCH2 = [];
+            Cache.PolarizationPositionNDFSListCH3 = [];
+
+            var cibInfors = ApplicationCookie.CIBInformations.Where(x => x.PMTId == 8).ToArray();
+            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[0].ChannelId, OpticsCollectorPolarizationModeEnum.S);
+            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[1].ChannelId, OpticsCollectorPolarizationModeEnum.S);
+            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[2].ChannelId, OpticsCollectorPolarizationModeEnum.S);
 
             double[] angleArray = Generate.LinearRange(
                 Cache.FindAngleMin,
                 Cache.FindAngleInterval,
                 Cache.FindAngleMax);
-
-            foreach (double i in angleArray)
             {
-                using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    Cache.ImageWidth,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.HazeModel),
-                    (false, Cache.OpticsConfiguration),
-                    (false, Cache.CIBConfiguration),
-                    (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
+                if (angleArray[^1] < Cache.FindAngleMax)
+                    angleArray = [.. angleArray, Cache.FindAngleMax];
 
-                if (darkFieldImage == null)
-                    continue;
-
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
-
-                using var hImage = darkFieldImage.Image.ToHImage();
-                double pmtValue = hImage.GetIntensity().Average;
-                Cache.PolarizationPositionNDFSListCH1 = [.. Cache.PolarizationPositionNDFSListCH1, new Point(i, pmtValue)];
-
-                var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH1", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.SaveImage(OriginImageFilePath);
-                Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                foreach (double i in angleArray)
                 {
-                    ResultImage = new HtmlImage(OriginImageFilePath)
-                }), HtmlLogUniqueId.LoggingHtml());
+                    var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
+                        ApplicationCookie.OILowProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
+                        StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
+                        Cache.ImageWidth,
+                        cibInfors,
+                        (false, CalChipSiteModelEnum.HazeModel),
+                        (true, OpticsConfiguration: null),
+                        (false, Cache.CIBConfiguration),
+                        (false, Cache.LaserLightInformation),
+                        false,
+                        cancellationToken);
+
+                    OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[0].ChannelId, i);
+
+                    using var intensity0 = darkFieldImages[0].Image.ToHImage();
+                    double pmtValue = intensity0.GetIntensity().Average;
+                    Cache.PolarizationPositionNDFSListCH1 = [.. Cache.PolarizationPositionNDFSListCH1, new Point(i, pmtValue)];
+
+                    var originImageFilePath = Path.Combine(ImageFileDirectory, "CH1", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
+                    intensity0.Save(originImageFilePath);
+                    Logger.LogHtmlInformation("CH1Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                    {
+                        ResultImage = new HtmlImage(originImageFilePath)
+                    }), HtmlLogUniqueId.LoggingHtml());
+
+                    OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[1].ChannelId, i);
+
+                    using var intensity1 = darkFieldImages[1].Image.ToHImage();
+                    pmtValue = intensity1.GetIntensity().Average;
+                    Cache.PolarizationPositionNDFSListCH2 = [.. Cache.PolarizationPositionNDFSListCH2, new Point(i, pmtValue)];
+
+                    originImageFilePath = Path.Combine(ImageFileDirectory, "CH2", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
+                    intensity1.Save(originImageFilePath);
+                    Logger.LogHtmlInformation("CH2Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                    {
+                        ResultImage = new HtmlImage(originImageFilePath)
+                    }), HtmlLogUniqueId.LoggingHtml());
+
+
+                    OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[2].ChannelId, i);
+
+                    using var intensity2 = darkFieldImages[2].Image.ToHImage();
+                    pmtValue = intensity2.GetIntensity().Average;
+                    Cache.PolarizationPositionNDFSListCH3 = [.. Cache.PolarizationPositionNDFSListCH3, new Point(i, pmtValue)];
+
+                    originImageFilePath = Path.Combine(ImageFileDirectory, "CH3", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
+                    intensity2.Save(originImageFilePath);
+                    Logger.LogHtmlInformation("CH3Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                    {
+                        ResultImage = new HtmlImage(originImageFilePath)
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
             }
 
-            var pointWithMinY = Cache.PolarizationPositionNDFSListCH1.OrderBy(p => p.Y).First();
+            var pointWithMinY = Cache.PolarizationPositionNDFSListCH1.Where(p => p.X > 20).OrderBy(p => p.Y).First();
             Cache.PolarizationPositionNDFSCH1 = pointWithMinY.X;
+
+            pointWithMinY = Cache.PolarizationPositionNDFSListCH2.Where(p => p.X > 20).OrderBy(p => p.Y).First();
+            Cache.PolarizationPositionNDFSCH2 = pointWithMinY.X;
+
+            pointWithMinY = Cache.PolarizationPositionNDFSListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First();
+            Cache.PolarizationPositionNDFSCH3 = pointWithMinY.X;
+
+            double[] values = { Cache.PolarizationPositionNDFSCH1, Cache.PolarizationPositionNDFSCH2, Cache.PolarizationPositionNDFSCH3 };
+            Cache.FindAngleMin = values.Average() - 30;
+            Cache.FindAngleMax = values.Average() + 30;
 
             Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                CH1MINY = Cache.PolarizationPositionNDFSListCH1.Min(p => p.Y),
-                CH1MINX = Cache.PolarizationPositionNDFSListCH1.OrderBy(p => p.Y).First().X,
-                PolarizationPositionNDFSListCH1 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH1)], string.Empty)
+                CH1MINY = Cache.PolarizationPositionNDFSListCH1.Where(p => p.X > 20).Min(p => p.Y),
+                CH1MINX = Cache.PolarizationPositionNDFSListCH1.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
+                CH2MINY = Cache.PolarizationPositionNDFSListCH2.Where(p => p.X > 20).Min(p => p.Y),
+                CH2MINX = Cache.PolarizationPositionNDFSListCH2.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
+                CH3MINY = Cache.PolarizationPositionNDFSListCH3.Where(p => p.X > 20).Min(p => p.Y),
+                CH3MINX = Cache.PolarizationPositionNDFSListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
+                PolarizationPositionNDFSListCH1 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH1)], string.Empty),
+                PolarizationPositionNDFSListCH2 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH2)], string.Empty),
+                PolarizationPositionNDFSListCH3 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH3)], string.Empty)
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -236,292 +262,106 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () =>
-        {
-            Cache.PolarizationPositionNDFSListCH2 = [];
-            var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 2);
-            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.S);
-
-            double[] angleArray = Generate.LinearRange(
-                Cache.FindAngleMin,
-                Cache.FindAngleInterval,
-                Cache.FindAngleMax);
-
-            foreach (double i in angleArray)
-            {
-                using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    Cache.ImageWidth,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.HazeModel),
-                    (false, Cache.OpticsConfiguration),
-                    (false, Cache.CIBConfiguration),
-                    (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
-
-                if (darkFieldImage == null)
-                    continue;
-
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
-
-                using var hImage = darkFieldImage.Image.ToHImage();
-                double pmtValue = hImage.GetIntensity().Average;
-                Cache.PolarizationPositionNDFSListCH2 = [.. Cache.PolarizationPositionNDFSListCH2, new Point(i, pmtValue)];
-
-                var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH2", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.SaveImage(OriginImageFilePath);
-                Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                {
-                    ResultImage = new HtmlImage(OriginImageFilePath)
-                }), HtmlLogUniqueId.LoggingHtml());
-            }
-
-            var pointWithMinY = Cache.PolarizationPositionNDFSListCH2.OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFSCH2 = pointWithMinY.X;
-
-            Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                CH2MINY = Cache.PolarizationPositionNDFSListCH2.Min(p => p.Y),
-                CH2MINX = Cache.PolarizationPositionNDFSListCH2.OrderBy(p => p.Y).First().X,
-                PolarizationPositionNDFSListCH2 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH2)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () =>
-        {
-            Cache.PolarizationPositionNDFSListCH3 = [];
-            var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 3);
-            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.S);
-
-            double[] angleArray = Generate.LinearRange(
-                Cache.FindAngleMin,
-                Cache.FindAngleInterval,
-                Cache.FindAngleMax);
-
-            foreach (double i in angleArray)
-            {
-                using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    Cache.ImageWidth,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.HazeModel),
-                    (false, Cache.OpticsConfiguration),
-                    (false, Cache.CIBConfiguration),
-                    (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
-
-                if (darkFieldImage == null)
-                    continue;
-
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
-
-                using var hImage = darkFieldImage.Image.ToHImage();
-                double pmtValue = hImage.GetIntensity().Average;
-                Cache.PolarizationPositionNDFSListCH3 = [.. Cache.PolarizationPositionNDFSListCH3, new Point(i, pmtValue)];
-
-                var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH3", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.SaveImage(OriginImageFilePath);
-                Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                {
-                    ResultImage = new HtmlImage(OriginImageFilePath)
-                }), HtmlLogUniqueId.LoggingHtml());
-            }
-
-            var pointWithMinY = Cache.PolarizationPositionNDFSListCH3.OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFSCH3 = pointWithMinY.X;
-
-            Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                CH3MINY = Cache.PolarizationPositionNDFSListCH3.Min(p => p.Y),
-                CH3MINX = Cache.PolarizationPositionNDFSListCH3.OrderBy(p => p.Y).First().X,
-                PolarizationPositionNDFSListCH3 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH3)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step5Async(CancellationToken cancellationToken)
-    {
         OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.S);
         return InvokeCalibrateAsync(async () =>
         {
             Cache.PolarizationPositionNDFPListCH1 = [];
-            var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 1);
-            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.P);
+            Cache.PolarizationPositionNDFPListCH2 = [];
+            Cache.PolarizationPositionNDFPListCH3 = [];
+
+            var cibInfors = ApplicationCookie.CIBInformations.Where(x => x.PMTId == 8).ToArray();
+            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[0].ChannelId, OpticsCollectorPolarizationModeEnum.P);
+            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[1].ChannelId, OpticsCollectorPolarizationModeEnum.P);
+            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[2].ChannelId, OpticsCollectorPolarizationModeEnum.P);
 
             double[] angleArray = Generate.LinearRange(
                 Cache.FindAngleMin,
                 Cache.FindAngleInterval,
                 Cache.FindAngleMax);
 
+            if (angleArray[^1] < Cache.FindAngleMax)
+                angleArray = [.. angleArray, Cache.FindAngleMax];
+
             foreach (double i in angleArray)
             {
-                using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
+                var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
                     ApplicationCookie.OILowProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
                     Cache.ImageWidth,
-                    CIBInfor,
+                    cibInfors,
                     (false, CalChipSiteModelEnum.HazeModel),
-                    (false, Cache.OpticsConfiguration),
+                    (true, OpticsConfiguration: null),
                     (false, Cache.CIBConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,
                     cancellationToken);
 
-                if (darkFieldImage == null)
-                    continue;
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[0].ChannelId, i);
 
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
-
-                using var hImage = darkFieldImage.Image.ToHImage();
-                double pmtValue = hImage.GetIntensity().Average;
+                using var intensity0 = darkFieldImages[0].Image.ToHImage();
+                double pmtValue = intensity0.GetIntensity().Average;
                 Cache.PolarizationPositionNDFPListCH1 = [.. Cache.PolarizationPositionNDFPListCH1, new Point(i, pmtValue)];
 
-                var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH1", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.SaveImage(OriginImageFilePath);
+                var originImageFilePath = Path.Combine(ImageFileDirectory, "CH1", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
+                intensity0.Save(originImageFilePath);
                 Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    ResultImage = new HtmlImage(OriginImageFilePath)
+                    ResultImage = new HtmlImage(originImageFilePath)
                 }), HtmlLogUniqueId.LoggingHtml());
-            }
 
-            var pointWithMinY = Cache.PolarizationPositionNDFPListCH1.OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFPCH1 = pointWithMinY.X;
 
-            Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                CH1MINY = Cache.PolarizationPositionNDFPListCH1.Min(p => p.Y),
-                CH1MINX = Cache.PolarizationPositionNDFPListCH1.OrderBy(p => p.Y).First().X,
-                PolarizationPositionNDFPListCH1 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH1)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[1].ChannelId, i);
 
-            return true;
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step6Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () =>
-        {
-            Cache.PolarizationPositionNDFPListCH2 = [];
-            var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 2);
-            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.P);
-
-            double[] angleArray = Generate.LinearRange(
-                Cache.FindAngleMin,
-                Cache.FindAngleInterval,
-                Cache.FindAngleMax);
-
-            foreach (double i in angleArray)
-            {
-                using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    Cache.ImageWidth,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.HazeModel),
-                    (false, Cache.OpticsConfiguration),
-                    (false, Cache.CIBConfiguration),
-                    (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
-
-                if (darkFieldImage == null)
-                    continue;
-
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
-
-                using var hImage = darkFieldImage.Image.ToHImage();
-                double pmtValue = hImage.GetIntensity().Average;
+                using var intensity1 = darkFieldImages[1].Image.ToHImage();
+                pmtValue = intensity1.GetIntensity().Average;
                 Cache.PolarizationPositionNDFPListCH2 = [.. Cache.PolarizationPositionNDFPListCH2, new Point(i, pmtValue)];
 
-                var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH2", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.SaveImage(OriginImageFilePath);
+                originImageFilePath = Path.Combine(ImageFileDirectory, "CH2", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
+                intensity1.Save(originImageFilePath);
                 Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    ResultImage = new HtmlImage(OriginImageFilePath)
+                    ResultImage = new HtmlImage(originImageFilePath)
+                }), HtmlLogUniqueId.LoggingHtml());
+
+
+                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[2].ChannelId, i);
+
+                using var intensity2 = darkFieldImages[2].Image.ToHImage();
+                pmtValue = intensity2.GetIntensity().Average;
+                Cache.PolarizationPositionNDFPListCH3 = [.. Cache.PolarizationPositionNDFPListCH3, new Point(i, pmtValue)];
+
+                originImageFilePath = Path.Combine(ImageFileDirectory, "CH3", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
+                intensity2.Save(originImageFilePath);
+                Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                {
+                    ResultImage = new HtmlImage(originImageFilePath)
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 
-            var pointWithMinY = Cache.PolarizationPositionNDFPListCH2.OrderBy(p => p.Y).First();
+            var pointWithMinY = Cache.PolarizationPositionNDFPListCH1.Where(p => p.X > 20).OrderBy(p => p.Y).First();
+            Cache.PolarizationPositionNDFPCH1 = pointWithMinY.X;
+            pointWithMinY = Cache.PolarizationPositionNDFPListCH2.Where(p => p.X > 20).OrderBy(p => p.Y).First();
             Cache.PolarizationPositionNDFPCH2 = pointWithMinY.X;
+            pointWithMinY = Cache.PolarizationPositionNDFPListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First();
+            Cache.PolarizationPositionNDFPCH3 = pointWithMinY.X;
+
+            double[] values = { Cache.PolarizationPositionNDFPCH1, Cache.PolarizationPositionNDFPCH2, Cache.PolarizationPositionNDFPCH3 };
+            Cache.FindAngleMin = values.Average() - 30;
+            Cache.FindAngleMax = values.Average() + 30;
 
             Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                CH2MINY = Cache.PolarizationPositionNDFPListCH2.Min(p => p.Y),
-                CH2MINX = Cache.PolarizationPositionNDFPListCH2.OrderBy(p => p.Y).First().X,
-                PolarizationPositionNDFPListCH2 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH2)], string.Empty)
+                CH1MINY = Cache.PolarizationPositionNDFPListCH1.Where(p => p.X > 20).Min(p => p.Y),
+                CH1MINX = Cache.PolarizationPositionNDFPListCH1.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
+                CH2MINY = Cache.PolarizationPositionNDFPListCH2.Where(p => p.X > 20).Min(p => p.Y),
+                CH2MINX = Cache.PolarizationPositionNDFPListCH2.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
+                CH3MINY = Cache.PolarizationPositionNDFPListCH3.Where(p => p.X > 20).Min(p => p.Y),
+                CH3MINX = Cache.PolarizationPositionNDFPListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
+                PolarizationPositionNDFPListCH1 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH1)], string.Empty),
+                PolarizationPositionNDFPListCH2 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH2)], string.Empty),
+                PolarizationPositionNDFPListCH3 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH3)], string.Empty)
             }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step7Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () =>
-        {
-            Cache.PolarizationPositionNDFPListCH3 = [];
-            var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 3);
-            OpticsViewModel.SetCollectorPolarizationMode(CIBInfor.ChannelId, OpticsCollectorPolarizationModeEnum.P);
-
-            double[] angleArray = Generate.LinearRange(
-                Cache.FindAngleMin,
-                Cache.FindAngleInterval,
-                Cache.FindAngleMax);
-
-            foreach (double i in angleArray)
-            {
-                using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    Cache.ImageWidth,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.HazeModel),
-                    (false, Cache.OpticsConfiguration),
-                    (false, Cache.CIBConfiguration),
-                    (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
-
-                if (darkFieldImage == null)
-                    continue;
-
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(CIBInfor.ChannelId, i);
-
-                using var hImage = darkFieldImage.Image.ToHImage();
-                double pmtValue = hImage.GetIntensity().Average;
-                Cache.PolarizationPositionNDFPListCH3 = [.. Cache.PolarizationPositionNDFPListCH3, new Point(i, pmtValue)];
-
-                var OriginImageFilePath = Path.Combine(ImageFileDirectory, "CH3", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                darkFieldImage.Image.SaveImage(OriginImageFilePath);
-                Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                {
-                    ResultImage = new HtmlImage(OriginImageFilePath)
-                }), HtmlLogUniqueId.LoggingHtml());
-            }
-
-            var pointWithMinY = Cache.PolarizationPositionNDFPListCH3.OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFPCH3 = pointWithMinY.X;
 
             ResultCollectItemDto.PolarizationPositionNDFSCH1 = Cache.PolarizationPositionNDFSCH1;
             ResultCollectItemDto.PolarizationPositionNDFSCH2 = Cache.PolarizationPositionNDFSCH2;
@@ -530,25 +370,21 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             ResultCollectItemDto.PolarizationPositionNDFPCH2 = Cache.PolarizationPositionNDFPCH2;
             ResultCollectItemDto.PolarizationPositionNDFPCH3 = Cache.PolarizationPositionNDFPCH3;
 
-            Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                CH3MINY = Cache.PolarizationPositionNDFPListCH3.Min(p => p.Y),
-                CH3MINX = Cache.PolarizationPositionNDFPListCH3.OrderBy(p => p.Y).First().X,
-                PolarizationPositionNDFPListCH3 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH3)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
-
             return true;
         });
     }
 
-    private bool Save(CollectPolarizationDTO itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private void Save(CollectPolarizationDTO itemDto, CancellationToken cancellationToken)
     {
-        update(itemDto);
-        update(Cache);
+        InvokeSave(update =>
+        {
+            update(itemDto);
+            update(Cache);
 
-        Calibration = itemDto.Clone();
+            Calibration = itemDto.Clone();
 
-        CacheProvider.Set(Calibration, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    });
+            CacheProvider.Set(Calibration, cancellationToken);
+            RecipeCacheProvider.Set(Cache, cancellationToken);
+        });
+    }
 }

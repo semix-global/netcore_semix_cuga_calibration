@@ -1,16 +1,17 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Status;
-using Core.Models.Models.Fourier;
+using Core.Models.Models.Fourier.CameraAlignment;
+using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
+using Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Setting;
-using Core.Services.Interfaces;
-using Core.Utilities;
+using Core.Utilities.SourceGenerators.Attributes;
+using HalconDotNet;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -32,24 +33,24 @@ using Size = Net.Utilities.Models.Geometries.Size;
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilCenterChannelSpecularBlockerViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting,
-    ICalibrationFourierService calibrationFlourierService,
-    ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
+public sealed partial class PupilCenterChannelSpecularBlockerViewModel : CalibrationViewModelBase
 {
     #region 界面相关
 
-    public enum ChartShowType
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
+
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
+
+    public enum PositionShowType
     {
-        ID_0_Style,
-        ID_1_Style,
-        ID_2_Style,
-        ID_3_Style
-    };
+        Position1Angle120,
+        Position2Angle180,
+        Position3Angle240,
+        Position4Angle300
+    }
 
     [ObservableProperty]
-    private int _selectedTabIndex = 0;
+    private int _selectedTabIndex;
 
     [ObservableProperty]
     private int _rodWidth = 250;
@@ -61,10 +62,10 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
     private int _xStartPixel = 100;
 
     [ObservableProperty]
-    private int _selectRodWidth = 0;
+    private int _selectRodWidth;
 
     [ObservableProperty]
-    private int _selectRodHeight = 0;
+    private int _selectRodHeight;
 
     [ObservableProperty]
     private float _ch3TurnY = 3.0f;
@@ -78,16 +79,19 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
     [ObservableProperty]
     private float _ch3Push = 42.0f;
 
-    public ChartShowType[] Ch3ShowTypeValues => Enum.GetValues(typeof(ChartShowType)).Cast<ChartShowType>().ToArray();
+    public PositionShowType[] Ch3PositionTypeValues => Enum.GetValues(typeof(PositionShowType)).Cast<PositionShowType>().ToArray();
 
     [ObservableProperty]
-    private ChartShowType _selectedCh3ShowType = (ChartShowType)(-1);
+    private PositionShowType _selectedCh3PositionType = (PositionShowType)(-1);
 
     [ObservableProperty]
-    private Point _sxPos = new();
+    private Point _sxPos;
 
     [ObservableProperty]
     private int _imageWidthPixel = 1000;
+
+    [ObservableProperty]
+    private ObservableCollection<Rect> _currentImageRectListCh3 = new();
 
     [ObservableProperty]
     private string _reviewImageShowPath = string.Empty;
@@ -99,13 +103,11 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
     private double[] _reviewImageGrayCh3 = new double[2];
 
     [ObservableProperty]
-    private double _reviewImageCompareCh3 = 0;
+    private double _reviewImageCompareCh3;
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Optics Illumination Mode" },
-        new() { StepName = "Select Productivity Information" },
-        new() { StepName = "Select Shiny Wafer Position" },
+        new() { StepName = "Select Shiny Wafer Position And Productivity Information" },
         new() { StepName = "Pupil Center Channel Specular Blocker Calibration" }
     ];
 
@@ -135,9 +137,11 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
     [ObservableProperty]
     private PupilCenterChannelFlexibleApertureDTO _pupilCenterChannelFlexibleApertureValue = new();
 
+    [RecipeCache]
     [ObservableProperty]
     private PupilCenterChannelSpecularBlockerCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private PupilCenterChannelSpecularBlockerDTO[] _calibrations = [];
 
@@ -176,12 +180,15 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
             if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
         }
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (!isHasCache) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         PupilCenterChannelFlexibleApertureValue = CalibrationStatusService.GetCalibration<PupilCenterChannelFlexibleApertureDTO>();
 
-        Ch3TurnYMotorRelation = PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYMotorRelationCH3.Count > 0 ? PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYMotorRelationCH3.Average() : 0;
-        Ch3PushXMotorRelation = PupilCenterChannelFlexibleApertureValue.CgFFBoxPushXMotorRelationCH3;
+        Ch3TurnYMotorRelation = PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYMotorRelationCh3.Count > 0 ? PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYMotorRelationCh3.Average() : 0;
+        Ch3PushXMotorRelation = PupilCenterChannelFlexibleApertureValue.CgFFBoxPushXMotorRelationCh3;
+        Ch3Push = (float)PupilCenterChannelFlexibleApertureValue.CgFFBoxPushXMotorPositionCh3;
+
+        ClearCalibrationTemp();
 
         return true;
     }
@@ -205,12 +212,26 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
         await Task.CompletedTask.ConfigureAwait(false);
         switch (CalibrationStepIndex)
         {
-            case 3:
+            case 1:
+                if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
+                {
+                    ResultDto.ProductivityInformation = Cache.ProductivityInformation;
+                    ResultDto.OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum;
+                    ResultDto.Ch3Angle = 0;
+                    ResultDto.Ch3TurnY = 0;
+                    ResultDto.Ch3Push = Cache.Item.Ch3Push;
+                }
 
-                ResultDto.Ch3TurnY = Ch3TurnY;
-                ResultDto.Ch3Push = Ch3Push;
+                if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
+                {
+                    ResultDto.ProductivityInformation = Cache.ProductivityInformation;
+                    ResultDto.OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum;
+                    ResultDto.Ch3Angle = Cache.Item.Ch3Angle;
+                    ResultDto.Ch3TurnY = Cache.Item.Ch3TurnY;
+                    ResultDto.Ch3Push = Cache.Item.Ch3Push;
+                }
 
-                SynchronizationContextProvider.Send(() => ResultPupilCenterChannelSpecularBlockerDTOList.Add(ResultDto));
+                SynchronizationContextProvider.Send(() => ResultPupilCenterChannelSpecularBlockerDTOList.Add(ResultDto.Clone()));
 
                 if (ResultPupilCenterChannelSpecularBlockerDTOList.Count <= 0)
                 {
@@ -219,7 +240,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
                 }
                 else
                 {
-                    Calibrations = [.. Calibrations.ToList().Where(t => (t.ProductivityInformation == Cache.ProductivityInformation) == false)];
+                    Calibrations = [.. Calibrations.ToList().Where(t => !(t.ProductivityInformation == Cache.ProductivityInformation))];
                     foreach (var (index, pupilCenterChannelSpecularBlockerDTO) in ResultPupilCenterChannelSpecularBlockerDTOList.Select((dto, i) => (i, dto)))
                     {
                         pupilCenterChannelSpecularBlockerDTO.IsCalibrated = true;
@@ -236,9 +257,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
-
-                ClearCalibrationTemp();
+                if (!IsCalibrated) CalibrationStepIndex = -1;
 
                 return true;
 
@@ -252,25 +271,38 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
         return Task.FromResult(true);
     }
 
-    [RelayCommand]
-    private Task Step0Async()
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step0Async(CancellationToken cancellationToken)
     {
-        calibrationFlourierService.SetFFHome(FFCH.Ch1);
-        calibrationFlourierService.SetFFHome(FFCH.Ch2);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_X);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
+        FourierViewModel.SetFFHome(FFCH.Ch1);
+        FourierViewModel.SetFFHome(FFCH.Ch2);
+        FourierViewModel.SetFFHome(FFCH.Ch3_X);
+        FourierViewModel.SetFFHome(FFCH.Ch3_Y);
 
-        calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
-        calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
-        calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
-        calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
-        calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+        FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
+        FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
+        FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
+        FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
+        FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+        //Cache.Item.ShinyWaferPosition = StageViewModel.GetBrightFieldStagePosition();
+        Cache.Item.ShinyWaferPosition = Guard.IsNotNullAndReturn(MicroscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
+        Cache.Item.ShinyWaferPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.ShinyWaferPosition);
+
+        Cache.OpticsIlluminationModeEnum = Cache.ProductivityInformation.OpticsIlluminationModeEnum;
+
+        if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
+            Ch3TurnY = 0;
+
+        AfViewModel.ToggleDarkFieldEnable(true);
+        SxPos = new Point(Cache.Item.ShinyWaferPosition.X, Cache.Item.ShinyWaferPosition.Y);
 
         return InvokeCalibrateAsync(() =>
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum
+                Cache.Item.ShinyWaferPosition,
+                Cache.Item.LaserLightInformation,
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -279,293 +311,308 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
-        {
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                ProductivityInformation = Cache.ProductivityInformation
-            }), HtmlLogUniqueId.LoggingHtml());
-            return true;
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2Async(CancellationToken cancellationToken)
-    {
-        Cache.Item.ShinyWaferPosition = StageViewModel.GetBrightFieldStagePosition();
-        AfViewModel.ToggleDarkFieldEnable(true);
-        SxPos = new Point(Cache.Item.ShinyWaferPosition.X, Cache.Item.ShinyWaferPosition.Y);
-
-        return InvokeCalibrateAsync(() =>
-        {
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                ShinyWaferPosition = Cache.Item.ShinyWaferPosition
-            }), HtmlLogUniqueId.LoggingHtml());
-            return true;
-        });
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3Async(CancellationToken cancellationToken)
-    {
         if (Cache.Ch3Image != null)
         {
             return InvokeCalibrateAsync(() =>
             {
-                var chi_square = Cache.Item.ImageGrayOldCh3 / Cache.Item.ImageGrayNewCh3;
-                Cache.Item.ImageGrayCompareCh3 = $"Ch3:Image Gray Compare(old/new) value is: {chi_square:F4}";
+                if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
+                {
+                    Cache.Item.Ch3Angle = 0;
+                    Cache.Item.Ch3TurnY = 0;
+                }
+
+                if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
+                {
+                    if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
+                    {
+                        Cache.Item.Ch3Angle = (float)PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYAngleCh3[0];
+                    }
+
+                    if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
+                    {
+                        Cache.Item.Ch3Angle = (float)PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYAngleCh3[1];
+                    }
+
+                    if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
+                    {
+                        Cache.Item.Ch3Angle = (float)PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYAngleCh3[2];
+                    }
+
+                    if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
+                    {
+                        Cache.Item.Ch3Angle = (float)PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYAngleCh3[3];
+                    }
+
+                    Cache.Item.Ch3TurnY = Ch3TurnY;
+                }
+
+                Cache.Item.Ch3Push = Ch3Push;
+
+                var chiSquare = Cache.Item.ImageGrayOldCh3 / Cache.Item.ImageGrayNewCh3;
+                Cache.Item.ImageGrayCompareCh3 = $"Ch3:Image Gray Compare(old/new) value is: {chiSquare:F4}";
                 Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    ImageGrayCompareCh3 = $"Ch3:Image Gray Compare(old/new) value is: {chi_square:F4}",
+                    ImageGrayCompareCh3 = $"Ch3:Image Gray Compare(old/new) value is: {chiSquare:F4}",
                     InitialImageFilePath3 = Cache.Item.OriginImageFilePathOld,
                     ProcessImageFilePath3 = Cache.Item.OriginImageFilePathNew,
-                    ImageGrayOldCh3 = Cache.Item.ImageGrayOldCh3,
-                    ImageGrayNewCh3 = Cache.Item.ImageGrayNewCh3,
+                    Cache.Item.ImageGrayOldCh3,
+                    Cache.Item.ImageGrayNewCh3,
                     HtmlTab = new HtmlTab(new
                     {
-                        InitialImageCh3 = new HtmlImage(Cache.Item.OriginImageFilePathOld),
-                        ProcessImageCh3 = new HtmlImage(Cache.Item.OriginImageFilePathNew)
+                        InitialImageCh3 = new HtmlImage(Cache.Item.OriginImageFilePathOld, htmlImageOverlays: CurrentImageRectListCh3.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList()),
+                        ProcessImageCh3 = new HtmlImage(Cache.Item.OriginImageFilePathNew, htmlImageOverlays: CurrentImageRectListCh3.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Logger.LogHtmlInformation("CalibrationResult", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    Ch3TurnY = Ch3TurnY,
-                    Ch3Push = Ch3Push
+                    Cache.Item.Ch3Angle,
+                    Cache.Item.Ch3TurnY,
+                    Cache.Item.Ch3Push
                 }), HtmlLogUniqueId.LoggingHtml());
                 return true;
             });
         }
-        else
-        {
-            DialogWindowProvider.ShowDialog("Make sure you have open image of CH1、CH2、CH3 and save all channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return Task.FromResult(false);
-        }
+
+        DialogWindowProvider.ShowDialog("Make sure you have open image of CH1、CH2、CH3 and save all channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        return Task.FromResult(false);
     }
 
     [RelayCommand]
-    private async Task OpenImageFileCH3Async()
+    private async Task OpenImageFileCh3Async()
     {
-        var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level, SxPos, 100);
-        if (ret.IsSuccess == false)
+        await Task.Run(() =>
         {
-            throw new CugaException(ret.ErrorMsg);
-        }
-        else
-        {
-            var originPicture0 = ret.Anything;
-            if (originPicture0 == null)
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level, SxPos, 100);
             {
-                // 处理错误或返回
-                return;
+                using var bitmap = BytesToBitmapImage(ret);
+
+                Cache.Item.OriginImageFilePathOld = Path.Combine(ImageFileDirectory, "CH3", "Initial" + "__" + $"{Guid.NewGuid():N}.jpg");
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawableCh30.BitmapImage = croppedImage;
+                Cache.BitmapImageDrawableCh30.BitmapImage.Save(Cache.Item.OriginImageFilePathOld);
+                //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
+                using var hImage = Cache.BitmapImageDrawableCh30.BitmapImage.ToHImage();
+                HOperatorSet.Intensity(hImage, hImage, out var meanGrayOld3, out _);
+                Cache.Item.ImageGrayOldCh3 = (float)meanGrayOld3.D;
+                //histoOld=hv_Histo;
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task SaveImageFileCh3Async()
+    {
+        await Task.Run(() =>
+        {
+            for (int j = 0; j < Cache.RectROIDrawableList.Count;)
+            {
+                var rectRoi = Cache.RectROIDrawableList[j];
+                var pushRectVertical = Cache.BitmapImageDrawableCh31.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
+                SelectRodWidth = (int)pushRectVertical.Width;
+                SelectRodHeight = (int)pushRectVertical.Height;
+                break;
             }
 
-            using var bitmap = BytesToBitmapImage(originPicture0);
-            if (bitmap == null)
-                return;
+            if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
+            {
+                FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+                FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
+            }
 
-            Cache.Item.OriginImageFilePathOld = Path.Combine(ImageFileDirectory, "CH3", "Initial" + "__" + $"{Guid.NewGuid():N}.jpg");
-            var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-            Cache.BitmapImageDrawableCh30.BitmapImage = croppedImage;
-            Cache.BitmapImageDrawableCh30.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathOld);
+            if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
+            {
+                FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
+                FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
+            }
 
-            var meanGrayOld3 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh30.BitmapImage,
-                new Rect(Point.Origin, Cache.BitmapImageDrawableCh30.BitmapImage.GetSize()));
-            Cache.Item.ImageGrayOldCh3 = (float)meanGrayOld3;
-            //histoOld=hv_Histo;
-        }
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level, SxPos, 100);
+            {
+                using var bitmap = BytesToBitmapImage(ret);
+
+                Cache.Item.OriginImageFilePathNew = Path.Combine(ImageFileDirectory, "CH3", "_" + Ch3TurnY + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
+                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawableCh31.BitmapImage = croppedImage;
+                Cache.Ch3Image = Cache.BitmapImageDrawableCh31.BitmapImage;
+                //var templateFilePath = $"{originImageFilePath}_Template";
+                Cache.BitmapImageDrawableCh31.BitmapImage.Save(Cache.Item.OriginImageFilePathNew);
+                //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
+                using var hImage = Cache.BitmapImageDrawableCh31.BitmapImage.ToHImage();
+                HOperatorSet.Intensity(hImage, hImage, out var meanGrayNew3, out _);
+                Cache.Item.ImageGrayNewCh3 = (float)meanGrayNew3.D;
+                //histoNew = hv_Histo;
+            }
+
+            {
+                CurrentImageRectListCh3 = [];
+                for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+                {
+                    var rectRoi = Cache.RectROIDrawableList[j];
+                    var rectOne = Cache.BitmapImageDrawableCh31.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
+                    CurrentImageRectListCh3 = [.. CurrentImageRectListCh3, rectOne];
+                }
+            }
+        }).ConfigureAwait(false);
     }
 
-    [RelayCommand]
-    private async Task SaveImageFileCH3Async()
-    {
-        for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
-        {
-            var rectRoi = Cache.RectROIDrawableList[j];
-            var PushRectVertical = Cache.BitmapImageDrawableCh31.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
-            SelectRodWidth = (int)PushRectVertical.Width;
-            SelectRodHeight = (int)PushRectVertical.Height;
-            break;
-        }
-
-        if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
-        {
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
-        }
-
-        if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
-        {
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
-        }
-
-        var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Level, SxPos, 100);
-        if (ret.IsSuccess == false)
-        {
-            throw new CugaException(ret.ErrorMsg);
-        }
-        else
-        {
-            var originPicture0 = ret.Anything;
-            if (originPicture0 == null)
-                return;
-
-            using var bitmap = BytesToBitmapImage(originPicture0);
-            if (bitmap == null)
-                return;
-
-            Cache.Item.OriginImageFilePathNew = Path.Combine(ImageFileDirectory, "CH3", "_" + Ch3TurnY + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
-            var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-            Cache.BitmapImageDrawableCh31.BitmapImage = croppedImage;
-            Cache.Ch3Image = Cache.BitmapImageDrawableCh31.BitmapImage;
-            //var templateFilePath = $"{originImageFilePath}_Template";
-            Cache.BitmapImageDrawableCh31.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathNew);
-            //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
-
-            var meanGrayNew3 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh31.BitmapImage,
-                new Rect(Point.Origin, Cache.BitmapImageDrawableCh31.BitmapImage.GetSize()));
-            Cache.Item.ImageGrayNewCh3 = (float)meanGrayNew3;
-            //histoNew = hv_Histo;
-        }
-    }
-
-    partial void OnSelectedCh3ShowTypeChanged(ChartShowType value)
+    partial void OnSelectedCh3PositionTypeChanged(PositionShowType value)
     {
         // 执行与所选类型相关的业务逻辑
-        ExecuteCh3ShowTypeLogic(value);
+        ExecuteCh3PositionTypeLogic(value);
     }
 
     // 添加私有方法来处理不同的业务逻辑
-    private void ExecuteCh3ShowTypeLogic(ChartShowType chartShowType)
+    private void ExecuteCh3PositionTypeLogic(PositionShowType positionShowType)
     {
-        switch (chartShowType)
+        switch (positionShowType)
         {
-            case ChartShowType.ID_0_Style:
+            case PositionShowType.Position1Angle120:
                 // 执行 swath_all_id 相关的业务逻辑
-                HandleId0();
+                HandleId120();
                 break;
-            case ChartShowType.ID_1_Style:
+            case PositionShowType.Position2Angle180:
                 // 执行 swath_odd_even 相关的业务逻辑
-                HandleId1();
+                HandleId180();
                 break;
-            case ChartShowType.ID_2_Style:
+            case PositionShowType.Position3Angle240:
                 // 执行 pmt_id 相关的业务逻辑
-                HandleId2();
+                HandleId240();
                 break;
-            case ChartShowType.ID_3_Style:
+            case PositionShowType.Position4Angle300:
                 // 执行 swathid_pmtid 相关的业务逻辑
-                HandleId3();
+                HandleId300();
                 break;
             default:
                 // 处理未定义的枚举值
-                MessageBox.Show($"未处理的 ChartShowType: {chartShowType}", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"未处理的 PositionShowType: {positionShowType}", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                 break;
         }
     }
 
-    private void HandleId0()
+    private void HandleId120()
     {
-        if (Cache.BitmapImageDrawableCh31?.BitmapImage != null)
+        if (Cache.BitmapImageDrawableCh31.BitmapImage != null)
         {
-            // 示例逻辑：创建特定的矩形配置
             var newList = new ObservableCollection<RectROIDrawable>();
-            // 根据 swath_all_id 业务逻辑创建矩形
-            var imageRect = new Rect(new Point(XStartPixel + 0 * RodWidth, 20), new Size(1900, RodHight + 150));
+            Cache.RectROIDrawableList = newList;
+
+            var currentImageRectListFirstCh3 = PupilCenterChannelFlexibleApertureValue.CgFFBoxPushXRectPositionCh3;
+            var imageRect = new Rect(new Point(currentImageRectListFirstCh3.X, currentImageRectListFirstCh3.Y), new Size(currentImageRectListFirstCh3.Width, currentImageRectListFirstCh3.Height));
             var cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
-            newList.Add(new RectROIDrawable { Rect = cartesianRect });
+            newList.Add(new RectROIDrawable { Rect = cartesianRect, Label = "Push" });
+
+            currentImageRectListFirstCh3 = PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYRectPositionCh3[0];
+            imageRect = new Rect(new Point(currentImageRectListFirstCh3.X, currentImageRectListFirstCh3.Y), new Size(currentImageRectListFirstCh3.Width, currentImageRectListFirstCh3.Height));
+            cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
+            newList.Add(new RectROIDrawable { Rect = cartesianRect, Label = ((int)PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYAngleCh3[0]).ToString() });
 
             // 更新UI线程
             Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
-    private void HandleId1()
+    private void HandleId180()
     {
-        if (Cache.BitmapImageDrawableCh31?.BitmapImage != null)
+        if (Cache.BitmapImageDrawableCh31.BitmapImage != null)
         {
-            // 示例逻辑：创建特定的矩形配置
             var newList = new ObservableCollection<RectROIDrawable>();
-            var imageRect = new Rect(new Point(XStartPixel + 0 * RodWidth, 20), new Size(1900, RodHight + 300));
+            Cache.RectROIDrawableList = newList;
+
+            var currentImageRectListFirstCh3 = PupilCenterChannelFlexibleApertureValue.CgFFBoxPushXRectPositionCh3;
+            var imageRect = new Rect(new Point(currentImageRectListFirstCh3.X, currentImageRectListFirstCh3.Y), new Size(currentImageRectListFirstCh3.Width, currentImageRectListFirstCh3.Height));
             var cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
-            newList.Add(new RectROIDrawable { Rect = cartesianRect });
+            newList.Add(new RectROIDrawable { Rect = cartesianRect, Label = "Push" });
+
+            currentImageRectListFirstCh3 = PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYRectPositionCh3[1];
+            imageRect = new Rect(new Point(currentImageRectListFirstCh3.X, currentImageRectListFirstCh3.Y), new Size(currentImageRectListFirstCh3.Width, currentImageRectListFirstCh3.Height));
+            cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
+            newList.Add(new RectROIDrawable { Rect = cartesianRect, Label = ((int)PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYAngleCh3[1]).ToString() });
+
             // 更新UI线程
             Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
-    private void HandleId2()
+    private void HandleId240()
     {
-        if (Cache.BitmapImageDrawableCh31?.BitmapImage != null)
+        if (Cache.BitmapImageDrawableCh31.BitmapImage != null)
         {
-            // 示例逻辑：创建特定的矩形配置
             var newList = new ObservableCollection<RectROIDrawable>();
-            // 根据 swath_all_id 业务逻辑创建矩形
-            var imageRect = new Rect(new Point(XStartPixel + 850, 0), new Size(RodWidth + 150, 990));
-            var cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
-            newList.Add(new RectROIDrawable { Rect = cartesianRect });
+            Cache.RectROIDrawableList = newList;
 
-            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
-        }
-    }
-
-    private void HandleId3()
-    {
-        if (Cache.BitmapImageDrawableCh31?.BitmapImage != null)
-        {
-            // 示例逻辑：创建特定的矩形配置
-            var newList = new ObservableCollection<RectROIDrawable>();
-            // 根据 swath_all_id 业务逻辑创建矩形
-            var imageRect = new Rect(new Point(XStartPixel + 850, 0), new Size(RodWidth + 250, 990));
+            var currentImageRectListFirstCh3 = PupilCenterChannelFlexibleApertureValue.CgFFBoxPushXRectPositionCh3;
+            var imageRect = new Rect(new Point(currentImageRectListFirstCh3.X, currentImageRectListFirstCh3.Y), new Size(currentImageRectListFirstCh3.Width, currentImageRectListFirstCh3.Height));
             var cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
-            newList.Add(new RectROIDrawable { Rect = cartesianRect });
+            newList.Add(new RectROIDrawable { Rect = cartesianRect, Label = "Push" });
+
+            currentImageRectListFirstCh3 = PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYRectPositionCh3[2];
+            imageRect = new Rect(new Point(currentImageRectListFirstCh3.X, currentImageRectListFirstCh3.Y), new Size(currentImageRectListFirstCh3.Width, currentImageRectListFirstCh3.Height));
+            cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
+            newList.Add(new RectROIDrawable { Rect = cartesianRect, Label = ((int)PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYAngleCh3[2]).ToString() });
+
             // 更新UI线程
             Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
         }
     }
 
+    private void HandleId300()
+    {
+        if (Cache.BitmapImageDrawableCh31.BitmapImage != null)
+        {
+            var newList = new ObservableCollection<RectROIDrawable>();
+            Cache.RectROIDrawableList = newList;
+
+            var currentImageRectListFirstCh3 = PupilCenterChannelFlexibleApertureValue.CgFFBoxPushXRectPositionCh3;
+            var imageRect = new Rect(new Point(currentImageRectListFirstCh3.X, currentImageRectListFirstCh3.Y), new Size(currentImageRectListFirstCh3.Width, currentImageRectListFirstCh3.Height));
+            var cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
+            newList.Add(new RectROIDrawable { Rect = cartesianRect, Label = "Push" });
+
+            currentImageRectListFirstCh3 = PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYRectPositionCh3[3];
+            imageRect = new Rect(new Point(currentImageRectListFirstCh3.X, currentImageRectListFirstCh3.Y), new Size(currentImageRectListFirstCh3.Width, currentImageRectListFirstCh3.Height));
+            cartesianRect = Cache.BitmapImageDrawableCh31.ImageCoordinateToCartesianCoordinate(imageRect);
+            newList.Add(new RectROIDrawable { Rect = cartesianRect, Label = ((int)PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYAngleCh3[3]).ToString() });
+
+            // 更新UI线程
+            Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
+        }
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task GetLightShowAsync(CancellationToken cancellationToken)
     {
-        calibrationFlourierService.SetFFHome(FFCH.Ch1);
-        calibrationFlourierService.SetFFHome(FFCH.Ch2);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_X);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
+        FourierViewModel.SetFFHome(FFCH.Ch1);
+        FourierViewModel.SetFFHome(FFCH.Ch2);
+        FourierViewModel.SetFFHome(FFCH.Ch3_X);
+        FourierViewModel.SetFFHome(FFCH.Ch3_Y);
 
-        calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
-        calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
-        calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
-        calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
-        calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
-
-        StageViewModel.SetAbsoluteStageTheta(0d);
+        FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
+        FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
+        FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
+        FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
+        FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+        StageViewModel.SetAbsoluteStageTheta(0);
         StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.ShinyWaferPosition);
         AfViewModel.ToggleDarkFieldEnable(true);
 
-        Point DarkFieldPosition = StageViewModel.GetDarkFieldStagePosition();
+        Point darkFieldPosition = StageViewModel.GetDarkFieldStagePosition();
         {
-            {
-                using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
-                    Cache.ProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    DarkFieldPosition,
-                    ImageWidthPixel,
-                    Cache.Item.CIBInformation3,
-                    (false, CalChipSiteModelEnum.ShinyWaferModel),
-                    (false, Cache.Item.OpticsConfiguration),
-                    (false, Cache.Item.CIBConfiguration),
-                    (false, Cache.Item.LaserLightInformation),
-                    false,
-                    cancellationToken);
-                var path1 = Path.Combine(ImageFileDirectory, "CH3", "__" + "LightShow" + "__" + $"{Guid.NewGuid():N}.jpg");
+            using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Dark,
+                darkFieldPosition,
+                ImageWidthPixel,
+                Cache.Item.CIBInformation3,
+                (false, CalChipSiteModelEnum.ShinyWaferModel),
+                (false, Cache.Item.OpticsConfiguration),
+                (false, Cache.Item.CIBConfiguration),
+                (false, Cache.Item.LaserLightInformation),
+                false,
+                cancellationToken);
+            ReviewImageShowPath = Path.Combine(ImageFileDirectory, "CH3", "__" + "LightShow" + "__" + $"{Guid.NewGuid():N}.jpg");
 
-                using var hImage = darkFieldImage1.Image.ToHImage();
-                ReviewImageGrayCh3[0] = hImage.GetIntensity().Average;
-                darkFieldImage1.Image.SaveImage(path1);
-                ReviewImageShowPath = path1;
-            }
+            using var hImage = darkFieldImage1.Image.ToHImage();
+            ReviewImageGrayCh3[0] = hImage.GetIntensity().Average;
+            darkFieldImage1.Image.Save(ReviewImageShowPath);
         }
     }
 
@@ -574,42 +621,39 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
     {
         if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
         {
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
         }
 
         if (Cache.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
         {
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
         }
 
         StageViewModel.SetAbsoluteStageTheta(0d);
         StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.ShinyWaferPosition);
         AfViewModel.ToggleDarkFieldEnable(true);
 
-        Point DarkFieldPosition = StageViewModel.GetDarkFieldStagePosition();
+        Point darkFieldPosition = StageViewModel.GetDarkFieldStagePosition();
         {
-            {
-                using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
-                    Cache.ProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    DarkFieldPosition,
-                    ImageWidthPixel,
-                    Cache.Item.CIBInformation3,
-                    (false, CalChipSiteModelEnum.ShinyWaferModel),
-                    (false, Cache.Item.OpticsConfiguration),
-                    (false, Cache.Item.CIBConfiguration),
-                    (false, Cache.Item.LaserLightInformation),
-                    false,
-                    cancellationToken);
-                var path1 = Path.Combine(ImageFileDirectory, "CH3", "__" + "LightHide" + "__" + $"{Guid.NewGuid():N}.jpg");
+            using var darkFieldImage1 = await CIBViewModel.GetPMTImageAsync(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Dark,
+                darkFieldPosition,
+                ImageWidthPixel,
+                Cache.Item.CIBInformation3,
+                (false, CalChipSiteModelEnum.ShinyWaferModel),
+                (false, Cache.Item.OpticsConfiguration),
+                (false, Cache.Item.CIBConfiguration),
+                (false, Cache.Item.LaserLightInformation),
+                false,
+                cancellationToken);
+            ReviewImageHidePath = Path.Combine(ImageFileDirectory, "CH3", "__" + "LightHide" + "__" + $"{Guid.NewGuid():N}.jpg");
 
-                using var hImage = darkFieldImage1.Image.ToHImage();
-                ReviewImageGrayCh3[1] = hImage.GetIntensity().Average;
-                darkFieldImage1.Image.SaveImage(path1);
-                ReviewImageHidePath = path1;
-            }
+            using var hImage = darkFieldImage1.Image.ToHImage();
+            ReviewImageGrayCh3[1] = hImage.GetIntensity().Average;
+            darkFieldImage1.Image.Save(ReviewImageHidePath);
         }
     }
 
@@ -618,13 +662,49 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
     {
         ReviewImageCompareCh3 = ReviewImageGrayCh3[0] / ReviewImageGrayCh3[1];
 
-        Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+        await InvokeVerifyAsync(() =>
         {
-            ReviewImageGrayCh3Before = ReviewImageGrayCh3[0],
-            ReviewImageGrayCh3After = ReviewImageGrayCh3[1],
-            ReviewImageCompareCh3 = ReviewImageCompareCh3
-        }), HtmlLogUniqueId.LoggingHtml());
-        return;
+            Logger.LogHtmlInformation("ReviewImage:CoverBefor", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                LightShowImage = new HtmlImage(ReviewImageShowPath)
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("ReviewImage:CoverAfter", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                LightHideImage = new HtmlImage(ReviewImageHidePath)
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("VerifyResult", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                ReviewImageGrayCh3Before = ReviewImageGrayCh3[0],
+                ReviewImageGrayCh3After = ReviewImageGrayCh3[1],
+                ReviewImageCompareCh3
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            if (ResultPupilCenterChannelSpecularBlockerDTOList.Count <= 0)
+            {
+                DialogWindowProvider.TryShowDialog("Please find Offset!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
+                if (dialogButtonsEnum == DialogResultEnum.Retry) return false;
+            }
+            else
+            {
+                foreach (var (index, pupilCenterChannelSpecularBlockerDTO) in ResultPupilCenterChannelSpecularBlockerDTOList.Select((dto, i) => (i, dto)))
+                {
+                    if (pupilCenterChannelSpecularBlockerDTO.ProductivityInformation == Cache.ProductivityInformation)
+                    {
+                        pupilCenterChannelSpecularBlockerDTO.IsVerified = true;
+                        if (Save(pupilCenterChannelSpecularBlockerDTO, cancellationToken, index == ResultPupilCenterChannelSpecularBlockerDTOList.Count - 1)) break;
+
+                        pupilCenterChannelSpecularBlockerDTO.IsVerified = false;
+                        Logger.LogError("{@Name} Error: Save Failed!", Name);
+                        return false;
+                    }
+                }
+            }
+
+            DialogWindowProvider.ShowDialog("Verify Success!");
+            return true;
+        }).ConfigureAwait(false);
     }
 
     private BitmapImage GetPictureRegion(BitmapImage originImage, int startX, int startY, int width, int height)
@@ -643,11 +723,10 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
         Calibrations =
         [
             .. Calibrations
-                .Where(t => (t.ProductivityInformation == itemDto.ProductivityInformation
-                             && t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode) == false),
+                .Where(t => !(t.ProductivityInformation == itemDto.ProductivityInformation)),
             itemDto.Clone()
         ];
-        if (isSave == false) return;
+        if (!isSave) return;
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
@@ -660,8 +739,8 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
 
     public static BitmapImage BytesToBitmapImage(byte[] bytes)
     {
-        if (bytes == null || bytes.Length == 0)
-            return null;
+        if (bytes.Length == 0)
+            return null!;
         // Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage
         // 使用接受字节数组的构造函数（反编译源码显示有此构造函数）
         return new BitmapImage(bytes, isCopy: true);

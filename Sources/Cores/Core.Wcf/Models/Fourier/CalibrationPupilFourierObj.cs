@@ -1,4 +1,6 @@
 using Cuga.Data.DataStruct.DTO.Recipe;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
 using System.Collections.Generic;
@@ -29,12 +31,12 @@ public sealed class CalibrationPupilFourierObj
     /// <summary>
     /// 傅里叶校准, PupilSideChannelSpecularBlocker对象数据
     /// </summary>
-    public CalibrationPupilSideChannelSpecularBlocker CalibrationPupilSideChannelSpecularBlocker { get; set; } = new CalibrationPupilSideChannelSpecularBlocker();
+    public CalibrationPupilSideChannelSpecularBlocker[] CalibrationPupilSideChannelSpecularBlockerItems { get; set; } = [];
 
     /// <summary>
     /// 傅里叶校准, PupilCenterChannelSpecularBlocker对象数据
     /// </summary>
-    public CalibrationPupilCenterChannelSpecularBlocker CalibrationPupilCenterChannelSpecularBlocker { get; set; } = new CalibrationPupilCenterChannelSpecularBlocker();
+    public CalibrationPupilCenterChannelSpecularBlocker[] CalibrationPupilCenterChannelSpecularBlockerItems { get; set; } = [];
 }
 
 /// <summary>
@@ -108,9 +110,9 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
     /// <summary>
     /// 每根杆子像素高度和真实高度对应比例换算，按照百分比, 每1%相当于多少像素,**需要记录**
     /// </summary> 
-    public List<int> CgFFBoxHeightRelationPercentListCh1 { get; set; }
+    public List<double> CgFFBoxHeightRelationPercentListCh1 { get; set; }
 
-    public List<int> CgFFBoxHeightRelationPercentListCh2 { get; set; }
+    public List<double> CgFFBoxHeightRelationPercentListCh2 { get; set; }
 
     /// <summary>
     /// 每根杆子矩形区域像素坐标,**需要记录**
@@ -134,29 +136,29 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
 public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationBase
 {
     /// <summary>
-    /// 垂直方向转盘从120度到240度转动4个位置，记录下来每一个角度值,**需要记录**
+    /// 垂直方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
     /// </summary> 
     public List<double> CgFFBoxTurnXAngleCh3 { get; set; }
 
     /// <summary>
-    /// 垂直方向转盘从120度到240度转动4个位置，记录下来每一个挡杆像素宽度,**需要记录**
+    /// 垂直方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素宽度,**需要记录**
     /// </summary> 
     public List<double> CgFFBoxTurnXWidthCh3 { get; set; }
 
     /// <summary>
-    /// 垂直方向转盘从120度到240度转动4个位置，记录下来位移电机每1毫米相当于多少像素宽度,**需要记录**
+    /// 垂直方向转盘从120度到300度转动4个位置，记录下来位移电机每1毫米相当于多少像素宽度,**需要记录**
     /// </summary> 
-    public List<double> CgFFBoxTurnXMotorRelationCH3 { get; set; }
+    public List<double> CgFFBoxTurnXMotorRelationCh3 { get; set; }
 
     /// <summary>
-    /// 垂直方向转盘从120度到240度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// 垂直方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
     /// </summary> 
-    public List<double> CgFFBoxTurnXMotorPositionCH3 { get; set; }
+    public List<double> CgFFBoxTurnXMotorPositionCh3 { get; set; }
 
     /// <summary>
-    /// 垂直方向转盘从120度到240度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
+    /// 垂直方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
     /// </summary> 
-    public List<RectD> CgFFBoxTurnXRectPositionCH3 { get; set; }
+    public List<RectD> CgFFBoxTurnXRectPositionCh3 { get; set; }
 
     /// <summary>
     /// 垂直方向通光孔算出来的圆形圆心坐标值,**需要记录**
@@ -169,29 +171,29 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
     public double CgFFBoxTurnXLightHoleCircleRadiusCh3 { get; set; }
 
     /// <summary>
-    /// 水平方向转盘从120度到240度转动4个位置，记录下来每一个角度值,**需要记录**
+    /// 水平方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
     /// </summary> 
     public List<double> CgFFBoxTurnYAngleCh3 { get; set; }
 
     /// <summary>
-    /// 水平方向转盘从120度到240度转动4个位置，记录下来每一个挡杆像素高度,**需要记录**
+    /// 水平方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素高度,**需要记录**
     /// </summary> 
     public List<double> CgFFBoxTurnYWidthCh3 { get; set; }
 
     /// <summary>
-    /// 水平方向转盘从120度到240度转动4个位置，记录下来位移电机每1毫米相当于多少像素宽度,**需要记录**
+    /// 水平方向转盘从120度到300度转动4个位置，记录下来位移电机每1毫米相当于多少像素宽度,**需要记录**
     /// </summary> 
-    public List<double> CgFFBoxTurnYMotorRelationCH3 { get; set; }
+    public List<double> CgFFBoxTurnYMotorRelationCh3 { get; set; }
 
     /// <summary>
-    /// 水平方向转盘从120度到240度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// 水平方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
     /// </summary> 
-    public List<double> CgFFBoxTurnYMotorPositionCH3 { get; set; }
+    public List<double> CgFFBoxTurnYMotorPositionCh3 { get; set; }
 
     /// <summary>
-    /// 水平方向转盘从120度到240度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
+    /// 水平方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
     /// </summary> 
-    public List<RectD> CgFFBoxTurnYRectPositionCH3 { get; set; }
+    public List<RectD> CgFFBoxTurnYRectPositionCh3 { get; set; }
 
     /// <summary>
     /// 水平方向通光孔算出来的圆形圆心坐标值,**需要记录**
@@ -211,17 +213,17 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
     /// <summary>
     /// 垂直方向单独的推杆位移电机每移动1毫米相当于多少像素宽度,**需要记录**
     /// </summary> 
-    public double CgFFBoxPushXMotorRelationCH3 { get; set; }
+    public double CgFFBoxPushXMotorRelationCh3 { get; set; }
 
     /// <summary>
     /// 垂直方向单独的推杆起始位置,**需要记录**
     /// </summary> 
-    public double CgFFBoxPushXMotorPositionCH3 { get; set; }
+    public double CgFFBoxPushXMotorPositionCh3 { get; set; }
 
     /// <summary>
     /// 垂直方向单独的推杆起始矩形区域坐标,**需要记录**
     /// </summary> 
-    public RectD CgFFBoxPushXRectPositionCH3 { get; set; }
+    public RectD CgFFBoxPushXRectPositionCh3 { get; set; }
 }
 
 /// <summary>
@@ -231,25 +233,19 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
 public sealed class CalibrationPupilSideChannelSpecularBlocker : CalibrationBase
 {
     /// <summary>
-    /// 傅里叶截图可见区域内开始移动的第一根杆子像素坐标, **不需要记录**
-    /// </summary> 
-    public CgPoint CgFFBoxBeginPositionCh1 { get; set; }
-
-    public CgPoint CgFFBoxBeginPositionCh2 { get; set; }
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
 
     /// <summary>
-    /// 傅里叶截图可见区域内开始移动的第一根杆子编号, **需要记录**
-    /// </summary> 
-    public int CgFFBoxBeginNumberCh1 { get; set; }
-
-    public int CgFFBoxBeginNumberCh2 { get; set; }
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
     /// <summary>
-    /// 傅里叶截图可见区域内开始移动的最后一根杆子编号, **需要记录**
-    /// </summary> 
-    public int CgFFBoxEndNumberCh1 { get; set; }
-
-    public int CgFFBoxEndNumberCh2 { get; set; }
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
 
     /// <summary>
     /// 傅里叶截图可见区域内每根杆子向下移动百分比, **需要记录**
@@ -266,12 +262,32 @@ public sealed class CalibrationPupilSideChannelSpecularBlocker : CalibrationBase
 public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBase
 {
     /// <summary>
-    /// 傅里叶CH3通道反射光校准，Y方向转盘位置, **需要记录**
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
+    /// </summary> 
+    public float Ch3Angle { get; set; }
+
+    /// <summary>
+    /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
     /// </summary> 
     public float Ch3TurnY { get; set; }
 
     /// <summary>
-    /// 傅里叶CH3通道反射光校准，X方向推杆位置, **需要记录**
+    /// 傅里叶CH3通道反射光校准，X方向推杆位置, **OI、NI下都需要记录**
     /// </summary> 
     public float Ch3Push { get; set; }
 }

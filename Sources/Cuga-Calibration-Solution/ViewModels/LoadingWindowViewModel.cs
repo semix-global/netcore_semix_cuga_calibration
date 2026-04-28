@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.Cache.Providers.Services.Interfaces;
@@ -17,7 +16,7 @@ namespace CugaCalibration.ViewModels;
 
 [IOCAppService(ServiceType = typeof(LoadingWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class LoadingWindowViewModel(
-    ConfigViewModel configViewModel,
+    StatusViewModel statusViewModel,
     StageViewModel stageViewModel,
     ReviewViewModel reviewViewModel,
     MicroscopeViewModel microscopeViewModel,
@@ -33,7 +32,6 @@ public sealed partial class LoadingWindowViewModel(
     ILogger<LoadingWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     ISynchronizationContextProvider contextProvider,
-    ApplicationCookie applicationCookie,
     CalibrationSetting calibrationSetting,
     string applicationName) : ViewModelBase
 {
@@ -74,28 +72,9 @@ public sealed partial class LoadingWindowViewModel(
 
             Message = "Connected OK!!!";
 
-            var deviceCode = configViewModel.GetDeviceCode();
-            var microscopeLensInformations = microscopeViewModel.GetMicroscopeLensInformations();
-            var laserLightInformations = laserViewModel.GetLaserLightInformations();
-            var productivityInformations = opticsViewModel.GetProductivityInformations();
-
-            var cibInformations = cibViewModel.GetCIBInformations();
-
-            applicationCookie.DeviceCode = deviceCode;
-            applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
-            applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
-            applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
-            applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
-            applicationCookie.HardwareStateConfig = configViewModel.GetHardwareConfigs();
-
-            Guard.IsNotNullOrWhiteSpace(applicationCookie.DeviceCode);
-            Guard.IsNotEmpty(applicationCookie.MicroscopeLensInformations);
-            Guard.IsNotEmpty(applicationCookie.LaserLightInformations);
-            Guard.IsNotEmpty(applicationCookie.ProductivityInformations);
-            Guard.IsNotEmpty(applicationCookie.CIBInformations);
+            Guard.IsTrue(await statusViewModel.RefreshCookieAsync(true));
 
             calibrationSetting.AdaptIn(cacheProvider.GetOrDefault<CalibrationSetting>());
-
 
             contextProvider.Send(() => CloseView(true));
 

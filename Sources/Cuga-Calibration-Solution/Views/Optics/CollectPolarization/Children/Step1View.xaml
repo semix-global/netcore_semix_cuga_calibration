@@ -48,7 +48,6 @@
                                 <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
-                        <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
                         <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"

@@ -1,36 +1,29 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Common.Fourier;
-using Core.Models.Models.Fourier;
+using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Setting;
-using Core.Services.Interfaces;
-using Core.Utilities;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using BitmapImage = Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage;
 
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilCameraAlignmentViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCameraAlignmentViewModel(
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting,
-    ICalibrationFourierService calibrationFlourierService,
-    ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
+public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModelBase
 {
     #region 界面相关
 
     [ObservableProperty]
-    private Point _sxPos = new();
+    private Point _sxPos;
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -55,6 +48,9 @@ public sealed partial class PupilCameraAlignmentViewModel(
 
     [ObservableProperty]
     private PupilCameraAlignmentDTO _calibration = new();
+
+    [ObservableProperty]
+    private PupilCameraAlignmentDTO _review = new();
 
     #endregion 缓存
 
@@ -103,6 +99,7 @@ public sealed partial class PupilCameraAlignmentViewModel(
 
             case 3:
                 Cache.IsToggleSelectRectROIDrawableCh3 = false;
+                ResultDto.IsCalibrated = true;
                 Save(ResultDto, cancellationToken);
                 IsCalibrated = true;
                 return true;
@@ -123,13 +120,15 @@ public sealed partial class PupilCameraAlignmentViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
-        calibrationFlourierService.SetFFHome(FFCH.Ch1);
-        calibrationFlourierService.SetFFHome(FFCH.Ch2);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_X);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
+        FourierViewModel.SetFFHome(FFCH.Ch1);
+        FourierViewModel.SetFFHome(FFCH.Ch2);
+        FourierViewModel.SetFFHome(FFCH.Ch3_X);
+        FourierViewModel.SetFFHome(FFCH.Ch3_Y);
 
-        Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
-        StageViewModel.SetAbsoluteStageTheta(0d);
+        //Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
+        Cache.HazeWaferPosition = Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
+        Cache.HazeWaferPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition);
+
         AfViewModel.ToggleDarkFieldEnable(true);
 
         SxPos = new Point(Cache.HazeWaferPosition.X, Cache.HazeWaferPosition.Y);
@@ -138,7 +137,7 @@ public sealed partial class PupilCameraAlignmentViewModel(
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                HazeWaferPosition = Cache.HazeWaferPosition
+                Cache.HazeWaferPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -151,26 +150,31 @@ public sealed partial class PupilCameraAlignmentViewModel(
         {
             return InvokeCalibrateAsync(() =>
             {
-                Cache.RectCh1Position = new Point((double)Cache.BitmapImageDrawableCh1.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh1.LastCropY * 1.0);
-                Cache.Ch1ImageWidth = Cache.BitmapImageDrawableCh1.BitmapImage.Width;
-                Cache.Ch1ImageHeight = Cache.BitmapImageDrawableCh1.BitmapImage.Height;
-                Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                if (Cache.BitmapImageDrawableCh1 != null)
                 {
-                    RectCh1Position = new Point((double)Cache.BitmapImageDrawableCh1.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh1.LastCropY * 1.0),
-                    Ch1ImageWidth = Cache.BitmapImageDrawableCh1.BitmapImage.Width,
-                    Ch1ImageHeight = Cache.BitmapImageDrawableCh1.BitmapImage.Height,
-                    Ch1ImageFilePath = Cache.OriginImageFilePath1,
-                    //Ch2ImageFilePath = Cache.OriginImageFilePath2,
-                    //Ch3ImageFilePath = Cache.OriginImageFilePath3,
-                    //templateFilePath = templateFilePath,
-                    HtmlTab = new HtmlTab(new
+                    Cache.RectCh1Position = new Point((double)Cache.BitmapImageDrawableCh1.LastCropX! * 1.0, (double)Cache.BitmapImageDrawableCh1.LastCropY! * 1.0);
+                    if (Cache.BitmapImageDrawableCh1.BitmapImage != null)
                     {
-                        //TemplateImage = new HtmlImage(templateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        Ch1Image = new HtmlImage(Cache.OriginImageFilePath1)
-                        //Ch2Image = new HtmlImage(OriginImageFilePath2),
-                        //Ch3Image = new HtmlImage(OriginImageFilePath3)
-                    })
-                }), HtmlLogUniqueId.LoggingHtml());
+                        Cache.Ch1ImageWidth = Cache.BitmapImageDrawableCh1.BitmapImage.Width;
+                        Cache.Ch1ImageHeight = Cache.BitmapImageDrawableCh1.BitmapImage.Height;
+                        Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                        {
+                            RectCh1Position = new Point((double)Cache.BitmapImageDrawableCh1.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh1.LastCropY * 1.0),
+                            Ch1ImageWidth = Cache.BitmapImageDrawableCh1.BitmapImage.Width,
+                            Ch1ImageHeight = Cache.BitmapImageDrawableCh1.BitmapImage.Height,
+                            Ch1ImageFilePath = Cache.OriginImageFilePath1,
+                            //Ch2ImageFilePath = Cache.OriginImageFilePath2,
+                            //Ch3ImageFilePath = Cache.OriginImageFilePath3,
+                            //templateFilePath = templateFilePath,
+                            HtmlTab = new HtmlTab(new
+                            {
+                                Ch1ImagePrimary = new HtmlImage(Cache.PrimaryImageFilePath1),
+                                Ch1ImageCropLater = new HtmlImage(Cache.OriginImageFilePath1)
+                            })
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
+                }
+
                 return true;
             });
         }
@@ -188,26 +192,30 @@ public sealed partial class PupilCameraAlignmentViewModel(
         {
             return InvokeCalibrateAsync(() =>
             {
-                Cache.RectCh2Position = new Point((double)Cache.BitmapImageDrawableCh2.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh2.LastCropY * 1.0);
-                Cache.Ch2ImageWidth = Cache.BitmapImageDrawableCh2.BitmapImage.Width;
-                Cache.Ch2ImageHeight = Cache.BitmapImageDrawableCh2.BitmapImage.Height;
-                Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                if (Cache.BitmapImageDrawableCh2 != null)
                 {
-                    //Ch1ImageFilePath = Cache.OriginImageFilePath1,
-                    RectCh2Position = new Point((double)Cache.BitmapImageDrawableCh2.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh2.LastCropY * 1.0),
-                    Ch2ImageWidth = Cache.BitmapImageDrawableCh2.BitmapImage.Width,
-                    Ch2ImageHeight = Cache.BitmapImageDrawableCh2.BitmapImage.Height,
-                    Ch2ImageFilePath = Cache.OriginImageFilePath2,
-                    //Ch3ImageFilePath = Cache.OriginImageFilePath3,
-                    //templateFilePath = templateFilePath,
-                    HtmlTab = new HtmlTab(new
+                    Cache.RectCh2Position = new Point((double)Cache.BitmapImageDrawableCh2.LastCropX! * 1.0, (double)Cache.BitmapImageDrawableCh2.LastCropY! * 1.0);
+                    if (Cache.BitmapImageDrawableCh2.BitmapImage != null)
                     {
-                        //TemplateImage = new HtmlImage(templateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        //Ch1Image = new HtmlImage(OriginImageFilePath1),
-                        Ch2Image = new HtmlImage(Cache.OriginImageFilePath2)
-                        //Ch3Image = new HtmlImage(OriginImageFilePath3)
-                    })
-                }), HtmlLogUniqueId.LoggingHtml());
+                        Cache.Ch2ImageWidth = Cache.BitmapImageDrawableCh2.BitmapImage.Width;
+                        Cache.Ch2ImageHeight = Cache.BitmapImageDrawableCh2.BitmapImage.Height;
+                        Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                        {
+                            //Ch1ImageFilePath = Cache.OriginImageFilePath1,
+                            RectCh2Position = new Point((double)Cache.BitmapImageDrawableCh2.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh2.LastCropY * 1.0),
+                            Ch2ImageWidth = Cache.BitmapImageDrawableCh2.BitmapImage.Width,
+                            Ch2ImageHeight = Cache.BitmapImageDrawableCh2.BitmapImage.Height,
+                            Ch2ImageFilePath = Cache.OriginImageFilePath2,
+                            //Ch3ImageFilePath = Cache.OriginImageFilePath3,
+                            //templateFilePath = templateFilePath,
+                            HtmlTab = new HtmlTab(new
+                            {
+                                Ch2ImagePrimary = new HtmlImage(Cache.PrimaryImageFilePath2),
+                                Ch2ImageCropLater = new HtmlImage(Cache.OriginImageFilePath2)
+                            })
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
+                }
 
                 return true;
             });
@@ -226,26 +234,30 @@ public sealed partial class PupilCameraAlignmentViewModel(
         {
             return InvokeCalibrateAsync(() =>
             {
-                Cache.RectCh3Position = new Point((double)Cache.BitmapImageDrawableCh3.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh3.LastCropY * 1.0);
-                Cache.Ch3ImageWidth = Cache.BitmapImageDrawableCh3.BitmapImage.Width;
-                Cache.Ch3ImageHeight = Cache.BitmapImageDrawableCh3.BitmapImage.Height;
-                Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                if (Cache.BitmapImageDrawableCh3 != null)
                 {
-                    //Ch1ImageFilePath = Cache.OriginImageFilePath1,
-                    //Ch2ImageFilePath = Cache.OriginImageFilePath2,
-                    RectCh3Position = new Point((double)Cache.BitmapImageDrawableCh3.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh3.LastCropY * 1.0),
-                    Ch3ImageWidth = Cache.BitmapImageDrawableCh3.BitmapImage.Width,
-                    Ch3ImageHeight = Cache.BitmapImageDrawableCh3.BitmapImage.Height,
-                    Ch3ImageFilePath = Cache.OriginImageFilePath3,
-                    //templateFilePath = templateFilePath,
-                    HtmlTab = new HtmlTab(new
+                    Cache.RectCh3Position = new Point((double)Cache.BitmapImageDrawableCh3.LastCropX! * 1.0, (double)Cache.BitmapImageDrawableCh3.LastCropY! * 1.0);
+                    if (Cache.BitmapImageDrawableCh3.BitmapImage != null)
                     {
-                        //TemplateImage = new HtmlImage(templateFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                        //Ch1Image = new HtmlImage(Cache.OriginImageFilePath1),
-                        //Ch2Image = new HtmlImage(Cache.OriginImageFilePath2),
-                        Ch3Image = new HtmlImage(Cache.OriginImageFilePath3)
-                    })
-                }), HtmlLogUniqueId.LoggingHtml());
+                        Cache.Ch3ImageWidth = Cache.BitmapImageDrawableCh3.BitmapImage.Width;
+                        Cache.Ch3ImageHeight = Cache.BitmapImageDrawableCh3.BitmapImage.Height;
+                        Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                        {
+                            //Ch1ImageFilePath = Cache.OriginImageFilePath1,
+                            //Ch2ImageFilePath = Cache.OriginImageFilePath2,
+                            RectCh3Position = new Point((double)Cache.BitmapImageDrawableCh3.LastCropX * 1.0, (double)Cache.BitmapImageDrawableCh3.LastCropY * 1.0),
+                            Ch3ImageWidth = Cache.BitmapImageDrawableCh3.BitmapImage.Width,
+                            Ch3ImageHeight = Cache.BitmapImageDrawableCh3.BitmapImage.Height,
+                            Ch3ImageFilePath = Cache.OriginImageFilePath3,
+                            //templateFilePath = templateFilePath,
+                            HtmlTab = new HtmlTab(new
+                            {
+                                Ch3ImagePrimary = new HtmlImage(Cache.PrimaryImageFilePath3),
+                                Ch3ImageCropLater = new HtmlImage(Cache.OriginImageFilePath3)
+                            })
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
+                }
 
                 ResultDto.RectCh1Position = Cache.RectCh1Position;
                 ResultDto.Ch1ImageWidth = Cache.Ch1ImageWidth;
@@ -268,131 +280,139 @@ public sealed partial class PupilCameraAlignmentViewModel(
     }
 
     [RelayCommand]
-    private async Task OpenImageFileCH1Async()
+    private async Task OpenImageFileCh1Async()
     {
-        var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-        if (ret.IsSuccess == false)
+        await Task.Run(() =>
         {
-            throw new CugaException(ret.ErrorMsg);
-        }
-        else
-        {
-            var originPicture0 = ret.Anything;
-            if (originPicture0 == null)
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
             {
-                // 处理错误或返回
-                return;
+                Cache.BitmapImageDrawableCh1 = new BitmapImageDrawable();
+
+                var bitmap = BytesToBitmapImage(ret);
+                Cache.BitmapImageDrawableCh1.BitmapImage = bitmap;
+                Cache.PrimaryImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", $"{Guid.NewGuid():N}.jpg");
+                Cache.BitmapImageDrawableCh1.BitmapImage.Save(Cache.PrimaryImageFilePath1);
             }
-
-            Cache.BitmapImageDrawableCh1 = new BitmapImageDrawable();
-
-            var bitmap = BytesToBitmapImage(originPicture0);
-            if (bitmap == null)
-                return;
-            Cache.BitmapImageDrawableCh1.BitmapImage = bitmap;
-        }
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private async Task SaveImageFileCH1Async()
+    private async Task SaveImageFileCh1Async()
     {
         Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", $"{Guid.NewGuid():N}.jpg");
-        //var templateFilePath = $"{originImageFilePath}_Template";
-        Cache.BitmapImageDrawableCh1.BitmapImage.SaveImage(Cache.OriginImageFilePath1);
+        Cache.BitmapImageDrawableCh1?.BitmapImage?.Save(Cache.OriginImageFilePath1);
 
-        Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
+        Cache.Ch1Image = Cache.BitmapImageDrawableCh1?.BitmapImage;
     }
 
     [RelayCommand]
-    private async Task OpenImageFileCH2Async()
+    private async Task OpenImageFileCh2Async()
     {
-        var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-        if (ret.IsSuccess == false)
+        await Task.Run(() =>
         {
-            throw new CugaException(ret.ErrorMsg);
-        }
-        else
-        {
-            //BitmapImageDrawableCh2 = null;
-            var originPicture0 = ret.Anything;
-            if (originPicture0 == null)
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
             {
-                // 处理错误或返回
-                return;
+                Cache.BitmapImageDrawableCh2 = new BitmapImageDrawable();
+
+                var bitmap = BytesToBitmapImage(ret);
+                Cache.BitmapImageDrawableCh2.BitmapImage = bitmap;
+                Cache.PrimaryImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", $"{Guid.NewGuid():N}.jpg");
+                Cache.BitmapImageDrawableCh2.BitmapImage.Save(Cache.PrimaryImageFilePath2);
             }
-
-            Cache.BitmapImageDrawableCh2 = new BitmapImageDrawable();
-
-            var bitmap = BytesToBitmapImage(originPicture0);
-            if (bitmap == null)
-                return;
-            Cache.BitmapImageDrawableCh2.BitmapImage = bitmap;
-        }
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private async Task SaveImageFileCH2Async()
+    private async Task SaveImageFileCh2Async()
     {
         Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", $"{Guid.NewGuid():N}.jpg");
         //var templateFilePath = $"{originImageFilePath}_Template";
-        Cache.BitmapImageDrawableCh2.BitmapImage.SaveImage(Cache.OriginImageFilePath2);
+        Cache.BitmapImageDrawableCh2?.BitmapImage?.Save(Cache.OriginImageFilePath2);
 
-        Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
+        Cache.Ch2Image = Cache.BitmapImageDrawableCh2?.BitmapImage;
     }
 
     [RelayCommand]
-    private async Task OpenImageFileCH3Async()
+    private async Task OpenImageFileCh3Async()
     {
-        var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-        if (ret.IsSuccess == false)
+        await Task.Run(() =>
         {
-            throw new CugaException(ret.ErrorMsg);
-        }
-        else
-        {
-            var originPicture0 = ret.Anything;
-            if (originPicture0 == null)
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
             {
-                // 处理错误或返回
-                return;
+                Cache.BitmapImageDrawableCh3 = new BitmapImageDrawable();
+
+                var bitmap = BytesToBitmapImage(ret);
+                Cache.BitmapImageDrawableCh3.BitmapImage = bitmap;
+                Cache.PrimaryImageFilePath3 = Path.Combine(ImageFileDirectory, "CH3", $"{Guid.NewGuid():N}.jpg");
+                Cache.BitmapImageDrawableCh3.BitmapImage.Save(Cache.PrimaryImageFilePath3);
             }
-
-            Cache.BitmapImageDrawableCh3 = new BitmapImageDrawable();
-
-            var bitmap = BytesToBitmapImage(originPicture0);
-            if (bitmap == null)
-                return;
-            Cache.BitmapImageDrawableCh3.BitmapImage = bitmap;
-        }
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private async Task SaveImageFileCH3Async()
+    private async Task SaveImageFileCh3Async()
     {
         Cache.OriginImageFilePath3 = Path.Combine(ImageFileDirectory, "CH3", $"{Guid.NewGuid():N}.jpg");
         //var templateFilePath = $"{originImageFilePath}_Template";
-        Cache.BitmapImageDrawableCh3.BitmapImage.SaveImage(Cache.OriginImageFilePath3);
+        Cache.BitmapImageDrawableCh3?.BitmapImage?.Save(Cache.OriginImageFilePath3);
 
-        Cache.Ch3Image = Cache.BitmapImageDrawableCh3.BitmapImage;
+        Cache.Ch3Image = Cache.BitmapImageDrawableCh3?.BitmapImage;
     }
 
-    private bool Save(PupilCameraAlignmentDTO itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private void Save(PupilCameraAlignmentDTO itemDto, CancellationToken cancellationToken)
     {
-        update(itemDto);
-        update(Cache);
+        InvokeSave(update =>
+        {
+            update(itemDto);
+            update(Cache);
 
-        Calibration = itemDto.Clone();
+            Calibration = itemDto.Clone();
 
-        CacheProvider.Set(Calibration, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    });
+            CacheProvider.Set(Calibration, cancellationToken);
+            RecipeCacheProvider.Set(Cache, cancellationToken);
+        });
+    }
 
     public static BitmapImage BytesToBitmapImage(byte[] bytes)
     {
-        if (bytes == null || bytes.Length == 0)
-            return null;
+        if (bytes.Length == 0)
+            return null!;
         // Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage
         // 使用接受字节数组的构造函数（反编译源码显示有此构造函数）
         return new BitmapImage(bytes, isCopy: true);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
+    {
+        await InvokeVerifyAsync(() =>
+        {
+            Review = Calibration.Clone();
+
+            Logger.LogHtmlInformation("Verify:OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("No need param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("Result:", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            {
+                ResultDto.RectCh1Position,
+                ResultDto.Ch1ImageWidth,
+                ResultDto.Ch1ImageHeight,
+                ResultDto.RectCh2Position,
+                ResultDto.Ch2ImageWidth,
+                ResultDto.Ch2ImageHeight,
+                ResultDto.RectCh3Position,
+                ResultDto.Ch3ImageWidth,
+                ResultDto.Ch3ImageHeight
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            DialogWindowProvider.ShowDialog("Verify Success!");
+            Review.IsVerified = true;
+            Save(Review, cancellationToken);
+            return true;
+        }).ConfigureAwait(false);
     }
 }
