@@ -26,7 +26,7 @@
                            Status="{Binding CalibrationStepList[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Find S Polarization Position Of CH2 NDF: "
+                           Subject="Find P Polarization Position Of CH1 NDF: "
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -80,9 +80,21 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <TextBox Text="{Binding Cache.PolarizationPositionNDFSCH2, StringFormat={}{0:f3}}"
+                    <TextBox Text="{Binding Cache.PolarizationPositionNDFPCH1, StringFormat={}{0:f3}}"
                              hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Find Motor Position: "
+                             hc:InfoElement.Title="Find CH1 Motor Position: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding Cache.PolarizationPositionNDFPCH2, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:InfoElement.Title="Find CH2 Motor Position: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding Cache.PolarizationPositionNDFPCH3, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:InfoElement.Title="Find CH3 Motor Position: "
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
@@ -112,10 +124,16 @@
             <Grid>
                 <wpf:WpfPlot Margin="5">
                     <i:Interaction.Behaviors>
-                        <behaviors:WpfPlotMultiBehavior Title="S Polarization Position Curve Of CH2 NDF"
-                                                        Plot0Title="NDFSListCH2"
+                        <behaviors:WpfPlotMultiBehavior Title="P Polarization Position Curve Of CH123 NDF"
+                                                        Plot0Title="NDFPListCH1"
                                                         Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                        Plot0="{Binding Cache.PolarizationPositionNDFSListCH2}" />
+                                                        Plot0="{Binding Cache.PolarizationPositionNDFPListCH1}"
+                                                        Plot1Title="NDFPListCH2"
+                                                        Plot1Color="{x:Static scottPlot:Colors.Yellow}"
+                                                        Plot1="{Binding Cache.PolarizationPositionNDFPListCH2}"
+                                                        Plot2Title="NDFPListCH3"
+                                                        Plot2Color="{x:Static scottPlot:Colors.Blue}"
+                                                        Plot2="{Binding Cache.PolarizationPositionNDFPListCH3}" />
                     </i:Interaction.Behaviors>
                 </wpf:WpfPlot>
             </Grid>

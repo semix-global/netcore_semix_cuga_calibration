@@ -26,7 +26,7 @@
                            Status="{Binding CalibrationStepList[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
-                           Subject="Find S Polarization Position Of CH1 NDF: "
+                           Subject="Find S Polarization Position Of CH123 NDF: "
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -45,7 +45,7 @@
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.Placeholder="Input Motor Rotate Angle Value"
                                       hc:InfoElement.ShowClearButton="True"
-                                      Minimum="0.2"
+                                      Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.FindAngleMin}" />
                     <hc:NumericUpDown x:Name="MotorAngleMaxNumeric"
@@ -55,7 +55,7 @@
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.Placeholder="Input Motor Rotate Angle Value"
                                       hc:InfoElement.ShowClearButton="True"
-                                      Minimum="10"
+                                      Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.FindAngleMax}" />
                     <hc:NumericUpDown x:Name="MotorAngleIntervalNumeric"
@@ -65,7 +65,7 @@
                                       hc:InfoElement.TitlePlacement="Left"
                                       hc:InfoElement.Placeholder="Input Motor Rotate Angle Value"
                                       hc:InfoElement.ShowClearButton="True"
-                                      Minimum="0.2"
+                                      Minimum="1"
                                       Maximum="100"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.FindAngleInterval}" />
@@ -82,7 +82,19 @@
                     </StackPanel>
                     <TextBox Text="{Binding Cache.PolarizationPositionNDFSCH1, StringFormat={}{0:f3}}"
                              hc:TitleElement.TitleWidth="180"
-                             hc:InfoElement.Title="Find Motor Position: "
+                             hc:InfoElement.Title="Find CH1 Motor Position: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding Cache.PolarizationPositionNDFSCH2, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:InfoElement.Title="Find CH2 Motor Position: "
+                             hc:InfoElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Style="{StaticResource TextBoxExtend}" />
+                    <TextBox Text="{Binding Cache.PolarizationPositionNDFSCH3, StringFormat={}{0:f3}}"
+                             hc:TitleElement.TitleWidth="180"
+                             hc:InfoElement.Title="Find CH3 Motor Position: "
                              hc:InfoElement.TitlePlacement="Left"
                              IsReadOnly="True"
                              Style="{StaticResource TextBoxExtend}" />
@@ -110,12 +122,18 @@
         <!--#region Right-->
         <GroupBox Grid.Column="2" Header="Plot">
             <Grid>
-                <wpf:WpfPlot Margin="5">
+                <wpf:WpfPlot Margin="10,10,0,0">
                     <i:Interaction.Behaviors>
-                        <behaviors:WpfPlotMultiBehavior Title="S Polarization Position Curve Of CH1 NDF"
+                        <behaviors:WpfPlotMultiBehavior Title="S Polarization Position Curve Of CH123 NDF"
                                                         Plot0Title="NDFSListCH1"
                                                         Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                        Plot0="{Binding Cache.PolarizationPositionNDFSListCH1}" />
+                                                        Plot0="{Binding Cache.PolarizationPositionNDFSListCH1}"
+                                                        Plot1Title="NDFSListCH2"
+                                                        Plot1Color="{x:Static scottPlot:Colors.Yellow}"
+                                                        Plot1="{Binding Cache.PolarizationPositionNDFSListCH2}"
+                                                        Plot2Title="NDFSListCH3"
+                                                        Plot2Color="{x:Static scottPlot:Colors.Blue}"
+                                                        Plot2="{Binding Cache.PolarizationPositionNDFSListCH3}" />
                     </i:Interaction.Behaviors>
                 </wpf:WpfPlot>
             </Grid>
