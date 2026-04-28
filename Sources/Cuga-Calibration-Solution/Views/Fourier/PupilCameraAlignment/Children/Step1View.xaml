@@ -27,8 +27,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <RichTextBox Grid.Row="1"
-                                 Margin="5"
+                    <RichTextBox Margin="5"
                                  Padding="5"
                                  FontSize="14"
                                  IsReadOnly="True"
@@ -79,8 +78,10 @@
                     Style="{StaticResource BorderRegion}">
                 <hc:SimplePanel>
                     <hc:UniformSpacingPanel Spacing="5" Orientation="Horizontal">
-                        <Button Content="Get  Image File CH1" Command="{Binding OpenImageFileCH1Command}" />
-                        <Button Content="Save Image File CH1" Command="{Binding SaveImageFileCH1Command}" />
+                        <Button Content="Get  Image File CH1"
+                                Command="{Binding OpenImageFileCh1Command}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Save Image File CH1" Command="{Binding SaveImageFileCh1Command}" />
                     </hc:UniformSpacingPanel>
                 </hc:SimplePanel>
             </Border>

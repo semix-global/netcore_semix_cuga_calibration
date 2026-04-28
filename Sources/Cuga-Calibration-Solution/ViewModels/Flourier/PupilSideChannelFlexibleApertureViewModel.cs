@@ -1,11 +1,12 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Exceptions;
 using Core.Models.Models;
-using Core.Models.Models.Fourier;
+using Core.Models.Models.Fourier.CameraAlignment;
+using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Services.Interfaces;
-using Core.Utilities;
+using HalconDotNet;
+using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
@@ -27,21 +28,21 @@ using Size = Net.Utilities.Models.Geometries.Size;
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilSideChannelFlexibleApertureViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrationFourierService calibrationFlourierService) : CalibrationViewModelBase
+public sealed partial class PupilSideChannelFlexibleApertureViewModel : CalibrationViewModelBase
 {
     #region 界面相关
 
     [ObservableProperty]
-    private int _selectedTabIndex = 0;
+    private int _selectedTabIndex;
 
     [ObservableProperty]
-    private int _rodNum = 0;
+    private int _rodNum;
 
     [ObservableProperty]
     private int _rodBegin = 1;
 
     [ObservableProperty]
-    private int _rodEnd = 0;
+    private int _rodEnd;
 
     [ObservableProperty]
     private int _rodWidth = 50;
@@ -77,15 +78,29 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     private string _heightBeginPercentCh2Text = "";
 
     // 当 RodNum/ RodWidth/ XStartPixel 改变时自动重建矩形集合
-    partial void OnRodNumChanged(int value) => RebuildRectROIDrawableList();
-    partial void OnRodWidthChanged(int value) => RebuildRectROIDrawableList();
-    partial void OnRodHightChanged(int value) => RebuildRectROIDrawableList();
+    partial void OnRodNumChanged(int value)
+    {
+        _ = value; // 消除 "未使用" 警告
+        RebuildRectRoiDrawableList();
+    }
+
+    partial void OnRodWidthChanged(int value)
+    {
+        _ = value; // 消除 "未使用" 警告
+        RebuildRectRoiDrawableList();
+    }
+
+    partial void OnRodHightChanged(int value)
+    {
+        _ = value; // 消除 "未使用" 警告
+        RebuildRectRoiDrawableList();
+    }
 
     [ObservableProperty]
-    private Point _sxPos = new();
+    private Point _sxPos;
 
     [ObservableProperty]
-    private int _rodNumber = 0;
+    private int _rodNumber;
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -186,7 +201,10 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     [ObservableProperty]
     private PupilSideChannelFlexibleApertureDTO _calibration = new();
 
-    #endregion 缓存
+    [ObservableProperty]
+    private PupilSideChannelFlexibleApertureDTO _review = new();
+
+    #endregion 缓存  
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
@@ -230,14 +248,14 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             case 0:
                 Cache.RectROIDrawableList.Clear();
                 InitRodState();
-                Application.Current.Dispatcher.Invoke(() => { RebuildRectROIDrawableList(); });
+                Application.Current.Dispatcher.Invoke(() => { RebuildRectRoiDrawableList(); });
 
                 return true;
 
             case 2:
                 SelectedTabIndex = 1;
                 InitRodState();
-                Application.Current.Dispatcher.Invoke(() => { RebuildRectROIDrawableList(); });
+                Application.Current.Dispatcher.Invoke(() => { RebuildRectRoiDrawableList(); });
 
                 return true;
 
@@ -268,6 +286,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 ResultDto.CurrentImageRectListFirstCh2 = Cache.CurrentImageRectListFirstCh2;
                 ResultDto.CgFFBoxAllRodsBeginPercentCh2 = Cache.CgFFBoxAllRodsBeginPercentCh2;
 
+                ResultDto.IsCalibrated = true;
                 Save(ResultDto, cancellationToken);
                 IsCalibrated = true;
                 return true;
@@ -278,7 +297,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 {
                     //ImageFilePath = filePath;
                     //BitmapImageDrawable.BitmapImage = bitmap;
-                    RebuildRectROIDrawableList(); // ✅ 统一入口
+                    RebuildRectRoiDrawableList(); // ✅ 统一入口
                 });
                 return true;
         }
@@ -292,12 +311,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
-        calibrationFlourierService.SetFFHome(FFCH.Ch1);
-        calibrationFlourierService.SetFFHome(FFCH.Ch2);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_X);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
+        FourierViewModel.SetFFHome(FFCH.Ch1);
+        FourierViewModel.SetFFHome(FFCH.Ch2);
+        FourierViewModel.SetFFHome(FFCH.Ch3_X);
+        FourierViewModel.SetFFHome(FFCH.Ch3_Y);
 
-        Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
+        //Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
+        Cache.HazeWaferPosition = Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
+        Cache.HazeWaferPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition);
+
         AfViewModel.ToggleDarkFieldEnable(true);
         SxPos = new Point(Cache.HazeWaferPosition.X, Cache.HazeWaferPosition.Y);
 
@@ -311,7 +333,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                HazeWaferPosition = Cache.HazeWaferPosition
+                Cache.HazeWaferPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -324,10 +346,10 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                CgFFBoxBeginNumber1Ch1 = Cache.CgFFBoxBeginNumber1Ch1,
-                CgFFBoxEndNumber1Ch1 = Cache.CgFFBoxEndNumber1Ch1,
-                CgFFBoxBeginNumber2Ch1 = Cache.CgFFBoxBeginNumber2Ch1,
-                CgFFBoxEndNumber2Ch1 = Cache.CgFFBoxEndNumber2Ch1
+                Cache.CgFFBoxBeginNumber1Ch1,
+                Cache.CgFFBoxEndNumber1Ch1,
+                Cache.CgFFBoxBeginNumber2Ch1,
+                Cache.CgFFBoxEndNumber2Ch1
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -389,7 +411,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
                         // 计算变化率
                         double rate = (h2 - h1) / ((Ch12Percentage2 - Ch12Percentage1) / 0.1);
-                        Cache.CgFFBoxHeightRelationPercentListCh1.Add((int)(rate * 0.1));
+                        Cache.CgFFBoxHeightRelationPercentListCh1.Add(rate * 0.1);
                     }
                 }
             }
@@ -400,8 +422,8 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             {
                 Logger.LogHtmlInformation("ResultImageCh1", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    CgFFBoxBeginPositionCh1 = Cache.CgFFBoxBeginPositionCh1,
-                    CgFFBoxEndPositionCh1 = Cache.CgFFBoxEndPositionCh1,
+                    Cache.CgFFBoxBeginPositionCh1,
+                    Cache.CgFFBoxEndPositionCh1,
                     //CgFFBoxRodWidthListCh1 = Cache.CgFFBoxRodWidthListCh1,             
                     //CgFFBoxHeightRelationPercentListCh1 = Cache.CgFFBoxHeightRelationPercentListCh1,
                     CgFFBoxRodWidthListCh1 = Environment.NewLine + string.Join(Environment.NewLine,
@@ -445,7 +467,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                     {
                         var oddNums = Enumerable.Range(
                             Math.Min(1, 46),
-                            Math.Abs(46 - 1) + 1).OrderBy(x => x).ToList();
+                            (46 - 1) + 1).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     }))
@@ -462,9 +484,25 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                     Ch1ImageFilePath = Cache.OriginImageFilePathList1[0],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[0], htmlImageOverlays: Cache.CurrentImageRectListFirstCh1.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                        Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[0], htmlImageOverlays:
+                        [
+                        .. Cache.CurrentImageRectListFirstCh1
+                        .Skip(Cache.CgFFBoxBeginNumber1Ch1)
+                        .Take(Cache.CgFFBoxEndNumber1Ch1 - Cache.CgFFBoxBeginNumber1Ch1 + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                        .. Cache.CurrentImageRectListFirstCh1
+                        .Index()
+                        .Skip(Cache.CgFFBoxBeginNumber1Ch1)
+                        .Take(Cache.CgFFBoxEndNumber1Ch1 - Cache.CgFFBoxBeginNumber1Ch1 + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                        ]
+                        )
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
+
+                var OddFirstCh1 = Cache.CgFFBoxBeginNumber2Ch1 % 2 == 1 ? Cache.CgFFBoxBeginNumber2Ch1 : Cache.CgFFBoxBeginNumber2Ch1 + 1;
+                var OddLastCh1 = Cache.CgFFBoxEndNumber2Ch1 % 2 == 1 ? Cache.CgFFBoxEndNumber2Ch1 : Cache.CgFFBoxEndNumber2Ch1 - 1;
+
+                var EvenFirstCh1 = Cache.CgFFBoxBeginNumber2Ch1 % 2 == 0 ? Cache.CgFFBoxBeginNumber2Ch1 : Cache.CgFFBoxBeginNumber2Ch1 + 1;
+                var EvenLastCh1 = Cache.CgFFBoxEndNumber2Ch1 % 2 == 0 ? Cache.CgFFBoxEndNumber2Ch1 : Cache.CgFFBoxEndNumber2Ch1 - 1;
 
                 for (int j = 0; j < Cache.OriginImageFilePathList1.Count; j++)
                 {
@@ -476,7 +514,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             MovePercent = Ch12Percentage1 * 100 + "%",
                             HtmlTab = new HtmlTab(new
                             {
-                                Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays: CurrentImageRectOddFirstCh1.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                                Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays:
+                                [
+                                    .. CurrentImageRectOddFirstCh1
+                                    .Skip(OddFirstCh1)
+                                    .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                    .. CurrentImageRectOddFirstCh1
+                                    .Index()
+                                    .Skip(OddFirstCh1)
+                                    .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                ]
+                                )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
@@ -489,7 +537,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             MovePercent = Ch12Percentage2 * 100 + "%",
                             HtmlTab = new HtmlTab(new
                             {
-                                Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays: CurrentImageRectOddSecondCh1.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                                Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays:
+                                 [
+                                    .. CurrentImageRectOddSecondCh1
+                                    .Skip(OddFirstCh1)
+                                    .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                    .. CurrentImageRectOddSecondCh1
+                                    .Index()
+                                    .Skip(OddFirstCh1)
+                                    .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                ]
+                                )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
@@ -502,7 +560,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             MovePercent = Ch12Percentage1 * 100 + "%",
                             HtmlTab = new HtmlTab(new
                             {
-                                Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays: CurrentImageRectEvenFirstCh1.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                                Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays:
+                                [
+                                    .. CurrentImageRectEvenFirstCh1
+                                    .Skip(EvenFirstCh1)
+                                    .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                    .. CurrentImageRectEvenFirstCh1
+                                    .Index()
+                                    .Skip(EvenFirstCh1)
+                                    .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                ]
+                                )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
@@ -515,7 +583,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             MovePercent = Ch12Percentage2 * 100 + "%",
                             HtmlTab = new HtmlTab(new
                             {
-                                Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays: CurrentImageRectEvenSecondCh1.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                                Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays:
+                                [
+                                    .. CurrentImageRectEvenSecondCh1
+                                    .Skip(EvenFirstCh1)
+                                    .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                    .. CurrentImageRectEvenSecondCh1
+                                    .Index()
+                                    .Skip(EvenFirstCh1)
+                                    .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                ]
+                                )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
@@ -524,11 +602,9 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 return true;
             });
         }
-        else
-        {
-            DialogWindowProvider.ShowDialog("Make sure you have open image of CH1、CH2、CH3 and save all channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return Task.FromResult(false);
-        }
+
+        DialogWindowProvider.ShowDialog("Make sure you have open image of CH1、CH2、CH3 and save all channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        return Task.FromResult(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -538,10 +614,10 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                CgFFBoxBeginNumber1Ch2 = Cache.CgFFBoxBeginNumber1Ch2,
-                CgFFBoxEndNumber1Ch2 = Cache.CgFFBoxEndNumber1Ch2,
-                CgFFBoxBeginNumber2Ch2 = Cache.CgFFBoxBeginNumber2Ch2,
-                CgFFBoxEndNumber2Ch2 = Cache.CgFFBoxEndNumber2Ch2
+                Cache.CgFFBoxBeginNumber1Ch2,
+                Cache.CgFFBoxEndNumber1Ch2,
+                Cache.CgFFBoxBeginNumber2Ch2,
+                Cache.CgFFBoxEndNumber2Ch2
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -602,7 +678,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
                         // 计算变化率
                         double rate = (h2 - h1) / ((Ch12Percentage2 - Ch12Percentage1) / 0.1);
-                        Cache.CgFFBoxHeightRelationPercentListCh2.Add((int)(rate * 0.1));
+                        Cache.CgFFBoxHeightRelationPercentListCh2.Add(rate * 0.1);
                     }
                 }
             }
@@ -613,8 +689,8 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             {
                 Logger.LogHtmlInformation("ResultImageCh2", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    CgFFBoxBeginPositionCh2 = Cache.CgFFBoxBeginPositionCh2,
-                    CgFFBoxEndPositionCh2 = Cache.CgFFBoxEndPositionCh2,
+                    Cache.CgFFBoxBeginPositionCh2,
+                    Cache.CgFFBoxEndPositionCh2,
                     //CgFFBoxRodWidthListCh2 = Cache.CgFFBoxRodWidthListCh2,   
                     //CgFFBoxHeightRelationPercentListCh2 = Cache.CgFFBoxHeightRelationPercentListCh2,
                     CgFFBoxRodWidthListCh2 = Environment.NewLine + string.Join(Environment.NewLine,
@@ -658,7 +734,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                     {
                         var oddNums = Enumerable.Range(
                             Math.Min(1, 46),
-                            Math.Abs(46 - 1) + 1).OrderBy(x => x).ToList();
+                            46 - 1 + 1).OrderBy(x => x).ToList();
                         int rodId = i < oddNums.Count ? oddNums[i] : -1;
                         return $"Rod{rodId}: {rect}";
                     }))
@@ -676,9 +752,25 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                     Ch2ImageFilePath = Cache.OriginImageFilePathList2[0],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[0], htmlImageOverlays: Cache.CurrentImageRectListFirstCh2.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                        Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[0], htmlImageOverlays:
+                        [
+                         ..Cache.CurrentImageRectListFirstCh2
+                        .Skip(Cache.CgFFBoxBeginNumber1Ch2)
+                        .Take(Cache.CgFFBoxEndNumber1Ch2 - Cache.CgFFBoxBeginNumber1Ch2 + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                        ..  Cache.CurrentImageRectListFirstCh2
+                        .Index()
+                        .Skip(Cache.CgFFBoxBeginNumber1Ch2)
+                        .Take(Cache.CgFFBoxEndNumber1Ch2 - Cache.CgFFBoxBeginNumber1Ch2 + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                        ]
+                        )
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
+
+                var OddFirstCh2 = Cache.CgFFBoxBeginNumber2Ch2 % 2 == 1 ? Cache.CgFFBoxBeginNumber2Ch2 : Cache.CgFFBoxBeginNumber2Ch2 + 1;
+                var OddLastCh2 = Cache.CgFFBoxEndNumber2Ch2 % 2 == 1 ? Cache.CgFFBoxEndNumber2Ch2 : Cache.CgFFBoxEndNumber2Ch2 - 1;
+
+                var EvenFirstCh2 = Cache.CgFFBoxBeginNumber2Ch2 % 2 == 0 ? Cache.CgFFBoxBeginNumber2Ch2 : Cache.CgFFBoxBeginNumber2Ch2 + 1;
+                var EvenLastCh2 = Cache.CgFFBoxEndNumber2Ch2 % 2 == 0 ? Cache.CgFFBoxEndNumber2Ch2 : Cache.CgFFBoxEndNumber2Ch2 - 1;
 
                 for (int j = 0; j < Cache.OriginImageFilePathList2.Count; j++)
                 {
@@ -690,7 +782,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             MovePercent = Ch12Percentage1 * 100 + "%",
                             HtmlTab = new HtmlTab(new
                             {
-                                Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays: CurrentImageRectOddFirstCh2.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                                Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays:
+                                [
+                                    .. CurrentImageRectOddFirstCh2
+                                    .Skip(OddFirstCh2)
+                                    .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                    .. CurrentImageRectOddFirstCh2
+                                    .Index()
+                                    .Skip(OddFirstCh2)
+                                    .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                ]
+                                )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
@@ -703,7 +805,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             MovePercent = Ch12Percentage2 * 100 + "%",
                             HtmlTab = new HtmlTab(new
                             {
-                                Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays: CurrentImageRectOddSecondCh2.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                                Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays:
+                                [
+                                    .. CurrentImageRectOddSecondCh2
+                                    .Skip(OddFirstCh2)
+                                    .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                    .. CurrentImageRectOddSecondCh2
+                                    .Index()
+                                    .Skip(OddFirstCh2)
+                                    .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                ]
+                                )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
@@ -716,7 +828,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             MovePercent = Ch12Percentage1 * 100 + "%",
                             HtmlTab = new HtmlTab(new
                             {
-                                Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays: CurrentImageRectEvenFirstCh2.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                                Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays:
+                                [
+                                    .. CurrentImageRectEvenFirstCh2
+                                    .Skip(EvenFirstCh2)
+                                    .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                    .. CurrentImageRectEvenFirstCh2
+                                    .Index()
+                                    .Skip(EvenFirstCh2)
+                                    .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                ]
+                                )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
@@ -729,7 +851,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                             MovePercent = Ch12Percentage2 * 100 + "%",
                             HtmlTab = new HtmlTab(new
                             {
-                                Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays: CurrentImageRectEvenSecondCh2.Select(rect => new HtmlImageRectangleOverlay(rect)).ToList())
+                                Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays:
+                                [
+                                    .. CurrentImageRectEvenSecondCh2
+                                    .Skip(EvenFirstCh2)
+                                    .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                    .. CurrentImageRectEvenSecondCh2
+                                    .Index()
+                                    .Skip(EvenFirstCh2)
+                                    .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                ]
+                                )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
@@ -738,11 +870,9 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
                 return true;
             });
         }
-        else
-        {
-            DialogWindowProvider.ShowDialog("Make sure you have open image of CH1、CH2、CH3 and save all channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return Task.FromResult(false);
-        }
+
+        DialogWindowProvider.ShowDialog("Make sure you have open image of CH1、CH2、CH3 and save all channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        return Task.FromResult(false);
     }
 
     // 关键：当第一个矩形被拖动时，更新 XStartPixel（但不重建！）
@@ -771,16 +901,17 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     // 阻止因 XStartPixel 变化而重建（仅当非拖动时才重建）
     partial void OnXStartPixelChanged(int value)
     {
+        _ = value; // 消除 "未使用" 警告
         if (!IsSyncingFromDrag)
         {
-            RebuildRectROIDrawableList();
+            RebuildRectRoiDrawableList();
         }
     }
 
     // 在 RebuildRectROIDrawableList() 创建新列表后，订阅第一个矩形
-    private void RebuildRectROIDrawableList()
+    private void RebuildRectRoiDrawableList()
     {
-        if (Cache.BitmapImageDrawableCh1?.BitmapImage is null)
+        if (Cache.BitmapImageDrawableCh1.BitmapImage is null)
         {
             // 取消旧订阅（可选）
             if (Cache.RectROIDrawableList.FirstOrDefault() is { } previousFirst)
@@ -830,1238 +961,957 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     }
 
     [RelayCommand]
-    private void GetImageOddFirstCH1()
+    private async Task GetImageOddFirstCh1Async()
     {
-        AllOddRodsCh1Percent1.Clear();
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
+        await Task.Run(() =>
         {
-            if (j % 2 == 1)
-                AllOddRodsCh1Percent1.Add(new Pole { Id = j });
-        }
-
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var rodNum = 46;
-
-        if (Cache.CgFFBoxBeginNumber2Ch1 % 2 == 1)
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch1;
-        else
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch1 + 1;
-
-        if (Cache.CgFFBoxEndNumber2Ch1 % 2 == 1)
-            RodEnd = Cache.CgFFBoxEndNumber2Ch1;
-        else
-            RodEnd = Cache.CgFFBoxEndNumber2Ch1 - 1;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
-        {
-            if (j % 2 == 1)
-                ch12List[j - 1] = (j, Ch12Percentage1);
-        }
-
-        if (SelectedTabIndex == 0)
-        {
-            var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-            if (result.IsSuccess == true)
+            AllOddRodsCh1Percent1 = [];
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
-                //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                if (ret.IsSuccess == false)
-                {
-                    throw new CugaException(ret.ErrorMsg);
-                }
-                else
-                {
-                    var originPicture0 = ret.Anything;
-                    if (originPicture0 == null)
-                    {
-                        // 处理错误或返回
-                        return;
-                    }
-
-                    using var bitmap = BytesToBitmapImage(originPicture0);
-                    if (bitmap == null)
-                        return;
-
-                    var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                    Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage;
-
-                    Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage1 + "__" + "OddFirst" + Cache.CgFFBoxBeginNumber2Ch1 + "__" + Cache.CgFFBoxEndNumber2Ch1 + "__" + $"{Guid.NewGuid():N}.jpg");
-                    Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
-                    Cache.BitmapImageDrawableCh1.BitmapImage.SaveImage(Cache.OriginImageFilePath1);
-                    Cache.OriginImageFilePathList1[0] = Cache.OriginImageFilePath1;
-                }
+                if (j % 2 == 1)
+                    AllOddRodsCh1Percent1 = [.. AllOddRodsCh1Percent1, new Pole { Id = j }];
             }
-        }
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            var rodNum = 46;
 
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            //ImageFilePath = filePath;
-            //BitmapImageDrawable.BitmapImage = bitmap;
-            RebuildRectROIDrawableList(); // ✅ 统一入口
-        });
-    }
+            if (Cache.CgFFBoxBeginNumber2Ch1 % 2 == 1)
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch1;
+            else
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch1 + 1;
 
-    [RelayCommand]
-    private void GetImageEvenFirstCH1()
-    {
-        AllEvenRodsCh1Percent1.Clear();
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
-        {
-            if (j % 2 == 0)
-                AllEvenRodsCh1Percent1.Add(new Pole { Id = j });
-        }
+            if (Cache.CgFFBoxEndNumber2Ch1 % 2 == 1)
+                RodEnd = Cache.CgFFBoxEndNumber2Ch1;
+            else
+                RodEnd = Cache.CgFFBoxEndNumber2Ch1 - 1;
 
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var rodNum = 46;
-
-        if (Cache.CgFFBoxBeginNumber2Ch1 % 2 == 0)
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch1;
-        else
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch1 + 1;
-
-        if (Cache.CgFFBoxEndNumber2Ch1 % 2 == 0)
-            RodEnd = Cache.CgFFBoxEndNumber2Ch1;
-        else
-            RodEnd = Cache.CgFFBoxEndNumber2Ch1 - 1;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
-        {
-            if (j % 2 == 0)
-                ch12List[j - 1] = (j, Ch12Percentage1);
-        }
-
-        if (SelectedTabIndex == 0)
-        {
-            var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-            if (result.IsSuccess == true)
+            for (int j = 1; j <= rodNum; j++)
             {
-                //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                if (ret.IsSuccess == false)
-                {
-                    throw new CugaException(ret.ErrorMsg);
-                }
-                else
-                {
-                    var originPicture0 = ret.Anything;
-                    if (originPicture0 == null)
-                    {
-                        // 处理错误或返回
-                        return;
-                    }
-
-                    using var bitmap = BytesToBitmapImage(originPicture0);
-                    if (bitmap == null)
-                        return;
-
-                    var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                    Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage;
-
-                    Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage1 + "__" + "EvenFirst" + Cache.CgFFBoxBeginNumber2Ch1 + "__" + Cache.CgFFBoxEndNumber2Ch1 + "__" + $"{Guid.NewGuid():N}.jpg");
-                    Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
-                    Cache.BitmapImageDrawableCh1.BitmapImage.SaveImage(Cache.OriginImageFilePath1);
-                    Cache.OriginImageFilePathList1[2] = Cache.OriginImageFilePath1;
-                }
+                ch12List.Add((j, 0.0));
             }
-        }
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            //ImageFilePath = filePath;
-            //BitmapImageDrawable.BitmapImage = bitmap;
-            RebuildRectROIDrawableList(); // ✅ 统一入口
-        });
-    }
-
-    [RelayCommand]
-    private void GetImageOddSecondCH1()
-    {
-        AllOddRodsCh1Percent2.Clear();
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
-        {
-            if (j % 2 == 1)
-                AllOddRodsCh1Percent2.Add(new Pole { Id = j });
-        }
-
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var rodNum = 46;
-
-        if (Cache.CgFFBoxBeginNumber2Ch1 % 2 == 1)
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch1;
-        else
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch1 + 1;
-
-        if (Cache.CgFFBoxEndNumber2Ch1 % 2 == 1)
-            RodEnd = Cache.CgFFBoxEndNumber2Ch1;
-        else
-            RodEnd = Cache.CgFFBoxEndNumber2Ch1 - 1;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
-        {
-            if (j % 2 == 1)
-                ch12List[j - 1] = (j, Ch12Percentage2);
-        }
-
-        if (SelectedTabIndex == 0)
-        {
-            var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-            if (result.IsSuccess == true)
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
-                //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                if (ret.IsSuccess == false)
-                {
-                    throw new CugaException(ret.ErrorMsg);
-                }
-                else
-                {
-                    var originPicture0 = ret.Anything;
-                    if (originPicture0 == null)
-                    {
-                        // 处理错误或返回
-                        return;
-                    }
-
-                    using var bitmap = BytesToBitmapImage(originPicture0);
-                    if (bitmap == null)
-                        return;
-
-                    var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                    Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage;
-
-                    Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage2 + "__" + "OddSecond" + Cache.CgFFBoxBeginNumber2Ch1 + "__" + Cache.CgFFBoxEndNumber2Ch1 + "__" + $"{Guid.NewGuid():N}.jpg");
-                    Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
-                    Cache.BitmapImageDrawableCh1.BitmapImage.SaveImage(Cache.OriginImageFilePath1);
-                    Cache.OriginImageFilePathList1[1] = Cache.OriginImageFilePath1;
-                }
-            }
-        }
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            //ImageFilePath = filePath;
-            //BitmapImageDrawable.BitmapImage = bitmap;
-            RebuildRectROIDrawableList(); // ✅ 统一入口
-        });
-    }
-
-    [RelayCommand]
-    private void GetImageEvenSecondCH1()
-    {
-        AllEvenRodsCh1Percent2.Clear();
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
-        {
-            if (j % 2 == 0)
-                AllEvenRodsCh1Percent2.Add(new Pole { Id = j });
-        }
-
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var rodNum = 46;
-
-        if (Cache.CgFFBoxBeginNumber2Ch1 % 2 == 0)
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch1;
-        else
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch1 + 1;
-
-        if (Cache.CgFFBoxEndNumber2Ch1 % 2 == 0)
-            RodEnd = Cache.CgFFBoxEndNumber2Ch1;
-        else
-            RodEnd = Cache.CgFFBoxEndNumber2Ch1 - 1;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
-        {
-            if (j % 2 == 0)
-                ch12List[j - 1] = (j, Ch12Percentage2);
-        }
-
-        if (SelectedTabIndex == 0)
-        {
-            var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-            if (result.IsSuccess == true)
-            {
-                //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                if (ret.IsSuccess == false)
-                {
-                    throw new CugaException(ret.ErrorMsg);
-                }
-                else
-                {
-                    var originPicture0 = ret.Anything;
-                    if (originPicture0 == null)
-                    {
-                        // 处理错误或返回
-                        return;
-                    }
-
-                    using var bitmap = BytesToBitmapImage(originPicture0);
-                    if (bitmap == null)
-                        return;
-
-                    var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                    Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage;
-
-                    Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage2 + "__" + "EvenSecond" + Cache.CgFFBoxBeginNumber2Ch1 + "__" + Cache.CgFFBoxEndNumber2Ch1 + "__" + $"{Guid.NewGuid():N}.jpg");
-                    Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
-                    Cache.BitmapImageDrawableCh1.BitmapImage.SaveImage(Cache.OriginImageFilePath1);
-                    Cache.OriginImageFilePathList1[3] = Cache.OriginImageFilePath1;
-                }
-            }
-        }
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            //ImageFilePath = filePath;
-            //BitmapImageDrawable.BitmapImage = bitmap;
-            RebuildRectROIDrawableList(); // ✅ 统一入口
-        });
-    }
-
-    [RelayCommand]
-    private void GetImageOddFirstCH2()
-    {
-        AllOddRodsCh2Percent1.Clear();
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
-        {
-            if (j % 2 == 1)
-                AllOddRodsCh2Percent1.Add(new Pole { Id = j });
-        }
-
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var rodNum = 46;
-
-        if (Cache.CgFFBoxBeginNumber2Ch2 % 2 == 1)
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch2;
-        else
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch2 + 1;
-
-        if (Cache.CgFFBoxEndNumber2Ch2 % 2 == 1)
-            RodEnd = Cache.CgFFBoxEndNumber2Ch2;
-        else
-            RodEnd = Cache.CgFFBoxEndNumber2Ch2 - 1;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
-        {
-            if (j % 2 == 1)
-                ch12List[j - 1] = (j, Ch12Percentage1);
-        }
-
-        if (SelectedTabIndex == 1)
-        {
-            var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-            if (result.IsSuccess == true)
-            {
-                //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                if (ret.IsSuccess == false)
-                {
-                    throw new CugaException(ret.ErrorMsg);
-                }
-                else
-                {
-                    var originPicture0 = ret.Anything;
-                    if (originPicture0 == null)
-                    {
-                        // 处理错误或返回
-                        return;
-                    }
-
-                    using var bitmap = BytesToBitmapImage(originPicture0);
-                    if (bitmap == null)
-                        return;
-
-                    var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                    Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage;
-
-                    Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage1 + "__" + "OddFirst" + Cache.CgFFBoxBeginNumber2Ch2 + "__" + Cache.CgFFBoxEndNumber2Ch2 + "__" + $"{Guid.NewGuid():N}.jpg");
-                    Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
-                    Cache.BitmapImageDrawableCh2.BitmapImage.SaveImage(Cache.OriginImageFilePath2);
-                    Cache.OriginImageFilePathList2[0] = Cache.OriginImageFilePath2;
-                }
-            }
-        }
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            //ImageFilePath = filePath;
-            //BitmapImageDrawable.BitmapImage = bitmap;
-            RebuildRectROIDrawableList(); // ✅ 统一入口
-        });
-    }
-
-    [RelayCommand]
-    private void GetImageEvenFirstCH2()
-    {
-        AllEvenRodsCh2Percent1.Clear();
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
-        {
-            if (j % 2 == 0)
-                AllEvenRodsCh2Percent1.Add(new Pole { Id = j });
-        }
-
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var rodNum = 46;
-
-        if (Cache.CgFFBoxBeginNumber2Ch2 % 2 == 0)
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch2;
-        else
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch2 + 1;
-
-        if (Cache.CgFFBoxEndNumber2Ch2 % 2 == 0)
-            RodEnd = Cache.CgFFBoxEndNumber2Ch2;
-        else
-            RodEnd = Cache.CgFFBoxEndNumber2Ch2 - 1;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
-        {
-            if (j % 2 == 0)
-                ch12List[j - 1] = (j, Ch12Percentage1);
-        }
-
-        if (SelectedTabIndex == 1)
-        {
-            var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-            if (result.IsSuccess == true)
-            {
-                //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                if (ret.IsSuccess == false)
-                {
-                    throw new CugaException(ret.ErrorMsg);
-                }
-                else
-                {
-                    var originPicture0 = ret.Anything;
-                    if (originPicture0 == null)
-                    {
-                        // 处理错误或返回
-                        return;
-                    }
-
-                    using var bitmap = BytesToBitmapImage(originPicture0);
-                    if (bitmap == null)
-                        return;
-
-                    var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                    Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage;
-
-                    Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage1 + "__" + "EvenFirst" + Cache.CgFFBoxBeginNumber2Ch2 + "__" + Cache.CgFFBoxEndNumber2Ch2 + "__" + $"{Guid.NewGuid():N}.jpg");
-                    Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
-                    Cache.BitmapImageDrawableCh2.BitmapImage.SaveImage(Cache.OriginImageFilePath2);
-                    Cache.OriginImageFilePathList2[2] = Cache.OriginImageFilePath2;
-                }
-            }
-        }
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            //ImageFilePath = filePath;
-            //BitmapImageDrawable.BitmapImage = bitmap;
-            RebuildRectROIDrawableList(); // ✅ 统一入口
-        });
-    }
-
-    [RelayCommand]
-    private void GetImageOddSecondCH2()
-    {
-        AllOddRodsCh2Percent2.Clear();
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
-        {
-            if (j % 2 == 1)
-                AllOddRodsCh2Percent2.Add(new Pole { Id = j });
-        }
-
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var rodNum = 46;
-
-        if (Cache.CgFFBoxBeginNumber2Ch2 % 2 == 1)
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch2;
-        else
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch2 + 1;
-
-        if (Cache.CgFFBoxEndNumber2Ch2 % 2 == 1)
-            RodEnd = Cache.CgFFBoxEndNumber2Ch2;
-        else
-            RodEnd = Cache.CgFFBoxEndNumber2Ch2 - 1;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
-        {
-            if (j % 2 == 1)
-                ch12List[j - 1] = (j, Ch12Percentage2);
-        }
-
-        if (SelectedTabIndex == 1)
-        {
-            var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-            if (result.IsSuccess == true)
-            {
-                //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                if (ret.IsSuccess == false)
-                {
-                    throw new CugaException(ret.ErrorMsg);
-                }
-                else
-                {
-                    var originPicture0 = ret.Anything;
-                    if (originPicture0 == null)
-                    {
-                        // 处理错误或返回
-                        return;
-                    }
-
-                    using var bitmap = BytesToBitmapImage(originPicture0);
-                    if (bitmap == null)
-                        return;
-
-                    var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                    Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage;
-
-                    Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage2 + "__" + "OddSecond" + Cache.CgFFBoxBeginNumber2Ch2 + "__" + Cache.CgFFBoxEndNumber2Ch2 + "__" + $"{Guid.NewGuid():N}.jpg");
-                    Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
-                    Cache.BitmapImageDrawableCh2.BitmapImage.SaveImage(Cache.OriginImageFilePath2);
-                    Cache.OriginImageFilePathList2[1] = Cache.OriginImageFilePath2;
-                }
-            }
-        }
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            //ImageFilePath = filePath;
-            //BitmapImageDrawable.BitmapImage = bitmap;
-            RebuildRectROIDrawableList(); // ✅ 统一入口
-        });
-    }
-
-    [RelayCommand]
-    private void GetImageEvenSecondCH2()
-    {
-        AllEvenRodsCh2Percent2.Clear();
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
-        {
-            if (j % 2 == 0)
-                AllEvenRodsCh2Percent2.Add(new Pole { Id = j });
-        }
-
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var rodNum = 46;
-
-        if (Cache.CgFFBoxBeginNumber2Ch2 % 2 == 0)
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch2;
-        else
-            RodBegin = Cache.CgFFBoxBeginNumber2Ch2 + 1;
-
-        if (Cache.CgFFBoxEndNumber2Ch2 % 2 == 0)
-            RodEnd = Cache.CgFFBoxEndNumber2Ch2;
-        else
-            RodEnd = Cache.CgFFBoxEndNumber2Ch2 - 1;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
-        {
-            if (j % 2 == 0)
-                ch12List[j - 1] = (j, Ch12Percentage2);
-        }
-
-        if (SelectedTabIndex == 1)
-        {
-            var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-            if (result.IsSuccess == true)
-            {
-                //await Task.Delay(2000).ConfigureAwait(false);
-                var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                if (ret.IsSuccess == false)
-                {
-                    throw new CugaException(ret.ErrorMsg);
-                }
-                else
-                {
-                    var originPicture0 = ret.Anything;
-                    if (originPicture0 == null)
-                    {
-                        // 处理错误或返回
-                        return;
-                    }
-
-                    using var bitmap = BytesToBitmapImage(originPicture0);
-                    if (bitmap == null)
-                        return;
-
-                    var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                    Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage;
-
-                    Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage2 + "__" + "EvenSecond" + Cache.CgFFBoxBeginNumber2Ch2 + "__" + Cache.CgFFBoxEndNumber2Ch2 + "__" + $"{Guid.NewGuid():N}.jpg");
-                    Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
-                    Cache.BitmapImageDrawableCh2.BitmapImage.SaveImage(Cache.OriginImageFilePath2);
-                    Cache.OriginImageFilePathList2[3] = Cache.OriginImageFilePath2;
-                }
-            }
-        }
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            //ImageFilePath = filePath;
-            //BitmapImageDrawable.BitmapImage = bitmap;
-            RebuildRectROIDrawableList(); // ✅ 统一入口
-        });
-    }
-
-    [RelayCommand]
-    private void GetCH1BeginNumber1()
-    {
-        InitRodState();
-        var rodNum = 0;
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var config = calibrationFlourierService.GetFourierConfig();
-        if (config.IsSuccess == false)
-            throw new CugaException(config.ErrorMsg);
-        else
-        {
-            var result = config.Anything;
-            rodNum = result.RodNum;
-        }
-
-        rodNum = 46;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber1Ch1; j <= rodNum; j++)
-        {
-            ch12List[j - 1] = (j, 0.99);
-            for (int k = j - 1; k >= 1; k--)
-            {
-                ch12List[k - 1] = (k, 0.0);
+                if (j % 2 == 1)
+                    ch12List[j - 1] = (j, Ch12Percentage1);
             }
 
+            if (SelectedTabIndex == 0)
             {
-                var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-                if (result.IsSuccess == true)
+                var result = FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
+                if (result)
                 {
                     //await Task.Delay(2000).ConfigureAwait(false);
-                    var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                    if (ret.IsSuccess == false)
+                    var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                     {
-                        throw new CugaException(ret.ErrorMsg);
-                    }
-                    else
-                    {
-                        var originPicture0 = ret.Anything;
-                        if (originPicture0 == null)
-                        {
-                            // 处理错误或返回
-                            return;
-                        }
+                        using var bitmap = BytesToBitmapImage(ret);
 
-                        using var bitmap = BytesToBitmapImage(originPicture0);
-                        if (bitmap == null)
-                            return;
+                        var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                        Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage.ToBitmapImage();
 
-                        var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                        Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage;
+                        Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage1 + "__" + "OddFirst" + Cache.CgFFBoxBeginNumber2Ch1 + "__" + Cache.CgFFBoxEndNumber2Ch1 + "__" + $"{Guid.NewGuid():N}.jpg");
+                        Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
+                        Cache.BitmapImageDrawableCh1.BitmapImage.Save(Cache.OriginImageFilePath1);
+                        Cache.OriginImageFilePathList1[0] = Cache.OriginImageFilePath1;
                     }
                 }
             }
 
-            DialogWindowProvider.TryShowDialog("Yes: This rod is begin number? No: We will move the next rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-            if (dialogResult == DialogResultEnum.Yes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Cache.CgFFBoxBeginNumber1Ch1 = j;
-                break;
-            }
-        }
+                //ImageFilePath = filePath;
+                //BitmapImageDrawable.BitmapImage = bitmap;
+                RebuildRectRoiDrawableList(); // ✅ 统一入口
+            });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private void GetCH1EndNumber1()
+    private async Task GetImageEvenFirstCh1Async()
     {
-        InitRodState();
-        var rodNum = 0;
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var config = calibrationFlourierService.GetFourierConfig();
-        if (config.IsSuccess == false)
-            throw new CugaException(config.ErrorMsg);
-        else
+        await Task.Run(() =>
         {
-            var result = config.Anything;
-            rodNum = result.RodNum;
-        }
-
-        rodNum = 46;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxEndNumber1Ch1; j >= 1; j--)
-        {
-            ch12List[j - 1] = (j, 0.99);
-            for (int k = j + 1; k <= rodNum; k++)
+            AllEvenRodsCh1Percent1 = [];
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
-                ch12List[k - 1] = (k, 0.0);
+                if (j % 2 == 0)
+                    AllEvenRodsCh1Percent1 = [.. AllEvenRodsCh1Percent1, new Pole { Id = j }];
+            }
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            var rodNum = 46;
+
+            if (Cache.CgFFBoxBeginNumber2Ch1 % 2 == 0)
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch1;
+            else
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch1 + 1;
+
+            if (Cache.CgFFBoxEndNumber2Ch1 % 2 == 0)
+                RodEnd = Cache.CgFFBoxEndNumber2Ch1;
+            else
+                RodEnd = Cache.CgFFBoxEndNumber2Ch1 - 1;
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
+            {
+                if (j % 2 == 0)
+                    ch12List[j - 1] = (j, Ch12Percentage1);
             }
 
+            if (SelectedTabIndex == 0)
             {
-                var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-                if (result.IsSuccess == true)
+                var result = FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
+                if (result)
                 {
                     //await Task.Delay(2000).ConfigureAwait(false);
-                    var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                    if (ret.IsSuccess == false)
+                    var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                     {
-                        throw new CugaException(ret.ErrorMsg);
-                    }
-                    else
-                    {
-                        var originPicture0 = ret.Anything;
-                        if (originPicture0 == null)
-                        {
-                            // 处理错误或返回
-                            return;
-                        }
+                        using var bitmap = BytesToBitmapImage(ret);
 
-                        using var bitmap = BytesToBitmapImage(originPicture0);
-                        if (bitmap == null)
-                            return;
+                        var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                        Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage.ToBitmapImage();
 
-                        var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                        Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage;
+                        Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage1 + "__" + "EvenFirst" + Cache.CgFFBoxBeginNumber2Ch1 + "__" + Cache.CgFFBoxEndNumber2Ch1 + "__" + $"{Guid.NewGuid():N}.jpg");
+                        Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
+                        Cache.BitmapImageDrawableCh1.BitmapImage.Save(Cache.OriginImageFilePath1);
+                        Cache.OriginImageFilePathList1[2] = Cache.OriginImageFilePath1;
                     }
                 }
             }
 
-            DialogWindowProvider.TryShowDialog("Yes: This rod is end number? No: We will move the previous rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-            if (dialogResult == DialogResultEnum.Yes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Cache.CgFFBoxEndNumber1Ch1 = j;
-                break;
-            }
-        }
+                //ImageFilePath = filePath;
+                //BitmapImageDrawable.BitmapImage = bitmap;
+                RebuildRectRoiDrawableList(); // ✅ 统一入口
+            });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private void GetCH1BeginNumber2()
+    private async Task GetImageOddSecondCh1Async()
     {
-        InitRodState();
-        var rodNum = 0;
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var config = calibrationFlourierService.GetFourierConfig();
-        if (config.IsSuccess == false)
-            throw new CugaException(config.ErrorMsg);
-        else
+        await Task.Run(() =>
         {
-            var result = config.Anything;
-            rodNum = result.RodNum;
-        }
-
-        rodNum = 46;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= rodNum; j++)
-        {
-            ch12List[j - 1] = (j, 0.99);
-            for (int k = j - 1; k >= 1; k--)
+            AllOddRodsCh1Percent2 = [];
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
-                ch12List[k - 1] = (k, 0.0);
+                if (j % 2 == 1)
+                    AllOddRodsCh1Percent2 = [.. AllOddRodsCh1Percent2, new Pole { Id = j }];
+            }
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            var rodNum = 46;
+
+            if (Cache.CgFFBoxBeginNumber2Ch1 % 2 == 1)
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch1;
+            else
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch1 + 1;
+
+            if (Cache.CgFFBoxEndNumber2Ch1 % 2 == 1)
+                RodEnd = Cache.CgFFBoxEndNumber2Ch1;
+            else
+                RodEnd = Cache.CgFFBoxEndNumber2Ch1 - 1;
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
+            {
+                if (j % 2 == 1)
+                    ch12List[j - 1] = (j, Ch12Percentage2);
             }
 
+            if (SelectedTabIndex == 0)
             {
-                var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-                if (result.IsSuccess == true)
+                var result = FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
+                if (result)
                 {
                     //await Task.Delay(2000).ConfigureAwait(false);
-                    var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                    if (ret.IsSuccess == false)
+                    var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                     {
-                        throw new CugaException(ret.ErrorMsg);
-                    }
-                    else
-                    {
-                        var originPicture0 = ret.Anything;
-                        if (originPicture0 == null)
-                        {
-                            // 处理错误或返回
-                            return;
-                        }
+                        using var bitmap = BytesToBitmapImage(ret);
 
-                        using var bitmap = BytesToBitmapImage(originPicture0);
-                        if (bitmap == null)
-                            return;
+                        var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                        Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage.ToBitmapImage();
 
-                        var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                        Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage;
+                        Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage2 + "__" + "OddSecond" + Cache.CgFFBoxBeginNumber2Ch1 + "__" + Cache.CgFFBoxEndNumber2Ch1 + "__" + $"{Guid.NewGuid():N}.jpg");
+                        Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
+                        Cache.BitmapImageDrawableCh1.BitmapImage.Save(Cache.OriginImageFilePath1);
+                        Cache.OriginImageFilePathList1[1] = Cache.OriginImageFilePath1;
                     }
                 }
             }
 
-            DialogWindowProvider.TryShowDialog("Yes: This rod is begin number? No: We will move the next rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-            if (dialogResult == DialogResultEnum.Yes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Cache.CgFFBoxBeginNumber2Ch1 = j;
-                break;
-            }
-        }
+                //ImageFilePath = filePath;
+                //BitmapImageDrawable.BitmapImage = bitmap;
+                RebuildRectRoiDrawableList(); // ✅ 统一入口
+            });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private void GetCH1EndNumber2()
+    private async Task GetImageEvenSecondCh1Async()
     {
-        InitRodState();
-        var rodNum = 0;
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var config = calibrationFlourierService.GetFourierConfig();
-        if (config.IsSuccess == false)
-            throw new CugaException(config.ErrorMsg);
-        else
+        await Task.Run(() =>
         {
-            var result = config.Anything;
-            rodNum = result.RodNum;
-        }
-
-        rodNum = 46;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxEndNumber2Ch1; j >= 1; j--)
-        {
-            ch12List[j - 1] = (j, 0.99);
-            for (int k = j + 1; k <= rodNum; k++)
+            AllEvenRodsCh1Percent2 = [];
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
-                ch12List[k - 1] = (k, 0.0);
+                if (j % 2 == 0)
+                    AllEvenRodsCh1Percent2 = [.. AllEvenRodsCh1Percent2, new Pole { Id = j }];
+            }
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            var rodNum = 46;
+
+            if (Cache.CgFFBoxBeginNumber2Ch1 % 2 == 0)
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch1;
+            else
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch1 + 1;
+
+            if (Cache.CgFFBoxEndNumber2Ch1 % 2 == 0)
+                RodEnd = Cache.CgFFBoxEndNumber2Ch1;
+            else
+                RodEnd = Cache.CgFFBoxEndNumber2Ch1 - 1;
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
+            {
+                if (j % 2 == 0)
+                    ch12List[j - 1] = (j, Ch12Percentage2);
             }
 
+            if (SelectedTabIndex == 0)
             {
-                var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch1, ch12List);
-                if (result.IsSuccess == true)
+                var result = FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
+                if (result)
                 {
                     //await Task.Delay(2000).ConfigureAwait(false);
-                    var ret = calibrationFlourierService.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                    if (ret.IsSuccess == false)
+                    var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                     {
-                        throw new CugaException(ret.ErrorMsg);
-                    }
-                    else
-                    {
-                        var originPicture0 = ret.Anything;
-                        if (originPicture0 == null)
-                        {
-                            // 处理错误或返回
-                            return;
-                        }
+                        using var bitmap = BytesToBitmapImage(ret);
 
-                        using var bitmap = BytesToBitmapImage(originPicture0);
-                        if (bitmap == null)
-                            return;
+                        var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                        Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage.ToBitmapImage();
 
-                        var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
-                        Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage;
+                        Cache.OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage2 + "__" + "EvenSecond" + Cache.CgFFBoxBeginNumber2Ch1 + "__" + Cache.CgFFBoxEndNumber2Ch1 + "__" + $"{Guid.NewGuid():N}.jpg");
+                        Cache.Ch1Image = Cache.BitmapImageDrawableCh1.BitmapImage;
+                        Cache.BitmapImageDrawableCh1.BitmapImage.Save(Cache.OriginImageFilePath1);
+                        Cache.OriginImageFilePathList1[3] = Cache.OriginImageFilePath1;
                     }
                 }
             }
 
-            DialogWindowProvider.TryShowDialog("Yes: This rod is end number? No: We will move the previous rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-            if (dialogResult == DialogResultEnum.Yes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Cache.CgFFBoxEndNumber2Ch1 = j;
-                break;
-            }
-        }
+                //ImageFilePath = filePath;
+                //BitmapImageDrawable.BitmapImage = bitmap;
+                RebuildRectRoiDrawableList(); // ✅ 统一入口
+            });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private void GetCH2BeginNumber1()
+    private async Task GetImageOddFirstCh2Async()
     {
-        InitRodState();
-        var rodNum = 0;
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var config = calibrationFlourierService.GetFourierConfig();
-        if (config.IsSuccess == false)
-            throw new CugaException(config.ErrorMsg);
-        else
+        await Task.Run(() =>
         {
-            var result = config.Anything;
-            rodNum = result.RodNum;
-        }
-
-        rodNum = 46;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber1Ch2; j <= rodNum; j++)
-        {
-            ch12List[j - 1] = (j, 0.99);
-            for (int k = j - 1; k >= 1; k--)
+            AllOddRodsCh2Percent1 = [];
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
             {
-                ch12List[k - 1] = (k, 0.0);
+                if (j % 2 == 1)
+                    AllOddRodsCh2Percent1 = [.. AllOddRodsCh2Percent1, new Pole { Id = j }];
+            }
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            var rodNum = 46;
+
+            if (Cache.CgFFBoxBeginNumber2Ch2 % 2 == 1)
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch2;
+            else
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch2 + 1;
+
+            if (Cache.CgFFBoxEndNumber2Ch2 % 2 == 1)
+                RodEnd = Cache.CgFFBoxEndNumber2Ch2;
+            else
+                RodEnd = Cache.CgFFBoxEndNumber2Ch2 - 1;
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
+            {
+                if (j % 2 == 1)
+                    ch12List[j - 1] = (j, Ch12Percentage1);
             }
 
+            if (SelectedTabIndex == 1)
             {
-                var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-                if (result.IsSuccess == true)
+                var result = FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
+                if (result)
                 {
                     //await Task.Delay(2000).ConfigureAwait(false);
-                    var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                    if (ret.IsSuccess == false)
+                    var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                     {
-                        throw new CugaException(ret.ErrorMsg);
-                    }
-                    else
-                    {
-                        var originPicture0 = ret.Anything;
-                        if (originPicture0 == null)
-                        {
-                            // 处理错误或返回
-                            return;
-                        }
+                        using var bitmap = BytesToBitmapImage(ret);
 
-                        using var bitmap = BytesToBitmapImage(originPicture0);
-                        if (bitmap == null)
-                            return;
+                        var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                        Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage.ToBitmapImage();
 
-                        var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                        Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage;
+                        Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage1 + "__" + "OddFirst" + Cache.CgFFBoxBeginNumber2Ch2 + "__" + Cache.CgFFBoxEndNumber2Ch2 + "__" + $"{Guid.NewGuid():N}.jpg");
+                        Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
+                        Cache.BitmapImageDrawableCh2.BitmapImage.Save(Cache.OriginImageFilePath2);
+                        Cache.OriginImageFilePathList2[0] = Cache.OriginImageFilePath2;
                     }
                 }
             }
 
-            DialogWindowProvider.TryShowDialog("Yes: This rod is begin number? No: We will move the next rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-            if (dialogResult == DialogResultEnum.Yes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Cache.CgFFBoxBeginNumber1Ch2 = j;
-                break;
-            }
-        }
+                //ImageFilePath = filePath;
+                //BitmapImageDrawable.BitmapImage = bitmap;
+                RebuildRectRoiDrawableList(); // ✅ 统一入口
+            });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private void GetCH2EndNumber1()
+    private async Task GetImageEvenFirstCh2Async()
     {
-        InitRodState();
-        var rodNum = 0;
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var config = calibrationFlourierService.GetFourierConfig();
-        if (config.IsSuccess == false)
-            throw new CugaException(config.ErrorMsg);
-        else
+        await Task.Run(() =>
         {
-            var result = config.Anything;
-            rodNum = result.RodNum;
-        }
-
-        rodNum = 46;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxEndNumber1Ch2; j >= 1; j--)
-        {
-            ch12List[j - 1] = (j, 0.99);
-            for (int k = j + 1; k <= rodNum; k++)
+            AllEvenRodsCh2Percent1 = [];
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
             {
-                ch12List[k - 1] = (k, 0.0);
+                if (j % 2 == 0)
+                    AllEvenRodsCh2Percent1 = [.. AllEvenRodsCh2Percent1, new Pole { Id = j }];
+            }
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            var rodNum = 46;
+
+            if (Cache.CgFFBoxBeginNumber2Ch2 % 2 == 0)
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch2;
+            else
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch2 + 1;
+
+            if (Cache.CgFFBoxEndNumber2Ch2 % 2 == 0)
+                RodEnd = Cache.CgFFBoxEndNumber2Ch2;
+            else
+                RodEnd = Cache.CgFFBoxEndNumber2Ch2 - 1;
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
+            {
+                if (j % 2 == 0)
+                    ch12List[j - 1] = (j, Ch12Percentage1);
             }
 
+            if (SelectedTabIndex == 1)
             {
-                var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-                if (result.IsSuccess == true)
+                var result = FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
+                if (result)
                 {
                     //await Task.Delay(2000).ConfigureAwait(false);
-                    var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                    if (ret.IsSuccess == false)
+                    var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                     {
-                        throw new CugaException(ret.ErrorMsg);
-                    }
-                    else
-                    {
-                        var originPicture0 = ret.Anything;
-                        if (originPicture0 == null)
-                        {
-                            // 处理错误或返回
-                            return;
-                        }
+                        using var bitmap = BytesToBitmapImage(ret);
 
-                        using var bitmap = BytesToBitmapImage(originPicture0);
-                        if (bitmap == null)
-                            return;
+                        var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                        Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage.ToBitmapImage();
 
-                        var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                        Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage;
+                        Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage1 + "__" + "EvenFirst" + Cache.CgFFBoxBeginNumber2Ch2 + "__" + Cache.CgFFBoxEndNumber2Ch2 + "__" + $"{Guid.NewGuid():N}.jpg");
+                        Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
+                        Cache.BitmapImageDrawableCh2.BitmapImage.Save(Cache.OriginImageFilePath2);
+                        Cache.OriginImageFilePathList2[2] = Cache.OriginImageFilePath2;
                     }
                 }
             }
 
-            DialogWindowProvider.TryShowDialog("Yes: This rod is end number? No: We will move the previous rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-            if (dialogResult == DialogResultEnum.Yes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Cache.CgFFBoxEndNumber1Ch2 = j;
-                break;
-            }
-        }
+                //ImageFilePath = filePath;
+                //BitmapImageDrawable.BitmapImage = bitmap;
+                RebuildRectRoiDrawableList(); // ✅ 统一入口
+            });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private void GetCH2BeginNumber2()
+    private async Task GetImageOddSecondCh2Async()
     {
-        InitRodState();
-        var rodNum = 0;
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var config = calibrationFlourierService.GetFourierConfig();
-        if (config.IsSuccess == false)
-            throw new CugaException(config.ErrorMsg);
-        else
+        await Task.Run(() =>
         {
-            var result = config.Anything;
-            rodNum = result.RodNum;
-        }
-
-        rodNum = 46;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= rodNum; j++)
-        {
-            ch12List[j - 1] = (j, 0.99);
-            for (int k = j - 1; k >= 1; k--)
+            AllOddRodsCh2Percent2 = [];
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
             {
-                ch12List[k - 1] = (k, 0.0);
+                if (j % 2 == 1)
+                    AllOddRodsCh2Percent2 = [.. AllOddRodsCh2Percent2, new Pole { Id = j }];
+            }
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            var rodNum = 46;
+
+            if (Cache.CgFFBoxBeginNumber2Ch2 % 2 == 1)
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch2;
+            else
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch2 + 1;
+
+            if (Cache.CgFFBoxEndNumber2Ch2 % 2 == 1)
+                RodEnd = Cache.CgFFBoxEndNumber2Ch2;
+            else
+                RodEnd = Cache.CgFFBoxEndNumber2Ch2 - 1;
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
+            {
+                if (j % 2 == 1)
+                    ch12List[j - 1] = (j, Ch12Percentage2);
             }
 
+            if (SelectedTabIndex == 1)
             {
-                var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-                if (result.IsSuccess == true)
+                var result = FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
+                if (result)
                 {
                     //await Task.Delay(2000).ConfigureAwait(false);
-                    var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                    if (ret.IsSuccess == false)
+                    var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                     {
-                        throw new CugaException(ret.ErrorMsg);
-                    }
-                    else
-                    {
-                        var originPicture0 = ret.Anything;
-                        if (originPicture0 == null)
-                        {
-                            // 处理错误或返回
-                            return;
-                        }
+                        using var bitmap = BytesToBitmapImage(ret);
 
-                        using var bitmap = BytesToBitmapImage(originPicture0);
-                        if (bitmap == null)
-                            return;
+                        var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                        Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage.ToBitmapImage();
 
-                        var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                        Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage;
+                        Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage2 + "__" + "OddSecond" + Cache.CgFFBoxBeginNumber2Ch2 + "__" + Cache.CgFFBoxEndNumber2Ch2 + "__" + $"{Guid.NewGuid():N}.jpg");
+                        Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
+                        Cache.BitmapImageDrawableCh2.BitmapImage.Save(Cache.OriginImageFilePath2);
+                        Cache.OriginImageFilePathList2[1] = Cache.OriginImageFilePath2;
                     }
                 }
             }
 
-            DialogWindowProvider.TryShowDialog("Yes: This rod is begin number? No: We will move the next rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-            if (dialogResult == DialogResultEnum.Yes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Cache.CgFFBoxBeginNumber2Ch2 = j;
-                break;
-            }
-        }
+                //ImageFilePath = filePath;
+                //BitmapImageDrawable.BitmapImage = bitmap;
+                RebuildRectRoiDrawableList(); // ✅ 统一入口
+            });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
-    private void GetCH2EndNumber2()
+    private async Task GetImageEvenSecondCh2Async()
     {
-        InitRodState();
-        var rodNum = 0;
-        var ch12List = new List<(int rodnumber, double rodpos)>();
-        var config = calibrationFlourierService.GetFourierConfig();
-        if (config.IsSuccess == false)
-            throw new CugaException(config.ErrorMsg);
-        else
+        await Task.Run(() =>
         {
-            var result = config.Anything;
-            rodNum = result.RodNum;
-        }
-
-        rodNum = 46;
-
-        for (int j = 1; j <= rodNum; j++)
-        {
-            ch12List.Add((j, 0.0));
-        }
-
-        for (int j = Cache.CgFFBoxEndNumber2Ch2; j >= 1; j--)
-        {
-            ch12List[j - 1] = (j, 0.99);
-            for (int k = j + 1; k <= rodNum; k++)
+            AllEvenRodsCh2Percent2 = [];
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
             {
-                ch12List[k - 1] = (k, 0.0);
+                if (j % 2 == 0)
+                    AllEvenRodsCh2Percent2 = [.. AllEvenRodsCh2Percent2, new Pole { Id = j }];
+            }
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            var rodNum = 46;
+
+            if (Cache.CgFFBoxBeginNumber2Ch2 % 2 == 0)
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch2;
+            else
+                RodBegin = Cache.CgFFBoxBeginNumber2Ch2 + 1;
+
+            if (Cache.CgFFBoxEndNumber2Ch2 % 2 == 0)
+                RodEnd = Cache.CgFFBoxEndNumber2Ch2;
+            else
+                RodEnd = Cache.CgFFBoxEndNumber2Ch2 - 1;
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
+            {
+                if (j % 2 == 0)
+                    ch12List[j - 1] = (j, Ch12Percentage2);
             }
 
+            if (SelectedTabIndex == 1)
             {
-                var result = calibrationFlourierService.FF_Move_CH12(FFCH.Ch2, ch12List);
-                if (result.IsSuccess == true)
+                var result = FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
+                if (result)
                 {
                     //await Task.Delay(2000).ConfigureAwait(false);
-                    var ret = calibrationFlourierService.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-                    if (ret.IsSuccess == false)
+                    var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
                     {
-                        throw new CugaException(ret.ErrorMsg);
-                    }
-                    else
-                    {
-                        var originPicture0 = ret.Anything;
-                        if (originPicture0 == null)
-                        {
-                            // 处理错误或返回
-                            return;
-                        }
+                        using var bitmap = BytesToBitmapImage(ret);
 
-                        using var bitmap = BytesToBitmapImage(originPicture0);
-                        if (bitmap == null)
-                            return;
+                        var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                        Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage.ToBitmapImage();
 
-                        var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
-                        Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage;
+                        Cache.OriginImageFilePath2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage2 + "__" + "EvenSecond" + Cache.CgFFBoxBeginNumber2Ch2 + "__" + Cache.CgFFBoxEndNumber2Ch2 + "__" + $"{Guid.NewGuid():N}.jpg");
+                        Cache.Ch2Image = Cache.BitmapImageDrawableCh2.BitmapImage;
+                        Cache.BitmapImageDrawableCh2.BitmapImage.Save(Cache.OriginImageFilePath2);
+                        Cache.OriginImageFilePathList2[3] = Cache.OriginImageFilePath2;
                     }
                 }
             }
 
-            DialogWindowProvider.TryShowDialog("Yes: This rod is end number? No: We will move the previous rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-            if (dialogResult == DialogResultEnum.Yes)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                Cache.CgFFBoxEndNumber2Ch2 = j;
-                break;
-            }
-        }
+                //ImageFilePath = filePath;
+                //BitmapImageDrawable.BitmapImage = bitmap;
+                RebuildRectRoiDrawableList(); // ✅ 统一入口
+            });
+        }).ConfigureAwait(false);
     }
 
-    private BitmapImage GetPictureRegion(BitmapImage originImage, int startX, int startY, int width, int height)
+    [RelayCommand]
+    private async Task GetCh1BeginNumber1Async()
+    {
+        await Task.Run(() =>
+        {
+            InitRodState();
+            int rodNum;
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            {
+                var result = FourierViewModel.GetFourierConfig();
+                rodNum = result.RodNum;
+            }
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+
+            for (int j = Cache.CgFFBoxBeginNumber1Ch1; j <= rodNum; j++)
+            {
+                ch12List[j - 1] = (j, 0.99);
+                for (int k = j - 1; k >= 1; k--)
+                {
+                    ch12List[k - 1] = (k, 0.0);
+                }
+
+                {
+                    var result = FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
+                    if (result)
+                    {
+                        //await Task.Delay(2000).ConfigureAwait(false);
+                        var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                        {
+                            using var bitmap = BytesToBitmapImage(ret);
+
+                            var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                            Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage.ToBitmapImage();
+                        }
+                    }
+                }
+
+                DialogWindowProvider.TryShowDialog("Yes: This rod is begin number? No: We will move the next rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResult == DialogResultEnum.Yes)
+                {
+                    Cache.CgFFBoxBeginNumber1Ch1 = j;
+                    break;
+                }
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task GetCh1EndNumber1Async()
+    {
+        await Task.Run(() =>
+        {
+            InitRodState();
+            int rodNum;
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            {
+                var result = FourierViewModel.GetFourierConfig();
+                rodNum = result.RodNum;
+            }
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+
+            for (int j = Cache.CgFFBoxEndNumber1Ch1; j >= 1; j--)
+            {
+                ch12List[j - 1] = (j, 0.99);
+                for (int k = j + 1; k <= rodNum; k++)
+                {
+                    ch12List[k - 1] = (k, 0.0);
+                }
+
+                {
+                    var result = FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
+                    if (result)
+                    {
+                        //await Task.Delay(2000).ConfigureAwait(false);
+                        var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                        {
+                            using var bitmap = BytesToBitmapImage(ret);
+
+                            var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                            Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage.ToBitmapImage();
+                        }
+                    }
+                }
+
+                DialogWindowProvider.TryShowDialog("Yes: This rod is end number? No: We will move the previous rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResult == DialogResultEnum.Yes)
+                {
+                    Cache.CgFFBoxEndNumber1Ch1 = j;
+                    break;
+                }
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task GetCh1BeginNumber2Async()
+    {
+        await Task.Run(() =>
+        {
+            InitRodState();
+            int rodNum;
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            {
+                var result = FourierViewModel.GetFourierConfig();
+                rodNum = result.RodNum;
+            }
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+
+            for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= rodNum; j++)
+            {
+                ch12List[j - 1] = (j, 0.99);
+                for (int k = j - 1; k >= 1; k--)
+                {
+                    ch12List[k - 1] = (k, 0.0);
+                }
+
+                {
+                    var result = FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
+                    if (result)
+                    {
+                        //await Task.Delay(2000).ConfigureAwait(false);
+                        var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                        {
+                            using var bitmap = BytesToBitmapImage(ret);
+
+                            var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                            Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage.ToBitmapImage();
+                        }
+                    }
+                }
+
+                DialogWindowProvider.TryShowDialog("Yes: This rod is begin number? No: We will move the next rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResult == DialogResultEnum.Yes)
+                {
+                    Cache.CgFFBoxBeginNumber2Ch1 = j;
+                    break;
+                }
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task GetCh1EndNumber2Async()
+    {
+        await Task.Run(() =>
+        {
+            InitRodState();
+            int rodNum;
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            {
+                var result = FourierViewModel.GetFourierConfig();
+                rodNum = result.RodNum;
+            }
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+
+            for (int j = Cache.CgFFBoxEndNumber2Ch1; j >= 1; j--)
+            {
+                ch12List[j - 1] = (j, 0.99);
+                for (int k = j + 1; k <= rodNum; k++)
+                {
+                    ch12List[k - 1] = (k, 0.0);
+                }
+
+                {
+                    var result = FourierViewModel.FF_Move_CH12(FFCH.Ch1, ch12List);
+                    if (result)
+                    {
+                        //await Task.Delay(2000).ConfigureAwait(false);
+                        var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                        {
+                            using var bitmap = BytesToBitmapImage(ret);
+
+                            var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh1Position.X, (int)PupilCameraAlignmentValue.RectCh1Position.Y, PupilCameraAlignmentValue.Ch1ImageWidth, PupilCameraAlignmentValue.Ch1ImageHeight);
+                            Cache.BitmapImageDrawableCh1.BitmapImage = croppedImage.ToBitmapImage();
+                        }
+                    }
+                }
+
+                DialogWindowProvider.TryShowDialog("Yes: This rod is end number? No: We will move the previous rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResult == DialogResultEnum.Yes)
+                {
+                    Cache.CgFFBoxEndNumber2Ch1 = j;
+                    break;
+                }
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task GetCh2BeginNumber1Async()
+    {
+        await Task.Run(() =>
+        {
+            InitRodState();
+            int rodNum;
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            {
+                var result = FourierViewModel.GetFourierConfig();
+                rodNum = result.RodNum;
+            }
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+
+            for (int j = Cache.CgFFBoxBeginNumber1Ch2; j <= rodNum; j++)
+            {
+                ch12List[j - 1] = (j, 0.99);
+                for (int k = j - 1; k >= 1; k--)
+                {
+                    ch12List[k - 1] = (k, 0.0);
+                }
+
+                {
+                    var result = FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
+                    if (result)
+                    {
+                        //await Task.Delay(2000).ConfigureAwait(false);
+                        var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                        {
+                            using var bitmap = BytesToBitmapImage(ret);
+
+                            var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                            Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage.ToBitmapImage();
+                        }
+                    }
+                }
+
+                DialogWindowProvider.TryShowDialog("Yes: This rod is begin number? No: We will move the next rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResult == DialogResultEnum.Yes)
+                {
+                    Cache.CgFFBoxBeginNumber1Ch2 = j;
+                    break;
+                }
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task GetCh2EndNumber1Async()
+    {
+        await Task.Run(() =>
+        {
+            InitRodState();
+            int rodNum;
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            {
+                var result = FourierViewModel.GetFourierConfig();
+                rodNum = result.RodNum;
+            }
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+
+            for (int j = Cache.CgFFBoxEndNumber1Ch2; j >= 1; j--)
+            {
+                ch12List[j - 1] = (j, 0.99);
+                for (int k = j + 1; k <= rodNum; k++)
+                {
+                    ch12List[k - 1] = (k, 0.0);
+                }
+
+                {
+                    var result = FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
+                    if (result)
+                    {
+                        //await Task.Delay(2000).ConfigureAwait(false);
+                        var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                        {
+                            using var bitmap = BytesToBitmapImage(ret);
+
+                            var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                            Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage.ToBitmapImage();
+                        }
+                    }
+                }
+
+                DialogWindowProvider.TryShowDialog("Yes: This rod is end number? No: We will move the previous rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResult == DialogResultEnum.Yes)
+                {
+                    Cache.CgFFBoxEndNumber1Ch2 = j;
+                    break;
+                }
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task GetCh2BeginNumber2Async()
+    {
+        await Task.Run(() =>
+        {
+            InitRodState();
+            int rodNum;
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            {
+                var result = FourierViewModel.GetFourierConfig();
+                rodNum = result.RodNum;
+            }
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+
+            for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= rodNum; j++)
+            {
+                ch12List[j - 1] = (j, 0.99);
+                for (int k = j - 1; k >= 1; k--)
+                {
+                    ch12List[k - 1] = (k, 0.0);
+                }
+
+                {
+                    var result = FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
+                    if (result)
+                    {
+                        //await Task.Delay(2000).ConfigureAwait(false);
+                        var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                        {
+                            using var bitmap = BytesToBitmapImage(ret);
+
+                            var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                            Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage.ToBitmapImage();
+                        }
+                    }
+                }
+
+                DialogWindowProvider.TryShowDialog("Yes: This rod is begin number? No: We will move the next rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResult == DialogResultEnum.Yes)
+                {
+                    Cache.CgFFBoxBeginNumber2Ch2 = j;
+                    break;
+                }
+            }
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private async Task GetCh2EndNumber2Async()
+    {
+        await Task.Run(() =>
+        {
+            InitRodState();
+            int rodNum;
+            var ch12List = new List<(int rodnumber, double rodpos)>();
+            {
+                var result = FourierViewModel.GetFourierConfig();
+                rodNum = result.RodNum;
+            }
+
+            for (int j = 1; j <= rodNum; j++)
+            {
+                ch12List.Add((j, 0.0));
+            }
+
+            for (int j = Cache.CgFFBoxEndNumber2Ch2; j >= 1; j--)
+            {
+                ch12List[j - 1] = (j, 0.99);
+                for (int k = j + 1; k <= rodNum; k++)
+                {
+                    ch12List[k - 1] = (k, 0.0);
+                }
+
+                {
+                    var result = FourierViewModel.FF_Move_CH12(FFCH.Ch2, ch12List);
+                    if (result)
+                    {
+                        //await Task.Delay(2000).ConfigureAwait(false);
+                        var ret = FourierViewModel.GetFFReviewImgForTrigger(1, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+                        {
+                            using var bitmap = BytesToBitmapImage(ret);
+
+                            var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh2Position.X, (int)PupilCameraAlignmentValue.RectCh2Position.Y, PupilCameraAlignmentValue.Ch2ImageWidth, PupilCameraAlignmentValue.Ch2ImageHeight);
+                            Cache.BitmapImageDrawableCh2.BitmapImage = croppedImage.ToBitmapImage();
+                        }
+                    }
+                }
+
+                DialogWindowProvider.TryShowDialog("Yes: This rod is end number? No: We will move the previous rod", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
+                if (dialogResult == DialogResultEnum.Yes)
+                {
+                    Cache.CgFFBoxEndNumber2Ch2 = j;
+                    break;
+                }
+            }
+        }).ConfigureAwait(false);
+    }
+
+    private HImage GetPictureRegion(HImage originImage, int startX, int startY, int width, int height)
     {
         // 3. 【关键】使用 CropPart 进行真实裁剪 // 参数: 原图, 起始列(Column), 起始行(Row), 宽度, 高度     
-        using var hImage = originImage.ToHImage();
+        using var hImage = originImage;
         using var cropHImage = hImage.CropPart(startY, startX, width, height);
-        return cropHImage.ToBitmapImage();
+        return cropHImage;
     }
 
-    private bool Save(PupilSideChannelFlexibleApertureDTO itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private void Save(PupilSideChannelFlexibleApertureDTO itemDto, CancellationToken cancellationToken)
     {
-        update(itemDto);
-        update(Cache);
+        InvokeSave(update =>
+        {
+            update(itemDto);
+            update(Cache);
 
-        Calibration = itemDto.Clone();
+            Calibration = itemDto.Clone();
 
-        CacheProvider.Set(Calibration, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    });
+            CacheProvider.Set(Calibration, cancellationToken);
+            RecipeCacheProvider.Set(Cache, cancellationToken);
+        });
+    }
 
     public static BitmapImage BytesToBitmapImage(byte[] bytes)
     {
-        if (bytes == null || bytes.Length == 0)
-            return null;
+        if (bytes.Length == 0)
+            return null!;
         // Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage
         // 使用接受字节数组的构造函数（反编译源码显示有此构造函数）
         return new BitmapImage(bytes, isCopy: true);
     }
 
-    private List<int> ParseIntNumbers(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-            return new List<int>();
-
-        var separators = new char[] { ',', '，', ';', '；', ' ', '\t', '\r', '\n' };
-        var parts = input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-
-        var numbers = new List<int>();
-        foreach (var part in parts)
-        {
-            if (int.TryParse(part.Trim(), out int value))
-            {
-                numbers.Add(value);
-            }
-        }
-
-        return numbers;
-    }
-
     // 3. 解析方法：从字符串提取所有 double
-    private List<double> ParseDoubleNumbers(string input)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-            return new List<double>();
-
-        // 支持多种分隔符：逗号、分号、空格、制表符等
-        var separators = new char[] { ',', '，', ';', '；', ' ', '\t', '\r', '\n' };
-        var parts = input.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-
-        var numbers = new List<double>();
-        foreach (var part in parts)
-        {
-            // 使用 InvariantCulture 避免区域设置问题（如 3,14 被当作千位分隔）
-            if (double.TryParse(part.Trim(),
-                    System.Globalization.NumberStyles.Float,
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    out double value))
-            {
-                numbers.Add(value);
-            }
-        }
-
-        return numbers;
-    }
 
     private void InitRodState()
     {
@@ -2070,7 +1920,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     }
 
     [RelayCommand]
-    private void RefreshOddFirstCH1()
+    private void RefreshOddFirstCh1()
     {
         CurrentImageAxis.Clear();
         for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
@@ -2088,10 +1938,11 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             CurrentImageRectOddFirstCh1.Add(rect);
         }
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
-    private void RefreshOddSecondCH1()
+    private void RefreshOddSecondCh1()
     {
         CurrentImageAxis.Clear();
         for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
@@ -2109,10 +1960,11 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             CurrentImageRectOddSecondCh1.Add(rect);
         }
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
-    private void RefreshEvenFirstCH1()
+    private void RefreshEvenFirstCh1()
     {
         CurrentImageAxis.Clear();
         for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
@@ -2130,10 +1982,11 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             CurrentImageRectEvenFirstCh1.Add(rect);
         }
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
-    private void RefreshEvenSecondCH1()
+    private void RefreshEvenSecondCh1()
     {
         CurrentImageAxis.Clear();
         for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
@@ -2151,10 +2004,11 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             CurrentImageRectEvenSecondCh1.Add(rect);
         }
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
-    private void RefreshOddFirstCH2()
+    private void RefreshOddFirstCh2()
     {
         CurrentImageAxis.Clear();
         for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
@@ -2172,10 +2026,11 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             CurrentImageRectOddFirstCh2.Add(rect);
         }
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
-    private void RefreshOddSecondCH2()
+    private void RefreshOddSecondCh2()
     {
         CurrentImageAxis.Clear();
         for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
@@ -2193,10 +2048,11 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             CurrentImageRectOddSecondCh2.Add(rect);
         }
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
-    private void RefreshEvenFirstCH2()
+    private void RefreshEvenFirstCh2()
     {
         CurrentImageAxis.Clear();
         for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
@@ -2214,10 +2070,11 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             CurrentImageRectEvenFirstCh2.Add(rect);
         }
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
-    private void RefreshEvenSecondCH2()
+    private void RefreshEvenSecondCh2()
     {
         CurrentImageAxis.Clear();
         for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
@@ -2235,17 +2092,20 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
 
             CurrentImageRectEvenSecondCh2.Add(rect);
         }
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     private void ComputeAllRodsCh1()
     {
         // ===== 1. 计算奇数平均值 =====
-        double avgOddW = CurrentImageRectOddFirstCh1.Any() ? CurrentImageRectOddFirstCh1.Zip(CurrentImageRectOddFirstCh1.Skip(1), (r1, r2) => Math.Abs(r2.X - r1.X)).Average() : 20.0;
+        double avgOddS = CurrentImageRectOddFirstCh1.Any() ? CurrentImageRectOddFirstCh1.Zip(CurrentImageRectOddFirstCh1.Skip(1), (r1, r2) => Math.Abs(r2.X - r1.X)).Average() : 20.0;
+        double avgOddW = CurrentImageRectOddFirstCh1.Any() ? CurrentImageRectOddFirstCh1.Average(r => r.Width) : 80.0;
         double avgOddH = CurrentImageRectOddFirstCh1.Any() ? CurrentImageRectOddFirstCh1.Average(r => r.Height) : 80.0;
         double avgOddY = CurrentImageRectOddFirstCh1.Any() ? CurrentImageRectOddFirstCh1.Average(r => r.Y) : 100.0;
 
         // ===== 2. 计算偶数平均值 =====
-        double avgEvenW = CurrentImageRectEvenFirstCh1.Any() ? CurrentImageRectEvenFirstCh1.Zip(CurrentImageRectEvenFirstCh1.Skip(1), (r1, r2) => Math.Abs(r2.X - r1.X)).Average() : 20.0;
+        double avgEvenS = CurrentImageRectEvenFirstCh1.Any() ? CurrentImageRectEvenFirstCh1.Zip(CurrentImageRectEvenFirstCh1.Skip(1), (r1, r2) => Math.Abs(r2.X - r1.X)).Average() : 20.0;
+        double avgEvenW = CurrentImageRectEvenFirstCh1.Any() ? CurrentImageRectEvenFirstCh1.Average(r => r.Width) : 80.0;
         double avgEvenH = CurrentImageRectEvenFirstCh1.Any() ? CurrentImageRectEvenFirstCh1.Average(r => r.Height) : 80.0;
         double avgEvenY = CurrentImageRectEvenFirstCh1.Any() ? CurrentImageRectEvenFirstCh1.Average(r => r.Y) : 200.0;
 
@@ -2294,20 +2154,20 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             // 向左填充（编号更小的奇数）
             for (int i = firstKnownIndex - 1; i >= 0; i--)
             {
-                oddXList[i] = oddXList[i + 1] - (avgOddW + 5);
+                oddXList[i] = oddXList[i + 1] - (avgOddS + 5);
             }
 
             // 向右填充（编号更大的奇数）
             for (int i = lastKnownIndex + 1; i < allOddIds.Count; i++)
             {
-                oddXList[i] = oddXList[i - 1] + (avgOddW + 5);
+                oddXList[i] = oddXList[i - 1] + (avgOddS + 5);
             }
         }
         else
         {
             // 无任何奇数数据：从 X=0 开始排
             for (int i = 0; i < allOddIds.Count; i++)
-                oddXList[i] = i * (avgOddW + 5);
+                oddXList[i] = i * (avgOddS + 5);
         }
 
         // ===== 7. 为偶数生成完整 X 坐标（同理）=====
@@ -2327,15 +2187,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             }
 
             for (int i = firstKnownIndex - 1; i >= 0; i--)
-                evenXList[i] = evenXList[i + 1] - (avgEvenW + 5);
+                evenXList[i] = evenXList[i + 1] - (avgEvenS + 5);
 
             for (int i = lastKnownIndex + 1; i < allEvenIds.Count; i++)
-                evenXList[i] = evenXList[i - 1] + (avgEvenW + 5);
+                evenXList[i] = evenXList[i - 1] + (avgEvenS + 5);
         }
         else
         {
             for (int i = 0; i < allEvenIds.Count; i++)
-                evenXList[i] = i * (avgEvenW + 5);
+                evenXList[i] = i * (avgEvenS + 5);
         }
 
         // ===== 8. 构造 1~46 完整 Rect 列表 =====
@@ -2371,12 +2231,14 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
     private void ComputeAllRodsCh2()
     {
         // ===== 1. 计算奇数平均值 =====
-        double avgOddW = CurrentImageRectOddFirstCh2.Any() ? CurrentImageRectOddFirstCh2.Zip(CurrentImageRectOddFirstCh2.Skip(1), (r1, r2) => Math.Abs(r2.X - r1.X)).Average() : 20.0;
+        double avgOddS = CurrentImageRectOddFirstCh2.Any() ? CurrentImageRectOddFirstCh2.Zip(CurrentImageRectOddFirstCh2.Skip(1), (r1, r2) => Math.Abs(r2.X - r1.X)).Average() : 20.0;
+        double avgOddW = CurrentImageRectOddFirstCh2.Any() ? CurrentImageRectOddFirstCh2.Average(r => r.Width) : 80.0;
         double avgOddH = CurrentImageRectOddFirstCh2.Any() ? CurrentImageRectOddFirstCh2.Average(r => r.Height) : 80.0;
         double avgOddY = CurrentImageRectOddFirstCh2.Any() ? CurrentImageRectOddFirstCh2.Average(r => r.Y) : 100.0;
 
         // ===== 2. 计算偶数平均值 =====
-        double avgEvenW = CurrentImageRectEvenFirstCh2.Any() ? CurrentImageRectEvenFirstCh2.Zip(CurrentImageRectEvenFirstCh2.Skip(1), (r1, r2) => Math.Abs(r2.X - r1.X)).Average() : 20.0;
+        double avgEvenS = CurrentImageRectEvenFirstCh2.Any() ? CurrentImageRectEvenFirstCh2.Zip(CurrentImageRectEvenFirstCh2.Skip(1), (r1, r2) => Math.Abs(r2.X - r1.X)).Average() : 20.0;
+        double avgEvenW = CurrentImageRectEvenFirstCh2.Any() ? CurrentImageRectEvenFirstCh2.Average(r => r.Width) : 80.0;
         double avgEvenH = CurrentImageRectEvenFirstCh2.Any() ? CurrentImageRectEvenFirstCh2.Average(r => r.Height) : 80.0;
         double avgEvenY = CurrentImageRectEvenFirstCh2.Any() ? CurrentImageRectEvenFirstCh2.Average(r => r.Y) : 200.0;
 
@@ -2424,20 +2286,20 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             // 向左填充（编号更小的奇数）
             for (int i = firstKnownIndex - 1; i >= 0; i--)
             {
-                oddXList[i] = oddXList[i + 1] - (avgOddW + 5);
+                oddXList[i] = oddXList[i + 1] - (avgOddS + 5);
             }
 
             // 向右填充（编号更大的奇数）
             for (int i = lastKnownIndex + 1; i < allOddIds.Count; i++)
             {
-                oddXList[i] = oddXList[i - 1] + (avgOddW + 5);
+                oddXList[i] = oddXList[i - 1] + (avgOddS + 5);
             }
         }
         else
         {
             // 无任何奇数数据：从 X=0 开始排
             for (int i = 0; i < allOddIds.Count; i++)
-                oddXList[i] = i * (avgOddW + 5);
+                oddXList[i] = i * (avgOddS + 5);
         }
 
         // ===== 7. 为偶数生成完整 X 坐标（同理）=====
@@ -2457,15 +2319,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
             }
 
             for (int i = firstKnownIndex - 1; i >= 0; i--)
-                evenXList[i] = evenXList[i + 1] - (avgEvenW + 5);
+                evenXList[i] = evenXList[i + 1] - (avgEvenS + 5);
 
             for (int i = lastKnownIndex + 1; i < allEvenIds.Count; i++)
-                evenXList[i] = evenXList[i - 1] + (avgEvenW + 5);
+                evenXList[i] = evenXList[i - 1] + (avgEvenS + 5);
         }
         else
         {
             for (int i = 0; i < allEvenIds.Count; i++)
-                evenXList[i] = i * (avgEvenW + 5);
+                evenXList[i] = i * (avgEvenS + 5);
         }
 
         // ===== 8. 构造 1~46 完整 Rect 列表 =====
@@ -2497,6 +2359,27 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel(ICalibrati
         // ===== 9. 转为 ObservableCollection =====
         Cache.CurrentImageRectListFirstCh2 = new ObservableCollection<Rect>(fullList);
     }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
+    {
+        await InvokeVerifyAsync(() =>
+        {
+            Review = Calibration.Clone();
+
+            Logger.LogHtmlInformation("Verify:OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("No need param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            DialogWindowProvider.ShowDialog("Verify Success!");
+            Review.IsVerified = true;
+            Save(Review, cancellationToken);
+            return true;
+        }).ConfigureAwait(false);
+    }
 }
 
 public partial class RodInformation : ObservableObject
@@ -2515,7 +2398,7 @@ public partial class RodInformation : ObservableObject
     }
 
     [ObservableProperty]
-    private string _number;
+    private string _number=string.Empty;
 
     [ObservableProperty]
     private double _percent;

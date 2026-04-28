@@ -8,7 +8,7 @@ using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
 using Point = Net.Utilities.Models.Geometries.Point;
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 [CacheVersion("1.0.0")]
 public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationDtoBase, ICloneable<PupilCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>
@@ -20,13 +20,13 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
     public ObservableCollection<double> _cgFFBoxTurnXWidthCh3 = new ObservableCollection<double>();
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnXMotorRelationCH3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnXMotorRelationCh3 = new ObservableCollection<double>();
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnXMotorPositionCH3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnXMotorPositionCh3 = new ObservableCollection<double>();
 
     [ObservableProperty]
-    public ObservableCollection<Rect> _cgFFBoxTurnXRectPositionCH3 = new ObservableCollection<Rect>();
+    public ObservableCollection<Rect> _cgFFBoxTurnXRectPositionCh3 = new ObservableCollection<Rect>();
 
     [ObservableProperty]
     public Point _cgFFBoxTurnXLightHoleCircleCenterCh3 = new Point();
@@ -41,13 +41,13 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
     public ObservableCollection<double> _cgFFBoxTurnYWidthCh3 = new ObservableCollection<double>();
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnYMotorRelationCH3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnYMotorRelationCh3 = new ObservableCollection<double>();
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnYMotorPositionCH3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnYMotorPositionCh3 = new ObservableCollection<double>();
 
     [ObservableProperty]
-    public ObservableCollection<Rect> _cgFFBoxTurnYRectPositionCH3 = new ObservableCollection<Rect>();
+    public ObservableCollection<Rect> _cgFFBoxTurnYRectPositionCh3 = new ObservableCollection<Rect>();
 
     [ObservableProperty]
     public Point _cgFFBoxTurnYLightHoleCircleCenterCh3 = new Point();
@@ -59,13 +59,13 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
     public double _cgFFBoxPushXWidthCh3 = 0;
 
     [ObservableProperty]
-    public double _cgFFBoxPushXMotorRelationCH3 = 0;
+    public double _cgFFBoxPushXMotorRelationCh3 = 0;
 
     [ObservableProperty]
-    public double _cgFFBoxPushXMotorPositionCH3 = 0;
+    public double _cgFFBoxPushXMotorPositionCh3 = 0;
 
     [ObservableProperty]
-    public Rect _cgFFBoxPushXRectPositionCH3 = new Rect();
+    public Rect _cgFFBoxPushXRectPositionCh3 = new Rect();       
 
     #region Mapper
 
@@ -75,23 +75,23 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
         {
             CgFFBoxTurnXAngleCh3 = CgFFBoxTurnXAngleCh3,
             CgFFBoxTurnXWidthCh3 = CgFFBoxTurnXWidthCh3,
-            CgFFBoxTurnXMotorRelationCH3 = CgFFBoxTurnXMotorRelationCH3,
-            CgFFBoxTurnXMotorPositionCH3 = CgFFBoxTurnXMotorPositionCH3,
-            CgFFBoxTurnXRectPositionCH3 = CgFFBoxTurnXRectPositionCH3,
+            CgFFBoxTurnXMotorRelationCh3 = CgFFBoxTurnXMotorRelationCh3,
+            CgFFBoxTurnXMotorPositionCh3 = CgFFBoxTurnXMotorPositionCh3,
+            CgFFBoxTurnXRectPositionCh3 = CgFFBoxTurnXRectPositionCh3,
             CgFFBoxTurnXLightHoleCircleCenterCh3 = CgFFBoxTurnXLightHoleCircleCenterCh3,
             CgFFBoxTurnXLightHoleCircleRadiusCh3 = CgFFBoxTurnXLightHoleCircleRadiusCh3,
             CgFFBoxTurnYAngleCh3 = CgFFBoxTurnYAngleCh3,
             CgFFBoxTurnYWidthCh3 = CgFFBoxTurnYWidthCh3,
-            CgFFBoxTurnYMotorRelationCH3 = CgFFBoxTurnYMotorRelationCH3,
-            CgFFBoxTurnYMotorPositionCH3 = CgFFBoxTurnYMotorPositionCH3,
-            CgFFBoxTurnYRectPositionCH3 = CgFFBoxTurnYRectPositionCH3,
+            CgFFBoxTurnYMotorRelationCh3 = CgFFBoxTurnYMotorRelationCh3,
+            CgFFBoxTurnYMotorPositionCh3 = CgFFBoxTurnYMotorPositionCh3,
+            CgFFBoxTurnYRectPositionCh3 = CgFFBoxTurnYRectPositionCh3,
             CgFFBoxTurnYLightHoleCircleCenterCh3 = CgFFBoxTurnYLightHoleCircleCenterCh3,
             CgFFBoxTurnYLightHoleCircleRadiusCh3 = CgFFBoxTurnYLightHoleCircleRadiusCh3,
 
             CgFFBoxPushXWidthCh3 = CgFFBoxPushXWidthCh3,
-            CgFFBoxPushXMotorRelationCH3 = CgFFBoxPushXMotorRelationCH3,
-            CgFFBoxPushXMotorPositionCH3 = CgFFBoxPushXMotorPositionCH3,
-            CgFFBoxPushXRectPositionCH3 = CgFFBoxPushXRectPositionCH3,
+            CgFFBoxPushXMotorRelationCh3 = CgFFBoxPushXMotorRelationCh3,
+            CgFFBoxPushXMotorPositionCh3 = CgFFBoxPushXMotorPositionCh3,
+            CgFFBoxPushXRectPositionCh3 = CgFFBoxPushXRectPositionCh3,
 
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
@@ -105,23 +105,23 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
     {
         CgFFBoxTurnXAngleCh3 = CgFFBoxTurnXAngleCh3.ToList(),
         CgFFBoxTurnXWidthCh3 = CgFFBoxTurnXWidthCh3.ToList(),
-        CgFFBoxTurnXMotorRelationCH3 = CgFFBoxTurnXMotorRelationCH3.ToList(),
-        CgFFBoxTurnXMotorPositionCH3 = CgFFBoxTurnXMotorPositionCH3.ToList(),
-        CgFFBoxTurnXRectPositionCH3 = CgFFBoxTurnXRectPositionCH3.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
+        CgFFBoxTurnXMotorRelationCh3 = CgFFBoxTurnXMotorRelationCh3.ToList(),
+        CgFFBoxTurnXMotorPositionCh3 = CgFFBoxTurnXMotorPositionCh3.ToList(),
+        CgFFBoxTurnXRectPositionCh3 = CgFFBoxTurnXRectPositionCh3.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
         CgFFBoxTurnXLightHoleCircleCenterCh3 = new CgPoint((int)Math.Round(CgFFBoxTurnXLightHoleCircleCenterCh3.X), (int)Math.Round(CgFFBoxTurnXLightHoleCircleCenterCh3.Y)),
         CgFFBoxTurnXLightHoleCircleRadiusCh3 = CgFFBoxTurnXLightHoleCircleRadiusCh3,
         CgFFBoxTurnYAngleCh3 = CgFFBoxTurnYAngleCh3.ToList(),
         CgFFBoxTurnYWidthCh3 = CgFFBoxTurnYWidthCh3.ToList(),
-        CgFFBoxTurnYMotorRelationCH3 = CgFFBoxTurnYMotorRelationCH3.ToList(),
-        CgFFBoxTurnYMotorPositionCH3 = CgFFBoxTurnYMotorPositionCH3.ToList(),
-        CgFFBoxTurnYRectPositionCH3 = CgFFBoxTurnYRectPositionCH3.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
+        CgFFBoxTurnYMotorRelationCh3 = CgFFBoxTurnYMotorRelationCh3.ToList(),
+        CgFFBoxTurnYMotorPositionCh3 = CgFFBoxTurnYMotorPositionCh3.ToList(),
+        CgFFBoxTurnYRectPositionCh3 = CgFFBoxTurnYRectPositionCh3.Select(r => new RectD((int)r.X, (int)r.Y, (int)r.Width, (int)r.Height)).ToList(),
         CgFFBoxTurnYLightHoleCircleCenterCh3 = new CgPoint((int)Math.Round(CgFFBoxTurnYLightHoleCircleCenterCh3.X), (int)Math.Round(CgFFBoxTurnYLightHoleCircleCenterCh3.Y)),
         CgFFBoxTurnYLightHoleCircleRadiusCh3 = CgFFBoxTurnYLightHoleCircleRadiusCh3,
 
         CgFFBoxPushXWidthCh3 = CgFFBoxPushXWidthCh3,
-        CgFFBoxPushXMotorRelationCH3 = CgFFBoxPushXMotorRelationCH3,
-        CgFFBoxPushXMotorPositionCH3 = CgFFBoxPushXMotorPositionCH3,
-        CgFFBoxPushXRectPositionCH3 = new RectD((int)Math.Round(CgFFBoxPushXRectPositionCH3.X), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Y), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Width), (int)Math.Round(CgFFBoxPushXRectPositionCH3.Height)),
+        CgFFBoxPushXMotorRelationCh3 = CgFFBoxPushXMotorRelationCh3,
+        CgFFBoxPushXMotorPositionCh3 = CgFFBoxPushXMotorPositionCh3,
+        CgFFBoxPushXRectPositionCh3 = new RectD((int)Math.Round(CgFFBoxPushXRectPositionCh3.X), (int)Math.Round(CgFFBoxPushXRectPositionCh3.Y), (int)Math.Round(CgFFBoxPushXRectPositionCh3.Width), (int)Math.Round(CgFFBoxPushXRectPositionCh3.Height)),
 
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

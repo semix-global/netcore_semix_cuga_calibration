@@ -5,7 +5,7 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.CameraAlignment;
 
 [CacheVersion("1.0.0")]
 public sealed partial class PupilCameraAlignmentDTO : CalibrationDtoBase, ICloneable<PupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>

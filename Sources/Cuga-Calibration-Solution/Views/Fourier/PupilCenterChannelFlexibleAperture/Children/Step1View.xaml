@@ -25,8 +25,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <RichTextBox Grid.Row="1"
-                                 Margin="5"
+                    <RichTextBox Margin="5"
                                  Padding="5"
                                  FontSize="14"
                                  IsReadOnly="True"
@@ -114,8 +113,12 @@
                                           Increment="0.1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Ch3TurnX, StringFormat={}{0:f1}}" />
-                        <Button Content="Get Image Degree" Command="{Binding GetImageDegree11Command}" />
-                        <Button Content="Get Image TurnX" Command="{Binding GetImageTurn_X11Command}" />
+                        <Button Content="Get Image Degree"
+                                Command="{Binding GetImageDegree11Command}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
+                        <Button Content="Get Image TurnX"
+                                Command="{Binding GetImageTurn_X11Command}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
                     </hc:UniformSpacingPanel>
                 </hc:SimplePanel>
             </Border>
@@ -160,7 +163,9 @@
                                           Increment="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Ch3Angle60}" />
-                        <Button Content="Get LightHole Image" Command="{Binding GetLightHoleImage1Command}" />
+                        <Button Content="Get LightHole Image"
+                                Command="{Binding GetLightHoleImage1Command}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
                         <TextBox Text="{Binding CirclePointX[0], Converter={StaticResource PointToStringConverter}}"
                                  Width="185"
                                  hc:InfoElement.Title="Point1: "

@@ -30,6 +30,11 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Fourier.CameraAlignment;
+using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
+using Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
+using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
+using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -54,6 +59,7 @@ using CugaCalibration.ViewModels.Common.Windows.Management.Recipe.Management;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.View;
+using CugaCalibration.ViewModels.Flourier;
 using CugaCalibration.ViewModels.Laser;
 using CugaCalibration.ViewModels.Microscope;
 using CugaCalibration.ViewModels.Optics;
@@ -520,6 +526,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
 
                 calibrationItem = _applicationCookieService.FindCalibrationItem<AutoFocusCalChipFocusOffsetViewModel>();
                 if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AutoFocusCalChipFocusOffsetDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCameraAlignmentViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilCameraAlignmentDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilSideChannelFlexibleApertureViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilSideChannelFlexibleApertureDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilSideChannelSpecularBlockerViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<PupilSideChannelSpecularBlockerDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCenterChannelFlexibleApertureViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilCenterChannelFlexibleApertureDTO>().IsOk(out _);
+
+                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCenterChannelSpecularBlockerViewModel>();
+                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<PupilCenterChannelSpecularBlockerDTO>().IsOk(out _);
             }
             catch (Exception ex)
             {

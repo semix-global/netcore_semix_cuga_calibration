@@ -25,8 +25,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <RichTextBox Grid.Row="1"
-                                 Margin="5"
+                    <RichTextBox Margin="5"
                                  Padding="5"
                                  FontSize="14"
                                  IsReadOnly="True"
@@ -96,7 +95,9 @@
                                           Increment="0.1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Ch3Push, StringFormat={}{0:f1}}" />
-                        <Button Content="Get Image Push X" Command="{Binding GetImagePush_X31Command}" />
+                        <Button Content="Get Image Push X"
+                                Command="{Binding GetImagePush_X31Command}"
+                                Style="{StaticResource ButtonPrimary.Loading}" />
                     </hc:UniformSpacingPanel>
                 </hc:SimplePanel>
             </Border>

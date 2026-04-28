@@ -1,24 +1,27 @@
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Windows;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Common.Fourier;
-using Core.Models.Models.Fourier;
+using Core.Models.Models.Fourier.CameraAlignment;
+using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Setting;
-using Core.Services.Interfaces;
-using Core.Utilities;
+using HalconDotNet;
+using HAlgorithm;
+using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Windows;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 using Size = Net.Utilities.Models.Geometries.Size;
@@ -26,11 +29,7 @@ using Size = Net.Utilities.Models.Geometries.Size;
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilCenterChannelFlexibleApertureViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    CalibrationSetting calibrationSetting,
-    ICalibrationFourierService calibrationFlourierService,
-    ICalibrationLaserService calibrationLaserService) : CalibrationViewModelBase
+public sealed partial class PupilCenterChannelFlexibleApertureViewModel : CalibrationViewModelBase
 {
     #region 界面相关
 
@@ -41,16 +40,16 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private Point[] _circlePointY = new Point[4];
 
     [ObservableProperty]
-    private Point _resultPointX = new Point();
+    private Point _resultPointX;
 
     [ObservableProperty]
-    private Point _resultPointY = new Point();
+    private Point _resultPointY;
 
     [ObservableProperty]
-    private float _resultRadiusX = 0;
+    private float _resultRadiusX;
 
     [ObservableProperty]
-    private float _resultRadiusY = 0;
+    private float _resultRadiusY;
 
     public enum PositionShowType
     {
@@ -58,15 +57,15 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         Position2Angle180,
         Position3Angle240,
         Position4Angle300
-    };
+    }
 
     public enum ChartShowType
     {
-        ID_0_Style,
-        ID_1_Style,
-        ID_3_Style,
-        ID_4_Style
-    };
+        Id0Style,
+        Id1Style,
+        Id3Style,
+        Id4Style
+    }
 
     [ObservableProperty]
     private int _rodWidth = 100;
@@ -93,10 +92,10 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private float _ch3Push = 2.0f;
 
     [ObservableProperty]
-    private int[] _rodHeightHorizal1 = new int[4] { 100, 100, 100, 100 };
+    private int[] _rodHeightHorizal1 = [100, 100, 100, 100];
 
     [ObservableProperty]
-    private int[] _rodHeightHorizal2 = new int[4] { 100, 100, 100, 100 };
+    private int[] _rodHeightHorizal2 = [100, 100, 100, 100];
 
     [ObservableProperty]
     private Rect[] _rodRectHorizal1 = new Rect[4];
@@ -105,10 +104,10 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private Rect[] _rodRectHorizal2 = new Rect[4];
 
     [ObservableProperty]
-    private int[] _rodWidthVertical1 = new int[4] { 100, 100, 100, 100 };
+    private int[] _rodWidthVertical1 = [100, 100, 100, 100];
 
     [ObservableProperty]
-    private int[] _rodWidthVertical2 = new int[4] { 100, 100, 100, 100 };
+    private int[] _rodWidthVertical2 = [100, 100, 100, 100];
 
     [ObservableProperty]
     private Rect[] _rodRectVertical1 = new Rect[4];
@@ -117,19 +116,19 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private Rect[] _rodRectVertical2 = new Rect[4];
 
     [ObservableProperty]
-    private int _rodWidthHeight = 0;
+    private int _rodWidthHeight;
 
     [ObservableProperty]
-    private int _pushWidthVertical1 = 0;
+    private int _pushWidthVertical1;
 
     [ObservableProperty]
-    private int _pushWidthVertical2 = 0;
+    private int _pushWidthVertical2;
 
     [ObservableProperty]
-    private Rect _pushRectVertical1 = new();
+    private Rect _pushRectVertical1;
 
     [ObservableProperty]
-    private Rect _pushRectVertical2 = new();
+    private Rect _pushRectVertical2;
 
     public ChartShowType[] Ch3ShowTypeValues => Enum.GetValues(typeof(ChartShowType)).Cast<ChartShowType>().ToArray();
 
@@ -142,7 +141,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     private PositionShowType _selectedCh3PositionType = (PositionShowType)(-1);
 
     [ObservableProperty]
-    private Point _sxPos = new();
+    private Point _sxPos;
 
     public override List<CalibrationItemStep> CalibrationStepList { get; } =
     [
@@ -171,6 +170,9 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     [ObservableProperty]
     private PupilCenterChannelFlexibleApertureDTO _calibration = new();
 
+    [ObservableProperty]
+    private PupilCenterChannelFlexibleApertureDTO _review = new();
+
     #endregion 缓存
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
@@ -185,7 +187,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilCenterChannelFlexibleApertureCache>();
         Calibration = CacheProvider.GetOrDefault<PupilCenterChannelFlexibleApertureDTO>();
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        if (!isHasCache) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         Cache.OriginImageFilePathList12 = new ObservableCollection<string>(Enumerable.Repeat("123", 8));
         Cache.OriginImageFilePathList22 = new ObservableCollection<string>(Enumerable.Repeat("123", 8));
@@ -213,20 +215,20 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         ResultDto.CgFFBoxTurnXWidthCh3.Add(2);
         ResultDto.CgFFBoxTurnXWidthCh3.Add(3);
 
-        ResultDto.CgFFBoxTurnXMotorRelationCH3.Add(1);
-        ResultDto.CgFFBoxTurnXMotorRelationCH3.Add(3);
-        ResultDto.CgFFBoxTurnXMotorRelationCH3.Add(5);
-        ResultDto.CgFFBoxTurnXMotorRelationCH3.Add(7);
+        ResultDto.CgFFBoxTurnXMotorRelationCh3.Add(1);
+        ResultDto.CgFFBoxTurnXMotorRelationCh3.Add(3);
+        ResultDto.CgFFBoxTurnXMotorRelationCh3.Add(5);
+        ResultDto.CgFFBoxTurnXMotorRelationCh3.Add(7);
 
-        ResultDto.CgFFBoxTurnXMotorPositionCH3.Add(0);
-        ResultDto.CgFFBoxTurnXMotorPositionCH3.Add(2);
-        ResultDto.CgFFBoxTurnXMotorPositionCH3.Add(4);
-        ResultDto.CgFFBoxTurnXMotorPositionCH3.Add(6);
+        ResultDto.CgFFBoxTurnXMotorPositionCh3.Add(0);
+        ResultDto.CgFFBoxTurnXMotorPositionCh3.Add(2);
+        ResultDto.CgFFBoxTurnXMotorPositionCh3.Add(4);
+        ResultDto.CgFFBoxTurnXMotorPositionCh3.Add(6);
 
-        ResultDto.CgFFBoxTurnXRectPositionCH3.Add(new Rect());
-        ResultDto.CgFFBoxTurnXRectPositionCH3.Add(new Rect());
-        ResultDto.CgFFBoxTurnXRectPositionCH3.Add(new Rect());
-        ResultDto.CgFFBoxTurnXRectPositionCH3.Add(new Rect());
+        ResultDto.CgFFBoxTurnXRectPositionCh3.Add(new Rect());
+        ResultDto.CgFFBoxTurnXRectPositionCh3.Add(new Rect());
+        ResultDto.CgFFBoxTurnXRectPositionCh3.Add(new Rect());
+        ResultDto.CgFFBoxTurnXRectPositionCh3.Add(new Rect());
 
         ResultDto.CgFFBoxTurnYAngleCh3.Add(0);
         ResultDto.CgFFBoxTurnYAngleCh3.Add(1);
@@ -238,20 +240,20 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         ResultDto.CgFFBoxTurnYWidthCh3.Add(2);
         ResultDto.CgFFBoxTurnYWidthCh3.Add(3);
 
-        ResultDto.CgFFBoxTurnYMotorRelationCH3.Add(1);
-        ResultDto.CgFFBoxTurnYMotorRelationCH3.Add(3);
-        ResultDto.CgFFBoxTurnYMotorRelationCH3.Add(5);
-        ResultDto.CgFFBoxTurnYMotorRelationCH3.Add(7);
+        ResultDto.CgFFBoxTurnYMotorRelationCh3.Add(1);
+        ResultDto.CgFFBoxTurnYMotorRelationCh3.Add(3);
+        ResultDto.CgFFBoxTurnYMotorRelationCh3.Add(5);
+        ResultDto.CgFFBoxTurnYMotorRelationCh3.Add(7);
 
-        ResultDto.CgFFBoxTurnYMotorPositionCH3.Add(0);
-        ResultDto.CgFFBoxTurnYMotorPositionCH3.Add(2);
-        ResultDto.CgFFBoxTurnYMotorPositionCH3.Add(4);
-        ResultDto.CgFFBoxTurnYMotorPositionCH3.Add(6);
+        ResultDto.CgFFBoxTurnYMotorPositionCh3.Add(0);
+        ResultDto.CgFFBoxTurnYMotorPositionCh3.Add(2);
+        ResultDto.CgFFBoxTurnYMotorPositionCh3.Add(4);
+        ResultDto.CgFFBoxTurnYMotorPositionCh3.Add(6);
 
-        ResultDto.CgFFBoxTurnYRectPositionCH3.Add(new Rect());
-        ResultDto.CgFFBoxTurnYRectPositionCH3.Add(new Rect());
-        ResultDto.CgFFBoxTurnYRectPositionCH3.Add(new Rect());
-        ResultDto.CgFFBoxTurnYRectPositionCH3.Add(new Rect());
+        ResultDto.CgFFBoxTurnYRectPositionCh3.Add(new Rect());
+        ResultDto.CgFFBoxTurnYRectPositionCh3.Add(new Rect());
+        ResultDto.CgFFBoxTurnYRectPositionCh3.Add(new Rect());
+        ResultDto.CgFFBoxTurnYRectPositionCh3.Add(new Rect());
 
         return true;
     }
@@ -288,7 +290,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 return true;
 
             case 3:
-
+                ResultDto.IsCalibrated = true;  
                 Save(ResultDto, cancellationToken);
                 IsCalibrated = true;
 
@@ -307,20 +309,23 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
-        calibrationFlourierService.SetFFHome(FFCH.Ch1);
-        calibrationFlourierService.SetFFHome(FFCH.Ch2);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_X);
-        calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
+        FourierViewModel.SetFFHome(FFCH.Ch1);
+        FourierViewModel.SetFFHome(FFCH.Ch2);
+        FourierViewModel.SetFFHome(FFCH.Ch3_X);
+        FourierViewModel.SetFFHome(FFCH.Ch3_Y);
 
-        Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
-        AfViewModel.ToggleDarkFieldEnable(true);
+        //Cache.HazeWaferPosition = StageViewModel.GetBrightFieldStagePosition();
+        Cache.HazeWaferPosition = Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
+        Cache.HazeWaferPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition);
+
+        AfViewModel.ToggleDarkFieldEnable(true);    
         SxPos = new Point(Cache.HazeWaferPosition.X, Cache.HazeWaferPosition.Y);
 
         return InvokeCalibrateAsync(() =>
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                HazeWaferPosition = Cache.HazeWaferPosition
+                Cache.HazeWaferPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -341,20 +346,20 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
             ResultDto.CgFFBoxTurnXWidthCh3[2] = RodRectVertical1[2].Width;
             ResultDto.CgFFBoxTurnXWidthCh3[3] = RodRectVertical1[3].Width;
 
-            ResultDto.CgFFBoxTurnXMotorRelationCH3[0] = (Math.Abs(RodWidthVertical2[0] - RodWidthVertical1[0]) / Math.Abs(Cache.CgFFBoxWidthList1[0] - Cache.CgFFBoxWidthList1[1]));
-            ResultDto.CgFFBoxTurnXMotorRelationCH3[1] = (Math.Abs(RodWidthVertical2[1] - RodWidthVertical1[1]) / Math.Abs(Cache.CgFFBoxWidthList1[2] - Cache.CgFFBoxWidthList1[3]));
-            ResultDto.CgFFBoxTurnXMotorRelationCH3[2] = (Math.Abs(RodWidthVertical2[2] - RodWidthVertical1[2]) / Math.Abs(Cache.CgFFBoxWidthList1[4] - Cache.CgFFBoxWidthList1[5]));
-            ResultDto.CgFFBoxTurnXMotorRelationCH3[3] = (Math.Abs(RodWidthVertical2[3] - RodWidthVertical1[3]) / Math.Abs(Cache.CgFFBoxWidthList1[6] - Cache.CgFFBoxWidthList1[7]));
+            ResultDto.CgFFBoxTurnXMotorRelationCh3[0] = (Math.Abs(RodWidthVertical2[0] - RodWidthVertical1[0]) / Math.Abs(Cache.CgFFBoxWidthList1[0] - Cache.CgFFBoxWidthList1[1]));
+            ResultDto.CgFFBoxTurnXMotorRelationCh3[1] = (Math.Abs(RodWidthVertical2[1] - RodWidthVertical1[1]) / Math.Abs(Cache.CgFFBoxWidthList1[2] - Cache.CgFFBoxWidthList1[3]));
+            ResultDto.CgFFBoxTurnXMotorRelationCh3[2] = (Math.Abs(RodWidthVertical2[2] - RodWidthVertical1[2]) / Math.Abs(Cache.CgFFBoxWidthList1[4] - Cache.CgFFBoxWidthList1[5]));
+            ResultDto.CgFFBoxTurnXMotorRelationCh3[3] = (Math.Abs(RodWidthVertical2[3] - RodWidthVertical1[3]) / Math.Abs(Cache.CgFFBoxWidthList1[6] - Cache.CgFFBoxWidthList1[7]));
 
-            ResultDto.CgFFBoxTurnXMotorPositionCH3[0] = (Cache.CgFFBoxWidthList1[0]);
-            ResultDto.CgFFBoxTurnXMotorPositionCH3[1] = (Cache.CgFFBoxWidthList1[2]);
-            ResultDto.CgFFBoxTurnXMotorPositionCH3[2] = (Cache.CgFFBoxWidthList1[4]);
-            ResultDto.CgFFBoxTurnXMotorPositionCH3[3] = (Cache.CgFFBoxWidthList1[6]);
+            ResultDto.CgFFBoxTurnXMotorPositionCh3[0] = (Cache.CgFFBoxWidthList1[0]);
+            ResultDto.CgFFBoxTurnXMotorPositionCh3[1] = (Cache.CgFFBoxWidthList1[2]);
+            ResultDto.CgFFBoxTurnXMotorPositionCh3[2] = (Cache.CgFFBoxWidthList1[4]);
+            ResultDto.CgFFBoxTurnXMotorPositionCh3[3] = (Cache.CgFFBoxWidthList1[6]);
 
-            ResultDto.CgFFBoxTurnXRectPositionCH3[0] = (RodRectVertical1[0]);
-            ResultDto.CgFFBoxTurnXRectPositionCH3[1] = (RodRectVertical1[1]);
-            ResultDto.CgFFBoxTurnXRectPositionCH3[2] = (RodRectVertical1[2]);
-            ResultDto.CgFFBoxTurnXRectPositionCH3[3] = (RodRectVertical1[3]);
+            ResultDto.CgFFBoxTurnXRectPositionCh3[0] = (RodRectVertical1[0]);
+            ResultDto.CgFFBoxTurnXRectPositionCh3[1] = (RodRectVertical1[1]);
+            ResultDto.CgFFBoxTurnXRectPositionCh3[2] = (RodRectVertical1[2]);
+            ResultDto.CgFFBoxTurnXRectPositionCh3[3] = (RodRectVertical1[3]);
 
             ResultDto.CgFFBoxTurnXLightHoleCircleCenterCh3 = ResultPointX;
             ResultDto.CgFFBoxTurnXLightHoleCircleRadiusCh3 = ResultRadiusX;
@@ -497,11 +502,9 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 return true;
             });
         }
-        else
-        {
-            DialogWindowProvider.ShowDialog("Make sure you have open image of CH3 and save channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return Task.FromResult(false);
-        }
+
+        DialogWindowProvider.ShowDialog("Make sure you have open image of CH3 and save channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        return Task.FromResult(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -519,20 +522,20 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
             ResultDto.CgFFBoxTurnYWidthCh3[2] = RodRectHorizal1[2].Height;
             ResultDto.CgFFBoxTurnYWidthCh3[3] = RodRectHorizal1[3].Height;
 
-            ResultDto.CgFFBoxTurnYMotorRelationCH3[0] = (Math.Abs(RodHeightHorizal2[0] - RodHeightHorizal1[0]) / Math.Abs(Cache.CgFFBoxHeightList2[0] - Cache.CgFFBoxHeightList2[1]));
-            ResultDto.CgFFBoxTurnYMotorRelationCH3[1] = (Math.Abs(RodHeightHorizal2[1] - RodHeightHorizal1[1]) / Math.Abs(Cache.CgFFBoxHeightList2[2] - Cache.CgFFBoxHeightList2[3]));
-            ResultDto.CgFFBoxTurnYMotorRelationCH3[2] = (Math.Abs(RodHeightHorizal2[2] - RodHeightHorizal1[2]) / Math.Abs(Cache.CgFFBoxHeightList2[4] - Cache.CgFFBoxHeightList2[5]));
-            ResultDto.CgFFBoxTurnYMotorRelationCH3[3] = (Math.Abs(RodHeightHorizal2[3] - RodHeightHorizal1[3]) / Math.Abs(Cache.CgFFBoxHeightList2[6] - Cache.CgFFBoxHeightList2[7]));
+            ResultDto.CgFFBoxTurnYMotorRelationCh3[0] = (Math.Abs(RodHeightHorizal2[0] - RodHeightHorizal1[0]) / Math.Abs(Cache.CgFFBoxHeightList2[0] - Cache.CgFFBoxHeightList2[1]));
+            ResultDto.CgFFBoxTurnYMotorRelationCh3[1] = (Math.Abs(RodHeightHorizal2[1] - RodHeightHorizal1[1]) / Math.Abs(Cache.CgFFBoxHeightList2[2] - Cache.CgFFBoxHeightList2[3]));
+            ResultDto.CgFFBoxTurnYMotorRelationCh3[2] = (Math.Abs(RodHeightHorizal2[2] - RodHeightHorizal1[2]) / Math.Abs(Cache.CgFFBoxHeightList2[4] - Cache.CgFFBoxHeightList2[5]));
+            ResultDto.CgFFBoxTurnYMotorRelationCh3[3] = (Math.Abs(RodHeightHorizal2[3] - RodHeightHorizal1[3]) / Math.Abs(Cache.CgFFBoxHeightList2[6] - Cache.CgFFBoxHeightList2[7]));
 
-            ResultDto.CgFFBoxTurnYMotorPositionCH3[0] = (Cache.CgFFBoxHeightList2[0]);
-            ResultDto.CgFFBoxTurnYMotorPositionCH3[1] = (Cache.CgFFBoxHeightList2[2]);
-            ResultDto.CgFFBoxTurnYMotorPositionCH3[2] = (Cache.CgFFBoxHeightList2[4]);
-            ResultDto.CgFFBoxTurnYMotorPositionCH3[3] = (Cache.CgFFBoxHeightList2[6]);
+            ResultDto.CgFFBoxTurnYMotorPositionCh3[0] = (Cache.CgFFBoxHeightList2[0]);
+            ResultDto.CgFFBoxTurnYMotorPositionCh3[1] = (Cache.CgFFBoxHeightList2[2]);
+            ResultDto.CgFFBoxTurnYMotorPositionCh3[2] = (Cache.CgFFBoxHeightList2[4]);
+            ResultDto.CgFFBoxTurnYMotorPositionCh3[3] = (Cache.CgFFBoxHeightList2[6]);
 
-            ResultDto.CgFFBoxTurnYRectPositionCH3[0] = (RodRectHorizal1[0]);
-            ResultDto.CgFFBoxTurnYRectPositionCH3[1] = (RodRectHorizal1[1]);
-            ResultDto.CgFFBoxTurnYRectPositionCH3[2] = (RodRectHorizal1[2]);
-            ResultDto.CgFFBoxTurnYRectPositionCH3[3] = (RodRectHorizal1[3]);
+            ResultDto.CgFFBoxTurnYRectPositionCh3[0] = (RodRectHorizal1[0]);
+            ResultDto.CgFFBoxTurnYRectPositionCh3[1] = (RodRectHorizal1[1]);
+            ResultDto.CgFFBoxTurnYRectPositionCh3[2] = (RodRectHorizal1[2]);
+            ResultDto.CgFFBoxTurnYRectPositionCh3[3] = (RodRectHorizal1[3]);
 
             ResultDto.CgFFBoxTurnYLightHoleCircleCenterCh3 = ResultPointY;
             ResultDto.CgFFBoxTurnYLightHoleCircleRadiusCh3 = ResultRadiusY;
@@ -674,11 +677,9 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 return true;
             });
         }
-        else
-        {
-            DialogWindowProvider.ShowDialog("Make sure you have open image of CH3 and save channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return Task.FromResult(false);
-        }
+
+        DialogWindowProvider.ShowDialog("Make sure you have open image of CH3 and save channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        return Task.FromResult(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -687,16 +688,16 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (Cache.Ch3Image3 != null)
         {
             ResultDto.CgFFBoxPushXWidthCh3 = PushRectVertical1.Width;
-            ResultDto.CgFFBoxPushXMotorRelationCH3 = Math.Abs(PushWidthVertical2 - PushWidthVertical1) / Math.Abs(Cache.CgFFBoxWidthList3[0] - Cache.CgFFBoxWidthList3[1]);
-            ResultDto.CgFFBoxPushXMotorPositionCH3 = Cache.CgFFBoxWidthList3[0];
-            ResultDto.CgFFBoxPushXRectPositionCH3 = PushRectVertical1;
+            ResultDto.CgFFBoxPushXMotorRelationCh3 = Math.Abs(PushWidthVertical2 - PushWidthVertical1) / Math.Abs(Cache.CgFFBoxWidthList3[0] - Cache.CgFFBoxWidthList3[1]);
+            ResultDto.CgFFBoxPushXMotorPositionCh3 = Cache.CgFFBoxWidthList3[0];
+            ResultDto.CgFFBoxPushXRectPositionCh3 = PushRectVertical1;
 
             return InvokeCalibrateAsync(() =>
             {
                 Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    PushRectVertical1 = PushRectVertical1,
-                    PushRectVertical2 = PushRectVertical2,
+                    PushRectVertical1,
+                    PushRectVertical2,
                     PushRectVertical1Center = PushRectVertical1.Center,
                     PushRectVertical2Center = PushRectVertical2.Center,
                     RodWidthVertical = Math.Abs(PushWidthVertical2 - PushWidthVertical1),
@@ -736,11 +737,9 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 return true;
             });
         }
-        else
-        {
-            DialogWindowProvider.ShowDialog("Make sure you have open image of CH3 and save channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return Task.FromResult(false);
-        }
+
+        DialogWindowProvider.ShowDialog("Make sure you have open image of CH3 and save channel images first，then you can goto next step!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        return Task.FromResult(false);
     }
 
     [RelayCommand]
@@ -748,64 +747,57 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, Ch3Angle);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
-
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
-
-            var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-            if (ret.IsSuccess == true)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                var originPicture0 = ret.Anything;
-                if (originPicture0 == null)
-                    return false;
+                var newList = new ObservableCollection<RectROIDrawable>();
+                Cache.RectROIDrawableList = newList;
+            });
 
-                using var bitmap = BytesToBitmapImage(originPicture0);
-                if (bitmap == null)
-                    return false;
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, Ch3Angle);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
 
-                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable1.BitmapImage = croppedImage;
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
 
-                var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3DegreeX", Ch3Angle + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable1.BitmapImage.SaveImage(OriginImageFilePath1);
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
+            {
+                using var bitmap = BytesToBitmapImage(ret);
+
+                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable1.BitmapImage = croppedImage.ToBitmapImage();
+
+                var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3DegreeX", Ch3Angle + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
+                Cache.BitmapImageDrawable1.BitmapImage.Save(originImageFilePath1);
 
                 Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
                 if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
                 {
-                    Cache.OriginImageFilePathList11[0] = OriginImageFilePath1;
+                    Cache.OriginImageFilePathList11[0] = originImageFilePath1;
                     Cache.OriginImageAngleList11[0] = Ch3Angle;
                 }
 
                 if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
                 {
-                    Cache.OriginImageFilePathList11[1] = OriginImageFilePath1;
+                    Cache.OriginImageFilePathList11[1] = originImageFilePath1;
                     Cache.OriginImageAngleList11[1] = Ch3Angle;
                 }
 
                 if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
                 {
-                    Cache.OriginImageFilePathList11[2] = OriginImageFilePath1;
+                    Cache.OriginImageFilePathList11[2] = originImageFilePath1;
                     Cache.OriginImageAngleList11[2] = Ch3Angle;
                 }
 
                 if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
                 {
-                    Cache.OriginImageFilePathList11[3] = OriginImageFilePath1;
+                    Cache.OriginImageFilePathList11[3] = originImageFilePath1;
                     Cache.OriginImageAngleList11[3] = Ch3Angle;
                 }
             }
 
             return true;
-        });
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            var newList = new ObservableCollection<RectROIDrawable>();
-            Cache.RectROIDrawableList = newList;
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -813,29 +805,22 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, Ch3Angle);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, Ch3TurnX);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, Ch3Angle);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, Ch3TurnX);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
 
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
 
-            var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-            if (ret.IsSuccess == true)
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);     
             {
-                var originPicture0 = ret.Anything;
-                if (originPicture0 == null)
-                    return false;
-
-                using var bitmap = BytesToBitmapImage(originPicture0);
-                if (bitmap == null)
-                    return false;
-                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable1.BitmapImage = croppedImage;
+                using var bitmap = BytesToBitmapImage(ret);
+                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable1.BitmapImage = croppedImage.ToBitmapImage();
             }
 
             return true;
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -843,65 +828,57 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
-
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, Ch3Angle);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
-
-            var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-            if (ret.IsSuccess == true)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                var originPicture0 = ret.Anything;
-                if (originPicture0 == null)
-                    return false;
+                // 直接替换集合引用，绑定的依赖属性会收到 PropertyChanged 回调
+                var newList = new ObservableCollection<RectROIDrawable>();
+                Cache.RectROIDrawableList = newList;
+            });
 
-                using var bitmap = BytesToBitmapImage(originPicture0);
-                if (bitmap == null)
-                    return false;
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
 
-                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable2.BitmapImage = croppedImage;
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, Ch3Angle);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);  
+            {
+                using var bitmap = BytesToBitmapImage(ret);
 
-                var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3DegreeY", Ch3Angle + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable2.BitmapImage.SaveImage(OriginImageFilePath1);
+                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable2.BitmapImage = croppedImage.ToBitmapImage();
+
+                var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3DegreeY", Ch3Angle + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
+                Cache.BitmapImageDrawable2.BitmapImage.Save(originImageFilePath1);
 
                 Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
                 if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
                 {
-                    Cache.OriginImageFilePathList21[0] = OriginImageFilePath1;
+                    Cache.OriginImageFilePathList21[0] = originImageFilePath1;
                     Cache.OriginImageAngleList21[0] = Ch3Angle;
                 }
 
                 if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
                 {
-                    Cache.OriginImageFilePathList21[1] = OriginImageFilePath1;
+                    Cache.OriginImageFilePathList21[1] = originImageFilePath1;
                     Cache.OriginImageAngleList21[1] = Ch3Angle;
                 }
 
                 if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
                 {
-                    Cache.OriginImageFilePathList21[2] = OriginImageFilePath1;
+                    Cache.OriginImageFilePathList21[2] = originImageFilePath1;
                     Cache.OriginImageAngleList21[2] = Ch3Angle;
                 }
 
                 if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
                 {
-                    Cache.OriginImageFilePathList21[3] = OriginImageFilePath1;
+                    Cache.OriginImageFilePathList21[3] = originImageFilePath1;
                     Cache.OriginImageAngleList21[3] = Ch3Angle;
                 }
             }
 
             return true;
-        });
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            // 直接替换集合引用，绑定的依赖属性会收到 PropertyChanged 回调
-            var newList = new ObservableCollection<RectROIDrawable>();
-            Cache.RectROIDrawableList = newList;
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -909,29 +886,22 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
 
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, Ch3Angle);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, Ch3Angle);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, Ch3TurnY);
 
-            var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-            if (ret.IsSuccess)
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100); 
             {
-                var originPicture0 = ret.Anything;
-                if (originPicture0 == null)
-                    return false;
-
-                using var bitmap = BytesToBitmapImage(originPicture0);
-                if (bitmap == null)
-                    return false;
-                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable2.BitmapImage = croppedImage;
+                using var bitmap = BytesToBitmapImage(ret);
+                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable2.BitmapImage = croppedImage.ToBitmapImage();
             }
 
             return true;
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -939,39 +909,31 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            calibrationFlourierService.SetFFHome(FFCH.Ch1);
-            calibrationFlourierService.SetFFHome(FFCH.Ch2);
-            calibrationFlourierService.SetFFHome(FFCH.Ch3_X);
-            calibrationFlourierService.SetFFHome(FFCH.Ch3_Y);
+            FourierViewModel.SetFFHome(FFCH.Ch1);
+            FourierViewModel.SetFFHome(FFCH.Ch2);
+            FourierViewModel.SetFFHome(FFCH.Ch3_X);
+            FourierViewModel.SetFFHome(FFCH.Ch3_Y);
 
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
-
-            var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-            if (ret.IsSuccess == true)
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, Ch3Push);
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
             {
-                var originPicture0 = ret.Anything;
-                if (originPicture0 == null)
-                    return false;
+                using var bitmap = BytesToBitmapImage(ret);
+                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable3.BitmapImage = croppedImage.ToBitmapImage();
 
-                using var bitmap = BytesToBitmapImage(originPicture0);
-                if (bitmap == null)
-                    return false;
-                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable3.BitmapImage = croppedImage;
-
-                var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", Ch3Angle + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable3.BitmapImage.SaveImage(OriginImageFilePath1);
+                var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", Ch3Angle + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
+                Cache.BitmapImageDrawable3.BitmapImage.Save(originImageFilePath1);
 
                 Cache.Ch3Image3 = Cache.BitmapImageDrawable3.BitmapImage;
-                Cache.OriginImageFilePathList31.Add(OriginImageFilePath1);
+                Cache.OriginImageFilePathList31 = [..Cache.OriginImageFilePathList31, originImageFilePath1];
             }
 
             return true;
-        });
+        }).ConfigureAwait(false);
     }
 
     // 添加这个部分方法 - 当 SelectedCh3ShowType 改变时自动调用
@@ -986,19 +948,19 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         switch (chartShowType)
         {
-            case ChartShowType.ID_0_Style:
+            case ChartShowType.Id0Style:
                 // 执行 swath_all_id 相关的业务逻辑
                 HandleId0();
                 break;
-            case ChartShowType.ID_1_Style:
+            case ChartShowType.Id1Style:
                 // 执行 swath_odd_even 相关的业务逻辑
                 HandleId1();
                 break;
-            case ChartShowType.ID_3_Style:
+            case ChartShowType.Id3Style:
                 // 执行 swathid_pmtid 相关的业务逻辑
                 HandleId3();
                 break;
-            case ChartShowType.ID_4_Style:
+            case ChartShowType.Id4Style:
                 // 执行 swath_all_id 相关的业务逻辑
                 HandleId4();
                 break;
@@ -1012,11 +974,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     // 添加具体处理方法的实现（根据你的实际业务需求）
     private void HandleId0()
     {
-        if (Cache.BitmapImageDrawable1?.BitmapImage != null)
+        if (Cache.BitmapImageDrawable1.BitmapImage != null)
         {
             // 示例逻辑：创建特定的矩形配置
             var newList = new ObservableCollection<RectROIDrawable>();
-            var imageRect = new Rect(new Point(XStartPixel + 0 * RodWidth, 20), new Size(1900, RodHight + 150));
+            var imageRect = new Rect(new Point(XStartPixel, 20), new Size(1900, RodHight + 150));
             var cartesianRect = Cache.BitmapImageDrawable1.ImageCoordinateToCartesianCoordinate(imageRect);
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
 
@@ -1027,11 +989,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
 
     private void HandleId1()
     {
-        if (Cache.BitmapImageDrawable1?.BitmapImage != null)
+        if (Cache.BitmapImageDrawable1.BitmapImage != null)
         {
             // 示例逻辑：创建特定的矩形配置
             var newList = new ObservableCollection<RectROIDrawable>();
-            var imageRect = new Rect(new Point(XStartPixel + 0 * RodWidth, 20), new Size(1900, RodHight + 250));
+            var imageRect = new Rect(new Point(XStartPixel, 20), new Size(1900, RodHight + 250));
             var cartesianRect = Cache.BitmapImageDrawable1.ImageCoordinateToCartesianCoordinate(imageRect);
             newList.Add(new RectROIDrawable { Rect = cartesianRect });
             // 更新UI线程
@@ -1041,7 +1003,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
 
     private void HandleId3()
     {
-        if (Cache.BitmapImageDrawable1?.BitmapImage != null)
+        if (Cache.BitmapImageDrawable1.BitmapImage != null)
         {
             // 示例逻辑：创建特定的矩形配置
             var newList = new ObservableCollection<RectROIDrawable>();
@@ -1056,7 +1018,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
 
     private void HandleId4()
     {
-        if (Cache.BitmapImageDrawable1?.BitmapImage != null)
+        if (Cache.BitmapImageDrawable1.BitmapImage != null)
         {
             // 示例逻辑：创建特定的矩形配置
             var newList = new ObservableCollection<RectROIDrawable>();
@@ -1071,7 +1033,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
 
     private void HandleId6(double rx, double ry, double radius)
     {
-        if (Cache.BitmapImageDrawable1?.BitmapImage == null) return;
+        if (Cache.BitmapImageDrawable1.BitmapImage == null) return;
         // 在图像像素坐标系中定义圆（可按需修改为 UI 可配置）
         double centerXImage = rx; // 圆心 X（像素）
         double centerYImage = ry; // 圆心 Y（像素）
@@ -1088,7 +1050,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         var worldRadius = Math.Sqrt(dx * dx + dy * dy);
 
         // 构造世界坐标系的 Circle，并创建 CircleROIDrawable
-        var circle = new Net.Utilities.Models.Geometries.Circle(centerWorld, worldRadius);
+        var circle = new Circle(centerWorld, worldRadius);
         var circleDrawable = new CircleROIDrawable { Circle = circle };
 
         // 在 UI 线程赋值到 ViewModel 的 CircleROIDrawable（绑定到 Canvas 的依赖属性会更新画布）
@@ -1106,14 +1068,15 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     [RelayCommand]
     private void GetVerticalRodRectData11()
     {
-        var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnX", Ch3Angle + "_" + Ch3TurnX + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable1.BitmapImage.SaveImage(OriginImageFilePath1);
+        var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnX", Ch3Angle + "_" + Ch3TurnX + "_" + $"{Guid.NewGuid():N}.jpg");
+        Cache.BitmapImageDrawable1.BitmapImage?.Save(originImageFilePath1);
+        RefreshRectLabel();
 
         if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
-            Cache.OriginImageFilePathList12[0] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList12[0] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectVertical1[0] = Cache.BitmapImageDrawable1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1127,8 +1090,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
-            Cache.OriginImageFilePathList12[2] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList12[2] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectVertical1[1] = Cache.BitmapImageDrawable1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1142,8 +1105,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
-            Cache.OriginImageFilePathList12[4] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList12[4] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectVertical1[2] = Cache.BitmapImageDrawable1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1157,8 +1120,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
-            Cache.OriginImageFilePathList12[6] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList12[6] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectVertical1[3] = Cache.BitmapImageDrawable1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1168,21 +1131,21 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 break;
             }
         }
-
-        return;
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
     private void GetVerticalRodRectData12()
     {
-        var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnX", Ch3Angle + "_" + Ch3TurnX + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable1.BitmapImage.SaveImage(OriginImageFilePath1);
+        var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnX", Ch3Angle + "_" + Ch3TurnX + "_" + $"{Guid.NewGuid():N}.jpg");
+        Cache.BitmapImageDrawable1.BitmapImage?.Save(originImageFilePath1);
+        RefreshRectLabel();
 
         if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
-            Cache.OriginImageFilePathList12[1] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList12[1] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectVertical2[0] = Cache.BitmapImageDrawable1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1196,8 +1159,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
-            Cache.OriginImageFilePathList12[3] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList12[3] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectVertical2[1] = Cache.BitmapImageDrawable1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1211,8 +1174,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
-            Cache.OriginImageFilePathList12[5] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList12[5] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectVertical2[2] = Cache.BitmapImageDrawable1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1226,8 +1189,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
         {
             Cache.Ch3Image1 = Cache.BitmapImageDrawable1.BitmapImage;
-            Cache.OriginImageFilePathList12[7] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList12[7] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectVertical2[3] = Cache.BitmapImageDrawable1.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1237,21 +1200,21 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 break;
             }
         }
-
-        return;
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
     private void GetHorizalRodRectData21()
     {
-        var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnY", Ch3Angle + "_" + Ch3TurnY + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable2.BitmapImage.SaveImage(OriginImageFilePath1);
+        var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnY", Ch3Angle + "_" + Ch3TurnY + "_" + $"{Guid.NewGuid():N}.jpg");
+        Cache.BitmapImageDrawable2.BitmapImage?.Save(originImageFilePath1);
+        RefreshRectLabel();
 
         if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
-            Cache.OriginImageFilePathList22[0] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList22[0] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectHorizal1[0] = Cache.BitmapImageDrawable2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1265,8 +1228,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
-            Cache.OriginImageFilePathList22[2] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList22[2] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectHorizal1[1] = Cache.BitmapImageDrawable2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1280,8 +1243,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
-            Cache.OriginImageFilePathList22[4] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList22[4] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectHorizal1[2] = Cache.BitmapImageDrawable2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1295,8 +1258,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
-            Cache.OriginImageFilePathList22[6] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList22[6] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectHorizal1[3] = Cache.BitmapImageDrawable2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1306,21 +1269,21 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 break;
             }
         }
-
-        return;
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
     private void GetHorizalRodRectData22()
     {
-        var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnY", Ch3Angle + "_" + Ch3TurnY + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable2.BitmapImage.SaveImage(OriginImageFilePath1);
+        var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3TurnY", Ch3Angle + "_" + Ch3TurnY + "_" + $"{Guid.NewGuid():N}.jpg");
+        Cache.BitmapImageDrawable2.BitmapImage?.Save(originImageFilePath1);
+        RefreshRectLabel();
 
         if (SelectedCh3PositionType == PositionShowType.Position1Angle120)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
-            Cache.OriginImageFilePathList22[1] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList22[1] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectHorizal2[0] = Cache.BitmapImageDrawable2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1334,8 +1297,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position2Angle180)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
-            Cache.OriginImageFilePathList22[3] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList22[3] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectHorizal2[1] = Cache.BitmapImageDrawable2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1349,8 +1312,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position3Angle240)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
-            Cache.OriginImageFilePathList22[5] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList22[5] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectHorizal2[2] = Cache.BitmapImageDrawable2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1364,8 +1327,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
         if (SelectedCh3PositionType == PositionShowType.Position4Angle300)
         {
             Cache.Ch3Image2 = Cache.BitmapImageDrawable2.BitmapImage;
-            Cache.OriginImageFilePathList22[7] = OriginImageFilePath1;
-            for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+            Cache.OriginImageFilePathList22[7] = originImageFilePath1;
+            for (int j = 0; j < Cache.RectROIDrawableList.Count; )
             {
                 var rectRoi = Cache.RectROIDrawableList[j];
                 RodRectHorizal2[3] = Cache.BitmapImageDrawable2.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1375,19 +1338,18 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
                 break;
             }
         }
-
-        return;
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
     private void GetVerticalRodRectData31()
     {
-        var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", "0" + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable3.BitmapImage.SaveImage(OriginImageFilePath1);
+        var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", "0" + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
+        Cache.BitmapImageDrawable3.BitmapImage?.Save(originImageFilePath1);
 
         Cache.Ch3Image3 = Cache.BitmapImageDrawable3.BitmapImage;
-        Cache.OriginImageFilePathList32[0] = OriginImageFilePath1;
-        for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+        Cache.OriginImageFilePathList32[0] = originImageFilePath1;
+        for (int j = 0; j < Cache.RectROIDrawableList.Count; )
         {
             var rectRoi = Cache.RectROIDrawableList[j];
             PushRectVertical1 = Cache.BitmapImageDrawable3.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1396,19 +1358,18 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
             Cache.CgFFBoxWidthList3[0] = Ch3Push;
             break;
         }
-
-        return;
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
     private void GetVerticalRodRectData32()
     {
-        var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", "0" + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
-        Cache.BitmapImageDrawable3.BitmapImage.SaveImage(OriginImageFilePath1);
+        var originImageFilePath1 = Path.Combine(ImageFileDirectory, "CH3PushX", "0" + "_" + Ch3Push + "_" + $"{Guid.NewGuid():N}.jpg");
+        Cache.BitmapImageDrawable3.BitmapImage?.Save(originImageFilePath1);
 
         Cache.Ch3Image3 = Cache.BitmapImageDrawable3.BitmapImage;
-        Cache.OriginImageFilePathList32[1] = OriginImageFilePath1;
-        for (int j = 0; j < Cache.RectROIDrawableList.Count; j++)
+        Cache.OriginImageFilePathList32[1] = originImageFilePath1;
+        for (int j = 0; j < Cache.RectROIDrawableList.Count; )
         {
             var rectRoi = Cache.RectROIDrawableList[j];
             PushRectVertical2 = Cache.BitmapImageDrawable3.CartesianCoordinateToImageCoordinate(rectRoi.Rect);
@@ -1417,8 +1378,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
             Cache.CgFFBoxWidthList3[1] = Ch3Push;
             break;
         }
-
-        return;
+        DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
     [RelayCommand]
@@ -1426,44 +1386,37 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, Ch3Angle60);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, Ch3Angle60);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
 
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
 
-            var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-            if (ret.IsSuccess == true)
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);   
             {
-                var originPicture0 = ret.Anything;
-                if (originPicture0 == null)
-                    return false;
+                using var bitmap = BytesToBitmapImage(ret);
 
-                using var bitmap = BytesToBitmapImage(originPicture0);
-                if (bitmap == null)
-                    return false;
+                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable1.BitmapImage = croppedImage.ToBitmapImage();
 
-                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable1.BitmapImage = croppedImage;
+                var originImageFilePath1 = Path.Combine(ImageFileDirectory, "Ch3Angle60X", Ch3Angle60 + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
+                Cache.BitmapImageDrawable1.BitmapImage.Save(originImageFilePath1);
 
-                var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "Ch3Angle60X", Ch3Angle60 + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable1.BitmapImage.SaveImage(OriginImageFilePath1);
-
-                Cache.OriginImageFilePathList13.Add(OriginImageFilePath1);
-                Cache.OriginImageAngleList13.Add(Ch3Angle60);
+                Cache.OriginImageFilePathList13 = [..Cache.OriginImageFilePathList13, originImageFilePath1];
+                Cache.OriginImageAngleList13 = [..Cache.OriginImageAngleList13, Ch3Angle60];
             }
+            
+            // 在后台构造集合实例（可选），然后在 UI 线程一次性替换绑定属性（触发 DP 回调）        
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // 直接替换集合引用，绑定的依赖属性会收到 PropertyChanged 回调
+                var newList = new ObservableCollection<RectROIDrawable>();
+                Cache.RectROIDrawableList = newList;
+            });
 
             return true;
-        });
-
-        // 在后台构造集合实例（可选），然后在 UI 线程一次性替换绑定属性（触发 DP 回调）        
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            // 直接替换集合引用，绑定的依赖属性会收到 PropertyChanged 回调
-            var newList = new ObservableCollection<RectROIDrawable>();
-            Cache.RectROIDrawableList = newList;
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -1471,44 +1424,37 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
-            calibrationFlourierService.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0);
+            FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0);
 
-            calibrationFlourierService.SetFFRPOS_CH3(FFCH.Ch3_Y, Ch3Angle60);
-            calibrationFlourierService.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
+            FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, Ch3Angle60);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, 0);
 
-            var ret = calibrationFlourierService.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
-            if (ret.IsSuccess == true)
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
             {
-                var originPicture0 = ret.Anything;
-                if (originPicture0 == null)
-                    return false;
+                using var bitmap = BytesToBitmapImage(ret);
 
-                using var bitmap = BytesToBitmapImage(originPicture0);
-                if (bitmap == null)
-                    return false;
+                var croppedImage = GetPictureRegion(bitmap.ToHImage(), (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
+                Cache.BitmapImageDrawable2.BitmapImage = croppedImage.ToBitmapImage();
 
-                var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
-                Cache.BitmapImageDrawable2.BitmapImage = croppedImage;
+                var originImageFilePath1 = Path.Combine(ImageFileDirectory, "Ch3Angle60Y", Ch3Angle60 + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
+                Cache.BitmapImageDrawable2.BitmapImage.Save(originImageFilePath1);
 
-                var OriginImageFilePath1 = Path.Combine(ImageFileDirectory, "Ch3Angle60Y", Ch3Angle60 + "_" + "0" + "_" + $"{Guid.NewGuid():N}.jpg");
-                Cache.BitmapImageDrawable2.BitmapImage.SaveImage(OriginImageFilePath1);
-
-                Cache.OriginImageFilePathList23.Add(OriginImageFilePath1);
-                Cache.OriginImageAngleList23.Add(Ch3Angle60);
+                Cache.OriginImageFilePathList23 = [..Cache.OriginImageFilePathList23, originImageFilePath1];
+                Cache.OriginImageAngleList23 = [..Cache.OriginImageAngleList23, Ch3Angle60];
             }
+            
+            // 在后台构造集合实例（可选），然后在 UI 线程一次性替换绑定属性（触发 DP 回调）        
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // 直接替换集合引用，绑定的依赖属性会收到 PropertyChanged 回调
+                var newList = new ObservableCollection<RectROIDrawable>();
+                Cache.RectROIDrawableList = newList;
+            });
 
             return true;
-        });
-
-        // 在后台构造集合实例（可选），然后在 UI 线程一次性替换绑定属性（触发 DP 回调）        
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            // 直接替换集合引用，绑定的依赖属性会收到 PropertyChanged 回调
-            var newList = new ObservableCollection<RectROIDrawable>();
-            Cache.RectROIDrawableList = newList;
-        });
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -1516,7 +1462,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            var circleInfo = calibrationAlgorithmService.FitCircle(CirclePointX);
+            var circleInfo = CalibrationAlgorithmService.FitCircle(CirclePointX);
             ResultPointX = circleInfo.CenterPosition;
             ResultRadiusX = (float)circleInfo.Radius;
 
@@ -1531,40 +1477,76 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel(
     {
         return await Task.Run(() =>
         {
-            var circleInfo = calibrationAlgorithmService.FitCircle(CirclePointY);
+            var circleInfo = CalibrationAlgorithmService.FitCircle(CirclePointY);
             ResultPointY = circleInfo.CenterPosition;
             ResultRadiusY = (float)circleInfo.Radius;
 
             HandleId6(ResultPointY.X, ResultPointY.Y, ResultRadiusY);
+
             return true;
         });
     }
 
-    private BitmapImage GetPictureRegion(BitmapImage originImage, int startX, int startY, int width, int height)
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
-        // 3. 【关键】使用 CropPart 进行真实裁剪 // 参数: 原图, 起始列(Column), 起始行(Row), 宽度, 高度     
-        using var hImage = originImage.ToHImage();
-        using var cropHImage = hImage.CropPart(startY, startX, width, height);
-        return cropHImage.ToBitmapImage();
+        await InvokeVerifyAsync(() =>
+        {
+            Review = Calibration.Clone();
+
+            Logger.LogHtmlInformation("Verify:OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("No need param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            DialogWindowProvider.ShowDialog("Verify Success!");
+            Review.IsVerified = true;
+            Save(Review, cancellationToken);
+            return true;
+        }).ConfigureAwait(false);
     }
 
-    private bool Save(PupilCenterChannelFlexibleApertureDTO itemDto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private HImage GetPictureRegion(HImage originImage, int startX, int startY, int width, int height)
     {
-        update(itemDto);
-        update(Cache);
+        // 3. 【关键】使用 CropPart 进行真实裁剪 // 参数: 原图, 起始列(Column), 起始行(Row), 宽度, 高度     
+        using var hImage = originImage;
+        using var cropHImage = hImage.CropPart(startY, startX, width, height);
+        return cropHImage;
+    }
 
-        Calibration = itemDto.Clone();
+    private void Save(PupilCenterChannelFlexibleApertureDTO itemDto, CancellationToken cancellationToken)
+    {
+        InvokeSave(update =>
+        {
+            update(itemDto);
+            update(Cache);
 
-        CacheProvider.Set(Calibration, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    });
+            Calibration = itemDto.Clone();
+
+            CacheProvider.Set(Calibration, cancellationToken);
+            RecipeCacheProvider.Set(Cache, cancellationToken);
+        });
+    }
 
     public static BitmapImage BytesToBitmapImage(byte[] bytes)
     {
-        if (bytes == null || bytes.Length == 0)
-            return null;
+        if (bytes.Length == 0)
+            return null!;
         // Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage
         // 使用接受字节数组的构造函数（反编译源码显示有此构造函数）
         return new BitmapImage(bytes, isCopy: true);
+    }
+
+    private void RefreshRectLabel()
+    {
+        var newList = new ObservableCollection<RectROIDrawable>();
+        newList.Add(new RectROIDrawable { Rect = Cache.RectROIDrawableList[0].Rect, Label = ((int)Ch3Angle).ToString() });
+        Cache.RectROIDrawableList = new ObservableCollection<RectROIDrawable>();
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            Cache.RectROIDrawableList = newList;
+        });
     }
 }

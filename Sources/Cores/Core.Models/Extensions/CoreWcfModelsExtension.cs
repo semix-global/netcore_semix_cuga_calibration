@@ -23,6 +23,11 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Fourier.CameraAlignment;
+using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
+using Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
+using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
+using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -603,6 +608,66 @@ public static class CoreWcfModelsExtension
         var isOk = applicationCookie.ProductivityInformations.Contains(result.ProductivityInformation) && result.IsOk;
 
         errorMessage = isOk ? string.Empty : "Cal Chip Focus Offset is Empty";
+
+        return isOk;
+    }
+
+    #endregion
+
+    #region Fourier
+
+    public static bool IsOk(this PupilCameraAlignmentDTO result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var isOk = result.IsOk;
+        if (isOk == false) errorMessage = "Pupil CameraAlignment is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this PupilSideChannelFlexibleApertureDTO result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var isOk = result.IsOk;
+        if (isOk == false) errorMessage = "Pupil Side Channel Flexible Aperture is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this PupilSideChannelSpecularBlockerDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "Pupil Side Channel Specular Blocker is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this PupilCenterChannelFlexibleApertureDTO result, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        var isOk = result.IsOk;
+        if (isOk == false) errorMessage = "Pupil Center Channel Flexible Aperture is Empty";
+
+        return isOk;
+    }
+
+    public static bool IsOk(this PupilCenterChannelSpecularBlockerDTO[] result, out string errorMessage)
+    {
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
+        var isOkCount = result.Count(t => applicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                                          && t.IsOk);
+        var isOk = isOkCount == applicationCookie.ProductivityInformations.Count;
+
+        errorMessage = isOk ? string.Empty : "Pupil Center Channel Specular Blocker is Empty";
 
         return isOk;
     }

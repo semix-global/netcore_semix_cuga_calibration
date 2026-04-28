@@ -1,14 +1,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Fourier;
-using Local.SQL.Cache.Providers.Bases;
+using Cuga.Data.DataStruct.DTO.Swath;
+using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Mapper.Interfaces;
 
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 
-[CacheVersion("1.0.0")]
 public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDtoBase, ICloneable<PupilCenterChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilCenterChannelSpecularBlocker>
 {
     [ObservableProperty]
@@ -16,6 +17,9 @@ public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDt
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    public float _ch3Angle = 0.3f;
 
     [ObservableProperty]
     public float _ch3TurnY = 0.3f;
@@ -29,6 +33,9 @@ public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDt
     {
         return new PupilCenterChannelSpecularBlockerDTO
         {
+            OpticsIlluminationMode = OpticsIlluminationMode,
+            ProductivityInformation = ProductivityInformation.Clone(),
+            Ch3Angle = Ch3Angle,
             Ch3TurnY = Ch3TurnY,
             Ch3Push = Ch3Push,
             IsCalibrated = IsCalibrated,
@@ -41,6 +48,11 @@ public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDt
 
     public CalibrationPupilCenterChannelSpecularBlocker AdaptTo() => new()
     {
+        CgNIOITypeEnum = ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
+
+        Ch3Angle = Ch3Angle,
         Ch3TurnY = Ch3TurnY,
         Ch3Push = Ch3Push,
         IsCalibrated = IsCalibrated,

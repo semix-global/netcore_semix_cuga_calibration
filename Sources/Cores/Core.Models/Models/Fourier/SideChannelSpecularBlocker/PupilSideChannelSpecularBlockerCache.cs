@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
 public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCacheBase
 {
@@ -132,16 +132,10 @@ public sealed partial class PupilSideChannelSpecularBlockerCacheItem : Calibrati
     public Point _cgFFBoxBeginPositionCh2 = Point.Origin;
 
     [ObservableProperty]
-    public int _cgFFBoxBeginNumberCh1 = 1;
+    public List<int> _cgFFBoxBeginAndEndNumberCh1 = new();
 
     [ObservableProperty]
-    public int _cgFFBoxBeginNumberCh2 = 1;
-
-    [ObservableProperty]
-    public int _cgFFBoxEndNumberCh1 = 3;
-
-    [ObservableProperty]
-    public int _cgFFBoxEndNumberCh2 = 3;
+    public List<int> _cgFFBoxBeginAndEndNumberCh2 = new();
 
     [ObservableProperty]
     public List<double> _cgFFBoxMoveDownPercentListCh1 = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];

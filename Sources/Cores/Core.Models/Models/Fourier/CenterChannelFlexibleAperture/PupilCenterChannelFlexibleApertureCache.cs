@@ -5,7 +5,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using System.Collections.ObjectModel;
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 public sealed partial class PupilCenterChannelFlexibleApertureCache : CalibrationCacheBase
 {
