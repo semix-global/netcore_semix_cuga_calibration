@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
@@ -23,7 +22,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using R3;
 using System.IO;
 
 namespace CugaCalibration.ViewModels.Common;
@@ -40,14 +38,6 @@ public sealed partial class ReviewViewModel(
     CalibrationSetting calibrationSetting)
     : ViewModelBase
 {
-    private long _frameCount;
-
-    [ObservableProperty]
-    private byte[] _bitmapMemoryByteArray = [];
-
-    [ObservableProperty]
-    private double _fps;
-
     #region 服务
 
     public bool Connect()
@@ -61,12 +51,7 @@ public sealed partial class ReviewViewModel(
     {
         var ret = calibrationReviewService.GetBrightFieldImageMemoryByteArray();
 
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        _frameCount++;
-        BitmapMemoryByteArray = ret.Anything;
-        GC.Collect();
-        return ret.Anything;
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public BitmapImage GetBrightFieldImage()
@@ -354,20 +339,6 @@ public sealed partial class ReviewViewModel(
     }
 
     #endregion 模板匹配
-
-    public void Monitor(CancellationToken cancellationToken)
-    {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-        var fpsMonitor = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.FpsMonitorMilliseconds), cancellationToken).Subscribe(_ =>
-        {
-            Fps = _frameCount / (CalibrationConstantsHelper.FpsMonitorMilliseconds / 1000d);
-            _frameCount = 0;
-        });
-        cancellationToken.Register(fpsMonitor.Dispose);
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
-    }
 
     #endregion 服务
 

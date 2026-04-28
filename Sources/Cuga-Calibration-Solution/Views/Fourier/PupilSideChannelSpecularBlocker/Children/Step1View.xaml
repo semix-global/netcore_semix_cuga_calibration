@@ -53,14 +53,12 @@
                                 Content="Action"
                                 Command="{Binding Step1Command}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}"
-                                />
+                                Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
                                 Command="{Binding Step1CancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}"
-                                />
+                                Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
                 </hc:UniformSpacingPanel>
             </Border>
@@ -98,8 +96,7 @@
             </Border>
             <TabControl Grid.Row="2" SelectionChanged="TabControl_SelectionChanged">
                 <!--  👇 新增：统一设置滚动条滑块为红色  -->
-                <TabControl.Resources>
-                </TabControl.Resources>
+                <TabControl.Resources />
                 <TabItem Header="Initial Image File">
                     <Border Padding="1"
                             CornerRadius="3"

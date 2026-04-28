@@ -1,6 +1,5 @@
 using Cuga.Data.DataStruct.DTO.Recipe;
 using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
@@ -112,6 +111,7 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
     /// 每根杆子像素高度和真实高度对应比例换算，按照百分比, 每1%相当于多少像素,**需要记录**
     /// </summary> 
     public List<double> CgFFBoxHeightRelationPercentListCh1 { get; set; }
+
     public List<double> CgFFBoxHeightRelationPercentListCh2 { get; set; }
 
     /// <summary>
@@ -235,7 +235,7 @@ public sealed class CalibrationPupilSideChannelSpecularBlocker : CalibrationBase
     /// <summary>
     /// 入射方式
     /// </summary>
-    public CgNIOIType CgNIOITypeEnum { get; set; } 
+    public CgNIOIType CgNIOITypeEnum { get; set; }
 
     /// <summary>
     /// Mag类型

@@ -94,8 +94,7 @@
             </Border>
             <TabControl Grid.Row="2" SelectionChanged="TabControl_SelectionChanged">
                 <!--  👇 新增：统一设置滚动条滑块为红色  -->
-                <TabControl.Resources>
-                </TabControl.Resources>
+                <TabControl.Resources />
                 <TabItem Header="Initial Image File">
                     <Border Padding="1"
                             CornerRadius="3"

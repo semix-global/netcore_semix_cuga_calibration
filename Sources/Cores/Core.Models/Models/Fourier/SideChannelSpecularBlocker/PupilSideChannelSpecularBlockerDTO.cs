@@ -5,15 +5,9 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Fourier;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
-using Cuga.Data.DataStruct.Stage;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
@@ -81,4 +75,3 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
 
     #endregion Mapper
 }
-

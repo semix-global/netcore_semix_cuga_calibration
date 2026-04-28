@@ -190,10 +190,10 @@
                         <i:Interaction.Behaviors>
                             <behaviorsCore:WpfPlotWaferMapBehavior Radius="150000"
                                                                    StageCoordinateSystemEnum="{Binding StageCoordinateSystemEnum}"
-                                                                   BrightPosition="{Binding BrightFieldPosition}"
-                                                                   DarkPosition="{Binding DarkFieldPosition}"
-                                                                   StagePosition="{Binding MachinePosition}"
-                                                                   Theta="{Binding MachineTheta}" />
+                                                                   BrightPosition="{Binding StatusViewModel.BrightFieldPosition}"
+                                                                   DarkPosition="{Binding StatusViewModel.DarkFieldPosition}"
+                                                                   StagePosition="{Binding StatusViewModel.MachinePosition}"
+                                                                   Theta="{Binding StatusViewModel.MachineTheta}" />
                         </i:Interaction.Behaviors>
                     </wpf:WpfPlot>
                 </Border>

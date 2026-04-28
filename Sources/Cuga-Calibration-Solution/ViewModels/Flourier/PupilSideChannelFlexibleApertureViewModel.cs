@@ -6,7 +6,6 @@ using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 using Core.Models.Models.Microscope.CalChip;
 using HalconDotNet;
-using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
@@ -204,7 +203,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     [ObservableProperty]
     private PupilSideChannelFlexibleApertureDTO _review = new();
 
-    #endregion 缓存  
+    #endregion 缓存
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
@@ -485,15 +484,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                     HtmlTab = new HtmlTab(new
                     {
                         Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[0], htmlImageOverlays:
-                        [
-                        .. Cache.CurrentImageRectListFirstCh1
-                        .Skip(Cache.CgFFBoxBeginNumber1Ch1)
-                        .Take(Cache.CgFFBoxEndNumber1Ch1 - Cache.CgFFBoxBeginNumber1Ch1 + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                        .. Cache.CurrentImageRectListFirstCh1
-                        .Index()
-                        .Skip(Cache.CgFFBoxBeginNumber1Ch1)
-                        .Take(Cache.CgFFBoxEndNumber1Ch1 - Cache.CgFFBoxBeginNumber1Ch1 + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                        ]
+                            [
+                                .. Cache.CurrentImageRectListFirstCh1
+                                    .Skip(Cache.CgFFBoxBeginNumber1Ch1)
+                                    .Take(Cache.CgFFBoxEndNumber1Ch1 - Cache.CgFFBoxBeginNumber1Ch1 + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                .. Cache.CurrentImageRectListFirstCh1
+                                    .Index()
+                                    .Skip(Cache.CgFFBoxBeginNumber1Ch1)
+                                    .Take(Cache.CgFFBoxEndNumber1Ch1 - Cache.CgFFBoxBeginNumber1Ch1 + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                            ]
                         )
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -515,15 +514,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                             HtmlTab = new HtmlTab(new
                             {
                                 Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays:
-                                [
-                                    .. CurrentImageRectOddFirstCh1
-                                    .Skip(OddFirstCh1)
-                                    .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                                    .. CurrentImageRectOddFirstCh1
-                                    .Index()
-                                    .Skip(OddFirstCh1)
-                                    .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                                ]
+                                    [
+                                        .. CurrentImageRectOddFirstCh1
+                                            .Skip(OddFirstCh1)
+                                            .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                        .. CurrentImageRectOddFirstCh1
+                                            .Index()
+                                            .Skip(OddFirstCh1)
+                                            .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                    ]
                                 )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -538,15 +537,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                             HtmlTab = new HtmlTab(new
                             {
                                 Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays:
-                                 [
-                                    .. CurrentImageRectOddSecondCh1
-                                    .Skip(OddFirstCh1)
-                                    .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                                    .. CurrentImageRectOddSecondCh1
-                                    .Index()
-                                    .Skip(OddFirstCh1)
-                                    .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                                ]
+                                    [
+                                        .. CurrentImageRectOddSecondCh1
+                                            .Skip(OddFirstCh1)
+                                            .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                        .. CurrentImageRectOddSecondCh1
+                                            .Index()
+                                            .Skip(OddFirstCh1)
+                                            .Take((OddLastCh1 - OddFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                    ]
                                 )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -561,15 +560,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                             HtmlTab = new HtmlTab(new
                             {
                                 Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays:
-                                [
-                                    .. CurrentImageRectEvenFirstCh1
-                                    .Skip(EvenFirstCh1)
-                                    .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                                    .. CurrentImageRectEvenFirstCh1
-                                    .Index()
-                                    .Skip(EvenFirstCh1)
-                                    .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                                ]
+                                    [
+                                        .. CurrentImageRectEvenFirstCh1
+                                            .Skip(EvenFirstCh1)
+                                            .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                        .. CurrentImageRectEvenFirstCh1
+                                            .Index()
+                                            .Skip(EvenFirstCh1)
+                                            .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                    ]
                                 )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -584,15 +583,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                             HtmlTab = new HtmlTab(new
                             {
                                 Ch1Image = new HtmlImage(Cache.OriginImageFilePathList1[j], htmlImageOverlays:
-                                [
-                                    .. CurrentImageRectEvenSecondCh1
-                                    .Skip(EvenFirstCh1)
-                                    .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                                    .. CurrentImageRectEvenSecondCh1
-                                    .Index()
-                                    .Skip(EvenFirstCh1)
-                                    .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                                ]
+                                    [
+                                        .. CurrentImageRectEvenSecondCh1
+                                            .Skip(EvenFirstCh1)
+                                            .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                        .. CurrentImageRectEvenSecondCh1
+                                            .Index()
+                                            .Skip(EvenFirstCh1)
+                                            .Take((EvenLastCh1 - EvenFirstCh1 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                    ]
                                 )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -753,15 +752,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                     HtmlTab = new HtmlTab(new
                     {
                         Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[0], htmlImageOverlays:
-                        [
-                         ..Cache.CurrentImageRectListFirstCh2
-                        .Skip(Cache.CgFFBoxBeginNumber1Ch2)
-                        .Take(Cache.CgFFBoxEndNumber1Ch2 - Cache.CgFFBoxBeginNumber1Ch2 + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                        ..  Cache.CurrentImageRectListFirstCh2
-                        .Index()
-                        .Skip(Cache.CgFFBoxBeginNumber1Ch2)
-                        .Take(Cache.CgFFBoxEndNumber1Ch2 - Cache.CgFFBoxBeginNumber1Ch2 + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                        ]
+                            [
+                                ..Cache.CurrentImageRectListFirstCh2
+                                    .Skip(Cache.CgFFBoxBeginNumber1Ch2)
+                                    .Take(Cache.CgFFBoxEndNumber1Ch2 - Cache.CgFFBoxBeginNumber1Ch2 + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                .. Cache.CurrentImageRectListFirstCh2
+                                    .Index()
+                                    .Skip(Cache.CgFFBoxBeginNumber1Ch2)
+                                    .Take(Cache.CgFFBoxEndNumber1Ch2 - Cache.CgFFBoxBeginNumber1Ch2 + 1).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                            ]
                         )
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
@@ -783,15 +782,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                             HtmlTab = new HtmlTab(new
                             {
                                 Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays:
-                                [
-                                    .. CurrentImageRectOddFirstCh2
-                                    .Skip(OddFirstCh2)
-                                    .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                                    .. CurrentImageRectOddFirstCh2
-                                    .Index()
-                                    .Skip(OddFirstCh2)
-                                    .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                                ]
+                                    [
+                                        .. CurrentImageRectOddFirstCh2
+                                            .Skip(OddFirstCh2)
+                                            .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                        .. CurrentImageRectOddFirstCh2
+                                            .Index()
+                                            .Skip(OddFirstCh2)
+                                            .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                    ]
                                 )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -806,15 +805,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                             HtmlTab = new HtmlTab(new
                             {
                                 Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays:
-                                [
-                                    .. CurrentImageRectOddSecondCh2
-                                    .Skip(OddFirstCh2)
-                                    .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                                    .. CurrentImageRectOddSecondCh2
-                                    .Index()
-                                    .Skip(OddFirstCh2)
-                                    .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                                ]
+                                    [
+                                        .. CurrentImageRectOddSecondCh2
+                                            .Skip(OddFirstCh2)
+                                            .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                        .. CurrentImageRectOddSecondCh2
+                                            .Index()
+                                            .Skip(OddFirstCh2)
+                                            .Take((OddLastCh2 - OddFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                    ]
                                 )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -829,15 +828,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                             HtmlTab = new HtmlTab(new
                             {
                                 Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays:
-                                [
-                                    .. CurrentImageRectEvenFirstCh2
-                                    .Skip(EvenFirstCh2)
-                                    .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                                    .. CurrentImageRectEvenFirstCh2
-                                    .Index()
-                                    .Skip(EvenFirstCh2)
-                                    .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                                ]
+                                    [
+                                        .. CurrentImageRectEvenFirstCh2
+                                            .Skip(EvenFirstCh2)
+                                            .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                        .. CurrentImageRectEvenFirstCh2
+                                            .Index()
+                                            .Skip(EvenFirstCh2)
+                                            .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                    ]
                                 )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -852,15 +851,15 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                             HtmlTab = new HtmlTab(new
                             {
                                 Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[j], htmlImageOverlays:
-                                [
-                                    .. CurrentImageRectEvenSecondCh2
-                                    .Skip(EvenFirstCh2)
-                                    .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
-                                    .. CurrentImageRectEvenSecondCh2
-                                    .Index()
-                                    .Skip(EvenFirstCh2)
-                                    .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
-                                ]
+                                    [
+                                        .. CurrentImageRectEvenSecondCh2
+                                            .Skip(EvenFirstCh2)
+                                            .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(rect => new HtmlImageRectangleOverlay(rect)),
+                                        .. CurrentImageRectEvenSecondCh2
+                                            .Index()
+                                            .Skip(EvenFirstCh2)
+                                            .Take((EvenLastCh2 - EvenFirstCh2 + 1) / 2).Select(t => new HtmlImageTextOverlay(t.Item.Center, t.Index.ToString()))
+                                    ]
                                 )
                             })
                         }), HtmlLogUniqueId.LoggingHtml());
@@ -971,6 +970,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                 if (j % 2 == 1)
                     AllOddRodsCh1Percent1 = [.. AllOddRodsCh1Percent1, new Pole { Id = j }];
             }
+
             var ch12List = new List<(int rodnumber, double rodpos)>();
             var rodNum = 46;
 
@@ -988,6 +988,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
             {
                 ch12List.Add((j, 0.0));
             }
+
             for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
                 if (j % 2 == 1)
@@ -1035,6 +1036,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                 if (j % 2 == 0)
                     AllEvenRodsCh1Percent1 = [.. AllEvenRodsCh1Percent1, new Pole { Id = j }];
             }
+
             var ch12List = new List<(int rodnumber, double rodpos)>();
             var rodNum = 46;
 
@@ -1052,6 +1054,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
             {
                 ch12List.Add((j, 0.0));
             }
+
             for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
                 if (j % 2 == 0)
@@ -1099,6 +1102,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                 if (j % 2 == 1)
                     AllOddRodsCh1Percent2 = [.. AllOddRodsCh1Percent2, new Pole { Id = j }];
             }
+
             var ch12List = new List<(int rodnumber, double rodpos)>();
             var rodNum = 46;
 
@@ -1116,6 +1120,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
             {
                 ch12List.Add((j, 0.0));
             }
+
             for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
                 if (j % 2 == 1)
@@ -1163,6 +1168,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                 if (j % 2 == 0)
                     AllEvenRodsCh1Percent2 = [.. AllEvenRodsCh1Percent2, new Pole { Id = j }];
             }
+
             var ch12List = new List<(int rodnumber, double rodpos)>();
             var rodNum = 46;
 
@@ -1180,6 +1186,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
             {
                 ch12List.Add((j, 0.0));
             }
+
             for (int j = Cache.CgFFBoxBeginNumber2Ch1; j <= Cache.CgFFBoxEndNumber2Ch1; j++)
             {
                 if (j % 2 == 0)
@@ -1227,6 +1234,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                 if (j % 2 == 1)
                     AllOddRodsCh2Percent1 = [.. AllOddRodsCh2Percent1, new Pole { Id = j }];
             }
+
             var ch12List = new List<(int rodnumber, double rodpos)>();
             var rodNum = 46;
 
@@ -1244,6 +1252,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
             {
                 ch12List.Add((j, 0.0));
             }
+
             for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
             {
                 if (j % 2 == 1)
@@ -1291,6 +1300,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                 if (j % 2 == 0)
                     AllEvenRodsCh2Percent1 = [.. AllEvenRodsCh2Percent1, new Pole { Id = j }];
             }
+
             var ch12List = new List<(int rodnumber, double rodpos)>();
             var rodNum = 46;
 
@@ -1308,6 +1318,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
             {
                 ch12List.Add((j, 0.0));
             }
+
             for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
             {
                 if (j % 2 == 0)
@@ -1355,6 +1366,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                 if (j % 2 == 1)
                     AllOddRodsCh2Percent2 = [.. AllOddRodsCh2Percent2, new Pole { Id = j }];
             }
+
             var ch12List = new List<(int rodnumber, double rodpos)>();
             var rodNum = 46;
 
@@ -1372,6 +1384,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
             {
                 ch12List.Add((j, 0.0));
             }
+
             for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
             {
                 if (j % 2 == 1)
@@ -1419,6 +1432,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                 if (j % 2 == 0)
                     AllEvenRodsCh2Percent2 = [.. AllEvenRodsCh2Percent2, new Pole { Id = j }];
             }
+
             var ch12List = new List<(int rodnumber, double rodpos)>();
             var rodNum = 46;
 
@@ -1436,6 +1450,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
             {
                 ch12List.Add((j, 0.0));
             }
+
             for (int j = Cache.CgFFBoxBeginNumber2Ch2; j <= Cache.CgFFBoxEndNumber2Ch2; j++)
             {
                 if (j % 2 == 0)
@@ -1938,6 +1953,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             CurrentImageRectOddFirstCh1.Add(rect);
         }
+
         DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
@@ -1960,6 +1976,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             CurrentImageRectOddSecondCh1.Add(rect);
         }
+
         DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
@@ -1982,6 +1999,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             CurrentImageRectEvenFirstCh1.Add(rect);
         }
+
         DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
@@ -2004,6 +2022,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             CurrentImageRectEvenSecondCh1.Add(rect);
         }
+
         DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
@@ -2026,6 +2045,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             CurrentImageRectOddFirstCh2.Add(rect);
         }
+
         DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
@@ -2048,6 +2068,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             CurrentImageRectOddSecondCh2.Add(rect);
         }
+
         DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
@@ -2070,6 +2091,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             CurrentImageRectEvenFirstCh2.Add(rect);
         }
+
         DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
@@ -2092,6 +2114,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             CurrentImageRectEvenSecondCh2.Add(rect);
         }
+
         DialogWindowProvider.ShowDialog("Set Data Success!");
     }
 
@@ -2398,7 +2421,7 @@ public partial class RodInformation : ObservableObject
     }
 
     [ObservableProperty]
-    private string _number=string.Empty;
+    private string _number = string.Empty;
 
     [ObservableProperty]
     private double _percent;

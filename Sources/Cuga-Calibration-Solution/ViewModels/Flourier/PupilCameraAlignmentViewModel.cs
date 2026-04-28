@@ -5,10 +5,8 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Microscope.CalChip;
-using Local.SQL.Cache.Providers.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -54,7 +52,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     [ObservableProperty]
     private PupilCameraAlignmentDTO _review = new();
 
-    #endregion 缓存 
+    #endregion 缓存
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
@@ -286,13 +284,13 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     {
         await Task.Run(() =>
         {
-            var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);        
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(0, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
             {
                 Cache.BitmapImageDrawableCh1 = new BitmapImageDrawable();
 
                 var bitmap = BytesToBitmapImage(ret);
                 Cache.BitmapImageDrawableCh1.BitmapImage = bitmap;
-                Cache.PrimaryImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", $"{Guid.NewGuid():N}.jpg");    
+                Cache.PrimaryImageFilePath1 = Path.Combine(ImageFileDirectory, "CH1", $"{Guid.NewGuid():N}.jpg");
                 Cache.BitmapImageDrawableCh1.BitmapImage.Save(Cache.PrimaryImageFilePath1);
             }
         }).ConfigureAwait(false);
@@ -339,7 +337,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     {
         await Task.Run(() =>
         {
-            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);         
+            var ret = FourierViewModel.GetFFReviewImgForTrigger(2, Cache.ProductivityInformation, Cache.LaserLightInformation.Level, SxPos, 100);
             {
                 Cache.BitmapImageDrawableCh3 = new BitmapImageDrawable();
 
@@ -389,7 +387,6 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     {
         await InvokeVerifyAsync(() =>
         {
-
             Review = Calibration.Clone();
 
             Logger.LogHtmlInformation("Verify:OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
