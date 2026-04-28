@@ -293,4 +293,25 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         hv_Histo = hv_histo;
         return hv_Histo;
     }
+
+    public BitmapImage RotateAndMirrorImage(BitmapImage image)
+    {
+        return _calibrationAlgorithmServiceImpl.RotateAndMirrorImage(image);
+    }
+
+    public double[] GetImageGrayYProjectionsPixels(BitmapImage image)
+    {
+        return _calibrationAlgorithmServiceImpl.GetImageGrayYProjectionsPixels(image);
+    }
+
+    public double GetImageMeanGray(BitmapImage image, Rect roiRect)
+    {
+        return _calibrationAlgorithmServiceImpl.GetImageMeanGray(image, roiRect);
+
+    }
+
+    public (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points)
+    {
+        return _calibrationAlgorithmServiceImpl.FitCircle(points);
+    }
 }

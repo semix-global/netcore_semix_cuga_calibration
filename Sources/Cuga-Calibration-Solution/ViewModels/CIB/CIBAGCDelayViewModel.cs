@@ -728,8 +728,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto
+                dto,
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }
 

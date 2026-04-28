@@ -542,4 +542,31 @@ public sealed class CalibrationAlgorithmServiceImpl(
         hv_Histo = hv_histo;
         return hv_Histo;
     }
+
+    public BitmapImage RotateAndMirrorImage(BitmapImage image)
+    {
+        using var hImage = image.ToHImage();
+        _algorithm.RotateAndMirror(hImage, out var mirrorImage);
+        return ((HImage)mirrorImage).ToBitmapImage();
+    }
+
+    public double[] GetImageGrayYProjectionsPixels(BitmapImage image)
+    {
+        using var hImage = image.ToHImage();
+        _algorithm.LightSpot(hImage, out var yValue);
+        return yValue.ToDArr();
+    }
+
+    public double GetImageMeanGray(BitmapImage image, Rect roiRect)
+    {
+        using var hImage = image.ToHImage();
+        using var roiImage = hImage.ToRoi(roiRect);
+        return hImage.Intensity(roiImage, out double _);
+    }
+
+    public (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points)
+    {
+        _algorithm.FindCircle(points.Select(t => t.X).ToList(), points.Select(t => t.Y).ToList(), out var yValue, out var xValue, out var radius);
+        return (new Point(xValue.D, yValue.D), radius.D);
+    }
 }

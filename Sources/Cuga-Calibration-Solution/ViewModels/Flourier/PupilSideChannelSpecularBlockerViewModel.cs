@@ -9,7 +9,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using HalconDotNet;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -65,7 +64,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
     [ObservableProperty]
     private bool _isSyncingFromDrag;
 
-    private HTuple meanGrayOld1, meanGrayOld2, meanGrayNew1, meanGrayNew2;
+    private double meanGrayOld1, meanGrayOld2, meanGrayNew1, meanGrayNew2;
 
     // 当 RodNum/ RodWidth/ XStartPixel 改变时自动重建矩形集合
     partial void OnRodNumChanged(int value) => RebuildRectROIDrawableList();
@@ -364,16 +363,16 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
     {
         if (Cache.Ch1Image != null)
         {
-            Cache.Item.ImageGrayCompareCh1 = $"Ch1:Image Gray Compare(old/new) value is: {meanGrayOld1.D / meanGrayNew1.D:F4}";
+            Cache.Item.ImageGrayCompareCh1 = $"Ch1:Image Gray Compare(old/new) value is: {meanGrayOld1 / meanGrayNew1:F4}";
             return InvokeCalibrateAsync(() =>
             {
                 Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    ImageGrayCompareCh1 = $"Ch1:Image Gray Compare(old/new) value is: {meanGrayOld1.D / meanGrayNew1.D:F4}",
+                    ImageGrayCompareCh1 = $"Ch1:Image Gray Compare(old/new) value is: {meanGrayOld1 / meanGrayNew1:F4}",
                     InitialImageFilePath1 = Cache.Item.OriginImageFilePathOld1,
                     ProcessImageFilePath1 = Cache.Item.OriginImageFilePathNew1,
-                    ImageGrayOldCh1 = meanGrayOld1.D,
-                    ImageGrayNewCh1 = meanGrayNew1.D,
+                    ImageGrayOldCh1 = meanGrayOld1,
+                    ImageGrayNewCh1 = meanGrayNew1,
                     HtmlTabCh1 = new HtmlTab(new
                     {
                         InitialImageCh1 = new HtmlImage(Cache.Item.OriginImageFilePathOld1),
@@ -395,16 +394,16 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
     {
         if (Cache.Ch2Image != null)
         {
-            Cache.Item.ImageGrayCompareCh2 = $"Ch2:Image Gray Compare(old/new) value is: {meanGrayOld2.D / meanGrayNew2.D:F4}";
+            Cache.Item.ImageGrayCompareCh2 = $"Ch2:Image Gray Compare(old/new) value is: {meanGrayOld2 / meanGrayNew2:F4}";
             return InvokeCalibrateAsync(() =>
             {
                 Logger.LogHtmlInformation("ResultImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    ImageGrayCompareCh2 = $"Ch2:Image Gray Compare(old/new) value is: {meanGrayOld2.D / meanGrayNew2.D:F4}",
+                    ImageGrayCompareCh2 = $"Ch2:Image Gray Compare(old/new) value is: {meanGrayOld2 / meanGrayNew2:F4}",
                     InitialImageFilePath2 = Cache.Item.OriginImageFilePathOld2,
                     ProcessImageFilePath2 = Cache.Item.OriginImageFilePathNew2,
-                    ImageGrayOldCh2 = meanGrayOld2.D,
-                    ImageGrayNewCh2 = meanGrayNew2.D,
+                    ImageGrayOldCh2 = meanGrayOld2,
+                    ImageGrayNewCh2 = meanGrayNew2,
                     HtmlTabCh2 = new HtmlTab(new
                     {
                         InitialImageCh2 = new HtmlImage(Cache.Item.OriginImageFilePathOld2),
@@ -595,8 +594,10 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 Cache.Item.OriginImageFilePathOld1 = Path.Combine(ImageFileDirectory, "CH1", "Initial" + "__" + $"{Guid.NewGuid():N}.jpg");
                 Cache.BitmapImageDrawableCh10.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathOld1);
                 //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
-                //ImageGrayOldCh1 = hv_Histo.TupleSum();                                
-                HOperatorSet.Intensity(Cache.BitmapImageDrawableCh10.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh10.BitmapImage.ToHImage(), out meanGrayOld1, out var deviation);
+                //ImageGrayOldCh1 = hv_Histo.TupleSum();    
+
+                meanGrayOld1 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh10.BitmapImage,
+                    new Rect(Point.Origin, Cache.BitmapImageDrawableCh10.BitmapImage.GetSize()));
             }
             else if (SelectedTabIndex == 1)
             {
@@ -606,7 +607,8 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 Cache.BitmapImageDrawableCh20.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathOld2);
                 //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
                 //ImageGrayOldCh2 = hv_Histo.TupleSum();
-                HOperatorSet.Intensity(Cache.BitmapImageDrawableCh20.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh20.BitmapImage.ToHImage(), out meanGrayOld2, out var deviation);
+                meanGrayOld2 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh20.BitmapImage,
+                    new Rect(Point.Origin, Cache.BitmapImageDrawableCh20.BitmapImage.GetSize()));
             }
         }
     }
@@ -663,7 +665,8 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 Cache.Ch1Image = Cache.BitmapImageDrawableCh11.BitmapImage;
                 //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
                 //ImageGrayNewCh1 = hv_Histo.TupleSum();
-                HOperatorSet.Intensity(Cache.BitmapImageDrawableCh11.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh11.BitmapImage.ToHImage(), out meanGrayNew1, out var deviation);
+                meanGrayNew1 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh11.BitmapImage,
+                    new Rect(Point.Origin, Cache.BitmapImageDrawableCh11.BitmapImage.GetSize()));
             }
             else if (SelectedTabIndex == 1)
             {
@@ -688,7 +691,8 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 Cache.Ch2Image = Cache.BitmapImageDrawableCh21.BitmapImage;
                 //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
                 //ImageGrayNewCh2 = hv_Histo.TupleSum();
-                HOperatorSet.Intensity(Cache.BitmapImageDrawableCh21.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh21.BitmapImage.ToHImage(), out meanGrayNew2, out var deviation);
+                meanGrayNew2 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh21.BitmapImage,
+                    new Rect(Point.Origin, Cache.BitmapImageDrawableCh21.BitmapImage.GetSize()));
             }
         }
 
@@ -785,7 +789,8 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 Cache.Item.OriginImageFilePathNew1 = Path.Combine(ImageFileDirectory, "CH1", Ch12Percentage + "__" + Cache.Item.CgFFBoxBeginNumberCh1 + "__" + Cache.Item.CgFFBoxEndNumberCh1 + "__" + $"{Guid.NewGuid():N}.jpg");
                 Cache.BitmapImageDrawableCh11.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathNew1);
                 Cache.Ch1Image = Cache.BitmapImageDrawableCh11.BitmapImage;
-                HOperatorSet.Intensity(Cache.BitmapImageDrawableCh11.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh11.BitmapImage.ToHImage(), out meanGrayNew1, out var deviation);
+                meanGrayNew1 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh11.BitmapImage,
+                    new Rect(Point.Origin, Cache.BitmapImageDrawableCh11.BitmapImage.GetSize()));
             }
             else if (SelectedTabIndex == 1)
             {
@@ -809,7 +814,8 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel(
                 Cache.Item.OriginImageFilePathNew2 = Path.Combine(ImageFileDirectory, "CH2", Ch12Percentage + "__" + Cache.Item.CgFFBoxBeginNumberCh2 + "__" + Cache.Item.CgFFBoxEndNumberCh2 + "__" + $"{Guid.NewGuid():N}.jpg");
                 Cache.BitmapImageDrawableCh21.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathNew2);
                 Cache.Ch2Image = Cache.BitmapImageDrawableCh21.BitmapImage;
-                HOperatorSet.Intensity(Cache.BitmapImageDrawableCh21.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh21.BitmapImage.ToHImage(), out meanGrayNew2, out var deviation);
+                meanGrayNew2 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh21.BitmapImage,
+                    new Rect(Point.Origin, Cache.BitmapImageDrawableCh21.BitmapImage.GetSize()));
             }
         }
     }

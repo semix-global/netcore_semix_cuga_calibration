@@ -12,9 +12,12 @@ namespace Core.Wcf.Models;
 /// <summary>
 /// 校准对象序列化
 /// </summary>
+
 [Serializable]
 public sealed class CalibrationObj
 {
+    public string Version { get; set; }
+
     /// <summary>
     /// 缓震平台校准对象
     /// </summary>

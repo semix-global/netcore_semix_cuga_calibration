@@ -434,8 +434,8 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.LensInformation != dto.LensInformation),
-                dto
+                dto,
+                .. Calibrations.Where(t => t.LensInformation != dto.LensInformation)
             ];
         }
 

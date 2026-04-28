@@ -22,7 +22,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
 using System.Text;
-
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBYPixelSizeViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]

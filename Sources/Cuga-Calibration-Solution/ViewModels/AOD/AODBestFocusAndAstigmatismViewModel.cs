@@ -735,10 +735,10 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 update(dto);
                 Calibrations =
                 [
+                    dto,
                     .. Calibrations.Where(t =>
                         (t.ProductivityInformation == dto.ProductivityInformation &&
-                         t.ApodizationModeEnum == dto.ApodizationModeEnum) == false),
-                    dto
+                         t.ApodizationModeEnum == dto.ApodizationModeEnum) == false)
                 ];
             }
 

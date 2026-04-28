@@ -891,8 +891,8 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum),
-                dto
+                dto,
+                .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum)
             ];
         }
 

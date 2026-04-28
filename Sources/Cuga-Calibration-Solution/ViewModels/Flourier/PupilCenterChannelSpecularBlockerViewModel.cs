@@ -11,7 +11,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using HalconDotNet;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -78,8 +77,6 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
 
     [ObservableProperty]
     private float _ch3Push = 42.0f;
-
-    private HTuple histoOld = new(), histoNew = new();
 
     public ChartShowType[] Ch3ShowTypeValues => Enum.GetValues(typeof(ChartShowType)).Cast<ChartShowType>().ToArray();
 
@@ -372,8 +369,10 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
             var croppedImage = GetPictureRegion(bitmap, (int)PupilCameraAlignmentValue.RectCh3Position.X, (int)PupilCameraAlignmentValue.RectCh3Position.Y, PupilCameraAlignmentValue.Ch3ImageWidth, PupilCameraAlignmentValue.Ch3ImageHeight);
             Cache.BitmapImageDrawableCh30.BitmapImage = croppedImage;
             Cache.BitmapImageDrawableCh30.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathOld);
-            HOperatorSet.Intensity(Cache.BitmapImageDrawableCh30.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh30.BitmapImage.ToHImage(), out var meanGrayOld3, out var deviation);
-            Cache.Item.ImageGrayOldCh3 = (float)meanGrayOld3.D;
+
+            var meanGrayOld3 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh30.BitmapImage,
+                new Rect(Point.Origin, Cache.BitmapImageDrawableCh30.BitmapImage.GetSize()));
+            Cache.Item.ImageGrayOldCh3 = (float)meanGrayOld3;
             //histoOld=hv_Histo;
         }
     }
@@ -424,8 +423,10 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel(
             //var templateFilePath = $"{originImageFilePath}_Template";
             Cache.BitmapImageDrawableCh31.BitmapImage.SaveImage(Cache.Item.OriginImageFilePathNew);
             //calibrationAlgorithmService.GetPictureGray(BitmapImageDrawable.BitmapImage.ToHImage(), 255, out var hv_Histo);
-            HOperatorSet.Intensity(Cache.BitmapImageDrawableCh31.BitmapImage.ToHImage(), Cache.BitmapImageDrawableCh31.BitmapImage.ToHImage(), out var meanGrayNew3, out var deviation);
-            Cache.Item.ImageGrayNewCh3 = (float)meanGrayNew3.D;
+
+            var meanGrayNew3 = calibrationAlgorithmService.GetImageMeanGray(Cache.BitmapImageDrawableCh31.BitmapImage,
+                new Rect(Point.Origin, Cache.BitmapImageDrawableCh31.BitmapImage.GetSize()));
+            Cache.Item.ImageGrayNewCh3 = (float)meanGrayNew3;
             //histoNew = hv_Histo;
         }
     }

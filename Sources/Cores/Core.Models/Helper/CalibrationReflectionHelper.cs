@@ -26,8 +26,11 @@ public static class CalibrationReflectionHelper
 
         foreach (var fatherPropertyInfo in typeof(CalibrationObj).GetProperties())
         {
+            var descriptionAttribute = fatherPropertyInfo.GetCustomAttribute<DescriptionAttribute>();
+            if (descriptionAttribute is null) continue;
+
             var items = new List<CalibrationCategoryItem>();
-            var calibrationCategory = new CalibrationCategory(Guard.IsNotNullAndReturn(fatherPropertyInfo.GetCustomAttribute<DescriptionAttribute>()).Description, fatherPropertyInfo.PropertyType, items);
+            var calibrationCategory = new CalibrationCategory(descriptionAttribute.Description, fatherPropertyInfo.PropertyType, items);
 
             foreach (var property in fatherPropertyInfo.PropertyType.GetProperties())
             {

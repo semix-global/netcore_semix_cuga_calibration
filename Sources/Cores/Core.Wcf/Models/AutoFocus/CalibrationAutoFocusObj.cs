@@ -32,15 +32,21 @@ public sealed class CalibrationAutoFocusGlobalFocusOffset : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
+    public string CgMagType => CgMagTypeEnum.ToString();
+
     /// <summary>
     /// 速度
     /// </summary>
     public CgSpeedLevelType Speed { get; set; }
+
+    public string SpeedString => Speed.ToString();
 
     /// <summary>
     /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**
@@ -69,15 +75,21 @@ public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }
 
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
+    public string CgMagType => CgMagTypeEnum.ToString();
+
     /// <summary>
     /// 速度
     /// </summary>
     public CgSpeedLevelType Speed { get; set; }
+
+    public string SpeedString => Speed.ToString();
 
     /// <summary>
     /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**

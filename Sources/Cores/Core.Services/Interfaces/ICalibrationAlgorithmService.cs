@@ -265,4 +265,20 @@ public interface ICalibrationAlgorithmService
     HTuple GetPictureGray(BitmapImage image, HTuple bit, out HTuple hv_Histo);
 
     #endregion 图片灰度值计算，直方图
+
+    #region 图像操作
+
+    BitmapImage RotateAndMirrorImage(BitmapImage image);
+
+    double[] GetImageGrayYProjectionsPixels(BitmapImage image);
+
+    double GetImageMeanGray(BitmapImage image, Rect roi);
+
+    #endregion
+
+    #region 工具
+
+    (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points);
+
+    #endregion
 }
