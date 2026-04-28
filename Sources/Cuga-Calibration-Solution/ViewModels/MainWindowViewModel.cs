@@ -106,9 +106,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     public partial RecipeCookie RecipeCookie { get; set; }
 
     [ObservableProperty]
-    public partial bool IsLoadingOk { get; set; }
-
-    [ObservableProperty]
     public partial StatusViewModel StatusViewModel { get; set; }
 
     [ObservableProperty]
@@ -184,37 +181,41 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     [RelayCommand]
     private void Loaded()
     {
-        IsLoadingOk = false;
-
-        var showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoginWindowViewModel>());
-        if (showDialog == false)
+        var isLoadingOk = false;
+        try
         {
-            return;
-        }
+            var showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoginWindowViewModel>());
+            if (showDialog == false)
+            {
+                return;
+            }
 
-        showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
-        if (showDialog == false)
+            showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
+            if (showDialog == false)
+            {
+                return;
+            }
+
+            var recipeManagementViewModel = HostApplication.GetRequiredService<RecipeManagementViewModel>();
+            recipeManagementViewModel.IsLoading = true;
+            showDialog = _windowManagerService.ShowDialog(recipeManagementViewModel);
+            if (showDialog == false)
+            {
+                return;
+            }
+
+            Title = ApplicationCookie.Title;
+
+            _windowManagerService.ShowWindow(HostApplication.GetRequiredService<StageWindowViewModel>());
+            _windowManagerService.ShowWindow(HostApplication.GetRequiredService<MicroscopeWindowViewModel>());
+
+            isLoadingOk = true;
+        }
+        finally
         {
-            return;
+            if (isLoadingOk) LoadCalibrationStatus();
+            StatusViewModel.Monitor(isLoadingOk);
         }
-
-        var recipeManagementViewModel = HostApplication.GetRequiredService<RecipeManagementViewModel>();
-        recipeManagementViewModel.IsLoading = true;
-        showDialog = _windowManagerService.ShowDialog(recipeManagementViewModel);
-        if (showDialog == false)
-        {
-            return;
-        }
-
-        Title = ApplicationCookie.Title;
-
-        _windowManagerService.ShowWindow(HostApplication.GetRequiredService<StageWindowViewModel>());
-        _windowManagerService.ShowWindow(HostApplication.GetRequiredService<MicroscopeWindowViewModel>());
-
-        StatusViewModel.Monitor();
-
-        IsLoadingOk = true;
-        LoadCalibrationStatus();
     }
 
     [RelayCommand]
@@ -433,8 +434,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         {
             try
             {
-                if (IsLoadingOk == false) return;
-
                 var calibrationSetting = _cacheProvider.GetOrDefault<CalibrationSetting>();
                 CalibrationSetting.AdaptIn(calibrationSetting);
 

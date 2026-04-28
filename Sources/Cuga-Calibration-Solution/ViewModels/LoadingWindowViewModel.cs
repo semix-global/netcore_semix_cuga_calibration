@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Setting;
@@ -71,7 +72,7 @@ public sealed partial class LoadingWindowViewModel(
 
             Message = "Connected OK!!!";
 
-            await statusViewModel.RefreshCookieAsync(true);
+            Guard.IsTrue(await statusViewModel.RefreshCookieAsync(true));
 
             calibrationSetting.AdaptIn(cacheProvider.GetOrDefault<CalibrationSetting>());
 

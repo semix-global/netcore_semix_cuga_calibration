@@ -1,17 +1,21 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Attributes;
+using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
+using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using R3;
 
 namespace CugaCalibration.ViewModels.Common;
 
+[IOCAppService(ServiceType = typeof(StatusViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class StatusViewModel(
     ConfigViewModel configViewModel,
     LaserViewModel laserViewModel,
@@ -22,7 +26,7 @@ public sealed partial class StatusViewModel(
     CIBViewModel cibViewModel,
     ApplicationCookie applicationCookie,
     IDialogWindowProvider dialogWindowProvider,
-    ILogger<StatusViewModel> logger) : ObservableObject, IDisposable
+    ILogger<StatusViewModel> logger) : ViewModelBase, IDisposable
 {
     private readonly ManualResetEventSlim _manualResetEvent = new(false);
     private long _frameCount;
@@ -51,10 +55,17 @@ public sealed partial class StatusViewModel(
     public partial double Fps { get; set; }
 
     [ObservableProperty]
-    public partial bool IsEnable { get; set; } = true;
+    public partial bool IsEnable { get; private set; }
 
-    public void Monitor()
+    public void Monitor(bool isEnable)
     {
+        _disposable0?.Dispose();
+        _disposable1?.Dispose();
+
+        if (isEnable == false) return;
+
+        IsEnable = true;
+
 #pragma warning disable IDISP003
 
         _disposable0 = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorMilliseconds))
@@ -124,9 +135,9 @@ public sealed partial class StatusViewModel(
             Guard.IsNotEmpty(applicationCookie.ProductivityInformations);
             Guard.IsNotEmpty(applicationCookie.CIBInformations);
 
-            if (isSilent == false) dialogWindowProvider.ShowDialog("Refresh Cookie Ok!");
-
             _manualResetEvent.Set();
+
+            if (isSilent == false) dialogWindowProvider.ShowDialog("Refresh Cookie Ok!");
 
             return true;
         }
