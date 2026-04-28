@@ -5,12 +5,21 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using System.Collections.ObjectModel;
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.CameraAlignment;
 
 public sealed partial class PupilCameraAlignmentCache : CalibrationCacheBase
 {
     [ObservableProperty]
     private Point _hazeWaferPosition;
+
+    [ObservableProperty]
+    private string _primaryImageFilePath1 = string.Empty;
+
+    [ObservableProperty]
+    private string _primaryImageFilePath2 = string.Empty;
+
+    [ObservableProperty]
+    private string _primaryImageFilePath3 = string.Empty;
 
     [ObservableProperty]
     private string _originImageFilePath1 = string.Empty;

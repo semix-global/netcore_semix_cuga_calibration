@@ -9,7 +9,6 @@ using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.CIB.MMD;
-using Core.Models.Models.Fourier;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.BeamStabilizer;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -20,6 +19,7 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Optics.INC;
 using Core.Models.Models.Optics.Relay;
 using Net.Utilities.WPF.Enums;
+using Core.Models.Models.Fourier.CameraAlignment;
 
 namespace CugaCalibration.ViewModels.Flourier;
 
@@ -27,19 +27,19 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel
 {
     private bool LoadDepends()
     {
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AdsXGainsItemDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsXGainsItemDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<AdsYGainsItemDto>(out _, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsYGainsItemDto>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -51,7 +51,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDTO>(out var microscopeCalChip, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
@@ -147,7 +147,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<PupilCameraAlignmentDTO>(out var pupilCameraAlignment, out errorMessage) == false)
+        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<PupilCameraAlignmentDTO>(out _, out errorMessage) == false)
         {
             DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;

@@ -25,8 +25,7 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <RichTextBox Grid.Row="1"
-                                 Margin="5"
+                    <RichTextBox Margin="5"
                                  Padding="5"
                                  FontSize="14"
                                  IsReadOnly="True"
@@ -81,7 +80,9 @@
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.CgFFBoxBeginNumber1Ch2}" />
-                    <Button Content="Get CH2 Begin Number1" Command="{Binding GetCH2BeginNumber1Command}" />
+                    <Button Content="Get CH2 Begin Number1"
+                            Command="{Binding GetCh2BeginNumber1Command}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
                     <hc:NumericUpDown Width="145"
                                       Margin="0,0,0,5"
                                       hc:InfoElement.Title="End Number1: "
@@ -89,7 +90,9 @@
                                       Minimum="2"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.CgFFBoxEndNumber1Ch2}" />
-                    <Button Content="Get CH2 End Number1" Command="{Binding GetCH2EndNumber1Command}" />
+                    <Button Content="Get CH2 End Number1"
+                            Command="{Binding GetCh2EndNumber1Command}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Grid.Row="1"
@@ -103,7 +106,9 @@
                                       Minimum="1"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.CgFFBoxBeginNumber2Ch2}" />
-                    <Button Content="Get CH2 Begin Number2" Command="{Binding GetCH2BeginNumber2Command}" />
+                    <Button Content="Get CH2 Begin Number2"
+                            Command="{Binding GetCh2BeginNumber2Command}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
                     <hc:NumericUpDown Width="145"
                                       Margin="0,0,0,5"
                                       hc:InfoElement.Title="End Number2: "
@@ -111,7 +116,9 @@
                                       Minimum="2"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.CgFFBoxEndNumber2Ch2}" />
-                    <Button Content="Get CH2 End Number2" Command="{Binding GetCH2EndNumber2Command}" />
+                    <Button Content="Get CH2 End Number2"
+                            Command="{Binding GetCh2EndNumber2Command}"
+                            Style="{StaticResource ButtonPrimary.Loading}" />
                 </hc:UniformSpacingPanel>
             </Border>
             <Border Grid.Row="2"

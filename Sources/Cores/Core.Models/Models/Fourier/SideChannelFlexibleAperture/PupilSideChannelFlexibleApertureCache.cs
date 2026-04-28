@@ -5,7 +5,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using System.Collections.ObjectModel;
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationCacheBase
 {
@@ -106,10 +106,10 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
     private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = new ObservableCollection<int>();
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<int>();
+    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<double>();
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxHeightRelationPercentListCh2 = new ObservableCollection<int>();
+    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh2 = new ObservableCollection<double>();
 
     [ObservableProperty]
     private ObservableCollection<Rect> _currentImageRectListFirstCh1 = new();

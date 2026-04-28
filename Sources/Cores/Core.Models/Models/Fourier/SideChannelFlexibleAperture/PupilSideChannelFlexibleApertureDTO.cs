@@ -8,7 +8,7 @@ using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
 using Point = Net.Utilities.Models.Geometries.Point;
 
-namespace Core.Models.Models.Fourier;
+namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 [CacheVersion("1.0.0")]
 public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDtoBase, ICloneable<PupilSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>
@@ -56,10 +56,10 @@ public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDto
     private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = new ObservableCollection<int>();
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<int>();
+    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<double>();
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxHeightRelationPercentListCh2 = new ObservableCollection<int>();
+    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh2 = new ObservableCollection<double>();
 
     [ObservableProperty]
     private ObservableCollection<Rect> _currentImageRectListFirstCh1 = new();
