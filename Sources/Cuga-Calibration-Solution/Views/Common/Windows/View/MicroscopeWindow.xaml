@@ -5,10 +5,9 @@
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.View"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            Width="200"
-           Height="195"
+           Height="200"
            d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeWindowViewModel}"
            Loaded="OnLoaded"
            Closed="OnClosed"
@@ -69,29 +68,59 @@
                 IsEnabled="{Binding IsEnable}"
                 Style="{StaticResource BorderRegion}"
                 Effect="{StaticResource EffectShadow1}">
-            <ItemsControl Grid.Row="2"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                <i:Interaction.Behaviors>
-                    <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding StatusViewModel.MicroscopeLensInformation, Mode=TwoWay}" />
-                </i:Interaction.Behaviors>
-                <ItemsControl.ItemsPanel>
+            <ListBox HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
+                     SelectedItem="{Binding StatusViewModel.MicroscopeLensInformation}"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" />
                     </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
                     <DataTemplate>
                         <RadioButton Content="{Binding LensName}"
+                                     IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected, Mode=TwoWay}"
                                      Command="{Binding DataContext.SwitchMagnificationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                      CommandParameter="{Binding}"
-                                     FontSize="15"
-                                     Tag="{Binding}"
-                                     GroupName="67fa1ece-8b12-4ec1-9443-078bb25af07b" />
+                                     FontSize="15" />
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Border>
         <!--#endregion-->
     </Grid>
