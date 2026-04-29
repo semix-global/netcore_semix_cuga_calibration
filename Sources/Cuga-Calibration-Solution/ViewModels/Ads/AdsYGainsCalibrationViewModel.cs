@@ -938,7 +938,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             {
                 SetDefaultYValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Calibrate Z1Z2Z3 Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
                 return result;
             }
@@ -1193,7 +1193,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             {
                 SetDefaultYValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Calibrate HRP Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, "Error",HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
                 return result;
             }
@@ -1321,7 +1321,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             {
                 SetDefaultYValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Verify Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, "Error",HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 resultTemp = false;
                 return resultTemp;
             }

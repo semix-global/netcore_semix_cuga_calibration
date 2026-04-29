@@ -764,7 +764,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 SetDefaultXValue(cancellationToken);
 
                 DialogWindowProvider.ShowDialog("Calibrate Z1Z2 Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
                 return result;
             }
@@ -989,7 +989,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             {
                 SetDefaultXValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Calibrate HRP Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 result = false;
                 return result;
             }
@@ -1104,7 +1104,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             {
                 SetDefaultXValue(cancellationToken);
                 DialogWindowProvider.ShowDialog("Verify Failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: {ex.Message}!"), HtmlLogUniqueId.LoggingHtml());
                 resultTemp = false;
                 return resultTemp;
             }
