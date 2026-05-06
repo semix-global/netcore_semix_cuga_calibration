@@ -82,21 +82,21 @@
                 </Grid.ColumnDefinitions>
 
                 <!--#region Left-->
-                <TreeView Margin="5" ItemsSource="{Binding ApplicationCookie.CalibrationMenu.ChildList}">
+                <TreeView Margin="5" ItemsSource="{Binding ApplicationCookie.CalibrationMenu.Children}">
                     <TreeView.ItemContainerStyle>
                         <!--  防止覆盖原有样式  -->
                         <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
                             <Setter Property="IsExpanded" Value="True" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ChildList.Count, Converter={StaticResource IntIsLessThan1ToBooleanConverter}}" Value="True">
+                                <DataTrigger Binding="{Binding Children.Count, Converter={StaticResource IntIsLessThan1ToBooleanConverter}}" Value="True">
                                     <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.Command" Value="{Binding DataContext.OpenCalibrationCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" />
-                                    <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.CommandParameter" Value="{Binding SysMenuDTO.Component}" />
+                                    <Setter Property="wpfAttachedHelper:MouseDoubleClickHelper.CommandParameter" Value="{Binding SysMenu.Component}" />
                                 </DataTrigger>
                                 <DataTrigger Value="True">
                                     <DataTrigger.Binding>
                                         <MultiBinding Converter="{StaticResource MultiValueEqualityViewModelConverter}">
                                             <!--  任何一个Binding变动都会触发MultiBinding  -->
-                                            <Binding Mode="OneWay" Path="SysMenuDTO.Component" />
+                                            <Binding Mode="OneWay" Path="SysMenu.Component" />
                                             <Binding Mode="OneWay"
                                                      Path="DataContext.ActiveItem"
                                                      RelativeSource="{RelativeSource FindAncestor,
@@ -109,7 +109,7 @@
                         </Style>
                     </TreeView.ItemContainerStyle>
                     <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding ChildList}">
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                             <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
                                 <Path x:Name="Path"
                                       Width="10"
@@ -118,14 +118,14 @@
                                       Data="{StaticResource ErrorGeometry}"
                                       Fill="{DynamicResource DarkDangerBrush}"
                                       Stretch="Uniform" />
-                                <TextBlock Text="{Binding SysMenuDTO.Name}" />
+                                <TextBlock Text="{Binding SysMenu.Name}" />
                             </StackPanel>
                             <HierarchicalDataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="true">
                                     <Setter TargetName="Path" Property="Data" Value="{StaticResource SuccessGeometry}" />
                                     <Setter TargetName="Path" Property="Fill" Value="{StaticResource DarkSuccessBrush}" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding SysMenuDTO.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
+                                <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
                                     <Setter TargetName="Path" Property="Data" Value="{x:Null}" />
                                     <Setter TargetName="Path" Property="Margin" Value="0" />
                                 </DataTrigger>

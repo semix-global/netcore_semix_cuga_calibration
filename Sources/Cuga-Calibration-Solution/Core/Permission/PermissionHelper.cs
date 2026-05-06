@@ -25,7 +25,7 @@ public static class PermissionHelper
         foreach (var detail in list.Where(t => string.IsNullOrWhiteSpace(t.Component) == false && string.IsNullOrWhiteSpace(t.Perms) == false))
         {
             // 有权限的不处理
-            if (applicationCookie.RoleSysMenuList.Any(t => t.Id == detail.Id)) continue;
+            if (applicationCookie.CurrentRoleSysMenus.Any(t => t.Id == detail.Id)) continue;
 
             var type = Type.GetType(detail.Component);
             if (type is null) continue;

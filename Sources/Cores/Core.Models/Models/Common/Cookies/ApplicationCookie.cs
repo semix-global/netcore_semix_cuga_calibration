@@ -11,34 +11,42 @@ namespace Core.Models.Models.Common.Cookies;
 public sealed partial class ApplicationCookie : ObservableObject
 {
     /// <summary>
-    /// 程序名称
-    /// </summary>
-    [ObservableProperty]
-    public partial string ApplicationName { get; set; } = string.Empty;
-
-    /// <summary>
     /// 设备编码
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Title))]
     public partial string DeviceCode { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 程序名称
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Title))]
+    public partial string ApplicationName { get; set; } = string.Empty;
 
     /// <summary>
     /// 用户
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Title))]
     public partial SysUserDTO SysUser { get; set; } = new();
 
     /// <summary>
-    /// 权限菜单
+    /// 标题
     /// </summary>
-    [ObservableProperty]
-    public partial List<SysMenuDTO> RoleSysMenuList { get; set; } = [];
+    public string Title => $"{DeviceCode} - {ApplicationName} [{SysUser.NickName}]";
 
     /// <summary>
-    /// 全部权限菜单权限
+    /// 当前权限菜单集合
     /// </summary>
     [ObservableProperty]
-    public partial List<SysMenuDTO> AllRoleSysMenuList { get; set; } = [];
+    public partial IReadOnlyList<SysMenuDTO> CurrentRoleSysMenus { get; set; } = [];
+
+    /// <summary>
+    /// 全部权限菜单集合
+    /// </summary>
+    [ObservableProperty]
+    public partial IReadOnlyList<SysMenuDTO> AllRoleSysMenus { get; set; } = [];
 
     /// <summary>
     /// 校准菜单
@@ -204,8 +212,6 @@ public sealed partial class ApplicationCookie : ObservableObject
             .First()
             .Select(c => c.ChannelId)
     ];
-
-    public string Title => $"{ApplicationName} [{SysUser.NickName}]";
 
     /// <summary>
     /// 硬件状态配置

@@ -9,11 +9,11 @@ namespace Core.Models.Models.Common.Cookies;
 public sealed partial class CalibrationMenu : ObservableObject
 {
     [ObservableProperty]
-    private SysMenuDTO _sysMenuDTO = new();
+    public partial SysMenuDTO SysMenu { get; set; } = new();
 
     [ObservableProperty]
-    private bool _isCalibrated;
+    public partial CalibrationItemStatus Status { get; set; } = new();
 
     [ObservableProperty]
-    private List<CalibrationMenu> _childList = [];
+    public partial IReadOnlyList<CalibrationMenu> Children { get; set; } = [];
 }
