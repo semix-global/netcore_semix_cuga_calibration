@@ -1,7 +1,6 @@
 ﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.File.Setting.Children.SettingCommonUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:enumsUtilities="clr-namespace:Net.Utilities.Models.Enums.Loggings;assembly=Net.Utilities.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
@@ -19,27 +18,39 @@
         <UniformGrid Columns="2" Rows="2">
             <GroupBox Margin="5" Header="Min Log Level">
                 <Border>
-                    <ItemsControl HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumsUtilities:LogLevelEnum}}}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:RadioButtonSelectedItemBehavior SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" />
-                        </i:Interaction.Behaviors>
-                        <ItemsControl.ItemsPanel>
+                    <ListBox HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumsUtilities:LogLevelEnum}}}"
+                             SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum}"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10" />
                             </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <RadioButton Content="{Binding Converter={StaticResource EnumDescriptionConverter}}"
+                                             IsChecked="{Binding IsSelected, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
                                              HorizontalAlignment="Left"
-                                             FontSize="15"
-                                             GroupName="67fa1ece-8b12-4ec1-9443-078bb25af07b"
-                                             Tag="{Binding}" />
+                                             FontSize="15" />
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Border>
             </GroupBox>
             <GroupBox Margin="5" Header="HardWare Param">

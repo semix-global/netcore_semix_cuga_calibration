@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using System;
 
 namespace Core.Wcf.Models;
@@ -29,6 +28,6 @@ public class CalibrationBase
     /// <summary>
     /// 是否Ok
     /// </summary>
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     public bool IsOk => IsCalibrated && IsVerified;
 }

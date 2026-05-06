@@ -1,10 +1,8 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.LineCentricity;
@@ -24,12 +22,13 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase
     [ObservableProperty]
     private Point _threshold;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBLineCentricityCacheItem>))]
+    public ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem> Items { get; init; } = [];
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBLineCentricityCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBLineCentricityCacheItem>(() => new CIBLineCentricityCacheItem()));
+    public CIBLineCentricityCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLineCentricityCacheItem());
 }
 
 public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase

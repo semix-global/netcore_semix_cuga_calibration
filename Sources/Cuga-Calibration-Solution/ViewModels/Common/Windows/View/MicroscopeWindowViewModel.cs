@@ -37,7 +37,9 @@ public sealed partial class MicroscopeWindowViewModel(
 
             try
             {
-                microscopeViewModel.SwitchMicroscopeLensInformation(StatusViewModel.MicroscopeLensInformation, true);
+                StatusViewModel.MicroscopeLensInformation = microscopeLensInformation;
+
+                microscopeViewModel.SwitchMicroscopeLensInformation(microscopeLensInformation, true);
             }
             catch (Exception ex)
             {

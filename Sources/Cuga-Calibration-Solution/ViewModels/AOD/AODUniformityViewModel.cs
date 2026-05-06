@@ -28,6 +28,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
@@ -855,7 +856,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         cancellationToken.ThrowIfCancellationRequested();
 
                         var imageHorizontalProjectsVector = Vector<double>.Build.Dense([.. itemItem.Items[times].ImageHorizontalProjects.Skip(Cache.Item.ImageHorizontalProjectsSkipCout).SkipLast(Cache.Item.ImageHorizontalProjectsSkipLastCout)]);
-                        var targetPMTValue = CalibratingItem.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, new Lazy<double>(imageHorizontalProjectsVector.Average));
+                        var targetPMTValue = CalibratingItem.TargetPMTValues.GetOrAdd(itemItem.CIBInformation, _ => imageHorizontalProjectsVector.Average());
 
                         itemItem.Items[times].MaxRate = imageHorizontalProjectsVector.AbsoluteMaximum() / targetPMTValue;
                         itemItem.Items[times].MinRate = imageHorizontalProjectsVector.AbsoluteMinimum() / targetPMTValue;
@@ -972,12 +973,12 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                         var pPower = await GetPowerAsync(OpticsPolarizationModeEnum.P);
                         var sPower = await GetPowerAsync(OpticsPolarizationModeEnum.S);
                         var cPower = await GetPowerAsync(OpticsPolarizationModeEnum.C);
-                        CalibratingItem.OpticsPolarizationModeEnumMeasurePowers =
-                        [
-                            new KeyValuePair<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnum.P, pPower),
-                            new KeyValuePair<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnum.S, sPower),
-                            new KeyValuePair<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnum.C, cPower)
-                        ];
+                        CalibratingItem.OpticsPolarizationModeEnumMeasurePowers = new ConcurrentDictionary<OpticsPolarizationModeEnum, double>
+                        {
+                            [OpticsPolarizationModeEnum.P] = pPower,
+                            [OpticsPolarizationModeEnum.S] = sPower,
+                            [OpticsPolarizationModeEnum.C] = cPower
+                        };
 
                         LogDetails(true);
                         Logger.LogHtmlInformation("Plots", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());

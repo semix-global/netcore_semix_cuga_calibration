@@ -67,7 +67,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         };
 
         var sxExecuteRet = Invoke(() => Service!.GetFFReviewImgForTrigger(id, wcfParam, UtilitiesPointExtension.ToSxPointD(pos), width));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<byte[]>(sxExecuteRet.ErrorMsg, Array.Empty<byte>());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<byte[]>(sxExecuteRet.ErrorMsg, []);
 
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }

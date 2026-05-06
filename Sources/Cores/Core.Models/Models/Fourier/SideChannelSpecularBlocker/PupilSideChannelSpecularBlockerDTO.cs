@@ -27,16 +27,16 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
     public Point _cgFFBoxBeginPositionCh2 = Point.Origin;
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh1 = new();
+    public List<int> _cgFFBoxBeginAndEndNumberCh1 = [];
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh2 = new();
+    public List<int> _cgFFBoxBeginAndEndNumberCh2 = [];
 
     [ObservableProperty]
-    public List<double> _cgFFBoxMoveDownPercentListCh1 = new List<double> { 0.3 };
+    public List<double> _cgFFBoxMoveDownPercentListCh1 = [0.3];
 
     [ObservableProperty]
-    public List<double> _cgFFBoxMoveDownPercentListCh2 = new List<double> { 0.3 };
+    public List<double> _cgFFBoxMoveDownPercentListCh2 = [0.3];
 
     #region Mapper
 

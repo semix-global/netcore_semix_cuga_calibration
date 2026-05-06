@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
@@ -18,12 +17,13 @@ public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBa
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem>))]
+    public ConcurrentDictionary<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AutoFocusGlobalFocusOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<AutoFocusGlobalFocusOffsetCacheItem>(() => new AutoFocusGlobalFocusOffsetCacheItem()));
+    public AutoFocusGlobalFocusOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new AutoFocusGlobalFocusOffsetCacheItem());
 
     /// <summary>
     /// 电机值cuga当前配置位置，防呆用

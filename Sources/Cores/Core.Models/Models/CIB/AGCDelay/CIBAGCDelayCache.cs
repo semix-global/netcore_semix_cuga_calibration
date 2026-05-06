@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -21,12 +20,13 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 2;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBAGCDelayCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBAGCDelayCacheItem>))]
+    public ConcurrentDictionary<ProductivityInformation, CIBAGCDelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBAGCDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBAGCDelayCacheItem>(() => new CIBAGCDelayCacheItem()));
+    public CIBAGCDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBAGCDelayCacheItem());
 }
 
 public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase

@@ -777,7 +777,7 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 暗场自动聚焦, AB两路灯亮度校准对象
     /// </summary>
-    public CalibrationLaserAutoFocus CalibrationLaserAutoFocus { get; set; } = new CalibrationLaserAutoFocus();
+    public CalibrationLaserAutoFocus CalibrationLaserAutoFocus { get; set; } = new();
 
     /// <summary>
     /// 台面功率计校准对象
@@ -812,7 +812,7 @@ public sealed class CalibrationLaserObj
     /// <summary>
     /// 暗场相机的Swath扫描正反向误差校准对象列表
     /// </summary>
-    public CalibrationLaserLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = [];
+    public CalibrationCIBLineOrientationOffsetItem[] CalibrationLaserLineOrientationOffsetItemList { get; set; } = [];
 
     /// <summary>
     /// 暗场DOE角度校准对象
@@ -840,6 +840,11 @@ public sealed class CalibrationLaserObj
     public CalibrationLaserCIBXTCItem[] CalibrationLaserCIBXTCItems { get; set; } = [];
 
     /// <summary>
+    /// CIB AGC Delay 校准对象列表
+    /// </summary>
+    public CalibrationLaserCIBAGCDelayItem[] CalibrationLaserCIBAGCDelayItems { get; set; } = [];
+
+    /// <summary>
     /// AOD Uniformity 校准对象列表
     /// </summary>
     public CalibrationLaserAODUniformityItem[] CalibrationLaserAODUniformityItems { get; set; } = [];
@@ -861,7 +866,7 @@ public sealed class CalibrationLaserObj
 }
 ```
 
-## ==4.1.== 自动聚焦校准: `CalibrationLaserAutoFocus`
+## 4.1. 自动聚焦校准: `CalibrationLaserAutoFocus`
 
 ```csharp
 /// <summary>
@@ -932,7 +937,7 @@ public sealed class CalibrationLaserAutoFocus : CalibrationBase
 }
 ```
 
-## ==4.2.== Laser 台面功率计校准：`CalibrationLaserOpticalPower`
+## 4.2. Laser 台面功率计校准：`CalibrationLaserOpticalPower`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 > 
@@ -1036,6 +1041,11 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
     public double RSquared { get; set; }
 
     /// <summary>
+    /// 饱和系数
+    /// </summary>
+    public double SaturationCoefficient { get; set; }
+
+    /// <summary>
     /// 系数曲线通过三次多项式拟合后的曲线值
     /// </summary>
     public IReadOnlyList<CgPoint> CoefficientFitMeasurePowerRatePoints { get; set; }
@@ -1047,7 +1057,7 @@ public sealed class CalibrationAttenuatorObj : CalibrationBase
 }
 ```
 
-## ==4.4.==  AOD 延迟校准: `CalibrationLaserAodDelayItem`
+## 4.4.  AOD 延迟校准: `CalibrationLaserAodDelayItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 > 
@@ -1105,7 +1115,7 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
 }
 ```
 
-## ==4.6.== AOD Prescan均匀性校准: `CalibrationLaserAODUniformityItem`
+## 4.6. AOD Prescan均匀性校准: `CalibrationLaserAODUniformityItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.CgMagTypeEnum == 幅值)` 判断`is not null`后使用
 >
@@ -1152,49 +1162,62 @@ public sealed class CalibrationLaserAODUniformityItem : CalibrationBase
 }
 ```
 
-## 4.7. CIB的采样窗口完全同步校准: `CalibrationLaserXTCCalibrationItem`
+## ==4.7.== CIB的采样窗口完全同步校准: `CalibrationLaserCIBXTCItem`
 
-----
+根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 
-> 根据不同 `列表.SingleOrDefault(t => t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId)` 判断`is not null`后使用
-> 
-> 个数： 3 * 15 = 45
+`Items`属性按照`列表.SingleOrDefault(t.PMTId== PMTId && t.ChannelId== ChannelId)`判断`is not null`后使用
+
+个数：OI 3 NI 2
+
+Items个数：15 * 3 = 45
 
 ```cs
 /// <summary>
-/// LaserXTCCalibration
+/// CIB XTC 校准
 /// </summary>
 [Serializable]
-public sealed class CalibrationLaserXTCCalibrationItem : CalibrationBase
+public sealed class CalibrationLaserCIBXTCItem : CalibrationBase
 {
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
     /// <summary>
     /// Mag类型
     /// </summary>
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
     /// <summary>
-    /// 暗场相机ID
+    /// 校准结果, **需要下发CIB硬件**
     /// </summary>
-    public int PmtId { get; set; }
+    public IReadOnlyList<Item> Items { get; set; }
 
     /// <summary>
-    /// 当前暗场Mag和PmtId下的通道1延迟时间, **需要下发Laser硬件**
+    /// 每个CIB的校准结果
     /// </summary>
-    public int CH1Delay { get; set; }
+    public sealed class Item
+    {
+        /// <summary>
+        /// CIB PMT ID
+        /// </summary>
+        public int PMTId { get; set; }
 
-    /// <summary>
-    /// 当前暗场Mag和PmtId下的通道2延迟时间, **需要下发Laser硬件**
-    /// </summary>
-    public int CH2Delay { get; set; }
+        /// <summary>
+        /// CIB Channel ID
+        /// </summary>
+        public int ChannelId { get; set; }
 
-    /// <summary>
-    /// 当前暗场Mag和PmtId下的通道3延迟时间, **需要下发Laser硬件**
-    /// </summary>
-    public int CH3Delay { get; set; }
+        /// <summary>
+        /// 延迟 PMTDelay SenseDelay, **需要下发CIB硬件**
+        /// </summary>
+        public double Delay { get; set; }
+    }
 }
 ```
 
-## ==4.8.== CIB 暗场相机Y像素尺寸校准: `CalibrationLaserPixelSizeItem`
+## 4.8. CIB 暗场相机Y像素尺寸校准: `CalibrationLaserPixelSizeItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.PmtId == PmtId)` 判断`is not null`后使用
 > 
@@ -1229,7 +1252,7 @@ public sealed class CalibrationLaserPixelSizeItem : CalibrationBase
 }
 ```
 
-## ==4.9.== CIB 暗场相机X像素尺寸校准: `CalibrationLaserXPixelSizeItem`
+## 4.9. CIB 暗场相机X像素尺寸校准: `CalibrationLaserXPixelSizeItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
 > 
@@ -1264,7 +1287,7 @@ public sealed class CalibrationLaserXPixelSizeItem : CalibrationBase
 }
 ```
 
-## ==4.10.== CIB 明暗场中心的offset校准: `CalibrationLaserLineCentricityItem`
+## 4.10. CIB 明暗场中心的offset校准: `CalibrationLaserLineCentricityItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.PmtId == PmtId)` 判断`is not null`后使用
 > 
@@ -1309,7 +1332,7 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 }
 ```
 
-## ==4.11.== CIB MMD校准: `CalibrationLaserCIBMMDItem`
+## 4.11. CIB MMD校准: `CalibrationLaserCIBMMDItem`
 
 根据不同 `列表.SingleOrDefault(t => t.PMTId== PMTId && t.ChannelId== ChannelId)` 判断`is not null`后使用
 
@@ -1344,7 +1367,64 @@ public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
 }
 ```
 
-## ==4.12.== ~~PMT AGC Delay~~
+## 4.12. CIB的AGC完全同步校准: `CalibrationLaserCIBAGCDelayItem`
+
+根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
+
+`Items`属性按照`列表.SingleOrDefault(t.PMTId== PMTId && t.ChannelId== ChannelId)`判断`is not null`后使用
+
+个数：OI 3 NI 2
+
+Items个数：15 * 3 = 45
+
+```cs
+/// <summary>
+/// CIB AGC Delay 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserCIBAGCDelayItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    public string CgNIOIType => CgNIOITypeEnum.ToString();
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    public string CgMagType => CgMagTypeEnum.ToString();
+
+    /// <summary>
+    /// 校准结果, **需要下发CIB硬件**
+    /// </summary>
+    public IReadOnlyList<Item> Items { get; set; }
+
+    /// <summary>
+    /// 每个CIB的校准结果
+    /// </summary>
+    public sealed class Item
+    {
+        /// <summary>
+        /// CIB PMT ID
+        /// </summary>
+        public int PMTId { get; set; }
+
+        /// <summary>
+        /// CIB Channel ID
+        /// </summary>
+        public int ChannelId { get; set; }
+
+        /// <summary>
+        /// 延迟 DACDealy, **需要下发CIB硬件**
+        /// </summary>
+        public double Delay { get; set; }
+    }
+}
+```
 
 ## 4.13. DOE Angle
 
@@ -1359,7 +1439,7 @@ public sealed class CalibrationLaserDOEAngle : CalibrationBase
 }
 ```
 
-## ==4.14.== CIB Light Matching校准: `CalibrationLaserCIBLightMatchingItem`
+## 4.14. CIB Light Matching校准: `CalibrationLaserCIBLightMatchingItem`
 
 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.OpticsApodizationModeEnum == 切趾 && t.OpticsPolarizationModeEnum == 光学偏振 && t.CollectorPolarizationModeEnum == 采集偏振)` 判断`is not null`后使用
 
@@ -1509,7 +1589,7 @@ public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
 }
 ```
 
-## ==4.16.== Optics Relay校准: `CalibrationOpticsRelay`
+## 4.16. Optics Relay校准: `CalibrationOpticsRelay`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI)` 判断`is not null`后使用
 >

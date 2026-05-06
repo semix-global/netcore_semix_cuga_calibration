@@ -115,22 +115,22 @@ public sealed class CacheSerializationTest : IDisposable
 
         var cache = new CIBLineCentricityCache
         {
-            Items =
-            [
-                new KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>(_oiProductivityInfo, oiCacheItem),
-                new KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>(_niProductivityInfo, niCacheItem)
-            ]
+            Items = new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>
+            {
+                [_oiProductivityInfo] = oiCacheItem,
+                [_niProductivityInfo] = niCacheItem
+            }
         };
 
         // Act - 序列化和反序列化
-        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentBag<KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>>(cache.Items.OrderBy(t => t.Key)));
+        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(cache.Items.OrderBy(t => t.Key)));
         var json = JsonConvert.SerializeObject(cache);
         var deserialized = JsonConvert.DeserializeObject<CIBLineCentricityCache>(json);
 
         // Assert
         deserialized.Should().NotBeNull();
         ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items),
-            new ConcurrentBag<KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>>(deserialized.Items.OrderBy(t => t.Key)));
+            new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(deserialized.Items.OrderBy(t => t.Key)));
 
         deserialized.Items.Should().NotBeNull();
         deserialized.Items.Should().HaveCount(2);
@@ -157,22 +157,22 @@ public sealed class CacheSerializationTest : IDisposable
 
         var cache = new ChuckAlignmentDegreeOffsetCache
         {
-            Items =
-            [
-                new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>((OpticsIlluminationModeEnum.OI, _oiProductivityInfo), oiCacheItem),
-                new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>((OpticsIlluminationModeEnum.NI, _niProductivityInfo), niCacheItem)
-            ]
+            Items = new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>
+            {
+                [(OpticsIlluminationModeEnum.OI, _oiProductivityInfo)] = oiCacheItem,
+                [(OpticsIlluminationModeEnum.NI, _niProductivityInfo)] = niCacheItem
+            }
         };
 
         // Act
-        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>>(cache.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>(cache.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
         var json = JsonConvert.SerializeObject(cache);
         var deserialized = JsonConvert.DeserializeObject<ChuckAlignmentDegreeOffsetCache>(json);
 
         // Assert
         deserialized.Should().NotBeNull();
         ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items),
-            new ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
+            new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
 
         deserialized.Items.Should().NotBeNull();
         deserialized.Items.Should().HaveCount(2);
