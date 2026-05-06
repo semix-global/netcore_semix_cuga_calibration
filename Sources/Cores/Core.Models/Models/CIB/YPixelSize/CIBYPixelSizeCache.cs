@@ -3,7 +3,6 @@ using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
@@ -25,12 +24,12 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBYPixelSizeCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem> Items { get; init; } = [];
 
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBYPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBYPixelSizeCacheItem>(() => new CIBYPixelSizeCacheItem()));
+    public CIBYPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBYPixelSizeCacheItem());
 }
 
 public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase

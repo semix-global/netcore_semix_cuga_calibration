@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
@@ -17,12 +16,12 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 0.999;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, AODAlignmentCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<ProductivityInformation, AODAlignmentCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AODAlignmentCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<AODAlignmentCacheItem>(() => new AODAlignmentCacheItem()));
+    public AODAlignmentCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new AODAlignmentCacheItem());
 }
 
 public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase

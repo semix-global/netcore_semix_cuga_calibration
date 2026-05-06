@@ -27,6 +27,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
@@ -452,7 +453,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CalibratingItem.TargetPixelValues = [.. cibInformations.Select(t => new KeyValuePair<CIBInformation, double>(t, (CalibratingItem.ProductivityInformation.OriginYPixels - 1d) / 2d))];
+            CalibratingItem.TargetPixelValues = new ConcurrentDictionary<CIBInformation, double>(cibInformations.Select(t => new KeyValuePair<CIBInformation, double>(t, (CalibratingItem.ProductivityInformation.OriginYPixels - 1d) / 2d)));
             CalibratingItem.Items =
             [
                 .. cibInformations.Select(t => new CIBAGCDelayDTOItem

@@ -23,10 +23,10 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
     private readonly string _xzSyncMockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test_xz_log.raw");
     private readonly string _cibMMDGainDTOFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\CIBMMDGainRelationshipDTO.xlsx");
 
-    private readonly ConcurrentDictionary<CIBInformation, bool> _agcStatusStore = new();
-    private readonly ConcurrentDictionary<CIBInformation, CIBProfileModeEnum> _profileModeStore = new();
-    private readonly ConcurrentDictionary<CIBInformation, bool> _l0KStatusStore = new();
-    private readonly ConcurrentDictionary<CIBInformation, bool> _markerStatusStore = new();
+    private readonly ConcurrentDictionary<CIBInformation, bool> _agcStatusStore = [];
+    private readonly ConcurrentDictionary<CIBInformation, CIBProfileModeEnum> _profileModeStore = [];
+    private readonly ConcurrentDictionary<CIBInformation, bool> _l0KStatusStore = [];
+    private readonly ConcurrentDictionary<CIBInformation, bool> _markerStatusStore = [];
 
     public SxExecuteRet<bool> Connect()
     {

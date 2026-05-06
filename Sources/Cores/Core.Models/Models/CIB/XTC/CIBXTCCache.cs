@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -21,12 +20,12 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 1;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBXTCCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<ProductivityInformation, CIBXTCCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBXTCCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBXTCCacheItem>(() => new CIBXTCCacheItem()));
+    public CIBXTCCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBXTCCacheItem());
 }
 
 public sealed partial class CIBXTCCacheItem : CalibrationCacheBase

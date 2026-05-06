@@ -49,13 +49,13 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public partial ConcurrentBag<KeyValuePair<CIBInformation, double>> TargetPixelValues { get; set; } = [];
+    public partial ConcurrentDictionary<CIBInformation, double> TargetPixelValues { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public partial ConcurrentBag<KeyValuePair<CIBInformation, IScatterPlotControl>> ScatterPlotControls { get; set; } = [];
+    public partial ConcurrentDictionary<CIBInformation, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
     #region Partial Method
 
@@ -80,7 +80,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlots();
     }
 
-    partial void OnTargetPixelValuesChanged(ConcurrentBag<KeyValuePair<CIBInformation, double>> value) => RefreshPlots();
+    partial void OnTargetPixelValuesChanged(ConcurrentDictionary<CIBInformation, double> value) => RefreshPlots();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
@@ -93,7 +93,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
     public CIBAGCDelayDTO(IReadOnlyList<CIBInformation> cibInformations) : this()
     {
-        ScatterPlotControls = [.. cibInformations.Select(t => new KeyValuePair<CIBInformation, IScatterPlotControl>(t, GetScatterPlotControl()))];
+        ScatterPlotControls = new ConcurrentDictionary<CIBInformation, IScatterPlotControl>(cibInformations.Select(t => new KeyValuePair<CIBInformation, IScatterPlotControl>(t, GetScatterPlotControl())));
     }
 
     private void RefreshPlot()
@@ -117,7 +117,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
     {
         foreach (var item in Items)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(item.CIBInformation, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(item.CIBInformation, _ => GetScatterPlotControl());
 
             try
             {
@@ -173,7 +173,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
         ProductivityInformation = ProductivityInformation.Clone(),
         Coefficient = Coefficient,
         Items = [.. Items.Select(t => t.Clone())],
-        TargetPixelValues = [.. TargetPixelValues],
+        TargetPixelValues = new ConcurrentDictionary<CIBInformation, double>(TargetPixelValues),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

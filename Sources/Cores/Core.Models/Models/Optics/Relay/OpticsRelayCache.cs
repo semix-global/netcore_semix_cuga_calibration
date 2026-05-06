@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -17,12 +16,12 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 0.999;
 
-    public ConcurrentBag<KeyValuePair<OpticsIlluminationModeEnum, OpticsRelayCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsRelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public OpticsRelayCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new Lazy<OpticsRelayCacheItem>(() => new OpticsRelayCacheItem()));
+    public OpticsRelayCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, _ => new OpticsRelayCacheItem());
 }
 
 public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase

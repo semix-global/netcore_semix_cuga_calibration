@@ -3,7 +3,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Newtonsoft.Json;
@@ -49,12 +48,12 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     [property: System.Xml.Serialization.XmlIgnore]
     private BitmapImageDrawable _bitmapImageDrawableCh31 = new();
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public PupilCenterChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new Lazy<PupilCenterChannelSpecularBlockerCacheItem>(() => new PupilCenterChannelSpecularBlockerCacheItem()));
+    public PupilCenterChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), _ => new PupilCenterChannelSpecularBlockerCacheItem());
 }
 
 public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : CalibrationCacheBase

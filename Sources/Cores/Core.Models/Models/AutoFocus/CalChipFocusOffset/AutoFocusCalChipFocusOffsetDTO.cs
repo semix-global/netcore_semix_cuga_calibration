@@ -30,17 +30,17 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDtoBase,
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>> Results { get; init; } = [];
+    public ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem> Results { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AutoFocusCalChipFocusOffsetDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, new Lazy<AutoFocusCalChipFocusOffsetDTOItem>(() => new AutoFocusCalChipFocusOffsetDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum }));
+    public AutoFocusCalChipFocusOffsetDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, _ => new AutoFocusCalChipFocusOffsetDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     public AutoFocusCalChipFocusOffsetDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        Results = new ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>>
+        Results = new ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>
         ([
             .. Results.Select(r => new KeyValuePair<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>(r.Key, r.Value.Clone()))
         ]),
@@ -57,7 +57,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDtoBase,
         var undefineItemTemp = Results.TryGet(CalChipSiteModelEnum.UndefinedModel, out var undefinedItem) ? undefinedItem : null;
         var chuckItemTemp = Results.TryGet(CalChipSiteModelEnum.ChuckModel, out var chuckItem) ? chuckItem : null;
 
-        return new()
+        return new CalibrationAutoFocusCalChipFocusOffset
         {
             CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
             CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,

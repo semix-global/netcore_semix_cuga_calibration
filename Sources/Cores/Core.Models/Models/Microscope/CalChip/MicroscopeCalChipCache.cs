@@ -4,7 +4,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
@@ -23,12 +22,12 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public MicroscopeCalChipCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, new Lazy<MicroscopeCalChipCacheItem>(() => new MicroscopeCalChipCacheItem { CalChipSiteModelEnum = CalChipSiteModelEnum }));
+    public MicroscopeCalChipCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, _ => new MicroscopeCalChipCacheItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     #region DSW Alignment
 

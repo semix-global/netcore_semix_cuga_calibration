@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -14,12 +13,12 @@ public sealed partial class OpticsSCCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
-    public ConcurrentBag<KeyValuePair<OpticsIlluminationModeEnum, OpticsSCCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsSCCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public OpticsSCCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, new Lazy<OpticsSCCacheItem>(() => new OpticsSCCacheItem()));
+    public OpticsSCCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, _ => new OpticsSCCacheItem());
 }
 
 public sealed partial class OpticsSCCacheItem : CalibrationCacheBase

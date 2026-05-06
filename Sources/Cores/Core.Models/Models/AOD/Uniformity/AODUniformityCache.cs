@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -47,12 +46,12 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
-    public ConcurrentBag<KeyValuePair<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AODUniformityCacheItem Item => Items.GetOrAdd((ProductivityInformation, LaserLightInformation), new Lazy<AODUniformityCacheItem>(() => new AODUniformityCacheItem()));
+    public AODUniformityCacheItem Item => Items.GetOrAdd((ProductivityInformation, LaserLightInformation), _ => new AODUniformityCacheItem());
 }
 
 public sealed partial class AODUniformityCacheItem : CalibrationCacheBase

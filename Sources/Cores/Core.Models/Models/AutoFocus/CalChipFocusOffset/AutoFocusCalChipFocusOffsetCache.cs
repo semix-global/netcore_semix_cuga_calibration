@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -25,12 +24,12 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
     [NotifyPropertyChangedFor(nameof(Item))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AutoFocusCalChipFocusOffsetCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, new Lazy<AutoFocusCalChipFocusOffsetCacheItem>(() => new AutoFocusCalChipFocusOffsetCacheItem()));
+    public AutoFocusCalChipFocusOffsetCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, _ => new AutoFocusCalChipFocusOffsetCacheItem());
 }
 
 public sealed partial class AutoFocusCalChipFocusOffsetCacheItem : ObservableValidator

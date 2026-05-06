@@ -1,4 +1,4 @@
-using CommunityToolkit.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -73,7 +73,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public partial ConcurrentBag<KeyValuePair<CIBInformation, double>> TargetPMTValues { get; set; } = [];
+    public partial ConcurrentDictionary<CIBInformation, double> TargetPMTValues { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
@@ -91,7 +91,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     public partial IReadOnlyList<AODUniformityDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    public partial ConcurrentBag<KeyValuePair<OpticsPolarizationModeEnum, double>> OpticsPolarizationModeEnumMeasurePowers { get; set; } = [];
+    public partial ConcurrentDictionary<OpticsPolarizationModeEnum, double> OpticsPolarizationModeEnumMeasurePowers { get; set; } = [];
 
     #region Mapper
 
@@ -105,11 +105,11 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
         Mappings = [.. Mappings.Select(t => t.Clone())],
         ImageHorizontalProjectMappings = [.. ImageHorizontalProjectMappings.Select<int[], int[]>(t => [.. t])],
         PrescanAODWaveformProfileMappings = [.. PrescanAODWaveformProfileMappings.Select<int[], int[]>(t => [.. t])],
-        TargetPMTValues = [.. TargetPMTValues],
+        TargetPMTValues = new ConcurrentDictionary<CIBInformation, double>(TargetPMTValues),
         InitializeWindowItem = InitializeWindowItem.Clone(),
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        OpticsPolarizationModeEnumMeasurePowers = [.. OpticsPolarizationModeEnumMeasurePowers],
+        OpticsPolarizationModeEnumMeasurePowers = new ConcurrentDictionary<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnumMeasurePowers),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

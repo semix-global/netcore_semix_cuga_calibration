@@ -3,7 +3,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Newtonsoft.Json;
@@ -67,12 +66,12 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
     [ObservableProperty]
     private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh11 = new();
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
     [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public PupilSideChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new Lazy<PupilSideChannelSpecularBlockerCacheItem>(() => new PupilSideChannelSpecularBlockerCacheItem()));
+    public PupilSideChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), _ => new PupilSideChannelSpecularBlockerCacheItem());
 }
 
 public sealed partial class PupilSideChannelSpecularBlockerCacheItem : CalibrationCacheBase

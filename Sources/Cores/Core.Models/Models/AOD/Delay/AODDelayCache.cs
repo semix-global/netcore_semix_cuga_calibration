@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -12,12 +11,12 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, AODDelayCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public AODDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<AODDelayCacheItem>(() => new AODDelayCacheItem()));
+    public AODDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new AODDelayCacheItem());
 }
 
 public sealed partial class AODDelayCacheItem : CalibrationCacheBase

@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -48,12 +47,12 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
 
     public double ReviewSilicaSphereThreshold => SilicaSphereThreshold * ReviewThresholdRangeRatio;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBLightMatchingCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<ProductivityInformation, CIBLightMatchingCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBLightMatchingCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBLightMatchingCacheItem>(() => new CIBLightMatchingCacheItem()));
+    public CIBLightMatchingCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLightMatchingCacheItem());
 }
 
 public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase

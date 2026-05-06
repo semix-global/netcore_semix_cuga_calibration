@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -43,12 +42,12 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase
     [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBIlluminationProfileCacheItem>> Items { get; init; } = [];
+    public ConcurrentDictionary<ProductivityInformation, CIBIlluminationProfileCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBIlluminationProfileCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBIlluminationProfileCacheItem>(() => new CIBIlluminationProfileCacheItem()));
+    public CIBIlluminationProfileCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBIlluminationProfileCacheItem());
 }
 
 public sealed partial class CIBIlluminationProfileCacheItem : CalibrationCacheBase
