@@ -14,43 +14,43 @@ namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationDtoBase, ICloneable<PupilCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>
 {
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnXAngleCh3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnXAngleCh3 = [];
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnXWidthCh3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnXWidthCh3 = [];
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnXMotorRelationCh3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnXMotorRelationCh3 = [];
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnXMotorPositionCh3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnXMotorPositionCh3 = [];
 
     [ObservableProperty]
-    public ObservableCollection<Rect> _cgFFBoxTurnXRectPositionCh3 = new ObservableCollection<Rect>();
+    public ObservableCollection<Rect> _cgFFBoxTurnXRectPositionCh3 = [];
 
     [ObservableProperty]
-    public Point _cgFFBoxTurnXLightHoleCircleCenterCh3 = new Point();
+    public Point _cgFFBoxTurnXLightHoleCircleCenterCh3 = new();
 
     [ObservableProperty]
     public double _cgFFBoxTurnXLightHoleCircleRadiusCh3 = 0;
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnYAngleCh3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnYAngleCh3 = [];
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnYWidthCh3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnYWidthCh3 = [];
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnYMotorRelationCh3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnYMotorRelationCh3 = [];
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxTurnYMotorPositionCh3 = new ObservableCollection<double>();
+    public ObservableCollection<double> _cgFFBoxTurnYMotorPositionCh3 = [];
 
     [ObservableProperty]
-    public ObservableCollection<Rect> _cgFFBoxTurnYRectPositionCh3 = new ObservableCollection<Rect>();
+    public ObservableCollection<Rect> _cgFFBoxTurnYRectPositionCh3 = [];
 
     [ObservableProperty]
-    public Point _cgFFBoxTurnYLightHoleCircleCenterCh3 = new Point();
+    public Point _cgFFBoxTurnYLightHoleCircleCenterCh3 = new();
 
     [ObservableProperty]
     public double _cgFFBoxTurnYLightHoleCircleRadiusCh3 = 0;
@@ -65,7 +65,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
     public double _cgFFBoxPushXMotorPositionCh3 = 0;
 
     [ObservableProperty]
-    public Rect _cgFFBoxPushXRectPositionCh3 = new Rect();
+    public Rect _cgFFBoxPushXRectPositionCh3 = new();
 
     #region Mapper
 

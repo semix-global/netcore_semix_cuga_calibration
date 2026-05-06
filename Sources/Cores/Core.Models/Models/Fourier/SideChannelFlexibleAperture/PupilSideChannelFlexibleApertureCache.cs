@@ -13,13 +13,13 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch1Image = null;
+    private BitmapImage? _ch1Image;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch2Image = null;
+    private BitmapImage? _ch2Image;
 
     [ObservableProperty]
     private Point _hazeWaferPosition;
@@ -28,13 +28,13 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
     private string _originImageFilePath1 = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList1 = new ObservableCollection<string>();
+    private ObservableCollection<string> _originImageFilePathList1 = [];
 
     [ObservableProperty]
     private string _originImageFilePath2 = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList2 = new ObservableCollection<string>();
+    private ObservableCollection<string> _originImageFilePathList2 = [];
 
     [ObservableProperty]
     private RectROIDrawable? _rectROIDrawable;
@@ -43,7 +43,7 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
     private CircleROIDrawable? _circleROIDrawable;
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = new();
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -58,10 +58,10 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
     private BitmapImageDrawable _bitmapImageDrawableCh2 = new();
 
     [ObservableProperty]
-    private bool _isToggleSelectRectROIDrawableCh1 = false;
+    private bool _isToggleSelectRectROIDrawableCh1;
 
     [ObservableProperty]
-    private bool _isToggleSelectRectROIDrawableCh2 = false;
+    private bool _isToggleSelectRectROIDrawableCh2;
 
     [ObservableProperty]
     private Point _cgFFBoxBeginPositionCh1 = Point.Origin;
@@ -76,52 +76,52 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
     private Point _cgFFBoxEndPositionCh2 = Point.Origin;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber1Ch1 = 0;
+    private int _cgFFBoxBeginNumber1Ch1;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber2Ch1 = 0;
+    private int _cgFFBoxBeginNumber2Ch1;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber1Ch2 = 0;
+    private int _cgFFBoxBeginNumber1Ch2;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber2Ch2 = 0;
+    private int _cgFFBoxBeginNumber2Ch2;
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber1Ch1 = 0;
+    private int _cgFFBoxEndNumber1Ch1;
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber2Ch1 = 0;
+    private int _cgFFBoxEndNumber2Ch1;
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber1Ch2 = 0;
+    private int _cgFFBoxEndNumber1Ch2;
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber2Ch2 = 0;
+    private int _cgFFBoxEndNumber2Ch2;
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh1 = new ObservableCollection<int>();
+    private ObservableCollection<int> _cgFFBoxRodWidthListCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = new ObservableCollection<int>();
+    private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<double>();
+    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh2 = new ObservableCollection<double>();
+    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListFirstCh1 = new();
+    private ObservableCollection<Rect> _currentImageRectListFirstCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListFirstCh2 = new();
+    private ObservableCollection<Rect> _currentImageRectListFirstCh2 = [];
 
     [ObservableProperty]
-    private double _cgFFBoxAllRodsBeginPercentCh1 = 0;
+    private double _cgFFBoxAllRodsBeginPercentCh1;
 
     [ObservableProperty]
-    private double _cgFFBoxAllRodsBeginPercentCh2 = 0;
+    private double _cgFFBoxAllRodsBeginPercentCh2;
 
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;

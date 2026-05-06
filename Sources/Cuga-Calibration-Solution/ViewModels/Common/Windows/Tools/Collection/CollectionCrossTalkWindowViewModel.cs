@@ -85,13 +85,13 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     private string[] _pMT8ChAllOpticsImagePath = new string[3];
 
     [ObservableProperty]
-    private double _pMT8Ch1PixselCompare = 0;
+    private double _pMT8Ch1PixselCompare;
 
     [ObservableProperty]
-    private double _pMT8Ch2PixselCompare = 0;
+    private double _pMT8Ch2PixselCompare;
 
     [ObservableProperty]
-    private double _pMT8Ch3PixselCompare = 0;
+    private double _pMT8Ch3PixselCompare;
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 

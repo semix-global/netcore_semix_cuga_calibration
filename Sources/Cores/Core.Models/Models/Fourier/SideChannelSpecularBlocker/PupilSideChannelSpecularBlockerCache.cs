@@ -24,13 +24,13 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch1Image = null;
+    private BitmapImage? _ch1Image;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch2Image = null;
+    private BitmapImage? _ch2Image;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -63,7 +63,7 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
     private CircleROIDrawable? _circleROIDrawableCh11;
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh11 = new();
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh11 = [];
 
     public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
@@ -112,16 +112,16 @@ public sealed partial class PupilSideChannelSpecularBlockerCacheItem : Calibrati
     private string _imageGrayCompareCh2 = string.Empty;
 
     [ObservableProperty]
-    private float _imageGrayOldCh1 = 0;
+    private float _imageGrayOldCh1;
 
     [ObservableProperty]
-    private float _imageGrayOldCh2 = 0;
+    private float _imageGrayOldCh2;
 
     [ObservableProperty]
-    private float _imageGrayNewCh1 = 0;
+    private float _imageGrayNewCh1;
 
     [ObservableProperty]
-    private float _imageGrayNewCh2 = 0;
+    private float _imageGrayNewCh2;
 
     [ObservableProperty]
     public Point _cgFFBoxBeginPositionCh1 = Point.Origin;
@@ -130,10 +130,10 @@ public sealed partial class PupilSideChannelSpecularBlockerCacheItem : Calibrati
     public Point _cgFFBoxBeginPositionCh2 = Point.Origin;
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh1 = new();
+    public List<int> _cgFFBoxBeginAndEndNumberCh1 = [];
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh2 = new();
+    public List<int> _cgFFBoxBeginAndEndNumberCh2 = [];
 
     [ObservableProperty]
     public List<double> _cgFFBoxMoveDownPercentListCh1 = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];

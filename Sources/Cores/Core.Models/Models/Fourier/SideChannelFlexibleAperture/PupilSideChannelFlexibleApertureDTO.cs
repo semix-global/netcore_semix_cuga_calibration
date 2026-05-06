@@ -26,52 +26,52 @@ public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDto
     private Point _cgFFBoxEndPositionCh2 = Point.Origin;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber1Ch1 = 0;
+    private int _cgFFBoxBeginNumber1Ch1;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber2Ch1 = 0;
+    private int _cgFFBoxBeginNumber2Ch1;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber1Ch2 = 0;
+    private int _cgFFBoxBeginNumber1Ch2;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber2Ch2 = 0;
+    private int _cgFFBoxBeginNumber2Ch2;
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber1Ch1 = 0;
+    private int _cgFFBoxEndNumber1Ch1;
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber2Ch1 = 0;
+    private int _cgFFBoxEndNumber2Ch1;
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber1Ch2 = 0;
+    private int _cgFFBoxEndNumber1Ch2;
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber2Ch2 = 0;
+    private int _cgFFBoxEndNumber2Ch2;
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh1 = new ObservableCollection<int>();
+    private ObservableCollection<int> _cgFFBoxRodWidthListCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = new ObservableCollection<int>();
+    private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<double>();
+    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh2 = new ObservableCollection<double>();
+    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListFirstCh1 = new();
+    private ObservableCollection<Rect> _currentImageRectListFirstCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListFirstCh2 = new();
+    private ObservableCollection<Rect> _currentImageRectListFirstCh2 = [];
 
     [ObservableProperty]
-    private double _cgFFBoxAllRodsBeginPercentCh1 = 0;
+    private double _cgFFBoxAllRodsBeginPercentCh1;
 
     [ObservableProperty]
-    private double _cgFFBoxAllRodsBeginPercentCh2 = 0;
+    private double _cgFFBoxAllRodsBeginPercentCh2;
 
     #region Mapper
 

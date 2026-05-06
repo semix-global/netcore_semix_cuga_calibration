@@ -24,7 +24,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image = null;
+    private BitmapImage? _ch3Image;
 
     [ObservableProperty]
     private RectROIDrawable? _rectROIDrawable;
@@ -33,7 +33,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     private CircleROIDrawable? _circleROIDrawable;
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = new();
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -82,10 +82,10 @@ public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : Calibra
     private string _imageGrayCompareCh3 = string.Empty;
 
     [ObservableProperty]
-    private float _imageGrayOldCh3 = 0;
+    private float _imageGrayOldCh3;
 
     [ObservableProperty]
-    private float _imageGrayNewCh3 = 0;
+    private float _imageGrayNewCh3;
 
     [ObservableProperty]
     public float _ch3Angle = 1;

@@ -103,13 +103,13 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     private Point _sxPos;
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageAxis = new();
+    private ObservableCollection<Rect> _currentImageAxis = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListCh1 = new();
+    private ObservableCollection<Rect> _currentImageRectListCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListCh2 = new();
+    private ObservableCollection<Rect> _currentImageRectListCh2 = [];
 
     [ObservableProperty]
     private string[] _reviewImageShowPath = new string[2];
@@ -137,8 +137,8 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     ];
 
     [ObservableProperty]
-    private ObservableCollection<RodInformation> _setAllRods = new ObservableCollection<RodInformation>
-    {
+    private ObservableCollection<RodInformation> _setAllRods =
+    [
         new RodInformation("Rod1", 0), new RodInformation("Rod2", 0), new RodInformation("Rod3", 0), new RodInformation("Rod4", 0), new RodInformation("Rod5", 0), new RodInformation("Rod6", 0),
         new RodInformation("Rod7", 0), new RodInformation("Rod8", 0), new RodInformation("Rod9", 0), new RodInformation("Rod10", 0), new RodInformation("Rod11", 0), new RodInformation("Rod12", 0),
         new RodInformation("Rod13", 0), new RodInformation("Rod14", 0), new RodInformation("Rod15", 0), new RodInformation("Rod16", 0), new RodInformation("Rod17", 0), new RodInformation("Rod18", 0),
@@ -147,7 +147,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
         new RodInformation("Rod31", 0), new RodInformation("Rod32", 0), new RodInformation("Rod33", 0), new RodInformation("Rod34", 0), new RodInformation("Rod35", 0), new RodInformation("Rod36", 0),
         new RodInformation("Rod37", 0), new RodInformation("Rod38", 0), new RodInformation("Rod39", 0), new RodInformation("Rod40", 0), new RodInformation("Rod41", 0), new RodInformation("Rod42", 0),
         new RodInformation("Rod43", 0), new RodInformation("Rod44", 0), new RodInformation("Rod45", 0), new RodInformation("Rod46", 0)
-    };
+    ];
 
     #region Calibrate
 
@@ -886,11 +886,11 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
             darkFieldImage1.Image.Save(path2);
             ch2Path = path2;
         }
-        ReviewImageShowPath = new[]
-        {
+        ReviewImageShowPath =
+        [
             ch1Path, // CH1
             ch2Path // CH2
-        };
+        ];
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -968,11 +968,11 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
             darkFieldImage1.Image.Save(path2);
             ch2Path = path2;
         }
-        ReviewImageHidePath = new[]
-        {
+        ReviewImageHidePath =
+        [
             ch1Path, // CH1
             ch2Path // CH2
-        };
+        ];
     }
 
     [RelayCommand(IncludeCancelCommand = true)]

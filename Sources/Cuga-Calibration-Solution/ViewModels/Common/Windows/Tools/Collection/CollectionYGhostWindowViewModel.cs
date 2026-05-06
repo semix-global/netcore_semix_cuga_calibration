@@ -160,70 +160,70 @@ public sealed partial class CollectionYGhostWindowViewModel(
     public Point[] _yGhostListCH = [];
 
     [ObservableProperty]
-    private float _pMT8Ch1PixselCompare = 0;
+    private float _pMT8Ch1PixselCompare;
 
     [ObservableProperty]
-    private float _pMT8Ch2PixselCompare = 0;
+    private float _pMT8Ch2PixselCompare;
 
     [ObservableProperty]
-    private float _pMT8Ch3PixselCompare = 0;
+    private float _pMT8Ch3PixselCompare;
 
     [ObservableProperty]
-    private ObservableCollection<double> _yValueListCH = new();
+    private ObservableCollection<double> _yValueListCH = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH12 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH12 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH13 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH13 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH14 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH14 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH15 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH15 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH16 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH16 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH17 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH17 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH22 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH22 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH23 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH23 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH24 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH24 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH25 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH25 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH26 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH26 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH27 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH27 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH32 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH32 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH33 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH33 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH34 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH34 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH35 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH35 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH36 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH36 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH37 = new();
+    private ObservableCollection<Point> _alignedYGhostListCH37 = [];
 
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
