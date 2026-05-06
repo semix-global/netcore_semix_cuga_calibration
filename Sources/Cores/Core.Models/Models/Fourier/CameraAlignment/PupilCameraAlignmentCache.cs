@@ -49,85 +49,85 @@ public sealed partial class PupilCameraAlignmentCache : CalibrationCacheBase
     private CircleROIDrawable? _circleROIDrawableCh3;
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh1 = new();
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh2 = new();
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh3 = new();
-
-    [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable? _bitmapImageDrawableCh1 = null;
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh3 = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable? _bitmapImageDrawableCh2 = null;
+    private BitmapImageDrawable? _bitmapImageDrawableCh1;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable? _bitmapImageDrawableCh3 = null;
-
-    [ObservableProperty]
-    private bool _isToggleSelectRectROIDrawableCh1 = false;
-
-    [ObservableProperty]
-    private bool _isToggleSelectRectROIDrawableCh2 = false;
-
-    [ObservableProperty]
-    private bool _isToggleSelectRectROIDrawableCh3 = false;
+    private BitmapImageDrawable? _bitmapImageDrawableCh2;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch1Image = null;
+    private BitmapImageDrawable? _bitmapImageDrawableCh3;
+
+    [ObservableProperty]
+    private bool _isToggleSelectRectROIDrawableCh1;
+
+    [ObservableProperty]
+    private bool _isToggleSelectRectROIDrawableCh2;
+
+    [ObservableProperty]
+    private bool _isToggleSelectRectROIDrawableCh3;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch2Image = null;
+    private BitmapImage? _ch1Image;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image = null;
+    private BitmapImage? _ch2Image;
+
+    [ObservableProperty]
+    [property: Newtonsoft.Json.JsonIgnore]
+    [property: System.Text.Json.Serialization.JsonIgnore]
+    [property: System.Xml.Serialization.XmlIgnore]
+    private BitmapImage? _ch3Image;
 
     [ObservableProperty]
     private Point _rectCh1Position = Point.Origin;
 
     [ObservableProperty]
-    private int _ch1ImageWidth = 0;
+    private int _ch1ImageWidth;
 
     [ObservableProperty]
-    private int _ch1ImageHeight = 0;
+    private int _ch1ImageHeight;
 
     [ObservableProperty]
     private Point _rectCh2Position = Point.Origin;
 
     [ObservableProperty]
-    private int _ch2ImageWidth = 0;
+    private int _ch2ImageWidth;
 
     [ObservableProperty]
-    private int _ch2ImageHeight = 0;
+    private int _ch2ImageHeight;
 
     [ObservableProperty]
     private Point _rectCh3Position = Point.Origin;
 
     [ObservableProperty]
-    private int _ch3ImageWidth = 0;
+    private int _ch3ImageWidth;
 
     [ObservableProperty]
-    private int _ch3ImageHeight = 0;
+    private int _ch3ImageHeight;
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

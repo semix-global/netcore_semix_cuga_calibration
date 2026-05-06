@@ -1,11 +1,9 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.YPixelSize;
@@ -25,12 +23,13 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBYPixelSizeCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBYPixelSizeCacheItem>))]
+    public ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem> Items { get; init; } = [];
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBYPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBYPixelSizeCacheItem>(() => new CIBYPixelSizeCacheItem()));
+    public CIBYPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBYPixelSizeCacheItem());
 }
 
 public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase

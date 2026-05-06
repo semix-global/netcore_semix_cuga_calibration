@@ -32,12 +32,13 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
     private CalChipSiteModelEnum _calChipSiteModelEnum;
 
-    public ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>> Results { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>))]
+    public ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipDTOItem> Results { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public MicroscopeCalChipDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, new Lazy<MicroscopeCalChipDTOItem>(() => new MicroscopeCalChipDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum }));
+    public MicroscopeCalChipDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, _ => new MicroscopeCalChipDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
@@ -70,7 +71,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         DSWAlignmentDegree = DSWAlignmentDegree,
         DSWBrightFieldMachineAffinePosition = DSWBrightFieldMachineAffinePosition,
-        Results = new ConcurrentBag<KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>>
+        Results = new ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>
         ([
             .. Results.Select(r => new KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>(r.Key, r.Value.Clone()))
         ]),

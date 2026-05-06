@@ -8,7 +8,6 @@ using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -41,7 +40,8 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     private IReadOnlyList<CIBIlluminationProfileDTOItem> _items = [];
 
     [ObservableProperty]
-    private ConcurrentBag<KeyValuePair<CIBInformation, double>> _targetPMTValues = [];
+    [property: Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CIBInformation, double>))]
+    private ConcurrentDictionary<CIBInformation, double> _targetPMTValues = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -50,7 +50,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentBag<KeyValuePair<CIBInformation, IScatterPlotControl>> _scatterPlotControls = [];
+    private ConcurrentDictionary<CIBInformation, IScatterPlotControl> _scatterPlotControls = [];
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -74,7 +74,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnTargetPMTValuesChanged(ConcurrentBag<KeyValuePair<CIBInformation, double>> value) => RefreshPlot();
+    partial void OnTargetPMTValuesChanged(ConcurrentDictionary<CIBInformation, double> value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
@@ -84,14 +84,14 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 
     public CIBIlluminationProfileDTO(IReadOnlyList<CIBInformation> cibInformations) : this()
     {
-        ScatterPlotControls = [.. cibInformations.Select(t => new KeyValuePair<CIBInformation, IScatterPlotControl>(t, GetScatterPlotControl()))];
+        ScatterPlotControls = new ConcurrentDictionary<CIBInformation, IScatterPlotControl>(cibInformations.Select(t => new KeyValuePair<CIBInformation, IScatterPlotControl>(t, GetScatterPlotControl())));
     }
 
     private void RefreshPlot()
     {
         foreach (var itemItem in Items)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(itemItem.CIBInformation, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(itemItem.CIBInformation, _ => GetScatterPlotControl());
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
@@ -153,7 +153,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
-        TargetPMTValues = [.. TargetPMTValues],
+        TargetPMTValues = new ConcurrentDictionary<CIBInformation, double>(TargetPMTValues),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

@@ -91,7 +91,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
     private int _imageWidthPixel = 1000;
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListCh3 = new();
+    private ObservableCollection<Rect> _currentImageRectListCh3 = [];
 
     [ObservableProperty]
     private string _reviewImageShowPath = string.Empty;

@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -12,12 +11,13 @@ public sealed partial class OpticsINCCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, OpticsINCCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, OpticsINCCacheItem>))]
+    public ConcurrentDictionary<ProductivityInformation, OpticsINCCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public OpticsINCCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<OpticsINCCacheItem>(() => new OpticsINCCacheItem()));
+    public OpticsINCCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new OpticsINCCacheItem());
 }
 
 public sealed partial class OpticsINCCacheItem : CalibrationCacheBase

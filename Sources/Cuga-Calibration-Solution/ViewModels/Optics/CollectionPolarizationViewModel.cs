@@ -238,7 +238,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             pointWithMinY = Cache.PolarizationPositionNDFSListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First();
             Cache.PolarizationPositionNDFSCH3 = pointWithMinY.X;
 
-            double[] values = { Cache.PolarizationPositionNDFSCH1, Cache.PolarizationPositionNDFSCH2, Cache.PolarizationPositionNDFSCH3 };
+            double[] values = [Cache.PolarizationPositionNDFSCH1, Cache.PolarizationPositionNDFSCH2, Cache.PolarizationPositionNDFSCH3];
             Cache.FindAngleMin = values.Average() - 30;
             Cache.FindAngleMax = values.Average() + 30;
 
@@ -346,7 +346,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             pointWithMinY = Cache.PolarizationPositionNDFPListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First();
             Cache.PolarizationPositionNDFPCH3 = pointWithMinY.X;
 
-            double[] values = { Cache.PolarizationPositionNDFPCH1, Cache.PolarizationPositionNDFPCH2, Cache.PolarizationPositionNDFPCH3 };
+            double[] values = [Cache.PolarizationPositionNDFPCH1, Cache.PolarizationPositionNDFPCH2, Cache.PolarizationPositionNDFPCH3];
             Cache.FindAngleMin = values.Average() - 30;
             Cache.FindAngleMax = values.Average() + 30;
 

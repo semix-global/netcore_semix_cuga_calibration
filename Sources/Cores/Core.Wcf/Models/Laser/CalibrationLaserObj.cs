@@ -682,7 +682,7 @@ public sealed class CalibrationLaserCIBXTCItem : CalibrationBase
         public int ChannelId { get; set; }
 
         /// <summary>
-        /// 延迟, **需要下发CIB硬件**
+        /// 延迟 PMTDelay SenseDelay, **需要下发CIB硬件**
         /// </summary>
         public double Delay { get; set; }
     }
@@ -729,7 +729,7 @@ public sealed class CalibrationLaserCIBAGCDelayItem : CalibrationBase
         public int ChannelId { get; set; }
 
         /// <summary>
-        /// 延迟, **需要下发CIB硬件**
+        /// 延迟 DACDealy, **需要下发CIB硬件**
         /// </summary>
         public double Delay { get; set; }
     }

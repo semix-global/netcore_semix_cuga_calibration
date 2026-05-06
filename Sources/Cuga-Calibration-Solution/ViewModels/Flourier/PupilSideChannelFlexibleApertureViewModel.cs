@@ -111,8 +111,8 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     ];
 
     [ObservableProperty]
-    private ObservableCollection<RodInformation> _setAllRods = new ObservableCollection<RodInformation>
-    {
+    private ObservableCollection<RodInformation> _setAllRods =
+    [
         new RodInformation("Rod1", 0), new RodInformation("Rod2", 0), new RodInformation("Rod3", 0), new RodInformation("Rod4", 0), new RodInformation("Rod5", 0), new RodInformation("Rod6", 0),
         new RodInformation("Rod7", 0), new RodInformation("Rod8", 0), new RodInformation("Rod9", 0), new RodInformation("Rod10", 0), new RodInformation("Rod11", 0), new RodInformation("Rod12", 0),
         new RodInformation("Rod13", 0), new RodInformation("Rod14", 0), new RodInformation("Rod15", 0), new RodInformation("Rod16", 0), new RodInformation("Rod17", 0), new RodInformation("Rod18", 0),
@@ -121,65 +121,65 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
         new RodInformation("Rod31", 0), new RodInformation("Rod32", 0), new RodInformation("Rod33", 0), new RodInformation("Rod34", 0), new RodInformation("Rod35", 0), new RodInformation("Rod36", 0),
         new RodInformation("Rod37", 0), new RodInformation("Rod38", 0), new RodInformation("Rod39", 0), new RodInformation("Rod40", 0), new RodInformation("Rod41", 0), new RodInformation("Rod42", 0),
         new RodInformation("Rod43", 0), new RodInformation("Rod44", 0), new RodInformation("Rod45", 0), new RodInformation("Rod46", 0)
-    };
+    ];
 
     // 所有电线杆集合（绑定到 ListBox）
     [ObservableProperty]
-    private ObservableCollection<Pole> _allOddRodsCh1Percent1 = new();
+    private ObservableCollection<Pole> _allOddRodsCh1Percent1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allOddRodsCh1Percent2 = new();
+    private ObservableCollection<Pole> _allOddRodsCh1Percent2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allEvenRodsCh1Percent1 = new();
+    private ObservableCollection<Pole> _allEvenRodsCh1Percent1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allEvenRodsCh1Percent2 = new();
+    private ObservableCollection<Pole> _allEvenRodsCh1Percent2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allOddRodsCh2Percent1 = new();
+    private ObservableCollection<Pole> _allOddRodsCh2Percent1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allOddRodsCh2Percent2 = new();
+    private ObservableCollection<Pole> _allOddRodsCh2Percent2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allEvenRodsCh2Percent1 = new();
+    private ObservableCollection<Pole> _allEvenRodsCh2Percent1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allEvenRodsCh2Percent2 = new();
+    private ObservableCollection<Pole> _allEvenRodsCh2Percent2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageAxis = new();
+    private ObservableCollection<Rect> _currentImageAxis = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectOddFirstCh1 = new();
+    private ObservableCollection<Rect> _currentImageRectOddFirstCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectOddSecondCh1 = new();
+    private ObservableCollection<Rect> _currentImageRectOddSecondCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectEvenFirstCh1 = new();
+    private ObservableCollection<Rect> _currentImageRectEvenFirstCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectEvenSecondCh1 = new();
+    private ObservableCollection<Rect> _currentImageRectEvenSecondCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectOddFirstCh2 = new();
+    private ObservableCollection<Rect> _currentImageRectOddFirstCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectOddSecondCh2 = new();
+    private ObservableCollection<Rect> _currentImageRectOddSecondCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectEvenFirstCh2 = new();
+    private ObservableCollection<Rect> _currentImageRectEvenFirstCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectEvenSecondCh2 = new();
+    private ObservableCollection<Rect> _currentImageRectEvenSecondCh2 = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _allRodsBeginPercentCh1 = new();
+    private ObservableCollection<double> _allRodsBeginPercentCh1 = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _allRodsBeginPercentCh2 = new();
+    private ObservableCollection<double> _allRodsBeginPercentCh2 = [];
 
     #endregion 界面相关
 

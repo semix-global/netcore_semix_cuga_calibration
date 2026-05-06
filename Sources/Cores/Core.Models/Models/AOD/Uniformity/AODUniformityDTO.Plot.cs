@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
@@ -45,7 +45,7 @@ public partial class AODUniformityDTO
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public partial ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> ScatterPlotControls { get; set; } = [];
+    public partial ConcurrentDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
     public AODUniformityDTO()
     {
@@ -87,7 +87,7 @@ public partial class AODUniformityDTO
 
     public AODUniformityDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
     {
-        ScatterPlotControls = [.. cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl()))];
+        ScatterPlotControls = new ConcurrentDictionary<int, IScatterPlotControl>(cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl())));
     }
 
     private void RefreshIsReversePlot()
@@ -294,7 +294,7 @@ public partial class AODUniformityDTO
 
         foreach (var (channelId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, _ => GetScatterPlotControl());
 
             try
             {
