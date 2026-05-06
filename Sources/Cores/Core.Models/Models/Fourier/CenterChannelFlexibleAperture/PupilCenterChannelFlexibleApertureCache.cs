@@ -13,67 +13,67 @@ public sealed partial class PupilCenterChannelFlexibleApertureCache : Calibratio
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image1 = null;
+    private BitmapImage? _ch3Image1;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image2 = null;
+    private BitmapImage? _ch3Image2;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image3 = null;
+    private BitmapImage? _ch3Image3;
 
     [ObservableProperty]
     private Point _hazeWaferPosition;
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList11 = new ObservableCollection<string>(Enumerable.Repeat("", 4));
+    private ObservableCollection<string> _originImageFilePathList11 = new(Enumerable.Repeat("", 4));
 
     [ObservableProperty]
-    private ObservableCollection<double> _originImageAngleList11 = new ObservableCollection<double>(Enumerable.Repeat(0.0, 4));
+    private ObservableCollection<double> _originImageAngleList11 = new(Enumerable.Repeat(0.0, 4));
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList12 = new ObservableCollection<string>(Enumerable.Repeat("", 8));
+    private ObservableCollection<string> _originImageFilePathList12 = new(Enumerable.Repeat("", 8));
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxWidthList1 = new ObservableCollection<double>(Enumerable.Repeat(0.0, 8));
+    public ObservableCollection<double> _cgFFBoxWidthList1 = new(Enumerable.Repeat(0.0, 8));
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList13 = new ObservableCollection<string>();
+    private ObservableCollection<string> _originImageFilePathList13 = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _originImageAngleList13 = new ObservableCollection<double>();
+    private ObservableCollection<double> _originImageAngleList13 = [];
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList21 = new ObservableCollection<string>(Enumerable.Repeat("", 4));
+    private ObservableCollection<string> _originImageFilePathList21 = new(Enumerable.Repeat("", 4));
 
     [ObservableProperty]
-    private ObservableCollection<double> _originImageAngleList21 = new ObservableCollection<double>(Enumerable.Repeat(0.0, 4));
+    private ObservableCollection<double> _originImageAngleList21 = new(Enumerable.Repeat(0.0, 4));
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList22 = new ObservableCollection<string>(Enumerable.Repeat("", 8));
+    private ObservableCollection<string> _originImageFilePathList22 = new(Enumerable.Repeat("", 8));
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxHeightList2 = new ObservableCollection<double>(Enumerable.Repeat(0.0, 8));
+    public ObservableCollection<double> _cgFFBoxHeightList2 = new(Enumerable.Repeat(0.0, 8));
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList23 = new ObservableCollection<string>();
+    private ObservableCollection<string> _originImageFilePathList23 = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _originImageAngleList23 = new ObservableCollection<double>();
+    private ObservableCollection<double> _originImageAngleList23 = [];
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList31 = new ObservableCollection<string>();
+    private ObservableCollection<string> _originImageFilePathList31 = [];
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList32 = new ObservableCollection<string>(Enumerable.Repeat("", 2));
+    private ObservableCollection<string> _originImageFilePathList32 = new(Enumerable.Repeat("", 2));
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxWidthList3 = new ObservableCollection<double>(Enumerable.Repeat(0.0, 2));
+    public ObservableCollection<double> _cgFFBoxWidthList3 = new(Enumerable.Repeat(0.0, 2));
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -97,7 +97,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureCache : Calibratio
     private CircleROIDrawable? _circleROIDrawable;
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = new();
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = [];
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

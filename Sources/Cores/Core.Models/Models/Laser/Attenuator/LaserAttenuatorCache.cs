@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.Attenuator;
@@ -17,12 +16,13 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
     [ObservableProperty]
     private double _rateThreshold = 0.05;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserAttenuatorCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, LaserAttenuatorCacheItem>))]
+    public ConcurrentDictionary<ProductivityInformation, LaserAttenuatorCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public LaserAttenuatorCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<LaserAttenuatorCacheItem>(() => new LaserAttenuatorCacheItem()));
+    public LaserAttenuatorCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new LaserAttenuatorCacheItem());
 }
 
 public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase

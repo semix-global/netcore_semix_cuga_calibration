@@ -6,7 +6,6 @@ using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -43,13 +42,13 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentBag<KeyValuePair<int, double>> _hazeTargetPMTValues = [];
+    private ConcurrentDictionary<int, double> _hazeTargetPMTValues = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentBag<KeyValuePair<int, double>> _silicaSphereAveragePMTValues = [];
+    private ConcurrentDictionary<int, double> _silicaSphereAveragePMTValues = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -64,7 +63,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> _scatterPlotControls = [];
+    private ConcurrentDictionary<int, IScatterPlotControl> _scatterPlotControls = [];
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -88,9 +87,9 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnHazeTargetPMTValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
+    partial void OnHazeTargetPMTValuesChanged(ConcurrentDictionary<int, double> value) => RefreshPlot();
 
-    partial void OnSilicaSphereAveragePMTValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
+    partial void OnSilicaSphereAveragePMTValuesChanged(ConcurrentDictionary<int, double> value) => RefreshPlot();
 
     partial void OnSilicaSphereTargetPMTValueChanged(double? value) => RefreshPlot();
 
@@ -102,7 +101,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     public CIBLightMatchingDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
     {
-        ScatterPlotControls = [.. cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl()))];
+        ScatterPlotControls = new ConcurrentDictionary<int, IScatterPlotControl>(cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl())));
     }
 
     private void RefreshPlot()
@@ -119,7 +118,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
         foreach (var (channelId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, _ => GetScatterPlotControl());
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
@@ -278,8 +277,8 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
-        HazeTargetPMTValues = [.. HazeTargetPMTValues],
-        SilicaSphereAveragePMTValues = [.. SilicaSphereAveragePMTValues],
+        HazeTargetPMTValues = new ConcurrentDictionary<int, double>(HazeTargetPMTValues),
+        SilicaSphereAveragePMTValues = new ConcurrentDictionary<int, double>(SilicaSphereAveragePMTValues),
         SilicaSphereTargetPMTValue = SilicaSphereTargetPMTValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

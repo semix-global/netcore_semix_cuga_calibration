@@ -1,12 +1,10 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 
@@ -26,7 +24,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image = null;
+    private BitmapImage? _ch3Image;
 
     [ObservableProperty]
     private RectROIDrawable? _rectROIDrawable;
@@ -35,7 +33,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     private CircleROIDrawable? _circleROIDrawable;
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = new();
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = [];
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -49,12 +47,13 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     [property: System.Xml.Serialization.XmlIgnore]
     private BitmapImageDrawable _bitmapImageDrawableCh31 = new();
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem>))]
+    public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public PupilCenterChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new Lazy<PupilCenterChannelSpecularBlockerCacheItem>(() => new PupilCenterChannelSpecularBlockerCacheItem()));
+    public PupilCenterChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), _ => new PupilCenterChannelSpecularBlockerCacheItem());
 }
 
 public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : CalibrationCacheBase
@@ -84,10 +83,10 @@ public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : Calibra
     private string _imageGrayCompareCh3 = string.Empty;
 
     [ObservableProperty]
-    private float _imageGrayOldCh3 = 0;
+    private float _imageGrayOldCh3;
 
     [ObservableProperty]
-    private float _imageGrayNewCh3 = 0;
+    private float _imageGrayNewCh3;
 
     [ObservableProperty]
     public float _ch3Angle = 1;

@@ -1,7 +1,6 @@
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
-using Net.Utilities.Models.Geometries;
 
 namespace Core.Utilities;
 
@@ -14,7 +13,5 @@ public static class BitmapImageExtensions
             using var hImage = bitmapImage.ToHImage();
             hImage.Save(filePath);
         }
-
-        public SizeI GetSize() => new(bitmapImage.Width, bitmapImage.Height);
     }
 }

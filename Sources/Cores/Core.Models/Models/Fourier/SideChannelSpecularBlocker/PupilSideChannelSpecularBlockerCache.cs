@@ -1,12 +1,10 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 
@@ -26,13 +24,13 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch1Image = null;
+    private BitmapImage? _ch1Image;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
     [property: System.Text.Json.Serialization.JsonIgnore]
     [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch2Image = null;
+    private BitmapImage? _ch2Image;
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -65,14 +63,15 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
     private CircleROIDrawable? _circleROIDrawableCh11;
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh11 = new();
+    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh11 = [];
 
-    public ConcurrentBag<KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>))]
+    public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public PupilSideChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), new Lazy<PupilSideChannelSpecularBlockerCacheItem>(() => new PupilSideChannelSpecularBlockerCacheItem()));
+    public PupilSideChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), _ => new PupilSideChannelSpecularBlockerCacheItem());
 }
 
 public sealed partial class PupilSideChannelSpecularBlockerCacheItem : CalibrationCacheBase
@@ -114,16 +113,16 @@ public sealed partial class PupilSideChannelSpecularBlockerCacheItem : Calibrati
     private string _imageGrayCompareCh2 = string.Empty;
 
     [ObservableProperty]
-    private float _imageGrayOldCh1 = 0;
+    private float _imageGrayOldCh1;
 
     [ObservableProperty]
-    private float _imageGrayOldCh2 = 0;
+    private float _imageGrayOldCh2;
 
     [ObservableProperty]
-    private float _imageGrayNewCh1 = 0;
+    private float _imageGrayNewCh1;
 
     [ObservableProperty]
-    private float _imageGrayNewCh2 = 0;
+    private float _imageGrayNewCh2;
 
     [ObservableProperty]
     public Point _cgFFBoxBeginPositionCh1 = Point.Origin;
@@ -132,10 +131,10 @@ public sealed partial class PupilSideChannelSpecularBlockerCacheItem : Calibrati
     public Point _cgFFBoxBeginPositionCh2 = Point.Origin;
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh1 = new();
+    public List<int> _cgFFBoxBeginAndEndNumberCh1 = [];
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh2 = new();
+    public List<int> _cgFFBoxBeginAndEndNumberCh2 = [];
 
     [ObservableProperty]
     public List<double> _cgFFBoxMoveDownPercentListCh1 = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];

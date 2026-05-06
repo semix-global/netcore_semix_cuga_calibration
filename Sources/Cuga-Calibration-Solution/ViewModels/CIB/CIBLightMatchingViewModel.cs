@@ -15,7 +15,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -23,6 +22,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 
@@ -462,7 +462,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         cancellationToken.ThrowIfCancellationRequested();
 
                                         var pmtValue = itemItems.Average(t => t.HazeItems[times].PMTValue);
-                                        var channelIdTargetPMTValue = item.HazeTargetPMTValues.GetOrAdd(channelId, new Lazy<double>(() => pmtValue));
+                                        var channelIdTargetPMTValue = item.HazeTargetPMTValues.GetOrAdd(channelId, _ => pmtValue);
 
                                         foreach (var itemItem in itemItems)
                                         {
@@ -655,7 +655,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                                         cancellationToken.ThrowIfCancellationRequested();
 
                                         var channelIdAveragePMTValue = itemItems.Average(t => t.SilicaSphereItems[times].PMTValue);
-                                        item.SilicaSphereAveragePMTValues = [.. item.SilicaSphereAveragePMTValues, new KeyValuePair<int, double>(channelId, channelIdAveragePMTValue)];
+                                        item.SilicaSphereAveragePMTValues = new ConcurrentDictionary<int, double>(item.SilicaSphereAveragePMTValues) { [channelId] = channelIdAveragePMTValue };
 
                                         var error = channelIdAveragePMTValue - item.SilicaSphereTargetPMTValue.Value;
 

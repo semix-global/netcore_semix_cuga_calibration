@@ -434,8 +434,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImageTurnX2FilePath = Cache.OriginImageFilePathList12[1],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImageTurnX1 = new HtmlImage(Cache.OriginImageFilePathList12[0], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectVertical1[0]) }),
-                        Ch3ImageTurnX2 = new HtmlImage(Cache.OriginImageFilePathList12[1], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectVertical2[0]) })
+                        Ch3ImageTurnX1 = new HtmlImage(Cache.OriginImageFilePathList12[0], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectVertical1[0])]),
+                        Ch3ImageTurnX2 = new HtmlImage(Cache.OriginImageFilePathList12[1], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectVertical2[0])])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -449,8 +449,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImageTurnX2FilePath = Cache.OriginImageFilePathList12[3],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImageTurnX1 = new HtmlImage(Cache.OriginImageFilePathList12[2], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectVertical1[1]) }),
-                        Ch3ImageTurnX2 = new HtmlImage(Cache.OriginImageFilePathList12[3], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectVertical2[1]) })
+                        Ch3ImageTurnX1 = new HtmlImage(Cache.OriginImageFilePathList12[2], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectVertical1[1])]),
+                        Ch3ImageTurnX2 = new HtmlImage(Cache.OriginImageFilePathList12[3], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectVertical2[1])])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -464,8 +464,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImageTurnX2FilePath = Cache.OriginImageFilePathList12[5],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImageTurnX1 = new HtmlImage(Cache.OriginImageFilePathList12[4], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectVertical1[2]) }),
-                        Ch3ImageTurnX2 = new HtmlImage(Cache.OriginImageFilePathList12[5], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectVertical2[2]) })
+                        Ch3ImageTurnX1 = new HtmlImage(Cache.OriginImageFilePathList12[4], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectVertical1[2])]),
+                        Ch3ImageTurnX2 = new HtmlImage(Cache.OriginImageFilePathList12[5], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectVertical2[2])])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -479,8 +479,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImageTurnX2FilePath = Cache.OriginImageFilePathList12[7],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImageTurnX1 = new HtmlImage(Cache.OriginImageFilePathList12[6], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectVertical1[3]) }),
-                        Ch3ImageTurnX2 = new HtmlImage(Cache.OriginImageFilePathList12[7], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectVertical2[3]) })
+                        Ch3ImageTurnX1 = new HtmlImage(Cache.OriginImageFilePathList12[6], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectVertical1[3])]),
+                        Ch3ImageTurnX2 = new HtmlImage(Cache.OriginImageFilePathList12[7], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectVertical2[3])])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -609,8 +609,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImageTurnY2FilePath = Cache.OriginImageFilePathList22[1],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImageTurnY1 = new HtmlImage(Cache.OriginImageFilePathList22[0], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectHorizal1[0]) }),
-                        Ch3ImageTurnY2 = new HtmlImage(Cache.OriginImageFilePathList22[1], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectHorizal2[0]) })
+                        Ch3ImageTurnY1 = new HtmlImage(Cache.OriginImageFilePathList22[0], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectHorizal1[0])]),
+                        Ch3ImageTurnY2 = new HtmlImage(Cache.OriginImageFilePathList22[1], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectHorizal2[0])])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -624,8 +624,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImageTurnY2FilePath = Cache.OriginImageFilePathList22[3],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImageTurnY1 = new HtmlImage(Cache.OriginImageFilePathList22[2], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectHorizal1[1]) }),
-                        Ch3ImageTurnY2 = new HtmlImage(Cache.OriginImageFilePathList22[3], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectHorizal2[1]) })
+                        Ch3ImageTurnY1 = new HtmlImage(Cache.OriginImageFilePathList22[2], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectHorizal1[1])]),
+                        Ch3ImageTurnY2 = new HtmlImage(Cache.OriginImageFilePathList22[3], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectHorizal2[1])])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -639,8 +639,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImageTurnY2FilePath = Cache.OriginImageFilePathList22[5],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImageTurnY1 = new HtmlImage(Cache.OriginImageFilePathList22[4], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectHorizal1[2]) }),
-                        Ch3ImageTurnY2 = new HtmlImage(Cache.OriginImageFilePathList22[5], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectHorizal2[2]) })
+                        Ch3ImageTurnY1 = new HtmlImage(Cache.OriginImageFilePathList22[4], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectHorizal1[2])]),
+                        Ch3ImageTurnY2 = new HtmlImage(Cache.OriginImageFilePathList22[5], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectHorizal2[2])])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -654,8 +654,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImageTurnY2FilePath = Cache.OriginImageFilePathList22[7],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImageTurnY1 = new HtmlImage(Cache.OriginImageFilePathList22[6], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectHorizal1[3]) }),
-                        Ch3ImageTurnY2 = new HtmlImage(Cache.OriginImageFilePathList22[7], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(RodRectHorizal2[3]) })
+                        Ch3ImageTurnY1 = new HtmlImage(Cache.OriginImageFilePathList22[6], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectHorizal1[3])]),
+                        Ch3ImageTurnY2 = new HtmlImage(Cache.OriginImageFilePathList22[7], htmlImageOverlays: [new HtmlImageRectangleOverlay(RodRectHorizal2[3])])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -727,8 +727,8 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
                     Ch3ImagePushX2FilePath = Cache.OriginImageFilePathList32[1],
                     HtmlTab = new HtmlTab(new
                     {
-                        Ch3ImagePushX1 = new HtmlImage(Cache.OriginImageFilePathList32[0], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(PushRectVertical1) }),
-                        Ch3ImagePushX2 = new HtmlImage(Cache.OriginImageFilePathList32[1], htmlImageOverlays: new[] { new HtmlImageRectangleOverlay(PushRectVertical2) })
+                        Ch3ImagePushX1 = new HtmlImage(Cache.OriginImageFilePathList32[0], htmlImageOverlays: [new HtmlImageRectangleOverlay(PushRectVertical1)]),
+                        Ch3ImagePushX2 = new HtmlImage(Cache.OriginImageFilePathList32[1], htmlImageOverlays: [new HtmlImageRectangleOverlay(PushRectVertical2)])
                     })
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -1055,7 +1055,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
         Application.Current.Dispatcher.Invoke(() =>
         {
             // ✅ 关键1：先清空 RectROIDrawableList（可选，根据需求）
-            Cache.RectROIDrawableList = new ObservableCollection<RectROIDrawable>();
+            Cache.RectROIDrawableList = [];
 
             // ✅ 关键2：显式触发 CircleROIDrawable 变化
             Cache.CircleROIDrawable = null; // 先设为 null，确保 PropertyChanged 触发
@@ -1547,7 +1547,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
     {
         var newList = new ObservableCollection<RectROIDrawable>();
         newList.Add(new RectROIDrawable { Rect = Cache.RectROIDrawableList[0].Rect, Label = ((int)Ch3Angle).ToString() });
-        Cache.RectROIDrawableList = new ObservableCollection<RectROIDrawable>();
+        Cache.RectROIDrawableList = [];
         Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
     }
 }

@@ -14,28 +14,28 @@ public sealed partial class PupilCameraAlignmentDTO : CalibrationDtoBase, IClone
     private Point _rectCh1Position = Point.Origin;
 
     [ObservableProperty]
-    private int _ch1ImageWidth = 0;
+    private int _ch1ImageWidth;
 
     [ObservableProperty]
-    private int _ch1ImageHeight = 0;
+    private int _ch1ImageHeight;
 
     [ObservableProperty]
     private Point _rectCh2Position = Point.Origin;
 
     [ObservableProperty]
-    private int _ch2ImageWidth = 0;
+    private int _ch2ImageWidth;
 
     [ObservableProperty]
-    private int _ch2ImageHeight = 0;
+    private int _ch2ImageHeight;
 
     [ObservableProperty]
     private Point _rectCh3Position = Point.Origin;
 
     [ObservableProperty]
-    private int _ch3ImageWidth = 0;
+    private int _ch3ImageWidth;
 
     [ObservableProperty]
-    private int _ch3ImageHeight = 0;
+    private int _ch3ImageHeight;
 
     #region Mapper
 

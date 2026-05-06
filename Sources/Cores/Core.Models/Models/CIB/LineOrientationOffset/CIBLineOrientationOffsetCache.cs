@@ -3,7 +3,6 @@ using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
@@ -19,12 +18,13 @@ public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, CIBLineOrientationOffsetCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBLineOrientationOffsetCacheItem>))]
+    public ConcurrentDictionary<ProductivityInformation, CIBLineOrientationOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public CIBLineOrientationOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<CIBLineOrientationOffsetCacheItem>(() => new CIBLineOrientationOffsetCacheItem()));
+    public CIBLineOrientationOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLineOrientationOffsetCacheItem());
 }
 
 public sealed partial class CIBLineOrientationOffsetCacheItem : CalibrationCacheBase

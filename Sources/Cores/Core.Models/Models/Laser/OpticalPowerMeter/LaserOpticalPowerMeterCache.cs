@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
@@ -18,12 +17,13 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 0.05;
 
-    public ConcurrentBag<KeyValuePair<ProductivityInformation, LaserOpticalPowerMeterCacheItem>> Items { get; init; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, LaserOpticalPowerMeterCacheItem>))]
+    public ConcurrentDictionary<ProductivityInformation, LaserOpticalPowerMeterCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public LaserOpticalPowerMeterCacheItem Item => Items.GetOrAdd(ProductivityInformation, new Lazy<LaserOpticalPowerMeterCacheItem>(() => new LaserOpticalPowerMeterCacheItem()));
+    public LaserOpticalPowerMeterCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new LaserOpticalPowerMeterCacheItem());
 }
 
 public sealed partial class LaserOpticalPowerMeterCacheItem : CalibrationCacheBase

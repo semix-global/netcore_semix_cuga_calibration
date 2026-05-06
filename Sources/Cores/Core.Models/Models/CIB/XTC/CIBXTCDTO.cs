@@ -1,4 +1,4 @@
-using CommunityToolkit.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Models.Models.AOD.Uniformity;
@@ -51,7 +51,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public partial ConcurrentBag<KeyValuePair<int, double>> TargetPixelValues { get; set; } = [];
+    public partial ConcurrentDictionary<int, double> TargetPixelValues { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
@@ -63,7 +63,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     [Newtonsoft.Json.JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
-    public partial ConcurrentBag<KeyValuePair<int, IScatterPlotControl>> ScatterPlotControls { get; set; } = [];
+    public partial ConcurrentDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
     #region Partial Method
 
@@ -124,7 +124,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnTargetPixelValuesChanged(ConcurrentBag<KeyValuePair<int, double>> value) => RefreshPlot();
+    partial void OnTargetPixelValuesChanged(ConcurrentDictionary<int, double> value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
@@ -140,7 +140,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
     public CIBXTCDTO(IReadOnlyList<int> cibInformationPMTIds) : this()
     {
-        ScatterPlotControls = [.. cibInformationPMTIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl()))];
+        ScatterPlotControls = new ConcurrentDictionary<int, IScatterPlotControl>(cibInformationPMTIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl())));
     }
 
     private void RefreshForwardAndReversePlot()
@@ -204,7 +204,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
 
         foreach (var (pmtId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(pmtId, new Lazy<IScatterPlotControl>(GetScatterPlotControl));
+            var scatterPlotControl = ScatterPlotControls.GetOrAdd(pmtId, _ => GetScatterPlotControl());
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
@@ -291,7 +291,7 @@ public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        TargetPixelValues = [.. TargetPixelValues],
+        TargetPixelValues = new ConcurrentDictionary<int, double>(TargetPixelValues),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
