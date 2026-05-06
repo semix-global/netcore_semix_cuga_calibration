@@ -19,6 +19,7 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsApodizationModeEnum _apodizationModeEnum;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>))]
     public ConcurrentDictionary<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

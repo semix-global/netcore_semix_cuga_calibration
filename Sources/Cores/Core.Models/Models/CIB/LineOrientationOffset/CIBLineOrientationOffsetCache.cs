@@ -18,6 +18,7 @@ public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBLineOrientationOffsetCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBLineOrientationOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

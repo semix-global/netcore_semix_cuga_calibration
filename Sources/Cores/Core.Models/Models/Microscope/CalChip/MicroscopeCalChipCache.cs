@@ -22,6 +22,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, MicroscopeCalChipCacheItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

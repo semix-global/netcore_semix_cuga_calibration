@@ -46,6 +46,7 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>))]
     public ConcurrentDictionary<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

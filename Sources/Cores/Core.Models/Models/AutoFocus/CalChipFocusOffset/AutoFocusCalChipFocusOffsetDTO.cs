@@ -30,6 +30,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDtoBase,
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem> Results { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

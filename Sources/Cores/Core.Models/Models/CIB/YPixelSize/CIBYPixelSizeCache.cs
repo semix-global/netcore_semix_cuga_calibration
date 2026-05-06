@@ -23,6 +23,7 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBYPixelSizeCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

@@ -17,6 +17,7 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 0.05;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, LaserOpticalPowerMeterCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, LaserOpticalPowerMeterCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

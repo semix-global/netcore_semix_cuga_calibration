@@ -17,6 +17,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBa
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

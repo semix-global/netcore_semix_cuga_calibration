@@ -16,6 +16,7 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 0.999;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<OpticsIlluminationModeEnum, OpticsRelayCacheItem>))]
     public ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsRelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

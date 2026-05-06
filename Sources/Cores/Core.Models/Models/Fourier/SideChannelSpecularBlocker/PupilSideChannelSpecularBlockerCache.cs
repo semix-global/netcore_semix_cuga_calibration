@@ -65,6 +65,7 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
     [ObservableProperty]
     private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh11 = [];
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

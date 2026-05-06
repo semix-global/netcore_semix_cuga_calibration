@@ -20,6 +20,7 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 2;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBAGCDelayCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBAGCDelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

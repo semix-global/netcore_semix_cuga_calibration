@@ -32,6 +32,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDtoBase, ICloneabl
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
     private CalChipSiteModelEnum _calChipSiteModelEnum;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipDTOItem> Results { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

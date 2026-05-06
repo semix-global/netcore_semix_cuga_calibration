@@ -47,6 +47,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     [property: System.Xml.Serialization.XmlIgnore]
     private BitmapImageDrawable _bitmapImageDrawableCh31 = new();
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

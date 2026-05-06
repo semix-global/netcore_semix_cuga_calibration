@@ -24,6 +24,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
     [NotifyPropertyChangedFor(nameof(Item))]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

@@ -11,6 +11,7 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, AODDelayCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

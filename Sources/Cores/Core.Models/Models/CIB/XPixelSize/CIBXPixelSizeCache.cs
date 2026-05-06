@@ -20,6 +20,7 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 15;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBXPixelSizeCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBXPixelSizeCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

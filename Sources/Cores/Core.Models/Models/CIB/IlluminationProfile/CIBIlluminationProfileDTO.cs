@@ -40,6 +40,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
     private IReadOnlyList<CIBIlluminationProfileDTOItem> _items = [];
 
     [ObservableProperty]
+    [property: Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CIBInformation, double>))]
     private ConcurrentDictionary<CIBInformation, double> _targetPMTValues = [];
 
 #pragma warning disable IDE0079

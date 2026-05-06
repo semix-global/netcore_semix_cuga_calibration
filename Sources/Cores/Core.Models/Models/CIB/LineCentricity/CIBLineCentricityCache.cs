@@ -22,6 +22,7 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase
     [ObservableProperty]
     private Point _threshold;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBLineCentricityCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

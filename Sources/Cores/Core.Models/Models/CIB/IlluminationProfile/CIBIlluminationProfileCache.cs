@@ -42,6 +42,7 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase
     [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBIlluminationProfileCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBIlluminationProfileCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

@@ -20,6 +20,7 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 1;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBXTCCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBXTCCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

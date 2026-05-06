@@ -21,6 +21,7 @@ public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase
     [NotifyPropertyChangedFor(nameof(Item))]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<OpticsIlluminationModeEnum, GlobalFieldTiltCacheItem>))]
     public ConcurrentDictionary<OpticsIlluminationModeEnum, GlobalFieldTiltCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

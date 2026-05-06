@@ -16,6 +16,7 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
     [ObservableProperty]
     private double _rateThreshold = 0.05;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, LaserAttenuatorCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, LaserAttenuatorCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

@@ -16,6 +16,7 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase
     [ObservableProperty]
     private double _threshold = 0.999;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, AODAlignmentCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, AODAlignmentCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

@@ -91,6 +91,7 @@ public sealed partial class AODUniformityDTO : CalibrationDtoBase, ICloneable<AO
     public partial IReadOnlyList<AODUniformityDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<OpticsPolarizationModeEnum, double>))]
     public partial ConcurrentDictionary<OpticsPolarizationModeEnum, double> OpticsPolarizationModeEnumMeasurePowers { get; set; } = [];
 
     #region Mapper

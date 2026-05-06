@@ -47,6 +47,7 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
 
     public double ReviewSilicaSphereThreshold => SilicaSphereThreshold * ReviewThresholdRangeRatio;
 
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBLightMatchingCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBLightMatchingCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
