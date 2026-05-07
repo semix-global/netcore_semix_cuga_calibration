@@ -27,7 +27,9 @@ public sealed class PermissionGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(static ctx =>
-            ctx.AddSource("SourceGenerators.PermissionAttribute.g.cs", SourceText.From(AttributeSourceCode, Encoding.UTF8)));
+            ctx.AddSource(
+                "SourceGenerators.PermissionAttribute.g.cs",
+                SourceText.From(AttributeSourceCode, Encoding.UTF8)));
 
         var classDeclarations = context.SyntaxProvider
             .ForAttributeWithMetadataName(
@@ -44,7 +46,9 @@ public sealed class PermissionGenerator : IIncrementalGenerator
         {
             if (classInfo is null) return;
 
-            ctx.AddSource($"{classInfo.ClassName}.Permission.g.cs", SourceText.From(GeneratePartialClass(classInfo), Encoding.UTF8));
+            ctx.AddSource(
+                $"{classInfo.ClassName}.Permission.g.cs",
+                SourceText.From(GeneratePartialClass(classInfo), Encoding.UTF8));
         });
     }
 

@@ -13,6 +13,7 @@
            xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
+           xmlns:coreConverters="clr-namespace:Core.Utilities.WPF.Converters;assembly=Core.Utilities.WPF"
            Width="1200"
            Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
@@ -118,38 +119,36 @@
                                                     VerticalAlignment="Center"
                                                     Maximum="1"
                                                     ShowText="False"
-                                                    Value="{Binding Status.Progress, Mode=OneWay}"
                                                     WaveThickness="2"
                                                     WaveStroke="#FF13CE66"
                                                     ToolTipService.InitialShowDelay="300"
                                                     ToolTipService.ShowDuration="60000"
-                                                    ToolTipService.Placement="Right">
+                                                    ToolTipService.Placement="Right"
+                                                    Value="{Binding Status.Progress, Mode=OneWay}">
                                     <hc:WaveProgressBar.WaveFill>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Color="#6613CE66" Offset="0" />
-                                            <GradientStop Color="#FF13CE66" Offset="1" />
+                                            <GradientStop Offset="0" Color="#6613CE66" />
+                                            <GradientStop Offset="1" Color="#FF13CE66" />
                                         </LinearGradientBrush>
                                     </hc:WaveProgressBar.WaveFill>
                                     <hc:WaveProgressBar.ToolTip>
-                                        <ToolTip Background="Transparent"
+                                        <ToolTip Padding="0"
+                                                 Background="Transparent"
                                                  BorderThickness="0"
-                                                 Padding="0"
                                                  HasDropShadow="False">
                                             <Border MinWidth="320"
                                                     MaxWidth="520"
                                                     MaxHeight="400"
-                                                    Padding="12"
                                                     Style="{StaticResource BorderRegion}"
                                                     Effect="{StaticResource EffectShadow1}">
-                                                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                                              VerticalScrollBarVisibility="Auto">
-                                                    <ContentControl Content="{Binding Status.XamlMessage, Mode=OneWay, Converter={x:Static converters:StringToXamlConverter.Instance}}" />
+                                                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                                    <ContentControl Content="{Binding Status.XamlMessage, Mode=OneWay, Converter={x:Static coreConverters:StringToXamlConverter.Instance}}" />
                                                 </ScrollViewer>
                                             </Border>
                                         </ToolTip>
                                     </hc:WaveProgressBar.ToolTip>
                                 </hc:WaveProgressBar>
-                                <TextBlock VerticalAlignment="Center" Text="{Binding SysMenu.Name}" />
+                                <TextBlock Text="{Binding SysMenu.Name}" VerticalAlignment="Center" />
                             </StackPanel>
                             <HierarchicalDataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding Status.IsOk}" Value="True">
@@ -157,9 +156,9 @@
                                     <Setter TargetName="ProgressIndicator" Property="Effect">
                                         <Setter.Value>
                                             <DropShadowEffect BlurRadius="8"
-                                                              Color="#FF00E676"
                                                               Opacity="0.8"
-                                                              ShadowDepth="0" />
+                                                              ShadowDepth="0"
+                                                              Color="#FF00E676" />
                                         </Setter.Value>
                                     </Setter>
                                 </DataTrigger>

@@ -9,15 +9,14 @@ namespace Core.Utilities.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed class ViewModelCacheCollectorGenerator : IIncrementalGenerator
 {
-    private const string DefaultCacheAttributeFullName = "Core.Utilities.SourceGenerators.Attributes.DefaultCacheAttribute";
-    private const string RecipeCacheAttributeFullName = "Core.Utilities.SourceGenerators.Attributes.RecipeCacheAttribute";
     private const string AdaptToInterfaceMetadataName = "Net.Utilities.Mapper.Interfaces.IAdaptTo`1";
+    private const string AdaptToTargetNamespace = "Core.Wcf.Models";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var defaults = context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                fullyQualifiedMetadataName: DefaultCacheAttributeFullName,
+                fullyQualifiedMetadataName: CacheSourceGenerator.DefaultCacheAttributeFullName,
                 predicate: static (node, _) => node is PropertyDeclarationSyntax or VariableDeclaratorSyntax,
                 transform: static (ctx, _) => GetDefault(ctx))
             .Where(static item => string.IsNullOrEmpty(item.ViewModel) == false)
@@ -25,7 +24,7 @@ public sealed class ViewModelCacheCollectorGenerator : IIncrementalGenerator
 
         var recipes = context.SyntaxProvider
             .ForAttributeWithMetadataName(
-                fullyQualifiedMetadataName: RecipeCacheAttributeFullName,
+                fullyQualifiedMetadataName: CacheSourceGenerator.RecipeCacheAttributeFullName,
                 predicate: static (node, _) => node is PropertyDeclarationSyntax or VariableDeclaratorSyntax,
                 transform: static (ctx, _) => GetRecipe(ctx))
             .Where(static item => string.IsNullOrEmpty(item.ViewModel) == false)
@@ -37,27 +36,28 @@ public sealed class ViewModelCacheCollectorGenerator : IIncrementalGenerator
                 SourceText.From(GenerateSource(source.Left, source.Right), Encoding.UTF8)));
     }
 
-    private static (string ViewModel, string Dto, string? Wcf, bool IsArray) GetDefault(GeneratorAttributeSyntaxContext context)
+    private static (string ViewModel, string DTO, string? AdaptToCUGA, bool IsArray) GetDefault(GeneratorAttributeSyntaxContext context)
     {
         var (containing, fieldOrPropertyType) = GetTargetSymbols(context);
         if (containing is null || fieldOrPropertyType is null) return (string.Empty, string.Empty, null, false);
 
         var isArray = fieldOrPropertyType.Kind == SymbolKind.ArrayType;
-        var dtoType = isArray && fieldOrPropertyType is IArrayTypeSymbol arraySymbol
+        var dto = isArray && fieldOrPropertyType is IArrayTypeSymbol arraySymbol
             ? arraySymbol.ElementType
             : fieldOrPropertyType;
 
-        var adaptToOpen = context.SemanticModel.Compilation.GetTypeByMetadataName(AdaptToInterfaceMetadataName);
-        var wcfType = adaptToOpen is null
+        var adaptToOpen = context.SemanticModel.Compilation.GetTypeByMetadataName(AdaptToInterfaceMetadataName); // 按元数据全名查找一个实现接口的第一个参数作为AdaptTo类型
+        var adaptToCUGA = adaptToOpen is null
             ? null
-            : dtoType.AllInterfaces
-                .FirstOrDefault(iface => iface.IsGenericType && SymbolEqualityComparer.Default.Equals(iface.OriginalDefinition, adaptToOpen))
-                ?.TypeArguments[0];
+            : dto.AllInterfaces
+                .Where(t => t.IsGenericType && SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, adaptToOpen))
+                .Select(t => t.TypeArguments[0])
+                .FirstOrDefault(t => t.ContainingNamespace?.ToDisplayString() is { } ns && ns.StartsWith(AdaptToTargetNamespace));
 
         return (
             containing.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            dtoType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            wcfType?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            dto.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            adaptToCUGA?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             isArray);
     }
 
@@ -66,12 +66,11 @@ public sealed class ViewModelCacheCollectorGenerator : IIncrementalGenerator
         var (containing, fieldOrPropertyType) = GetTargetSymbols(context);
         if (containing is null || fieldOrPropertyType is null) return (string.Empty, string.Empty);
 
-        return (
-            containing.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+        return (containing.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
             fieldOrPropertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
     }
 
-    private static (INamedTypeSymbol? Containing, ITypeSymbol? FieldOrPropertyType) GetTargetSymbols(GeneratorAttributeSyntaxContext context)
+    private static (ITypeSymbol? Containing, ITypeSymbol? FieldOrPropertyType) GetTargetSymbols(GeneratorAttributeSyntaxContext context)
     {
         var fieldOrPropertyType = context.TargetSymbol switch
         {
@@ -87,20 +86,27 @@ public sealed class ViewModelCacheCollectorGenerator : IIncrementalGenerator
     }
 
     private static string GenerateSource(
-        ImmutableArray<(string ViewModel, string Dto, string? Wcf, bool IsArray)> defaults,
+        ImmutableArray<(string ViewModel, string DTO, string? AdaptToCUGA, bool IsArray)> defaults,
         ImmutableArray<(string ViewModel, string Cache)> recipes)
     {
-        var recipeByVm = recipes
+        var recipeDictionary = recipes
             .GroupBy(r => r.ViewModel, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.First().Cache, StringComparer.Ordinal);
 
-        var body = string.Join("\n", defaults
-            .Where(d => recipeByVm.ContainsKey(d.ViewModel))
+        var content = string.Join("\n", defaults
+            .Where(d => recipeDictionary.ContainsKey(d.ViewModel))
             .GroupBy(d => d.ViewModel, StringComparer.Ordinal)
             .Select(g => g.First())
             .OrderBy(d => d.ViewModel, StringComparer.Ordinal)
-            .Select(d =>
-                $"            [typeof({d.ViewModel})] = new(typeof({recipeByVm[d.ViewModel]}), typeof({d.Dto}), {(d.Wcf is null ? "null" : $"typeof({d.Wcf})")}, {d.IsArray.ToString().ToLower()}),"));
+            .Select(d => $$"""
+                                       [typeof({{d.ViewModel}})] = new()
+                                       {
+                                           CacheType = typeof({{recipeDictionary[d.ViewModel]}}),
+                                           DTOType = typeof({{d.DTO}}),
+                                           AdaptToCUGAType = {{(d.AdaptToCUGA is null ? "null" : $"typeof({d.AdaptToCUGA})")}},
+                                           IsArray = {{d.IsArray.ToString().ToLower()}}
+                                       },
+                           """));
 
         return $$"""
                  // <auto-generated />
@@ -108,19 +114,20 @@ public sealed class ViewModelCacheCollectorGenerator : IIncrementalGenerator
 
                  namespace Core.Utilities
                  {
+                     public sealed class CalibrationCacheEntry : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject
+                     {
+                         public global::System.Type CacheType { get; set => SetProperty(ref field, value); } = typeof(object);
+                         public global::System.Type DTOType { get; set => SetProperty(ref field, value); } = typeof(object);
+                         public global::System.Type? AdaptToCUGAType { get; set => SetProperty(ref field, value); }
+                         public bool IsArray { get; set => SetProperty(ref field, value); }
+                     }
+
                      public static class ViewModelCacheCollector
                      {
-                         public sealed record CalibrationCacheEntry(
-                             global::System.Type CacheType,
-                             global::System.Type DtoType,
-                             global::System.Type? WcfType,
-                             bool IsArray);
-
-                         public static readonly global::System.Collections.Generic.IReadOnlyDictionary<global::System.Type, CalibrationCacheEntry> Map
-                             = new global::System.Collections.Generic.Dictionary<global::System.Type, CalibrationCacheEntry>
-                             {
-                 {{body}}
-                             };
+                         public static readonly global::System.Collections.Generic.IReadOnlyDictionary<global::System.Type, CalibrationCacheEntry> Map = new global::System.Collections.Generic.Dictionary<global::System.Type, CalibrationCacheEntry>
+                         {
+                 {{content}}
+                         };
                      }
                  }
                  """;
