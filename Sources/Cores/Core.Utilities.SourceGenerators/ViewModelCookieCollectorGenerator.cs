@@ -1,0 +1,214 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
+using System.Collections.Immutable;
+using System.Text;
+
+namespace Core.Utilities.SourceGenerators;
+
+[Generator(LanguageNames.CSharp)]
+public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
+{
+    private const string AdaptToInterfaceMetadataName = "Net.Utilities.Mapper.Interfaces.IAdaptTo`1";
+    private const string AdaptToTargetNamespace = "Core.Wcf.Models";
+
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        var defaults = context.SyntaxProvider
+            .ForAttributeWithMetadataName(
+                fullyQualifiedMetadataName: CacheSourceGenerator.DefaultCacheAttributeFullName,
+                predicate: static (node, _) => node is PropertyDeclarationSyntax or VariableDeclaratorSyntax,
+                transform: static (ctx, _) => GetDefault(ctx))
+            .Where(static item => string.IsNullOrEmpty(item.ViewModel) == false)
+            .Collect();
+
+        var recipes = context.SyntaxProvider
+            .ForAttributeWithMetadataName(
+                fullyQualifiedMetadataName: CacheSourceGenerator.RecipeCacheAttributeFullName,
+                predicate: static (node, _) => node is PropertyDeclarationSyntax or VariableDeclaratorSyntax,
+                transform: static (ctx, _) => GetRecipe(ctx))
+            .Where(static item => string.IsNullOrEmpty(item.ViewModel) == false)
+            .Collect();
+
+        context.RegisterSourceOutput(defaults.Combine(recipes), static (ctx, source) =>
+            ctx.AddSource(
+                "SourceGenerators.ViewModelCookieCollector.g.cs",
+                SourceText.From(GenerateSource(source.Left, source.Right), Encoding.UTF8)));
+    }
+
+    private static (string ViewModel, string DTO, string? AdaptToCUGA, bool IsArray) GetDefault(GeneratorAttributeSyntaxContext context)
+    {
+        var (containing, fieldOrPropertyType) = GetTargetSymbols(context);
+        if (containing is null || fieldOrPropertyType is null) return (string.Empty, string.Empty, null, false);
+
+        var isArray = fieldOrPropertyType.Kind == SymbolKind.ArrayType;
+        var dto = isArray && fieldOrPropertyType is IArrayTypeSymbol arraySymbol
+            ? arraySymbol.ElementType
+            : fieldOrPropertyType;
+
+        var adaptToOpen = context.SemanticModel.Compilation.GetTypeByMetadataName(AdaptToInterfaceMetadataName); // 按元数据全名查找一个实现接口的第一个参数作为AdaptTo类型
+        var adaptToCUGA = adaptToOpen is null
+            ? null
+            : dto.AllInterfaces
+                .Where(t => t.IsGenericType && SymbolEqualityComparer.Default.Equals(t.OriginalDefinition, adaptToOpen))
+                .Select(t => t.TypeArguments[0])
+                .FirstOrDefault(t => t.ContainingNamespace?.ToDisplayString() is { } ns && ns.StartsWith(AdaptToTargetNamespace));
+
+        return (
+            containing.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            dto.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            adaptToCUGA?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            isArray);
+    }
+
+    private static (string ViewModel, string Cache, string ShortCache) GetRecipe(GeneratorAttributeSyntaxContext context)
+    {
+        var (containing, fieldOrPropertyType) = GetTargetSymbols(context);
+        if (containing is null || fieldOrPropertyType is null) return (string.Empty, string.Empty, string.Empty);
+
+        return (containing.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            fieldOrPropertyType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            fieldOrPropertyType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+    }
+
+    private static (ITypeSymbol? Containing, ITypeSymbol? FieldOrPropertyType) GetTargetSymbols(GeneratorAttributeSyntaxContext context)
+    {
+        var fieldOrPropertyType = context.TargetSymbol switch
+        {
+            IPropertySymbol property => property.Type,
+            IFieldSymbol field => field.Type,
+            _ => null
+        };
+
+        var containing = context.TargetSymbol.ContainingType;
+        if (containing is null || containing.IsGenericType) containing = null;
+
+        return (containing, fieldOrPropertyType);
+    }
+
+    private static string GenerateSource(
+        ImmutableArray<(string ViewModel, string DTO, string? AdaptToCUGA, bool IsArray)> defaults,
+        ImmutableArray<(string ViewModel, string Cache, string ShortCache)> recipes)
+    {
+        var recipeDictionary = recipes
+            .GroupBy(r => r.ViewModel, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+
+        var matchedItems = defaults
+            .Where(d => recipeDictionary.ContainsKey(d.ViewModel))
+            .GroupBy(d => d.ViewModel, StringComparer.Ordinal)
+            .Select(g => g.First())
+            .OrderBy(d => d.ViewModel, StringComparer.Ordinal)
+            .ToList();
+
+        var resultClassesContent = string.Join("\n\n", matchedItems.Select(d =>
+        {
+            var resultClassName = GetResultClassName(recipeDictionary[d.ViewModel].ShortCache);
+
+            return d.IsArray
+                ? $$"""
+                        public sealed class {{resultClassName}} : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject, global::Core.Utilities.SourceGenerators.ICalibrationCookie<{{recipeDictionary[d.ViewModel].Cache}}, {{d.DTO}}>
+                        {
+                            public bool IsArray { get; } = true;
+                            public {{recipeDictionary[d.ViewModel].Cache}} Cache { get; set => SetProperty(ref field, value); } = new();
+                            public {{d.DTO}} Calibration
+                            {
+                                get => global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<{{d.DTO}}>();
+                                set => global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException();
+                            }
+                            public {{d.DTO}}[] Calibrations { get; set => SetProperty(ref field, value); } = [];
+                        }
+                    """
+                : $$"""
+                        public sealed class {{resultClassName}} : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject, global::Core.Utilities.SourceGenerators.ICalibrationCookie<{{recipeDictionary[d.ViewModel].Cache}}, {{d.DTO}}>
+                        {
+                            public bool IsArray { get; } = false;
+                            public {{recipeDictionary[d.ViewModel].Cache}} Cache { get; set => SetProperty(ref field, value); } = new();
+                            public {{d.DTO}} Calibration { get; set => SetProperty(ref field, value); } = new();
+                            public {{d.DTO}}[] Calibrations
+                            {
+                                get => global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<{{d.DTO}}[]>();
+                                set => global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException();
+                            }
+                        }
+                    """;
+        }));
+
+        var mapContent = string.Join("\n", matchedItems.Select(d =>
+        {
+            var resultClassName = GetResultClassName(recipeDictionary[d.ViewModel].ShortCache);
+
+            return $"""
+                                [typeof({d.ViewModel})] = new(
+                                    typeof({recipeDictionary[d.ViewModel].Cache}),
+                                    typeof({d.DTO}),
+                                    {(d.AdaptToCUGA is null ? "null" : $"typeof({d.AdaptToCUGA})")},
+                                    {d.IsArray.ToString().ToLower()},
+                                    new global::Core.Utilities.SourceGenerators.{resultClassName}()),
+                    """;
+        }));
+
+        return $$"""
+                 // <auto-generated />
+                 #nullable enable
+
+                 namespace Core.Utilities.SourceGenerators
+                 {
+                     public interface ICalibrationCookie<out TCache, out TDTO>
+                         where TCache : global::Core.Models.Models.CalibrationCacheBase
+                         where TDTO : global::Core.Models.Models.CalibrationDTOBase
+                     {
+                         bool IsArray { get; }
+                         TCache Cache { get; }
+                         TDTO Calibration { get; }
+                         TDTO[] Calibrations { get; }
+                     }
+
+                 {{resultClassesContent}}
+                 }
+
+                 namespace Core.Utilities.SourceGenerators
+                 {
+                     public sealed class ViewModelEntry(
+                         global::System.Type cacheType,
+                         global::System.Type dtoType,
+                         global::System.Type? adaptToCUGAType,
+                         bool isArray,
+                         global::Core.Utilities.SourceGenerators.ICalibrationCookie<global::Core.Models.Models.CalibrationCacheBase, global::Core.Models.Models.CalibrationDTOBase> calibrationCookie)
+                     {
+                         public static readonly ViewModelEntry Default = new(typeof(Empty), typeof(Empty), typeof(Empty), false, new Empty());
+                         
+                         public global::System.Type CacheType { get; } = cacheType;
+                         public global::System.Type DTOType { get; } = dtoType;
+                         public global::System.Type? AdaptToCUGAType { get; } = adaptToCUGAType;
+                         public bool IsArray { get; } = isArray;
+                         public global::Core.Utilities.SourceGenerators.ICalibrationCookie<global::Core.Models.Models.CalibrationCacheBase, global::Core.Models.Models.CalibrationDTOBase> CalibrationCookie { get; } = calibrationCookie;
+                         public global::Core.Models.Models.CalibrationItemStatus Status { get; } = new();
+                         
+                         private sealed class Empty : global::Core.Utilities.SourceGenerators.ICalibrationCookie<global::Core.Models.Models.CalibrationCacheBase, global::Core.Models.Models.CalibrationDTOBase>
+                         {
+                             public bool IsArray { get; } = false;
+                             public global::Core.Models.Models.CalibrationCacheBase Cache { get; } = global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<global::Core.Models.Models.CalibrationCacheBase>();
+                             public global::Core.Models.Models.CalibrationDTOBase Calibration { get; } = global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<global::Core.Models.Models.CalibrationDTOBase>();
+                             public global::Core.Models.Models.CalibrationDTOBase[] Calibrations { get; } = global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<global::Core.Models.Models.CalibrationDTOBase[]>();
+                         }
+                     }
+
+                     public static class ViewModelCookieCollector
+                     {
+                         public static readonly global::System.Collections.Generic.IReadOnlyDictionary<global::System.Type, ViewModelEntry> Cookies = new global::System.Collections.Generic.Dictionary<global::System.Type, ViewModelEntry>
+                         {
+                 {{mapContent}}
+                         };
+                     }
+                 }
+                 """;
+    }
+
+    private static string GetResultClassName(string shortCache)
+    {
+        if (shortCache.EndsWith("Cache")) shortCache = shortCache.Substring(0, shortCache.Length - "Cache".Length);
+
+        return shortCache + "Cookie";
+    }
+}
