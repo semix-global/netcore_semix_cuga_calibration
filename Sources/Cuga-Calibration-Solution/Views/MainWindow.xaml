@@ -111,23 +111,60 @@
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                             <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                                <Path x:Name="Path"
-                                      Width="10"
-                                      Height="10"
-                                      Margin="0,0,10,0"
-                                      Data="{StaticResource ErrorGeometry}"
-                                      Fill="{DynamicResource DarkDangerBrush}"
-                                      Stretch="Uniform" />
-                                <TextBlock Text="{Binding SysMenu.Name}" />
+                                <hc:WaveProgressBar x:Name="ProgressIndicator"
+                                                    Width="24"
+                                                    Height="24"
+                                                    Margin="0,0,10,0"
+                                                    VerticalAlignment="Center"
+                                                    Maximum="1"
+                                                    ShowText="False"
+                                                    Value="{Binding Status.Progress, Mode=OneWay}"
+                                                    WaveThickness="2"
+                                                    WaveStroke="#FF13CE66"
+                                                    ToolTipService.InitialShowDelay="300"
+                                                    ToolTipService.ShowDuration="60000"
+                                                    ToolTipService.Placement="Right">
+                                    <hc:WaveProgressBar.WaveFill>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#6613CE66" Offset="0" />
+                                            <GradientStop Color="#FF13CE66" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </hc:WaveProgressBar.WaveFill>
+                                    <hc:WaveProgressBar.ToolTip>
+                                        <ToolTip Background="Transparent"
+                                                 BorderThickness="0"
+                                                 Padding="0"
+                                                 HasDropShadow="False">
+                                            <Border MinWidth="320"
+                                                    MaxWidth="520"
+                                                    MaxHeight="400"
+                                                    Padding="12"
+                                                    Style="{StaticResource BorderRegion}"
+                                                    Effect="{StaticResource EffectShadow1}">
+                                                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                                              VerticalScrollBarVisibility="Auto">
+                                                    <ContentControl Content="{Binding Status.XamlMessage, Mode=OneWay, Converter={x:Static converters:StringToXamlConverter.Instance}}" />
+                                                </ScrollViewer>
+                                            </Border>
+                                        </ToolTip>
+                                    </hc:WaveProgressBar.ToolTip>
+                                </hc:WaveProgressBar>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding SysMenu.Name}" />
                             </StackPanel>
                             <HierarchicalDataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding IsCalibrated}" Value="true">
-                                    <Setter TargetName="Path" Property="Data" Value="{StaticResource SuccessGeometry}" />
-                                    <Setter TargetName="Path" Property="Fill" Value="{StaticResource DarkSuccessBrush}" />
+                                <DataTrigger Binding="{Binding Status.IsOk}" Value="True">
+                                    <Setter TargetName="ProgressIndicator" Property="WaveStroke" Value="#FF00E676" />
+                                    <Setter TargetName="ProgressIndicator" Property="Effect">
+                                        <Setter.Value>
+                                            <DropShadowEffect BlurRadius="8"
+                                                              Color="#FF00E676"
+                                                              Opacity="0.8"
+                                                              ShadowDepth="0" />
+                                        </Setter.Value>
+                                    </Setter>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
-                                    <Setter TargetName="Path" Property="Data" Value="{x:Null}" />
-                                    <Setter TargetName="Path" Property="Margin" Value="0" />
+                                    <Setter TargetName="ProgressIndicator" Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
                             </HierarchicalDataTemplate.Triggers>
                         </HierarchicalDataTemplate>

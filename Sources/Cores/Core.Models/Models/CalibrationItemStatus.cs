@@ -24,5 +24,5 @@ public partial class CalibrationItemStatus : ObservableObject
     public partial int ReviewCount { get; set; }
 
     [ObservableProperty]
-    public partial string MarkdownMessage { get; set; } = string.Empty;
+    public partial string XamlMessage { get; set; } = string.Empty;
 }
