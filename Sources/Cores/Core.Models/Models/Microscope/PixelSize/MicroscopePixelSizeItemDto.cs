@@ -10,7 +10,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Microscope.PixelSize;
 
 [CacheVersion("1.0.0")]
-public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICloneable<MicroscopePixelSizeItemDto>, IAdaptTo<CalibrationMicroscopePixelSizeItem>
+public sealed partial class MicroscopePixelSizeItemDto : CalibrationDTOBase, ICloneable<MicroscopePixelSizeItemDto>, IAdaptTo<CalibrationMicroscopePixelSizeItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;

@@ -10,7 +10,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.CIB.YPixelSize;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBYPixelSizeDTO : CalibrationDtoBase, ICloneable<CIBYPixelSizeDTO>, IAdaptTo<CalibrationLaserPixelSizeItem>
+public sealed partial class CIBYPixelSizeDTO : CalibrationDTOBase, ICloneable<CIBYPixelSizeDTO>, IAdaptTo<CalibrationLaserPixelSizeItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;

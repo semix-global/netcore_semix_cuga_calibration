@@ -16,7 +16,7 @@ using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 namespace Core.Models.Models.Optics.INC;
 
 [CacheVersion("1.0.0")]
-public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<OpticsINCDTO>, IAdaptTo<CalibrationOpticsINC>
+public sealed partial class OpticsINCDTO : CalibrationDTOBase, ICloneable<OpticsINCDTO>, IAdaptTo<CalibrationOpticsINC>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

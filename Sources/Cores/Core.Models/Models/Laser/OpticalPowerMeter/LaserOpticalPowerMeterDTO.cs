@@ -22,7 +22,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.Laser.OpticalPowerMeter;
 
 [CacheVersion("1.0.0")]
-public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, ICloneable<LaserOpticalPowerMeterDTO>, IAdaptTo<CalibrationLaserOpticalPower>
+public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDTOBase, ICloneable<LaserOpticalPowerMeterDTO>, IAdaptTo<CalibrationLaserOpticalPower>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

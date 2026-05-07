@@ -22,7 +22,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
 [CacheVersion("1.0.0")]
-public partial class AODBestFocusAndAstigmatismDTO : CalibrationDtoBase, ICloneable<AODBestFocusAndAstigmatismDTO>
+public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase, ICloneable<AODBestFocusAndAstigmatismDTO>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

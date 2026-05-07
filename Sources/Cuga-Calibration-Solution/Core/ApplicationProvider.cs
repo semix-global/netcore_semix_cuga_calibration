@@ -1,3 +1,4 @@
+using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Microsoft.Extensions.DependencyInjection;

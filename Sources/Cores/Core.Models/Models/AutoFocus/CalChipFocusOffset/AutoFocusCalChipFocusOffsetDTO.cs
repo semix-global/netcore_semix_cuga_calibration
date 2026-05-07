@@ -21,7 +21,7 @@ using System.Collections.Concurrent;
 namespace Core.Models.Models.AutoFocus.CalChipFocusOffset;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDtoBase, ICloneable<AutoFocusCalChipFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusCalChipFocusOffset>
+public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase, ICloneable<AutoFocusCalChipFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusCalChipFocusOffset>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentItem))]

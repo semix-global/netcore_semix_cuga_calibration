@@ -22,7 +22,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.CIB.XTC;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBXTCDTO : CalibrationDtoBase, ICloneable<CIBXTCDTO>, IAdaptTo<CalibrationLaserCIBXTCItem>
+public sealed partial class CIBXTCDTO : CalibrationDTOBase, ICloneable<CIBXTCDTO>, IAdaptTo<CalibrationLaserCIBXTCItem>
 {
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;

@@ -11,7 +11,7 @@ using Net.Utilities.Mapper.Interfaces;
 namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDtoBase, ICloneable<ChuckAlignmentDegreeOffsetItemDto>, IAdaptTo<CalibrationChuckAlignmentDegreeOffsetItem>
+public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDTOBase, ICloneable<ChuckAlignmentDegreeOffsetItemDto>, IAdaptTo<CalibrationChuckAlignmentDegreeOffsetItem>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;

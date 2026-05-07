@@ -1,11 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
-namespace Core.Models.Models.Common.Cookies;
+namespace Core.Models.Models;
 
-/// <summary>
-/// 校准的菜单
-/// </summary>
 public sealed partial class CalibrationMenu : ObservableObject
 {
     [ObservableProperty]

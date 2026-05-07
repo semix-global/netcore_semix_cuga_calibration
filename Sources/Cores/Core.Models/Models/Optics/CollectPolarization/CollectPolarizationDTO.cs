@@ -7,7 +7,7 @@ using Net.Utilities.Mapper.Interfaces;
 namespace Core.Models.Models.Optics.CollectPolarization;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CollectPolarizationDTO : CalibrationDtoBase, ICloneable<CollectPolarizationDTO>, IAdaptTo<CalibrationCollectionPolarization>
+public sealed partial class CollectPolarizationDTO : CalibrationDTOBase, ICloneable<CollectPolarizationDTO>, IAdaptTo<CalibrationCollectionPolarization>
 {
     [ObservableProperty]
     private double _polarizationPositionNDFSCH1;

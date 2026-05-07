@@ -272,7 +272,7 @@ public class CalibrationCacheProviderServiceImpl(
                 var exportData = new JObject
                 {
                     [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
-                    [nameof(CalibrationDtoBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
+                    [nameof(CalibrationDTOBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
                     [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.Serializer),
                     [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.Serializer)
                 };

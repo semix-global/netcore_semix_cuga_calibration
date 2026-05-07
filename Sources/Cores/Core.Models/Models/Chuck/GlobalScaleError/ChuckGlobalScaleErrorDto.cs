@@ -10,7 +10,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Chuck.GlobalScaleError;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
+public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDTOBase, ICloneable<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;

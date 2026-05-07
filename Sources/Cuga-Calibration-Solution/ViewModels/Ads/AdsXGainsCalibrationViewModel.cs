@@ -1446,7 +1446,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
     private static (List<Point> pointZ, List<Point> pointSmoothZ, List<double> smoothZ) GetadsXGainsValue(List<double> PonitZ, int startIndex, int endIndex)
     {
-        var sgolayfiltListZ = MovMeanFilter.Smooth(501, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(PonitZ));
+        var sgolayfiltListZ = MovMeanFilter.Smooth(501, Vector<double>.Build.DenseOfEnumerable(PonitZ));
 
         Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Count).Select(x => (double)x));
 

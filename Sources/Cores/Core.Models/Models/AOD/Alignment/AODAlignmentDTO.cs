@@ -17,7 +17,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.AOD.Alignment;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AODAlignmentDTO : CalibrationDtoBase, ICloneable<AODAlignmentDTO>
+public sealed partial class AODAlignmentDTO : CalibrationDTOBase, ICloneable<AODAlignmentDTO>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

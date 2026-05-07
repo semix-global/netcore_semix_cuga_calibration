@@ -12,7 +12,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Chuck.CenterAndTheta;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICloneable<ChuckCenterAndThetaItemDto>, IAdaptTo<CalibrationChuckCenterAndThetaObj>
+public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDTOBase, ICloneable<ChuckCenterAndThetaItemDto>, IAdaptTo<CalibrationChuckCenterAndThetaObj>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;

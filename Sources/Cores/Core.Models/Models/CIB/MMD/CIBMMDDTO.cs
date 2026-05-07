@@ -16,7 +16,7 @@ using System.ComponentModel;
 namespace Core.Models.Models.CIB.MMD;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO>, IAdaptTo<CalibrationLaserCIBMMDItem>
+public sealed partial class CIBMMDDTO : CalibrationDTOBase, ICloneable<CIBMMDDTO>, IAdaptTo<CalibrationLaserCIBMMDItem>
 {
     [ObservableProperty]
     public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;

@@ -15,7 +15,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.AutoFocus.DarkAutoFocus;
 
 [CacheVersion("1.0.0")]
-public sealed partial class DarkAutoFocusDTO : CalibrationDtoBase, ICloneable<DarkAutoFocusDTO>, IAdaptTo<CalibrationLaserAutoFocus>
+public sealed partial class DarkAutoFocusDTO : CalibrationDTOBase, ICloneable<DarkAutoFocusDTO>, IAdaptTo<CalibrationLaserAutoFocus>
 {
     [ObservableProperty]
     private DarkAutoFocusCurrentDTO _currentADTO = new();

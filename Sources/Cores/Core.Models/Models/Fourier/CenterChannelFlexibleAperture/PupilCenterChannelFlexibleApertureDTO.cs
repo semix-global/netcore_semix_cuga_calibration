@@ -11,7 +11,7 @@ using Point = Net.Utilities.Models.Geometries.Point;
 namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 [CacheVersion("1.0.0")]
-public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationDtoBase, ICloneable<PupilCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>
+public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationDTOBase, ICloneable<PupilCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>
 {
     [ObservableProperty]
     public ObservableCollection<double> _cgFFBoxTurnXAngleCh3 = [];

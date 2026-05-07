@@ -11,7 +11,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.CIB.XPixelSize;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
+public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase, ICloneable<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Ads.XGains;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AdsXGainsItemDto : CalibrationDtoBase, ICloneable<AdsXGainsItemDto>, IAdaptTo<CalibrationAdsXGainsItem>
+public sealed partial class AdsXGainsItemDto : CalibrationDTOBase, ICloneable<AdsXGainsItemDto>, IAdaptTo<CalibrationAdsXGainsItem>
 {
     [ObservableProperty]
     private int _index;

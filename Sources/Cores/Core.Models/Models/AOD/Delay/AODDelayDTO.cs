@@ -15,7 +15,7 @@ using System.ComponentModel;
 namespace Core.Models.Models.AOD.Delay;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
+public sealed partial class AODDelayDTO : CalibrationDTOBase, ICloneable<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

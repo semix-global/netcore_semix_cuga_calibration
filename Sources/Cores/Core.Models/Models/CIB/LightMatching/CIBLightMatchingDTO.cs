@@ -21,7 +21,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.CIB.LightMatching;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable<CIBLightMatchingDTO>, IAdaptTo<CalibrationLaserCIBLightMatchingItem>
+public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase, ICloneable<CIBLightMatchingDTO>, IAdaptTo<CalibrationLaserCIBLightMatchingItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;

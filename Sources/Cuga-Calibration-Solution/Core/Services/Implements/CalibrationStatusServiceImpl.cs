@@ -12,11 +12,11 @@ public class CalibrationStatusServiceImpl(
     ICacheProvider cacheProvider) : ICalibrationStatusService
 
 {
-    public T GetCalibration<T>() where T : CalibrationDtoBase, new() => cacheProvider.GetOrDefault<T>();
+    public T GetCalibration<T>() where T : CalibrationDTOBase, new() => cacheProvider.GetOrDefault<T>();
 
-    public T[] GetCalibrations<T>() where T : CalibrationDtoBase, new() => cacheProvider.GetOrDefaultArray<T>();
+    public T[] GetCalibrations<T>() where T : CalibrationDTOBase, new() => cacheProvider.GetOrDefaultArray<T>();
 
-    public bool GetCalibrationDtoIsOKStatus<T>(out T calibrationDto, out string errorMessage) where T : CalibrationDtoBase, ICacheItem, new()
+    public bool GetCalibrationDtoIsOKStatus<T>(out T calibrationDto, out string errorMessage) where T : CalibrationDTOBase, ICacheItem, new()
     {
         try
         {
@@ -49,7 +49,7 @@ public class CalibrationStatusServiceImpl(
         }
     }
 
-    public bool GetCalibrationDtoItemsIsOKStatus<T>(out T[] calibrationDtoItems, out string errorMessage) where T : CalibrationDtoBase, ICacheItem, new()
+    public bool GetCalibrationDtoItemsIsOKStatus<T>(out T[] calibrationDtoItems, out string errorMessage) where T : CalibrationDTOBase, ICacheItem, new()
     {
         try
         {

@@ -8,7 +8,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Fourier.CameraAlignment;
 
 [CacheVersion("1.0.0")]
-public sealed partial class PupilCameraAlignmentDTO : CalibrationDtoBase, ICloneable<PupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>
+public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase, ICloneable<PupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>
 {
     [ObservableProperty]
     private Point _rectCh1Position = Point.Origin;

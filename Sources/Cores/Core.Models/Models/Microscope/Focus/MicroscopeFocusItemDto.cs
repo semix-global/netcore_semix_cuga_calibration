@@ -9,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Microscope.Focus;
 
 [CacheVersion("1.0.0")]
-public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
+public sealed partial class MicroscopeFocusItemDto : CalibrationDTOBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
 {
     [ObservableProperty]
     private int _index;

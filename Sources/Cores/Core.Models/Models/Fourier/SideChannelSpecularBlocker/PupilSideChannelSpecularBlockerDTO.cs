@@ -12,7 +12,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
 [CacheVersion("1.0.0")]
-public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoBase, ICloneable<PupilSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>
+public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDTOBase, ICloneable<PupilSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;

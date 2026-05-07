@@ -3,67 +3,17 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Events;
-using Core.Models.Extensions;
 using Core.Models.Helper;
-using Core.Models.Models.Ads.PressureGains;
-using Core.Models.Models.Ads.XGains;
-using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.AOD.Alignment;
-using Core.Models.Models.AOD.Delay;
-using Core.Models.Models.AOD.Uniformity;
-using Core.Models.Models.AutoFocus.CalChipFocusOffset;
-using Core.Models.Models.AutoFocus.DarkAutoFocus;
-using Core.Models.Models.AutoFocus.GlobalFocusOffset;
-using Core.Models.Models.Chuck.AlignmentDegreeOffset;
-using Core.Models.Models.Chuck.CenterAndTheta;
-using Core.Models.Models.Chuck.Gantry;
-using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Chuck.Prealigner;
-using Core.Models.Models.Chuck.StageMap;
-using Core.Models.Models.CIB.AGCDelay;
-using Core.Models.Models.CIB.IlluminationProfile;
-using Core.Models.Models.CIB.LightMatching;
-using Core.Models.Models.CIB.LineCentricity;
-using Core.Models.Models.CIB.LineOrientationOffset;
-using Core.Models.Models.CIB.MMD;
-using Core.Models.Models.CIB.XPixelSize;
-using Core.Models.Models.CIB.XTC;
-using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Fourier.CameraAlignment;
-using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
-using Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
-using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
-using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
-using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Optics.GlobalFieldTilt;
-using Core.Models.Models.Optics.INC;
-using Core.Models.Models.Optics.Relay;
-using Core.Models.Models.Optics.SC;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
 using CugaCalibration.Core.Services.Interfaces;
-using CugaCalibration.ViewModels.Ads;
-using CugaCalibration.ViewModels.AOD;
-using CugaCalibration.ViewModels.AutoFocus;
-using CugaCalibration.ViewModels.Chuck;
-using CugaCalibration.ViewModels.CIB;
 using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.File.Save;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe.Management;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.View;
-using CugaCalibration.ViewModels.Flourier;
-using CugaCalibration.ViewModels.Laser;
-using CugaCalibration.ViewModels.Microscope;
-using CugaCalibration.ViewModels.Optics;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Microsoft.Extensions.DependencyInjection;
@@ -92,7 +42,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     private readonly IWindowManagerService _windowManagerService;
     private readonly IMessenger _messenger;
     private readonly ICalibrationCacheProvider _calibrationCacheProviderService;
-    private readonly IApplicationCookieService _applicationCookieService;
 
     #region 界面显示属性
 
@@ -156,8 +105,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         CalibrationSetting calibrationSetting,
         ApplicationCookie applicationCookie,
         RecipeCookie recipeCookie,
-        StatusViewModel statusViewModel,
-        IApplicationCookieService applicationCookieService)
+        StatusViewModel statusViewModel)
     {
         _messenger = messenger;
         _logger = logger;
@@ -171,7 +119,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         ApplicationCookie = applicationCookie;
         RecipeCookie = recipeCookie;
         StatusViewModel = statusViewModel;
-        _applicationCookieService = applicationCookieService;
         Title = applicationCookie.Title;
         _messenger.RegisterAll(this);
     }
@@ -213,7 +160,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         }
         finally
         {
-            if (isLoadingOk) LoadCalibrationStatus();
             StatusViewModel.Monitor(isLoadingOk);
         }
     }
@@ -249,7 +195,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         var completedTask = ActiveItem?.CancelAsync() ?? Task.CompletedTask;
         await completedTask.ConfigureAwait(false);
 
-        LoadCalibrationStatus();
         if (ActiveItem is not null) ActiveItem = null;
         Title = ApplicationCookie.Title;
     }
@@ -295,10 +240,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         {
             _logger.LogError(ex, "{@Name}: Load Calibration View({@ViewModel}) Failed", nameof(MainWindowViewModel), viewModel);
         }
-        finally
-        {
-            LoadCalibrationStatus();
-        }
     }
 
     [RelayCommand]
@@ -338,8 +279,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                                 else
                                     _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
                             }
-
-                            LoadCalibrationStatus();
 
                             break;
                     }
@@ -407,7 +346,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             {
                 if (message.Value.IsRefreshWindow.Value == false) return;
                 OnPropertyChanged(nameof(ApplicationCookie));
-                LoadCalibrationStatus();
             }
 
             if (message.Value.IsCalibrateEnable.HasValue)
@@ -426,134 +364,5 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     public void Receive(PopupWindowEvent message)
     {
         IsEnable = message.IsPopupWindowEnable;
-    }
-
-    private void LoadCalibrationStatus()
-    {
-        _ = Task.Run(() =>
-        {
-            try
-            {
-                var calibrationSetting = _cacheProvider.GetOrDefault<CalibrationSetting>();
-                CalibrationSetting.AdaptIn(calibrationSetting);
-
-                var calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeFocusCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeCalChipViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<MicroscopeCalChipDTO>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopePixelSizeCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<MicroscopeCentricityCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckGantryCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckGantryDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckCenterAndThetaCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckPrealignerCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckPrealignerDTO>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckStageMapCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckStageMapDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckGlobalScaleErrorCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<ChuckAlignmentDegreeOffsetCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<ChuckAlignmentDegreeOffsetItemDto>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AdsPressureGainsCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AdsPressureGainsDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AdsXGainsCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AdsXGainsItemDto>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AdsYGainsCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AdsYGainsItemDto>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AutoFocusDarkAutoFocusViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<DarkAutoFocusDTO>().IsOk(out _);
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserBeamStabilizerCalibrationViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>().IsOk(out _);
-
-                #region NEW
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBMMDViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBMMDDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBLightMatchingViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBLightMatchingDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsRelayViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsRelayDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsGlobalFieldTiltViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<GlobalFieldTiltDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBYPixelSizeViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBXPixelSizeViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBLineCentricityViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBLineOrientationOffsetViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBLineOrientationOffsetDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AODAlignmentViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODAlignmentDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AODDelayViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODDelayDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserOpticalPowerMeterViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<LaserAttenuatorViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<LaserAttenuatorDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBXTCViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBXTCDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBAGCDelayViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBAGCDelayDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<CIBIlluminationProfileViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<CIBIlluminationProfileDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AODUniformityViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AODUniformityDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsINCViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsINCDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<OpticsSCViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<OpticsSCDTO>().IsOk(out _);
-
-                #endregion
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AutoFocusGlobalFocusOffsetViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<AutoFocusGlobalFocusOffsetDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<AutoFocusCalChipFocusOffsetViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<AutoFocusCalChipFocusOffsetDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCameraAlignmentViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilCameraAlignmentDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilSideChannelFlexibleApertureViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilSideChannelFlexibleApertureDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilSideChannelSpecularBlockerViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<PupilSideChannelSpecularBlockerDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCenterChannelFlexibleApertureViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefault<PupilCenterChannelFlexibleApertureDTO>().IsOk(out _);
-
-                calibrationItem = _applicationCookieService.FindCalibrationItem<PupilCenterChannelSpecularBlockerViewModel>();
-                if (calibrationItem is not null) calibrationItem.IsCalibrated = _cacheProvider.GetOrDefaultArray<PupilCenterChannelSpecularBlockerDTO>().IsOk(out _);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "{@Name}: Load Calibration Status Failed", nameof(MainWindowViewModel));
-            }
-        });
     }
 }

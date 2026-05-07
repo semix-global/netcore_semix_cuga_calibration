@@ -6,7 +6,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Laser.BeamStabilizer;
 
 [CacheVersion("1.0.0")]
-public sealed partial class LaserBeamStabilizerObjDto : CalibrationDtoBase, ICloneable<LaserBeamStabilizerObjDto>
+public sealed partial class LaserBeamStabilizerObjDto : CalibrationDTOBase, ICloneable<LaserBeamStabilizerObjDto>
 {
     [ObservableProperty]
     private int _index;
