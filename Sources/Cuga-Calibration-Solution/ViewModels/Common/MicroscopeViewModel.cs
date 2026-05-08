@@ -150,7 +150,7 @@ public sealed class MicroscopeViewModel(
             return true;
         });
 
-        var waitAll = Task.WaitAll([taskAf1, taskAf2, taskAf3, taskMicroscope1, taskMicroscope2, taskMove], TimeSpan.FromSeconds(5));
+        var waitAll = Task.WaitAll([taskAf1, taskAf2, taskAf3, taskMicroscope1, taskMicroscope2, taskMove], TimeSpan.FromSeconds(10));
         if (waitAll == false) throw new CugaException("Wait all task failed");
 
         return taskAf1.Result && taskAf2.Result && taskAf3.Result && taskMicroscope1.Result && taskMicroscope2.Result && taskMove.Result;

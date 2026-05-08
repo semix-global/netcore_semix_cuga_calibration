@@ -75,17 +75,14 @@
                     </Style>
                 </Menu.ItemContainerStyle>
             </Menu>
-            <Grid>
+            <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="282" />
+                    <ColumnDefinition Width="270" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-
-                <!--#region Left-->
-                <TreeView Margin="5" ItemsSource="{Binding ApplicationCookie.CalibrationMenu.Children}">
+                <TreeView ItemsSource="{Binding ApplicationCookie.CalibrationMenu.Children}">
                     <TreeView.ItemContainerStyle>
-                        <!--  防止覆盖原有样式  -->
                         <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
                             <Setter Property="IsExpanded" Value="True" />
                             <Style.Triggers>
@@ -96,7 +93,6 @@
                                 <DataTrigger Value="True">
                                     <DataTrigger.Binding>
                                         <MultiBinding Converter="{StaticResource MultiValueEqualityViewModelConverter}">
-                                            <!--  任何一个Binding变动都会触发MultiBinding  -->
                                             <Binding Mode="OneWay" Path="SysMenu.Component" />
                                             <Binding Mode="OneWay"
                                                      Path="DataContext.ActiveItem"
@@ -111,47 +107,41 @@
                     </TreeView.ItemContainerStyle>
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                            <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                                <hc:WaveProgressBar x:Name="ProgressIndicator"
-                                                    Width="24"
-                                                    Height="24"
-                                                    Margin="0,0,10,0"
-                                                    VerticalAlignment="Center"
-                                                    Maximum="1"
-                                                    ShowText="False"
-                                                    WaveThickness="2"
-                                                    WaveStroke="#FF13CE66"
-                                                    ToolTipService.InitialShowDelay="300"
-                                                    ToolTipService.ShowDuration="60000"
-                                                    ToolTipService.Placement="Right"
-                                                    Value="{Binding Status.Progress, Mode=OneWay}">
-                                    <hc:WaveProgressBar.WaveFill>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Offset="0" Color="#6613CE66" />
-                                            <GradientStop Offset="1" Color="#FF13CE66" />
-                                        </LinearGradientBrush>
-                                    </hc:WaveProgressBar.WaveFill>
-                                    <hc:WaveProgressBar.ToolTip>
-                                        <ToolTip Padding="0"
-                                                 Background="Transparent"
-                                                 BorderThickness="0"
-                                                 HasDropShadow="False">
-                                            <Border MinWidth="320"
-                                                    MaxWidth="520"
-                                                    MaxHeight="400"
-                                                    Style="{StaticResource BorderRegion}"
-                                                    Effect="{StaticResource EffectShadow1}">
-                                                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                                    <ContentControl Content="{Binding Status.XamlMessage, Mode=OneWay, Converter={x:Static coreConverters:StringToXamlConverter.Instance}}" />
-                                                </ScrollViewer>
-                                            </Border>
-                                        </ToolTip>
-                                    </hc:WaveProgressBar.ToolTip>
-                                </hc:WaveProgressBar>
-                                <TextBlock Text="{Binding SysMenu.Name}" VerticalAlignment="Center" />
-                            </StackPanel>
+                            <Grid Margin="-15,0,0,0"
+                                  ToolTipService.InitialShowDelay="300"
+                                  ToolTipService.ShowDuration="60000"
+                                  ToolTipService.Placement="Right">
+                                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                    <hc:WaveProgressBar x:Name="ProgressIndicator"
+                                                        Width="15"
+                                                        Height="15"
+                                                        Margin="0,0,10,0"
+                                                        VerticalAlignment="Center"
+                                                        Maximum="0"
+                                                        ShowText="False"
+                                                        WaveThickness="2"
+                                                        WaveStroke="#FF13CE66"
+                                                        Value="{Binding Entry.Status.Progress, Mode=OneWay}">
+                                        <hc:WaveProgressBar.WaveFill>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                <GradientStop Offset="0" Color="#6613CE66" />
+                                                <GradientStop Offset="1" Color="#FF13CE66" />
+                                            </LinearGradientBrush>
+                                        </hc:WaveProgressBar.WaveFill>
+                                    </hc:WaveProgressBar>
+                                    <TextBlock Text="{Binding SysMenu.Name}" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <Grid.ToolTip>
+                                    <ScrollViewer Width="400"
+                                                  Height="400"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <ContentControl Content="{Binding Entry.Status.XamlMessage, Mode=OneWay, Converter={x:Static coreConverters:StringToXamlConverter.Instance}}" />
+                                    </ScrollViewer>
+                                </Grid.ToolTip>
+                            </Grid>
                             <HierarchicalDataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding Status.IsOk}" Value="True">
+                                <DataTrigger Binding="{Binding Entry.Status.IsOk}" Value="True">
                                     <Setter TargetName="ProgressIndicator" Property="WaveStroke" Value="#FF00E676" />
                                     <Setter TargetName="ProgressIndicator" Property="Effect">
                                         <Setter.Value>
@@ -169,22 +159,16 @@
                         </HierarchicalDataTemplate>
                     </TreeView.ItemTemplate>
                 </TreeView>
-                <!--#endregion-->
-
-                <GridSplitter Grid.Column="1"
-                              Width="10"
-                              Margin="-5" />
-
-                <!--#region right-->
+                <GridSplitter Grid.Column="1" Width="5" />
                 <Grid Grid.Column="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="5" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="230" />
                     </Grid.RowDefinitions>
-                    <!--#region button group-->
-                    <hc:UniformSpacingPanel Margin="5,10,5,3" Spacing="10">
+                    <hc:UniformSpacingPanel Spacing="10">
                         <Button Content="Calibrate"
                                 Command="{Binding CalibrateCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
@@ -206,9 +190,7 @@
                                 hc:IconElement.Geometry="{StaticResource RightGeometry}"
                                 Style="{StaticResource ButtonPrimary}" />
                     </hc:UniformSpacingPanel>
-                    <!--#endregion-->
-                    <!--#region body-->
-                    <ContentControl Grid.Row="1">
+                    <ContentControl Grid.Row="2">
                         <ContentControl.Style>
                             <Style BasedOn="{StaticResource {x:Type ContentControl}}" TargetType="{x:Type ContentControl}">
                                 <Style.Triggers>
@@ -234,31 +216,18 @@
                             </Style>
                         </ContentControl.Style>
                     </ContentControl>
-                    <!--#endregion-->
-                    <GridSplitter Grid.Row="2"
-                                  Height="10"
-                                  Margin="-5" />
-                    <!--#region log-->
-                    <Grid Grid.Row="3" Margin="5">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <hc:SimplePanel Grid.Row="1">
-                            <nlog:NLogViewer MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" TargetName="targetNLogViewer" />
-                            <Button Content="Popup"
-                                    Command="{Binding ShowLogCommand}"
-                                    Margin="6"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Top"
-                                    hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                                    Style="{StaticResource ButtonDefault.Small}" />
-                        </hc:SimplePanel>
+                    <GridSplitter Grid.Row="3" Height="5" />
+                    <Grid Grid.Row="4">
+                        <nlog:NLogViewer MinLogLevelEnum="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum, Mode=TwoWay}" TargetName="targetNLogViewer" />
+                        <Button Content="Popup"
+                                Command="{Binding ShowLogCommand}"
+                                Margin="6"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                Style="{StaticResource ButtonDefault.Small}" />
                     </Grid>
-
-                    <!--#endregion-->
                 </Grid>
-                <!--#endregion-->
             </Grid>
         </DockPanel>
         <Button Content="Refresh Cookie"
