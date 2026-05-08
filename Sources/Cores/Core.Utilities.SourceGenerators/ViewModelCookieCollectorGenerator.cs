@@ -107,7 +107,7 @@ public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
 
             return d.IsArray
                 ? $$"""
-                        public sealed class {{resultClassName}} : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject, global::Core.Utilities.SourceGenerators.ICalibrationCookie<{{recipeDictionary[d.ViewModel].Cache}}, {{d.DTO}}>
+                        public sealed class {{resultClassName}} : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject, global::Core.Models.Models.Common.Cookies.ICalibrationViewModelCookie<{{recipeDictionary[d.ViewModel].Cache}}, {{d.DTO}}>
                         {
                             public bool IsArray { get; } = true;
                             public {{recipeDictionary[d.ViewModel].Cache}} Cache { get; set => SetProperty(ref field, value); } = new();
@@ -120,7 +120,7 @@ public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
                         }
                     """
                 : $$"""
-                        public sealed class {{resultClassName}} : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject, global::Core.Utilities.SourceGenerators.ICalibrationCookie<{{recipeDictionary[d.ViewModel].Cache}}, {{d.DTO}}>
+                        public sealed class {{resultClassName}} : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject, global::Core.Models.Models.Common.Cookies.ICalibrationViewModelCookie<{{recipeDictionary[d.ViewModel].Cache}}, {{d.DTO}}>
                         {
                             public bool IsArray { get; } = false;
                             public {{recipeDictionary[d.ViewModel].Cache}} Cache { get; set => SetProperty(ref field, value); } = new();
@@ -139,12 +139,12 @@ public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
             var resultClassName = GetResultClassName(recipeDictionary[d.ViewModel].ShortCache);
 
             return $"""
-                                [typeof({d.ViewModel})] = new(
+                                global::Core.Models.Models.Common.Cookies.ApplicationCookie.CalibrationCookies[typeof({d.ViewModel})] = new(
                                     typeof({recipeDictionary[d.ViewModel].Cache}),
                                     typeof({d.DTO}),
                                     {(d.AdaptToCUGA is null ? "null" : $"typeof({d.AdaptToCUGA})")},
                                     {d.IsArray.ToString().ToLower()},
-                                    new global::Core.Utilities.SourceGenerators.{resultClassName}()),
+                                    new global::Core.Utilities.SourceGenerators.{resultClassName}());
                     """;
         }));
 
@@ -154,52 +154,17 @@ public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
 
                  namespace Core.Utilities.SourceGenerators
                  {
-                     public interface ICalibrationCookie<out TCache, out TDTO>
-                         where TCache : global::Core.Models.Models.CalibrationCacheBase
-                         where TDTO : global::Core.Models.Models.CalibrationDTOBase
-                     {
-                         bool IsArray { get; }
-                         TCache Cache { get; }
-                         TDTO Calibration { get; }
-                         TDTO[] Calibrations { get; }
-                     }
-
                  {{resultClassesContent}}
                  }
 
                  namespace Core.Utilities.SourceGenerators
                  {
-                     public sealed class ViewModelEntry(
-                         global::System.Type cacheType,
-                         global::System.Type dtoType,
-                         global::System.Type? adaptToCUGAType,
-                         bool isArray,
-                         global::Core.Utilities.SourceGenerators.ICalibrationCookie<global::Core.Models.Models.CalibrationCacheBase, global::Core.Models.Models.CalibrationDTOBase> calibrationCookie)
-                     {
-                         public static readonly ViewModelEntry Default = new(typeof(Empty), typeof(Empty), typeof(Empty), false, new Empty());
-                         
-                         public global::System.Type CacheType { get; } = cacheType;
-                         public global::System.Type DTOType { get; } = dtoType;
-                         public global::System.Type? AdaptToCUGAType { get; } = adaptToCUGAType;
-                         public bool IsArray { get; } = isArray;
-                         public global::Core.Utilities.SourceGenerators.ICalibrationCookie<global::Core.Models.Models.CalibrationCacheBase, global::Core.Models.Models.CalibrationDTOBase> CalibrationCookie { get; } = calibrationCookie;
-                         public global::Core.Models.Models.CalibrationItemStatus Status { get; } = new();
-                         
-                         private sealed class Empty : global::Core.Utilities.SourceGenerators.ICalibrationCookie<global::Core.Models.Models.CalibrationCacheBase, global::Core.Models.Models.CalibrationDTOBase>
-                         {
-                             public bool IsArray { get; } = false;
-                             public global::Core.Models.Models.CalibrationCacheBase Cache { get; } = global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<global::Core.Models.Models.CalibrationCacheBase>();
-                             public global::Core.Models.Models.CalibrationDTOBase Calibration { get; } = global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<global::Core.Models.Models.CalibrationDTOBase>();
-                             public global::Core.Models.Models.CalibrationDTOBase[] Calibrations { get; } = global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<global::Core.Models.Models.CalibrationDTOBase[]>();
-                         }
-                     }
-
                      public static class ViewModelCookieCollector
                      {
-                         public static readonly global::System.Collections.Generic.IReadOnlyDictionary<global::System.Type, ViewModelEntry> Cookies = new global::System.Collections.Generic.Dictionary<global::System.Type, ViewModelEntry>
+                         public static void InitApplicationCookie()
                          {
                  {{mapContent}}
-                         };
+                         }
                      }
                  }
                  """;
@@ -207,7 +172,8 @@ public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
 
     private static string GetResultClassName(string shortCache)
     {
-        if (shortCache.EndsWith("Cache")) shortCache = shortCache.Substring(0, shortCache.Length - "Cache".Length);
+        const string cache = "Cache";
+        if (shortCache.EndsWith(cache)) shortCache = shortCache.Substring(0, shortCache.Length - cache.Length);
 
         return shortCache + "Cookie";
     }

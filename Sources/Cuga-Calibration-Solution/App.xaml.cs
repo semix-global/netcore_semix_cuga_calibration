@@ -19,6 +19,7 @@ using SourceGenerator.AssemblyMetadata;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
+using Core.Utilities.SourceGenerators;
 
 namespace CugaCalibration;
 
@@ -73,6 +74,9 @@ public sealed partial class App
             app.InitializeComponent();
             app.MainWindow = HostApplication.GetRequiredService<MainWindow>();
             app.MainWindow.Visibility = Visibility.Visible;
+
+            // todo: 等后续ScottPlot改造好移动到static中
+            ViewModelCookieCollector.InitApplicationCookie();
 
             // ReSharper disable AccessToDisposedClosure
 
