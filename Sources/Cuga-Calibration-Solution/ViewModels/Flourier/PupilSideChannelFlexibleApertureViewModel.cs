@@ -19,6 +19,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
+using Core.Utilities.SourceGenerators.Attributes;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Rect = Net.Utilities.Models.Geometries.Rect;
@@ -194,9 +195,11 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     [ObservableProperty]
     private PupilCameraAlignmentDTO _pupilCameraAlignmentValue = new();
 
+    [RecipeCache]
     [ObservableProperty]
     private PupilSideChannelFlexibleApertureCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private PupilSideChannelFlexibleApertureDTO _calibration = new();
 

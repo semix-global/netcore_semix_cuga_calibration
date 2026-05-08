@@ -13,6 +13,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using Core.Utilities.SourceGenerators.Attributes;
 using BitmapImage = Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage;
 
 namespace CugaCalibration.ViewModels.Flourier;
@@ -43,9 +44,11 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     [ObservableProperty]
     private MicroscopeCalChipDTO _microscopeCalChip = new();
 
+    [RecipeCache]
     [ObservableProperty]
     private PupilCameraAlignmentCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private PupilCameraAlignmentDTO _calibration = new();
 

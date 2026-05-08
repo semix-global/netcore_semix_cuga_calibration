@@ -20,6 +20,7 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
+using Core.Utilities.SourceGenerators.Attributes;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 using Size = Net.Utilities.Models.Geometries.Size;
@@ -162,9 +163,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
     [ObservableProperty]
     private PupilCameraAlignmentDTO _pupilCameraAlignmentValue = new();
 
+    [RecipeCache]
     [ObservableProperty]
     private PupilCenterChannelFlexibleApertureCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private PupilCenterChannelFlexibleApertureDTO _calibration = new();
 
