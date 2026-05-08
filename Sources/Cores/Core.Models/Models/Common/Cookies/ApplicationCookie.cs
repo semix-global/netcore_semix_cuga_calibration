@@ -10,7 +10,7 @@ namespace Core.Models.Models.Common.Cookies;
 
 public sealed partial class ApplicationCookie : ObservableObject
 {
-    public static readonly Dictionary<Type, CalibrationCookie> CalibrationCookies = new Dictionary<Type, CalibrationCookie>();
+    public static readonly Dictionary<Type, CalibrationViewModelEntry> CalibrationViewModelEntries = new Dictionary<Type, CalibrationViewModelEntry>();
 
     /// <summary>
     /// 设备编码

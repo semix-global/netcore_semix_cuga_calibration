@@ -7,7 +7,7 @@ using System.Text;
 namespace Core.Utilities.SourceGenerators;
 
 [Generator(LanguageNames.CSharp)]
-public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
+public sealed class CalibrationViewModelEntriesCollectorGenerator : IIncrementalGenerator
 {
     private const string AdaptToInterfaceMetadataName = "Net.Utilities.Mapper.Interfaces.IAdaptTo`1";
     private const string AdaptToTargetNamespace = "Core.Wcf.Models";
@@ -32,7 +32,7 @@ public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
 
         context.RegisterSourceOutput(defaults.Combine(recipes), static (ctx, source) =>
             ctx.AddSource(
-                "SourceGenerators.ViewModelCookieCollector.g.cs",
+                "SourceGenerators.CalibrationViewModelEntriesCollector.g.cs",
                 SourceText.From(GenerateSource(source.Left, source.Right), Encoding.UTF8)));
     }
 
@@ -139,7 +139,7 @@ public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
             var resultClassName = GetResultClassName(recipeDictionary[d.ViewModel].ShortCache);
 
             return $"""
-                                global::Core.Models.Models.Common.Cookies.ApplicationCookie.CalibrationCookies[typeof({d.ViewModel})] = new(
+                                global::Core.Models.Models.Common.Cookies.ApplicationCookie.CalibrationViewModelEntries[typeof({d.ViewModel})] = new(
                                     typeof({recipeDictionary[d.ViewModel].Cache}),
                                     typeof({d.DTO}),
                                     {(d.AdaptToCUGA is null ? "null" : $"typeof({d.AdaptToCUGA})")},
@@ -159,9 +159,9 @@ public sealed class ViewModelCookieCollectorGenerator : IIncrementalGenerator
 
                  namespace Core.Utilities.SourceGenerators
                  {
-                     public static class ViewModelCookieCollector
+                     public static class CalibrationViewModelEntriesCollector
                      {
-                         public static void InitApplicationCookie()
+                         public static void Init()
                          {
                  {{mapContent}}
                          }

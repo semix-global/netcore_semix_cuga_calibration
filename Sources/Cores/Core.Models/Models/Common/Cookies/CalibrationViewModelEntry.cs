@@ -1,13 +1,13 @@
 ﻿namespace Core.Models.Models.Common.Cookies;
 
-public sealed class CalibrationCookie(
+public sealed class CalibrationViewModelEntry(
     Type cacheType,
     Type dtoType,
     Type? adaptToCUGAType,
     bool isArray,
     ICalibrationViewModelCookie<CalibrationCacheBase, CalibrationDTOBase> cookie)
 {
-    public static readonly CalibrationCookie Default = new(typeof(Empty), typeof(Empty), typeof(Empty), false, new Empty());
+    public static readonly CalibrationViewModelEntry Default = new(typeof(Empty), typeof(Empty), typeof(Empty), false, new Empty());
 
     public Type CacheType { get; } = cacheType;
 
@@ -19,7 +19,7 @@ public sealed class CalibrationCookie(
 
     public ICalibrationViewModelCookie<CalibrationCacheBase, CalibrationDTOBase> Cookie { get; } = cookie;
 
-    public CalibrationItemStatus Status { get; } = new();
+    public CalibrationViewModelStatus Status { get; } = new();
 
     private sealed class Empty : ICalibrationViewModelCookie<CalibrationCacheBase, CalibrationDTOBase>
     {

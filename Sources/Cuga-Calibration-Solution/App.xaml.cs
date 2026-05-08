@@ -76,7 +76,7 @@ public sealed partial class App
             app.MainWindow.Visibility = Visibility.Visible;
 
             // todo: 等后续ScottPlot改造好移动到static中
-            ViewModelCookieCollector.InitApplicationCookie();
+            CalibrationViewModelEntriesCollector.Init();
 
             // ReSharper disable AccessToDisposedClosure
 

@@ -1,8 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Core.Models.Models;
+namespace Core.Models.Models.Common.Cookies;
 
-public partial class CalibrationItemStatus : ObservableObject
+public partial class CalibrationViewModelStatus : ObservableObject
 {
     public bool IsOk => Progress >= 1;
 
