@@ -1208,8 +1208,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
                 if (result)
                 {
-                    AfViewModel.SetSensorNscCompensation(Review.NSCGainResultDTO.NscOffset,
-                        Review.NSCGainResultDTO.NscGain);
+                    AfViewModel.SetSensorNscCompensation(0d/* af下发不使用 */, Review.NSCGainResultDTO.NscGain);
                     await Task.Delay(100, cancellationToken);
 
                     AfViewModel.SetSensorCurrentValue(true, Review.CurrentA);

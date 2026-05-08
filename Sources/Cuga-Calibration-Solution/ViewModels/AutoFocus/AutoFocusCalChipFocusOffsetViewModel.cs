@@ -276,8 +276,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 Cache.SpeedEcsPerSecond
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CIBViewModel.ToggleRTFCParam(Cache.ProductivityInformation);
-            await Task.Delay(100, cancellationToken);
 
             if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
             {
@@ -285,12 +283,12 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>())
                 {
                     MicroscopeCalChip.CalChipSiteModelEnum = calChipSiteModelEnum;
-                    StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(
-                        StageViewModel.MachineToBrightFieldPosition(
-                            calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
-                                ? Cache.Item.FindBrightMachinePosition
-                                : MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition),
-                        calChipSiteModelEnum);
+                    StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(
+                        calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
+                            ? Cache.Item.FindBrightMachinePosition
+                            : MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition), calChipSiteModelEnum);
+
+                    CIBViewModel.ToggleRTFCParam(Cache.ProductivityInformation);
 
                     AfViewModel.ToggleDarkFieldEnable(true);
                     await Task.Delay(100, cancellationToken);
@@ -301,21 +299,20 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
                 if (calChipAFMotors.All(t => Math.Abs(t.afMotor - calChipAFMotors[0].afMotor) <= Constants.Tolerance) == false)
                 {
-                    Logger.LogHtmlError(
-                        "CalChip all AF motor value must be same,please check CUGA diagnosis RTFC param setting!",
-                        HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                        {
-                            AFMotor = new HtmlTable([.. calChipAFMotors.Select(t => new { t.calchip, t.afMotor })])
-                        }), HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlError("CalChip all AF motor value must be same,please check CUGA diagnosis RTFC param setting!", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    {
+                        AFMotor = new HtmlTable([.. calChipAFMotors.Select(t => new { t.calchip, t.afMotor })])
+                    }), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
             }
 
+            CIBViewModel.ToggleRTFCParam(Cache.ProductivityInformation);
+            await Task.Delay(100, cancellationToken);
+
             #region S曲线
 
-            StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(
-                StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition),
-                Cache.CalChipSiteModelEnum);
+            StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
 
             AfViewModel.ToggleDarkFieldEnable(true);
             await Task.Delay(100, cancellationToken);
