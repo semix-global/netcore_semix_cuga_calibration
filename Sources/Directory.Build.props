@@ -12,9 +12,9 @@
     <Import Project="$(BuildToolsDirectory)\Common.Build.props" />
 
     <PropertyGroup>
-        <Version>2.5.0413</Version>
-        <AssemblyVersion>2.5.2.0413</AssemblyVersion>
-        <FileVersion>2.5.2.0413</FileVersion>
+        <Version>2.5.0508</Version>
+        <AssemblyVersion>2.5.3.0508</AssemblyVersion>
+        <FileVersion>2.5.3.0508</FileVersion>
     </PropertyGroup>
 
 </Project>
