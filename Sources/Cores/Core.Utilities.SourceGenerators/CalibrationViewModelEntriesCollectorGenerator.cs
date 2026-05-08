@@ -110,21 +110,21 @@ public sealed class CalibrationViewModelEntriesCollectorGenerator : IIncremental
                         public sealed class {{resultClassName}} : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject, global::Core.Models.Models.Common.Cookies.ICalibrationViewModelCookie<{{recipeDictionary[d.ViewModel].Cache}}, {{d.DTO}}>
                         {
                             public bool IsArray { get; } = true;
-                            public {{recipeDictionary[d.ViewModel].Cache}} Cache { get; set => SetProperty(ref field, value); } = new();
+                            public {{recipeDictionary[d.ViewModel].Cache}} Cache { get; set => SetProperty(ref field, value); } = null!;
                             public {{d.DTO}} Calibration
                             {
                                 get => global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<{{d.DTO}}>();
                                 set => global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException();
                             }
-                            public {{d.DTO}}[] Calibrations { get; set => SetProperty(ref field, value); } = [];
+                            public {{d.DTO}}[] Calibrations { get; set => SetProperty(ref field, value); } = null!;
                         }
                     """
                 : $$"""
                         public sealed class {{resultClassName}} : global::CommunityToolkit.Mvvm.ComponentModel.ObservableObject, global::Core.Models.Models.Common.Cookies.ICalibrationViewModelCookie<{{recipeDictionary[d.ViewModel].Cache}}, {{d.DTO}}>
                         {
                             public bool IsArray { get; } = false;
-                            public {{recipeDictionary[d.ViewModel].Cache}} Cache { get; set => SetProperty(ref field, value); } = new();
-                            public {{d.DTO}} Calibration { get; set => SetProperty(ref field, value); } = new();
+                            public {{recipeDictionary[d.ViewModel].Cache}} Cache { get; set => SetProperty(ref field, value); }= null!;
+                            public {{d.DTO}} Calibration { get; set => SetProperty(ref field, value); } = null!;
                             public {{d.DTO}}[] Calibrations
                             {
                                 get => global::CommunityToolkit.Diagnostics.ThrowHelper.ThrowNotSupportedException<{{d.DTO}}[]>();
