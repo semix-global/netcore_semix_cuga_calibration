@@ -8,6 +8,7 @@ using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Models.Enums;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -15,7 +16,6 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
-using static Local.SQL.DB.Providers.Models.Enums.MenuTypeEnum;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -38,6 +38,7 @@ public sealed class ApplicationCookieServiceImpl(
 
         UpdateCalibrationMenu();
         UpdateTitleMenu();
+        UpdateCalibrationMenuEntry(applicationCookie.CalibrationMenu);
 
         return;
 
@@ -53,7 +54,7 @@ public sealed class ApplicationCookieServiceImpl(
 
             CalibrationMenu? BuildMenuTree(IReadOnlyList<CalibrationMenu> allCalibrationMenus)
             {
-                var calibrationItem = allCalibrationMenus.SingleOrDefault(t => t.SysMenu.Name == options.Value.CalibrationMenuName && t.SysMenu.MenuTypeEnum == Catalog);
+                var calibrationItem = allCalibrationMenus.SingleOrDefault(t => t.SysMenu.Name == options.Value.CalibrationMenuName && t.SysMenu.MenuTypeEnum == MenuTypeEnum.Catalog);
                 if (calibrationItem is null) return null;
 
                 RecursionFn(allCalibrationMenus, calibrationItem);
@@ -63,13 +64,13 @@ public sealed class ApplicationCookieServiceImpl(
                 static void RecursionFn(IReadOnlyList<CalibrationMenu> calibrationMenus, CalibrationMenu calibrationItem)
                 {
                     var children = calibrationMenus
-                        .Where(p => p.SysMenu.ParentId == calibrationItem.SysMenu.Id && p.SysMenu.MenuTypeEnum is Catalog or Menu)
+                        .Where(p => p.SysMenu.ParentId == calibrationItem.SysMenu.Id && p.SysMenu.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)
                         .OrderBy(t => t.SysMenu.OrderNum)
                         .ToArray();
                     calibrationItem.Children = children;
 
                     foreach (var item in children
-                                 .Where(t => calibrationMenus.Any(p => p.SysMenu.ParentId == t.SysMenu.Id && p.SysMenu.MenuTypeEnum is Catalog or Menu)))
+                                 .Where(t => calibrationMenus.Any(p => p.SysMenu.ParentId == t.SysMenu.Id && p.SysMenu.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
                     {
                         RecursionFn(calibrationMenus, item);
                     }
@@ -88,7 +89,7 @@ public sealed class ApplicationCookieServiceImpl(
 
             SysMenuDTO? BuildMenuTree(IReadOnlyList<SysMenuDTO> allSysMenus)
             {
-                var sysMenuDto = allSysMenus.SingleOrDefault(t => t.Name == options.Value.TitleMenuName && t.MenuTypeEnum == Catalog);
+                var sysMenuDto = allSysMenus.SingleOrDefault(t => t.Name == options.Value.TitleMenuName && t.MenuTypeEnum == MenuTypeEnum.Catalog);
                 if (sysMenuDto is null) return null;
 
                 RecursionFn(allSysMenus, sysMenuDto);
@@ -98,15 +99,29 @@ public sealed class ApplicationCookieServiceImpl(
                 static void RecursionFn(IReadOnlyList<SysMenuDTO> sysMenus, SysMenuDTO calibrationItem)
                 {
                     // 得到子节点列表
-                    var childList = sysMenus.Where(p => p.ParentId == calibrationItem.Id && p.MenuTypeEnum is Catalog or Menu).ToList();
+                    var childList = sysMenus.Where(p => p.ParentId == calibrationItem.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu).ToList();
                     calibrationItem.ChildList = [.. childList.OrderBy(t => t.OrderNum)];
 
-                    foreach (var item in childList.Where(item => sysMenus.Any(p => p.ParentId == item.Id && p.MenuTypeEnum is Catalog or Menu)))
+                    foreach (var item in childList.Where(item => sysMenus.Any(p => p.ParentId == item.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
                     {
                         RecursionFn(sysMenus, item);
                     }
                 }
             }
+        }
+
+        void UpdateCalibrationMenuEntry(CalibrationMenu calibrationMenu)
+        {
+            if (calibrationMenu.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu)
+            {
+                var type = Guard.IsNotNullAndReturn(Type.GetType(calibrationMenu.SysMenu.Component), $"Code bug: Cannot find type by component {calibrationMenu.SysMenu.Component} for calibration menu {calibrationMenu.SysMenu.Name}.");
+
+                Guard.IsTrue(ApplicationCookie.CalibrationViewModelEntries.ContainsKey(type), $"Code bug: CalibrationViewModelEntries does not contain key {type.FullName} for calibration menu {calibrationMenu.SysMenu.Name}.");
+
+                calibrationMenu.Entry = ApplicationCookie.CalibrationViewModelEntries[type];
+            }
+
+            foreach (var child in calibrationMenu.Children) UpdateCalibrationMenuEntry(child);
         }
     }
 
