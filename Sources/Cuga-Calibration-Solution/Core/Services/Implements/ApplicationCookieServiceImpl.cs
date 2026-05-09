@@ -27,7 +27,7 @@ public sealed class ApplicationCookieServiceImpl(
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options) : IApplicationCookieService
 {
-    public async Task UpdateCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken)
+    public async Task LoadingSystemMenuCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken)
     {
         var sysMenuService = HostApplication.GetRequiredService<ISysMenuService>();
         applicationCookie.SysUser.Update(sysUserDto);
@@ -36,81 +36,60 @@ public sealed class ApplicationCookieServiceImpl(
             ? [.. applicationCookie.AllRoleSysMenus]
             : [.. sysUserDto.SysRoleList.SelectMany(t => t.SysMenuList).DistinctBy(t => t.Id)];
 
-        UpdateCalibrationMenu();
-        UpdateTitleMenu();
+        applicationCookie.CalibrationMenu = BuildCalibrationMenuTree();
+        applicationCookie.TitleMenu = BuildTitleMenuTree();
         UpdateCalibrationMenuEntry(applicationCookie.CalibrationMenu);
 
         return;
 
-        void UpdateCalibrationMenu()
+        CalibrationMenu BuildCalibrationMenuTree()
         {
-            var calibrationItems = applicationCookie.CurrentRoleSysMenus.Select(t => new CalibrationMenu { SysMenu = t }).ToList();
-            var buildMenuTree = BuildMenuTree(calibrationItems);
-            if (buildMenuTree is null) return;
+            var calibrationMenus = applicationCookie.CurrentRoleSysMenus.Select(t => new CalibrationMenu { SysMenu = t }).ToArray();
+            var baseCalibrationMenu = calibrationMenus.Single(t => t.SysMenu.Name == options.Value.CalibrationMenuName && t.SysMenu.MenuTypeEnum == MenuTypeEnum.Catalog);
 
-            applicationCookie.CalibrationMenu = buildMenuTree;
+            RecursionFn(baseCalibrationMenu);
 
-            return;
+            return baseCalibrationMenu;
 
-            CalibrationMenu? BuildMenuTree(IReadOnlyList<CalibrationMenu> allCalibrationMenus)
+            void RecursionFn(CalibrationMenu calibrationItem)
             {
-                var calibrationItem = allCalibrationMenus.SingleOrDefault(t => t.SysMenu.Name == options.Value.CalibrationMenuName && t.SysMenu.MenuTypeEnum == MenuTypeEnum.Catalog);
-                if (calibrationItem is null) return null;
+                var children = calibrationMenus
+                    .Where(p => p.SysMenu.ParentId == calibrationItem.SysMenu.Id && p.SysMenu.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)
+                    .OrderBy(t => t.SysMenu.OrderNum)
+                    .ToArray();
+                calibrationItem.Children = children;
 
-                RecursionFn(allCalibrationMenus, calibrationItem);
-
-                return calibrationItem;
-
-                static void RecursionFn(IReadOnlyList<CalibrationMenu> calibrationMenus, CalibrationMenu calibrationItem)
+                foreach (var item in children
+                             .Where(t => calibrationMenus.Any(p => p.SysMenu.ParentId == t.SysMenu.Id && p.SysMenu.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
                 {
-                    var children = calibrationMenus
-                        .Where(p => p.SysMenu.ParentId == calibrationItem.SysMenu.Id && p.SysMenu.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)
-                        .OrderBy(t => t.SysMenu.OrderNum)
-                        .ToArray();
-                    calibrationItem.Children = children;
-
-                    foreach (var item in children
-                                 .Where(t => calibrationMenus.Any(p => p.SysMenu.ParentId == t.SysMenu.Id && p.SysMenu.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
-                    {
-                        RecursionFn(calibrationMenus, item);
-                    }
+                    RecursionFn(item);
                 }
             }
         }
 
-        void UpdateTitleMenu()
+        SysMenuDTO BuildTitleMenuTree()
         {
-            var buildMenuTree = BuildMenuTree(applicationCookie.CurrentRoleSysMenus);
-            if (buildMenuTree is null) return;
+            var baseSysMenu = applicationCookie.CurrentRoleSysMenus.Single(t => t.Name == options.Value.TitleMenuName && t.MenuTypeEnum == MenuTypeEnum.Catalog);
+            RecursionFn(baseSysMenu);
 
-            applicationCookie.TitleMenu = buildMenuTree;
+            return baseSysMenu;
 
-            return;
-
-            SysMenuDTO? BuildMenuTree(IReadOnlyList<SysMenuDTO> allSysMenus)
+            void RecursionFn(SysMenuDTO calibrationItem)
             {
-                var sysMenuDto = allSysMenus.SingleOrDefault(t => t.Name == options.Value.TitleMenuName && t.MenuTypeEnum == MenuTypeEnum.Catalog);
-                if (sysMenuDto is null) return null;
+                var children = applicationCookie.CurrentRoleSysMenus
+                    .Where(p => p.ParentId == calibrationItem.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)
+                    .OrderBy(t => t.OrderNum)
+                    .ToList();
+                calibrationItem.ChildList = children;
 
-                RecursionFn(allSysMenus, sysMenuDto);
-
-                return sysMenuDto;
-
-                static void RecursionFn(IReadOnlyList<SysMenuDTO> sysMenus, SysMenuDTO calibrationItem)
+                foreach (var item in children.Where(item => applicationCookie.CurrentRoleSysMenus.Any(p => p.ParentId == item.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
                 {
-                    // 得到子节点列表
-                    var childList = sysMenus.Where(p => p.ParentId == calibrationItem.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu).ToList();
-                    calibrationItem.ChildList = [.. childList.OrderBy(t => t.OrderNum)];
-
-                    foreach (var item in childList.Where(item => sysMenus.Any(p => p.ParentId == item.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
-                    {
-                        RecursionFn(sysMenus, item);
-                    }
+                    RecursionFn(item);
                 }
             }
         }
 
-        void UpdateCalibrationMenuEntry(CalibrationMenu calibrationMenu)
+        static void UpdateCalibrationMenuEntry(CalibrationMenu calibrationMenu)
         {
             if (calibrationMenu.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu)
             {
@@ -125,25 +104,7 @@ public sealed class ApplicationCookieServiceImpl(
         }
     }
 
-    public CalibrationMenu? FindCalibrationItem<TViewModel>()
-    {
-        return Find(applicationCookie.CalibrationMenu.Children);
-
-        static CalibrationMenu? Find(IReadOnlyList<CalibrationMenu> items)
-        {
-            foreach (var item in items)
-            {
-                if (item.SysMenu.Component == typeof(TViewModel).FullName) return item;
-
-                var foundItem = Find(item.Children);
-                if (foundItem is not null) return foundItem;
-            }
-
-            return null;
-        }
-    }
-
-    public List<SysMenuDTO> FindSysMenuListByRecursionComponent(string component)
+    public IReadOnlyList<SysMenuDTO> FindSysMenusByRecursionSysMenuComponent(string component)
     {
         var result = new List<SysMenuDTO>();
 
@@ -152,13 +113,14 @@ public sealed class ApplicationCookieServiceImpl(
 
         return result;
 
-        void RecursionFn(List<SysMenuDTO> list)
+        void RecursionFn(IReadOnlyList<SysMenuDTO> sysMenus)
         {
-            var childList = applicationCookie.AllRoleSysMenus.Where(p => list.Any(t => p.ParentId == t.Id)).ToList();
-            result.AddRange(childList);
+            var children = applicationCookie.AllRoleSysMenus.Where(p => sysMenus.Any(t => p.ParentId == t.Id)).ToArray();
+            result.AddRange(children);
 
-            if (list.Count == 0) return;
-            RecursionFn(childList);
+            if (sysMenus.Count == 0) return;
+
+            RecursionFn(children);
         }
     }
 

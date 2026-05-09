@@ -69,7 +69,7 @@ public partial class LoginWindowViewModel(
 
                 var tempSysUserDto = await configViewModel.LoginAsync(SysUserDTO, cancellationToken).ConfigureAwait(false);
 
-                await applicationCookieService.UpdateCookieAsync(tempSysUserDto, cancellationToken).ConfigureAwait(false);
+                await applicationCookieService.LoadingSystemMenuCookieAsync(tempSysUserDto, cancellationToken).ConfigureAwait(false);
 
                 CloseView(true);
             }, cancellationToken).ConfigureAwait(false);
