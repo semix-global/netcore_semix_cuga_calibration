@@ -140,6 +140,7 @@ public sealed class CalibrationViewModelEntriesCollectorGenerator : IIncremental
 
             return $"""
                                 global::Core.Models.Models.Common.Cookies.ApplicationCookie.CalibrationViewModelEntries[typeof({d.ViewModel})] = new(
+                                    typeof({d.ViewModel}),
                                     typeof({recipeDictionary[d.ViewModel].Cache}),
                                     typeof({d.DTO}),
                                     {(d.AdaptToCUGA is null ? "null" : $"typeof({d.AdaptToCUGA})")},

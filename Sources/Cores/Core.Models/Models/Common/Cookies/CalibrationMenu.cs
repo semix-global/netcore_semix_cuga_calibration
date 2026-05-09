@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Models.Enums;
 
 namespace Core.Models.Models.Common.Cookies;
 
@@ -13,4 +14,20 @@ public sealed partial class CalibrationMenu : ObservableObject
 
     [ObservableProperty]
     public partial IReadOnlyList<CalibrationMenu> Children { get; set; } = [];
+
+    public IReadOnlyList<CalibrationMenu> GetAllChildren()
+    {
+        var result = new List<CalibrationMenu>();
+
+        RecursionFn(this);
+
+        return result;
+
+        void RecursionFn(CalibrationMenu item)
+        {
+            if (item.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu) result.Add(item);
+
+            foreach (var child in item.Children) RecursionFn(child);
+        }
+    }
 }
