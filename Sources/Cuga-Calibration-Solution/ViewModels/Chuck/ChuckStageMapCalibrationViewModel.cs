@@ -123,15 +123,15 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
-        ChuckCenter = CalibrationStatusService.GetCalibration<ChuckCenterAndThetaItemDto>();
+        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>();
 
-        CIBXPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
+        CIBXPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>();
 
-        LaserPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
+        LaserPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBYPixelSizeDTO>();
 
-        LaserLineCentricityItems = CalibrationStatusService.GetCalibrations<CIBLineCentricityDTO>();
+        LaserLineCentricityItems = ApplicationCookieService.GetCalibrations<CIBLineCentricityDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckStageMapDto>();

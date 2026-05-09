@@ -115,8 +115,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>();
 
         if (CalibratingStatuses.Count == 0)
             CalibratingStatuses =

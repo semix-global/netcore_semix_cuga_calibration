@@ -51,6 +51,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     protected readonly ICacheProvider CacheProvider;
     protected readonly ICacheProvider RecipeCacheProvider;
     protected readonly ICalibrationStatusService CalibrationStatusService;
+    protected readonly IApplicationCookieService ApplicationCookieService;
     protected readonly ICalibrationRecipeService CalibrationRecipeService;
     protected readonly string AppHomeDirectory;
 
@@ -246,6 +247,7 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         CalibrationStatusService = HostApplication.GetRequiredService<ICalibrationStatusService>();
+        ApplicationCookieService = HostApplication.GetRequiredService<IApplicationCookieService>();
         CalibrationRecipeService = HostApplication.GetRequiredService<ICalibrationRecipeService>();
 
         ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();

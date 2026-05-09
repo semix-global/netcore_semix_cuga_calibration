@@ -89,7 +89,7 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckGantryCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckGantryDto>();

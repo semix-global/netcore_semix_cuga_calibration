@@ -193,9 +193,9 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        PupilCameraAlignmentValue = CalibrationStatusService.GetCalibration<PupilCameraAlignmentDTO>();
-        PupilSideChannelFlexibleApertureValue = CalibrationStatusService.GetCalibration<PupilSideChannelFlexibleApertureDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>();
+        PupilSideChannelFlexibleApertureValue = ApplicationCookieService.GetCalibration<PupilSideChannelFlexibleApertureDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilSideChannelSpecularBlockerCache>();
 

@@ -88,7 +88,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckAlignmentDegreeOffsetCache>();
         Calibrations = CacheProvider.GetOrDefaultArray<ChuckAlignmentDegreeOffsetItemDto>();

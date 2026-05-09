@@ -82,7 +82,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<DarkAutoFocusCache>();
         Calibration = CacheProvider.GetOrDefault<DarkAutoFocusDTO>();

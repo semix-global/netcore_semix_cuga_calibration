@@ -79,7 +79,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
 
         if (CalibrationStatuses.Count == 0)
             CalibrationStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];

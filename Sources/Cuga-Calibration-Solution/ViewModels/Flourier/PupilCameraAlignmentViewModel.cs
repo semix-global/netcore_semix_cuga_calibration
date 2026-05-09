@@ -64,7 +64,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilCameraAlignmentCache>();
         Calibration = CacheProvider.GetOrDefault<PupilCameraAlignmentDTO>();

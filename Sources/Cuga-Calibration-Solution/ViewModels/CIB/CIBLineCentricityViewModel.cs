@@ -115,8 +115,8 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        CIBXPixelSizes = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        CIBXPixelSizes = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
         ChuckCenter = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
         MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();

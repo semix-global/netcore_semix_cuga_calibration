@@ -121,9 +121,9 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
 
-        AODDelays = CalibrationStatusService.GetCalibrations<AODDelayDTO>();
+        AODDelays = ApplicationCookieService.GetCalibrations<AODDelayDTO>();
 
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
 

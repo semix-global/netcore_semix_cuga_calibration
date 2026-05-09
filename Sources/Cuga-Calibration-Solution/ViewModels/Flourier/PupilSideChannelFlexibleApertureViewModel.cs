@@ -215,8 +215,8 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        PupilCameraAlignmentValue = CalibrationStatusService.GetCalibration<PupilCameraAlignmentDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilSideChannelFlexibleApertureCache>();
         Calibration = CacheProvider.GetOrDefault<PupilSideChannelFlexibleApertureDTO>();

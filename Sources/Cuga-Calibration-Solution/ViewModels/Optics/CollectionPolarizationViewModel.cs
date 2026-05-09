@@ -60,7 +60,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CollectPolarizationCache>();
         Calibration = CacheProvider.GetOrDefault<CollectPolarizationDTO>();

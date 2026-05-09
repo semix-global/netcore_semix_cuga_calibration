@@ -154,8 +154,8 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        PupilCameraAlignmentValue = CalibrationStatusService.GetCalibration<PupilCameraAlignmentDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilCenterChannelSpecularBlockerCache>();
 
@@ -182,7 +182,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
 
         if (!isHasCache) RecipeCacheProvider.Set(Cache, cancellationToken);
 
-        PupilCenterChannelFlexibleApertureValue = CalibrationStatusService.GetCalibration<PupilCenterChannelFlexibleApertureDTO>();
+        PupilCenterChannelFlexibleApertureValue = ApplicationCookieService.GetCalibration<PupilCenterChannelFlexibleApertureDTO>();
 
         Ch3TurnYMotorRelation = PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYMotorRelationCh3.Count > 0 ? PupilCenterChannelFlexibleApertureValue.CgFFBoxTurnYMotorRelationCh3.Average() : 0;
         Ch3PushXMotorRelation = PupilCenterChannelFlexibleApertureValue.CgFFBoxPushXMotorRelationCh3;

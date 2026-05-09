@@ -117,7 +117,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
             return false;
         }
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
         MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
 
         if (CalibratingStatuses.Count == 0)

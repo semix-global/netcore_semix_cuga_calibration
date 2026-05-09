@@ -98,7 +98,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizes = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineOrientationOffsetCache>();
 

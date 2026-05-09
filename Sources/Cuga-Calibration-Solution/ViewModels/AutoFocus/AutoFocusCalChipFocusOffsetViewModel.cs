@@ -91,8 +91,8 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        DarkAutoFocus = CalibrationStatusService.GetCalibration<DarkAutoFocusDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        DarkAutoFocus = ApplicationCookieService.GetCalibration<DarkAutoFocusDTO>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AutoFocusCalChipFocusOffsetCache>();
         Calibration = CacheProvider.GetOrDefault<AutoFocusCalChipFocusOffsetDTO>();
