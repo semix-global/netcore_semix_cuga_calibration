@@ -1,8 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Common.Cookies;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
-namespace Core.Models.Models;
+namespace Core.Models.Models.Common.Cookies;
 
 public sealed partial class CalibrationMenu : ObservableObject
 {

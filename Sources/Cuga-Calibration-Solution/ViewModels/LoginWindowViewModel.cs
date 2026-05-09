@@ -83,7 +83,7 @@ public partial class LoginWindowViewModel(
             }
 
             logger.LogError(ex, "{@Name}: Login failed", nameof(LoginWindowViewModel));
-            dialogWindowProvider.ShowDialog($"Login Failed: {ex.Message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            dialogWindowProvider.ShowDialog($"Login Failed: {ex}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
     }
 

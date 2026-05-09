@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Helper;
-using Core.Models.Models;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -39,6 +38,7 @@ public sealed class ApplicationCookieServiceImpl(
 
         UpdateCalibrationMenu();
         UpdateTitleMenu();
+
         return;
 
         void UpdateCalibrationMenu()
@@ -51,24 +51,27 @@ public sealed class ApplicationCookieServiceImpl(
 
             return;
 
-            CalibrationMenu? BuildMenuTree(List<CalibrationMenu> menus)
+            CalibrationMenu? BuildMenuTree(IReadOnlyList<CalibrationMenu> allCalibrationMenus)
             {
-                var calibrationItem = menus.SingleOrDefault(t => t.SysMenu.Name == options.Value.CalibrationMenuName && t.SysMenu.MenuTypeEnum == Catalog);
+                var calibrationItem = allCalibrationMenus.SingleOrDefault(t => t.SysMenu.Name == options.Value.CalibrationMenuName && t.SysMenu.MenuTypeEnum == Catalog);
                 if (calibrationItem is null) return null;
 
-                RecursionFn(menus, calibrationItem);
+                RecursionFn(allCalibrationMenus, calibrationItem);
 
                 return calibrationItem;
 
-                static void RecursionFn(List<CalibrationMenu> list, CalibrationMenu calibrationItem)
+                static void RecursionFn(IReadOnlyList<CalibrationMenu> calibrationMenus, CalibrationMenu calibrationItem)
                 {
-                    // 得到子节点列表
-                    var childList = list.Where(p => p.SysMenu.ParentId == calibrationItem.SysMenu.Id && p.SysMenu.MenuTypeEnum is Catalog or Menu).ToList();
-                    calibrationItem.Children = [.. childList.OrderBy(t => t.SysMenu.OrderNum)];
+                    var children = calibrationMenus
+                        .Where(p => p.SysMenu.ParentId == calibrationItem.SysMenu.Id && p.SysMenu.MenuTypeEnum is Catalog or Menu)
+                        .OrderBy(t => t.SysMenu.OrderNum)
+                        .ToArray();
+                    calibrationItem.Children = children;
 
-                    foreach (var item in childList.Where(item => list.Any(p => p.SysMenu.ParentId == item.SysMenu.Id && p.SysMenu.MenuTypeEnum is Catalog or Menu)))
+                    foreach (var item in children
+                                 .Where(t => calibrationMenus.Any(p => p.SysMenu.ParentId == t.SysMenu.Id && p.SysMenu.MenuTypeEnum is Catalog or Menu)))
                     {
-                        RecursionFn(list, item);
+                        RecursionFn(calibrationMenus, item);
                     }
                 }
             }
@@ -83,24 +86,24 @@ public sealed class ApplicationCookieServiceImpl(
 
             return;
 
-            SysMenuDTO? BuildMenuTree(IReadOnlyList<SysMenuDTO> menus)
+            SysMenuDTO? BuildMenuTree(IReadOnlyList<SysMenuDTO> allSysMenus)
             {
-                var sysMenuDto = menus.SingleOrDefault(t => t.Name == options.Value.TitleMenuName && t.MenuTypeEnum == Catalog);
+                var sysMenuDto = allSysMenus.SingleOrDefault(t => t.Name == options.Value.TitleMenuName && t.MenuTypeEnum == Catalog);
                 if (sysMenuDto is null) return null;
 
-                RecursionFn(menus, sysMenuDto);
+                RecursionFn(allSysMenus, sysMenuDto);
 
                 return sysMenuDto;
 
-                static void RecursionFn(IReadOnlyList<SysMenuDTO> list, SysMenuDTO calibrationItem)
+                static void RecursionFn(IReadOnlyList<SysMenuDTO> sysMenus, SysMenuDTO calibrationItem)
                 {
                     // 得到子节点列表
-                    var childList = list.Where(p => p.ParentId == calibrationItem.Id && p.MenuTypeEnum is Catalog or Menu).ToList();
+                    var childList = sysMenus.Where(p => p.ParentId == calibrationItem.Id && p.MenuTypeEnum is Catalog or Menu).ToList();
                     calibrationItem.ChildList = [.. childList.OrderBy(t => t.OrderNum)];
 
-                    foreach (var item in childList.Where(item => list.Any(p => p.ParentId == item.Id && p.MenuTypeEnum is Catalog or Menu)))
+                    foreach (var item in childList.Where(item => sysMenus.Any(p => p.ParentId == item.Id && p.MenuTypeEnum is Catalog or Menu)))
                     {
-                        RecursionFn(list, item);
+                        RecursionFn(sysMenus, item);
                     }
                 }
             }
