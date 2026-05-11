@@ -351,6 +351,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ProductivityInformation,
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 GenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                Cache.MeasurePowerNoisesCount,
                 Cache.MeasurePowerWaitTime,
                 Cache.PMTValueWaitTime,
                 Cache.StartCoefficient,
@@ -370,6 +371,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ScaleFactor,
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
+                Cache.SmoothLogGainMul128U12BitWindow,
+                Cache.SmoothGainS16BitWindow,
                 MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations])),
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
