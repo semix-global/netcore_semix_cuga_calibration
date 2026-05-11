@@ -101,6 +101,12 @@
                                   ExpandDirection="Down">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Noises Count: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="1"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MeasurePowerNoisesCount}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Measure Power Wait Time(s): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"

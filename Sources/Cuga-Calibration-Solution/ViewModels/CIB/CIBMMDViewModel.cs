@@ -416,12 +416,18 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
                 var measurePowerNoises = (IReadOnlyList<double>)
                 [
-                    ..Enumerable.Range(0, HostEnvironment.IsProduction() ? 10000 : 0)
+                    ..Enumerable.Range(0, HostEnvironment.IsProduction() ? Cache.MeasurePowerNoisesCount : 0)
                         .Select(_ =>
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            return LaserViewModel.GetOpticalMeasurePower();
+                            Logger.LogInformation("Start Get Optical Measure Power");
+
+                            var opticalMeasurePower = LaserViewModel.GetOpticalMeasurePower();
+
+                            Logger.LogInformation("Stop Get Optical Measure Power: {OpticalMeasurePower}", opticalMeasurePower);
+
+                            return opticalMeasurePower;
                         })
                 ];
                 var measurePowerNoise = HostEnvironment.IsProduction() ? measurePowerNoises.Average() : 0;
