@@ -416,3 +416,11 @@
 >   3.   bug修复
 >
 >        #168 fix concurrent bag to dictionary
+
+## 2.5.3.0511
+
+>   1.   校准
+>
+>        #171 MMD暗电流校准的优化
+>
+>        
