@@ -42,6 +42,9 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
+    private int _measurePowerNoisesCount = 100;
+
+    [ObservableProperty]
     private double _measurePowerWaitTime = 5d;
 
     [ObservableProperty]
