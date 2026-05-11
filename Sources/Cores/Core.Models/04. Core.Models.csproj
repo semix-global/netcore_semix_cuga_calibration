@@ -31,11 +31,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Models\Fourier\CameraAlignment\" />
-      <Folder Include="Models\Fourier\CenterChannelFlexibleAperture\" />
-      <Folder Include="Models\Fourier\CenterChannelSpecularBlocker\" />
-      <Folder Include="Models\Fourier\SideChannelFlexibleAperture\" />
-      <Folder Include="Models\Fourier\SideChannelSpecularBlocker\" />
+        <Reference Include="HAlgorithm">
+            <HintPath>..\..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
 </Project>
