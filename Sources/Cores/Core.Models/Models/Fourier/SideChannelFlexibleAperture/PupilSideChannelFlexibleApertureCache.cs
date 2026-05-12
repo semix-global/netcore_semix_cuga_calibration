@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
@@ -7,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
-public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationCacheBase
+public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationCacheBase<PupilSideChannelFlexibleApertureCache>
 {
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -128,4 +129,48 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
 
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+
+    public override PupilSideChannelFlexibleApertureCache Clone() => new()
+    {
+        Ch1Image = Ch1Image,
+        Ch2Image = Ch2Image,
+        HazeWaferPosition = HazeWaferPosition,
+        OriginImageFilePath1 = OriginImageFilePath1,
+        OriginImageFilePathList1 = new([.. OriginImageFilePathList1]),
+        OriginImageFilePath2 = OriginImageFilePath2,
+        OriginImageFilePathList2 = new([.. OriginImageFilePathList2]),
+        RectROIDrawable = RectROIDrawable,
+        CircleROIDrawable = CircleROIDrawable,
+        RectROIDrawableList = new([.. RectROIDrawableList]),
+        BitmapImageDrawableCh1 = BitmapImageDrawableCh1,
+        BitmapImageDrawableCh2 = BitmapImageDrawableCh2,
+        IsToggleSelectRectROIDrawableCh1 = IsToggleSelectRectROIDrawableCh1,
+        IsToggleSelectRectROIDrawableCh2 = IsToggleSelectRectROIDrawableCh2,
+        CgFFBoxBeginPositionCh1 = CgFFBoxBeginPositionCh1,
+        CgFFBoxEndPositionCh1 = CgFFBoxEndPositionCh1,
+        CgFFBoxBeginPositionCh2 = CgFFBoxBeginPositionCh2,
+        CgFFBoxEndPositionCh2 = CgFFBoxEndPositionCh2,
+        CgFFBoxBeginNumber1Ch1 = CgFFBoxBeginNumber1Ch1,
+        CgFFBoxBeginNumber2Ch1 = CgFFBoxBeginNumber2Ch1,
+        CgFFBoxBeginNumber1Ch2 = CgFFBoxBeginNumber1Ch2,
+        CgFFBoxBeginNumber2Ch2 = CgFFBoxBeginNumber2Ch2,
+        CgFFBoxEndNumber1Ch1 = CgFFBoxEndNumber1Ch1,
+        CgFFBoxEndNumber2Ch1 = CgFFBoxEndNumber2Ch1,
+        CgFFBoxEndNumber1Ch2 = CgFFBoxEndNumber1Ch2,
+        CgFFBoxEndNumber2Ch2 = CgFFBoxEndNumber2Ch2,
+        CgFFBoxRodWidthListCh1 = new([.. CgFFBoxRodWidthListCh1]),
+        CgFFBoxRodWidthListCh2 = new([.. CgFFBoxRodWidthListCh2]),
+        CgFFBoxHeightRelationPercentListCh1 = new([.. CgFFBoxHeightRelationPercentListCh1]),
+        CgFFBoxHeightRelationPercentListCh2 = new([.. CgFFBoxHeightRelationPercentListCh2]),
+        CurrentImageRectListFirstCh1 = new([.. CurrentImageRectListFirstCh1]),
+        CurrentImageRectListFirstCh2 = new([.. CurrentImageRectListFirstCh2]),
+        CgFFBoxAllRodsBeginPercentCh1 = CgFFBoxAllRodsBeginPercentCh1,
+        CgFFBoxAllRodsBeginPercentCh2 = CgFFBoxAllRodsBeginPercentCh2,
+        LaserLightInformation = LaserLightInformation.Clone(),
+        ProductivityInformation = ProductivityInformation.Clone(),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

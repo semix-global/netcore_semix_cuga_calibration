@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
@@ -7,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Microscope.Focus;
 
-public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
+public sealed partial class MicroscopeFocusCache : CalibrationCacheBase<MicroscopeFocusCache>
 {
     private double _threshold = 50;
 
@@ -51,4 +52,18 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase
 
         return HasErrors ? (false, string.Join(Environment.NewLine, GetErrors())) : (true, string.Empty);
     }
+
+    public override MicroscopeFocusCache Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        VerifyResultError = VerifyResultError,
+        VerifyResultQuality = VerifyResultQuality,
+        Threshold = Threshold,
+        ParfocalThreshold = ParfocalThreshold,
+        MicroscopeFocusCacheItemDic = new([.. MicroscopeFocusCacheItemDic]),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

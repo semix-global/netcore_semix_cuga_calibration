@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -8,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.Prealigner;
 
-public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
+public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPrealignerCache>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
@@ -180,4 +181,52 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase
 
     [ObservableProperty]
     private int _times = 10;
+
+    public override ChuckPrealignerCache Clone() => new()
+    {
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
+        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
+        LowSizeEnum = LowSizeEnum,
+        HighSizeEnum = HighSizeEnum,
+        NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,
+        LowSite1 = LowSite1,
+        LowSite2 = LowSite2,
+        HighSite1 = HighSite1,
+        HighSite2 = HighSite2,
+        LowSiteTemplateFilePath = LowSiteTemplateFilePath,
+        HighSiteTemplateFilePath = HighSiteTemplateFilePath,
+        WaferRadius = WaferRadius,
+        DiePitchWidth = DiePitchWidth,
+        ReticleDieCountX = ReticleDieCountX,
+        OffsetPosition = OffsetPosition,
+        Degrees = Degrees,
+        EfemLoadWaferStagePosition = EfemLoadWaferStagePosition,
+        EfemLoadWaferChuckAngle = EfemLoadWaferChuckAngle,
+        TeachingDegreesThreshold = TeachingDegreesThreshold,
+        VerifyDegreesThreshold = VerifyDegreesThreshold,
+        TeachingPositionThreshold = TeachingPositionThreshold,
+        VerifyPositionThreshold = VerifyPositionThreshold,
+        FindWaferCenterOffset1 = FindWaferCenterOffset1,
+        FindWaferCenterOffset2 = FindWaferCenterOffset2,
+        FindWaferCenterOffset3 = FindWaferCenterOffset3,
+        FindWaferCenterOffset4 = FindWaferCenterOffset4,
+        FindWaferCenterOffset5 = FindWaferCenterOffset5,
+        FindWaferCenterOffset6 = FindWaferCenterOffset6,
+        FindWaferCenterOffset7 = FindWaferCenterOffset7,
+        FindWaferCenterOffset8 = FindWaferCenterOffset8,
+        WaferCenterThumb1 = [.. WaferCenterThumb1],
+        WaferCenterThumb2 = [.. WaferCenterThumb2],
+        WaferCenterThumb3 = [.. WaferCenterThumb3],
+        WaferCenterThumb4 = [.. WaferCenterThumb4],
+        WaferCenterThumb5 = [.. WaferCenterThumb5],
+        WaferCenterThumb6 = [.. WaferCenterThumb6],
+        WaferCenterThumb7 = [.. WaferCenterThumb7],
+        WaferCenterThumb8 = [.. WaferCenterThumb8],
+        Times = Times,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

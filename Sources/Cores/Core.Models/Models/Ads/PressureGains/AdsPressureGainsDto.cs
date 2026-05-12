@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Ads.PressureGains;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AdsPressureGainsDto : CalibrationDTOBase, ICloneable<AdsPressureGainsDto>, IAdaptTo<CalibrationAdsPressureGains>
+public sealed partial class AdsPressureGainsDto : CalibrationDTOBase<AdsPressureGainsDto>, IAdaptTo<CalibrationAdsPressureGains>
 {
     [ObservableProperty]
     private double _pressureValue1;
@@ -23,7 +23,7 @@ public sealed partial class AdsPressureGainsDto : CalibrationDTOBase, ICloneable
 
     #region Mapper
 
-    public AdsPressureGainsDto Clone() => new()
+    public override AdsPressureGainsDto Clone() => new()
     {
         PressureValue1 = PressureValue1,
         PressureValue2 = PressureValue2,

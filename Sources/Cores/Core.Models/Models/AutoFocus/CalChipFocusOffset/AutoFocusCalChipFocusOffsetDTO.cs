@@ -21,7 +21,7 @@ using System.Collections.Concurrent;
 namespace Core.Models.Models.AutoFocus.CalChipFocusOffset;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase, ICloneable<AutoFocusCalChipFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusCalChipFocusOffset>
+public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase<AutoFocusCalChipFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusCalChipFocusOffset>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
@@ -38,7 +38,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase,
     [System.Xml.Serialization.XmlIgnore]
     public AutoFocusCalChipFocusOffsetDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, _ => new AutoFocusCalChipFocusOffsetDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
-    public AutoFocusCalChipFocusOffsetDTO Clone() => new()
+    public override AutoFocusCalChipFocusOffsetDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Results = new ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>

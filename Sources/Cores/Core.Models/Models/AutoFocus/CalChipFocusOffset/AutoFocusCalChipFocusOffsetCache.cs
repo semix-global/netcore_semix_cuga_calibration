@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
@@ -6,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AutoFocus.CalChipFocusOffset;
 
-public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheBase
+public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheBase<AutoFocusCalChipFocusOffsetCache>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -31,6 +32,20 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public AutoFocusCalChipFocusOffsetCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, _ => new AutoFocusCalChipFocusOffsetCacheItem());
+
+    public override AutoFocusCalChipFocusOffsetCache Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation,
+        ProductivityInformation = ProductivityInformation,
+        SpeedEcsPerSecond = SpeedEcsPerSecond,
+        HalfEcsLength = HalfEcsLength,
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        Items = new ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem>(Items),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
 public sealed partial class AutoFocusCalChipFocusOffsetCacheItem : ObservableValidator

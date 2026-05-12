@@ -10,7 +10,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Microscope.Centricity;
 
 [CacheVersion("1.0.0")]
-public sealed partial class MicroscopeCentricityItemDto : CalibrationDTOBase, ICloneable<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>
+public sealed partial class MicroscopeCentricityItemDto : CalibrationDTOBase<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
@@ -38,7 +38,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDTOBase, IC
 
     #region Mapper
 
-    public MicroscopeCentricityItemDto Clone() => new()
+    public override MicroscopeCentricityItemDto Clone() => new()
     {
         LensInformation = LensInformation,
         CentricityPosition = CentricityPosition,

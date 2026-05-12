@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
@@ -9,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Optics.GlobalFieldTilt;
 
-public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase
+public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase<GlobalFieldTiltCache>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -55,9 +56,29 @@ public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _p5Angle;
+
+    public override GlobalFieldTiltCache Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        Items = new ConcurrentDictionary<OpticsIlluminationModeEnum, GlobalFieldTiltCacheItem>(Items.Select(t => new KeyValuePair<OpticsIlluminationModeEnum, GlobalFieldTiltCacheItem>(t.Key, t.Value.Clone()))),
+        PmtInterval = PmtInterval,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
+        PMTIds = [.. PMTIds],
+        UmPerEcs = UmPerEcs,
+        OriginDOEPos = OriginDOEPos,
+        Threshold = Threshold,
+        VerifyQualityThreshold = VerifyQualityThreshold,
+        P5Angle = P5Angle,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public partial class GlobalFieldTiltCacheItem : CalibrationCacheBase
+public partial class GlobalFieldTiltCacheItem : CalibrationCacheBase<GlobalFieldTiltCacheItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -118,4 +139,31 @@ public partial class GlobalFieldTiltCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private AlignmentResultDto _alignmentResult = new();
+
+    public override GlobalFieldTiltCacheItem Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        IsMultiPMTOnceCollection = IsMultiPMTOnceCollection,
+        AlgorithmImageQualityTypeEnum = AlgorithmImageQualityTypeEnum,
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        ImageCollectionConfiguration = ImageCollectionConfiguration.Clone(),
+        FindPosition = FindPosition,
+        ObliqueAngle = ObliqueAngle,
+        Threshold = Threshold,
+        RetryCount = RetryCount,
+        ImageWidth = ImageWidth,
+        CenterECS = CenterECS,
+        RangeECS = RangeECS,
+        StepECS = StepECS,
+        RangeRefinedECS = RangeRefinedECS,
+        StepRefinedECS = StepRefinedECS,
+        AlignmentResult = AlignmentResult.Clone(),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

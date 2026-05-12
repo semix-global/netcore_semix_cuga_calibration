@@ -10,7 +10,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 
-public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDTOBase, ICloneable<PupilCenterChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilCenterChannelSpecularBlocker>
+public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDTOBase<PupilCenterChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilCenterChannelSpecularBlocker>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
@@ -29,7 +29,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDT
 
     #region Mapper
 
-    public PupilCenterChannelSpecularBlockerDTO Clone()
+    public override PupilCenterChannelSpecularBlockerDTO Clone()
     {
         return new PupilCenterChannelSpecularBlockerDTO
         {

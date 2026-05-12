@@ -22,7 +22,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.CIB.IlluminationProfile;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase, ICloneable<CIBIlluminationProfileDTO>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem>
+public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIlluminationProfileDTO>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -146,7 +146,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase, IClo
 
     #region Mapper
 
-    public CIBIlluminationProfileDTO Clone() => new()
+    public override CIBIlluminationProfileDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         OpticsApodizationModeEnum = OpticsApodizationModeEnum,

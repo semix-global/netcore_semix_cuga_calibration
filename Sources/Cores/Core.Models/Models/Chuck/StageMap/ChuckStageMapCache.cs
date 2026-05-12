@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Helper;
@@ -10,7 +11,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Core.Models.Models.Chuck.StageMap;
 
-public sealed partial class ChuckStageMapCache : CalibrationCacheBase
+public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStageMapCache>
 {
     private int _rowNumber = 17;
     private int _columnNumber = 21;
@@ -287,4 +288,59 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     }
 
     #endregion Verify
+
+    public override ChuckStageMapCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation,
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        BrightFieldRowNumber = BrightFieldRowNumber,
+        BrightFieldColumnNumber = BrightFieldColumnNumber,
+        BrightFieldWaferDiameter = BrightFieldWaferDiameter,
+        BrightFieldColumnCellWidth = BrightFieldColumnCellWidth,
+        BrightFieldRowCellHeight = BrightFieldRowCellHeight,
+        BrightFieldCalculateContainRowMinCount = BrightFieldCalculateContainRowMinCount,
+        BrightFieldCalculateContainColumnMinCount = BrightFieldCalculateContainColumnMinCount,
+        DarkFieldRowNumber = DarkFieldRowNumber,
+        DarkFieldColumnNumber = DarkFieldColumnNumber,
+        DarkFieldColumnCellWidth = DarkFieldColumnCellWidth,
+        DarkFieldRowCellHeight = DarkFieldRowCellHeight,
+        DarkFieldWaferDiameter = DarkFieldWaferDiameter,
+        DarkFieldCalculateContainRowMinCount = DarkFieldCalculateContainRowMinCount,
+        DarkFieldCalculateContainColumnMinCount = DarkFieldCalculateContainColumnMinCount,
+        BrightFieldFirstStageMapPosition = BrightFieldFirstStageMapPosition,
+        DarkFieldFirstStageMapPosition = DarkFieldFirstStageMapPosition,
+        IsDarkField = IsDarkField,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
+        OpticsConfiguration = OpticsConfiguration,
+        CIBConfiguration = CIBConfiguration,
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        XWidthPixel = XWidthPixel,
+        RowNumber = RowNumber,
+        ColumnNumber = ColumnNumber,
+        WaferDiameter = WaferDiameter,
+        ColumnCellWidth = ColumnCellWidth,
+        RowCellHeight = RowCellHeight,
+        CalculateContainRowMinCount = CalculateContainRowMinCount,
+        CalculateContainColumnMinCount = CalculateContainColumnMinCount,
+        RepeatCount = RepeatCount,
+        P5Angle = P5Angle,
+        FirstStageMapPosition = FirstStageMapPosition,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath,
+        BrightFieldTemplateFilePath = BrightFieldTemplateFilePath,
+        BrightFieldTemplateImageFilePath = BrightFieldTemplateImageFilePath,
+        DarkFieldTemplateFilePath = DarkFieldTemplateFilePath,
+        DarkFieldTemplateImageFilePath = DarkFieldTemplateImageFilePath,
+        CalibrationAlignmentThreshold = CalibrationAlignmentThreshold,
+        CalibrationGantryThreshold = CalibrationGantryThreshold,
+        CalibrationScaleThreshold = CalibrationScaleThreshold,
+        VerifyAlignmentThreshold = VerifyAlignmentThreshold,
+        VerifyGantryThreshold = VerifyGantryThreshold,
+        VerifyScaleThreshold = VerifyScaleThreshold,
+        Threshold = Threshold,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
@@ -6,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Microscope.PixelSize;
 
-public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase
+public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase<MicroscopePixelSizeCache>
 {
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
@@ -36,4 +37,17 @@ public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase
     {
         CurrentCalibrationCacheItem.FindPosition = position;
     }
+
+    public override MicroscopePixelSizeCache Clone() => new()
+    {
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        AngleThreshold = AngleThreshold,
+        Threshold = Threshold,
+        MicroscopePixelSizeCacheItemDic = new([.. MicroscopePixelSizeCacheItemDic]),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

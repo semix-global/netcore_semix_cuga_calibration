@@ -20,7 +20,7 @@ using System.Collections.Concurrent;
 namespace Core.Models.Models.Microscope.CalChip;
 
 [CacheVersion("1.0.0")]
-public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase, ICloneable<MicroscopeCalChipDTO>, IAdaptTo<CalibrationMicroscopeCalChip>
+public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<MicroscopeCalChipDTO>, IAdaptTo<CalibrationMicroscopeCalChip>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -65,7 +65,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase, ICloneabl
 
     #region Mapper
 
-    public MicroscopeCalChipDTO Clone() => new()
+    public override MicroscopeCalChipDTO Clone() => new()
     {
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),

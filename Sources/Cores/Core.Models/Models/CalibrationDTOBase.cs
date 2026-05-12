@@ -1,9 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.SQL.Cache.Providers.Bases;
+using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models;
 
-public partial class CalibrationDTOBase : ObservableCacheBase
+public abstract partial class CalibrationDTOBase : ObservableCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsOk))]
@@ -17,4 +18,10 @@ public partial class CalibrationDTOBase : ObservableCacheBase
     public partial bool IsRequiredSelfCheck { get; set; }
 
     public bool IsOk => IsCalibrated && IsVerified;
+}
+
+public abstract partial class CalibrationDTOBase<T> : CalibrationDTOBase, ICloneable<T>
+    where T : CalibrationDTOBase<T>
+{
+    public abstract T Clone();
 }

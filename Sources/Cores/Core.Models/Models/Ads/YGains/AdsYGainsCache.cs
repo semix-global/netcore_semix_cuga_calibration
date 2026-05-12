@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Ads.YGains;
 
-public sealed partial class AdsYGainsCache : CalibrationCacheBase
+public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache>
 {
     [ObservableProperty]
     private bool _isPositive;
@@ -90,6 +91,42 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase
     [ObservableProperty]
     private ObservableCollection<AdsYGainsCacheItem> _adsYGainsNegativeList = [];
 
+    public override AdsYGainsCache Clone() => new()
+    {
+        IsPositive = IsPositive,
+        SpeedYValueList = [.. SpeedYValueList],
+        DefaultSpeedYValue = DefaultSpeedYValue,
+        PositiveStartPosition = PositiveStartPosition,
+        PositiveEndPosition = PositiveEndPosition,
+        NegativeStartPosition = NegativeStartPosition,
+        NegativeEndPosition = NegativeEndPosition,
+        FindCount = FindCount,
+        FindMaxY = FindMaxY,
+        FindMinY = FindMinY,
+        FindInterval1 = FindInterval1,
+        FindInterval2 = FindInterval2,
+        FindInterval3 = FindInterval3,
+        Y1Number = Y1Number,
+        Y2Number = Y2Number,
+        Y3Number = Y3Number,
+        Threshold = Threshold,
+        VerifyThreshold = VerifyThreshold,
+        DefaultSpeedXValue = DefaultSpeedXValue,
+        WaitTime = WaitTime,
+        Y1 = Y1,
+        Y2 = Y2,
+        Y3 = Y3,
+        Y4 = Y4,
+        Y5 = Y5,
+        Y6 = Y6,
+        AdsYGainsPositiveList = new ObservableCollection<AdsYGainsCacheItem>(AdsYGainsPositiveList.Select(x => x.Clone())),
+        AdsYGainsNegativeList = new ObservableCollection<AdsYGainsCacheItem>(AdsYGainsNegativeList.Select(x => x.Clone())),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
+
     public Point GetStartPosition()
     {
         return IsPositive ? PositiveStartPosition : NegativeStartPosition;
@@ -127,7 +164,7 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase
         return IsPositive ? Y3 : Y6;
     }
 
-    public sealed partial class AdsYGainsCacheItem : CalibrationCacheBase
+    public sealed partial class AdsYGainsCacheItem : CalibrationCacheBase<AdsYGainsCacheItem>
     {
         [ObservableProperty]
         private int _index;
@@ -320,6 +357,78 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase
 
         [ObservableProperty]
         private double _sumHRP;
+
+        public override AdsYGainsCacheItem Clone() => new()
+        {
+            Index = Index,
+            IsPositive = IsPositive,
+            SpeedYValue = SpeedYValue,
+            PositiveY1 = PositiveY1,
+            PositiveY2 = PositiveY2,
+            PositiveY3 = PositiveY3,
+            PositivePlotZ1 = [.. PositivePlotZ1],
+            PositivePlotZ2 = [.. PositivePlotZ2],
+            PositivePlotZ3 = [.. PositivePlotZ3],
+            PositiveSmoothZ1 = [.. PositiveSmoothZ1],
+            PositiveSmoothZ2 = [.. PositiveSmoothZ2],
+            PositiveSmoothZ3 = [.. PositiveSmoothZ3],
+            PositivePointListZ1 = [.. PositivePointListZ1],
+            PositivePointListZ2 = [.. PositivePointListZ2],
+            PositivePointListZ3 = [.. PositivePointListZ3],
+            PositiveSmoothPointListZ1 = [.. PositiveSmoothPointListZ1],
+            PositiveSmoothPointListZ2 = [.. PositiveSmoothPointListZ2],
+            PositiveSmoothPointListZ3 = [.. PositiveSmoothPointListZ3],
+            PositiveMaxZ1 = PositiveMaxZ1,
+            PositiveMinZ1 = PositiveMinZ1,
+            PositiveMaxZ2 = PositiveMaxZ2,
+            PositiveMinZ2 = PositiveMinZ2,
+            PositiveMaxZ3 = PositiveMaxZ3,
+            PositiveMinZ3 = PositiveMinZ3,
+            PositiveZ1 = PositiveZ1,
+            PositiveZ2 = PositiveZ2,
+            PositiveZ3 = PositiveZ3,
+            NegativeY4 = NegativeY4,
+            NegativeY5 = NegativeY5,
+            NegativeY6 = NegativeY6,
+            NegativePlotZ4 = [.. NegativePlotZ4],
+            NegativePlotZ5 = [.. NegativePlotZ5],
+            NegativePlotZ6 = [.. NegativePlotZ6],
+            NegativeSmoothZ4 = [.. NegativeSmoothZ4],
+            NegativeSmoothZ5 = [.. NegativeSmoothZ5],
+            NegativeSmoothZ6 = [.. NegativeSmoothZ6],
+            NegativePointListZ4 = [.. NegativePointListZ4],
+            NegativePointListZ5 = [.. NegativePointListZ5],
+            NegativePointListZ6 = [.. NegativePointListZ6],
+            NegativeSmoothPointListZ4 = [.. NegativeSmoothPointListZ4],
+            NegativeSmoothPointListZ5 = [.. NegativeSmoothPointListZ5],
+            NegativeSmoothPointListZ6 = [.. NegativeSmoothPointListZ6],
+            NegativeMaxZ4 = NegativeMaxZ4,
+            NegativeMinZ4 = NegativeMinZ4,
+            NegativeMaxZ5 = NegativeMaxZ5,
+            NegativeMinZ5 = NegativeMinZ5,
+            NegativeMaxZ6 = NegativeMaxZ6,
+            NegativeMinZ6 = NegativeMinZ6,
+            NegativeZ4 = NegativeZ4,
+            NegativeZ5 = NegativeZ5,
+            NegativeZ6 = NegativeZ6,
+            PositiveH = PositiveH,
+            PositiveR = PositiveR,
+            PositiveP = PositiveP,
+            PositivePlotH = [.. PositivePlotH],
+            PositivePlotR = [.. PositivePlotR],
+            PositivePlotP = [.. PositivePlotP],
+            NegativeH = NegativeH,
+            NegativeR = NegativeR,
+            NegativeP = NegativeP,
+            NegativePlotH = [.. NegativePlotH],
+            NegativePlotR = [.. NegativePlotR],
+            NegativePlotP = [.. NegativePlotP],
+            SumHRP = SumHRP,
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+            Id = Id,
+            Expiration = Expiration,
+        };
 
         public void SetAdsY1(double y1)
         {
@@ -650,9 +759,10 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase
             if (IsPositive) PositivePlotP = pList;
             else NegativePlotP = pList;
         }
+
     }
 
-    public sealed partial class AdsYGainsDichotomySpeedCacheItem : CalibrationCacheBase
+    public sealed partial class AdsYGainsDichotomySpeedCacheItem : CalibrationCacheBase<AdsYGainsDichotomySpeedCacheItem>
     {
         [ObservableProperty]
         private double _speedYValue;
@@ -710,5 +820,21 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase
             if (IsPositive) PositiveY3 = y3;
             else NegativeY6 = y3;
         }
+
+        public override AdsYGainsDichotomySpeedCacheItem Clone() => new()
+        {
+            SpeedYValue = SpeedYValue,
+            IsPositive = IsPositive,
+            PositiveY1 = PositiveY1,
+            PositiveY2 = PositiveY2,
+            PositiveY3 = PositiveY3,
+            NegativeY4 = NegativeY4,
+            NegativeY5 = NegativeY5,
+            NegativeY6 = NegativeY6,
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+            Id = Id,
+            Expiration = Expiration,
+        };
     }
 }

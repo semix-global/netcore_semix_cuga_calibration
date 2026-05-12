@@ -16,7 +16,7 @@ using System.ComponentModel;
 namespace Core.Models.Models.CIB.MMD;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBMMDDTO : CalibrationDTOBase, ICloneable<CIBMMDDTO>, IAdaptTo<CalibrationLaserCIBMMDItem>
+public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<CalibrationLaserCIBMMDItem>
 {
     [ObservableProperty]
     public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
@@ -223,7 +223,7 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase, ICloneable<CIBMMDDTO
 
     #region Mapper
 
-    public CIBMMDDTO Clone() => new()
+    public override CIBMMDDTO Clone() => new()
     {
         CIBInformation = CIBInformation.Clone(),
         GainRelationships = [.. GainRelationships.Select(t => t.Clone())],

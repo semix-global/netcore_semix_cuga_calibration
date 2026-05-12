@@ -20,7 +20,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.Optics.Relay;
 
 [CacheVersion("1.0.0")]
-public sealed partial class OpticsRelayDTO : CalibrationDTOBase, ICloneable<OpticsRelayDTO>, IAdaptTo<CalibrationOpticsRelay>
+public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>, IAdaptTo<CalibrationOpticsRelay>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
@@ -222,7 +222,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase, ICloneable<Opti
 
     #region Mapper
 
-    public OpticsRelayDTO Clone() => new()
+    public override OpticsRelayDTO Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],

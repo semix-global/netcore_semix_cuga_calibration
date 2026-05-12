@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
@@ -7,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
 
-public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBase
+public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBase<ChuckAlignmentDegreeOffsetCache>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
@@ -44,10 +45,36 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
 
     [ObservableProperty]
     private double _verifyThreshold;
+
+    public override ChuckAlignmentDegreeOffsetCache Clone() => new()
+    {
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
+        Items = new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>(Items.Select(t => new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>((t.Key.Item1, t.Key.Item2.Clone()), t.Value.Clone()))),
+        NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,
+        TeachingThreshold = TeachingThreshold,
+        VerifyThreshold = VerifyThreshold,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public sealed partial class ChuckAlignmentDegreeOffsetCacheItem : CalibrationCacheBase
+public sealed partial class ChuckAlignmentDegreeOffsetCacheItem : CalibrationCacheBase<ChuckAlignmentDegreeOffsetCacheItem>
 {
     [ObservableProperty]
     private int _xWidthPixel = 800;
+
+    public override ChuckAlignmentDegreeOffsetCacheItem Clone() => new()
+    {
+        XWidthPixel = XWidthPixel,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

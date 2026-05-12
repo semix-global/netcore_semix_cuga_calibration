@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
@@ -8,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.GlobalScaleError;
 
-public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
+public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase<ChuckGlobalScaleErrorCache>
 {
     private double _diePitchWidth = 5100;
     private double _diePitchHeight = 16600;
@@ -148,4 +149,34 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
             _ => throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null)
         };
     }
+
+    public override ChuckGlobalScaleErrorCache Clone() => new()
+    {
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
+        SiteDirection = SiteDirection,
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        Threshold = Threshold,
+        P5Angle = P5Angle,
+        DiePitchWidth = DiePitchWidth,
+        DiePitchHeight = DiePitchHeight,
+        WaferRadius = WaferRadius,
+        ReticleDieCountX = ReticleDieCountX,
+        ReticleDieCountY = ReticleDieCountY,
+        BaseLowSiteFindPosition = BaseLowSiteFindPosition,
+        BaseHighSiteFindPosition = BaseHighSiteFindPosition,
+        TopLowSitePosition = TopLowSitePosition,
+        LeftLowSitePosition = LeftLowSitePosition,
+        BottomLowSitePosition = BottomLowSitePosition,
+        RightLowSitePosition = RightLowSitePosition,
+        LowBaseTemplateFilePath = LowBaseTemplateFilePath,
+        LowBaseTemplateImageFilePath = LowBaseTemplateImageFilePath,
+        HighBaseTemplateFilePath = HighBaseTemplateFilePath,
+        HighBaseTemplateImageFilePath = HighBaseTemplateImageFilePath,
+        Times = Times,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

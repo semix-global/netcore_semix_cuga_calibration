@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
@@ -6,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Microscope.Centricity;
 
-public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
+public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase<MicroscopeCentricityCache>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -64,4 +65,19 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase
     {
         return CurrentCalibrationCacheItem.TemplateImageFilePath;
     }
+
+    public override MicroscopeCentricityCache Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        MicroscopeCentricityCacheItemDic = new([.. MicroscopeCentricityCacheItemDic]),
+        VerifyResultPosition = VerifyResultPosition,
+        VerifyResultError = VerifyResultError,
+        Threshold = Threshold,
+        ConcentricThreshold = ConcentricThreshold,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

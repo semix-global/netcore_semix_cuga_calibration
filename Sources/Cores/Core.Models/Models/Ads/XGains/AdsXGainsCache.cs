@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Ads.XGains;
 
-public sealed partial class AdsXGainsCache : CalibrationCacheBase
+public sealed partial class AdsXGainsCache : CalibrationCacheBase<AdsXGainsCache>
 {
     [ObservableProperty]
     private List<double> _speedXValueList = [50, 65, 85, 110, 143, 186, 242, 315, 400];
@@ -78,6 +79,38 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase
     [ObservableProperty]
     private ObservableCollection<AdsXGainsCacheItem> _adsXGainsNegativeList = [];
 
+    public override AdsXGainsCache Clone() => new()
+    {
+        SpeedXValueList = [.. SpeedXValueList],
+        IsPositive = IsPositive,
+        PositiveStartPosition = PositiveStartPosition,
+        PositiveEndPosition = PositiveEndPosition,
+        NegativeStartPosition = NegativeStartPosition,
+        NegativeEndPosition = NegativeEndPosition,
+        FindCount = FindCount,
+        FindMaxX = FindMaxX,
+        FindMinX = FindMinX,
+        FindInterval1 = FindInterval1,
+        FindInterval2 = FindInterval2,
+        RowNumber = RowNumber,
+        ColumnNumber = ColumnNumber,
+        Threshold = Threshold,
+        VerifyThreshold = VerifyThreshold,
+        AreaThreshold = AreaThreshold,
+        DefaultSpeedXValue = DefaultSpeedXValue,
+        WaitTime = WaitTime,
+        X1 = X1,
+        X2 = X2,
+        X3 = X3,
+        X4 = X4,
+        AdsXGainsPositiveList = new ObservableCollection<AdsXGainsCacheItem>(AdsXGainsPositiveList.Select(x => x.Clone())),
+        AdsXGainsNegativeList = new ObservableCollection<AdsXGainsCacheItem>(AdsXGainsNegativeList.Select(x => x.Clone())),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
+
     public Point GetStartPosition()
     {
         return IsPositive ? PositiveStartPosition : NegativeStartPosition;
@@ -124,7 +157,7 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase
     /// <summary>
     /// 负向集合
     /// </summary>
-    public sealed partial class AdsXGainsCacheItem : CalibrationCacheBase
+    public sealed partial class AdsXGainsCacheItem : CalibrationCacheBase<AdsXGainsCacheItem>
     {
         [ObservableProperty]
         private int _index;
@@ -269,6 +302,62 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase
 
         [ObservableProperty]
         private double _negativeMinZ4;
+
+        public override AdsXGainsCacheItem Clone() => new()
+        {
+            Index = Index,
+            SpeedXValue = SpeedXValue,
+            IsPositive = IsPositive,
+            PositiveX1 = PositiveX1,
+            PositiveX2 = PositiveX2,
+            PositiveZ1 = PositiveZ1,
+            PositiveZ2 = PositiveZ2,
+            PositiveH = PositiveH,
+            PositiveR = PositiveR,
+            PositiveP = PositiveP,
+            PositivePlotH = [.. PositivePlotH],
+            PositivePlotR = [.. PositivePlotR],
+            PositivePlotP = [.. PositivePlotP],
+            PositivePlotZ1 = [.. PositivePlotZ1],
+            PositivePlotZ2 = [.. PositivePlotZ2],
+            PositiveSmoothZ1 = [.. PositiveSmoothZ1],
+            PositiveSmoothZ2 = [.. PositiveSmoothZ2],
+            PositivePointListZ1 = [.. PositivePointListZ1],
+            PositivePointListZ2 = [.. PositivePointListZ2],
+            PositiveSmoothPointListZ1 = [.. PositiveSmoothPointListZ1],
+            PositiveSmoothPointListZ2 = [.. PositiveSmoothPointListZ2],
+            PositiveMaxZ1 = PositiveMaxZ1,
+            PositiveMinZ1 = PositiveMinZ1,
+            PositiveMaxZ2 = PositiveMaxZ2,
+            PositiveMinZ2 = PositiveMinZ2,
+            NegativeX3 = NegativeX3,
+            NegativeX4 = NegativeX4,
+            NegativeZ3 = NegativeZ3,
+            NegativeZ4 = NegativeZ4,
+            NegativeH = NegativeH,
+            NegativeR = NegativeR,
+            NegativeP = NegativeP,
+            NegativePlotH = [.. NegativePlotH],
+            NegativePlotR = [.. NegativePlotR],
+            NegativePlotP = [.. NegativePlotP],
+            NegativePlotZ3 = [.. NegativePlotZ3],
+            NegativePlotZ4 = [.. NegativePlotZ4],
+            NegativeSmoothZ3 = [.. NegativeSmoothZ3],
+            NegativeSmoothZ4 = [.. NegativeSmoothZ4],
+            NegativePointListZ3 = [.. NegativePointListZ3],
+            NegativePointListZ4 = [.. NegativePointListZ4],
+            NegativeSmoothPointListZ3 = [.. NegativeSmoothPointListZ3],
+            NegativeSmoothPointListZ4 = [.. NegativeSmoothPointListZ4],
+            NegativeMaxZ3 = NegativeMaxZ3,
+            NegativeMinZ3 = NegativeMinZ3,
+            NegativeMaxZ4 = NegativeMaxZ4,
+            NegativeMinZ4 = NegativeMinZ4,
+            SumHRP = SumHRP,
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+            Id = Id,
+            Expiration = Expiration,
+        };
 
         public double GetX1()
         {
@@ -511,9 +600,10 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase
             if (IsPositive) PositivePlotP = pList;
             else NegativePlotP = pList;
         }
+
     }
 
-    public sealed partial class AdsXGainsDichotomySpeedCacheItem : CalibrationCacheBase
+    public sealed partial class AdsXGainsDichotomySpeedCacheItem : CalibrationCacheBase<AdsXGainsDichotomySpeedCacheItem>
     {
         [ObservableProperty]
         private double _speedXValue;
@@ -554,5 +644,19 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase
             if (IsPositive) PositiveX2 = x2;
             else NegativeX4 = x2;
         }
+
+        public override AdsXGainsDichotomySpeedCacheItem Clone() => new()
+        {
+            SpeedXValue = SpeedXValue,
+            IsPositive = IsPositive,
+            PositiveX1 = PositiveX1,
+            PositiveX2 = PositiveX2,
+            NegativeX3 = NegativeX3,
+            NegativeX4 = NegativeX4,
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+            Id = Id,
+            Expiration = Expiration,
+        };
     }
 }

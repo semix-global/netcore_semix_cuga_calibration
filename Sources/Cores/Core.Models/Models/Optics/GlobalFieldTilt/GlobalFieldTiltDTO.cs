@@ -18,7 +18,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.Optics.GlobalFieldTilt;
 
 [CacheVersion("1.0.0")]
-public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase, ICloneable<GlobalFieldTiltDTO>, IAdaptTo<CalibrationLaserDOEAngle>
+public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldTiltDTO>, IAdaptTo<CalibrationLaserDOEAngle>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
@@ -84,7 +84,7 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase, ICloneable<
         }
     }
 
-    public GlobalFieldTiltDTO Clone() => new()
+    public override GlobalFieldTiltDTO Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ResultItem = ResultItem?.Clone(),

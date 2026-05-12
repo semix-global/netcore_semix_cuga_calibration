@@ -15,7 +15,7 @@ using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 namespace Core.Models.Models.Optics.SC;
 
 [CacheVersion("1.0.0")]
-public sealed partial class OpticsSCDTO : CalibrationDTOBase, ICloneable<OpticsSCDTO>, IAdaptTo<CalibrationOpticsSC>
+public sealed partial class OpticsSCDTO : CalibrationDTOBase<OpticsSCDTO>, IAdaptTo<CalibrationOpticsSC>
 {
     [ObservableProperty]
     private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
@@ -111,7 +111,7 @@ public sealed partial class OpticsSCDTO : CalibrationDTOBase, ICloneable<OpticsS
 
     #region Mapper
 
-    public OpticsSCDTO Clone() => new()
+    public override OpticsSCDTO Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],

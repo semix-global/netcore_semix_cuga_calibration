@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Enums.Maths;
@@ -7,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AOD.Alignment;
 
-public sealed partial class AODAlignmentCache : CalibrationCacheBase
+public sealed partial class AODAlignmentCache : CalibrationCacheBase<AODAlignmentCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -23,9 +24,20 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public AODAlignmentCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new AODAlignmentCacheItem());
+
+    public override AODAlignmentCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        Threshold = Threshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, AODAlignmentCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, AODAlignmentCacheItem>(x.Key.Clone(), x.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase
+public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase<AODAlignmentCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -62,4 +74,24 @@ public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private int _rangeSkipFitCount = 1;
+
+    public override AODAlignmentCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        FlatnessGeneratePrescanAODWaveformParam = FlatnessGeneratePrescanAODWaveformParam.Clone(),
+        StartPrescanFrequency = StartPrescanFrequency,
+        StepPrescanFrequency = StepPrescanFrequency,
+        StopPrescanFrequency = StopPrescanFrequency,
+        RangeSkipFitCount = RangeSkipFitCount,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

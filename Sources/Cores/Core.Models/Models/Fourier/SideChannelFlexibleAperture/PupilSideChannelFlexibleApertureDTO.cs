@@ -11,7 +11,7 @@ using Point = Net.Utilities.Models.Geometries.Point;
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 [CacheVersion("1.0.0")]
-public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDTOBase, ICloneable<PupilSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>
+public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDTOBase<PupilSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>
 {
     [ObservableProperty]
     private Point _cgFFBoxBeginPositionCh1 = Point.Origin;
@@ -75,7 +75,7 @@ public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDTO
 
     #region Mapper
 
-    public PupilSideChannelFlexibleApertureDTO Clone()
+    public override PupilSideChannelFlexibleApertureDTO Clone()
     {
         return new PupilSideChannelFlexibleApertureDTO
         {

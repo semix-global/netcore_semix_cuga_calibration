@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
+using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
@@ -8,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
-public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
+public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase<MicroscopeCalChipCache>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
@@ -46,6 +48,32 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase
         get;
         set => SetProperty(ref field, value, validate: true);
     } = 1;
+
+    public override MicroscopeCalChipCache Clone() => new()
+    {
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        Items = new([.. Items]),
+        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
+        LowSizeEnum = LowSizeEnum,
+        HighSizeEnum = HighSizeEnum,
+        NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,
+        LowSite1 = LowSite1.Clone(),
+        LowSite2 = LowSite2.Clone(),
+        HighSite1 = HighSite1.Clone(),
+        HighSite2 = HighSite2.Clone(),
+        LowSiteTemplateFilePath = LowSiteTemplateFilePath,
+        HighSiteTemplateFilePath = HighSiteTemplateFilePath,
+        VerifyQualityError = VerifyQualityError,
+        SpeedEcsPerSecond = SpeedEcsPerSecond,
+        HalfEcsLength = HalfEcsLength,
+        QualityThreshold = QualityThreshold,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
 public sealed partial class MicroscopeCalChipCacheItem : ObservableValidator

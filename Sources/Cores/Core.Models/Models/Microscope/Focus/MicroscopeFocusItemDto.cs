@@ -9,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Microscope.Focus;
 
 [CacheVersion("1.0.0")]
-public sealed partial class MicroscopeFocusItemDto : CalibrationDTOBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
+public sealed partial class MicroscopeFocusItemDto : CalibrationDTOBase<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
 {
     [ObservableProperty]
     private int _index;
@@ -37,7 +37,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDTOBase, IClonea
 
     #region Mapper
 
-    public MicroscopeFocusItemDto Clone() => new()
+    public override MicroscopeFocusItemDto Clone() => new()
     {
         Index = Index,
         LensInformation = LensInformation,

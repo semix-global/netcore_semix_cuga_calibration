@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
@@ -7,7 +8,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.Gantry;
 
-public sealed partial class ChuckGantryCache : CalibrationCacheBase
+public sealed partial class ChuckGantryCache : CalibrationCacheBase<ChuckGantryCache>
 {
     private double _diePitchHeight = 16600;
     private int _reticleDieCountY = 1;
@@ -77,4 +78,29 @@ public sealed partial class ChuckGantryCache : CalibrationCacheBase
     private double _p5Angle;
 
     public Point LowToHighPoint => BaseHighFindPosition - (Vector)BaseLowFindPosition;
+
+    public override ChuckGantryCache Clone() => new()
+    {
+        DiePitchHeight = DiePitchHeight,
+        ReticleDieCountY = ReticleDieCountY,
+        WaferRadius = WaferRadius,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        VerifyResultOffset = VerifyResultOffset,
+        Threshold = Threshold,
+        BaseLowFindPosition = BaseLowFindPosition,
+        BaseHighFindPosition = BaseHighFindPosition,
+        LowTopPosition = LowTopPosition,
+        LowBottomPosition = LowBottomPosition,
+        LowBaseTemplateFilePath = LowBaseTemplateFilePath,
+        LowBaseTemplateImageFilePath = LowBaseTemplateImageFilePath,
+        HighBaseTemplateFilePath = HighBaseTemplateFilePath,
+        HighBaseTemplateImageFilePath = HighBaseTemplateImageFilePath,
+        P5Angle = P5Angle,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

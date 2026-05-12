@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
@@ -8,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.CenterAndTheta;
 
-public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase
+public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase<ChuckCenterAndThetaCache>
 {
     private double _diePitchWidth = 5100;
     private double _diePitchHeight = 16600;
@@ -204,4 +205,38 @@ public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase
     }
 
     #endregion Verify
+
+    public override ChuckCenterAndThetaCache Clone() => new()
+    {
+        DiePitchWidth = DiePitchWidth,
+        DiePitchHeight = DiePitchHeight,
+        ReticleDieCountX = ReticleDieCountX,
+        ReticleDieCountY = ReticleDieCountY,
+        WaferRadius = WaferRadius,
+        RotateAngle = RotateAngle,
+        CenterCalibrationThreshold = CenterCalibrationThreshold,
+        CenterVerifyThreshold = CenterVerifyThreshold,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        P5Angle = P5Angle,
+        ThetaAngle = ThetaAngle,
+        Times = Times,
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        SiteDirection = SiteDirection,
+        BaseLowSiteFindPosition = BaseLowSiteFindPosition,
+        BaseHighSiteFindPosition = BaseHighSiteFindPosition,
+        TopLowSitePosition = TopLowSitePosition,
+        LeftLowSitePosition = LeftLowSitePosition,
+        BottomLowSitePosition = BottomLowSitePosition,
+        RightLowSitePosition = RightLowSitePosition,
+        RotateScaleThreshold = RotateScaleThreshold,
+        LowBaseTemplateFilePath = LowBaseTemplateFilePath,
+        LowBaseTemplateImageFilePath = LowBaseTemplateImageFilePath,
+        HighBaseTemplateFilePath = HighBaseTemplateFilePath,
+        HighBaseTemplateImageFilePath = HighBaseTemplateImageFilePath,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

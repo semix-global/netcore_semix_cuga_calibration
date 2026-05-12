@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
@@ -8,7 +9,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AutoFocus.GlobalFocusOffset;
 
-public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBase
+public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBase<AutoFocusGlobalFocusOffsetCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -46,9 +47,23 @@ public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBa
         get;
         set => SetProperty(ref field, value, validate: true);
     } = 1;
+
+    public override AutoFocusGlobalFocusOffsetCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        Items = new ConcurrentDictionary<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem>(x.Key.Clone(), x.Value.Clone()))),
+        OriginAFMotor = OriginAFMotor,
+        OriginRelayMotor = OriginRelayMotor,
+        QualityThreshold = QualityThreshold,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public sealed partial class AutoFocusGlobalFocusOffsetCacheItem : CalibrationCacheBase
+public sealed partial class AutoFocusGlobalFocusOffsetCacheItem : CalibrationCacheBase<AutoFocusGlobalFocusOffsetCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -70,4 +85,19 @@ public sealed partial class AutoFocusGlobalFocusOffsetCacheItem : CalibrationCac
 
     [ObservableProperty]
     private int _imageWidth = 1000;
+
+    public override AutoFocusGlobalFocusOffsetCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        RTFCBrightFieldMachinePosition = RTFCBrightFieldMachinePosition,
+        ImageWidth = ImageWidth,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

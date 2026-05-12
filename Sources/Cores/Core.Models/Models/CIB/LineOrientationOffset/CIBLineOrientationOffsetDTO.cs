@@ -12,7 +12,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.CIB.LineOrientationOffset;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDTOBase, ICloneable<CIBLineOrientationOffsetDTO>, IAdaptTo<CalibrationCIBLineOrientationOffsetItem>
+public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDTOBase<CIBLineOrientationOffsetDTO>, IAdaptTo<CalibrationCIBLineOrientationOffsetItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -55,7 +55,7 @@ public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDTOBase, IC
 
     #region Mapper
 
-    public CIBLineOrientationOffsetDTO Clone()
+    public override CIBLineOrientationOffsetDTO Clone()
     {
         return new CIBLineOrientationOffsetDTO
         {

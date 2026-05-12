@@ -12,7 +12,7 @@ using Net.Utilities.Mapper.Interfaces;
 namespace Core.Models.Models.AutoFocus.GlobalFocusOffset;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AutoFocusGlobalFocusOffsetDTO : CalibrationDTOBase, ICloneable<AutoFocusGlobalFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusGlobalFocusOffset>
+public sealed partial class AutoFocusGlobalFocusOffsetDTO : CalibrationDTOBase<AutoFocusGlobalFocusOffsetDTO>, IAdaptTo<CalibrationAutoFocusGlobalFocusOffset>
 {
     [ObservableProperty]
     private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
@@ -23,7 +23,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetDTO : CalibrationDTOBase, 
     [ObservableProperty]
     private RuntimeAfCalibrationResultDTO _runtimeAfCalibrationResultDTO = new();
 
-    public AutoFocusGlobalFocusOffsetDTO Clone() => new()
+    public override AutoFocusGlobalFocusOffsetDTO Clone() => new()
     {
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         ProductivityInformation = ProductivityInformation.Clone(),

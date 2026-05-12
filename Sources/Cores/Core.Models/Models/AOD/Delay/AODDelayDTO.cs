@@ -15,7 +15,7 @@ using System.ComponentModel;
 namespace Core.Models.Models.AOD.Delay;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AODDelayDTO : CalibrationDTOBase, ICloneable<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
+public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -98,7 +98,7 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase, ICloneable<AODDela
 
     #region Mapper
 
-    public AODDelayDTO Clone() => new()
+    public override AODDelayDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],

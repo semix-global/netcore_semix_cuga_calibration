@@ -22,7 +22,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
 [CacheVersion("1.0.0")]
-public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase, ICloneable<AODBestFocusAndAstigmatismDTO>
+public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestFocusAndAstigmatismDTO>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -174,7 +174,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase, IClonea
         Plot = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
     };
 
-    public AODBestFocusAndAstigmatismDTO Clone() => new()
+    public override AODBestFocusAndAstigmatismDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         ApodizationModeEnum = ApodizationModeEnum,

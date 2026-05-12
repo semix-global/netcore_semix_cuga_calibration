@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -9,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.LineOrientationOffset;
 
-public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
+public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase<CIBLineOrientationOffsetCache>
 {
     [ObservableProperty]
     private double _pmtInterval = 320; // Pmt相机采集间隔320um
@@ -25,9 +26,20 @@ public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public CIBLineOrientationOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLineOrientationOffsetCacheItem());
+
+    public override CIBLineOrientationOffsetCache Clone() => new()
+    {
+        PmtInterval = PmtInterval,
+        ProductivityInformation = ProductivityInformation.Clone(),
+        Items = new ConcurrentDictionary<ProductivityInformation, CIBLineOrientationOffsetCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLineOrientationOffsetCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class CIBLineOrientationOffsetCacheItem : CalibrationCacheBase
+public sealed partial class CIBLineOrientationOffsetCacheItem : CalibrationCacheBase<CIBLineOrientationOffsetCacheItem>
 {
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Width must be greater than 0.1.")]
     public double DiePitchWidth
@@ -107,4 +119,33 @@ public sealed partial class CIBLineOrientationOffsetCacheItem : CalibrationCache
 
     [ObservableProperty]
     private string _templateImageFilePath = string.Empty;
+
+    public override CIBLineOrientationOffsetCacheItem Clone() => new()
+    {
+        DiePitchWidth = DiePitchWidth,
+        WaferRadius = WaferRadius,
+        ReticleDieCountX = ReticleDieCountX,
+        ImageCount = ImageCount,
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        XWidthPixel = XWidthPixel,
+        Threshold = Threshold,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
+        FindPosition = FindPosition,
+        StartPosition = StartPosition,
+        EndPosition = EndPosition,
+        AlignmentResult = AlignmentResult.Clone(),
+        BrightTemplateFilePath = BrightTemplateFilePath,
+        BrightTemplateImageFilePath = BrightTemplateImageFilePath,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

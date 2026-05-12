@@ -9,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Chuck.Gantry;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckGantryDto : CalibrationDTOBase, ICloneable<ChuckGantryDto>, IAdaptTo<CalibrationChuckGantry>
+public sealed partial class ChuckGantryDto : CalibrationDTOBase<ChuckGantryDto>, IAdaptTo<CalibrationChuckGantry>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
@@ -51,7 +51,7 @@ public sealed partial class ChuckGantryDto : CalibrationDTOBase, ICloneable<Chuc
 
     #region Mapper
 
-    public ChuckGantryDto Clone() => new()
+    public override ChuckGantryDto Clone() => new()
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation,
         HighMicroscopeLensInformation = HighMicroscopeLensInformation,

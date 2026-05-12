@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
@@ -8,7 +9,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.XPixelSize;
 
-public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase
+public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase<CIBXPixelSizeCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -27,9 +28,21 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public CIBXPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBXPixelSizeCacheItem());
+
+    public override CIBXPixelSizeCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        Threshold = Threshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, CIBXPixelSizeCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBXPixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase
+public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase<CIBXPixelSizeCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -75,4 +88,27 @@ public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private int _reticleDieCountX = 3;
+
+    public override CIBXPixelSizeCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
+        AlignmentResult = AlignmentResult.Clone(),
+        ImageWidth = ImageWidth,
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        FindBFMachinePosition = FindBFMachinePosition,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath,
+        WaferRadius = WaferRadius,
+        DiePitchWith = DiePitchWith,
+        ReticleDieCountX = ReticleDieCountX,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

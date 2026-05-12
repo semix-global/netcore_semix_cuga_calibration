@@ -1,11 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AOD.Delay;
 
-public sealed partial class AODDelayCache : CalibrationCacheBase
+public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -18,9 +19,19 @@ public sealed partial class AODDelayCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public AODDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new AODDelayCacheItem());
+
+    public override AODDelayCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        Items = new ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, AODDelayCacheItem>(x.Key.Clone(), x.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public sealed partial class AODDelayCacheItem : CalibrationCacheBase
+public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -60,4 +71,25 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stepRefinedAODDelay = 10;
+
+    public override AODDelayCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        WaitTime = WaitTime,
+        StartRoughAODDelay = StartRoughAODDelay,
+        StepRoughAODDelay = StepRoughAODDelay,
+        StopRoughAODDelay = StopRoughAODDelay,
+        RangeRefinedAODDelay = RangeRefinedAODDelay,
+        StepRefinedAODDelay = StepRefinedAODDelay,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

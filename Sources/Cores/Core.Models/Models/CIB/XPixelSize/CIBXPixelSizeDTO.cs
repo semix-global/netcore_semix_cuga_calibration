@@ -11,7 +11,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.CIB.XPixelSize;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase, ICloneable<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
+public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -60,7 +60,7 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase, ICloneable<CI
 
     #region Mapper
 
-    public CIBXPixelSizeDTO Clone() => new()
+    public override CIBXPixelSizeDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),

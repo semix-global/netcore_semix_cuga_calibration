@@ -17,7 +17,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.AOD.Alignment;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AODAlignmentDTO : CalibrationDTOBase, ICloneable<AODAlignmentDTO>
+public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -133,7 +133,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase, ICloneable<AOD
         }
     }
 
-    public AODAlignmentDTO Clone() => new()
+    public override AODAlignmentDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(x => x.Clone())],

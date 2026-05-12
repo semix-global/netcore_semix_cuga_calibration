@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
@@ -7,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.YPixelSize;
 
-public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase
+public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelSizeCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -29,9 +30,22 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public CIBYPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBYPixelSizeCacheItem());
+
+    public override CIBYPixelSizeCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        PmtInterval = PmtInterval,
+        Threshold = Threshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBYPixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase
+public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase<CIBYPixelSizeCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -59,4 +73,22 @@ public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private bool _isDarkFieldAlignment;
+
+    public override CIBYPixelSizeCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBChannelId = CIBChannelId,
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        FindBFMachinePosition = FindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
+        AlignmentResult = AlignmentResult.Clone(),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

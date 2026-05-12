@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Ads.XGains;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AdsXGainsItemDto : CalibrationDTOBase, ICloneable<AdsXGainsItemDto>, IAdaptTo<CalibrationAdsXGainsItem>
+public sealed partial class AdsXGainsItemDto : CalibrationDTOBase<AdsXGainsItemDto>, IAdaptTo<CalibrationAdsXGainsItem>
 {
     [ObservableProperty]
     private int _index;
@@ -215,7 +215,7 @@ public sealed partial class AdsXGainsItemDto : CalibrationDTOBase, ICloneable<Ad
 
     #region Mapper
 
-    public AdsXGainsItemDto Clone() => new()
+    public override AdsXGainsItemDto Clone() => new()
     {
         Index = Index,
         IsPositive = IsPositive,

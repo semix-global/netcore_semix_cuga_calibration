@@ -1,11 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.LightMatching;
 
-public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
+public sealed partial class CIBLightMatchingCache : CalibrationCacheBase<CIBLightMatchingCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -54,9 +55,25 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public CIBLightMatchingCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLightMatchingCacheItem());
+
+    public override CIBLightMatchingCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        HazeCalibratingRetryTimes = HazeCalibratingRetryTimes,
+        SilicaSphereCalibratingRetryTimes = SilicaSphereCalibratingRetryTimes,
+        HazeThreshold = HazeThreshold,
+        SilicaSphereThreshold = SilicaSphereThreshold,
+        CalibratingThresholdRangeRatio = CalibratingThresholdRangeRatio,
+        ReviewThresholdRangeRatio = ReviewThresholdRangeRatio,
+        Items = new ConcurrentDictionary<ProductivityInformation, CIBLightMatchingCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLightMatchingCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase
+public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase<CIBLightMatchingCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -72,4 +89,17 @@ public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private int _imageWidth = 1000;
+
+    public override CIBLightMatchingCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        SilicaSphereFindBFMachinePosition = SilicaSphereFindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

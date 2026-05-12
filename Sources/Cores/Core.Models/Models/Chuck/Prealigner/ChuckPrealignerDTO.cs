@@ -16,7 +16,7 @@ using System.ComponentModel;
 namespace Core.Models.Models.Chuck.Prealigner;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase, ICloneable<ChuckPrealignerDTO>, IAdaptTo<CalibrationPrealignerObj>
+public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealignerDTO>, IAdaptTo<CalibrationPrealignerObj>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
@@ -132,7 +132,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase, ICloneable<
 
     #region Mapper
 
-    public ChuckPrealignerDTO Clone() => new()
+    public override ChuckPrealignerDTO Clone() => new()
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation,
         HighMicroscopeLensInformation = HighMicroscopeLensInformation,

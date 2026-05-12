@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
@@ -12,7 +13,7 @@ using ScottPlot;
 
 namespace Core.Models.Models.CIB.MMD;
 
-public sealed partial class CIBMMDCache : CalibrationCacheBase
+public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
 {
     [ObservableProperty]
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
@@ -115,6 +116,60 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     public partial IReadOnlyList<MMDConfiguration> MMDConfigurations { get; set; } = [];
+
+    public override CIBMMDCache Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBInformations = [.. CIBInformations.Select(t => t.Clone())],
+        HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        ProductivityInformation = ProductivityInformation.Clone(),
+        PrescanFrequency = PrescanFrequency,
+        GeneratePrescanAODWaveformParam = GeneratePrescanAODWaveformParam.Clone(),
+        ChirpFrequency = ChirpFrequency,
+        GenerateChirpAODWaveformParam = GenerateChirpAODWaveformParam.Clone(),
+        MeasurePowerNoisesCount = MeasurePowerNoisesCount,
+        MeasurePowerWaitTime = MeasurePowerWaitTime,
+        PMTValueWaitTime = PMTValueWaitTime,
+        StartCoefficient = StartCoefficient,
+        StepCoefficient = StepCoefficient,
+        StopCoefficient = StopCoefficient,
+        MeasurePowerSequenceCommonRatio = MeasurePowerSequenceCommonRatio,
+        MeasurePowerNotUseODFilterMinValue = MeasurePowerNotUseODFilterMinValue,
+        MMDMeasurePowerRangeRatio = MMDMeasurePowerRangeRatio,
+        StartGain = StartGain,
+        StepGain = StepGain,
+        StopGain = StopGain,
+        ProtectedPMTValue = ProtectedPMTValue,
+        ProtectedOverflowProtectedPMTValueCount = ProtectedOverflowProtectedPMTValueCount,
+        ImageWidth = ImageWidth,
+        DarkCurrent = DarkCurrent,
+        Denominator = Denominator,
+        ScaleFactor = ScaleFactor,
+        MinValidFraction = MinValidFraction,
+        MaxValidFraction = MaxValidFraction,
+        SmoothLogGainMul128U12BitWindow = SmoothLogGainMul128U12BitWindow,
+        SmoothGainS16BitWindow = SmoothGainS16BitWindow,
+        MMDConfigurations = [.. MMDConfigurations],
+        PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
+        PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles],
+        ChirpAODWaveformResultFilePath = ChirpAODWaveformResultFilePath,
+        ChirpAODWaveformProfiles = [.. ChirpAODWaveformProfiles],
+        MeasurePowerPoints = [.. MeasurePowerPoints],
+        P0 = P0,
+        P1 = P1,
+        P2 = P2,
+        P3 = P3,
+        RSquared = RSquared,
+        FitMeasurePowerPoints = [.. FitMeasurePowerPoints],
+        ODFilterRatio = ODFilterRatio,
+        NotUseODFilterMeasurePowerPoints = [.. NotUseODFilterMeasurePowerPoints],
+        UseODFilterMeasurePowerPoints = [.. UseODFilterMeasurePowerPoints],
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 
     /********** 缓存的结果 **********/
 

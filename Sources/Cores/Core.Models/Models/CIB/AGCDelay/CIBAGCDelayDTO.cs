@@ -22,7 +22,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.CIB.AGCDelay;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase, ICloneable<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
+public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
 {
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
@@ -168,7 +168,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase, ICloneable<CIBA
 
     #region Mapper
 
-    public CIBAGCDelayDTO Clone() => new()
+    public override CIBAGCDelayDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Coefficient = Coefficient,

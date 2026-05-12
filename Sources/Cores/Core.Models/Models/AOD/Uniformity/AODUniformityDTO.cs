@@ -20,7 +20,7 @@ using Generate = MathNet.Numerics.Generate;
 namespace Core.Models.Models.AOD.Uniformity;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AODUniformityDTO : CalibrationDTOBase, ICloneable<AODUniformityDTO>, IAdaptTo<CalibrationLaserAODUniformityItem>
+public sealed partial class AODUniformityDTO : CalibrationDTOBase<AODUniformityDTO>, IAdaptTo<CalibrationLaserAODUniformityItem>
 {
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
@@ -96,7 +96,7 @@ public sealed partial class AODUniformityDTO : CalibrationDTOBase, ICloneable<AO
 
     #region Mapper
 
-    public AODUniformityDTO Clone() => new()
+    public override AODUniformityDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),

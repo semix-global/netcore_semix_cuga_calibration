@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.AutoFocus.DarkAutoFocus;
 
-public sealed partial class DarkAutoFocusCache : CalibrationCacheBase
+public sealed partial class DarkAutoFocusCache : CalibrationCacheBase<DarkAutoFocusCache>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -113,4 +114,38 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase
     private double _stopAFMotorAbsoluteValue;
 
     #endregion NSC
+
+    public override DarkAutoFocusCache Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation,
+        FindPosition = FindPosition,
+        ThresholdIdealFMin = ThresholdIdealFMin,
+        ThresholdIdealFMax = ThresholdIdealFMax,
+        ThresholdIdealNMin = ThresholdIdealNMin,
+        ThresholdIdealNMax = ThresholdIdealNMax,
+        CalibratingThresholdRangeRatio = CalibratingThresholdRangeRatio,
+        ReviewThresholdRangeRatio = ReviewThresholdRangeRatio,
+        ThresholdCurrentMin = ThresholdCurrentMin,
+        ThresholdCurrentMax = ThresholdCurrentMax,
+        FindCurrentStart = FindCurrentStart,
+        FindCurrentStep = FindCurrentStep,
+        FindCurrentStop = FindCurrentStop,
+        LowCoefficient = LowCoefficient,
+        HighCoefficient = HighCoefficient,
+        HalfEcsLength = HalfEcsLength,
+        SpeedEcsPerSecond = SpeedEcsPerSecond,
+        NscStandardNscPerNm = NscStandardNscPerNm,
+        ThresholdNscStandardSymmetryRatio = ThresholdNscStandardSymmetryRatio,
+        ThresholdNscStandardGain = ThresholdNscStandardGain,
+        CalibrationThresholdNscSymmetryRatio = CalibrationThresholdNscSymmetryRatio,
+        CalibrationThresholdNscNscPerNmRange = CalibrationThresholdNscNscPerNmRange,
+        RetryCount = RetryCount,
+        StartAFMotorAbsoluteValue = StartAFMotorAbsoluteValue,
+        StepAFMotorAbsoluteValue = StepAFMotorAbsoluteValue,
+        StopAFMotorAbsoluteValue = StopAFMotorAbsoluteValue,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

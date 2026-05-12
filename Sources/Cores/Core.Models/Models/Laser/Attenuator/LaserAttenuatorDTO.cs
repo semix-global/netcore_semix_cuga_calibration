@@ -15,7 +15,7 @@ using ScottPlot.MultiplotLayouts;
 namespace Core.Models.Models.Laser.Attenuator;
 
 [CacheVersion("1.0.0")]
-public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase, IAdaptTo<CalibrationAttenuatorObj>, ICloneable<LaserAttenuatorDTO>
+public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase<LaserAttenuatorDTO>, IAdaptTo<CalibrationAttenuatorObj>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -136,7 +136,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase, IAdaptTo<Ca
 
     #region Mapper
 
-    public LaserAttenuatorDTO Clone() => new()
+    public override LaserAttenuatorDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         WaitTime = WaitTime,

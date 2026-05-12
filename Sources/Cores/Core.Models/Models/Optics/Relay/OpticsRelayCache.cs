@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -7,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Optics.Relay;
 
-public sealed partial class OpticsRelayCache : CalibrationCacheBase
+public sealed partial class OpticsRelayCache : CalibrationCacheBase<OpticsRelayCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -23,9 +24,20 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public OpticsRelayCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, _ => new OpticsRelayCacheItem());
+
+    public override OpticsRelayCache Clone() => new()
+    {
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        Threshold = Threshold,
+        Items = new ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsRelayCacheItem>(Items.Select(t => new KeyValuePair<OpticsIlluminationModeEnum, OpticsRelayCacheItem>(t.Key, t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
+public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase<OpticsRelayCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -107,4 +119,39 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private OpticsStrehlRatioQualityTypeEnum _opticsStrehlRatioQualityTypeEnum = OpticsStrehlRatioQualityTypeEnum.XStrehlRatio;
+
+    public override OpticsRelayCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        ProductivityInformation = ProductivityInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        AlignmentResult = AlignmentResult.Clone(),
+        DSWFindBFMachinePosition = DSWFindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        OpticsIlluminationDegreeAngle = OpticsIlluminationDegreeAngle,
+        DefaultRelayMotorRatio = DefaultRelayMotorRatio,
+        StartRelayMotorAbsoluteValue = StartRelayMotorAbsoluteValue,
+        StepRelayMotorAbsoluteValue = StepRelayMotorAbsoluteValue,
+        StopRelayMotorAbsoluteValue = StopRelayMotorAbsoluteValue,
+        CenterRoughECS = CenterRoughECS,
+        RangeRoughECS = RangeRoughECS,
+        StepRoughECS = StepRoughECS,
+        RangeRefinedECS = RangeRefinedECS,
+        StepRefinedECS = StepRefinedECS,
+        XZDSWFindBFMachinePosition = XZDSWFindBFMachinePosition,
+        XZScanLength = XZScanLength,
+        StartXZRelayMotorAbsoluteValue = StartXZRelayMotorAbsoluteValue,
+        StepXZRelayMotorAbsoluteValue = StepXZRelayMotorAbsoluteValue,
+        StopXZRelayMotorAbsoluteValue = StopXZRelayMotorAbsoluteValue,
+        XZCenterECS = XZCenterECS,
+        XZRangeECS = XZRangeECS,
+        OpticsStrehlRatioQualityTypeEnum = OpticsStrehlRatioQualityTypeEnum,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

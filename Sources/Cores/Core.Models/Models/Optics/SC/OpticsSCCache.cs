@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -7,7 +8,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Optics.SC;
 
-public sealed partial class OpticsSCCache : CalibrationCacheBase
+public sealed partial class OpticsSCCache : CalibrationCacheBase<OpticsSCCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -20,9 +21,19 @@ public sealed partial class OpticsSCCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public OpticsSCCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, _ => new OpticsSCCacheItem());
+
+    public override OpticsSCCache Clone() => new()
+    {
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        Items = new ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsSCCacheItem>(Items.Select(t => new KeyValuePair<OpticsIlluminationModeEnum, OpticsSCCacheItem>(t.Key, t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class OpticsSCCacheItem : CalibrationCacheBase
+public sealed partial class OpticsSCCacheItem : CalibrationCacheBase<OpticsSCCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -83,4 +94,32 @@ public sealed partial class OpticsSCCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _rangeECS;
+
+    public override OpticsSCCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        ProductivityInformation = ProductivityInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        AlignmentResult = AlignmentResult.Clone(),
+        DSWFindBFMachinePosition = DSWFindBFMachinePosition,
+        ScanLength = ScanLength,
+        StartLambda = StartLambda,
+        StepLambda = StepLambda,
+        StopLambda = StopLambda,
+        LambdaToL1Coefficient = LambdaToL1Coefficient,
+        LambdaToL3Coefficient = LambdaToL3Coefficient,
+        SCMotorAbsoluteValueL1Center = SCMotorAbsoluteValueL1Center,
+        SCMotorAbsoluteValueL3Center = SCMotorAbsoluteValueL3Center,
+        IsL1ToL2Direction = IsL1ToL2Direction,
+        IsL2ToL3Direction = IsL2ToL3Direction,
+        CenterECS = CenterECS,
+        RangeECS = RangeECS,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

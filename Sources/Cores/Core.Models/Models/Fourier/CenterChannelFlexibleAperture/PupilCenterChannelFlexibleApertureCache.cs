@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
@@ -7,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
-public sealed partial class PupilCenterChannelFlexibleApertureCache : CalibrationCacheBase
+public sealed partial class PupilCenterChannelFlexibleApertureCache : CalibrationCacheBase<PupilCenterChannelFlexibleApertureCache>
 {
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
@@ -104,4 +105,38 @@ public sealed partial class PupilCenterChannelFlexibleApertureCache : Calibratio
 
     [ObservableProperty]
     private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+
+    public override PupilCenterChannelFlexibleApertureCache Clone() => new()
+    {
+        Ch3Image1 = Ch3Image1,
+        Ch3Image2 = Ch3Image2,
+        Ch3Image3 = Ch3Image3,
+        HazeWaferPosition = HazeWaferPosition,
+        OriginImageFilePathList11 = new([.. OriginImageFilePathList11]),
+        OriginImageAngleList11 = new([.. OriginImageAngleList11]),
+        OriginImageFilePathList12 = new([.. OriginImageFilePathList12]),
+        CgFFBoxWidthList1 = new([.. CgFFBoxWidthList1]),
+        OriginImageFilePathList13 = new([.. OriginImageFilePathList13]),
+        OriginImageAngleList13 = new([.. OriginImageAngleList13]),
+        OriginImageFilePathList21 = new([.. OriginImageFilePathList21]),
+        OriginImageAngleList21 = new([.. OriginImageAngleList21]),
+        OriginImageFilePathList22 = new([.. OriginImageFilePathList22]),
+        CgFFBoxHeightList2 = new([.. CgFFBoxHeightList2]),
+        OriginImageFilePathList23 = new([.. OriginImageFilePathList23]),
+        OriginImageAngleList23 = new([.. OriginImageAngleList23]),
+        OriginImageFilePathList31 = new([.. OriginImageFilePathList31]),
+        OriginImageFilePathList32 = new([.. OriginImageFilePathList32]),
+        CgFFBoxWidthList3 = new([.. CgFFBoxWidthList3]),
+        BitmapImageDrawable1 = BitmapImageDrawable1,
+        BitmapImageDrawable2 = BitmapImageDrawable2,
+        BitmapImageDrawable3 = BitmapImageDrawable3,
+        CircleROIDrawable = CircleROIDrawable,
+        RectROIDrawableList = new([.. RectROIDrawableList]),
+        ProductivityInformation = ProductivityInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

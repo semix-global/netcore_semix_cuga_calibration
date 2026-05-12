@@ -6,7 +6,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Laser.BeamStabilizer;
 
 [CacheVersion("1.0.0")]
-public sealed partial class LaserBeamStabilizerObjDto : CalibrationDTOBase, ICloneable<LaserBeamStabilizerObjDto>
+public sealed partial class LaserBeamStabilizerObjDto : CalibrationDTOBase<LaserBeamStabilizerObjDto>
 {
     [ObservableProperty]
     private int _index;
@@ -31,7 +31,7 @@ public sealed partial class LaserBeamStabilizerObjDto : CalibrationDTOBase, IClo
 
     #region Mapper
 
-    public LaserBeamStabilizerObjDto Clone() => new()
+    public override LaserBeamStabilizerObjDto Clone() => new()
     {
         Index = Index,
         CurrentPDPosition1 = CurrentPDPosition1,

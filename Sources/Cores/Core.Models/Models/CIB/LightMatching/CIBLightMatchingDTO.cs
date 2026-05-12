@@ -21,7 +21,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.CIB.LightMatching;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase, ICloneable<CIBLightMatchingDTO>, IAdaptTo<CalibrationLaserCIBLightMatchingItem>
+public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMatchingDTO>, IAdaptTo<CalibrationLaserCIBLightMatchingItem>
 {
     [ObservableProperty]
     private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
@@ -270,7 +270,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase, ICloneable
 
     #region Mapper
 
-    public CIBLightMatchingDTO Clone() => new()
+    public override CIBLightMatchingDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         OpticsApodizationModeEnum = OpticsApodizationModeEnum,

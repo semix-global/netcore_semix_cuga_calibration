@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.Attenuator;
 
-public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
+public sealed partial class LaserAttenuatorCache : CalibrationCacheBase<LaserAttenuatorCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -23,9 +24,21 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public LaserAttenuatorCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new LaserAttenuatorCacheItem());
+
+    public override LaserAttenuatorCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        Threshold = Threshold,
+        RateThreshold = RateThreshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, LaserAttenuatorCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, LaserAttenuatorCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
+public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase<LaserAttenuatorCacheItem>
 {
     [ObservableProperty]
     private double _waitTime = 5;
@@ -38,4 +51,16 @@ public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private double _stopCoefficient = 1;
+
+    public override LaserAttenuatorCacheItem Clone() => new()
+    {
+        WaitTime = WaitTime,
+        StartCoefficient = StartCoefficient,
+        StepCoefficient = StepCoefficient,
+        StopCoefficient = StopCoefficient,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

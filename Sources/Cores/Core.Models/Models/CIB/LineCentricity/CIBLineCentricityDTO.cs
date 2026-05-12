@@ -12,7 +12,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.CIB.LineCentricity;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBLineCentricityDTO : CalibrationDTOBase, ICloneable<CIBLineCentricityDTO>, IAdaptTo<CalibrationLaserLineCentricityItem>
+public sealed partial class CIBLineCentricityDTO : CalibrationDTOBase<CIBLineCentricityDTO>, IAdaptTo<CalibrationLaserLineCentricityItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -40,7 +40,7 @@ public sealed partial class CIBLineCentricityDTO : CalibrationDTOBase, ICloneabl
 
     #region Mapper
 
-    public CIBLineCentricityDTO Clone()
+    public override CIBLineCentricityDTO Clone()
     {
         return new CIBLineCentricityDTO
         {

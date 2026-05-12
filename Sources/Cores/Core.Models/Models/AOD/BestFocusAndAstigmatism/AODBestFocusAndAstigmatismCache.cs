@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
@@ -9,7 +10,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
-public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase
+public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase<AODBestFocusAndAstigmatismCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -44,9 +45,25 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase
 
     [ObservableProperty]
     private double _xYBestFocusEcsOffsetThreshold;
+
+    public override AODBestFocusAndAstigmatismCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        ApodizationModeEnum = ApodizationModeEnum,
+        Items = new ConcurrentDictionary<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>(Items.Select(x => new KeyValuePair<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>((x.Key.Item1.Clone(), x.Key.Item2), x.Value.Clone()))),
+        PmtInterval = PmtInterval,
+        Times = Times,
+        XQualityThreshold = XQualityThreshold,
+        YQualityThreshold = YQualityThreshold,
+        XYBestFocusEcsOffsetThreshold = XYBestFocusEcsOffsetThreshold,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
+public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase<AODBestFocusAndAstigmatismCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -111,4 +128,28 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase
     /// </summary>
     [ObservableProperty]
     private GenerateChirpAODWaveformParam _defaultGenerateChirpAODWaveformParam = new();
+
+    public override AODBestFocusAndAstigmatismCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
+        AlgorithmImageQualityTypeEnum = AlgorithmImageQualityTypeEnum,
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        StartPosition = StartPosition,
+        ScanLength = ScanLength,
+        CenterECS = CenterECS,
+        RangeECS = RangeECS,
+        SpectralDensityStepCount = SpectralDensityStepCount,
+        StartSpectralDensity = StartSpectralDensity,
+        StepSpectralDensity = StepSpectralDensity,
+        DefaultGenerateChirpAODWaveformParam = DefaultGenerateChirpAODWaveformParam.Clone(),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

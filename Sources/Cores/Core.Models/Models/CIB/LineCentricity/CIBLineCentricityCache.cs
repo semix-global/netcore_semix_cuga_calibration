@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
@@ -6,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.LineCentricity;
 
-public sealed partial class CIBLineCentricityCache : CalibrationCacheBase
+public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLineCentricityCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -28,9 +29,22 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public CIBLineCentricityCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLineCentricityCacheItem());
+
+    public override CIBLineCentricityCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        PmtInterval = PmtInterval,
+        Threshold = Threshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }
 
-public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase
+public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase<CIBLineCentricityCacheItem>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
@@ -67,4 +81,25 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private bool _isDarkFieldAlignment;
+
+    public override CIBLineCentricityCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        FindBFMachinePosition = FindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
+        AlignmentResult = AlignmentResult.Clone(),
+        BrightTemplateFilePath = BrightTemplateFilePath,
+        BrightTemplateImageFilePath = BrightTemplateImageFilePath,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration,
+    };
 }

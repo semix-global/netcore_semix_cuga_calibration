@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
@@ -10,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 
-public sealed partial class PupilCenterChannelSpecularBlockerCache : CalibrationCacheBase
+public sealed partial class PupilCenterChannelSpecularBlockerCache : CalibrationCacheBase<PupilCenterChannelSpecularBlockerCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -54,9 +55,26 @@ public sealed partial class PupilCenterChannelSpecularBlockerCache : Calibration
     [System.Text.Json.Serialization.JsonIgnore]
     [System.Xml.Serialization.XmlIgnore]
     public PupilCenterChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), _ => new PupilCenterChannelSpecularBlockerCacheItem());
+
+    public override PupilCenterChannelSpecularBlockerCache Clone() => new()
+    {
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        ProductivityInformation = ProductivityInformation.Clone(),
+        Ch3Image = Ch3Image,
+        RectROIDrawable = RectROIDrawable,
+        CircleROIDrawable = CircleROIDrawable,
+        RectROIDrawableList = new([.. RectROIDrawableList]),
+        BitmapImageDrawableCh30 = BitmapImageDrawableCh30,
+        BitmapImageDrawableCh31 = BitmapImageDrawableCh31,
+        Items = new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem>(Items.Select(t => new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), PupilCenterChannelSpecularBlockerCacheItem>((t.Key.Item1, t.Key.Item2.Clone()), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : CalibrationCacheBase
+public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : CalibrationCacheBase<PupilCenterChannelSpecularBlockerCacheItem>
 {
     [ObservableProperty]
     private Point _shinyWaferPosition;
@@ -99,4 +117,26 @@ public sealed partial class PupilCenterChannelSpecularBlockerCacheItem : Calibra
 
     [ObservableProperty]
     public float _ch3Push = 0.3f;
+
+    public override PupilCenterChannelSpecularBlockerCacheItem Clone() => new()
+    {
+        ShinyWaferPosition = ShinyWaferPosition,
+        CIBConfiguration = CIBConfiguration.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation3 = CIBInformation3.Clone(),
+        OriginImageFilePathOld = OriginImageFilePathOld,
+        OriginImageFilePathNew = OriginImageFilePathNew,
+        ImageGrayCompareCh3 = ImageGrayCompareCh3,
+        ImageGrayOldCh3 = ImageGrayOldCh3,
+        ImageGrayNewCh3 = ImageGrayNewCh3,
+        Ch3Angle = Ch3Angle,
+        Ch3TurnX = Ch3TurnX,
+        Ch3TurnY = Ch3TurnY,
+        Ch3Push = Ch3Push,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

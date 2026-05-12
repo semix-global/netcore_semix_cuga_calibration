@@ -12,7 +12,7 @@ using Net.Utilities.Mapper.Interfaces;
 namespace Core.Models.Models.Chuck.StageMap;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckStageMapDto : CalibrationDTOBase, ICloneable<ChuckStageMapDto>, IAdaptTo<CalibrationChuckStageMap>
+public sealed partial class ChuckStageMapDto : CalibrationDTOBase<ChuckStageMapDto>, IAdaptTo<CalibrationChuckStageMap>
 {
     [ObservableProperty]
     private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
@@ -46,7 +46,7 @@ public sealed partial class ChuckStageMapDto : CalibrationDTOBase, ICloneable<Ch
 
     #region Mapper
 
-    public ChuckStageMapDto Clone() => new()
+    public override ChuckStageMapDto Clone() => new()
     {
         HighMicroscopeLensInformation = HighMicroscopeLensInformation,
         ProductivityInformation = ProductivityInformation.Clone(),
