@@ -19,64 +19,64 @@ namespace Core.Models.Models.CIB.MMD;
 public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO>, IAdaptTo<CalibrationLaserCIBMMDItem>
 {
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDGainRelationshipDTO> _gainRelationships = [];
+    public partial IReadOnlyList<CIBMMDGainRelationshipDTO> GainRelationships { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDTOItem> _items = [];
+    public partial IReadOnlyList<CIBMMDDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    private double _gainRSquared;
+    public partial double GainRSquared { get; set; }
 
     [ObservableProperty]
-    private double _gainResidual;
+    public partial double GainResidual { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _gainPoints = [];
+    public partial IReadOnlyList<Point> GainPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _originLogGainPoints = [];
+    public partial IReadOnlyList<Point> OriginLogGainPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _logGainA1;
+    public partial double LogGainA1 { get; set; }
 
     [ObservableProperty]
-    private double _logGainA2;
+    public partial double LogGainA2 { get; set; }
 
     [ObservableProperty]
-    private double _logGainX0;
+    public partial double LogGainX0 { get; set; }
 
     [ObservableProperty]
-    private double _logGainDx;
+    public partial double LogGainDx { get; set; }
 
     [ObservableProperty]
-    private double _logGainRSquared;
+    public partial double LogGainRSquared { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitLogGainPoints = [];
+    public partial IReadOnlyList<Point> FitLogGainPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _logGainMul128U12BitPoints = [];
+    public partial IReadOnlyList<Point> LogGainMul128U12BitPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _smoothLogGainMul128U12BitPoints = [];
+    public partial IReadOnlyList<Point> SmoothLogGainMul128U12BitPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _gainS16BitPoints = [];
+    public partial IReadOnlyList<Point> GainS16BitPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _smoothGainS16BitPoints = [];
+    public partial IReadOnlyList<Point> SmoothGainS16BitPoints { get; set; } = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -163,13 +163,13 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
                 Constants.Category10.GetColor(0));
 
             var temps = (from item in Items
-                         let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
-                         where itemItems.Length > 0
-                         select new
-                         {
-                             LegendText = $"{item.Coefficient:0.###}",
-                             Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
-                         }
+                    let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
+                    where itemItems.Length > 0
+                    select new
+                    {
+                        LegendText = $"{item.Coefficient:0.###}",
+                        Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
+                    }
                 ).ToArray();
 
             var scatterLines = ScatterPlotControl.GetOrAddScatterLines(1, temps.Length);
@@ -266,16 +266,16 @@ public sealed partial class CIBMMDDTO : CalibrationDtoBase, ICloneable<CIBMMDDTO
 public sealed partial class CIBMMDDTOItem : ObservableObject, ICloneable<CIBMMDDTOItem>
 {
     [ObservableProperty]
-    private double _coefficient;
+    public partial double Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _measurePower;
+    public partial double MeasurePower { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Item> _items = [];
+    public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]
-    private double _protectedOverflowProtectedPMTValueCount;
+    public partial double ProtectedOverflowProtectedPMTValueCount { get; set; }
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -304,16 +304,16 @@ public sealed partial class CIBMMDDTOItem : ObservableObject, ICloneable<CIBMMDD
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _gain;
+        public partial double Gain { get; set; }
 
         [ObservableProperty]
-        private double _pMTValue;
+        public partial double PMTValue { get; set; }
 
         [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
+        public partial string RawImageFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private string _imageFilePath = string.Empty;
+        public partial string ImageFilePath { get; set; } = string.Empty;
 
         public Item Clone() => new()
         {

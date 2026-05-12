@@ -541,7 +541,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
 
-            var cibmmdGains = CIBViewModel.GetCIBMMDGains(Cache.CIBInformations, Cache.StartGain, Cache.StepGain, Cache.StopGain);
+            var cibMMDGains = CIBViewModel.GetCIBMMDGains(Cache.CIBInformations, Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Calibratings =
             [
                 ..Cache.CIBInformations
@@ -549,7 +549,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Select(t => new CIBMMDDTO
                     {
                         CIBInformation = t.Item,
-                        GainRelationships = cibmmdGains[t.Index],
+                        GainRelationships = cibMMDGains[t.Index],
                         Items =
                         [
                             .. Cache.UseODFilterMeasurePowerPoints.Select(tt => new CIBMMDDTOItem
@@ -717,6 +717,61 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            await Task.WhenAll(SelectedReviewItems.Select(t => Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Algorithm(t);
+            }, cancellationToken)));
+
+            var result = SelectedReviewItems.All(t => t.IsCalibrated);
+
+            DialogWindowProvider.ShowDialog($"Algorithm {(result ? "OK" : "Failed")}",
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task ManualAlgorithmAsync(CancellationToken cancellationToken)
+    {
+        await InvokeVerifyAsync(async () =>
+        {
+            if (DialogWindowProvider.TryShowDialog("Enable manual algorithm? This will clear the current calibration list, but you can restore it by re-entering calibration.", out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Manual Algorithm Canceled!"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
+            
+            Calibratings = [];
+            
+            Logger.LogHtmlInformation("Manual Algorithm Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.DarkCurrent,
+                Cache.Denominator,
+                Cache.ScaleFactor,
+                Cache.MinValidFraction,
+                Cache.MaxValidFraction,
+                MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations]))
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            if (DialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath) == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Manual Algorithm Failed! No directory path was selected."), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
+
+            
+            
+            var cibMMD = new CIBMMDDTO();
+            
+            
+
 
             await Task.WhenAll(SelectedReviewItems.Select(t => Task.Run(() =>
             {
