@@ -104,6 +104,11 @@
                                                             Command="{Binding ImportCIBMMDCacheMMDConfigurationCancelCommand}"
                                                             hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                             Style="{StaticResource ButtonWarning}" />
+                                                    <ToggleButton Content="Download Template"
+                                                                  Command="{x:Static wpf:Commands.SaveFileAsCommand}"
+                                                                  CommandParameter="Assets\Data\MMDTemplate\CIBMMDCache.MMDConfiguration.B4.xlsx"
+                                                                  HorizontalAlignment="Left"
+                                                                  hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />
                                                 </hc:UniformSpacingPanel>
                                                 <ToggleButton x:Name="ToggleButtonMMDConfigurations"
                                                               Content="MMD Configurations"
@@ -183,6 +188,11 @@
                                     Command="{Binding ManualCustomDataAlgorithmCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
+                            <ToggleButton Content="Download Template"
+                                          Command="{x:Static wpf:Commands.SaveDirectoryAsCommand}"
+                                          CommandParameter="Assets\Data\MMDTemplate\CIBMMDManualCustomData"
+                                          HorizontalAlignment="Left"
+                                          hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />
                         </hc:UniformSpacingPanel>
                         <Separator />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"

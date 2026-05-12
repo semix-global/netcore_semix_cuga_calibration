@@ -1091,7 +1091,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             var xMeasurePowerVector = Vector<double>.Build.DenseOfEnumerable(item.Items.Select(t => t.MeasurePower));
-            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log(t * mmdConfiguration.PowerRate /* mW */ * 1000_000 / 0.34 /* 266nm激光当前采样下的单光子功率nW */, 2));
+            var xLogMeasurePowerVector = xMeasurePowerVector.Map(t => Math.Log(t * mmdConfiguration.PowerRate, 2));
 
             var currentMatrix = Matrix<double>.Build.Dense(gainCount, coefficientCount);
             for (var row = 0; row < gainCount; row++)
