@@ -242,9 +242,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     .Cast<IDictionary<string, object>>()
                     .ToArray();
 
-                var values = rows.Select(t =>
+                var values = rows
+                    .Select(t =>
                     {
-                        var match = Regex.Match(t[nameof(CIBMMDCache.MMDConfiguration.CIBInformation)].ToString(), @"^(\d+)\((\d+)\)$");
+                        var match = Regex.Match(t[nameof(CIBMMDCache.MMDConfiguration.CIBInformation)].ToString(), @"^(-?\d+)\((-?\d+)\)$");
                         Guard.IsTrue(match.Success);
                         var cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(tt => tt.PMTId == int.Parse(match.Groups[1].Value)
                                                                                                      && tt.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
@@ -322,25 +323,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.GenerateChirpAODWaveformParam.SoundPacketLength = 27.56d;
             Cache.GenerateChirpAODWaveformParam.ZeroSampleCount = 0;
 
-            var mmdConfigurationList = new List<CIBMMDCache.MMDConfiguration>(Cache.MMDConfigurations);
-
-            foreach (var cibInformation in Cache.CIBInformations)
-            {
-                if (mmdConfigurationList.Any(t => t.CIBInformation == cibInformation)) continue;
-
-                mmdConfigurationList.Add(new CIBMMDCache.MMDConfiguration { CIBInformation = cibInformation });
-            }
-
-            Cache.MMDConfigurations = [.. mmdConfigurationList.DistinctBy(t => t.CIBInformation).OrderBy(t => t.CIBInformation)];
-
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
                 Cache.CIBInformations,
                 OriginGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
-                OriginGenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
-                MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations])),
+                OriginGenerateChirpAODWaveformParam = new HtmlQuote(Cache.GenerateChirpAODWaveformParam.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return Cache.CIBInformations.All(t => ApplicationCookie.CIBInformations.Contains(t))
@@ -862,20 +851,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 GainRelationships = cibMMDGainRelationships,
                 Items = []
             };
-
-            if (Cache.MMDConfigurations.Any(t => t.CIBInformation == cibInformation) == false)
-            {
-                Cache.MMDConfigurations =
-                [
-                    ..Cache.MMDConfigurations,
-                    new CIBMMDCache.MMDConfiguration
-                    {
-                        CIBInformation = cibInformation
-                    }
-                ];
-
-                Cache.MMDConfigurations = [.. Cache.MMDConfigurations.DistinctBy(t => t.CIBInformation).OrderBy(t => t.CIBInformation)];
-            }
 
             var headerRow = rows[0];
             var keys = headerRow.Keys.OrderBy(t => t).ToArray();

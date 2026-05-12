@@ -100,10 +100,10 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     public partial double MaxValidFraction { get; set; } = 250000d;
-    
+
     [ObservableProperty]
     public partial double VerifyMinLogGain { get; set; } = 0d;
-    
+
     [ObservableProperty]
     public partial double VerifyMaxLogGain { get; set; } = 14d;
 
@@ -177,7 +177,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     // ReSharper disable UnusedParameterInPartialMethod
 
     partial void OnOriginMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-    
+
     partial void OnMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnODFilterRatioChanged(double value) => RefreshPlot();
@@ -232,9 +232,9 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
         public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
         [ObservableProperty]
-        public partial double FilterMinGain { get; set; } = -10;
+        public partial double FilterMinGain { get; set; } = -10d;
 
         [ObservableProperty]
-        public partial double PowerRate { get; set; } = 0.002;
+        public partial double PowerRate { get; set; } = 1d;
     }
 }
