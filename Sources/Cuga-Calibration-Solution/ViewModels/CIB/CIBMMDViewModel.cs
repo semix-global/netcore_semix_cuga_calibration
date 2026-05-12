@@ -16,6 +16,7 @@ using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using Humanizer;
 using MathNet.Numerics;
+using MiniExcelLibs;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -736,19 +737,20 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task ManualAlgorithmAsync(CancellationToken cancellationToken)
+    private async Task CustomDataAlgorithmAsync(CancellationToken cancellationToken)
     {
         await InvokeVerifyAsync(async () =>
         {
-            if (DialogWindowProvider.TryShowDialog("Enable manual algorithm? This will clear the current calibration list, but you can restore it by re-entering calibration.", out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK)
+            if (DialogWindowProvider.TryShowDialog("Enable custom data algorithm? This will clear the current calibration list, but you can restore it by re-entering calibration.", out var dialogResultEnum, DialogButtonsEnum.OKCancel) == false || dialogResultEnum != DialogResultEnum.OK)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Manual Algorithm Canceled!"), HtmlLogUniqueId.LoggingHtml());
+
                 return false;
             }
-            
+
             Calibratings = [];
-            
-            Logger.LogHtmlInformation("Manual Algorithm Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+
+            Logger.LogHtmlInformation("Custom Data Algorithm Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.DarkCurrent,
                 Cache.Denominator,
@@ -762,16 +764,87 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             if (DialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath) == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Manual Algorithm Failed! No directory path was selected."), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Custom Data Algorithm Failed! No directory path was selected."), HtmlLogUniqueId.LoggingHtml());
+
                 return false;
             }
 
-            
-            
             var cibMMD = new CIBMMDDTO();
-            
-            
 
+            var rows = (await MiniExcel.QueryAsync(Path.Combine(directoryPath, "CIBMMD.xlsx"), useHeaderRow: false, cancellationToken: cancellationToken))
+                .Cast<IDictionary<string, object>>()
+                .ToArray();
+          
+            if (rows.Length < 2)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Manual Algorithm Failed! Excel file has insufficient data."), HtmlLogUniqueId.LoggingHtml());
+
+                return false;
+            }
+
+            static double ConvertToDouble(object? value) => value switch
+            {
+                double d => d,
+                float f => f,
+                int i => i,
+                long l => l,
+                string s when double.TryParse(s, out var result) => result,
+                _ => double.NaN
+            };
+
+            static int ExcelColumnToIndex(string column)
+            {
+                var result = 0;
+                foreach (var c in column)
+                {
+                    result = result * 26 + (c - 'A' + 1);
+                }
+
+                return result;
+            }
+
+            var headerRow = rows[0];
+            var dataRows = rows.Skip(1).ToList();
+            var columnKeys = headerRow.Keys.Where(k => k != "A").OrderBy(ExcelColumnToIndex).ToList();
+
+            var items = new List<CIBMMDDTOItem>();
+            foreach (var colKey in columnKeys)
+            {
+                var measurePower = ConvertToDouble(headerRow[colKey]);
+                if (double.IsNaN(measurePower)) continue;
+
+                var itemItems = new List<CIBMMDDTOItem.Item>();
+                foreach (var row in dataRows)
+                {
+                    var gain = ConvertToDouble(row["A"]);
+                    var pmtValue = ConvertToDouble(row[colKey]);
+                    if (double.IsNaN(gain)) continue;
+
+                    itemItems.Add(new CIBMMDDTOItem.Item
+                    {
+                        Gain = gain,
+                        PMTValue = pmtValue
+                    });
+                }
+
+                items.Add(new CIBMMDDTOItem
+                {
+                    Coefficient = measurePower,
+                    MeasurePower = measurePower,
+                    Items = itemItems
+                });
+            }
+
+            cibMMD.Items = items;
+
+            if (SelectedReviewItems.Count > 0)
+            {
+                var reviewItem = SelectedReviewItems.First();
+                cibMMD.CIBInformation = reviewItem.CIBInformation.Clone();
+                cibMMD.GainRelationships = [.. reviewItem.GainRelationships.Select(t => t.Clone())];
+            }
+
+            Calibratings = [cibMMD];
 
             await Task.WhenAll(SelectedReviewItems.Select(t => Task.Run(() =>
             {

@@ -122,6 +122,18 @@
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
+                            <Button Content="Custom Data Algorithm"
+                                    Command="{Binding CustomDataAlgorithmCommand}"
+                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                    Style="{StaticResource ButtonInfo.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding CustomDataAlgorithmCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
                             <Button Content="Algorithm"
                                     Command="{Binding AlgorithmCommand}"
                                     hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
