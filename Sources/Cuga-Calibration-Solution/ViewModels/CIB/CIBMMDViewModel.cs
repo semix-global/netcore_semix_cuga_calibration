@@ -64,21 +64,21 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDTO> _calibratings = [];
+    public partial IReadOnlyList<CIBMMDDTO> Calibratings { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDTO> _selectedCalibratingItems = [];
+    public partial IReadOnlyList<CIBMMDDTO> SelectedCalibratingItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<CIBInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDTO> _reviews = [];
+    public partial IReadOnlyList<CIBMMDDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBMMDDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBMMDDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -86,17 +86,17 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBMMDCache _cache = new();
+    public partial CIBMMDCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBMMDDTO[] _calibrations = [];
+    public partial CIBMMDDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDTO> _laserOpticalPowerMeters = [];
+    public partial IReadOnlyList<LaserOpticalPowerMeterDTO> LaserOpticalPowerMeters { get; set; } = [];
 
     #endregion 缓存
 
@@ -225,7 +225,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0Async(CancellationToken cancellationToken)
+    private Task<bool> Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -289,7 +289,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1Async(CancellationToken cancellationToken)
+    private Task<bool> Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -309,7 +309,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2Async(CancellationToken cancellationToken)
+    private Task<bool> Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
@@ -328,6 +328,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.ChirpAODWaveformResultFilePath = string.Empty;
             Cache.PrescanAODWaveformProfiles = [];
             Cache.ChirpAODWaveformProfiles = [];
+            Cache.OriginMeasurePowerPoints = [];
             Cache.MeasurePowerPoints = [];
             Cache.FitMeasurePowerPoints = [];
             Cache.NotUseODFilterMeasurePowerPoints = [];
@@ -412,6 +413,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var coefficients = Generate.LinearRangeContainsEdge(Cache.StartCoefficient, Cache.StepCoefficient, Cache.StopCoefficient);
             Guard.IsNotEmpty(coefficients);
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
+            Point minMeasurePowerPoint, maxMeasurePowerPoint;
             try
             {
                 OpticsViewModel.ToggleODFilter(false);
@@ -447,7 +449,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                         var measurePower = LaserViewModel.GetOpticalMeasurePower();
 
-                        Cache.MeasurePowerPoints = [.. Cache.MeasurePowerPoints, new Point(coefficient, measurePower - measurePowerNoise)];
+                        Cache.OriginMeasurePowerPoints = [.. Cache.OriginMeasurePowerPoints, new Point(coefficient, measurePower - measurePowerNoise)];
                     }
                     finally
                     {
@@ -455,7 +457,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     }
                 }
 
-                var maxMeasurePowerPoint = Cache.MeasurePowerPoints.MaxBy(t => t.Y);
+                minMeasurePowerPoint = Cache.OriginMeasurePowerPoints.MinBy(t => t.Y);
+                maxMeasurePowerPoint = Cache.OriginMeasurePowerPoints.MaxBy(t => t.Y);
                 try
                 {
                     OpticsViewModel.ToggleODFilter(true);
@@ -463,7 +466,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
                     await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
 
-                    Cache.ODFilterRatio = maxMeasurePowerPoint.Y / LaserViewModel.GetOpticalMeasurePower();
+                    var measurePower = LaserViewModel.GetOpticalMeasurePower();
+                    Cache.ODFilterRatio = maxMeasurePowerPoint.Y / (measurePower - measurePowerNoise);
                 }
                 finally
                 {
@@ -475,7 +479,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
             }
 
-            Cache.MeasurePowerPoints = [.. Cache.MeasurePowerPoints.Where(t => t.Y >= CalibrationSetting.SettingCommonParam.MeasurePowerMeasurementMinValue)]; // 过滤量程下限
+            Cache.MeasurePowerPoints =
+            [
+                .. Cache.OriginMeasurePowerPoints
+                    .Where(t => minMeasurePowerPoint.X <= t.X && t.X <= maxMeasurePowerPoint.X)
+                    .Where(t => t.Y >= CalibrationSetting.SettingCommonParam.MeasurePowerMeasurementMinValue)
+            ]; // 过滤: 最小值和最大值之间的、量程下限
             (Cache.P0, Cache.P1, Cache.P2, Cache.P3, Cache.RSquared, var yPredicted) =
                 PolynomialCurve.Fit3(Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.X)), Vector<double>.Build.DenseOfEnumerable(Cache.MeasurePowerPoints.Select(t => t.Y)));
 

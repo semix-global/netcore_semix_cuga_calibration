@@ -15,144 +15,147 @@ namespace Core.Models.Models.CIB.MMD;
 public sealed partial class CIBMMDCache : CalibrationCacheBase
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<CIBInformation> _cIBInformations = [];
+    public partial IReadOnlyList<CIBInformation> CIBInformations { get; set; } = [];
 
     [ObservableProperty]
-    private Point _hazeFindBFMachinePosition;
+    public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private double _prescanFrequency;
+    public partial double PrescanFrequency { get; set; }
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
+    public partial GeneratePrescanAODWaveformParam GeneratePrescanAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    private double _chirpFrequency;
+    public partial double ChirpFrequency { get; set; }
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
+    public partial GenerateChirpAODWaveformParam GenerateChirpAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    private int _measurePowerNoisesCount = 100;
+    public partial int MeasurePowerNoisesCount { get; set; } = 10;
 
     [ObservableProperty]
-    private double _measurePowerWaitTime = 5d;
+    public partial double MeasurePowerWaitTime { get; set; } = 5d;
 
     [ObservableProperty]
-    private double _pMTValueWaitTime = 1d;
+    public partial double PMTValueWaitTime { get; set; } = 0.5d;
 
     [ObservableProperty]
-    private double _startCoefficient = 0.01;
+    public partial double StartCoefficient { get; set; } = 0.01;
 
     [ObservableProperty]
-    private double _stepCoefficient = 0.1;
+    public partial double StepCoefficient { get; set; } = 0.01;
 
     [ObservableProperty]
-    private double _stopCoefficient = 1d;
+    public partial double StopCoefficient { get; set; } = 1d;
 
     [ObservableProperty]
-    private double _measurePowerSequenceCommonRatio = Math.Round(1 / 1.3, 3);
+    public partial double MeasurePowerSequenceCommonRatio { get; set; } = 0.5;
 
     [ObservableProperty]
-    private double _measurePowerNotUseODFilterMinValue = 1d;
+    public partial double MeasurePowerNotUseODFilterMinValue { get; set; } = 1d;
 
     [ObservableProperty]
-    private double _mMDMeasurePowerRangeRatio = 1000d;
+    public partial double MMDMeasurePowerRangeRatio { get; set; } = 50000d;
 
     [ObservableProperty]
-    private double _startGain = -9.9;
+    public partial double StartGain { get; set; } = -10;
 
     [ObservableProperty]
-    private double _stepGain = 0.2;
+    public partial double StepGain { get; set; } = 0.2;
 
     [ObservableProperty]
-    private double _stopGain = 9.9;
+    public partial double StopGain { get; set; } = 10;
 
     [ObservableProperty]
-    private double _protectedPMTValue = 409.6;
+    public partial double ProtectedPMTValue { get; set; } = 409.6;
 
     [ObservableProperty]
-    private int _protectedOverflowProtectedPMTValueCount = 3;
+    public partial int ProtectedOverflowProtectedPMTValueCount { get; set; } = 3;
 
     [ObservableProperty]
-    private int _imageWidth = 10;
+    public partial int ImageWidth { get; set; } = 2048;
 
     [ObservableProperty]
-    private double _darkCurrent;
+    public partial double DarkCurrent { get; set; }
 
     [ObservableProperty]
-    private double _denominator = 4096d;
+    public partial double Denominator { get; set; } = 4096d;
 
     [ObservableProperty]
-    private double _scaleFactor = 2000000d;
+    public partial double ScaleFactor { get; set; } = 2000000d;
 
     [ObservableProperty]
-    private double _minValidFraction;
+    public partial double MinValidFraction { get; set; }
 
     [ObservableProperty]
-    private double _maxValidFraction = 250000d;
+    public partial double MaxValidFraction { get; set; } = 250000d;
 
     [ObservableProperty]
-    private int _smoothLogGainMul128U12BitWindow = 201;
+    public partial int SmoothLogGainMul128U12BitWindow { get; set; } = 201;
 
     [ObservableProperty]
-    private int _smoothGainS16BitWindow = 51;
+    public partial int SmoothGainS16BitWindow { get; set; } = 51;
 
     [ObservableProperty]
-    private IReadOnlyList<MMDConfiguration> _mMDConfigurations = [];
+    public partial IReadOnlyList<MMDConfiguration> MMDConfigurations { get; set; } = [];
 
     /********** 缓存的结果 **********/
 
     [ObservableProperty]
-    private string _prescanAODWaveformResultFilePath = string.Empty;
+    public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private string _chirpAODWaveformResultFilePath = string.Empty;
+    public partial string ChirpAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _measurePowerPoints = [];
+    public partial IReadOnlyList<Point> OriginMeasurePowerPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _p0;
+    public partial IReadOnlyList<Point> MeasurePowerPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _p1;
+    public partial double P0 { get; set; }
 
     [ObservableProperty]
-    private double _p2;
+    public partial double P1 { get; set; }
 
     [ObservableProperty]
-    private double _p3;
+    public partial double P2 { get; set; }
 
     [ObservableProperty]
-    private double _rSquared;
+    public partial double P3 { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitMeasurePowerPoints = [];
+    public partial double RSquared { get; set; }
 
     [ObservableProperty]
-    private double _oDFilterRatio;
+    public partial IReadOnlyList<Point> FitMeasurePowerPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _notUseODFilterMeasurePowerPoints = [];
+    public partial double ODFilterRatio { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _useODFilterMeasurePowerPoints = [];
+    public partial IReadOnlyList<Point> NotUseODFilterMeasurePowerPoints { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<Point> UseODFilterMeasurePowerPoints { get; set; } = [];
 
     /********** 缓存的结果 **********/
 
@@ -160,13 +163,15 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    [System.Xml.Serialization.XmlIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     // ReSharper disable UnusedParameterInPartialMethod
 
+    partial void OnOriginMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+    
     partial void OnMeasurePowerPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     partial void OnODFilterRatioChanged(double value) => RefreshPlot();
@@ -203,10 +208,11 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
         {
             ScatterPlotControl.Clear();
 
-            if (MeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Origin OD = {ODFilterRatio:0.######}", MeasurePowerPoints, Constants.Category10.GetColor(0));
-            if (FitMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}", FitMeasurePowerPoints, Constants.Category10.GetColor(1));
-            if (NotUseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Not Use OD", NotUseODFilterMeasurePowerPoints, Constants.Category10.GetColor(2), MarkerShape.FilledDiamond);
-            if (UseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Use OD", UseODFilterMeasurePowerPoints, Constants.Category10.GetColor(3), MarkerShape.OpenDiamond);
+            if (OriginMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine("Origin", OriginMeasurePowerPoints, Constants.Category10.GetColor(0));
+            if (MeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Filter OD = {ODFilterRatio:0.######}", MeasurePowerPoints, Constants.Category10.GetColor(1));
+            if (FitMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}", FitMeasurePowerPoints, Constants.Category10.GetColor(2));
+            if (NotUseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Not Use OD", NotUseODFilterMeasurePowerPoints, Constants.Category10.GetColor(3), MarkerShape.FilledDiamond);
+            if (UseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Use OD", UseODFilterMeasurePowerPoints, Constants.Category10.GetColor(4), MarkerShape.OpenDiamond);
         }
         finally
         {
@@ -217,12 +223,12 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
     public sealed partial class MMDConfiguration : ObservableObject
     {
         [ObservableProperty]
-        private CIBInformation _cIBInformation = CIBInformation.Default;
+        public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
         [ObservableProperty]
-        private double _filterMinGain = -10;
+        public partial double FilterMinGain { get; set; } = -10;
 
         [ObservableProperty]
-        private double _powerRate = 0.002;
+        public partial double PowerRate { get; set; } = 0.002;
     }
 }
