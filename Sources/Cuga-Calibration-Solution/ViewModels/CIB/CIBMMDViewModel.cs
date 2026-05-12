@@ -754,7 +754,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task CustomDataAlgorithmAsync(CancellationToken cancellationToken)
+    private async Task ManualCustomDataAlgorithmAsync(CancellationToken cancellationToken)
     {
         await InvokeVerifyAsync(async () =>
         {
@@ -767,7 +767,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Calibratings = [];
             Reviews = [];
-            Cache.MMDConfigurations = [];
 
             Logger.LogHtmlInformation("Custom Data Algorithm Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -815,15 +814,20 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 GainRelationships = cibMMDGainRelationships,
                 Items = []
             };
-            Cache.MMDConfigurations =
-            [
-                new CIBMMDCache.MMDConfiguration
-                {
-                    CIBInformation = cibInformation,
-                    FilterMinGain = -10,
-                    PowerRate = 1d
-                }
-            ];
+
+            if (Cache.MMDConfigurations.Any(t => t.CIBInformation == cibInformation) == false)
+            {
+                Cache.MMDConfigurations =
+                [
+                    ..Cache.MMDConfigurations,
+                    new CIBMMDCache.MMDConfiguration
+                    {
+                        CIBInformation = cibInformation
+                    }
+                ];
+
+                Cache.MMDConfigurations = [.. Cache.MMDConfigurations.DistinctBy(t => t.CIBInformation).OrderBy(t => t.CIBInformation)];
+            }
 
             var headerRow = rows[0];
             var keys = headerRow.Keys.OrderBy(t => t).ToArray();
@@ -865,8 +869,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 var logGainMul128U12Bits = cibMMD.SmoothLogGainMul128U12BitPoints.Select(t => ((short)Math.Clamp(t.Y, short.MinValue, short.MaxValue)).ToString("x4")).ToArray();
                 var gainS16Bits = cibMMD.SmoothGainS16BitPoints.Select(t => ((short)Math.Clamp(t.Y, short.MinValue, short.MaxValue)).ToString("x4")).ToArray();
 
-                var logGainMul128U12BitsFilePath = Path.Combine(directoryPath, $"{nameof(CIBMMDDTO)}_{nameof(logGainMul128U12Bits)}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.txt");
-                var gainS16BitsFilePath = Path.Combine(directoryPath, $"{nameof(CIBMMDDTO)}_{nameof(gainS16Bits)}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.txt");
+                var logGainMul128U12BitsFilePath = Path.Combine(directoryPath, $"{nameof(logGainMul128U12Bits)}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.txt");
+                var gainS16BitsFilePath = Path.Combine(directoryPath, $"{nameof(gainS16Bits)}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.txt");
 
                 DirectoryHelper.CreateFileDirectoryIfNotExists(logGainMul128U12BitsFilePath);
                 FileHelper.DeleteFileIfExists(logGainMul128U12BitsFilePath);

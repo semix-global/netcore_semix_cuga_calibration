@@ -262,7 +262,7 @@
                                                                         Binding="{Binding CIBInformation}"
                                                                         IsReadOnly="True" />
                                                     <DataGridTextColumn Header="Filter Min Gain(V)" Binding="{Binding FilterMinGain, StringFormat='0.######'}" />
-                                                    <DataGridTextColumn Header="Power Rate" Binding="{Binding PowerRate, StringFormat='0.######'}" />
+                                                    <DataGridTextColumn Header="Power Rate" Binding="{Binding PowerRate, StringFormat='0.##################'}" />
                                                 </DataGrid.Columns>
                                             </DataGrid>
                                         </Border>
