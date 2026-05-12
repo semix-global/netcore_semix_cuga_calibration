@@ -151,10 +151,11 @@ public sealed class CalibrationCIBServiceImpl(
         var gains = Generate.LinearRange(startGain, stepGain, stopGain);
 
         var results = new CIBMMDGainRelationshipDTO[cibInformations.Count][];
-
         foreach (var (cibInformationIndex, cibInformation) in cibInformations.Index())
         {
-            var cgDcSenseRelationalModel = sxExecuteRet.Anything.Single(t => t.PmtId == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+            var cgDcSenseRelationalModel = sxExecuteRet.Anything.SingleOrDefault(t => t.PmtId == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+            if (cgDcSenseRelationalModel is null) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>($"{nameof(GetCIBMMDGains)} Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", []);
+            if (cgDcSenseRelationalModel.AvgSense.Count != gains.Length) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>($"{nameof(GetCIBMMDGains)} Failed to gains length not match for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}, Gain Count {gains.Length} [{string.Join(",", gains)}]", []);
 
             var cibmmdGains = new CIBMMDGainRelationshipDTO[gains.Length];
 

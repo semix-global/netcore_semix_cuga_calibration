@@ -537,11 +537,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             #region 获取 Gain Relationship / 初始化 Calibratings
 
-            var cibmmdGains = CIBViewModel.GetCIBMMDGains(Cache.CIBInformations, Cache.StartGain, Cache.StepGain, Cache.StopGain);
-
             // 获取gain
-            var gains = Generate.LinearRangeContainsEdge(Cache.StartGain, Cache.StepGain, Cache.StopGain);
+            var gains = Generate.LinearRange(Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Guard.IsNotEmpty(gains);
+
+            var cibmmdGains = CIBViewModel.GetCIBMMDGains(Cache.CIBInformations, Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Calibratings =
             [
                 ..Cache.CIBInformations
