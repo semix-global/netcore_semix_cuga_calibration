@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -128,7 +129,7 @@ public static class Commands
         catch (Exception ex)
         {
             dialogWindowProvider.ShowDialog($"""
-                                             Open Directory Failed!
+                                             Open Directory And Select Failed!
                                              {ex}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
@@ -223,7 +224,7 @@ public static class Commands
         catch (Exception ex)
         {
             dialogWindowProvider.ShowDialog($"""
-                                             Open Directory And Select File Failed!
+                                             Save File As Failed!
                                              {ex}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
@@ -252,6 +253,8 @@ public static class Commands
                 return;
             }
 
+            saveDirectoryPath = Path.Combine(saveDirectoryPath, DateTime.Now.ToString(Constants.LongFileDateTimeFormat));
+            
             DirectoryHelper.CopyDirectory(directoryPath, saveDirectoryPath);
 
             using var _ = Process.Start(new ProcessStartInfo
@@ -272,7 +275,7 @@ public static class Commands
         catch (Exception ex)
         {
             dialogWindowProvider.ShowDialog($"""
-                                             Open Directory And Select File Failed!
+                                             Save Directory As Failed!
                                              {ex}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }

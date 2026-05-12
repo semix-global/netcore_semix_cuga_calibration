@@ -257,13 +257,13 @@
                                                                         Spacing="10">
                                                     <Button Content="Import"
                                                             Command="{Binding ImportCIBMMDCacheMMDConfigurationCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                            hc:IconElement.Geometry="{StaticResource DialogBoxLauncherGeometry}"
                                                             Style="{StaticResource ButtonInfo}" />
                                                     <Button Content="Cancel"
                                                             Command="{Binding ImportCIBMMDCacheMMDConfigurationCancelCommand}"
                                                             hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                             Style="{StaticResource ButtonWarning}" />
-                                                    <ToggleButton Content="Download Template"
+                                                    <ToggleButton Content="Template"
                                                                   Command="{x:Static wpf:Commands.SaveFileAsCommand}"
                                                                   CommandParameter="Assets\Data\MMDTemplate\CIBMMDCache.MMDConfiguration.B4.xlsx"
                                                                   HorizontalAlignment="Left"
