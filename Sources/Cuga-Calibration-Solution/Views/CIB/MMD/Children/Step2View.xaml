@@ -267,6 +267,18 @@
                                             </DataGrid>
                                         </Border>
                                     </Expander>
+                                    <hc:NumericUpDown hc:TitleElement.Title="Verify Min LogGain: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.VerifyMinLogGain}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Verify Max LogGain: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.VerifyMaxLogGain}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </Expander>

@@ -100,6 +100,12 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     public partial double MaxValidFraction { get; set; } = 250000d;
+    
+    [ObservableProperty]
+    public partial double VerifyMinLogGain { get; set; } = 0d;
+    
+    [ObservableProperty]
+    public partial double VerifyMaxLogGain { get; set; } = 14d;
 
     [ObservableProperty]
     public partial int SmoothLogGainMul128U12BitWindow { get; set; } = 201;

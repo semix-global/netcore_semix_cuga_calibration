@@ -36,6 +36,9 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+using Core.Models.Models.Common.DarkField;
+using Net.Utilities.Helpers.Helpers.Files;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -246,6 +249,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
             Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
+            Cache.PrescanFrequency = prescanResult.GeneratePrescanAODWaveformParam.CenterFrequency;
+            Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
+            Cache.GeneratePrescanAODWaveformParam.FlatnessTime = 4800d;
+            Cache.GeneratePrescanAODWaveformParam.ZeroSampleCount = 0;
 
             var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
             var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
@@ -262,6 +269,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam.Clone();
             Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
+            Cache.ChirpFrequency = chirpResult.GenerateChirpAODWaveformParam.CenterFrequency;
+            Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
+            Cache.GenerateChirpAODWaveformParam.SoundPacketLength = 27.56d;
+            Cache.GenerateChirpAODWaveformParam.ZeroSampleCount = 0;
 
             var mmdConfigurationList = new List<CIBMMDCache.MMDConfiguration>(Cache.MMDConfigurations);
 
@@ -373,6 +384,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ScaleFactor,
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
+                Cache.VerifyMinLogGain,
+                Cache.VerifyMaxLogGain,
                 Cache.SmoothLogGainMul128U12BitWindow,
                 Cache.SmoothGainS16BitWindow,
                 MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations])),
@@ -714,6 +727,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ScaleFactor,
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
+                Cache.VerifyMinLogGain,
+                Cache.VerifyMaxLogGain,
+                Cache.SmoothLogGainMul128U12BitWindow,
+                Cache.SmoothGainS16BitWindow,
                 MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations]))
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -749,6 +766,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             }
 
             Calibratings = [];
+            Reviews = [];
+            Cache.MMDConfigurations = [];
 
             Logger.LogHtmlInformation("Custom Data Algorithm Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -757,6 +776,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.ScaleFactor,
                 Cache.MinValidFraction,
                 Cache.MaxValidFraction,
+                Cache.VerifyMinLogGain,
+                Cache.VerifyMaxLogGain,
+                Cache.SmoothLogGainMul128U12BitWindow,
+                Cache.SmoothGainS16BitWindow,
                 MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations]))
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -764,98 +787,103 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             if (DialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath) == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Custom Data Algorithm Failed! No directory path was selected."), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("No directory path was selected."), HtmlLogUniqueId.LoggingHtml());
 
                 return false;
             }
 
-            var cibMMD = new CIBMMDDTO();
+            var cibMMDFilePath = Directory
+                .EnumerateFiles(directoryPath, $"{nameof(CIBMMDDTO)}*", SearchOption.TopDirectoryOnly)
+                .Single();
 
-            var rows = (await MiniExcel.QueryAsync(Path.Combine(directoryPath, "CIBMMD.xlsx"), useHeaderRow: false, cancellationToken: cancellationToken))
+            var match = Regex.Match(Path.GetFileName(cibMMDFilePath), @"PMT(\d+)-CH(\d+)");
+
+            var cibInformation = CIBInformation.Default;
+            if (match.Success)
+                cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(t => t.PMTId == int.Parse(match.Groups[1].Value)
+                                                                                        && t.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
+
+            var cibMMDGainRelationships = MiniExcel.Query<CIBMMDGainRelationshipDTO>(Path.Combine(directoryPath, $"{nameof(CIBMMDGainRelationshipDTO)}.xlsx")).ToArray();
+
+            var rows = (await MiniExcel.QueryAsync(Path.Combine(directoryPath, cibMMDFilePath), useHeaderRow: false, cancellationToken: cancellationToken))
                 .Cast<IDictionary<string, object>>()
                 .ToArray();
-          
-            if (rows.Length < 2)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Manual Algorithm Failed! Excel file has insufficient data."), HtmlLogUniqueId.LoggingHtml());
 
-                return false;
-            }
-
-            static double ConvertToDouble(object? value) => value switch
+            var cibMMD = new CIBMMDDTO
             {
-                double d => d,
-                float f => f,
-                int i => i,
-                long l => l,
-                string s when double.TryParse(s, out var result) => result,
-                _ => double.NaN
+                CIBInformation = cibInformation,
+                GainRelationships = cibMMDGainRelationships,
+                Items = []
             };
-
-            static int ExcelColumnToIndex(string column)
-            {
-                var result = 0;
-                foreach (var c in column)
+            Cache.MMDConfigurations =
+            [
+                new CIBMMDCache.MMDConfiguration
                 {
-                    result = result * 26 + (c - 'A' + 1);
+                    CIBInformation = cibInformation,
+                    FilterMinGain = -10,
+                    PowerRate = 1d
                 }
-
-                return result;
-            }
+            ];
 
             var headerRow = rows[0];
-            var dataRows = rows.Skip(1).ToList();
-            var columnKeys = headerRow.Keys.Where(k => k != "A").OrderBy(ExcelColumnToIndex).ToList();
-
-            var items = new List<CIBMMDDTOItem>();
-            foreach (var colKey in columnKeys)
+            var keys = headerRow.Keys.OrderBy(t => t).ToArray();
+            foreach (var key in keys.Skip(1))
             {
-                var measurePower = ConvertToDouble(headerRow[colKey]);
-                if (double.IsNaN(measurePower)) continue;
-
-                var itemItems = new List<CIBMMDDTOItem.Item>();
-                foreach (var row in dataRows)
+                var cibMMDItem = new CIBMMDDTOItem
                 {
-                    var gain = ConvertToDouble(row["A"]);
-                    var pmtValue = ConvertToDouble(row[colKey]);
-                    if (double.IsNaN(gain)) continue;
+                    Coefficient = Convert.ToDouble(headerRow[key]),
+                    MeasurePower = Convert.ToDouble(headerRow[key]),
+                    Items = []
+                };
 
-                    itemItems.Add(new CIBMMDDTOItem.Item
-                    {
-                        Gain = gain,
-                        PMTValue = pmtValue
-                    });
+                foreach (var dictionary in rows.Skip(1))
+                {
+                    var value = dictionary[key];
+
+                    cibMMDItem.Items =
+                    [
+                        ..cibMMDItem.Items, new CIBMMDDTOItem.Item
+                        {
+                            Gain = Convert.ToDouble(dictionary[keys[0]]),
+                            PMTValue = value is not null && string.IsNullOrWhiteSpace(value.ToString()) == false ? Convert.ToDouble(value) : double.NaN
+                        }
+                    ];
                 }
 
-                items.Add(new CIBMMDDTOItem
+                cibMMD.Items = [..cibMMD.Items, cibMMDItem];
+            }
+
+            Reviews = [cibMMD];
+            SelectedReviewItems = [cibMMD];
+
+            Algorithm(cibMMD);
+
+            var result = cibMMD.IsCalibrated;
+
+            if (result)
+            {
+                var logGainMul128U12Bits = cibMMD.SmoothLogGainMul128U12BitPoints.Select(t => ((short)Math.Clamp(t.Y, short.MinValue, short.MaxValue)).ToString("x4")).ToArray();
+                var gainS16Bits = cibMMD.SmoothGainS16BitPoints.Select(t => ((short)Math.Clamp(t.Y, short.MinValue, short.MaxValue)).ToString("x4")).ToArray();
+
+                var logGainMul128U12BitsFilePath = Path.Combine(directoryPath, $"{nameof(CIBMMDDTO)}_{nameof(logGainMul128U12Bits)}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.txt");
+                var gainS16BitsFilePath = Path.Combine(directoryPath, $"{nameof(CIBMMDDTO)}_{nameof(gainS16Bits)}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.txt");
+
+                DirectoryHelper.CreateFileDirectoryIfNotExists(logGainMul128U12BitsFilePath);
+                FileHelper.DeleteFileIfExists(logGainMul128U12BitsFilePath);
+                DirectoryHelper.CreateFileDirectoryIfNotExists(gainS16BitsFilePath);
+                FileHelper.DeleteFileIfExists(gainS16BitsFilePath);
+
+                File.WriteAllLines(logGainMul128U12BitsFilePath, logGainMul128U12Bits);
+                File.WriteAllLines(gainS16BitsFilePath, gainS16Bits);
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    Coefficient = measurePower,
-                    MeasurePower = measurePower,
-                    Items = itemItems
-                });
+                    logGainMul128U12BitsFilePath,
+                    gainS16BitsFilePath
+                }), HtmlLogUniqueId.LoggingHtml());
             }
 
-            cibMMD.Items = items;
-
-            if (SelectedReviewItems.Count > 0)
-            {
-                var reviewItem = SelectedReviewItems.First();
-                cibMMD.CIBInformation = reviewItem.CIBInformation.Clone();
-                cibMMD.GainRelationships = [.. reviewItem.GainRelationships.Select(t => t.Clone())];
-            }
-
-            Calibratings = [cibMMD];
-
-            await Task.WhenAll(SelectedReviewItems.Select(t => Task.Run(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                Algorithm(t);
-            }, cancellationToken)));
-
-            var result = SelectedReviewItems.All(t => t.IsCalibrated);
-
-            DialogWindowProvider.ShowDialog($"Algorithm {(result ? "OK" : "Failed")}",
+            DialogWindowProvider.ShowDialog($"Custom Data Algorithm {(result ? "OK" : "Failed")}",
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
@@ -1124,7 +1152,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 gainResidual
             }));
 
-            isSuccess = item.FitLogGainPoints.All(t => t.Y is >= 0 and <= 14) && item.FitLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain [0, 14], 且严格递增
+            isSuccess = item.FitLogGainPoints.All(t => Cache.VerifyMinLogGain <= t.Y && t.Y <= Cache.VerifyMaxLogGain) && item.FitLogGainPoints.Select(t => t.Y).IsIncreasing(true); // logGain [0, 14], 且严格递增
             if (isSuccess == false)
             {
                 ThrowHelper.ThrowArgumentException("LogGain out of range[0, 14]", nameof(item));
