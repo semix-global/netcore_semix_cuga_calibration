@@ -5,7 +5,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.DarkField;
 
-public sealed partial class CIBMMDGainRelationshipDTO : ObservableCacheBase, ICloneable<CIBMMDGainRelationshipDTO>
+public sealed partial class CIBMMDGainRelationshipDTO : ObservableObject, ICloneable<CIBMMDGainRelationshipDTO>
 {
     [ObservableProperty]
     public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;

@@ -229,6 +229,54 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private async Task ImportCIBMMDCacheMMDConfigurationAsync(CancellationToken cancellationToken)
+    {
+        await Task.Run(async () =>
+        {
+            try
+            {
+                var dialog = DialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
+                if (dialog == false) return;
+
+                var rows = (await MiniExcel.QueryAsync(filePath, useHeaderRow: true, cancellationToken: cancellationToken))
+                    .Cast<IDictionary<string, object>>()
+                    .ToArray();
+
+                var values = rows.Select(t =>
+                    {
+                        var match = Regex.Match(t[nameof(CIBMMDCache.MMDConfiguration.CIBInformation)].ToString(), @"^(\d+)\((\d+)\)$");
+                        Guard.IsTrue(match.Success);
+                        var cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(tt => tt.PMTId == int.Parse(match.Groups[1].Value)
+                                                                                                     && tt.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
+                        return new CIBMMDCache.MMDConfiguration
+                        {
+                            CIBInformation = cibInformation,
+                            FilterMinGain = Convert.ToDouble(t[nameof(CIBMMDCache.MMDConfiguration.FilterMinGain)]),
+                            PowerRate = Convert.ToDouble(t[nameof(CIBMMDCache.MMDConfiguration.PowerRate)])
+                        };
+                    })
+                    .Where(t => t.CIBInformation != CIBInformation.Default)
+                    .DistinctBy(t => t.CIBInformation)
+                    .OrderBy(t => t.CIBInformation)
+                    .ToArray();
+
+                if (values.Length > 0) Cache.MMDConfigurations = values;
+
+                DialogWindowProvider.ShowDialog($"{nameof(ImportCIBMMDCacheMMDConfigurationAsync)} OK!");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, nameof(ImportCIBMMDCacheMMDConfigurationAsync));
+                DialogWindowProvider.ShowDialog($"""
+                                                 {nameof(ImportCIBMMDCacheMMDConfigurationAsync)} Failed!
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
+        }, cancellationToken);
+    }
+
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
@@ -802,7 +850,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(t => t.PMTId == int.Parse(match.Groups[1].Value)
                                                                                         && t.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
 
-            var cibMMDGainRelationships = MiniExcel.Query<CIBMMDGainRelationshipDTO>(Path.Combine(directoryPath, $"{nameof(CIBMMDGainRelationshipDTO)}.xlsx")).ToArray();
+            var cibMMDGainRelationships = (await MiniExcel.QueryAsync<CIBMMDGainRelationshipDTO>(Path.Combine(directoryPath, $"{nameof(CIBMMDGainRelationshipDTO)}.xlsx"), cancellationToken: cancellationToken)).ToArray();
 
             var rows = (await MiniExcel.QueryAsync(Path.Combine(directoryPath, cibMMDFilePath), useHeaderRow: false, cancellationToken: cancellationToken))
                 .Cast<IDictionary<string, object>>()
