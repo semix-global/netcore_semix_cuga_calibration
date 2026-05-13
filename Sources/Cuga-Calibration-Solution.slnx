@@ -35,6 +35,5 @@
         <Project Path="Cores/Core.Wcf/03. Core.Wcf.csproj" />
     </Folder>
     <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj" />
-    <Project Path="Cuga-Calibration-Test/Cuga-Calibration-Test.csproj" />
     <Project Path="Cuga-Calibration-Unit-Test/Cuga-Calibration-Unit-Test.csproj" />
 </Solution>

@@ -30,10 +30,4 @@
         <ProjectReference Include="..\Core.Wcf\03. Core.Wcf.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Reference Include="HAlgorithm">
-            <HintPath>..\..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-
 </Project>
