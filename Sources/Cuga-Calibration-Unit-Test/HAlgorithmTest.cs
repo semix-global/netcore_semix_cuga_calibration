@@ -14,7 +14,7 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 
 namespace CugaCalibrationUnitTest;
 
-public sealed class YPixelSizeTest
+public sealed class HAlgorithmTest
 {
     private static readonly Algorithm Algorithm = new();
 

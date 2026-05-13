@@ -4,7 +4,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
-using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
@@ -127,31 +126,14 @@ public partial class DarkFieldRawScanImageDTO :
 
     public BitmapImage GetImage()
     {
-        var rawBytes = File.ReadAllBytes(RawImageFilePath);
+        var isToLiner = IsKeepRawImageCIBProfileModeEnum == false && RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog;
 
-        using var hImage = IsKeepRawImageCIBProfileModeEnum
-            ? RAWImageFactory.CreateImage(rawBytes, false)
-            : RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog
-                ? RAWImageFactory.CreateImage(rawBytes, true)
-                : RAWImageFactory.CreateImage(rawBytes, false);
+        using var hImage = RAWImageFactory.CreateImage(RawImageFilePath, isToLiner);
 
-        return hImage.ToBitmapImage(RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTVoltage ? 16 : 12);
+        return hImage.ToBitmapImage(isToLiner ? 16 : 12);
     }
 
-    private static HImage HObjectToHImage(HObject hObject)
-    {
-        var image = new HImage();
-        HOperatorSet.GetImagePointer1(hObject, out var pointer, out var type, out var width, out var height);
-        using var _0 = pointer;
-        using var _1 = type;
-        using var _2 = width;
-        using var _3 = height;
-        image.GenImage1(type, width, height, pointer);
-
-        return image;
-    }
-
-    public virtual object ToHtmlAnonymous() => new
+    public object ToHtmlAnonymous() => new
     {
         CIBInformation,
         Size,
