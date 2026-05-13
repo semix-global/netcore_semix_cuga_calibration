@@ -7,6 +7,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
@@ -16,10 +17,10 @@ using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using Humanizer;
 using MathNet.Numerics;
-using MiniExcelLibs;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MiniExcelLibs;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
@@ -28,6 +29,7 @@ using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -37,8 +39,6 @@ using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Core.Models.Models.Common.DarkField;
-using Net.Utilities.Helpers.Helpers.Files;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -877,7 +877,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     ];
                 }
 
-                cibMMD.Items = [..cibMMD.Items, cibMMDItem];
+                cibMMD.Items = [.. cibMMD.Items, cibMMDItem];
             }
 
             Reviews = [cibMMD];

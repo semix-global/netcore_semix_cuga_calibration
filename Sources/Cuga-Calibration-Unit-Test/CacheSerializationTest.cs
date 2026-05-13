@@ -24,7 +24,6 @@ using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using SourceGenerator.AssemblyMetadata;
-using SourceGenerator.InjectHostDI;
 using System.Collections.Concurrent;
 using System.Windows;
 using Point = Net.Utilities.Models.Geometries.Point;
@@ -53,15 +52,14 @@ public sealed class CacheSerializationTest : IDisposable
             {
                 services
                     .Configure<ApplicationSetting>(context.Configuration.GetSection(BaseApplicationSetting.AppSetting))
-                    .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationTestAssemblyMetadata.Version, Application, context.HostingEnvironment)
+                    .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationUnitTestAssemblyMetadata.Version, Application, context.HostingEnvironment)
                     .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                     .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddRecipeService(context.HostingEnvironment)
                     .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddScottPlotServices()
                     .AddCoreService(context.HostingEnvironment)
-                    .AddApplication(context.HostingEnvironment)
-                    .AddCugaCalibrationTestInjectHostDI(context.HostingEnvironment);
+                    .AddApplication(context.HostingEnvironment);
             })
             .UseEnvironment(Environments.Development)
             .Build()

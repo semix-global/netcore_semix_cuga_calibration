@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
 using HalconDotNet;
-using HAlgorithm;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
@@ -128,36 +127,15 @@ public partial class DarkFieldRawScanImageDTO :
 
     public BitmapImage GetImage()
     {
-        var algorithm = new Algorithm();
-        algorithm.AutoReadRawImage(out var image, RawImageFilePath);
-        using var _0 = image;
-        algorithm.RotateAndMirror(image, out var obj);
-        using var _1 = obj;
+        var rawBytes = File.ReadAllBytes(RawImageFilePath);
 
-        if (IsKeepRawImageCIBProfileModeEnum)
-        {
-            using var temp = HObjectToHImage(obj);
+        using var hImage = IsKeepRawImageCIBProfileModeEnum
+            ? RAWImageFactory.CreateImage(rawBytes, false)
+            : RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog
+                ? RAWImageFactory.CreateImage(rawBytes, true)
+                : RAWImageFactory.CreateImage(rawBytes, false);
 
-            return temp.ToBitmapImage(RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTVoltage ? 16 : 12);
-        }
-        else
-        {
-            if (RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog)
-            {
-                algorithm.InvertTransformPatchImage(obj, out var obj1);
-                using var _2 = obj1;
-
-                using var temp = HObjectToHImage(obj1);
-
-                return temp.ToBitmapImage(RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTVoltage ? 16 : 12);
-            }
-            else
-            {
-                using var temp = HObjectToHImage(obj);
-
-                return temp.ToBitmapImage(RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTVoltage ? 16 : 12);
-            }
-        }
+        return hImage.ToBitmapImage(RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTVoltage ? 16 : 12);
     }
 
     private static HImage HObjectToHImage(HObject hObject)

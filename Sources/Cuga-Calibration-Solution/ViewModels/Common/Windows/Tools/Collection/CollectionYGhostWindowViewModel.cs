@@ -739,7 +739,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
     private ObservableCollection<Point> ProcessImageAndGetPoints(BitmapImage image0)
     {
-        using var mirrorImage = calibrationAlgorithmService.RotateAndMirrorImage(image0);
+        using var mirrorImage = image0.RotateCounterClockwise90DegreeAndVerticalFlip();
         var yArray = calibrationAlgorithmService.GetImageGrayYProjectionsPixels(mirrorImage);
         var points = new ObservableCollection<Point>();
 

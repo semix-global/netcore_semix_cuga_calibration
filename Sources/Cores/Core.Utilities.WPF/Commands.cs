@@ -1,12 +1,12 @@
 using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
-using System.IO;
-using System.Windows;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
 
 namespace Core.Utilities.WPF;
 
@@ -254,7 +254,7 @@ public static class Commands
             }
 
             saveDirectoryPath = Path.Combine(saveDirectoryPath, DateTime.Now.ToString(Constants.LongFileDateTimeFormat));
-            
+
             DirectoryHelper.CopyDirectory(directoryPath, saveDirectoryPath);
 
             using var _ = Process.Start(new ProcessStartInfo
