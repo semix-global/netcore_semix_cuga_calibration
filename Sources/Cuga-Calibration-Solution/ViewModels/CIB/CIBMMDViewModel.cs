@@ -245,7 +245,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 var values = rows
                     .Select(t =>
                     {
-                        var match = Regex.Match(t[nameof(CIBMMDCache.MMDConfiguration.CIBInformation)].ToString(), @"^(-?\d+)\((-?\d+)\)$");
+                        var match = CIBInformation.Regex.Match(t[nameof(CIBMMDCache.MMDConfiguration.CIBInformation)].ToString());
                         Guard.IsTrue(match.Success);
                         var cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(tt => tt.PMTId == int.Parse(match.Groups[1].Value)
                                                                                                      && tt.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
@@ -832,12 +832,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 .EnumerateFiles(directoryPath, $"{nameof(CIBMMDDTO)}*", SearchOption.TopDirectoryOnly)
                 .Single();
 
-            var match = Regex.Match(Path.GetFileName(cibMMDFilePath), @"PMT(\d+)-CH(\d+)");
-
-            var cibInformation = CIBInformation.Default;
-            if (match.Success)
-                cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(t => t.PMTId == int.Parse(match.Groups[1].Value)
-                                                                                        && t.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
+            var match = CIBInformation.PMTChannelRegex.Match(Path.GetFileName(cibMMDFilePath));
+            var cibInformation = match.Success
+                ? ApplicationCookie.CIBInformations.SingleOrDefault(t => t.PMTId == int.Parse(match.Groups[1].Value)
+                                                                         && t.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default)
+                : CIBInformation.Default;
 
             var cibMMDGainRelationships = (await MiniExcel.QueryAsync<CIBMMDGainRelationshipDTO>(Path.Combine(directoryPath, $"{nameof(CIBMMDGainRelationshipDTO)}.xlsx"), cancellationToken: cancellationToken)).ToArray();
 

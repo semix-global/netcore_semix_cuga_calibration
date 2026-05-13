@@ -230,12 +230,12 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var match = Regex.Match(Path.GetFileName(fileName), @"PMT(\d+)-CH(\d+)");
+                var match = CIBInformation.PMTChannelRegex.Match(Path.GetFileName(fileName));
 
-                var cibInformation = CIBInformation.Default;
-                if (match.Success)
-                    cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(t => t.PMTId == int.Parse(match.Groups[1].Value)
-                                                                                            && t.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
+                var cibInformation = match.Success
+                    ? ApplicationCookie.CIBInformations.SingleOrDefault(t => t.PMTId == int.Parse(match.Groups[1].Value)
+                                                                             && t.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default)
+                    : CIBInformation.Default;
 
                 var darkFieldRawScanImage = new DarkFieldRawScanImageDTO
                 {
