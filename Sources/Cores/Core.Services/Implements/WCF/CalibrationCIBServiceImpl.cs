@@ -315,7 +315,7 @@ public sealed class CalibrationCIBServiceImpl(
             var m2CImgSysCollectImgDTO = m2CImgSysCollectImgDTOs[0];
 
 
-            result[index] = new DarkFieldImageDTO().AdaptIn(m2CImgSysCollectImgDTO, isForward, getCIBProfileModeEnumRet.Anything[0], isKeepRawImageCIBProfileModeEnum);
+            result[index] = new DarkFieldImageDTO().AdaptIn(m2CImgSysCollectImgDTO, cibInformation, isForward, getCIBProfileModeEnumRet.Anything[0], isKeepRawImageCIBProfileModeEnum);
 
             Guard.IsTrue(result[index].Size.Height == productivityInformation.YPixels);
 
@@ -508,29 +508,6 @@ public sealed class CalibrationCIBServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    private SxExecuteRet<List<M2CImgSysCollectImgDTO>> GetDFImgCalibration(SxCollectImgParam sxCollectImgParam)
-    {
-        SxExecuteRet setWaitTimeRet;
-        SxExecuteRet<List<M2CImgSysCollectImgDTO>> getDFImgCalibrationRet;
-
-        try
-        {
-            setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
-            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<M2CImgSysCollectImgDTO>>(setWaitTimeRet.ErrorMsg, []);
-
-            getDFImgCalibrationRet = Invoke(() => Service?.GetDFImgCalibration(sxCollectImgParam));
-            if (getDFImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<M2CImgSysCollectImgDTO>>(getDFImgCalibrationRet.ErrorMsg, []);
-        }
-        finally
-        {
-            setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
-        }
-
-        return setWaitTimeRet.IsSuccess
-            ? getDFImgCalibrationRet
-            : SxExecuteRetHelper.CreateError<List<M2CImgSysCollectImgDTO>>(setWaitTimeRet.ErrorMsg, []);
-    }
-
     private async Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         IReadOnlyList<CIBInformation> cibInformations,
@@ -557,7 +534,7 @@ public sealed class CalibrationCIBServiceImpl(
             var m2CImgSysCollectImgDTOs = getDFImgCalibrationRet.Anything.Where(tt => tt.PMTId == cibInformation.PMTId && tt.Channel == cibInformation.ChannelId).ToArray();
             if (m2CImgSysCollectImgDTOs.Length != 1) return SxExecuteRetHelper.CreateError($"{name} Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", false);
 
-            result[index] = new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDTOs[0], isForward, getCIBProfileModeEnumRet.Anything[index], isKeepRawImageCIBProfileModeEnum);
+            result[index] = new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDTOs[0], cibInformation, isForward, getCIBProfileModeEnumRet.Anything[index], isKeepRawImageCIBProfileModeEnum);
 
             Guard.IsTrue(result[index].Size.Height == productivityInformation.YPixels);
 
@@ -567,5 +544,28 @@ public sealed class CalibrationCIBServiceImpl(
         return sxExecuteRets.All(t => t.IsSuccess)
             ? SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(result)
             : SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>(string.Join(Environment.NewLine, sxExecuteRets.Where(t => t.IsSuccess == false).Select(t => t.Msg)), []);
+    }
+
+    private SxExecuteRet<List<M2CImgSysCollectImgDTO>> GetDFImgCalibration(SxCollectImgParam sxCollectImgParam)
+    {
+        SxExecuteRet setWaitTimeRet;
+        SxExecuteRet<List<M2CImgSysCollectImgDTO>> getDFImgCalibrationRet;
+
+        try
+        {
+            setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
+            if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<M2CImgSysCollectImgDTO>>(setWaitTimeRet.ErrorMsg, []);
+
+            getDFImgCalibrationRet = Invoke(() => Service?.GetDFImgCalibration(sxCollectImgParam));
+            if (getDFImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<M2CImgSysCollectImgDTO>>(getDFImgCalibrationRet.ErrorMsg, []);
+        }
+        finally
+        {
+            setWaitTimeRet = Invoke(() => Service?.SetWaitTime(30));
+        }
+
+        return setWaitTimeRet.IsSuccess
+            ? getDFImgCalibrationRet
+            : SxExecuteRetHelper.CreateError<List<M2CImgSysCollectImgDTO>>(setWaitTimeRet.ErrorMsg, []);
     }
 }

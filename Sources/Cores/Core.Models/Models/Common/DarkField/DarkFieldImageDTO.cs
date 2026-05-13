@@ -25,24 +25,24 @@ public partial class DarkFieldRawScanImageDTO :
     ICloneable<DarkFieldRawScanImageDTO>
 {
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private SizeI _size;
+    public partial SizeI Size { get; set; }
 
     [ObservableProperty]
-    private bool _isForward;
+    public partial bool IsForward { get; set; }
 
     [ObservableProperty]
-    private CIBProfileModeEnum _rawImageCIBProfileModeEnum;
+    public partial CIBProfileModeEnum RawImageCIBProfileModeEnum { get; set; }
 
     [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
+    public partial string RawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _isKeepRawImageCIBProfileModeEnum = true;
+    public partial bool IsKeepRawImageCIBProfileModeEnum { get; set; } = true;
 
-    public CIBProfileModeEnum ImageCIBProfileModeEnum => IsKeepRawImageCIBProfileModeEnum ? RawImageCIBProfileModeEnum : CIBProfileModeEnum.PMTVoltage;
+    public bool IsToLiner => IsKeepRawImageCIBProfileModeEnum == false && RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog;
 
     partial void OnRawImageFilePathChanged(string value)
     {
@@ -61,7 +61,9 @@ public partial class DarkFieldRawScanImageDTO :
 
     public override bool Equals(object? obj) => obj is DarkFieldRawScanImageDTO other && Equals(other);
 
+    // ReSharper disable NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => HashCode.Combine(CIBInformation, Size, RawImageCIBProfileModeEnum, IsForward, RawImageFilePath, IsKeepRawImageCIBProfileModeEnum);
+    // ReSharper restore NonReadonlyMemberInGetHashCode
 
     public override string ToString() => ToString(null);
 
@@ -69,7 +71,7 @@ public partial class DarkFieldRawScanImageDTO :
     {
         formatProvider ??= CultureInfo.CurrentCulture;
 
-        return $"CIB: {CIBInformation}, Size: {Size.ToString(format, formatProvider)}, Raw Mode: {RawImageCIBProfileModeEnum}, Image Direction: {(IsForward ? "Forward" : "Reverse")}, Image Mode: {ImageCIBProfileModeEnum}";
+        return $"CIB: {CIBInformation}, Size: {Size.ToString(format, formatProvider)}, Raw Mode: {RawImageCIBProfileModeEnum}, Image Direction: {(IsForward ? "Forward" : "Reverse")}, Is To Liner: {IsToLiner}";
     }
 
     #endregion IEquatable、IFormattable
@@ -98,21 +100,23 @@ public partial class DarkFieldRawScanImageDTO :
     public DarkFieldRawScanImageDTO Clone()
     {
         var instance = CreateInstance();
-        CIBInformation = CIBInformation.Clone();
+
+        instance.CIBInformation = CIBInformation.Clone();
         instance.Size = Size;
         instance.IsForward = IsForward;
         instance.RawImageCIBProfileModeEnum = RawImageCIBProfileModeEnum;
         instance.RawImageFilePath = RawImageFilePath;
         instance.IsKeepRawImageCIBProfileModeEnum = IsKeepRawImageCIBProfileModeEnum;
+
         return instance;
     }
 
-    public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
+    public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBInformation cibInformation, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
     {
         Guard.IsNotNull(obj);
         var (size, _, _) = RAWImageFactory.GetSize(obj.Url);
 
-        CIBInformation = CIBInformation.Default.Clone().AdaptIn((obj.PMTId, obj.Channel, true));
+        CIBInformation = cibInformation.Clone();
         Size = size;
         IsForward = isForward;
         RawImageCIBProfileModeEnum = rawCIBProfileModeEnum;
@@ -126,11 +130,9 @@ public partial class DarkFieldRawScanImageDTO :
 
     public BitmapImage GetImage()
     {
-        var isToLiner = IsKeepRawImageCIBProfileModeEnum == false && RawImageCIBProfileModeEnum == CIBProfileModeEnum.PMTLog;
+        using var hImage = RAWImageFactory.CreateImage(RawImageFilePath, IsToLiner);
 
-        using var hImage = RAWImageFactory.CreateImage(RawImageFilePath, isToLiner);
-
-        return hImage.ToBitmapImage(isToLiner ? 16 : 12);
+        return hImage.ToBitmapImage(IsToLiner ? 16 : 12);
     }
 
     public object ToHtmlAnonymous() => new
@@ -141,7 +143,7 @@ public partial class DarkFieldRawScanImageDTO :
         IsForward,
         RawImageFilePath,
         IsKeepRawImageCIBProfileModeEnum,
-        ImageCIBProfileModeEnum
+        IsToLiner
     };
 }
 
@@ -182,9 +184,9 @@ public sealed class DarkFieldImageDTO :
         return darkFieldImage;
     }
 
-    public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
+    public new DarkFieldImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBInformation cibInformation, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
     {
-        base.AdaptIn(obj, isForward, rawCIBProfileModeEnum, isKeepRawImageCIBProfileModeEnum);
+        base.AdaptIn(obj, cibInformation, isForward, rawCIBProfileModeEnum, isKeepRawImageCIBProfileModeEnum);
 
         Initialize();
 
@@ -209,8 +211,6 @@ public sealed class DarkFieldImageDTO :
     {
         Image.Dispose();
         Image = GetImage();
-
-        Guard.IsTrue(new SizeI(Image.ImageInfo.Width, Image.ImageInfo.Height) == Size);
     }
 
     #endregion Mapper
