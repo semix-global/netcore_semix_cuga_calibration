@@ -23,45 +23,35 @@ namespace Core.Models.Models.Microscope.CalChip;
 public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<MicroscopeCalChipDTO>, IAdaptTo<CalibrationMicroscopeCalChip>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private double _dSWAlignmentDegree;
+    public partial double DSWAlignmentDegree { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
-    private CalChipSiteModelEnum _calChipSiteModelEnum;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
     [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipDTOItem> Results { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public MicroscopeCalChipDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, _ => new MicroscopeCalChipDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public MicroscopeCalChipDTOItem DswItem => Results.Get(CalChipSiteModelEnum.DswModel);
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public MicroscopeCalChipDTOItem HazeItem => Results.Get(CalChipSiteModelEnum.HazeModel);
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public MicroscopeCalChipDTOItem ShinyWaferItem => Results.Get(CalChipSiteModelEnum.ShinyWaferModel);
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public MicroscopeCalChipDTOItem UndefineWaferItem => Results.Get(CalChipSiteModelEnum.UndefinedModel);
 
     [ObservableProperty]
-    private Point _dSWBrightFieldMachineAffinePosition;
+    public partial Point DSWBrightFieldMachineAffinePosition { get; set; }
 
     #region Mapper
 
@@ -114,31 +104,31 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
 public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, ICloneable<MicroscopeCalChipDTOItem>
 {
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
     [ObservableProperty]
-    private Point _brightFieldMachinePosition;
+    public partial Point BrightFieldMachinePosition { get; set; }
 
     [ObservableProperty]
-    private double _ecsValue;
+    public partial double EcsValue { get; set; }
 
     [ObservableProperty]
-    private double _quality;
+    public partial double Quality { get; set; }
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<double> _ecs = [];
+    public partial IReadOnlyList<double> Ecs { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _aFError = [];
+    public partial IReadOnlyList<double> AFError { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _ecsAFErrorPoints = [];
+    public partial Point[] EcsAFErrorPoints { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _ecsAFErrorMaxMins = [];
+    public partial Point[] EcsAFErrorMaxMins { get; set; } = [];
 
     partial void OnEcsValueChanged(double value) => RefreshPlot();
 
@@ -152,10 +142,8 @@ public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, IClonea
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079

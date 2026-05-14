@@ -1,40 +1,37 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Core.Models.Enums.Recipe.Wafer;
 
 namespace Core.Models.Models.Microscope.Centricity;
 
 public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase<MicroscopeCentricityCache>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.DswModel;
 
     [ObservableProperty]
-    private ConcurrentDictionary<string, MicroscopeCentricityCacheItem> _microscopeCentricityCacheItemDic = [];
+    public partial ConcurrentDictionary<string, MicroscopeCentricityCacheItem> MicroscopeCentricityCacheItemDic { get; set; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    public MicroscopeCentricityCacheItem CurrentCalibrationCacheItem =>
-        MicroscopeCentricityCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeCentricityCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
+    public MicroscopeCentricityCacheItem CurrentCalibrationCacheItem => MicroscopeCentricityCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeCentricityCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
 
     [ObservableProperty]
-    private Point _verifyResultPosition;
+    public partial Point VerifyResultPosition { get; set; }
 
     [ObservableProperty]
-    private Point _verifyResultError;
+    public partial Point VerifyResultError { get; set; }
 
     [ObservableProperty]
-    private Point _threshold;
+    public partial Point Threshold { get; set; }
 
     [ObservableProperty]
-    private double _concentricThreshold;
+    public partial double ConcentricThreshold { get; set; }
 
     public void SetFindPosition(Point position)
     {
@@ -51,30 +48,46 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase<Mic
         CurrentCalibrationCacheItem.TemplateImageFilePath = templateImageFilePath;
     }
 
-    public Point GetFindPosition(MicroscopeLensInformation lensInformation)
-    {
-        return CurrentCalibrationCacheItem.FindPosition;
-    }
-
-    public string GetTemplateFilePath(MicroscopeLensInformation lensInformation)
-    {
-        return CurrentCalibrationCacheItem.TemplateFilePath;
-    }
-
-    public string SetTemplateImageFilePath(MicroscopeLensInformation lensInformation)
-    {
-        return CurrentCalibrationCacheItem.TemplateImageFilePath;
-    }
-
     public override MicroscopeCentricityCache Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         CalChipSiteModelEnum = CalChipSiteModelEnum,
-        MicroscopeCentricityCacheItemDic = new([.. MicroscopeCentricityCacheItemDic]),
+        MicroscopeCentricityCacheItemDic = new ConcurrentDictionary<string, MicroscopeCentricityCacheItem>(MicroscopeCentricityCacheItemDic.Select(t => new KeyValuePair<string, MicroscopeCentricityCacheItem>(t.Key, t.Value.Clone()))),
         VerifyResultPosition = VerifyResultPosition,
         VerifyResultError = VerifyResultError,
         Threshold = Threshold,
         ConcentricThreshold = ConcentricThreshold,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
+}
+
+public sealed partial class MicroscopeCentricityCacheItem : CalibrationCacheBase<MicroscopeCentricityCacheItem>
+{
+    [ObservableProperty]
+    public partial MicroscopeLensInformation LensInformation { get; set; } = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    public partial WaferMaskTypeEnum WaferMaskTypeEnum { get; set; } = WaferMaskTypeEnum.DieCorner;
+
+    [ObservableProperty]
+    public partial Point FindPosition { get; set; }
+
+    [ObservableProperty]
+    public partial string TemplateFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
+
+    public override MicroscopeCentricityCacheItem Clone() => new()
+    {
+        LensInformation = LensInformation.Clone(),
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        FindPosition = FindPosition,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
