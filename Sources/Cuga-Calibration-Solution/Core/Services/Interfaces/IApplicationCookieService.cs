@@ -1,4 +1,3 @@
-using Core.Models.Models;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
@@ -6,7 +5,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace CugaCalibration.Core.Services.Interfaces;
 
-public interface IApplicationCookieService
+public partial interface IApplicationCookieService
 {
     /// <summary>
     /// 更新用户
@@ -28,36 +27,4 @@ public interface IApplicationCookieService
     /// <param name="productivityInformation"></param>
     /// <returns></returns>
     IReadOnlyCollection<(int Pmt, Point Offset)> GetLineCentricityMachineOffsetList(IReadOnlyCollection<CIBLineCentricityDTO> result, ProductivityInformation productivityInformation);
-
-    #region Cache
-
-    CalibrationCacheBase GetCache(Type cacheType, CancellationToken cancellationToken = default);
-
-    T GetCache<T>(CancellationToken cancellationToken = default) where T : CalibrationCacheBase, new();
-
-    void SetCache(Type cacheType, CalibrationCacheBase value, CancellationToken cancellationToken = default);
-
-    void SetCache<T>(T value, CancellationToken cancellationToken = default) where T : CalibrationCacheBase, new();
-
-    #endregion
-
-    #region Calibration
-
-    CalibrationDTOBase GetCalibration(Type dtoType, CancellationToken cancellationToken = default);
-
-    T GetCalibration<T>(CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new();
-
-    T[] GetCalibrations<T>(CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new();
-
-    CalibrationDTOBase[] GetCalibrations(Type dtoType, CancellationToken cancellationToken = default);
-
-    void SetCalibration(Type dtoType, CalibrationDTOBase value, CancellationToken cancellationToken = default);
-
-    void SetCalibration<T>(T value, CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new();
-
-    void SetCalibrations(Type dtoType, CalibrationDTOBase[] value, CancellationToken cancellationToken = default);
-
-    void SetCalibrations<T>(T[] value, CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new();
-
-    #endregion
 }

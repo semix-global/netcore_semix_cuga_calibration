@@ -14,8 +14,7 @@ public abstract partial class CalibrationCacheBase : ObservableCacheBase
     public partial AlgorithmTemplateSizeEnum AlgorithmTemplateSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
 }
 
-public abstract partial class CalibrationCacheBase<T> : CalibrationCacheBase, ICloneable<T>
-    where T : CalibrationCacheBase<T>
+public abstract class CalibrationCacheBase<T> : CalibrationCacheBase, ICloneable<T> where T : CalibrationCacheBase<T>
 {
     public abstract T Clone();
 }

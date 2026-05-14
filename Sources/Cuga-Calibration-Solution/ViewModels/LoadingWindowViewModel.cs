@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -32,6 +33,7 @@ public sealed partial class LoadingWindowViewModel(
     CIBViewModel cibViewModel,
     MonitorViewModel monitorViewModel,
     ICacheProvider cacheProvider,
+    IApplicationCookieService applicationCookieService,
     ILogger<LoadingWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     ISynchronizationContextProvider contextProvider,
@@ -137,30 +139,16 @@ public sealed partial class LoadingWindowViewModel(
             {
                 var menu = calibrationMenus[i];
 
-                var calibrationViewModel = Guard.IsAssignableToTypeAndReturn<CalibrationViewModelBase>(HostApplication.GetRequiredService(menu.Entry.ViewModelType));
+                Message = $"Loading {menu.SysMenu.Name} Cache...";
 
-                Message = $"Loading {calibrationViewModel.Name} Cache...";
+                applicationCookieService.GetCache(menu.Entry.CacheType);
 
                 if (menu.Entry.IsArray)
-                {
-                    if (cacheProvider.TryGetOrDefaultArray(menu.Entry.DTOType, out var calibrations) == false)
-                        cacheProvider.SetArray(menu.Entry.DTOType, calibrations);
-
-                    ObjectHelper.SetPropertyValue(menu.Entry.Cookie, nameof(menu.Entry.Cookie.Calibrations), calibrations);
-                }
+                    applicationCookieService.GetCalibration(menu.Entry.DTOType);
                 else
-                {
-                    if (cacheProvider.TryGetOrDefault(menu.Entry.DTOType, out var calibration) == false)
-                    {
-                        calibration = Activator.CreateInstance(menu.Entry.DTOType);
+                    applicationCookieService.GetCalibrations(menu.Entry.DTOType);
 
-                        cacheProvider.Set(menu.Entry.DTOType, calibration);
-                    }
-
-                    ObjectHelper.SetPropertyValue(menu.Entry.Cookie, nameof(menu.Entry.Cookie.Calibration), calibration);
-                }
-
-                Message = $"Loading {calibrationViewModel.Name} Cache OK!!!";
+                Message = $"Loading {menu.SysMenu.Name} Cache OK!!!";
 
                 ProcessValue = ConnectCacheProgress + progressPerItem * (i + 1);
                 await Task.Delay(300).ConfigureAwait(false);

@@ -1,38 +1,34 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Helper;
-using Core.Models.Models;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
-using CugaCalibration.ViewModels;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Models.Enums;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
 
 namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(IApplicationCookieService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class ApplicationCookieServiceImpl(
+public sealed partial class ApplicationCookieServiceImpl(
     ICalibrationStageService calibrationStageServiceImpl,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider cacheProvider,
     ApplicationCookie applicationCookie,
-    IOptions<ApplicationSetting> options) : IApplicationCookieService
+    IOptions<ApplicationSetting> options,
+    ILogger<ApplicationCookieServiceImpl> logger) : IApplicationCookieService
 {
-    private const int TimeoutSecond = 60;
-    private readonly SemaphoreSlim _semaphore = new(1, 1);
     public async Task LoadingSystemMenuCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken)
     {
         var sysMenuService = HostApplication.GetRequiredService<ISysMenuService>();
@@ -151,122 +147,5 @@ public sealed class ApplicationCookieServiceImpl(
             .ToList();
 
         return offsetList;
-    }
-
-    #region Cache
-
-    public CalibrationCacheBase GetCache(Type cacheType, CancellationToken cancellationToken = default) => Invoke(() =>
-    {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.CacheType == cacheType);
-
-        if (Guard.IsAssignableToTypeAndReturn<CalibrationCacheBase?>(entry.Cookie.Cache) is not null) return entry.Cookie.Cache;
-
-        if (cacheProvider.TryGetOrDefault(entry.CacheType, out var cache) == false)
-        {
-            cache = Activator.CreateInstance(entry.CacheType);
-            cacheProvider.Set(entry.CacheType, cache, cancellationToken);
-        }
-
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Cache), cache);
-
-        return (CalibrationCacheBase)cache;
-    }, cancellationToken);
-
-    public T GetCache<T>(CancellationToken cancellationToken = default) where T : CalibrationCacheBase, new() => (T)GetCache(typeof(T), cancellationToken);
-
-    public void SetCache(Type cacheType, CalibrationCacheBase value, CancellationToken cancellationToken = default) => Invoke(() =>
-    {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.CacheType == cacheType);
-
-        cacheProvider.Set(cacheType, value, cancellationToken);
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Cache), value);
-
-        return Unit.Default;
-    }, cancellationToken);
-
-    public void SetCache<T>(T value, CancellationToken cancellationToken = default) where T : CalibrationCacheBase, new() => SetCache(typeof(T), value, cancellationToken);
-
-    #endregion
-
-    #region Calibration
-
-    public CalibrationDTOBase GetCalibration(Type dtoType, CancellationToken cancellationToken = default) => Invoke(() =>
-    {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.DTOType == dtoType && e.IsArray == false);
-
-        if (Guard.IsAssignableToTypeAndReturn<CalibrationDTOBase?>(entry.Cookie.Calibration) is not null) return entry.Cookie.Calibration;
-
-        var calibrationViewModel = Guard.IsAssignableToTypeAndReturn<CalibrationViewModelBase>(HostApplication.GetRequiredService(entry.ViewModelType));
-
-        if (cacheProvider.TryGetOrDefault(entry.DTOType, out var calibration) == false)
-        {
-            calibration = Activator.CreateInstance(entry.DTOType);
-            cacheProvider.Set(entry.DTOType, calibration, cancellationToken);
-        }
-
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibration), calibration);
-
-        return (CalibrationDTOBase)calibration;
-    }, cancellationToken);
-
-    public T GetCalibration<T>(CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new() => (T)GetCalibration(typeof(T), cancellationToken);
-
-    public CalibrationDTOBase[] GetCalibrations(Type dtoType, CancellationToken cancellationToken = default) => Invoke(() =>
-    {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.DTOType == dtoType && e.IsArray);
-
-        if (Guard.IsAssignableToTypeAndReturn<CalibrationDTOBase[]?>(entry.Cookie.Calibrations) is not null) return entry.Cookie.Calibrations;
-
-        var calibrationViewModel = Guard.IsAssignableToTypeAndReturn<CalibrationViewModelBase>(HostApplication.GetRequiredService(entry.ViewModelType));
-
-        if (cacheProvider.TryGetOrDefaultArray(entry.DTOType, out var calibrations) == false)
-            cacheProvider.SetArray(entry.DTOType, calibrations, cancellationToken);
-
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibrations), calibrations);
-
-        return (CalibrationDTOBase[])calibrations;
-    }, cancellationToken);
-
-    public T[] GetCalibrations<T>(CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new() => (T[])GetCalibrations(typeof(T), cancellationToken);
-
-    public void SetCalibration(Type dtoType, CalibrationDTOBase value, CancellationToken cancellationToken = default) => Invoke(() =>
-    {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.DTOType == dtoType && e.IsArray == false);
-
-        cacheProvider.Set(dtoType, value, cancellationToken);
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibration), value);
-
-        return Unit.Default;
-    }, cancellationToken);
-
-    public void SetCalibration<T>(T value, CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new() => SetCalibration(typeof(T), value, cancellationToken);
-
-    public void SetCalibrations(Type dtoType, CalibrationDTOBase[] value, CancellationToken cancellationToken = default) => Invoke(() =>
-    {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.DTOType == dtoType && e.IsArray);
-
-        cacheProvider.SetArray(dtoType, value.Cast<object>().ToArray(), cancellationToken);
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibrations), value);
-
-        return Unit.Default;
-    }, cancellationToken);
-
-    public void SetCalibrations<T>(T[] value, CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new() => SetCalibrations(typeof(T), value, cancellationToken);
-
-    #endregion
-
-    private T Invoke<T>(Func<T> func, CancellationToken cancellationToken)
-    {
-        var isRelease = false;
-        try
-        {
-            isRelease = _semaphore.Wait(TimeSpan.FromSeconds(TimeoutSecond), cancellationToken);
-
-            return isRelease ? func() : ThrowHelper.ThrowTimeoutException<T>();
-        }
-        finally
-        {
-            if (isRelease) _semaphore.Release();
-        }
     }
 }
