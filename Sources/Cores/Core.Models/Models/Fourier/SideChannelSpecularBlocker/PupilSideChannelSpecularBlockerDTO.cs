@@ -15,28 +15,28 @@ namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDTOBase<PupilSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationMode { get; set; } = OpticsIlluminationModeEnum.OI;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public Point _cgFFBoxBeginPositionCh1 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh1 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public Point _cgFFBoxBeginPositionCh2 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh2 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh1 = [];
+    public partial List<int> CgFFBoxBeginAndEndNumberCh1 { get; set; } = [];
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh2 = [];
+    public partial List<int> CgFFBoxBeginAndEndNumberCh2 { get; set; } = [];
 
     [ObservableProperty]
-    public List<double> _cgFFBoxMoveDownPercentListCh1 = [0.3];
+    public partial List<double> CgFFBoxMoveDownPercentListCh1 { get; set; } = [0.3];
 
     [ObservableProperty]
-    public List<double> _cgFFBoxMoveDownPercentListCh2 = [0.3];
+    public partial List<double> CgFFBoxMoveDownPercentListCh2 { get; set; } = [0.3];
 
     #region Mapper
 

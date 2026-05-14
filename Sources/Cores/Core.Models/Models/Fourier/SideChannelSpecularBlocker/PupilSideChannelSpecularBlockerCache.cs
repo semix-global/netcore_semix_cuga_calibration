@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
@@ -15,63 +14,49 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch1Image;
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImage? Ch1Image { get; set; }
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch2Image;
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImage? Ch2Image { get; set; }
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawableCh10 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawableCh10 { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawableCh11 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawableCh11 { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawableCh20 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawableCh20 { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawableCh21 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawableCh21 { get; set; } = new();
 
     [ObservableProperty]
-    private RectROIDrawable? _rectROIDrawableCh11;
+    public partial RectROIDrawable? RectROIDrawableCh11 { get; set; }
 
     [ObservableProperty]
-    private CircleROIDrawable? _circleROIDrawableCh11;
+    public partial CircleROIDrawable? CircleROIDrawableCh11 { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableListCh11 = [];
+    public partial ObservableCollection<RectROIDrawable> RectROIDrawableListCh11 { get; set; } = [];
 
     [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public PupilSideChannelSpecularBlockerCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), _ => new PupilSideChannelSpecularBlockerCacheItem());
 
     public override PupilSideChannelSpecularBlockerCache Clone() => new()
@@ -86,7 +71,7 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
         BitmapImageDrawableCh21 = BitmapImageDrawableCh21,
         RectROIDrawableCh11 = RectROIDrawableCh11,
         CircleROIDrawableCh11 = CircleROIDrawableCh11,
-        RectROIDrawableListCh11 = new([.. RectROIDrawableListCh11]),
+        RectROIDrawableListCh11 = new ObservableCollection<RectROIDrawable>([.. RectROIDrawableListCh11]),
         Items = new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>(Items.Select(t => new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>((t.Key.Item1, t.Key.Item2.Clone()), t.Value.Clone()))),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
@@ -98,70 +83,70 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
 public sealed partial class PupilSideChannelSpecularBlockerCacheItem : CalibrationCacheBase<PupilSideChannelSpecularBlockerCacheItem>
 {
     [ObservableProperty]
-    private Point _shinyWaferPosition;
+    public partial Point ShinyWaferPosition { get; set; }
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation1 = CIBInformation.Default;
+    public partial CIBInformation CIBInformation1 { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation2 = CIBInformation.Default;
+    public partial CIBInformation CIBInformation2 { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private string _originImageFilePathOld1 = string.Empty;
+    public partial string OriginImageFilePathOld1 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _originImageFilePathOld2 = string.Empty;
+    public partial string OriginImageFilePathOld2 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _originImageFilePathNew1 = string.Empty;
+    public partial string OriginImageFilePathNew1 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _originImageFilePathNew2 = string.Empty;
+    public partial string OriginImageFilePathNew2 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _imageGrayCompareCh1 = string.Empty;
+    public partial string ImageGrayCompareCh1 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _imageGrayCompareCh2 = string.Empty;
+    public partial string ImageGrayCompareCh2 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private float _imageGrayOldCh1;
+    public partial float ImageGrayOldCh1 { get; set; }
 
     [ObservableProperty]
-    private float _imageGrayOldCh2;
+    public partial float ImageGrayOldCh2 { get; set; }
 
     [ObservableProperty]
-    private float _imageGrayNewCh1;
+    public partial float ImageGrayNewCh1 { get; set; }
 
     [ObservableProperty]
-    private float _imageGrayNewCh2;
+    public partial float ImageGrayNewCh2 { get; set; }
 
     [ObservableProperty]
-    public Point _cgFFBoxBeginPositionCh1 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh1 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public Point _cgFFBoxBeginPositionCh2 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh2 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh1 = [];
+    public partial List<int> CgFFBoxBeginAndEndNumberCh1 { get; set; } = [];
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh2 = [];
+    public partial List<int> CgFFBoxBeginAndEndNumberCh2 { get; set; } = [];
 
     [ObservableProperty]
-    public List<double> _cgFFBoxMoveDownPercentListCh1 = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];
+    public partial List<double> CgFFBoxMoveDownPercentListCh1 { get; set; } = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];
 
     [ObservableProperty]
-    public List<double> _cgFFBoxMoveDownPercentListCh2 = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];
+    public partial List<double> CgFFBoxMoveDownPercentListCh2 { get; set; } = [0.2, 0.3, 0.8, 0.9, 0.6, 0.8];
 
     public override PupilSideChannelSpecularBlockerCacheItem Clone() => new()
     {

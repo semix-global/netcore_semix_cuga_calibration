@@ -13,38 +13,35 @@ namespace Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 public sealed partial class PupilCenterChannelSpecularBlockerDTO : CalibrationDTOBase<PupilCenterChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilCenterChannelSpecularBlocker>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationMode { get; set; } = OpticsIlluminationModeEnum.OI;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public float _ch3Angle = 0.3f;
+    public partial float Ch3Angle { get; set; } = 0.3f;
 
     [ObservableProperty]
-    public float _ch3TurnY = 0.3f;
+    public partial float Ch3TurnY { get; set; } = 0.3f;
 
     [ObservableProperty]
-    public float _ch3Push = 0.3f;
+    public partial float Ch3Push { get; set; } = 0.3f;
 
     #region Mapper
 
-    public override PupilCenterChannelSpecularBlockerDTO Clone()
+    public override PupilCenterChannelSpecularBlockerDTO Clone() => new()
     {
-        return new PupilCenterChannelSpecularBlockerDTO
-        {
-            OpticsIlluminationMode = OpticsIlluminationMode,
-            ProductivityInformation = ProductivityInformation.Clone(),
-            Ch3Angle = Ch3Angle,
-            Ch3TurnY = Ch3TurnY,
-            Ch3Push = Ch3Push,
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck,
-            Id = Id,
-            Expiration = Expiration
-        };
-    }
+        OpticsIlluminationMode = OpticsIlluminationMode,
+        ProductivityInformation = ProductivityInformation.Clone(),
+        Ch3Angle = Ch3Angle,
+        Ch3TurnY = Ch3TurnY,
+        Ch3Push = Ch3Push,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
+    };
 
     public CalibrationPupilCenterChannelSpecularBlocker AdaptTo() => new()
     {

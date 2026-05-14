@@ -11,54 +11,51 @@ namespace Core.Models.Models.Fourier.CameraAlignment;
 public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase<PupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>
 {
     [ObservableProperty]
-    private Point _rectCh1Position = Point.Origin;
+    public partial Point RectCh1Position { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private int _ch1ImageWidth;
+    public partial int Ch1ImageWidth { get; set; }
 
     [ObservableProperty]
-    private int _ch1ImageHeight;
+    public partial int Ch1ImageHeight { get; set; }
 
     [ObservableProperty]
-    private Point _rectCh2Position = Point.Origin;
+    public partial Point RectCh2Position { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private int _ch2ImageWidth;
+    public partial int Ch2ImageWidth { get; set; }
 
     [ObservableProperty]
-    private int _ch2ImageHeight;
+    public partial int Ch2ImageHeight { get; set; }
 
     [ObservableProperty]
-    private Point _rectCh3Position = Point.Origin;
+    public partial Point RectCh3Position { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private int _ch3ImageWidth;
+    public partial int Ch3ImageWidth { get; set; }
 
     [ObservableProperty]
-    private int _ch3ImageHeight;
+    public partial int Ch3ImageHeight { get; set; }
 
     #region Mapper
 
-    public override PupilCameraAlignmentDTO Clone()
+    public override PupilCameraAlignmentDTO Clone() => new()
     {
-        return new PupilCameraAlignmentDTO
-        {
-            RectCh1Position = RectCh1Position,
-            Ch1ImageWidth = Ch1ImageWidth,
-            Ch1ImageHeight = Ch1ImageHeight,
-            RectCh2Position = RectCh2Position,
-            Ch2ImageWidth = Ch2ImageWidth,
-            Ch2ImageHeight = Ch2ImageHeight,
-            RectCh3Position = RectCh3Position,
-            Ch3ImageWidth = Ch3ImageWidth,
-            Ch3ImageHeight = Ch3ImageHeight,
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck,
-            Id = Id,
-            Expiration = Expiration
-        };
-    }
+        RectCh1Position = RectCh1Position,
+        Ch1ImageWidth = Ch1ImageWidth,
+        Ch1ImageHeight = Ch1ImageHeight,
+        RectCh2Position = RectCh2Position,
+        Ch2ImageWidth = Ch2ImageWidth,
+        Ch2ImageHeight = Ch2ImageHeight,
+        RectCh3Position = RectCh3Position,
+        Ch3ImageWidth = Ch3ImageWidth,
+        Ch3ImageHeight = Ch3ImageHeight,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
+    };
 
     public CalibrationPupilCameraAlignment AdaptTo() => new()
     {

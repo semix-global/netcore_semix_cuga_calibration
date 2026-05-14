@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
@@ -11,100 +10,88 @@ namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 public sealed partial class PupilCenterChannelFlexibleApertureCache : CalibrationCacheBase<PupilCenterChannelFlexibleApertureCache>
 {
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image1;
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImage? Ch3Image1 { get; set; }
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image2;
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImage? Ch3Image2 { get; set; }
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch3Image3;
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImage? Ch3Image3 { get; set; }
 
     [ObservableProperty]
-    private Point _hazeWaferPosition;
+    public partial Point HazeWaferPosition { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList11 = new(Enumerable.Repeat("", 4));
+    public partial ObservableCollection<string> OriginImageFilePathList11 { get; set; } = new(Enumerable.Repeat("", 4));
 
     [ObservableProperty]
-    private ObservableCollection<double> _originImageAngleList11 = new(Enumerable.Repeat(0.0, 4));
+    public partial ObservableCollection<double> OriginImageAngleList11 { get; set; } = new(Enumerable.Repeat(0.0, 4));
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList12 = new(Enumerable.Repeat("", 8));
+    public partial ObservableCollection<string> OriginImageFilePathList12 { get; set; } = new(Enumerable.Repeat("", 8));
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxWidthList1 = new(Enumerable.Repeat(0.0, 8));
+    public partial ObservableCollection<double> CgFFBoxWidthList1 { get; set; } = new(Enumerable.Repeat(0.0, 8));
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList13 = [];
+    public partial ObservableCollection<string> OriginImageFilePathList13 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _originImageAngleList13 = [];
+    public partial ObservableCollection<double> OriginImageAngleList13 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList21 = new(Enumerable.Repeat("", 4));
+    public partial ObservableCollection<string> OriginImageFilePathList21 { get; set; } = new(Enumerable.Repeat("", 4));
 
     [ObservableProperty]
-    private ObservableCollection<double> _originImageAngleList21 = new(Enumerable.Repeat(0.0, 4));
+    public partial ObservableCollection<double> OriginImageAngleList21 { get; set; } = new(Enumerable.Repeat(0.0, 4));
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList22 = new(Enumerable.Repeat("", 8));
+    public partial ObservableCollection<string> OriginImageFilePathList22 { get; set; } = new(Enumerable.Repeat("", 8));
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxHeightList2 = new(Enumerable.Repeat(0.0, 8));
+    public partial ObservableCollection<double> CgFFBoxHeightList2 { get; set; } = new(Enumerable.Repeat(0.0, 8));
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList23 = [];
+    public partial ObservableCollection<string> OriginImageFilePathList23 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _originImageAngleList23 = [];
+    public partial ObservableCollection<double> OriginImageAngleList23 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList31 = [];
+    public partial ObservableCollection<string> OriginImageFilePathList31 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList32 = new(Enumerable.Repeat("", 2));
+    public partial ObservableCollection<string> OriginImageFilePathList32 { get; set; } = new(Enumerable.Repeat("", 2));
 
     [ObservableProperty]
-    public ObservableCollection<double> _cgFFBoxWidthList3 = new(Enumerable.Repeat(0.0, 2));
+    public partial ObservableCollection<double> CgFFBoxWidthList3 { get; set; } = new(Enumerable.Repeat(0.0, 2));
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawable1 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawable1 { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawable2 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawable2 { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawable3 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawable3 { get; set; } = new();
 
     [ObservableProperty]
-    private CircleROIDrawable? _circleROIDrawable;
+    public partial CircleROIDrawable? CircleROIDrawable { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = [];
+    public partial ObservableCollection<RectROIDrawable> RectROIDrawableList { get; set; } = [];
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     public override PupilCenterChannelFlexibleApertureCache Clone() => new()
     {
@@ -112,26 +99,26 @@ public sealed partial class PupilCenterChannelFlexibleApertureCache : Calibratio
         Ch3Image2 = Ch3Image2,
         Ch3Image3 = Ch3Image3,
         HazeWaferPosition = HazeWaferPosition,
-        OriginImageFilePathList11 = new([.. OriginImageFilePathList11]),
-        OriginImageAngleList11 = new([.. OriginImageAngleList11]),
-        OriginImageFilePathList12 = new([.. OriginImageFilePathList12]),
-        CgFFBoxWidthList1 = new([.. CgFFBoxWidthList1]),
-        OriginImageFilePathList13 = new([.. OriginImageFilePathList13]),
-        OriginImageAngleList13 = new([.. OriginImageAngleList13]),
-        OriginImageFilePathList21 = new([.. OriginImageFilePathList21]),
-        OriginImageAngleList21 = new([.. OriginImageAngleList21]),
-        OriginImageFilePathList22 = new([.. OriginImageFilePathList22]),
-        CgFFBoxHeightList2 = new([.. CgFFBoxHeightList2]),
-        OriginImageFilePathList23 = new([.. OriginImageFilePathList23]),
-        OriginImageAngleList23 = new([.. OriginImageAngleList23]),
-        OriginImageFilePathList31 = new([.. OriginImageFilePathList31]),
-        OriginImageFilePathList32 = new([.. OriginImageFilePathList32]),
-        CgFFBoxWidthList3 = new([.. CgFFBoxWidthList3]),
+        OriginImageFilePathList11 = new ObservableCollection<string>([.. OriginImageFilePathList11]),
+        OriginImageAngleList11 = new ObservableCollection<double>([.. OriginImageAngleList11]),
+        OriginImageFilePathList12 = new ObservableCollection<string>([.. OriginImageFilePathList12]),
+        CgFFBoxWidthList1 = new ObservableCollection<double>([.. CgFFBoxWidthList1]),
+        OriginImageFilePathList13 = new ObservableCollection<string>([.. OriginImageFilePathList13]),
+        OriginImageAngleList13 = new ObservableCollection<double>([.. OriginImageAngleList13]),
+        OriginImageFilePathList21 = new ObservableCollection<string>([.. OriginImageFilePathList21]),
+        OriginImageAngleList21 = new ObservableCollection<double>([.. OriginImageAngleList21]),
+        OriginImageFilePathList22 = new ObservableCollection<string>([.. OriginImageFilePathList22]),
+        CgFFBoxHeightList2 = new ObservableCollection<double>([.. CgFFBoxHeightList2]),
+        OriginImageFilePathList23 = new ObservableCollection<string>([.. OriginImageFilePathList23]),
+        OriginImageAngleList23 = new ObservableCollection<double>([.. OriginImageAngleList23]),
+        OriginImageFilePathList31 = new ObservableCollection<string>([.. OriginImageFilePathList31]),
+        OriginImageFilePathList32 = new ObservableCollection<string>([.. OriginImageFilePathList32]),
+        CgFFBoxWidthList3 = new ObservableCollection<double>([.. CgFFBoxWidthList3]),
         BitmapImageDrawable1 = BitmapImageDrawable1,
         BitmapImageDrawable2 = BitmapImageDrawable2,
         BitmapImageDrawable3 = BitmapImageDrawable3,
         CircleROIDrawable = CircleROIDrawable,
-        RectROIDrawableList = new([.. RectROIDrawableList]),
+        RectROIDrawableList = new ObservableCollection<RectROIDrawable>([.. RectROIDrawableList]),
         ProductivityInformation = ProductivityInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,

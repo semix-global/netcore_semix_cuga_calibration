@@ -11,124 +11,116 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationCacheBase<PupilSideChannelFlexibleApertureCache>
 {
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch1Image;
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImage? Ch1Image { get; set; }
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImage? _ch2Image;
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImage? Ch2Image { get; set; }
 
     [ObservableProperty]
-    private Point _hazeWaferPosition;
+    public partial Point HazeWaferPosition { get; set; }
 
     [ObservableProperty]
-    private string _originImageFilePath1 = string.Empty;
+    public partial string OriginImageFilePath1 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList1 = [];
+    public partial ObservableCollection<string> OriginImageFilePathList1 { get; set; } = [];
 
     [ObservableProperty]
-    private string _originImageFilePath2 = string.Empty;
+    public partial string OriginImageFilePath2 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<string> _originImageFilePathList2 = [];
+    public partial ObservableCollection<string> OriginImageFilePathList2 { get; set; } = [];
 
     [ObservableProperty]
-    private RectROIDrawable? _rectROIDrawable;
+    public partial RectROIDrawable? RectROIDrawable { get; set; }
 
     [ObservableProperty]
-    private CircleROIDrawable? _circleROIDrawable;
+    public partial CircleROIDrawable? CircleROIDrawable { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<RectROIDrawable> _rectROIDrawableList = [];
+    public partial ObservableCollection<RectROIDrawable> RectROIDrawableList { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawableCh1 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawableCh1 { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private BitmapImageDrawable _bitmapImageDrawableCh2 = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial BitmapImageDrawable BitmapImageDrawableCh2 { get; set; } = new();
 
     [ObservableProperty]
-    private bool _isToggleSelectRectROIDrawableCh1;
+    public partial bool IsToggleSelectRectROIDrawableCh1 { get; set; }
 
     [ObservableProperty]
-    private bool _isToggleSelectRectROIDrawableCh2;
+    public partial bool IsToggleSelectRectROIDrawableCh2 { get; set; }
 
     [ObservableProperty]
-    private Point _cgFFBoxBeginPositionCh1 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh1 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _cgFFBoxEndPositionCh1 = Point.Origin;
+    public partial Point CgFFBoxEndPositionCh1 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _cgFFBoxBeginPositionCh2 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh2 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _cgFFBoxEndPositionCh2 = Point.Origin;
+    public partial Point CgFFBoxEndPositionCh2 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber1Ch1;
+    public partial int CgFFBoxBeginNumber1Ch1 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber2Ch1;
+    public partial int CgFFBoxBeginNumber2Ch1 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber1Ch2;
+    public partial int CgFFBoxBeginNumber1Ch2 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber2Ch2;
+    public partial int CgFFBoxBeginNumber2Ch2 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber1Ch1;
+    public partial int CgFFBoxEndNumber1Ch1 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber2Ch1;
+    public partial int CgFFBoxEndNumber2Ch1 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber1Ch2;
+    public partial int CgFFBoxEndNumber1Ch2 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber2Ch2;
+    public partial int CgFFBoxEndNumber2Ch2 { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh1 = [];
+    public partial ObservableCollection<int> CgFFBoxRodWidthListCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = [];
+    public partial ObservableCollection<int> CgFFBoxRodWidthListCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh1 = [];
+    public partial ObservableCollection<double> CgFFBoxHeightRelationPercentListCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh2 = [];
+    public partial ObservableCollection<double> CgFFBoxHeightRelationPercentListCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListFirstCh1 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectListFirstCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListFirstCh2 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectListFirstCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private double _cgFFBoxAllRodsBeginPercentCh1;
+    public partial double CgFFBoxAllRodsBeginPercentCh1 { get; set; }
 
     [ObservableProperty]
-    private double _cgFFBoxAllRodsBeginPercentCh2;
+    public partial double CgFFBoxAllRodsBeginPercentCh2 { get; set; }
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     public override PupilSideChannelFlexibleApertureCache Clone() => new()
     {
@@ -136,12 +128,12 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
         Ch2Image = Ch2Image,
         HazeWaferPosition = HazeWaferPosition,
         OriginImageFilePath1 = OriginImageFilePath1,
-        OriginImageFilePathList1 = new([.. OriginImageFilePathList1]),
+        OriginImageFilePathList1 = new ObservableCollection<string>([.. OriginImageFilePathList1]),
         OriginImageFilePath2 = OriginImageFilePath2,
-        OriginImageFilePathList2 = new([.. OriginImageFilePathList2]),
+        OriginImageFilePathList2 = new ObservableCollection<string>([.. OriginImageFilePathList2]),
         RectROIDrawable = RectROIDrawable,
         CircleROIDrawable = CircleROIDrawable,
-        RectROIDrawableList = new([.. RectROIDrawableList]),
+        RectROIDrawableList = new ObservableCollection<RectROIDrawable>([.. RectROIDrawableList]),
         BitmapImageDrawableCh1 = BitmapImageDrawableCh1,
         BitmapImageDrawableCh2 = BitmapImageDrawableCh2,
         IsToggleSelectRectROIDrawableCh1 = IsToggleSelectRectROIDrawableCh1,
@@ -158,12 +150,12 @@ public sealed partial class PupilSideChannelFlexibleApertureCache : CalibrationC
         CgFFBoxEndNumber2Ch1 = CgFFBoxEndNumber2Ch1,
         CgFFBoxEndNumber1Ch2 = CgFFBoxEndNumber1Ch2,
         CgFFBoxEndNumber2Ch2 = CgFFBoxEndNumber2Ch2,
-        CgFFBoxRodWidthListCh1 = new([.. CgFFBoxRodWidthListCh1]),
-        CgFFBoxRodWidthListCh2 = new([.. CgFFBoxRodWidthListCh2]),
-        CgFFBoxHeightRelationPercentListCh1 = new([.. CgFFBoxHeightRelationPercentListCh1]),
-        CgFFBoxHeightRelationPercentListCh2 = new([.. CgFFBoxHeightRelationPercentListCh2]),
-        CurrentImageRectListFirstCh1 = new([.. CurrentImageRectListFirstCh1]),
-        CurrentImageRectListFirstCh2 = new([.. CurrentImageRectListFirstCh2]),
+        CgFFBoxRodWidthListCh1 = new ObservableCollection<int>([.. CgFFBoxRodWidthListCh1]),
+        CgFFBoxRodWidthListCh2 = new ObservableCollection<int>([.. CgFFBoxRodWidthListCh2]),
+        CgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<double>([.. CgFFBoxHeightRelationPercentListCh1]),
+        CgFFBoxHeightRelationPercentListCh2 = new ObservableCollection<double>([.. CgFFBoxHeightRelationPercentListCh2]),
+        CurrentImageRectListFirstCh1 = new ObservableCollection<Rect>([.. CurrentImageRectListFirstCh1]),
+        CurrentImageRectListFirstCh2 = new ObservableCollection<Rect>([.. CurrentImageRectListFirstCh2]),
         CgFFBoxAllRodsBeginPercentCh1 = CgFFBoxAllRodsBeginPercentCh1,
         CgFFBoxAllRodsBeginPercentCh2 = CgFFBoxAllRodsBeginPercentCh2,
         LaserLightInformation = LaserLightInformation.Clone(),
