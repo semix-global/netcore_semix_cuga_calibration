@@ -125,22 +125,6 @@ public sealed partial class ReviewViewModel(
     }
 
     /// <summary>
-    /// 生成模板
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="templateFilePath">模板路径</param>
-    /// <returns>是否成功</returns>
-    public bool TryGenerateProjectionTemplate(BitmapImage image, string templateFilePath)
-    {
-        var isSuccess = calibrationAlgorithmService.TryGenerateProjectionTemplate(image, templateFilePath, out var roiImage);
-        using var _ = roiImage;
-        if (isSuccess == false) throw new AlgorithmException("Generate Projection Template Error");
-
-        roiImage.SaveImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath));
-        return true;
-    }
-
-    /// <summary>
     /// 匹配模板: 从旧位置到匹配后位置
     /// </summary>
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>

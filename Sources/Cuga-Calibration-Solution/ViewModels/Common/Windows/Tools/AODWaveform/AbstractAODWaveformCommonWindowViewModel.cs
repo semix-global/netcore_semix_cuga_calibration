@@ -168,6 +168,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         {
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
+            Cache.Id = 0;
             CacheProvider.Set(Cache, cancellationTokenSource.Token);
         }
         catch (Exception ex)

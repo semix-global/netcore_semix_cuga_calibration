@@ -232,6 +232,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
             Cache.Item.FlatnessGeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
             Cache.Item.FlatnessGeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation.Clone();
+            Cache.Item.StartPrescanFrequency = prescanResult.GeneratePrescanAODWaveformParam.CenterFrequency - prescanResult.GeneratePrescanAODWaveformParam.BandWidth;
+            Cache.Item.StopPrescanFrequency = prescanResult.GeneratePrescanAODWaveformParam.CenterFrequency + prescanResult.GeneratePrescanAODWaveformParam.BandWidth;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {

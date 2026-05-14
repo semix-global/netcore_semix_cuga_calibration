@@ -30,12 +30,6 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-        <Reference Include="HAlgorithm">
-            <HintPath>..\..\Dependencies\Semix.Arithmetic2.0\HAlgorithm.dll</HintPath>
-        </Reference>
-    </ItemGroup>
-
     <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
         <Reference Include="Semix.CoreLib">
             <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>

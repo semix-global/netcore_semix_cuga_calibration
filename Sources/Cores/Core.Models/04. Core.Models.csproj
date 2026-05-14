@@ -30,12 +30,4 @@
         <ProjectReference Include="..\Core.Wcf\03. Core.Wcf.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\Fourier\CameraAlignment\" />
-      <Folder Include="Models\Fourier\CenterChannelFlexibleAperture\" />
-      <Folder Include="Models\Fourier\CenterChannelSpecularBlocker\" />
-      <Folder Include="Models\Fourier\SideChannelFlexibleAperture\" />
-      <Folder Include="Models\Fourier\SideChannelSpecularBlocker\" />
-    </ItemGroup>
-
 </Project>
