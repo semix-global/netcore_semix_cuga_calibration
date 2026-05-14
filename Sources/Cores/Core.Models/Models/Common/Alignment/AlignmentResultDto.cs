@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Net.Utilities.Mapper.Interfaces;

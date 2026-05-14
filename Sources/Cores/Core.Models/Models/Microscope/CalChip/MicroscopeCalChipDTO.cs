@@ -16,6 +16,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
@@ -32,7 +33,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
     public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipDTOItem> Results { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

@@ -15,6 +15,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Net.Utilities.Models.Serializations;
 using Generate = MathNet.Numerics.Generate;
 
 namespace Core.Models.Models.AOD.Uniformity;
@@ -71,7 +72,7 @@ public sealed partial class AODUniformityDTO : CalibrationDTOBase<AODUniformityD
     public partial IReadOnlyList<AODUniformityDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<OpticsPolarizationModeEnum, double>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<OpticsPolarizationModeEnum, double>))]
     public partial ConcurrentDictionary<OpticsPolarizationModeEnum, double> OpticsPolarizationModeEnumMeasurePowers { get; set; } = [];
 
     #region Mapper

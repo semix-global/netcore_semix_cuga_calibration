@@ -17,6 +17,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using Net.Utilities.Models.Serializations;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.IlluminationProfile;
@@ -40,7 +41,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIl
     public partial IReadOnlyList<CIBIlluminationProfileDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CIBInformation, double>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<CIBInformation, double>))]
     public partial ConcurrentDictionary<CIBInformation, double> TargetPMTValues { get; set; } = [];
 
 #pragma warning disable IDE0079

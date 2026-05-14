@@ -25,8 +25,6 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase<CIBAGCDelayC
     public ConcurrentDictionary<ProductivityInformation, CIBAGCDelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBAGCDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBAGCDelayCacheItem());
 
     public override CIBAGCDelayCache Clone() => new()

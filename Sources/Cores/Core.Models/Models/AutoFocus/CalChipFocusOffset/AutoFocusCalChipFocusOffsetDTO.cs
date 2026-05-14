@@ -17,6 +17,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.AutoFocus.CalChipFocusOffset;
 
@@ -30,7 +31,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase<
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem> Results { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

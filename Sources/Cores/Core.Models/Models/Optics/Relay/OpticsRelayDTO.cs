@@ -264,7 +264,7 @@ public sealed partial class OpticsRelayDTOItem : ObservableObject, ICloneable<Op
     public partial IReadOnlyList<Item> Qualitys { get; set; } = [];
 
     [ObservableProperty]
-    private Item? _maxItem;
+    public partial Item? MaxItem { get; set; }
 
     public OpticsRelayDTOItem Clone() => new()
     {

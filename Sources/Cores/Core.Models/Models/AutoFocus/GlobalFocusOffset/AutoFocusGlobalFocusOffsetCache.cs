@@ -22,8 +22,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBa
     public ConcurrentDictionary<ProductivityInformation, AutoFocusGlobalFocusOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public AutoFocusGlobalFocusOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new AutoFocusGlobalFocusOffsetCacheItem());
 
     /// <summary>

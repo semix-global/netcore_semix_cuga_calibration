@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
@@ -26,8 +25,6 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase<CIBXPixelS
     public ConcurrentDictionary<ProductivityInformation, CIBXPixelSizeCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBXPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBXPixelSizeCacheItem());
 
     public override CIBXPixelSizeCache Clone() => new()

@@ -7,6 +7,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
@@ -53,7 +54,7 @@ public sealed partial class PupilSideChannelSpecularBlockerCache : CalibrationCa
     [ObservableProperty]
     public partial ObservableCollection<RectROIDrawable> RectROIDrawableListCh11 { get; set; } = [];
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), PupilSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

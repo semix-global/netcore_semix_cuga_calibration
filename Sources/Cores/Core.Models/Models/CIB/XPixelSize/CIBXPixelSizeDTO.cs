@@ -33,17 +33,17 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase<CIBXPixelSizeD
     public partial IReadOnlyList<CIBXPixelSizeDTOItem> SlideItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _slideSplitDifferences = [];
+    public partial IReadOnlyList<double> SlideSplitDifferences { get; set; } = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
-    private IReadOnlyList<CIBXPixelSizeDTOItem> _verifyItems = [];
+    public partial IReadOnlyList<CIBXPixelSizeDTOItem> VerifyItems { get; set; } = [];
 
     [ObservableProperty]
-    private string _verifyRawImageFilePath = string.Empty;
+    public partial string VerifyRawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _xPixelSizeDelta;
+    public partial double XPixelSizeDelta { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyList<Point> SlideItemPoints => [.. SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))];

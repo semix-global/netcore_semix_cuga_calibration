@@ -393,8 +393,6 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
         public partial string ImageFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
         public partial IReadOnlyList<Point> Histogram { get; set; } = [];
 
         public Item Clone() => new()
