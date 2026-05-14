@@ -259,11 +259,11 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
         VerifyMaxLogGain = VerifyMaxLogGain,
         SmoothLogGainMul128U12BitWindow = SmoothLogGainMul128U12BitWindow,
         SmoothGainS16BitWindow = SmoothGainS16BitWindow,
-        MMDConfigurations = [.. MMDConfigurations],
+        MMDConfigurations = [.. MMDConfigurations.Select(t => t.Clone())],
         PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
-        PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles],
+        PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],
         ChirpAODWaveformResultFilePath = ChirpAODWaveformResultFilePath,
-        ChirpAODWaveformProfiles = [.. ChirpAODWaveformProfiles],
+        ChirpAODWaveformProfiles = [.. ChirpAODWaveformProfiles.Select(t => t.Clone())],
         OriginMeasurePowerPoints = [.. OriginMeasurePowerPoints],
         MeasurePowerPoints = [.. MeasurePowerPoints],
         P0 = P0,
@@ -281,7 +281,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
         Expiration = Expiration
     };
 
-    public sealed partial class MMDConfiguration : ObservableObject
+    public sealed partial class MMDConfiguration : ObservableObject, ICloneable<MMDConfiguration>
     {
         [ObservableProperty]
         public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
@@ -291,5 +291,12 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
 
         [ObservableProperty]
         public partial double PowerRate { get; set; } = 1d;
+
+        public MMDConfiguration Clone() => new()
+        {
+            CIBInformation = CIBInformation.Clone(),
+            FilterMinGain = FilterMinGain,
+            PowerRate = PowerRate
+        };
     }
 }

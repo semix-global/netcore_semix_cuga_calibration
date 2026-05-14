@@ -31,7 +31,7 @@ public sealed partial class MicroscopePixelSizeItemDto : CalibrationDTOBase<Micr
 
     public override MicroscopePixelSizeItemDto Clone() => new()
     {
-        LensInformation = LensInformation,
+        LensInformation = LensInformation.Clone(),
         FindPosition = FindPosition,
         PixelSize = PixelSize,
         OriginFilePath = OriginFilePath,

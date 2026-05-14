@@ -152,7 +152,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIl
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
-        TargetPMTValues = new ConcurrentDictionary<CIBInformation, double>(TargetPMTValues),
+        TargetPMTValues = new ConcurrentDictionary<CIBInformation, double>(TargetPMTValues.Select(t => new KeyValuePair<CIBInformation, double>(t.Key.Clone(), t.Value))),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

@@ -85,8 +85,8 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldT
     public override GlobalFieldTiltDTO Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
-        ResultItem = ResultItem?.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
+        ResultItem = ResultItem?.Clone(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -219,6 +219,7 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
         RSquared = RSquared,
         GlobalFieldTiltError = GlobalFieldTiltError,
         OriginPoints = [.. OriginPoints],
+        FitPoints = [.. FitPoints],
         BestFocusChannelItems = [.. BestFocusChannelItems.Select(t => t.Clone())]
     };
 

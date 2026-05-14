@@ -87,7 +87,7 @@ public sealed partial class AODUniformityDTO : CalibrationDTOBase<AODUniformityD
         Mappings = [.. Mappings.Select(t => t.Clone())],
         ImageHorizontalProjectMappings = [.. ImageHorizontalProjectMappings.Select<int[], int[]>(t => [.. t])],
         PrescanAODWaveformProfileMappings = [.. PrescanAODWaveformProfileMappings.Select<int[], int[]>(t => [.. t])],
-        TargetPMTValues = new ConcurrentDictionary<CIBInformation, double>(TargetPMTValues),
+        TargetPMTValues = new ConcurrentDictionary<CIBInformation, double>(TargetPMTValues.Select(t => new KeyValuePair<CIBInformation, double>(t.Key.Clone(), t.Value))),
         InitializeWindowItem = InitializeWindowItem.Clone(),
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],

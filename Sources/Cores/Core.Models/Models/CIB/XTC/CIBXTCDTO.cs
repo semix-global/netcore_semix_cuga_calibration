@@ -278,6 +278,8 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
     public override CIBXTCDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
+        StartWindowItem = StartWindowItem.Clone(),
+        StopWindowItem = StopWindowItem.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
         TargetPixelValues = new ConcurrentDictionary<int, double>(TargetPixelValues),
         IsCalibrated = IsCalibrated,

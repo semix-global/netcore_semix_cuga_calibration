@@ -173,6 +173,7 @@ public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDTOBase<Chuc
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
         IsPositive = IsPositive,
+        SiteDirection = SiteDirection,
         PositiveMatchResult = PositiveMatchResult.Clone(),
         NegativeMatchResult = NegativeMatchResult.Clone(),
         ChuckCenterPosition = ChuckCenterPosition,

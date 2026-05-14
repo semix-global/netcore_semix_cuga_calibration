@@ -97,6 +97,7 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDTOBase<ChuckG
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        SiteDirection = SiteDirection,
         AppliedScaleXY = AppliedScaleXY,
         ResultScaleXY = ResultScaleXY,
         ScaleErrorValue = ScaleErrorValue,

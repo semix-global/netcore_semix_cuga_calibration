@@ -40,7 +40,7 @@ public sealed partial class MicroscopeFocusItemDto : CalibrationDTOBase<Microsco
     public override MicroscopeFocusItemDto Clone() => new()
     {
         Index = Index,
-        LensInformation = LensInformation,
+        LensInformation = LensInformation.Clone(),
         FindPosition = FindPosition,
         EcsValue = EcsValue,
         TransBufferAfErrorValue = TransBufferAfErrorValue,

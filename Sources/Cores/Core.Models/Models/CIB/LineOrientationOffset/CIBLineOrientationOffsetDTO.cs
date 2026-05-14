@@ -57,12 +57,12 @@ public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDTOBase<CIB
 
     public override CIBLineOrientationOffsetDTO Clone() => new()
     {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         ProductivityInformation = ProductivityInformation.Clone(),
-        MicroscopeLensInformation = MicroscopeLensInformation,
         PmtId = PmtId,
-        FindPosition = FindPosition,
         StartPosition = StartPosition,
         EndPosition = EndPosition,
+        FindPosition = FindPosition,
         ForwardFindDarkMachinePosition = ForwardFindDarkMachinePosition,
         ReverseFindDarkMachinePosition = ReverseFindDarkMachinePosition,
         ForwardFilePath = ForwardFilePath,

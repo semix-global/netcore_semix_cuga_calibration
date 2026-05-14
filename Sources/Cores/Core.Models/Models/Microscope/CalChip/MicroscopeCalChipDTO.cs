@@ -58,9 +58,9 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
 
     public override MicroscopeCalChipDTO Clone() => new()
     {
-        CalChipSiteModelEnum = CalChipSiteModelEnum,
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         DSWAlignmentDegree = DSWAlignmentDegree,
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
         DSWBrightFieldMachineAffinePosition = DSWBrightFieldMachineAffinePosition,
         Results = new ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>
         ([

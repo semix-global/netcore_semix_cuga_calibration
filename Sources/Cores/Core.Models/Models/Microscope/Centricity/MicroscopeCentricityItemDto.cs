@@ -40,7 +40,7 @@ public sealed partial class MicroscopeCentricityItemDto : CalibrationDTOBase<Mic
 
     public override MicroscopeCentricityItemDto Clone() => new()
     {
-        LensInformation = LensInformation,
+        LensInformation = LensInformation.Clone(),
         CentricityPosition = CentricityPosition,
         Offset = Offset,
         FilePath = FilePath,

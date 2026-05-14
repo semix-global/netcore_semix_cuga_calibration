@@ -132,6 +132,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        Items = [.. Items.Select(t => t.Clone())],
         ResultItemDto = ResultItemDto.Clone(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

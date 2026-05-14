@@ -158,8 +158,8 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDTOBase<DarkAutoFocusD
         OriginalSymmetryRatio = OriginalSymmetryRatio,
         EcsToNmRange = EcsToNmRange,
         NscStandard = NscStandard,
-        NSCProfileResultDTO = NSCProfileResultDTO.Clone(),
         NSCGainResultDTO = NSCGainResultDTO.Clone(),
+        NSCProfileResultDTO = NSCProfileResultDTO.Clone(),
         NSCGainDTOItems = [.. NSCGainDTOItems.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -344,7 +344,8 @@ public sealed partial class DarkAutoFocusCurrentDTO : ObservableObject, ICloneab
         InterceptN = InterceptN,
         RSquaredN = RSquaredN,
         FDomain = FDomain,
-        NDomain = NDomain
+        NDomain = NDomain,
+        CurrentDomain = CurrentDomain
     };
 
     public object ToFlatnessHtmlAnonymous() => new
@@ -534,6 +535,12 @@ public sealed partial class DarkAutoFocusNSCDTO : ObservableObject, ICloneable<D
         NscCurrentSymmetryRatio = NscCurrentSymmetryRatio,
         CalibrationEcs = [.. CalibrationEcs],
         CalibrationNsc = [.. CalibrationNsc],
-        CalibrationLvdt = [.. CalibrationLvdt]
+        CalibrationLvdt = [.. CalibrationLvdt],
+        CalibrationFa = [.. CalibrationFa],
+        CalibrationNa = [.. CalibrationNa],
+        CalibrationFb = [.. CalibrationFb],
+        CalibrationNb = [.. CalibrationNb],
+        CalibrationEcsNscPoints = [.. CalibrationEcsNscPoints],
+        CalibrationEcsNscMaxMins = [.. CalibrationEcsNscMaxMins]
     };
 }

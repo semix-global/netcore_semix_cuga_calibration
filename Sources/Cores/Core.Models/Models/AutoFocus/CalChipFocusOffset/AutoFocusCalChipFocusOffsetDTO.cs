@@ -39,6 +39,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase<
 
     public override AutoFocusCalChipFocusOffsetDTO Clone() => new()
     {
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         Results = new ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>
         ([
@@ -46,7 +47,9 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase<
         ]),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
-        IsRequiredSelfCheck = IsRequiredSelfCheck
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
     };
 
     public CalibrationAutoFocusCalChipFocusOffset AdaptTo()

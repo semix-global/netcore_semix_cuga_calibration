@@ -71,18 +71,18 @@ public sealed partial class PupilCenterChannelFlexibleApertureDTO : CalibrationD
 
     public override PupilCenterChannelFlexibleApertureDTO Clone() => new()
     {
-        CgFFBoxTurnXAngleCh3 = CgFFBoxTurnXAngleCh3,
-        CgFFBoxTurnXWidthCh3 = CgFFBoxTurnXWidthCh3,
-        CgFFBoxTurnXMotorRelationCh3 = CgFFBoxTurnXMotorRelationCh3,
-        CgFFBoxTurnXMotorPositionCh3 = CgFFBoxTurnXMotorPositionCh3,
-        CgFFBoxTurnXRectPositionCh3 = CgFFBoxTurnXRectPositionCh3,
+        CgFFBoxTurnXAngleCh3 = new ObservableCollection<double>([.. CgFFBoxTurnXAngleCh3]),
+        CgFFBoxTurnXWidthCh3 = new ObservableCollection<double>([.. CgFFBoxTurnXWidthCh3]),
+        CgFFBoxTurnXMotorRelationCh3 = new ObservableCollection<double>([.. CgFFBoxTurnXMotorRelationCh3]),
+        CgFFBoxTurnXMotorPositionCh3 = new ObservableCollection<double>([.. CgFFBoxTurnXMotorPositionCh3]),
+        CgFFBoxTurnXRectPositionCh3 = new ObservableCollection<Rect>([.. CgFFBoxTurnXRectPositionCh3]),
         CgFFBoxTurnXLightHoleCircleCenterCh3 = CgFFBoxTurnXLightHoleCircleCenterCh3,
         CgFFBoxTurnXLightHoleCircleRadiusCh3 = CgFFBoxTurnXLightHoleCircleRadiusCh3,
-        CgFFBoxTurnYAngleCh3 = CgFFBoxTurnYAngleCh3,
-        CgFFBoxTurnYWidthCh3 = CgFFBoxTurnYWidthCh3,
-        CgFFBoxTurnYMotorRelationCh3 = CgFFBoxTurnYMotorRelationCh3,
-        CgFFBoxTurnYMotorPositionCh3 = CgFFBoxTurnYMotorPositionCh3,
-        CgFFBoxTurnYRectPositionCh3 = CgFFBoxTurnYRectPositionCh3,
+        CgFFBoxTurnYAngleCh3 = new ObservableCollection<double>([.. CgFFBoxTurnYAngleCh3]),
+        CgFFBoxTurnYWidthCh3 = new ObservableCollection<double>([.. CgFFBoxTurnYWidthCh3]),
+        CgFFBoxTurnYMotorRelationCh3 = new ObservableCollection<double>([.. CgFFBoxTurnYMotorRelationCh3]),
+        CgFFBoxTurnYMotorPositionCh3 = new ObservableCollection<double>([.. CgFFBoxTurnYMotorPositionCh3]),
+        CgFFBoxTurnYRectPositionCh3 = new ObservableCollection<Rect>([.. CgFFBoxTurnYRectPositionCh3]),
         CgFFBoxTurnYLightHoleCircleCenterCh3 = CgFFBoxTurnYLightHoleCircleCenterCh3,
         CgFFBoxTurnYLightHoleCircleRadiusCh3 = CgFFBoxTurnYLightHoleCircleRadiusCh3,
 

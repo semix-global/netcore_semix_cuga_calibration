@@ -64,9 +64,9 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase<CIBXPixelSizeD
         XPixelSize = XPixelSize,
         XPixelSizeDelta = XPixelSizeDelta,
         RawImageFilePath = RawImageFilePath,
-        SlideItems = [.. SlideItems],
+        SlideItems = [.. SlideItems.Select(t => t.Clone())],
         SlideSplitDifferences = [.. SlideSplitDifferences],
-        VerifyItems = [.. VerifyItems],
+        VerifyItems = [.. VerifyItems.Select(t => t.Clone())],
         VerifySplitDifferences = [.. VerifySplitDifferences],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -89,7 +89,7 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase<CIBXPixelSizeD
     #endregion Mapper
 }
 
-public sealed class CIBXPixelSizeDTOItem
+public sealed class CIBXPixelSizeDTOItem : ICloneable<CIBXPixelSizeDTOItem>
 {
     public long StartPixel { get; init; }
 
@@ -105,4 +105,15 @@ public sealed class CIBXPixelSizeDTOItem
     public string ImageFilePath { get; set; } = string.Empty;
 
     public bool IsMatchOk { get; set; }
+
+    public CIBXPixelSizeDTOItem Clone() => new()
+    {
+        StartPixel = StartPixel,
+        Buffer = [.. Buffer],
+        SizeI = SizeI,
+        MatchPoint = MatchPoint,
+        Score = Score,
+        ImageFilePath = ImageFilePath,
+        IsMatchOk = IsMatchOk
+    };
 }
