@@ -196,43 +196,43 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDTOBase<DarkAutoFocusD
 public sealed partial class DarkAutoFocusCurrentDTO : ObservableObject, ICloneable<DarkAutoFocusCurrentDTO>
 {
     [ObservableProperty]
-    private DarkAutoFocusCurrentDTOItem _resultDTO = new();
+    public partial DarkAutoFocusCurrentDTOItem ResultDTO { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<DarkAutoFocusCurrentDTOItem> _currentItems = [];
+    public partial IReadOnlyList<DarkAutoFocusCurrentDTOItem> CurrentItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitCurrentPointsF = [];
+    public partial IReadOnlyList<Point> FitCurrentPointsF { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitCurrentPointsN = [];
+    public partial IReadOnlyList<Point> FitCurrentPointsN { get; set; } = [];
 
     [ObservableProperty]
-    private double _slopeF;
+    public partial double SlopeF { get; set; }
 
     [ObservableProperty]
-    private double _interceptF;
+    public partial double InterceptF { get; set; }
 
     [ObservableProperty]
-    private double _rSquaredF;
+    public partial double RSquaredF { get; set; }
 
     [ObservableProperty]
-    private double _slopeN;
+    public partial double SlopeN { get; set; }
 
     [ObservableProperty]
-    private double _interceptN;
+    public partial double InterceptN { get; set; }
 
     [ObservableProperty]
-    private double _rSquaredN;
+    public partial double RSquaredN { get; set; }
 
     [ObservableProperty]
-    private Point _fDomain;
+    public partial Point FDomain { get; set; }
 
     [ObservableProperty]
-    private Point _nDomain;
+    public partial Point NDomain { get; set; }
 
     [ObservableProperty]
-    private Point _currentDomain;
+    public partial Point CurrentDomain { get; set; }
 
     partial void OnCurrentItemsChanged(IReadOnlyList<DarkAutoFocusCurrentDTOItem> value) => RefreshPlot();
 
@@ -251,10 +251,8 @@ public sealed partial class DarkAutoFocusCurrentDTO : ObservableObject, ICloneab
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
