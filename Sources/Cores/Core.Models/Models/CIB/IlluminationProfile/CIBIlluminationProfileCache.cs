@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.CIB.IlluminationProfile;
 
@@ -10,45 +10,35 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase<C
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _calibratingRetryTimes = 5;
+    public partial int CalibratingRetryTimes { get; set; } = 5;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrateThresholdMin), nameof(CalibrateThresholdMax))]
-    private double _calibrateThreshold = 0.05;
+    public partial double CalibrateThreshold { get; set; } = 0.05;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double CalibrateThresholdMin => 1 - CalibrateThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double CalibrateThresholdMax => 1 + CalibrateThreshold;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ReviewThresholdMin), nameof(ReviewThresholdMax))]
-    private double _reviewThreshold = 0.05;
+    public partial double ReviewThreshold { get; set; } = 0.05;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMin => 1 - ReviewThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBIlluminationProfileCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBIlluminationProfileCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBIlluminationProfileCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBIlluminationProfileCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBIlluminationProfileCacheItem());
 
     public override CIBIlluminationProfileCache Clone() => new()
@@ -68,16 +58,16 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase<C
 public sealed partial class CIBIlluminationProfileCacheItem : CalibrationCacheBase<CIBIlluminationProfileCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private Point _hazeFindBFMachinePosition;
+    public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     public override CIBIlluminationProfileCacheItem Clone() => new()
     {

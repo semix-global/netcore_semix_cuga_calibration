@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.CIB.LineCentricity;
 
@@ -11,23 +11,21 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLin
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
-    private double _pmtInterval = 320; // Pmt相机采集间隔320um
+    public partial double PmtInterval { get; set; } = 320;
 
     [ObservableProperty]
-    private Point _threshold;
+    public partial Point Threshold { get; set; }
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBLineCentricityCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBLineCentricityCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBLineCentricityCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLineCentricityCacheItem());
 
     public override CIBLineCentricityCache Clone() => new()
@@ -47,34 +45,34 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLin
 public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase<CIBLineCentricityCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
+    public partial Point FindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
     private string _brightTemplateFilePath = string.Empty;
 
     [ObservableProperty]
-    private string _brightTemplateImageFilePath = string.Empty;
+    public partial string BrightTemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
     private string _templateImageFilePath = string.Empty;

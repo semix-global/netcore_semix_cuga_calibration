@@ -32,14 +32,10 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial Point[] LaserLightInformationPMTVoltageValuePoints { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
@@ -47,14 +43,10 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial ConcurrentDictionary<CIBInformation, double> TargetPixelValues { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial ConcurrentDictionary<CIBInformation, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
     #region Partial Method
@@ -201,8 +193,6 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]

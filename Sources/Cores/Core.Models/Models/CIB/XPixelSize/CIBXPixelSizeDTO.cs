@@ -14,23 +14,23 @@ namespace Core.Models.Models.CIB.XPixelSize;
 public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private double _xPixelSize;
+    public partial double XPixelSize { get; set; }
 
     [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
+    public partial string RawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SlideItemPoints))]
-    private IReadOnlyList<CIBXPixelSizeDTOItem> _slideItems = [];
+    public partial IReadOnlyList<CIBXPixelSizeDTOItem> SlideItems { get; set; } = [];
 
     [ObservableProperty]
     private IReadOnlyList<double> _slideSplitDifferences = [];
@@ -46,17 +46,13 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase<CIBXPixelSizeD
     private double _xPixelSizeDelta;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public IReadOnlyList<Point> SlideItemPoints => [.. SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public IReadOnlyList<Point> VerifyItemPoints => [.. VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _verifySplitDifferences = [];
+    public partial IReadOnlyList<double> VerifySplitDifferences { get; set; } = [];
 
     #region Mapper
 
@@ -98,8 +94,6 @@ public sealed class CIBXPixelSizeDTOItem
     public long StartPixel { get; init; }
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public byte[] Buffer { get; init; } = [];
 
     public SizeI SizeI { get; init; }

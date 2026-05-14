@@ -13,28 +13,28 @@ namespace Core.Models.Models.CIB.YPixelSize;
 public sealed partial class CIBYPixelSizeDTO : CalibrationDTOBase<CIBYPixelSizeDTO>, IAdaptTo<CalibrationLaserPixelSizeItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _pmtId;
+    public partial int PmtId { get; set; }
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
+    public partial Point FindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private double _yPixelSize;
+    public partial double YPixelSize { get; set; }
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _drawImageFilePath = string.Empty;
+    public partial string DrawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _rawFilePath = string.Empty;
+    public partial string RawFilePath { get; set; } = string.Empty;
 
     #region Mapper
 

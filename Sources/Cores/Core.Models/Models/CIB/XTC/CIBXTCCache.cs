@@ -3,6 +3,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.CIB.XTC;
 
@@ -21,12 +22,10 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase<CIBXTCCache>
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 1;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBXTCCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBXTCCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBXTCCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBXTCCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBXTCCacheItem());
 
     public override CIBXTCCache Clone() => new()

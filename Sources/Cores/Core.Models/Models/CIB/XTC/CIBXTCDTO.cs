@@ -29,19 +29,13 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial AODUniformityDTO.WindowItem StartWindowItem { get; set; } = new();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial AODUniformityDTO.WindowItem StopWindowItem { get; set; } = new();
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
@@ -49,20 +43,14 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial ConcurrentDictionary<int, double> TargetPixelValues { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl ForwardAndReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial ConcurrentDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
     #region Partial Method
@@ -319,8 +307,6 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]

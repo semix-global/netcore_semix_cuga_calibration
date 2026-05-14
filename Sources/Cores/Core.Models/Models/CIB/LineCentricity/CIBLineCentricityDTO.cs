@@ -15,66 +15,60 @@ namespace Core.Models.Models.CIB.LineCentricity;
 public sealed partial class CIBLineCentricityDTO : CalibrationDTOBase<CIBLineCentricityDTO>, IAdaptTo<CalibrationLaserLineCentricityItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _pmtId;
+    public partial int PmtId { get; set; }
 
     [ObservableProperty]
-    private Point _findDFMachinePosition;
+    public partial Point FindDFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private Point _dFMachineCenterPosition;
+    public partial Point DFMachineCenterPosition { get; set; }
 
     [ObservableProperty]
-    private Point _dFMatchPositionOffset;
+    public partial Point DFMatchPositionOffset { get; set; }
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _rawFilePath = string.Empty;
+    public partial string RawFilePath { get; set; } = string.Empty;
 
     #region Mapper
 
-    public override CIBLineCentricityDTO Clone()
+    public override CIBLineCentricityDTO Clone() => new()
     {
-        return new CIBLineCentricityDTO
-        {
-            MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
-            ProductivityInformation = ProductivityInformation.Clone(),
-            PmtId = PmtId,
-            FindDFMachinePosition = FindDFMachinePosition,
-            DFMachineCenterPosition = DFMachineCenterPosition,
-            DFMatchPositionOffset = DFMatchPositionOffset,
-            FilePath = FilePath,
-            RawFilePath = RawFilePath,
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck,
-            Id = Id,
-            Expiration = Expiration
-        };
-    }
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        ProductivityInformation = ProductivityInformation.Clone(),
+        PmtId = PmtId,
+        FindDFMachinePosition = FindDFMachinePosition,
+        DFMachineCenterPosition = DFMachineCenterPosition,
+        DFMatchPositionOffset = DFMatchPositionOffset,
+        FilePath = FilePath,
+        RawFilePath = RawFilePath,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
+    };
 
-    public CalibrationLaserLineCentricityItem AdaptTo()
+    public CalibrationLaserLineCentricityItem AdaptTo() => new()
     {
-        return new CalibrationLaserLineCentricityItem
-        {
-            CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
-            CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
-            CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
-            Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
-            PmtId = PmtId,
-            DarkMachineCenterPosition = DFMachineCenterPosition.ToCgPoint(),
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredCalibrate = IsRequiredSelfCheck
-        };
-    }
+        CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
+        PmtId = PmtId,
+        DarkMachineCenterPosition = DFMachineCenterPosition.ToCgPoint(),
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredCalibrate = IsRequiredSelfCheck
+    };
 
     #endregion Mapper
 }

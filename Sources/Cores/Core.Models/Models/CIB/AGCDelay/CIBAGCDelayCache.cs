@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.CIB.AGCDelay;
 
@@ -21,7 +21,7 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase<CIBAGCDelayC
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 2;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBAGCDelayCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBAGCDelayCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBAGCDelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]

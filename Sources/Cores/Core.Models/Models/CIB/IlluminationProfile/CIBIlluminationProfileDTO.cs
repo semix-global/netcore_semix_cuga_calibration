@@ -25,32 +25,30 @@ namespace Core.Models.Models.CIB.IlluminationProfile;
 public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIlluminationProfileDTO>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsApodizationModeEnum _opticsApodizationModeEnum;
+    public partial OpticsApodizationModeEnum OpticsApodizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private OpticsPolarizationModeEnum _opticsPolarizationModeEnum;
+    public partial OpticsPolarizationModeEnum OpticsPolarizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private OpticsCollectorPolarizationModeEnum _opticsCollectorPolarizationModeEnum;
+    public partial OpticsCollectorPolarizationModeEnum OpticsCollectorPolarizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<CIBIlluminationProfileDTOItem> _items = [];
+    public partial IReadOnlyList<CIBIlluminationProfileDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CIBInformation, double>))]
-    private ConcurrentDictionary<CIBInformation, double> _targetPMTValues = [];
+    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CIBInformation, double>))]
+    public partial ConcurrentDictionary<CIBInformation, double> TargetPMTValues { get; set; } = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentDictionary<CIBInformation, IScatterPlotControl> _scatterPlotControls = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial ConcurrentDictionary<CIBInformation, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -181,13 +179,13 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIl
 public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, ICloneable<CIBIlluminationProfileDTOItem>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem.Item>
 {
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<Item> _items = [];
+    public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _window = [];
+    public partial IReadOnlyList<double> Window { get; set; } = [];
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -227,13 +225,13 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
     public sealed partial class Item : AODUniformityDTO.WindowItem, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _minRate;
+        public partial double MinRate { get; set; }
 
         [ObservableProperty]
-        private double _maxRate;
+        public partial double MaxRate { get; set; }
 
         [ObservableProperty]
-        private bool _isOk;
+        public partial bool IsOk { get; set; }
 
         public new Item Clone()
         {

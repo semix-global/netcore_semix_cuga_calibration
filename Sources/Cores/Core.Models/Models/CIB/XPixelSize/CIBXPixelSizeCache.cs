@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.CIB.XPixelSize;
 
@@ -13,15 +14,15 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase<CIBXPixelS
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
-    private double _threshold = 15;
+    public partial double Threshold { get; set; } = 15;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBXPixelSizeCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBXPixelSizeCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBXPixelSizeCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
@@ -45,49 +46,49 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase<CIBXPixelS
 public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase<CIBXPixelSizeCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     [ObservableProperty]
-    private AlignmentResultDto _alignmentResult = new();
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Caliper;
+    public partial WaferMaskTypeEnum WaferMaskTypeEnum { get; set; } = WaferMaskTypeEnum.Caliper;
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
+    public partial Point FindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _waferRadius = 140_000;
+    public partial double WaferRadius { get; set; } = 140_000;
 
     [ObservableProperty]
-    private double _diePitchWith = 5100;
+    public partial double DiePitchWith { get; set; } = 5100;
 
     [ObservableProperty]
-    private int _reticleDieCountX = 3;
+    public partial int ReticleDieCountX { get; set; } = 3;
 
     public override CIBXPixelSizeCacheItem Clone() => new()
     {

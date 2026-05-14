@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -7,24 +6,23 @@ using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.CIB.LineOrientationOffset;
 
 public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase<CIBLineOrientationOffsetCache>
 {
     [ObservableProperty]
-    private double _pmtInterval = 320; // Pmt相机采集间隔320um
+    public partial double PmtInterval { get; set; } = 320;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBLineOrientationOffsetCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBLineOrientationOffsetCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBLineOrientationOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBLineOrientationOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLineOrientationOffsetCacheItem());
 
     public override CIBLineOrientationOffsetCache Clone() => new()
@@ -63,62 +61,61 @@ public sealed partial class CIBLineOrientationOffsetCacheItem : CalibrationCache
     } = 1;
 
     [ObservableProperty]
-    private int _imageCount;
+    public partial int ImageCount { get; set; }
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.GridConrner_100um;
+    public partial WaferMaskTypeEnum WaferMaskTypeEnum { get; set; } = WaferMaskTypeEnum.GridConrner_100um;
 
     [ObservableProperty]
-    private int _xWidthPixel = 800;
+    public partial int XWidthPixel { get; set; } = 800;
 
     [ObservableProperty]
-    private double _threshold;
+    public partial double Threshold { get; set; }
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     /// <summary>
     /// 选定特征的明场坐标
     /// </summary>
     [ObservableProperty]
-    private Point _findPosition;
+    public partial Point FindPosition { get; set; }
 
     [ObservableProperty]
-    private Point _startPosition;
+    public partial Point StartPosition { get; set; }
 
     [ObservableProperty]
-    private Point _endPosition;
+    public partial Point EndPosition { get; set; }
 
     [ObservableProperty]
-    private AlignmentResultDto _alignmentResult = new();
-
-
-    [ObservableProperty]
-    private string _brightTemplateFilePath = string.Empty;
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [ObservableProperty]
-    private string _brightTemplateImageFilePath = string.Empty;
+    public partial string BrightTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial string BrightTemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     public override CIBLineOrientationOffsetCacheItem Clone() => new()
     {

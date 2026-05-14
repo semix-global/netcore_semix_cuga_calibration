@@ -74,8 +74,6 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657

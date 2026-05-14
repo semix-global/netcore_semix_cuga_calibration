@@ -5,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.CIB.YPixelSize;
 
@@ -12,23 +13,21 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelS
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
-    private double _pmtInterval = 320; // Pmt相机采集间隔320um
+    public partial double PmtInterval { get; set; } = 320;
 
     [ObservableProperty]
-    private double _threshold;
+    public partial double Threshold { get; set; }
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBYPixelSizeCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBYPixelSizeCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBYPixelSizeCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBYPixelSizeCacheItem());
 
     public override CIBYPixelSizeCache Clone() => new()
@@ -48,28 +47,28 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelS
 public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase<CIBYPixelSizeCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private int _cIBChannelId = 3;
+    public partial int CIBChannelId { get; set; } = 3;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.Grid_10um;
+    public partial WaferMaskTypeEnum WaferMaskTypeEnum { get; set; } = WaferMaskTypeEnum.Grid_10um;
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
+    public partial Point FindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
     private bool _isDarkFieldAlignment;
