@@ -3,12 +3,12 @@ using Core.Models.Enums.Optics;
 using Cuga.Data.DataStruct.Optics;
 
 #if NET
-using Semix.GRPC.DTO.Basic;
 using Semix.GRPC.DTO;
+using Semix.GRPC.DTO.Basic;
 #else
+using Cuga.Data.DataStruct.PMT;
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
-using Cuga.Data.DataStruct.PMT;
 
 #endif
 

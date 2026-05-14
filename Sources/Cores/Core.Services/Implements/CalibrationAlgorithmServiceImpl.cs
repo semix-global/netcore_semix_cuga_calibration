@@ -12,7 +12,6 @@ using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
-using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -200,21 +199,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return new Size(xTuple.D, yTuple.D);
     }
 
-    [Obsolete]
-    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize)
-    {
-        using var hImage = image.ToHImage();
-        var y = hImage.GetHorizontalProjects();
-
-        // 使用AMPD算法找出波峰
-        var signal = Vector<double>.Build.DenseOfEnumerable(y.Select(t => -t));
-        var peaks = AutomaticMPeakDetection.Ampd(signal);
-        // 所有后一个减去前一个，得到差值, 然后取得均值
-        var mean = peaks.Skip(1).Select((t, i) => (double)t - peaks[i]).Average();
-
-        return standardMaskSquareYSize / mean;
-    }
-
     public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage)
     {
         using var hImage = image.ToHImage();
@@ -334,119 +318,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
     }
 
-    public bool TryGenerateProjectionTemplate(BitmapImage image, string templateFilePath, out BitmapImage templateImage)
-    {
-        templateImage = BitmapImage.Random(2448, 2048, 10);
-
-        try
-        {
-            using var hImage = image.ToHImage();
-            using var scaleImageTo8Bit = hImage.ScaleImageTo8Bit();
-
-            templateImage.Dispose();
-            templateImage = scaleImageTo8Bit.ToBitmapImage().Copy();
-
-            DirectoryHelper.CreateFileDirectoryIfNotExists($"{templateFilePath}.x.ncc");
-            FileHelper.DeleteFileIfExists(templateFilePath);
-
-            _algorithm.ProjectionCreateModel(scaleImageTo8Bit, $"{templateFilePath}.x", $"{templateFilePath}.y");
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Generate Template Failed", nameof(CalibrationAlgorithmServiceImpl));
-            return false;
-        }
-    }
-
-    public bool TryReadProjectionTemplate(string templateFilePath, out HTuple templateXId, out HTuple templateYId)
-    {
-        templateXId = HalconFactory.EmptyHTuple;
-        templateYId = HalconFactory.EmptyHTuple;
-
-        try
-        {
-            if (File.Exists($"{templateFilePath}.x.ncc") == false) throw new FileNotFoundException(nameof(templateFilePath));
-            if (File.Exists($"{templateFilePath}.y.ncc") == false) throw new FileNotFoundException(nameof(templateFilePath));
-
-            _algorithm.ProjectionReadModel($"{templateFilePath}.x", $"{templateFilePath}.y", out templateXId, out templateYId);
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Read Template Failed", nameof(CalibrationAlgorithmServiceImpl));
-            return false;
-        }
-    }
-
-    public bool TryCleanProjectionTemplate(HTuple templateXId, HTuple templateYId)
-    {
-        try
-        {
-            _algorithm.ProjectionClearModel(templateXId, templateYId);
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Clean Template Failed", nameof(CalibrationAlgorithmServiceImpl));
-            return false;
-        }
-    }
-
-    public bool TryProjectionTemplateMatchToOffset(BitmapImage image, HTuple templateXId, HTuple templateYId, out Point markPoint, out Point offsetPoint)
-    {
-        markPoint = Point.Origin;
-        offsetPoint = Point.Origin;
-
-        try
-        {
-            using var hImage = image.ToHImage();
-            using var scaleImageTo8Bit = hImage.ScaleImageTo8Bit();
-            _algorithm.ProjectionFindModel(scaleImageTo8Bit, templateXId, templateYId, out var yHTuple, out var xHTuple);
-            using var _1 = yHTuple;
-            using var _2 = xHTuple;
-            if (xHTuple.Length == 0 || yHTuple.Length == 0) return false;
-
-            var size = scaleImageTo8Bit.GetSize();
-            markPoint = new Point(xHTuple.D, yHTuple.D);
-
-            var offset = markPoint - (Point)((Size)size / 2d);
-            offsetPoint = new Point(offset.X, -offset.Y);
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Template Math To Offset Failed", nameof(CalibrationAlgorithmServiceImpl));
-            return false;
-        }
-    }
-
-    public BitmapImage DarkFieldRawImageToLinearImage(BitmapImage image)
-    {
-        using var hImage = image.ToHImage();
-        _algorithm.RAWConvertLiner(hImage, out var darkFieldLinearImageHObject);
-
-        using var _ = darkFieldLinearImageHObject;
-
-        using var darkFieldLinearHImage = new HImage(darkFieldLinearImageHObject);
-        var darkFieldLinearImage = darkFieldLinearHImage.ToBitmapImage();
-
-        return darkFieldLinearImage;
-    }
-
-    public (List<string> DatAvg, List<string> Data) GetPmtGain(Dictionary<int, List<int>> dicPmtData, int lineValue, double minValue, double maxValue)
-    {
-        _algorithm.AutoPMT(dicPmtData, lineValue, minValue, maxValue, out List<string> datavge1, out List<string> data1);
-
-        return (datavge1, data1);
-    }
-
-    public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage,
-        double rotateAngle)
+    public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage, double rotateAngle)
     {
         using var hHazeImage = hazeImage.ToHImage();
         using var hShinyWaferImage = shinyWaferImage.ToHImage();
@@ -534,39 +406,18 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
 
-    public HTuple GetPictureGray(BitmapImage image, HTuple bit, out HTuple hv_Histo)
-    {
-        //HOperatorSet.Rgb1ToGray(image, out var grayImage);
-        using var hImage = image.ToHImage();
-        _algorithm.histo(hImage, bit, out var hv_histo);
-        hv_Histo = hv_histo;
-        return hv_Histo;
-    }
-
-    public BitmapImage RotateAndMirrorImage(BitmapImage image)
-    {
-        using var hImage = image.ToHImage();
-        _algorithm.RotateAndMirror(hImage, out var mirrorImage);
-        return ((HImage)mirrorImage).ToBitmapImage();
-    }
-
     public double[] GetImageGrayYProjectionsPixels(BitmapImage image)
     {
         using var hImage = image.ToHImage();
         _algorithm.LightSpot(hImage, out var yValue);
-        return yValue.ToDArr();
-    }
 
-    public double GetImageMeanGray(BitmapImage image, Rect roiRect)
-    {
-        using var hImage = image.ToHImage();
-        using var roiImage = hImage.ToRoi(roiRect);
-        return hImage.Intensity(roiImage, out double _);
+        return yValue.ToDArr();
     }
 
     public (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points)
     {
         _algorithm.FindCircle(points.Select(t => t.X).ToList(), points.Select(t => t.Y).ToList(), out var yValue, out var xValue, out var radius);
+
         return (new Point(xValue.D, yValue.D), radius.D);
     }
 }

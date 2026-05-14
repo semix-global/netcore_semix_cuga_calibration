@@ -92,22 +92,68 @@
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
-                                                      Style="{StaticResource DataGrid.Small}"
-                                                      HeadersVisibility="All"
-                                                      RowHeaderWidth="60"
-                                                      AutoGenerateColumns="False"
-                                                      ItemsSource="{Binding Cache.MMDConfigurations}">
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="CIB"
-                                                                        Binding="{Binding CIBInformation}"
-                                                                        IsReadOnly="True" />
-                                                    <DataGridTextColumn Header="Filter Min Gain(V)" Binding="{Binding FilterMinGain, StringFormat='0.######'}" />
-                                                    <DataGridTextColumn Header="Power Rate" Binding="{Binding PowerRate, StringFormat='0.######'}" />
-                                                </DataGrid.Columns>
-                                            </DataGrid>
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                        VerticalAlignment="Top"
+                                                                        Spacing="10">
+                                                    <Button Content="Import"
+                                                            Command="{Binding ImportCIBMMDCacheMMDConfigurationCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource DialogBoxLauncherGeometry}"
+                                                            Style="{StaticResource ButtonInfo}" />
+                                                    <Button Content="Cancel"
+                                                            Command="{Binding ImportCIBMMDCacheMMDConfigurationCancelCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                            Style="{StaticResource ButtonWarning}" />
+                                                    <ToggleButton Content="Template"
+                                                                  Command="{x:Static wpf:Commands.SaveFileAsCommand}"
+                                                                  CommandParameter="Assets\Data\MMDTemplate\CIBMMDCache.MMDConfiguration.B4.xlsx"
+                                                                  HorizontalAlignment="Left"
+                                                                  hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />
+                                                </hc:UniformSpacingPanel>
+                                                <ToggleButton x:Name="ToggleButtonMMDConfigurations"
+                                                              Content="MMD Configurations"
+                                                              HorizontalAlignment="Left"
+                                                              hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                                <Popup Width="800"
+                                                       Height="800"
+                                                       StaysOpen="False"
+                                                       PlacementTarget="{Binding ElementName=ToggleButtonMMDConfigurations}"
+                                                       Placement="Right"
+                                                       AllowsTransparency="True"
+                                                       PopupAnimation="Slide"
+                                                       IsOpen="{Binding IsChecked, ElementName=ToggleButtonMMDConfigurations, Mode=TwoWay}">
+                                                    <Border Style="{StaticResource BorderRegion}">
+                                                        <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                                                                  Style="{StaticResource DataGrid.Small}"
+                                                                  HeadersVisibility="All"
+                                                                  RowHeaderWidth="60"
+                                                                  AutoGenerateColumns="False"
+                                                                  ItemsSource="{Binding Cache.MMDConfigurations}">
+                                                            <DataGrid.Columns>
+                                                                <DataGridTextColumn Header="CIB"
+                                                                                    Binding="{Binding CIBInformation}"
+                                                                                    IsReadOnly="True" />
+                                                                <DataGridTextColumn Header="Filter Min Gain(V)" Binding="{Binding FilterMinGain, StringFormat='0.######'}" />
+                                                                <DataGridTextColumn Header="Power Rate" Binding="{Binding PowerRate, StringFormat='0.##################'}" />
+                                                            </DataGrid.Columns>
+                                                        </DataGrid>
+                                                    </Border>
+                                                </Popup>
+                                            </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
+                                    <hc:NumericUpDown hc:TitleElement.Title="Verify Min LogGain: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.VerifyMinLogGain}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Verify Max LogGain: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.VerifyMaxLogGain}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </Expander>
@@ -131,6 +177,24 @@
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Custom Data Algorithm"
+                                    Command="{Binding ManualCustomDataAlgorithmCommand}"
+                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                    Style="{StaticResource ButtonInfo.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding ManualCustomDataAlgorithmCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                            <ToggleButton Content="Template"
+                                          Command="{x:Static wpf:Commands.SaveDirectoryAsCommand}"
+                                          CommandParameter="Assets\Data\MMDTemplate\CIBMMDManualCustomData"
+                                          HorizontalAlignment="Left"
+                                          hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />
+                        </hc:UniformSpacingPanel>
+                        <Separator />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

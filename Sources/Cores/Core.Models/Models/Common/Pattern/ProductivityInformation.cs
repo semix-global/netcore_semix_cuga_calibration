@@ -11,8 +11,8 @@ using Newtonsoft.Json.Linq;
 #if NET
 using Semix.GRPC.DTO;
 #else
-using Semix.WcfTransfer.DTO;
 using Core.Models.Extensions;
+using Semix.WcfTransfer.DTO;
 
 #endif
 
