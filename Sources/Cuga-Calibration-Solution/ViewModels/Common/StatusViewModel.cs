@@ -88,10 +88,18 @@ public sealed partial class StatusViewModel(
                     MachinePosition = stageViewModel.GetMachineStagePosition();
                     MachineTheta = stageViewModel.GetMachineStageTheta();
                     if (IsSwitchMicroscopeLensInformationRunning == 0) MicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
-                    BitmapMemoryByteArray = reviewViewModel.GetBrightFieldImageMemoryByteArray();
 
-                    _frameCount++;
-                    GC.Collect();
+                    try
+                    {
+                        BitmapMemoryByteArray = reviewViewModel.GetBrightFieldImageMemoryByteArray();
+
+                        _frameCount++;
+                        GC.Collect();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Get Status Failed!");
+                    }
 
                     IsEnable = applicationCookie.CIBInformations.SequenceEqual(cibViewModel.GetCIBInformations());
                 }

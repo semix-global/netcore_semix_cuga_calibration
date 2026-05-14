@@ -25,7 +25,7 @@ public static class BitmapImageExtensions
         public BitmapImage ToLinearImage()
         {
             using var hImage = bitmapImage.ToHImage();
-            using var temp = RAWImageFactory.CreateImage(hImage.GetImagePointer(), bitmapImage.Width, bitmapImage.Height, true);
+            using var temp = RAWImageFactory.RAW12BitsPerPixelLogToLinear(hImage);
 
             return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
