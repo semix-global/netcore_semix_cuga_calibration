@@ -7,25 +7,25 @@ namespace Core.Models.Models.Laser.BeamStabilizer;
 public sealed partial class LaserBeamStabilizerCache : CalibrationCacheBase<LaserBeamStabilizerCache>
 {
     [ObservableProperty]
-    private Point _currentPDPosition1;
+    public partial Point CurrentPDPosition1 { get; set; }
 
     [ObservableProperty]
-    private Point _currentPDPosition2;
+    public partial Point CurrentPDPosition2 { get; set; }
 
     [ObservableProperty]
-    private Point _originPosition1;
+    public partial Point OriginPosition1 { get; set; }
 
     [ObservableProperty]
-    private Point _originPosition2;
+    public partial Point OriginPosition2 { get; set; }
 
     [ObservableProperty]
-    private int _interval;
+    public partial int Interval { get; set; }
 
     [ObservableProperty]
-    private int _threshold;
+    public partial int Threshold { get; set; }
 
     [ObservableProperty]
-    private int _repeatNumber = 5;
+    public partial int RepeatNumber { get; set; } = 5;
 
     public override LaserBeamStabilizerCache Clone() => new()
     {
