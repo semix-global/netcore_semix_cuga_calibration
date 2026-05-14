@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Net.Utilities.Mapper.Interfaces;
@@ -13,25 +12,29 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentTemplateDto : ObservableObject, ICloneable<AlignmentTemplateDto>, IAdaptTo<C2MTemplateDTO>, IAdaptIn<C2MTemplateDTO, AlignmentTemplateDto>
+public sealed partial class AlignmentTemplateDto :
+    ObservableObject,
+    ICloneable<AlignmentTemplateDto>,
+    IAdaptTo<C2MTemplateDTO>,
+    IAdaptIn<C2MTemplateDTO, AlignmentTemplateDto>
 {
     /// <summary>
     /// 模板路径
     /// </summary>
     [ObservableProperty]
-    private string _name = string.Empty;
+    public partial string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// 模板图片
     /// </summary>
     [ObservableProperty]
-    private byte[] _thumb = [];
+    public partial byte[] Thumb { get; set; } = [];
 
     /// <summary>
     /// 模板大小
     /// </summary>
     [ObservableProperty]
-    private Size _size;
+    public partial Size Size { get; set; }
 
     #region Mapper
 
@@ -51,8 +54,6 @@ public sealed partial class AlignmentTemplateDto : ObservableObject, ICloneable<
 
     public AlignmentTemplateDto AdaptIn(C2MTemplateDTO obj)
     {
-        Guard.IsNotNull(obj);
-
         Name = obj.Name ?? string.Empty;
         Thumb = obj.Thumb is not null ? [.. obj.Thumb] : [];
         Size = obj.Size.ToSize();

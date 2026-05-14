@@ -14,19 +14,19 @@ namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
 public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDTOBase<ChuckAlignmentDegreeOffsetItemDto>, IAdaptTo<CalibrationChuckAlignmentDegreeOffsetItem>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationMode { get; set; } = OpticsIlluminationModeEnum.OI;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private double _brightFieldAlignmentDegree;
+    public partial double BrightFieldAlignmentDegree { get; set; }
 
     [ObservableProperty]
-    private double _darkFieldAlignmentDegree;
+    public partial double DarkFieldAlignmentDegree { get; set; }
 
     [ObservableProperty]
-    private double _darkFieldAlignmentVerifyResult;
+    public partial double DarkFieldAlignmentVerifyResult { get; set; }
 
     public double DegreeOffset => DarkFieldAlignmentDegree - BrightFieldAlignmentDegree;
 

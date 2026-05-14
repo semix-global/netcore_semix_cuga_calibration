@@ -1,50 +1,48 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
 
 public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBase<ChuckAlignmentDegreeOffsetCache>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LowMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     /// <summary>
     /// 晶圆类型
     /// </summary>
     [ObservableProperty]
-    private AlgorithmWaferTypeEnum _algorithmWaferTypeEnum = AlgorithmWaferTypeEnum.D300;
+    public partial AlgorithmWaferTypeEnum AlgorithmWaferTypeEnum { get; set; } = AlgorithmWaferTypeEnum.D300;
 
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>))]
     public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public ChuckAlignmentDegreeOffsetCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), _ => new ChuckAlignmentDegreeOffsetCacheItem());
 
     [ObservableProperty]
-    private double _nccTypeTemplateMatchScoreThreshold = 0.8;
+    public partial double NccTypeTemplateMatchScoreThreshold { get; set; } = 0.8;
 
     [ObservableProperty]
-    private double _teachingThreshold;
+    public partial double TeachingThreshold { get; set; }
 
     [ObservableProperty]
-    private double _verifyThreshold;
+    public partial double VerifyThreshold { get; set; }
 
     public override ChuckAlignmentDegreeOffsetCache Clone() => new()
     {
@@ -67,7 +65,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
 public sealed partial class ChuckAlignmentDegreeOffsetCacheItem : CalibrationCacheBase<ChuckAlignmentDegreeOffsetCacheItem>
 {
     [ObservableProperty]
-    private int _xWidthPixel = 800;
+    public partial int XWidthPixel { get; set; } = 800;
 
     public override ChuckAlignmentDegreeOffsetCacheItem Clone() => new()
     {

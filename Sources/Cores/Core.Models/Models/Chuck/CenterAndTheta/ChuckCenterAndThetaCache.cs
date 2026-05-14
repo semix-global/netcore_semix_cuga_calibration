@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
@@ -11,101 +10,92 @@ namespace Core.Models.Models.Chuck.CenterAndTheta;
 
 public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase<ChuckCenterAndThetaCache>
 {
-    private double _diePitchWidth = 5100;
-    private double _diePitchHeight = 16600;
-    private int _reticleDieCountX = 1;
-    private int _reticleDieCountY = 1;
-    private double _waferRadius = 150_000;
-    private double _rotateAngle = 1d;
-    private int _centerCalibrationThreshold = 200;
-    private int _centerVerifyThreshold = 50;
+    [ObservableProperty]
+    public partial MicroscopeLensInformation LowMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
-
-    [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ComparisonRange(0d, 1d, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Rotate Angle: ")]
     public double RotateAngle
     {
-        get => _rotateAngle;
-        set => SetProperty(ref _rotateAngle, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 1d;
 
     [ObservableProperty]
-    private double _p5Angle;
+    public partial double P5Angle { get; set; }
 
     [ObservableProperty]
-    private double _thetaAngle;
+    public partial double ThetaAngle { get; set; }
 
     [ObservableProperty]
-    private int _times = 3;
+    public partial int Times { get; set; } = 3;
 
     #region Wafer Parameters
 
     [ObservableProperty]
-    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftBottom;
+    public partial WaferMaskTypeEnum WaferMaskTypeEnum { get; set; } = WaferMaskTypeEnum.DieCorner_LeftBottom;
 
     [ObservableProperty]
-    private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
+    public partial StageDirectionTypeEnum SiteDirection { get; set; } = StageDirectionTypeEnum.Up;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Width must be greater than 0.1.")]
     public double DiePitchWidth
     {
-        get => _diePitchWidth;
-        set => SetProperty(ref _diePitchWidth, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 5100;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Height must be greater than 0.1.")]
     public double DiePitchHeight
     {
-        get => _diePitchHeight;
-        set => SetProperty(ref _diePitchHeight, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 16600;
 
     [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Radius: ")]
     public double WaferRadius
     {
-        get => _waferRadius;
-        set => SetProperty(ref _waferRadius, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 150_000;
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Reference Die Col Count must be greater than 1.")]
     public int ReticleDieCountX
     {
-        get => _reticleDieCountX;
-        set => SetProperty(ref _reticleDieCountX, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 1;
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Reference Die Row Count must be greater than 1.")]
     public int ReticleDieCountY
     {
-        get => _reticleDieCountY;
-        set => SetProperty(ref _reticleDieCountY, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 1;
 
     #endregion
 
     #region Position
 
     [ObservableProperty]
-    private Point _baseLowSiteFindPosition = Point.Origin;
+    public partial Point BaseLowSiteFindPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _baseHighSiteFindPosition = Point.Origin;
+    public partial Point BaseHighSiteFindPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _topLowSitePosition = Point.Origin;
+    public partial Point TopLowSitePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _leftLowSitePosition = Point.Origin;
+    public partial Point LeftLowSitePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _bottomLowSitePosition = Point.Origin;
+    public partial Point BottomLowSitePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _rightLowSitePosition = Point.Origin;
+    public partial Point RightLowSitePosition { get; set; } = Point.Origin;
 
     public Point LowToHighMagnificationOffset => BaseHighSiteFindPosition - (Vector)BaseLowSiteFindPosition;
 
@@ -116,36 +106,36 @@ public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase<Chuc
     [ComparisonRange(0, 500, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Center Calibration Threshold: ")]
     public int CenterCalibrationThreshold
     {
-        get => _centerCalibrationThreshold;
-        set => SetProperty(ref _centerCalibrationThreshold, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 200;
 
     [ComparisonRange(0, 50, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "Center Verify Threshold: ")]
     public int CenterVerifyThreshold
     {
-        get => _centerVerifyThreshold;
-        set => SetProperty(ref _centerVerifyThreshold, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 50;
 
     /// <summary>
     /// 角度阈值默认0.00028°,转成半径300mm对应的弧长
     /// </summary>
     [ObservableProperty]
-    private double _rotateScaleThreshold = 1.4661;
+    public partial double RotateScaleThreshold { get; set; } = 1.4661;
 
     #endregion
 
     [ObservableProperty]
-    private string _lowBaseTemplateFilePath = string.Empty;
+    public partial string LowBaseTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _lowBaseTemplateImageFilePath = string.Empty;
+    public partial string LowBaseTemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _highBaseTemplateFilePath = string.Empty;
+    public partial string HighBaseTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _highBaseTemplateImageFilePath = string.Empty;
+    public partial string HighBaseTemplateImageFilePath { get; set; } = string.Empty;
 
     public void SetPosition(Point position, StageDirectionTypeEnum? stageDirection = null)
     {
@@ -208,27 +198,27 @@ public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase<Chuc
 
     public override ChuckCenterAndThetaCache Clone() => new()
     {
-        DiePitchWidth = DiePitchWidth,
-        DiePitchHeight = DiePitchHeight,
-        ReticleDieCountX = ReticleDieCountX,
-        ReticleDieCountY = ReticleDieCountY,
-        WaferRadius = WaferRadius,
-        RotateAngle = RotateAngle,
-        CenterCalibrationThreshold = CenterCalibrationThreshold,
-        CenterVerifyThreshold = CenterVerifyThreshold,
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        RotateAngle = RotateAngle,
         P5Angle = P5Angle,
         ThetaAngle = ThetaAngle,
         Times = Times,
         WaferMaskTypeEnum = WaferMaskTypeEnum,
         SiteDirection = SiteDirection,
+        DiePitchWidth = DiePitchWidth,
+        DiePitchHeight = DiePitchHeight,
+        WaferRadius = WaferRadius,
+        ReticleDieCountX = ReticleDieCountX,
+        ReticleDieCountY = ReticleDieCountY,
         BaseLowSiteFindPosition = BaseLowSiteFindPosition,
         BaseHighSiteFindPosition = BaseHighSiteFindPosition,
         TopLowSitePosition = TopLowSitePosition,
         LeftLowSitePosition = LeftLowSitePosition,
         BottomLowSitePosition = BottomLowSitePosition,
         RightLowSitePosition = RightLowSitePosition,
+        CenterCalibrationThreshold = CenterCalibrationThreshold,
+        CenterVerifyThreshold = CenterVerifyThreshold,
         RotateScaleThreshold = RotateScaleThreshold,
         LowBaseTemplateFilePath = LowBaseTemplateFilePath,
         LowBaseTemplateImageFilePath = LowBaseTemplateImageFilePath,

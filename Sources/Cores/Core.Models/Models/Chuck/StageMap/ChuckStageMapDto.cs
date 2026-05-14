@@ -15,40 +15,40 @@ namespace Core.Models.Models.Chuck.StageMap;
 public sealed partial class ChuckStageMapDto : CalibrationDTOBase<ChuckStageMapDto>, IAdaptTo<CalibrationChuckStageMap>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private StageMapDto _calibrationBrightFieldStageMap = new();
+    public partial StageMapDto CalibrationBrightFieldStageMap { get; set; } = new();
 
     [ObservableProperty]
-    private StageMapDto _calibrationDarkFieldStageMap = new();
+    public partial StageMapDto CalibrationDarkFieldStageMap { get; set; } = new();
 
     [ObservableProperty]
-    private StageMapDto _expandStageMapDto = new();
+    public partial StageMapDto ExpandStageMapDto { get; set; } = new();
 
     [ObservableProperty]
-    private StageMapDto _verifyDarkFieldStageMap = new();
+    public partial StageMapDto VerifyDarkFieldStageMap { get; set; } = new();
 
     [ObservableProperty]
-    private StageMapDto _verifyBrightFieldStageMap = new();
+    public partial StageMapDto VerifyBrightFieldStageMap { get; set; } = new();
 
     [ObservableProperty]
-    private bool _isCalibrationBrightField;
+    public partial bool IsCalibrationBrightField { get; set; }
 
     [ObservableProperty]
-    private bool _isVerifyDarkField;
+    public partial bool IsVerifyDarkField { get; set; }
 
     [ObservableProperty]
-    private bool _isVerifyBrightField;
+    public partial bool IsVerifyBrightField { get; set; }
 
     #region Mapper
 
     public override ChuckStageMapDto Clone() => new()
     {
-        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
         ProductivityInformation = ProductivityInformation.Clone(),
         CalibrationBrightFieldStageMap = CalibrationBrightFieldStageMap.Clone(),
         CalibrationDarkFieldStageMap = CalibrationDarkFieldStageMap.Clone(),
