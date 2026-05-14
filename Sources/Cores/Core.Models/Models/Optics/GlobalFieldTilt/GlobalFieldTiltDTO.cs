@@ -21,13 +21,13 @@ namespace Core.Models.Models.Optics.GlobalFieldTilt;
 public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldTiltDTO>, IAdaptTo<CalibrationLaserDOEAngle>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<GlobalFieldTiltDTOItem> _items = [];
+    public partial IReadOnlyList<GlobalFieldTiltDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    private GlobalFieldTiltDTOItem? _resultItem;
+    public partial GlobalFieldTiltDTOItem? ResultItem { get; set; }
 
     partial void OnItemsChanged(IReadOnlyList<GlobalFieldTiltDTOItem>? oldValue, IReadOnlyList<GlobalFieldTiltDTOItem> newValue)
     {
@@ -50,10 +50,8 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldT
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -106,40 +104,34 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldT
 public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneable<GlobalFieldTiltDTOItem>
 {
     [ObservableProperty]
-    private double _appliedDOEPos;
+    public partial double AppliedDOEPos { get; set; }
 
     [ObservableProperty]
-    private double _reviseDOEPos;
+    public partial double ReviseDOEPos { get; set; }
 
     [ObservableProperty]
-    private double _slope;
+    public partial double Slope { get; set; }
 
     [ObservableProperty]
-    private double _intercept;
+    public partial double Intercept { get; set; }
 
     [ObservableProperty]
-    private double _rSquared;
+    public partial double RSquared { get; set; }
 
     [ObservableProperty]
-    private double _globalFieldTiltError;
+    public partial double GlobalFieldTiltError { get; set; }
 
+    [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
-    [ObservableProperty]
-    private IReadOnlyList<Point> _originPoints = [];
+    public partial IReadOnlyList<Point> OriginPoints { get; set; } = [];
 
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitPoints = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IReadOnlyList<Point> FitPoints { get; set; } = [];
 
-    [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     [ObservableProperty]
-    private IReadOnlyList<Item> _bestFocusChannelItems = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IReadOnlyList<Item> BestFocusChannelItems { get; set; } = [];
 
     public GlobalFieldTiltDTOItem()
     {
@@ -173,10 +165,8 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -235,25 +225,25 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
-        private int _pmtId;
+        public partial int PmtId { get; set; }
 
         [ObservableProperty]
-        private int _channelId;
+        public partial int ChannelId { get; set; }
 
         [ObservableProperty]
-        private double _xBestFocusEcs;
+        public partial double XBestFocusEcs { get; set; }
 
         [ObservableProperty]
-        private double _xBestFocusQuality;
+        public partial double XBestFocusQuality { get; set; }
 
         [ObservableProperty]
-        private IReadOnlyList<Point> _xQualitys = [];
+        public partial IReadOnlyList<Point> XQualitys { get; set; } = [];
 
         /// <summary>
         /// 算法结果拟合结果
         /// </summary>
         [ObservableProperty]
-        private IReadOnlyList<Point> _xFitPositions = [];
+        public partial IReadOnlyList<Point> XFitPositions { get; set; } = [];
 
         partial void OnXFitPositionsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
@@ -262,22 +252,20 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
         partial void OnXBestFocusEcsChanged(double value) => RefreshPlot();
 
         [ObservableProperty]
-        private string _rawFilePath = string.Empty;
+        public partial string RawFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private string _filePath = string.Empty;
+        public partial string FilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private string _linearFilePath = string.Empty;
+        public partial string LinearFilePath { get; set; } = string.Empty;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
         [ObservableProperty]
-        [property: Newtonsoft.Json.JsonIgnore]
-        [property: System.Text.Json.Serialization.JsonIgnore]
-        [property: System.Xml.Serialization.XmlIgnore]
-        private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+        [Newtonsoft.Json.JsonIgnore]
+        public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
         public Item()
         {

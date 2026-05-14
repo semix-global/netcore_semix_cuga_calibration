@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
@@ -7,55 +6,51 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.Optics.GlobalFieldTilt;
 
 public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase<GlobalFieldTiltCache>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; }
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<OpticsIlluminationModeEnum, GlobalFieldTiltCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<OpticsIlluminationModeEnum, GlobalFieldTiltCacheItem>))]
     public ConcurrentDictionary<OpticsIlluminationModeEnum, GlobalFieldTiltCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public GlobalFieldTiltCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, _ => new GlobalFieldTiltCacheItem());
 
     [ObservableProperty]
-    private double _pmtInterval = 320; // Pmt相机采集间隔320um
+    public partial double PmtInterval { get; set; } = 320;
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<int> _pMTIds = [];
-
-    /// <summary>
-    /// um/ecs
-    /// </summary>
-    [ObservableProperty]
-    private double _umPerEcs = 0.2;
+    public partial IReadOnlyList<int> PMTIds { get; set; } = [];
 
     [ObservableProperty]
-    private double _originDOEPos;
+    public partial double UmPerEcs { get; set; } = 0.2;
 
     [ObservableProperty]
-    private double _threshold;
+    public partial double OriginDOEPos { get; set; }
 
     [ObservableProperty]
-    private double _verifyQualityThreshold;
+    public partial double Threshold { get; set; }
 
     [ObservableProperty]
-    private double _p5Angle;
+    public partial double VerifyQualityThreshold { get; set; }
+
+    [ObservableProperty]
+    public partial double P5Angle { get; set; }
 
     public override GlobalFieldTiltCache Clone() => new()
     {
@@ -81,64 +76,64 @@ public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase<GlobalFi
 public partial class GlobalFieldTiltCacheItem : CalibrationCacheBase<GlobalFieldTiltCacheItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private bool _isMultiPMTOnceCollection = true;
+    public partial bool IsMultiPMTOnceCollection { get; set; } = true;
 
     [ObservableProperty]
-    private AlgorithmImageQualityTypeEnum _algorithmImageQualityTypeEnum = AlgorithmImageQualityTypeEnum.Laplace;
+    public partial AlgorithmImageQualityTypeEnum AlgorithmImageQualityTypeEnum { get; set; } = AlgorithmImageQualityTypeEnum.Laplace;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private ImageCollectionConfiguration _imageCollectionConfiguration = new() { IsAutoFocus = false, IsForward = true, IsCustomEcs = false };
+    public partial ImageCollectionConfiguration ImageCollectionConfiguration { get; set; } = new() { IsAutoFocus = false, IsForward = true, IsCustomEcs = false };
 
     [ObservableProperty]
-    private Point _findPosition = Point.Origin;
+    public partial Point FindPosition { get; set; } = Point.Origin;
 
     /// <summary>
     /// 入射角（°）
     /// </summary>
     [ObservableProperty]
-    private double _obliqueAngle = 53;
+    public partial double ObliqueAngle { get; set; } = 53;
 
     [ObservableProperty]
-    private double _threshold;
+    public partial double Threshold { get; set; }
 
     [ObservableProperty]
-    private int _retryCount = 5;
+    public partial int RetryCount { get; set; } = 5;
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private double _centerECS;
+    public partial double CenterECS { get; set; }
 
     [ObservableProperty]
-    private double _rangeECS = 120;
+    public partial double RangeECS { get; set; } = 120;
 
     [ObservableProperty]
-    private double _stepECS = 20;
+    public partial double StepECS { get; set; } = 20;
 
     [ObservableProperty]
-    private double _rangeRefinedECS = 50;
+    public partial double RangeRefinedECS { get; set; } = 50;
 
     [ObservableProperty]
-    private double _stepRefinedECS = 10;
+    public partial double StepRefinedECS { get; set; } = 10;
 
     [ObservableProperty]
-    private AlignmentResultDto _alignmentResult = new();
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     public override GlobalFieldTiltCacheItem Clone() => new()
     {

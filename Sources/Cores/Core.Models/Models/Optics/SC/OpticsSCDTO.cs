@@ -18,38 +18,30 @@ namespace Core.Models.Models.Optics.SC;
 public sealed partial class OpticsSCDTO : CalibrationDTOBase<OpticsSCDTO>, IAdaptTo<CalibrationOpticsSC>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsSCDTOItem> _items = [];
+    public partial IReadOnlyList<OpticsSCDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SCMotorAbsoluteValueL1), nameof(SCMotorAbsoluteValueL3), nameof(Lambda))]
-    private OpticsSCDTOItem? _maxItem;
+    public partial OpticsSCDTOItem? MaxItem { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double Lambda => MaxItem?.Lambda ?? 0;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double SCMotorAbsoluteValueL1 => MaxItem?.SCMotorAbsoluteValueL3 ?? 0;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double SCMotorAbsoluteValueL3 => MaxItem?.SCMotorAbsoluteValueL3 ?? 0;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -139,16 +131,16 @@ public sealed partial class OpticsSCDTO : CalibrationDTOBase<OpticsSCDTO>, IAdap
 public sealed partial class OpticsSCDTOItem : ObservableObject, ICloneable<OpticsSCDTOItem>
 {
     [ObservableProperty]
-    private double _lambda;
+    public partial double Lambda { get; set; }
 
     [ObservableProperty]
-    private double _sCMotorAbsoluteValueL1;
+    public partial double SCMotorAbsoluteValueL1 { get; set; }
 
     [ObservableProperty]
-    private double _sCMotorAbsoluteValueL3;
+    public partial double SCMotorAbsoluteValueL3 { get; set; }
 
     [ObservableProperty]
-    private BestFocus _bestFocus = new();
+    public partial BestFocus BestFocus { get; set; } = new();
 
     public OpticsSCDTOItem Clone() => new()
     {

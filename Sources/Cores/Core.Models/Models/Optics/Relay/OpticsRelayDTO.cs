@@ -23,61 +23,57 @@ namespace Core.Models.Models.Optics.Relay;
 public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>, IAdaptTo<CalibrationOpticsRelay>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsRelayDTOItem> _items = [];
+    public partial IReadOnlyList<OpticsRelayDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsRelayDTOXZItem> _xZItems = [];
+    public partial IReadOnlyList<OpticsRelayDTOXZItem> XZItems { get; set; } = [];
 
     [ObservableProperty]
-    private double _slope;
+    public partial double Slope { get; set; }
 
     [ObservableProperty]
-    private double _intercept;
+    public partial double Intercept { get; set; }
 
     [ObservableProperty]
-    private double _rSquared;
+    public partial double RSquared { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitRelayPoints = [];
+    public partial IReadOnlyList<Point> FitRelayPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _xZSlope;
+    public partial double XZSlope { get; set; }
 
     [ObservableProperty]
-    private double _xZIntercept;
+    public partial double XZIntercept { get; set; }
 
     [ObservableProperty]
-    private double _xZRSquared;
+    public partial double XZRSquared { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _xZFitRelayPoints = [];
+    public partial IReadOnlyList<Point> XZFitRelayPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _relayMotorRatio;
+    public partial double RelayMotorRatio { get; set; }
 
     [ObservableProperty]
-    private double _minRelayMotorAbsoluteValue;
+    public partial double MinRelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _maxRelayMotorAbsoluteValue;
+    public partial double MaxRelayMotorAbsoluteValue { get; set; }
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _xZScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl XZScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -262,10 +258,10 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>,
 public sealed partial class OpticsRelayDTOItem : ObservableObject, ICloneable<OpticsRelayDTOItem>
 {
     [ObservableProperty]
-    private double _relayMotorAbsoluteValue;
+    public partial double RelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Item> _qualitys = [];
+    public partial IReadOnlyList<Item> Qualitys { get; set; } = [];
 
     [ObservableProperty]
     private Item? _maxItem;
@@ -280,16 +276,16 @@ public sealed partial class OpticsRelayDTOItem : ObservableObject, ICloneable<Op
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _eCS;
+        public partial double ECS { get; set; }
 
         [ObservableProperty]
-        private double _quality;
+        public partial double Quality { get; set; }
 
         [ObservableProperty]
-        private string _imageFilePath = string.Empty;
+        public partial string ImageFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
+        public partial string RawImageFilePath { get; set; } = string.Empty;
 
         public Item Clone() => new()
         {
@@ -304,10 +300,10 @@ public sealed partial class OpticsRelayDTOItem : ObservableObject, ICloneable<Op
 public sealed partial class OpticsRelayDTOXZItem : ObservableObject, ICloneable<OpticsRelayDTOXZItem>
 {
     [ObservableProperty]
-    private double _relayMotorAbsoluteValue;
+    public partial double RelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private BestFocus _bestFocus = new();
+    public partial BestFocus BestFocus { get; set; } = new();
 
     public OpticsRelayDTOXZItem Clone() => new()
     {
