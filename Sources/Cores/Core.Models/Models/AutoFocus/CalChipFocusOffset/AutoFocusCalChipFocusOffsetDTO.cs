@@ -25,17 +25,15 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase<
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem> Results { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public AutoFocusCalChipFocusOffsetDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, _ => new AutoFocusCalChipFocusOffsetDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     public override AutoFocusCalChipFocusOffsetDTO Clone() => new()
@@ -81,25 +79,25 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase<
 public sealed partial class AutoFocusCalChipFocusOffsetDTOItem : ObservableValidator, ICloneable<AutoFocusCalChipFocusOffsetDTOItem>
 {
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
     [ObservableProperty]
-    private double _eCSValue;
+    public partial double ECSValue { get; set; }
 
     [ObservableProperty]
-    private double _motorValue;
+    public partial double MotorValue { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<double> _ecs = [];
+    public partial IReadOnlyList<double> Ecs { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _nsc = [];
+    public partial IReadOnlyList<double> Nsc { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _ecsNscPoints = [];
+    public partial Point[] EcsNscPoints { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _ecsNscMaxMins = [];
+    public partial Point[] EcsNscMaxMins { get; set; } = [];
 
     partial void OnECSValueChanged(double value) => RefreshPlot();
 
@@ -115,10 +113,8 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTOItem : ObservableValid
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079

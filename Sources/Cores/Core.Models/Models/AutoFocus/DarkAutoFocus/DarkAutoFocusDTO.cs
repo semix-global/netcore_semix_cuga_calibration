@@ -18,10 +18,10 @@ namespace Core.Models.Models.AutoFocus.DarkAutoFocus;
 public sealed partial class DarkAutoFocusDTO : CalibrationDTOBase<DarkAutoFocusDTO>, IAdaptTo<CalibrationLaserAutoFocus>
 {
     [ObservableProperty]
-    private DarkAutoFocusCurrentDTO _currentADTO = new();
+    public partial DarkAutoFocusCurrentDTO CurrentADTO { get; set; } = new();
 
     [ObservableProperty]
-    private DarkAutoFocusCurrentDTO _currentBDTO = new();
+    public partial DarkAutoFocusCurrentDTO CurrentBDTO { get; set; } = new();
 
     public double CurrentA => CurrentADTO.ResultDTO.Current;
     public double Fa => CurrentADTO.ResultDTO.F;
@@ -32,67 +32,67 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDTOBase<DarkAutoFocusD
     public double Nb => CurrentBDTO.ResultDTO.N;
 
     [ObservableProperty]
-    private double _lowCoefficient = 0.6d;
+    public partial double LowCoefficient { get; set; } = 0.6d;
 
     [ObservableProperty]
-    private double _highCoefficient = 1.5d;
+    public partial double HighCoefficient { get; set; } = 1.5d;
 
     #region NSC
 
     #region NSC Gain
 
     [ObservableProperty]
-    private DarkAutoFocusNSCDTO _nSCGainResultDTO = new();
+    public partial DarkAutoFocusNSCDTO NSCGainResultDTO { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<DarkAutoFocusNSCDTO> _nSCGainDTOItems = [];
+    public partial IReadOnlyList<DarkAutoFocusNSCDTO> NSCGainDTOItems { get; set; } = [];
 
     #endregion
 
     #region NSC Profile
 
     [ObservableProperty]
-    private bool _isNscUseMaxValue;
+    public partial bool IsNscUseMaxValue { get; set; }
 
     [ObservableProperty]
-    private bool _isNscUsePositiveSlope;
+    public partial bool IsNscUsePositiveSlope { get; set; }
 
     [ObservableProperty]
-    private double _originalSymmetryRatio;
+    public partial double OriginalSymmetryRatio { get; set; }
 
     [ObservableProperty]
-    private double _ecsToNmRange;
+    public partial double EcsToNmRange { get; set; }
 
     [ObservableProperty]
-    private double _nscStandard;
+    public partial double NscStandard { get; set; }
 
     [ObservableProperty]
-    private DarkAutoFocusNSCDTO _nSCProfileResultDTO = new();
+    public partial DarkAutoFocusNSCDTO NSCProfileResultDTO { get; set; } = new();
 
     #endregion NSC Profile
 
     #region ECS & Af Motor Relation
 
     [ObservableProperty]
-    private double _ecsMotorPositionRelationSlope;
+    public partial double EcsMotorPositionRelationSlope { get; set; }
 
     [ObservableProperty]
-    private double _ecsMotorPositionRelationIntercept;
+    public partial double EcsMotorPositionRelationIntercept { get; set; }
 
     [ObservableProperty]
-    private double _ecsMotorPositionRelationRSquare;
+    public partial double EcsMotorPositionRelationRSquare { get; set; }
 
     [ObservableProperty]
-    private double _minAFMotorAbsoluteValue;
+    public partial double MinAFMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _maxAFMotorAbsoluteValue;
+    public partial double MaxAFMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private Point[] _eCSMotorOrigins = [];
+    public partial Point[] ECSMotorOrigins { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _fitECSMotorOrigins = [];
+    public partial Point[] FitECSMotorOrigins { get; set; } = [];
 
     partial void OnECSMotorOriginsChanged(Point[] value) => RefreshPlot();
 
@@ -106,10 +106,8 @@ public sealed partial class DarkAutoFocusDTO : CalibrationDTOBase<DarkAutoFocusD
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -365,13 +363,13 @@ public sealed partial class DarkAutoFocusCurrentDTO : ObservableObject, ICloneab
 public sealed partial class DarkAutoFocusCurrentDTOItem : ObservableObject, ICloneable<DarkAutoFocusCurrentDTOItem>
 {
     [ObservableProperty]
-    private double _current;
+    public partial double Current { get; set; }
 
     [ObservableProperty]
-    private double _f;
+    public partial double F { get; set; }
 
     [ObservableProperty]
-    private double _n;
+    public partial double N { get; set; }
 
     public DarkAutoFocusCurrentDTOItem Clone() => new()
     {
@@ -386,43 +384,43 @@ public sealed partial class DarkAutoFocusNSCDTO : ObservableObject, ICloneable<D
     #region NscGain
 
     [ObservableProperty]
-    private double _nscOffset;
+    public partial double NscOffset { get; set; }
 
     [ObservableProperty]
-    private double _nscGain;
+    public partial double NscGain { get; set; }
 
     [ObservableProperty]
-    private double _nscCurrentNscPerNm;
+    public partial double NscCurrentNscPerNm { get; set; }
 
     [ObservableProperty]
-    private double _nscCurrentSymmetryRatio;
+    public partial double NscCurrentSymmetryRatio { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<double> _calibrationEcs = [];
+    public partial IReadOnlyList<double> CalibrationEcs { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _calibrationNsc = [];
+    public partial IReadOnlyList<double> CalibrationNsc { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _calibrationLvdt = [];
+    public partial IReadOnlyList<double> CalibrationLvdt { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _calibrationFa = [];
+    public partial IReadOnlyList<double> CalibrationFa { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _calibrationNa = [];
+    public partial IReadOnlyList<double> CalibrationNa { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _calibrationFb = [];
+    public partial IReadOnlyList<double> CalibrationFb { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _calibrationNb = [];
+    public partial IReadOnlyList<double> CalibrationNb { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _calibrationEcsNscPoints = [];
+    public partial Point[] CalibrationEcsNscPoints { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _calibrationEcsNscMaxMins = [];
+    public partial Point[] CalibrationEcsNscMaxMins { get; set; } = [];
 
     partial void OnCalibrationEcsChanged(IReadOnlyList<double> value) => RefreshPlot();
 
@@ -448,10 +446,8 @@ public sealed partial class DarkAutoFocusNSCDTO : ObservableObject, ICloneable<D
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
