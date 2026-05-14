@@ -637,6 +637,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             Results = [];
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
             CacheProvider.Set(Cache, cancellationTokenSource.Token);
         }
         catch (Exception ex)

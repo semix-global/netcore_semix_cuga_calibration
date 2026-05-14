@@ -726,7 +726,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 using var bitmapImage = new BitmapImage(bestFocusChannelItems.RawFilePath);
                 bitmapImage.SaveImage(originImageFilePath);
 
-                var linerImage = CalibrationAlgorithmService.DarkFieldRawImageToLinearImage(bitmapImage);
+                var linerImage = bitmapImage.ToLinearImage();
                 linerImage.SaveImage(linearImageFilePath);
 
                 bestFocusChannelItems.FilePath = originImageFilePath;

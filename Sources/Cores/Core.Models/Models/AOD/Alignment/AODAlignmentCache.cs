@@ -55,7 +55,7 @@ public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase
     private double _startPrescanFrequency;
 
     [ObservableProperty]
-    private double _stepPrescanFrequency;
+    private double _stepPrescanFrequency = 10;
 
     [ObservableProperty]
     private double _stopPrescanFrequency;

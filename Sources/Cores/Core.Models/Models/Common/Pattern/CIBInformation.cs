@@ -6,6 +6,7 @@ using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Core.Models.Models.Common.Pattern;
 
@@ -21,6 +22,8 @@ public sealed partial class CIBInformation :
     ICloneable<CIBInformation>
 {
     public static readonly CIBInformation Default = new();
+    public static readonly Regex Regex = new(@"^(-?\d+)\((-?\d+)\)$", RegexOptions.Compiled);
+    public static readonly Regex PMTChannelRegex = new(@"PMT(-?\d+)-CH(-?\d+)", RegexOptions.Compiled);
 
     [ObservableProperty]
     public partial int PMTId { get; private set; } = -1;

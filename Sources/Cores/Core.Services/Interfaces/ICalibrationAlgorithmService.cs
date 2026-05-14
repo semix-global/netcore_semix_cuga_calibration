@@ -69,15 +69,6 @@ public interface ICalibrationAlgorithmService
     Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle);
 
     /// <summary>
-    /// 传入图片获取Y像素尺寸um
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="standardMaskSquareYSize">标准掩膜方块的Y尺寸um</param>
-    /// <returns>Y像素尺寸um</returns>
-    [Obsolete]
-    double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize);
-
-    /// <summary>
     /// 传入暗场图片获取Y像素尺寸um
     /// </summary>
     /// <param name="image">暗场图片</param>
@@ -131,63 +122,9 @@ public interface ICalibrationAlgorithmService
     /// <returns>是否成功</returns>
     bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, out Point markPoint, out Point offset, out double score, out double angle);
 
-    #region Projection
-
-    /// <summary>
-    /// 传入图片创建模板并获取图片
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="templateFilePath">模板路径</param>
-    /// <param name="templateImage">模板图片</param>
-    /// <returns>是否成功</returns>
-    bool TryGenerateProjectionTemplate(BitmapImage image, string templateFilePath, out BitmapImage templateImage);
-
-    /// <summary>
-    /// 读取模板
-    /// </summary>
-    /// <param name="templateFilePath">模板路径</param>
-    /// <param name="templateXId">模板XId</param>
-    /// <param name="templateYId">模板YId</param>
-    /// <returns>是否成功</returns>
-    bool TryReadProjectionTemplate(string templateFilePath, out HTuple templateXId, out HTuple templateYId);
-
-    /// <summary>
-    /// 清除模板
-    /// </summary>
-    /// <param name="templateXId">模板XId</param>
-    /// <param name="templateYId">模板YId</param>
-    /// <returns>是否成功</returns>
-    bool TryCleanProjectionTemplate(HTuple templateXId, HTuple templateYId);
-
-    /// <summary>
-    /// 模板匹配
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="templateXId">模板XId</param>
-    /// <param name="templateYId">模板YId</param>
-    /// <param name="point">位置px</param>
-    /// <param name="offset">与中心偏移</param>
-    /// <returns>是否成功</returns>
-    bool TryProjectionTemplateMatchToOffset(BitmapImage image, HTuple templateXId, HTuple templateYId, out Point point, out Point offset);
-
-    #endregion Projection
-
     #endregion 模板匹配
 
     #region 暗场
-
-    /// <summary>
-    ///  RAW转线性图（含3*3滤波）
-    /// </summary>
-    /// <param name="image"></param>
-    /// <returns></returns>
-    BitmapImage DarkFieldRawImageToLinearImage(BitmapImage image);
-
-    /// <summary>
-    /// 计算PMTGain数据
-    /// </summary>
-    /// <returns>是否成功</returns>
-    (List<string> DatAvg, List<string> Data) GetPmtGain(Dictionary<int, List<int>> dicPmtData, int lineValue, double minValue, double maxValue);
 
     /// <summary>
     /// 获取D型光斑和反射光光斑 Y Angle结果集
@@ -260,23 +197,9 @@ public interface ICalibrationAlgorithmService
 
     #endregion Chuck
 
-    #region 图片灰度值计算，直方图
-
-    HTuple GetPictureGray(BitmapImage image, HTuple bit, out HTuple hv_Histo);
-
-    #endregion 图片灰度值计算，直方图
-
-    #region 图像操作
-
-    BitmapImage RotateAndMirrorImage(BitmapImage image);
+    #region 工具
 
     double[] GetImageGrayYProjectionsPixels(BitmapImage image);
-
-    double GetImageMeanGray(BitmapImage image, Rect roi);
-
-    #endregion
-
-    #region 工具
 
     (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points);
 

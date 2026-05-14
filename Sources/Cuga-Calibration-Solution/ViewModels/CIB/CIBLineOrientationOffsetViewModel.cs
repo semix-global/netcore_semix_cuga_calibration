@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -397,28 +396,18 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             using var _ = darkFieldImageDto;
 
             Cache.Item.TemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.Item.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            if (Cache.Item.AlgorithmTemplateTypeEnum == AlgorithmTemplateTypeEnum.Projection)
-            {
-                if (ReviewViewModel.TryGenerateProjectionTemplate(darkFieldImageDto.Image, Cache.Item.TemplateFilePath) == false)
-                {
-                    DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return false;
-                }
-            }
-            else
-            {
-                var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
-                darkFieldImageDto.Image.SaveImage(filePath);
-                CreateDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
-                CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
-                var showDialog = WindowManagerService.ShowDialog(CreateDarkImageTemplateWindowViewModel);
+            var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
+            darkFieldImageDto.Image.SaveImage(filePath);
+            CreateDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
+            CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
-                if (showDialog == false)
-                {
-                    DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return false;
-                }
+            var showDialog = WindowManagerService.ShowDialog(CreateDarkImageTemplateWindowViewModel);
+
+            if (showDialog == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
             }
 
             Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);

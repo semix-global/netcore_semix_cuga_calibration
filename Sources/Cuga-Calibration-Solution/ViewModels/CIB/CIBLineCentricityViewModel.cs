@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -429,8 +428,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.Item.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}.jpg");
             Cache.Item.TemplateFilePath = $"{originImageFilePath}_Template";
             darkFieldImageDto.Image.SaveImage(originImageFilePath);
-
-            Guard.IsTrue(Cache.AlgorithmTemplateTypeEnum != AlgorithmTemplateTypeEnum.Projection);
 
             CreateDarkImageTemplateWindowViewModel.ImageFilePath = originImageFilePath;
             CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
