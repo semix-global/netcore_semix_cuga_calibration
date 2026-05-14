@@ -19,7 +19,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
