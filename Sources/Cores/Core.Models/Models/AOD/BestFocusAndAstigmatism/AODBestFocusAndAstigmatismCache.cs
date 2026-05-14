@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
@@ -7,6 +6,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 
@@ -14,37 +14,35 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase<AODB
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsApodizationModeEnum _apodizationModeEnum;
+    public partial OpticsApodizationModeEnum ApodizationModeEnum { get; set; }
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>))]
     public ConcurrentDictionary<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public AODBestFocusAndAstigmatismCacheItem Item => Items.GetOrAdd((ProductivityInformation, ApodizationModeEnum), _ => new AODBestFocusAndAstigmatismCacheItem());
 
     [ObservableProperty]
-    private double _pmtInterval = 320; // Pmt相机采集间隔320um
+    public partial double PmtInterval { get; set; } = 320;
 
     /// <summary>
     /// 迭代次数
     /// </summary>
     [ObservableProperty]
-    private int _times = 5;
+    public partial int Times { get; set; } = 5;
 
     [ObservableProperty]
-    private double _xQualityThreshold;
+    public partial double XQualityThreshold { get; set; }
 
     [ObservableProperty]
-    private double _yQualityThreshold;
+    public partial double YQualityThreshold { get; set; }
 
     [ObservableProperty]
-    private double _xYBestFocusEcsOffsetThreshold;
+    public partial double XYBestFocusEcsOffsetThreshold { get; set; }
 
     public override AODBestFocusAndAstigmatismCache Clone() => new()
     {
@@ -66,40 +64,40 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase<AODB
 public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase<AODBestFocusAndAstigmatismCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     [ObservableProperty]
-    private AlgorithmImageQualityTypeEnum _algorithmImageQualityTypeEnum;
+    public partial AlgorithmImageQualityTypeEnum AlgorithmImageQualityTypeEnum { get; set; }
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private Point _startPosition;
+    public partial Point StartPosition { get; set; }
 
     [ObservableProperty]
-    private double _scanLength;
+    public partial double ScanLength { get; set; }
 
     [ObservableProperty]
-    private double _centerECS;
+    public partial double CenterECS { get; set; }
 
     [ObservableProperty]
-    private double _rangeECS;
+    public partial double RangeECS { get; set; }
 
     #region 频率参数
 
@@ -107,19 +105,19 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase<
     /// Chirp AOD波形频率增长次数 
     /// </summary>
     [ObservableProperty]
-    private int _spectralDensityStepCount;
+    public partial int SpectralDensityStepCount { get; set; }
 
     /// <summary>
     /// 起始频率变化率
     /// </summary>
     [ObservableProperty]
-    private double _startSpectralDensity;
+    public partial double StartSpectralDensity { get; set; }
 
     /// <summary>
     /// Chirp AOD波形频率增长步距 
     /// </summary>
     [ObservableProperty]
-    private double _stepSpectralDensity;
+    public partial double StepSpectralDensity { get; set; }
 
     #endregion 频率参数
 
@@ -127,7 +125,7 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase<
     /// ChirpAod默认波形生成参数
     /// </summary>
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _defaultGenerateChirpAODWaveformParam = new();
+    public partial GenerateChirpAODWaveformParam DefaultGenerateChirpAODWaveformParam { get; set; } = new();
 
     public override AODBestFocusAndAstigmatismCacheItem Clone() => new()
     {

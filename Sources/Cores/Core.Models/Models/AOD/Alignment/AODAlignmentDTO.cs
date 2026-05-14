@@ -20,31 +20,29 @@ namespace Core.Models.Models.AOD.Alignment;
 public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<AODAlignmentDTOItem> _items = [];
+    public partial IReadOnlyList<AODAlignmentDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    private double _slope;
+    public partial double Slope { get; set; }
 
     [ObservableProperty]
-    private double _intercept;
+    public partial double Intercept { get; set; }
 
     [ObservableProperty]
-    private double _rSquared;
+    public partial double RSquared { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitAlignmentPoints = [];
+    public partial IReadOnlyList<Point> FitAlignmentPoints { get; set; } = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -152,25 +150,25 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
 public sealed partial class AODAlignmentDTOItem : ObservableObject, ICloneable<AODAlignmentDTOItem>
 {
     [ObservableProperty]
-    private double _prescanFrequency;
+    public partial double PrescanFrequency { get; set; }
 
     [ObservableProperty]
-    private string _prescanAODWaveformResultFilePath = string.Empty;
+    public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _imageHorizontalProjects = [];
+    public partial IReadOnlyList<double> ImageHorizontalProjects { get; set; } = [];
 
     [ObservableProperty]
-    private int? _projectMaxPixel;
+    public partial int? ProjectMaxPixel { get; set; }
 
     [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
+    public partial string RawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     public AODAlignmentDTOItem Clone() => new()
     {

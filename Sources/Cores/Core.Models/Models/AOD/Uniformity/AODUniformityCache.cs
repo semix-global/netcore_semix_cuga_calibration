@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.AOD.Uniformity;
 
@@ -24,13 +24,9 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase<AODUniform
     public partial double CalibrateThreshold { get; set; } = 0.05;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double CalibrateThresholdMin => 1 - CalibrateThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double CalibrateThresholdMax => 1 + CalibrateThreshold;
 
     [ObservableProperty]
@@ -38,21 +34,15 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase<AODUniform
     public partial double ReviewThreshold { get; set; } = 0.05;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMin => 1 - ReviewThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>))]
     public ConcurrentDictionary<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public AODUniformityCacheItem Item => Items.GetOrAdd((ProductivityInformation, LaserLightInformation), _ => new AODUniformityCacheItem());
 
     public override AODUniformityCache Clone() => new()

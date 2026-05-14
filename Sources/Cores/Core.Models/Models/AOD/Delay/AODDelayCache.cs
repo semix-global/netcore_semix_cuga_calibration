@@ -1,8 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.AOD.Delay;
 
@@ -10,14 +10,12 @@ public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, AODDelayCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, AODDelayCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public AODDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new AODDelayCacheItem());
 
     public override AODDelayCache Clone() => new()
@@ -34,43 +32,43 @@ public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
 public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _hazeFindBFMachinePosition;
+    public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private double _waitTime = 5;
+    public partial double WaitTime { get; set; } = 5;
 
     [ObservableProperty]
-    private double _startRoughAODDelay = -1500;
+    public partial double StartRoughAODDelay { get; set; } = -1500;
 
     [ObservableProperty]
-    private double _stepRoughAODDelay = 100;
+    public partial double StepRoughAODDelay { get; set; } = 100;
 
     [ObservableProperty]
-    private double _stopRoughAODDelay = 3000;
+    public partial double StopRoughAODDelay { get; set; } = 3000;
 
     [ObservableProperty]
-    private double _rangeRefinedAODDelay = 200;
+    public partial double RangeRefinedAODDelay { get; set; } = 200;
 
     [ObservableProperty]
-    private double _stepRefinedAODDelay = 10;
+    public partial double StepRefinedAODDelay { get; set; } = 10;
 
     public override AODDelayCacheItem Clone() => new()
     {

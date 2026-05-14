@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.AOD.Alignment;
 
@@ -12,17 +12,15 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase<AODAlignmen
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private double _threshold = 0.999;
+    public partial double Threshold { get; set; } = 0.999;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, AODAlignmentCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, AODAlignmentCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, AODAlignmentCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public AODAlignmentCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new AODAlignmentCacheItem());
 
     public override AODAlignmentCache Clone() => new()
@@ -40,40 +38,40 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase<AODAlignmen
 public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase<AODAlignmentCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _hazeFindBFMachinePosition;
+    public partial Point HazeFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _flatnessGeneratePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
+    public partial GeneratePrescanAODWaveformParam FlatnessGeneratePrescanAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    private double _startPrescanFrequency;
+    public partial double StartPrescanFrequency { get; set; }
 
     [ObservableProperty]
-    private double _stepPrescanFrequency = 10;
+    public partial double StepPrescanFrequency { get; set; } = 10;
 
     [ObservableProperty]
-    private double _stopPrescanFrequency;
+    public partial double StopPrescanFrequency { get; set; }
 
     [ObservableProperty]
-    private int _rangeSkipFitCount = 1;
+    public partial int RangeSkipFitCount { get; set; } = 1;
 
     public override AODAlignmentCacheItem Clone() => new()
     {

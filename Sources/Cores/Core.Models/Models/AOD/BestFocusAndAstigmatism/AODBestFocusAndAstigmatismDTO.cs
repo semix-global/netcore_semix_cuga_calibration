@@ -25,28 +25,28 @@ namespace Core.Models.Models.AOD.BestFocusAndAstigmatism;
 public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestFocusAndAstigmatismDTO>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsApodizationModeEnum _apodizationModeEnum;
+    public partial OpticsApodizationModeEnum ApodizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<AODBestFocusAndAstigmatismDTOItem> _items = [];
+    public partial ObservableCollection<AODBestFocusAndAstigmatismDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    private AODBestFocusAndAstigmatismDTOItem _resultDTO = new();
+    public partial AODBestFocusAndAstigmatismDTOItem ResultDTO { get; set; } = new();
 
     [ObservableProperty]
-    private double _slope;
+    public partial double Slope { get; set; }
 
     [ObservableProperty]
-    private double _intercept;
+    public partial double Intercept { get; set; }
 
     [ObservableProperty]
-    private double _rSquared;
+    public partial double RSquared { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitPoints = [];
+    public partial IReadOnlyList<Point> FitPoints { get; set; } = [];
 
     partial void OnFitPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
@@ -54,10 +54,8 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -191,19 +189,19 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
 public partial class AODBestFocusAndAstigmatismDTOItem : ObservableObject, ICloneable<AODBestFocusAndAstigmatismDTOItem>
 {
     [ObservableProperty]
-    private double _spectralDensity;
+    public partial double SpectralDensity { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(XYBestFocusOffsetEcs))]
-    private BestFocus _bestFocus = new();
+    public partial BestFocus BestFocus { get; set; } = new();
 
     public double XYBestFocusOffsetEcs => BestFocus.BestXStrehlRatioECS - BestFocus.BestYStrehlRatioECS;
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+    public partial GenerateChirpAODWaveformParam GenerateChirpAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
 
     public object ToFlatnessHtmlAnonymous() => new
     {
