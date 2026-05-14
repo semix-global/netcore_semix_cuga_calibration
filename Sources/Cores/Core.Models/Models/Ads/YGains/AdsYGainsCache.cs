@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using System.Collections.ObjectModel;
 
@@ -8,88 +7,88 @@ namespace Core.Models.Models.Ads.YGains;
 public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache>
 {
     [ObservableProperty]
-    private bool _isPositive;
+    public partial bool IsPositive { get; set; }
 
     [ObservableProperty]
-    private List<double> _speedYValueList = [50, 100, 150, 200];
+    public partial List<double> SpeedYValueList { get; set; } = [50, 100, 150, 200];
 
     [ObservableProperty]
-    private double _defaultSpeedYValue = 93.566;
+    public partial double DefaultSpeedYValue { get; set; } = 93.566;
 
     [ObservableProperty]
-    private Point _positiveStartPosition;
+    public partial Point PositiveStartPosition { get; set; }
 
     [ObservableProperty]
-    private Point _positiveEndPosition;
+    public partial Point PositiveEndPosition { get; set; }
 
     [ObservableProperty]
-    private Point _negativeStartPosition;
+    public partial Point NegativeStartPosition { get; set; }
 
     [ObservableProperty]
-    private Point _negativeEndPosition;
+    public partial Point NegativeEndPosition { get; set; }
 
     [ObservableProperty]
-    private int _findCount;
+    public partial int FindCount { get; set; }
 
     [ObservableProperty]
-    private int _findMaxY = 100;
+    public partial int FindMaxY { get; set; } = 100;
 
     [ObservableProperty]
-    private int _findMinY;
+    public partial int FindMinY { get; set; }
 
     [ObservableProperty]
-    private int _findInterval1 = 1;
+    public partial int FindInterval1 { get; set; } = 1;
 
     [ObservableProperty]
-    private int _findInterval2 = 1;
+    public partial int FindInterval2 { get; set; } = 1;
 
     [ObservableProperty]
-    private int _findInterval3 = 1;
+    public partial int FindInterval3 { get; set; } = 1;
 
     [ObservableProperty]
-    private int _y1Number = 5;
+    public partial int Y1Number { get; set; } = 5;
 
     [ObservableProperty]
-    private int _y2Number = 5;
+    public partial int Y2Number { get; set; } = 5;
 
     [ObservableProperty]
-    private int _y3Number = 5;
+    public partial int Y3Number { get; set; } = 5;
 
     [ObservableProperty]
-    private double _threshold = 50;
+    public partial double Threshold { get; set; } = 50;
 
     [ObservableProperty]
-    private double _verifyThreshold = 75;
+    public partial double VerifyThreshold { get; set; } = 75;
 
     [ObservableProperty]
-    private double _defaultSpeedXValue = 93.566;
+    public partial double DefaultSpeedXValue { get; set; } = 93.566;
 
     [ObservableProperty]
-    private int _waitTime = 10;
+    public partial int WaitTime { get; set; } = 10;
 
     [ObservableProperty]
-    private double _y1;
+    public partial double Y1 { get; set; }
 
     [ObservableProperty]
-    private double _y2;
+    public partial double Y2 { get; set; }
 
     [ObservableProperty]
-    private double _y3;
+    public partial double Y3 { get; set; }
 
     [ObservableProperty]
-    private double _y4;
+    public partial double Y4 { get; set; }
 
     [ObservableProperty]
-    private double _y5;
+    public partial double Y5 { get; set; }
 
     [ObservableProperty]
-    private double _y6;
+    public partial double Y6 { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsPositiveList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> AdsYGainsPositiveList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsNegativeList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> AdsYGainsNegativeList { get; set; } = [];
 
     public override AdsYGainsCache Clone() => new()
     {
@@ -167,196 +166,196 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache
     public sealed partial class AdsYGainsCacheItem : CalibrationCacheBase<AdsYGainsCacheItem>
     {
         [ObservableProperty]
-        private int _index;
+        public partial int Index { get; set; }
 
         [ObservableProperty]
-        private bool _isPositive;
+        public partial bool IsPositive { get; set; }
 
         [ObservableProperty]
-        private double _speedYValue;
+        public partial double SpeedYValue { get; set; }
 
         [ObservableProperty]
-        private double _positiveY1;
+        public partial double PositiveY1 { get; set; }
 
         [ObservableProperty]
-        private double _positiveY2;
+        public partial double PositiveY2 { get; set; }
 
         [ObservableProperty]
-        private double _positiveY3;
+        public partial double PositiveY3 { get; set; }
 
         [ObservableProperty]
-        private List<double> _positivePlotZ1 = [];
+        public partial List<double> PositivePlotZ1 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _positivePlotZ2 = [];
+        public partial List<double> PositivePlotZ2 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _positivePlotZ3 = [];
+        public partial List<double> PositivePlotZ3 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _positiveSmoothZ1 = [];
+        public partial List<double> PositiveSmoothZ1 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _positiveSmoothZ2 = [];
+        public partial List<double> PositiveSmoothZ2 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _positiveSmoothZ3 = [];
+        public partial List<double> PositiveSmoothZ3 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _positivePointListZ1 = [];
+        public partial List<Point> PositivePointListZ1 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _positivePointListZ2 = [];
+        public partial List<Point> PositivePointListZ2 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _positivePointListZ3 = [];
+        public partial List<Point> PositivePointListZ3 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _positiveSmoothPointListZ1 = [];
+        public partial List<Point> PositiveSmoothPointListZ1 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _positiveSmoothPointListZ2 = [];
+        public partial List<Point> PositiveSmoothPointListZ2 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _positiveSmoothPointListZ3 = [];
+        public partial List<Point> PositiveSmoothPointListZ3 { get; set; } = [];
 
         [ObservableProperty]
-        private double _positiveMaxZ1;
+        public partial double PositiveMaxZ1 { get; set; }
 
         [ObservableProperty]
-        private double _positiveMinZ1;
+        public partial double PositiveMinZ1 { get; set; }
 
         [ObservableProperty]
-        private double _positiveMaxZ2;
+        public partial double PositiveMaxZ2 { get; set; }
 
         [ObservableProperty]
-        private double _positiveMinZ2;
+        public partial double PositiveMinZ2 { get; set; }
 
         [ObservableProperty]
-        private double _positiveMaxZ3;
+        public partial double PositiveMaxZ3 { get; set; }
 
         [ObservableProperty]
-        private double _positiveMinZ3;
+        public partial double PositiveMinZ3 { get; set; }
 
         [ObservableProperty]
-        private double _positiveZ1;
+        public partial double PositiveZ1 { get; set; }
 
         [ObservableProperty]
-        private double _positiveZ2;
+        public partial double PositiveZ2 { get; set; }
 
         [ObservableProperty]
-        private double _positiveZ3;
+        public partial double PositiveZ3 { get; set; }
 
         [ObservableProperty]
-        private double _negativeY4;
+        public partial double NegativeY4 { get; set; }
 
         [ObservableProperty]
-        private double _negativeY5;
+        public partial double NegativeY5 { get; set; }
 
         [ObservableProperty]
-        private double _negativeY6;
+        public partial double NegativeY6 { get; set; }
 
         [ObservableProperty]
-        private List<double> _negativePlotZ4 = [];
+        public partial List<double> NegativePlotZ4 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _negativePlotZ5 = [];
+        public partial List<double> NegativePlotZ5 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _negativePlotZ6 = [];
+        public partial List<double> NegativePlotZ6 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _negativeSmoothZ4 = [];
+        public partial List<double> NegativeSmoothZ4 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _negativeSmoothZ5 = [];
+        public partial List<double> NegativeSmoothZ5 { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _negativeSmoothZ6 = [];
+        public partial List<double> NegativeSmoothZ6 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _negativePointListZ4 = [];
+        public partial List<Point> NegativePointListZ4 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _negativePointListZ5 = [];
+        public partial List<Point> NegativePointListZ5 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _negativePointListZ6 = [];
+        public partial List<Point> NegativePointListZ6 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _negativeSmoothPointListZ4 = [];
+        public partial List<Point> NegativeSmoothPointListZ4 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _negativeSmoothPointListZ5 = [];
+        public partial List<Point> NegativeSmoothPointListZ5 { get; set; } = [];
 
         [ObservableProperty]
-        private List<Point> _negativeSmoothPointListZ6 = [];
+        public partial List<Point> NegativeSmoothPointListZ6 { get; set; } = [];
 
         [ObservableProperty]
-        private double _negativeMaxZ4;
+        public partial double NegativeMaxZ4 { get; set; }
 
         [ObservableProperty]
-        private double _negativeMinZ4;
+        public partial double NegativeMinZ4 { get; set; }
 
         [ObservableProperty]
-        private double _negativeMaxZ5;
+        public partial double NegativeMaxZ5 { get; set; }
 
         [ObservableProperty]
-        private double _negativeMinZ5;
+        public partial double NegativeMinZ5 { get; set; }
 
         [ObservableProperty]
-        private double _negativeMaxZ6;
+        public partial double NegativeMaxZ6 { get; set; }
 
         [ObservableProperty]
-        private double _negativeMinZ6;
+        public partial double NegativeMinZ6 { get; set; }
 
         [ObservableProperty]
-        private double _negativeZ4;
+        public partial double NegativeZ4 { get; set; }
 
         [ObservableProperty]
-        private double _negativeZ5;
+        public partial double NegativeZ5 { get; set; }
 
         [ObservableProperty]
-        private double _negativeZ6;
+        public partial double NegativeZ6 { get; set; }
 
         [ObservableProperty]
-        private double _positiveH;
+        public partial double PositiveH { get; set; }
 
         [ObservableProperty]
-        private double _positiveR;
+        public partial double PositiveR { get; set; }
 
         [ObservableProperty]
-        private double _positiveP;
+        public partial double PositiveP { get; set; }
 
         [ObservableProperty]
-        private List<double> _positivePlotH = [];
+        public partial List<double> PositivePlotH { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _positivePlotR = [];
+        public partial List<double> PositivePlotR { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _positivePlotP = [];
+        public partial List<double> PositivePlotP { get; set; } = [];
 
         [ObservableProperty]
-        private double _negativeH;
+        public partial double NegativeH { get; set; }
 
         [ObservableProperty]
-        private double _negativeR;
+        public partial double NegativeR { get; set; }
 
         [ObservableProperty]
-        private double _negativeP;
+        public partial double NegativeP { get; set; }
 
         [ObservableProperty]
-        private List<double> _negativePlotH = [];
+        public partial List<double> NegativePlotH { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _negativePlotR = [];
+        public partial List<double> NegativePlotR { get; set; } = [];
 
         [ObservableProperty]
-        private List<double> _negativePlotP = [];
+        public partial List<double> NegativePlotP { get; set; } = [];
 
         [ObservableProperty]
-        private double _sumHRP;
+        public partial double SumHRP { get; set; }
 
         public override AdsYGainsCacheItem Clone() => new()
         {
@@ -765,28 +764,28 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache
     public sealed partial class AdsYGainsDichotomySpeedCacheItem : CalibrationCacheBase<AdsYGainsDichotomySpeedCacheItem>
     {
         [ObservableProperty]
-        private double _speedYValue;
+        public partial double SpeedYValue { get; set; }
 
         [ObservableProperty]
-        private bool _isPositive;
+        public partial bool IsPositive { get; set; }
 
         [ObservableProperty]
-        private double _positiveY1;
+        public partial double PositiveY1 { get; set; }
 
         [ObservableProperty]
-        private double _positiveY2;
+        public partial double PositiveY2 { get; set; }
 
         [ObservableProperty]
-        private double _positiveY3;
+        public partial double PositiveY3 { get; set; }
 
         [ObservableProperty]
-        private double _negativeY4;
+        public partial double NegativeY4 { get; set; }
 
         [ObservableProperty]
-        private double _negativeY5;
+        public partial double NegativeY5 { get; set; }
 
         [ObservableProperty]
-        private double _negativeY6;
+        public partial double NegativeY6 { get; set; }
 
         public double GetY1()
         {

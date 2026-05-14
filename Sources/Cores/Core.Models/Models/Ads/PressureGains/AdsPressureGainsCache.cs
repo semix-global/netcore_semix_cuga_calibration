@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Ads.PressureGains;
@@ -7,10 +6,10 @@ namespace Core.Models.Models.Ads.PressureGains;
 public sealed partial class AdsPressureGainsCache : CalibrationCacheBase<AdsPressureGainsCache>
 {
     [ObservableProperty]
-    private Point _findPosition;
+    public partial Point FindPosition { get; set; }
 
     [ObservableProperty]
-    private double _threshold;
+    public partial double Threshold { get; set; }
 
     public override AdsPressureGainsCache Clone() => new()
     {

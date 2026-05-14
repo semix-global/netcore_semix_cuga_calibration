@@ -10,16 +10,16 @@ namespace Core.Models.Models.Ads.PressureGains;
 public sealed partial class AdsPressureGainsDto : CalibrationDTOBase<AdsPressureGainsDto>, IAdaptTo<CalibrationAdsPressureGains>
 {
     [ObservableProperty]
-    private double _pressureValue1;
+    public partial double PressureValue1 { get; set; }
 
     [ObservableProperty]
-    private double _pressureValue2;
+    public partial double PressureValue2 { get; set; }
 
     [ObservableProperty]
-    private double _pressureValue3;
+    public partial double PressureValue3 { get; set; }
 
     [ObservableProperty]
-    private Point _findPosition;
+    public partial Point FindPosition { get; set; }
 
     #region Mapper
 

@@ -10,100 +10,100 @@ namespace Core.Models.Models.Ads.YGains;
 public sealed partial class AdsYGainsItemDto : CalibrationDTOBase<AdsYGainsItemDto>, IAdaptTo<CalibrationAdsYGainsItem>
 {
     [ObservableProperty]
-    private int _index;
+    public partial int Index { get; set; }
 
     [ObservableProperty]
-    private bool _isPositive;
+    public partial bool IsPositive { get; set; }
 
     [ObservableProperty]
-    private double _positiveY1P1;
+    public partial double PositiveY1P1 { get; set; }
 
     [ObservableProperty]
-    private double _positiveY1P2;
+    public partial double PositiveY1P2 { get; set; }
 
     [ObservableProperty]
-    private double _positiveY1P3;
+    public partial double PositiveY1P3 { get; set; }
 
     [ObservableProperty]
-    private double _positiveY2P1;
+    public partial double PositiveY2P1 { get; set; }
 
     [ObservableProperty]
-    private double _positiveY2P2;
+    public partial double PositiveY2P2 { get; set; }
 
     [ObservableProperty]
-    private double _positiveY2P3;
+    public partial double PositiveY2P3 { get; set; }
 
     [ObservableProperty]
-    private double _positiveY3P1;
+    public partial double PositiveY3P1 { get; set; }
 
     [ObservableProperty]
-    private double _positiveY3P2;
+    public partial double PositiveY3P2 { get; set; }
 
     [ObservableProperty]
-    private double _positiveY3P3;
+    public partial double PositiveY3P3 { get; set; }
 
     [ObservableProperty]
-    private List<Point> _positiveY1Plots = [];
+    public partial List<Point> PositiveY1Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _positiveY1SmoothPlots = [];
+    public partial List<Point> PositiveY1SmoothPlots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _positiveY2Plots = [];
+    public partial List<Point> PositiveY2Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _positiveY2SmoothPlots = [];
+    public partial List<Point> PositiveY2SmoothPlots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _positiveY3Plots = [];
+    public partial List<Point> PositiveY3Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _positiveY3SmoothPlots = [];
+    public partial List<Point> PositiveY3SmoothPlots { get; set; } = [];
 
     [ObservableProperty]
-    private double _negativeY4P1;
+    public partial double NegativeY4P1 { get; set; }
 
     [ObservableProperty]
-    private double _negativeY4P2;
+    public partial double NegativeY4P2 { get; set; }
 
     [ObservableProperty]
-    private double _negativeY4P3;
+    public partial double NegativeY4P3 { get; set; }
 
     [ObservableProperty]
-    private double _negativeY5P1;
+    public partial double NegativeY5P1 { get; set; }
 
     [ObservableProperty]
-    private double _negativeY5P2;
+    public partial double NegativeY5P2 { get; set; }
 
     [ObservableProperty]
-    private double _negativeY5P3;
+    public partial double NegativeY5P3 { get; set; }
 
     [ObservableProperty]
-    private double _negativeY6P1;
+    public partial double NegativeY6P1 { get; set; }
 
     [ObservableProperty]
-    private double _negativeY6P2;
+    public partial double NegativeY6P2 { get; set; }
 
     [ObservableProperty]
-    private double _negativeY6P3;
+    public partial double NegativeY6P3 { get; set; }
 
     [ObservableProperty]
-    private List<Point> _negativeY4Plots = [];
+    public partial List<Point> NegativeY4Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _negativeY4SmoothPlots = [];
+    public partial List<Point> NegativeY4SmoothPlots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _negativeY5Plots = [];
+    public partial List<Point> NegativeY5Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _negativeY5SmoothPlots = [];
+    public partial List<Point> NegativeY5SmoothPlots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _negativeY6Plots = [];
+    public partial List<Point> NegativeY6Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _negativeY6SmoothPlots = [];
+    public partial List<Point> NegativeY6SmoothPlots { get; set; } = [];
 
     public double GetY1P1()
     {
