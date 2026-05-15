@@ -62,10 +62,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
         DSWAlignmentDegree = DSWAlignmentDegree,
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         DSWBrightFieldMachineAffinePosition = DSWBrightFieldMachineAffinePosition,
-        Results = new ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>
-        ([
-            .. Results.Select(r => new KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>(r.Key, r.Value.Clone()))
-        ]),
+        Results = new ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>(Results.Select(r => new KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipDTOItem>(r.Key, r.Value.Clone()))),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

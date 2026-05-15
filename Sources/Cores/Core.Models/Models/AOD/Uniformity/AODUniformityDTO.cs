@@ -91,7 +91,7 @@ public sealed partial class AODUniformityDTO : CalibrationDTOBase<AODUniformityD
         InitializeWindowItem = InitializeWindowItem.Clone(),
         Item = Item.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        OpticsPolarizationModeEnumMeasurePowers = new ConcurrentDictionary<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnumMeasurePowers),
+        OpticsPolarizationModeEnumMeasurePowers = new ConcurrentDictionary<OpticsPolarizationModeEnum, double>(OpticsPolarizationModeEnumMeasurePowers.Select(t => new KeyValuePair<OpticsPolarizationModeEnum, double>(t.Key, t.Value))),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

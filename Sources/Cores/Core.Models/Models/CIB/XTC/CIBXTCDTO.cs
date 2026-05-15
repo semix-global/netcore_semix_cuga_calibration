@@ -281,7 +281,7 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
         StartWindowItem = StartWindowItem.Clone(),
         StopWindowItem = StopWindowItem.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        TargetPixelValues = new ConcurrentDictionary<int, double>(TargetPixelValues),
+        TargetPixelValues = new ConcurrentDictionary<int, double>(TargetPixelValues.Select(t => new KeyValuePair<int, double>(t.Key, t.Value))),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

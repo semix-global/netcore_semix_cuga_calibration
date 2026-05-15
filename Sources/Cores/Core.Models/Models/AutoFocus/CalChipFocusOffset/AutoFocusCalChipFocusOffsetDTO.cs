@@ -41,10 +41,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetDTO : CalibrationDTOBase<
     {
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
-        Results = new ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>
-        ([
-            .. Results.Select(r => new KeyValuePair<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>(r.Key, r.Value.Clone()))
-        ]),
+        Results = new ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>(Results.Select(r => new KeyValuePair<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetDTOItem>(r.Key, r.Value.Clone()))),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
