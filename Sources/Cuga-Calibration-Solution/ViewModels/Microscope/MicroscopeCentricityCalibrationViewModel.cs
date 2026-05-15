@@ -16,6 +16,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Diagnostics;
 
 namespace CugaCalibration.ViewModels.Microscope;
 
@@ -28,7 +29,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } = [];
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } = new List<CalibrationItemStep>();
 
     #region 界面相关
 
@@ -96,8 +97,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         SynchronizationContextProvider.Send(() =>
         {
-            CalibrationStepList.Clear();
-            CalibrationStepList.AddRange([
+            Guard.IsAssignableToTypeAndReturn<List<CalibrationItemStep>>(CalibrationStepList).AddRange([
                 new CalibrationItemStep { StepName = "Select a location" },
                 .. ApplicationCookie.MicroscopeLensInformations
                     .Select(t => t)

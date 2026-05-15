@@ -21,16 +21,21 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
             CalibrationItemViewEnum.Welcome => 0d,
             CalibrationItemViewEnum.Review => 100d,
             CalibrationItemViewEnum.Loading or CalibrationItemViewEnum.Calibration =>
-                CalibrationStepIndex < 0 || CalibrationStepList.Count <= CalibrationStepIndex
-                    ? 0
-                    : CalibrationStepList[CalibrationStepIndex].StepIsNextEnable
+                0 <= CalibrationStepIndex && CalibrationStepIndex < CalibrationStepList.Count - 1
+                    ? CalibrationStepList[CalibrationStepIndex].StepIsNextEnable
                         ? (CalibrationStepIndex + 1d) / CalibrationStepList.Count * 100d
-                        : (CalibrationStepIndex + 0d) / CalibrationStepList.Count * 100d,
+                        : (CalibrationStepIndex + 0d) / CalibrationStepList.Count * 100d
+                    : 0,
             _ => 0d
         };
 
+    public string CalibrationStepName => 0 <= CalibrationStepIndex && CalibrationStepIndex < CalibrationStepList.Count - 1
+        ? CalibrationStepList[CalibrationStepIndex].StepName
+        : string.Empty;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
+    [NotifyPropertyChangedFor(nameof(CalibrationStepName))]
     public partial CalibrationItemViewEnum ViewEnum { get; set; }
 
     [ObservableProperty]
