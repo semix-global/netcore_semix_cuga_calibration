@@ -33,7 +33,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "DSW Left Top Position" },
         new() { StepName = "DSW Right Bottom Position" },

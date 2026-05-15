@@ -39,7 +39,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },

@@ -19,7 +19,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select a location", DefaultIsNextEnable = true },
         new() { StepName = "Pressure Gains" }

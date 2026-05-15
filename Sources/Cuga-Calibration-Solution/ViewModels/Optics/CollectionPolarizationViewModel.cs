@@ -25,7 +25,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 {
     #region 界面相关
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Haze Wafer Position" },
         new() { StepName = "Set Laser Light And CIB Configuration" },

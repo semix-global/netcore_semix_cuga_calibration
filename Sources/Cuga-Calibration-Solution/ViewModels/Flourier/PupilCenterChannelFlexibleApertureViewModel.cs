@@ -142,7 +142,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
     [ObservableProperty]
     private Point _sxPos;
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Haze Wafer Position" },
         new() { StepName = "Horizal Rotate Motor,Gear Lever Calibration" },

@@ -27,7 +27,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select a location" },
         new() { StepName = "Y Positive And Negative Gains" },

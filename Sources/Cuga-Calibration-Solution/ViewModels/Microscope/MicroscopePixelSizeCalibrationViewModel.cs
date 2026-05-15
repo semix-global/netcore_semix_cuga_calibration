@@ -31,7 +31,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select a lens" },
         new() { StepName = "Select a location" },

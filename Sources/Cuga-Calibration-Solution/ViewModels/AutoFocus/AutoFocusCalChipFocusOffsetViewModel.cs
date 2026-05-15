@@ -32,7 +32,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Chuck Param" },
         new() { StepName = "Chuck AF ECS" },

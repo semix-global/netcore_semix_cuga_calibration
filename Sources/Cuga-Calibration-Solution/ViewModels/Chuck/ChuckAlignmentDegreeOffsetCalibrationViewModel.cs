@@ -29,7 +29,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity Information" },

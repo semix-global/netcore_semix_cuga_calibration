@@ -28,7 +28,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } = [];
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } = [];
 
     #region 界面相关
 

@@ -32,7 +32,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "P5" },
         new() { StepName = "Low Mag Base Position And Template" },

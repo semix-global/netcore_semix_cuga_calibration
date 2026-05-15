@@ -102,7 +102,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     [ObservableProperty]
     private int _rodNumber;
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Haze Wafer Position" },
         new() { StepName = "Find Begin And End Rods of Ch1" },

@@ -26,7 +26,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select Productivity" },
         new() { StepName = "Image Param" },

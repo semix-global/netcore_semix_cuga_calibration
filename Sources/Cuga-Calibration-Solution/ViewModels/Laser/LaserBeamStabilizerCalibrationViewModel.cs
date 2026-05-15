@@ -18,7 +18,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
         new() { StepName = "Select time interval", DefaultIsNextEnable = true },
         new() { StepName = "Beam Stabilizer calibration" }
