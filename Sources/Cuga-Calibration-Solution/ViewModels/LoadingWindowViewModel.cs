@@ -137,6 +137,8 @@ public sealed partial class LoadingWindowViewModel(
             {
                 var menu = calibrationMenus[i];
 
+                menu.Entry.Name = menu.GetFullName();
+
                 Message = $"Loading {menu.SysMenu.Name} Cache...";
 
                 applicationCookieService.GetCache(menu.Entry.CacheType);

@@ -5,101 +5,26 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Enums;
 using Core.Models.Events;
-using Core.Models.Helper;
 using Core.Models.Models;
-using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Setting;
-using Core.Recipe.Models;
-using Core.Services.Interfaces;
 using Core.Utilities;
-using CugaCalibration.Core.Services.Interfaces;
-using CugaCalibration.ViewModels.Common;
-using Humanizer;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.IOC.Providers;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Events;
-using Net.Utilities.WPF.MVVM.Providers;
-using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 
 namespace CugaCalibration.ViewModels;
 
-public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>, IDisposable
+public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>
 {
-    protected readonly ILogger<CalibrationViewModelBase> Logger;
-    protected readonly IMessenger Messenger;
-    protected readonly IHostEnvironment HostEnvironment;
-    protected readonly IDialogWindowProvider DialogWindowProvider;
-    protected readonly IWindowManagerService WindowManagerService;
-    protected readonly ISynchronizationContextProvider SynchronizationContextProvider;
-    protected readonly ICalibrationAlgorithmService CalibrationAlgorithmService;
-    protected readonly ICacheProvider CacheProvider;
-    protected readonly ICacheProvider RecipeCacheProvider;
-    protected readonly ICalibrationStatusService CalibrationStatusService;
-    protected readonly IApplicationCookieService ApplicationCookieService;
-    protected readonly ICalibrationRecipeService CalibrationRecipeService;
-    protected readonly string AppHomeDirectory;
-
-    private readonly string _typeName;
-
-    private CancellationTokenSource? _cancellationTokenSource;
-
     #region 属性
-
-    #region ViewModels
-
-    [ObservableProperty]
-    private AdsViewModel _adsViewModel = HostApplication.GetRequiredService<AdsViewModel>();
-
-    [ObservableProperty]
-    private AfViewModel _afViewModel = HostApplication.GetRequiredService<AfViewModel>();
-
-    [ObservableProperty]
-    private EFEMViewModel _efemViewModel = HostApplication.GetRequiredService<EFEMViewModel>();
-
-    [ObservableProperty]
-    private LaserViewModel _laserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
-
-    [ObservableProperty]
-    private MicroscopeViewModel _microscopeViewModel = HostApplication.GetRequiredService<MicroscopeViewModel>();
-
-    [ObservableProperty]
-    private ReviewViewModel _reviewViewModel = HostApplication.GetRequiredService<ReviewViewModel>();
-
-    [ObservableProperty]
-    private StageViewModel _stageViewModel = HostApplication.GetRequiredService<StageViewModel>();
-
-    [ObservableProperty]
-    private FourierViewModel _fourierViewModel = HostApplication.GetRequiredService<FourierViewModel>();
-
-    [ObservableProperty]
-    private OpticsViewModel _opticsViewModel = HostApplication.GetRequiredService<OpticsViewModel>();
-
-    [ObservableProperty]
-    private CIBViewModel _cIBViewModel = HostApplication.GetRequiredService<CIBViewModel>();
-
-    [ObservableProperty]
-    private ConfigViewModel _configureViewModel = HostApplication.GetRequiredService<ConfigViewModel>();
-
-    [ObservableProperty]
-    private MonitorViewModel _monitorViewModel = HostApplication.GetRequiredService<MonitorViewModel>();
-
-    #endregion ViewModels
 
     #region 重载只读属性
 
@@ -124,54 +49,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     public virtual List<CalibrationItemStep> CalibrationStepList => [];
 
     #endregion 重载只读属性
-
-    public CalibrationSetting CalibrationSetting { get; }
-
-    public ApplicationCookie ApplicationCookie { get; }
-
-    public RecipeCookie RecipeCookie { get; }
-
-    public CalibrationRecipeDTO CalibrationRecipeDto => RecipeCookie.CalibrationRecipeDto;
-
-    /// <summary>
-    /// 校准名称
-    /// </summary>
-    public string Name => field ??= _typeName.Humanize(LetterCasing.Title).Replace("CalibrationViewModel".Humanize(LetterCasing.Title), string.Empty);
-
-    /// <summary>
-    /// 日志图片存储位置
-    /// </summary>
-    public string ImageFileDirectory => Path.Combine(AppHomeDirectory, "Images", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    /// <summary>
-    /// 模板存储位置
-    /// </summary>m
-    public string TemplateFileDirectory => Path.Combine(AppHomeDirectory, "Template", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    /// <summary>
-    /// Csv文件存储位置
-    /// </summary>
-    public string CsvFileDirectory => Path.Combine(AppHomeDirectory, "Csv", _typeName, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    /// <summary>
-    /// 波形文件路劲
-    /// </summary>
-    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    /// <summary>
-    /// 结果波形文件路劲
-    /// </summary>
-    public string ResultAODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    /// <summary>
-    /// 校准文件名称
-    /// </summary>
-    public string CalibrateHtmlLogFileName => string.IsNullOrWhiteSpace(CalibrateFileName) ? "Calibrate" : $"Calibrate-{FileHelper.RemoveInvalidFileName(CalibrateFileName)}";
-
-    /// <summary>
-    /// 校准日志名称
-    /// </summary>
-    public string VerifyHtmlFileLogName => string.IsNullOrWhiteSpace(VerifyFileName) ? "Verify" : $"Verify-{FileHelper.RemoveInvalidFileName(VerifyFileName)}";
 
     /// <summary>
     /// 校验日志名称
@@ -223,39 +100,9 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     [ObservableProperty]
     private List<CalibrationItemStep> _stepList = [];
 
-    /// <summary>
-    /// 是否已校准完成
-    /// </summary>
-    [ObservableProperty]
-    private bool _isCalibrated;
-
     #endregion 校准相关
 
     #endregion 属性
-
-    protected CalibrationViewModelBase()
-    {
-        _typeName = GetType().Name;
-        AppHomeDirectory = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value.AppHomeDirectory;
-        Logger = (ILogger<CalibrationViewModelBase>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
-        Messenger = HostApplication.GetRequiredService<IMessenger>();
-        HostEnvironment = HostApplication.GetRequiredService<IHostEnvironment>();
-        DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
-        WindowManagerService = HostApplication.GetRequiredService<IWindowManagerService>();
-        SynchronizationContextProvider = HostApplication.GetRequiredService<ISynchronizationContextProvider>();
-        CalibrationAlgorithmService = HostApplication.GetRequiredService<ICalibrationAlgorithmService>();
-        CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
-        RecipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
-        CalibrationStatusService = HostApplication.GetRequiredService<ICalibrationStatusService>();
-        ApplicationCookieService = HostApplication.GetRequiredService<IApplicationCookieService>();
-        CalibrationRecipeService = HostApplication.GetRequiredService<ICalibrationRecipeService>();
-
-        ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        RecipeCookie = HostApplication.GetRequiredService<RecipeCookie>();
-        CalibrationSetting = HostApplication.GetRequiredService<CalibrationSetting>();
-
-        Messenger.RegisterAll(this);
-    }
 
     #region 公开
 
@@ -649,21 +496,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     #region 状态更新
 
-    private void CancelToken()
-    {
-        _cancellationTokenSource?.Cancel();
-        _cancellationTokenSource?.Dispose();
-        _cancellationTokenSource = null;
-    }
-
-    [MemberNotNull(nameof(_cancellationTokenSource))]
-    private void RefreshToken()
-    {
-        CancelToken();
-
-        _cancellationTokenSource = new CancellationTokenSource();
-    }
-
     [MemberNotNull(nameof(_cancellationTokenSource))]
     private void CheckStatus()
     {
@@ -784,11 +616,4 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     }
 
     #endregion 状态更新
-
-    public virtual void Dispose()
-    {
-        CancelToken();
-
-        GC.SuppressFinalize(this);
-    }
 }

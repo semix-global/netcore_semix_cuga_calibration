@@ -30,4 +30,20 @@ public sealed partial class CalibrationMenu : ObservableObject
             foreach (var child in item.Children) RecursionFn(child);
         }
     }
+
+    public string GetFullName()
+    {
+        var linkedList = new LinkedList<string>();
+        linkedList.AddLast(SysMenu.Name);
+
+        var current = SysMenu.Parent;
+        while (current is not null)
+        {
+            linkedList.AddFirst(current.Name);
+
+            current = current.Parent;
+        }
+
+        return string.Join(" / ", linkedList);
+    }
 }

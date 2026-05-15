@@ -10,6 +10,8 @@ public sealed class CalibrationViewModelEntry(
 {
     public static readonly CalibrationViewModelEntry Default = new(typeof(Empty), typeof(Empty), typeof(Empty), typeof(Empty), false, new Empty());
 
+    public string Name { get; set; } = string.Empty;
+
     public Type ViewModelType { get; } = viewModelType;
 
     public Type CacheType { get; } = cacheType;
