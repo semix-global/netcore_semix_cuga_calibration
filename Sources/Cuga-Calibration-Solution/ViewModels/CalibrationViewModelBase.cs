@@ -1,13 +1,8 @@
-using CommunityToolkit.Diagnostics;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Enums;
-using Core.Models.Events;
 using Core.Models.Models;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Microscope.Focus;
 using Core.Utilities;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
@@ -16,99 +11,22 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM.Events;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Diagnostics.CodeAnalysis;
 
 namespace CugaCalibration.ViewModels;
 
-public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<PropertyChangedMessage<bool>>
+public partial class CalibrationViewModelBase : ViewModelBase
 {
-    #region 属性
-
-    #region 重载只读属性
-
-    /// <summary>
-    /// 校准图片路径名称
-    /// </summary>
     public virtual string CalibrateDirectoryName { get; set; } = string.Empty;
 
-    /// <summary>
-    /// 校准Html日志文件路径名称
-    /// </summary>
     public virtual string CalibrateFileName { get; set; } = string.Empty;
 
-    /// <summary>
-    /// 验证Html日志文件路径名称
-    /// </summary>
     public virtual string VerifyFileName { get; set; } = string.Empty;
 
-    /// <summary>
-    /// 校准步骤名称列表
-    /// </summary>
-    public virtual List<CalibrationItemStep> CalibrationStepList => [];
-
-    #endregion 重载只读属性
-
-    /// <summary>
-    /// 校验日志名称
-    /// </summary>
-    public double CalibrationProgress =>
-        ViewEnum switch
-        {
-            CalibrationItemViewEnum.Welcome => 0d,
-            CalibrationItemViewEnum.Review => 100d,
-            CalibrationItemViewEnum.Loading or CalibrationItemViewEnum.Calibration =>
-                CalibrationStepIndex < 0 || CalibrationStepList.Count <= CalibrationStepIndex
-                    ? 0
-                    : CalibrationStepList[CalibrationStepIndex].StepIsNextEnable
-                        ? (CalibrationStepIndex + 1d) / CalibrationStepList.Count * 100d
-                        : (CalibrationStepIndex + 0d) / CalibrationStepList.Count * 100d,
-            _ => 0d
-        };
-
-    [ObservableProperty]
-    private double _autoCalibrationProgress;
-
-    /// <summary>
-    /// 日志唯一标识
-    /// </summary>
     public Guid HtmlLogUniqueId { get; set; }
-
-    #region 校准相关
-
-    /// <summary>
-    /// 界面状态
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
-    private CalibrationItemViewEnum _viewEnum;
-
-    /// <summary>
-    /// 校准步骤索引
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
-    private int _calibrationStepIndex = -1;
-
-    /// <summary>
-    /// 校准步名称
-    /// </summary>
-    [ObservableProperty]
-    private string _calibrationStepName = string.Empty;
-
-    [ObservableProperty]
-    private List<CalibrationItemStep> _stepList = [];
-
-    #endregion 校准相关
-
-    #endregion 属性
 
     #region 公开
 
-    /// <summary>
-    /// 加载校准
-    /// </summary>
     [RelayCommand]
     public async Task LoadedAsync()
     {
@@ -136,9 +54,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
     }
 
-    /// <summary>
-    /// 打开校准窗口
-    /// </summary>
     [RelayCommand]
     public async Task CalibrateAsync()
     {
@@ -147,7 +62,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
             CheckStatus();
             await Task.Run(async () =>
             {
-                Monitor();
                 ViewEnum = CalibrationItemViewEnum.Loading;
 
                 if (await CalibratingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
@@ -171,9 +85,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
     }
 
-    /// <summary>
-    /// 打开校准复查窗口
-    /// </summary>
     [RelayCommand]
     public async Task ReviewAsync()
     {
@@ -182,8 +93,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
             CheckStatus();
             await Task.Run(async () =>
             {
-                Monitor();
-
                 ViewEnum = CalibrationItemViewEnum.Loading;
                 if (await ReviewingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
@@ -204,9 +113,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
     }
 
-    /// <summary>
-    /// 关闭校准界面
-    /// </summary>
     [RelayCommand]
     public async Task CancelAsync()
     {
@@ -239,9 +145,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
     }
 
-    /// <summary>
-    /// 校准前一步
-    /// </summary>
     [RelayCommand]
     public async Task PreviousAsync()
     {
@@ -274,9 +177,6 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
         }
     }
 
-    /// <summary>
-    /// 校准下一步
-    /// </summary>
     [RelayCommand]
     public async Task NextAsync()
     {
@@ -346,38 +246,24 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
 
     protected virtual Task<bool> ReviewingAsync(CancellationToken cancellationToken) => Task.FromResult(true);
 
-    protected virtual Task<bool> CancelingAsync()
+    protected virtual Task<bool> CancelingAsync() => Task.Run(() =>
     {
-        return Task.Run(() =>
-        {
-            if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out _))
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(ApplicationCookie.MicroscopeLensInformations[0]);
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-            return true;
-        });
-    }
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+
+        return true;
+    });
 
     protected virtual Task<bool> PreviousingAsync(CancellationToken cancellationToken) => Task.FromResult(true);
 
     protected virtual Task<bool> NextingAsync(CancellationToken cancellationToken) => Task.FromResult(true);
 
-    protected virtual bool EnableDependedCalibrationItems(CancellationToken cancellationToken) => true;
-
-    protected virtual void Monitor() => CheckStatus();
-
     #endregion 重载
 
     #region 校准
 
-    protected Task<bool> InvokeCalibrateAsync(Func<Task<bool>> func, string comment = "")
-    {
-        return InvokeCalibrateAsync(() => func.Invoke().GetAwaiter().GetResult(), comment);
-    }
+    protected Task<bool> InvokeCalibrateAsync(Func<Task<bool>> func, string comment = "") => InvokeCalibrateAsync(() => func.Invoke().GetAwaiter().GetResult(), comment);
 
-    protected Task<bool> InvokeVerifyAsync(Func<Task<bool>> func)
-    {
-        return InvokeVerifyAsync(() => func.Invoke().GetAwaiter().GetResult());
-    }
+    protected Task<bool> InvokeVerifyAsync(Func<Task<bool>> func) => InvokeVerifyAsync(() => func.Invoke().GetAwaiter().GetResult());
 
     protected async Task<bool> InvokeCalibrateAsync(Func<bool> func, string comment = "")
     {
@@ -493,127 +379,4 @@ public partial class CalibrationViewModelBase : ViewModelBase, IRecipient<Proper
     }
 
     #endregion 校准
-
-    #region 状态更新
-
-    [MemberNotNull(nameof(_cancellationTokenSource))]
-    private void CheckStatus()
-    {
-        if (_cancellationTokenSource is null) RefreshToken();
-
-        if (_cancellationTokenSource.IsCancellationRequested) ThrowHelper.ThrowOperationCanceledException();
-    }
-
-    private void UpdateFailedStatus()
-    {
-        CalibrationStepIndex = int.MinValue;
-        IsCalibrated = false;
-
-        UpdateDisableAll();
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
-        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-
-        ViewEnum = CalibrationItemViewEnum.Error;
-    }
-
-    private void UpdateCancelStatus()
-    {
-        CalibrationStepIndex = int.MinValue;
-        IsCalibrated = false;
-
-        UpdateDisableAll();
-        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-
-        ViewEnum = CalibrationItemViewEnum.Welcome;
-    }
-
-    private void UpdateWelcomeStatus()
-    {
-        CalibrationStepIndex = int.MinValue;
-        IsCalibrated = false;
-
-        UpdateDisableAll();
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(true));
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsReviewEnable(true));
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
-        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-
-        ViewEnum = CalibrationItemViewEnum.Welcome;
-    }
-
-    private void UpdateCalibrateStatus()
-    {
-        CalibrationStepIndex = int.MinValue;
-        IsCalibrated = false;
-
-        UpdateDisableAll();
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(false));
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsReviewEnable(false));
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
-        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-
-        ViewEnum = CalibrationItemViewEnum.Calibration;
-
-        if (CalibrationStepIndex < 0) CalibrationStepIndex = 0;
-        UpdatePreviousNextStatus();
-    }
-
-    private void UpdateReviewStatus()
-    {
-        CalibrationStepIndex = CalibrationStepList.Count - 1;
-        IsCalibrated = false;
-
-        UpdateDisableAll();
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(false));
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsReviewEnable(false));
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
-        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-
-        ViewEnum = CalibrationItemViewEnum.Review;
-    }
-
-    private void UpdatePreviousNextStatus()
-    {
-        if (CalibrationStepIndex >= 0 && CalibrationStepIndex < CalibrationStepList.Count)
-            CalibrationStepName = CalibrationStepList[CalibrationStepIndex].StepName;
-
-        UpdateDisableAll();
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(false));
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsReviewEnable(false));
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
-        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-        if (IsCalibrated)
-        {
-            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
-            HtmlLogUniqueId = Guid.NewGuid();
-            DialogWindowProvider.ShowDialog($"Calibration {Name} Ok!");
-
-            UpdateWelcomeStatus();
-        }
-        else
-        {
-            UpdatePreviousStatus();
-            UpdateNextStatus();
-
-            ViewEnum = CalibrationItemViewEnum.Calibration;
-        }
-    }
-
-    private void UpdateDisableAll()
-    {
-        Messenger.Send(ToggleCalibrateEventFactory.Disable());
-        Messenger.Send(PopupWindowEventFactory.DisableIsPopupWindowEnable());
-    }
-
-    private void UpdatePreviousStatus()
-    {
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsPreviousEnable(0 < CalibrationStepIndex && CalibrationStepIndex <= CalibrationStepList.Count - 1));
-    }
-
-    private void UpdateNextStatus()
-    {
-        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsNextEnable(0 <= CalibrationStepIndex && CalibrationStepIndex < CalibrationStepList.Count && CalibrationStepList[CalibrationStepIndex].StepIsNextEnable));
-    }
-
-    #endregion 状态更新
 }
