@@ -14,6 +14,7 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
            xmlns:coreConverters="clr-namespace:Core.Utilities.WPF.Converters;assembly=Core.Utilities.WPF"
+           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            Width="1200"
            Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
@@ -112,32 +113,37 @@
                                                         VerticalAlignment="Center"
                                                         Spacing="10"
                                                         Orientation="Horizontal">
-                                    <hc:WaveProgressBar x:Name="WaveProgressBar"
-                                                        Width="16"
-                                                        Height="16"
-                                                        Style="{StaticResource ProgressBarSuccessWave}"
-                                                        Value="{Binding Entry.Status.Progress, Mode=OneWay}" />
+                                    <wpf:CircleProgressToggleButton x:Name="ToggleButtonStatus"
+                                                                    Width="16"
+                                                                    Height="16"
+                                                                    Foreground="{StaticResource SuccessBrush}"
+                                                                    Background="{StaticResource BorderBrush}"
+                                                                    EffectBackground="{StaticResource InfoBrush}"
+                                                                    Progress="{Binding Entry.Status.Progress}"
+                                                                    IsOk="{Binding Entry.Status.IsOk}" />
+                                    <Popup Width="400"
+                                           Height="400"
+                                           StaysOpen="False"
+                                           PlacementTarget="{Binding ElementName=ToggleButtonStatus}"
+                                           Placement="Right"
+                                           AllowsTransparency="True"
+                                           PopupAnimation="Slide"
+                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonStatus, Mode=TwoWay}">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                                <ContentControl Content="{Binding Entry.Status.XamlMessage, Mode=OneWay, Converter={x:Static coreConverters:StringToXamlConverter.Instance}}" />
+                                            </ScrollViewer>
+                                        </Border>
+                                    </Popup>
                                     <TextBlock Text="{Binding SysMenu.Name}" />
                                 </hc:UniformSpacingPanel>
                             </Grid>
                             <HierarchicalDataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
-                                    <Setter TargetName="WaveProgressBar" Property="Visibility" Value="Collapsed" />
+                                    <Setter TargetName="ToggleButtonStatus" Property="Visibility" Value="Collapsed" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Menu}">
                                     <Setter TargetName="Grid" Property="Margin" Value="-20,0,0,0" />
-                                    <Setter TargetName="Grid" Property="ToolTip">
-                                        <Setter.Value>
-                                            <ToolTip Width="400" Height="400">
-                                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                                                    <ContentControl Content="{Binding Entry.Status.XamlMessage, Mode=OneWay, Converter={x:Static coreConverters:StringToXamlConverter.Instance}}" />
-                                                </ScrollViewer>
-                                            </ToolTip>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter TargetName="Grid" Property="ToolTipService.InitialShowDelay" Value="300" />
-                                    <Setter TargetName="Grid" Property="ToolTipService.ShowDuration" Value="60000" />
-                                    <Setter TargetName="Grid" Property="ToolTipService.Placement" Value="Right" />
                                 </DataTrigger>
                             </HierarchicalDataTemplate.Triggers>
                         </HierarchicalDataTemplate>

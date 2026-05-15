@@ -4,9 +4,11 @@ namespace Core.Models.Models.Common.Cookies;
 
 public partial class CalibrationViewModelStatus : ObservableObject
 {
-    public bool IsOk => Progress >= 1;
+    public bool IsOk => TotalCalibrationCount > 0 && CalibratedCount + ReviewCount == 2 * TotalCalibrationCount;
 
-    public double Progress => TotalCalibrationCount == 0d ? 0d : (CalibratedCount + ReviewCount) / (TotalCalibrationCount * 2d);
+    public double Progress => TotalCalibrationCount > 0
+        ? (CalibratedCount + ReviewCount) / (TotalCalibrationCount * 2d) * 100d
+        : 0d;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Progress))]
