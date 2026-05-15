@@ -23,8 +23,9 @@ namespace CugaCalibration.Core.Services.Implements;
 [IOCAppService(ServiceType = typeof(IApplicationCookieService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ApplicationCookieServiceImpl(
     ICalibrationStageService calibrationStageServiceImpl,
-    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider cacheProvider,
+    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
+    ICacheProvider reciCacheProvider,
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options,
     ILogger<ApplicationCookieServiceImpl> logger) : IApplicationCookieService

@@ -144,9 +144,9 @@ public sealed partial class LoadingWindowViewModel(
                 applicationCookieService.GetCache(menu.Entry.CacheType);
 
                 if (menu.Entry.IsArray)
-                    applicationCookieService.GetCalibration(menu.Entry.DTOType);
-                else
                     applicationCookieService.GetCalibrations(menu.Entry.DTOType);
+                else
+                    applicationCookieService.GetCalibration(menu.Entry.DTOType);
 
                 Message = $"Loading {menu.SysMenu.Name} Cache OK!!!";
 

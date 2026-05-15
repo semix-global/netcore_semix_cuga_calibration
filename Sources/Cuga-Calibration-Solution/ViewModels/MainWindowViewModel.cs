@@ -137,15 +137,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 return;
             }
 
-            showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
+            var recipeManagementViewModel = HostApplication.GetRequiredService<RecipeManagementViewModel>();
+            recipeManagementViewModel.IsLoading = true;
+            showDialog = _windowManagerService.ShowDialog(recipeManagementViewModel);
             if (showDialog == false)
             {
                 return;
             }
 
-            var recipeManagementViewModel = HostApplication.GetRequiredService<RecipeManagementViewModel>();
-            recipeManagementViewModel.IsLoading = true;
-            showDialog = _windowManagerService.ShowDialog(recipeManagementViewModel);
+            showDialog = _windowManagerService.ShowDialog(HostApplication.GetRequiredService<LoadingWindowViewModel>());
             if (showDialog == false)
             {
                 return;

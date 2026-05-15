@@ -5,7 +5,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models;
 
-public abstract partial class CalibrationCacheBase : ObservableCacheBase
+public partial class CalibrationCacheBase : ObservableCacheBase
 {
     [ObservableProperty]
     public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; } = AlgorithmTemplateTypeEnum.Ncc;
@@ -14,7 +14,9 @@ public abstract partial class CalibrationCacheBase : ObservableCacheBase
     public partial AlgorithmTemplateSizeEnum AlgorithmTemplateSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
 }
 
-public abstract class CalibrationCacheBase<T> : CalibrationCacheBase, ICloneable<T> where T : CalibrationCacheBase<T>
+public abstract class CalibrationCacheBase<T> : CalibrationCacheBase, ICloneable<T> where T : CalibrationCacheBase<T>, new()
 {
+    public static readonly T Default = new();
+
     public abstract T Clone();
 }

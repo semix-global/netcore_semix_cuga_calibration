@@ -20,7 +20,10 @@ public abstract partial class CalibrationDTOBase : ObservableCacheBase
     public bool IsOk => IsCalibrated && IsVerified;
 }
 
-public abstract class CalibrationDTOBase<T> : CalibrationDTOBase, ICloneable<T> where T : CalibrationDTOBase<T>
+public abstract class CalibrationDTOBase<T> : CalibrationDTOBase, ICloneable<T> where T : CalibrationDTOBase<T>, new()
 {
+    public static readonly T Default = new();
+    public static readonly T[] Defaults = [];
+
     public abstract T Clone();
 }
