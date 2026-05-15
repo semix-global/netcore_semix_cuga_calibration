@@ -588,7 +588,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
         CacheProvider.Set(dto, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+    });
 
     private void ClearCalibrationTemp()
     {

@@ -848,7 +848,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         CacheProvider.Set(dto, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+    });
 
     private void ClearCalibrationTemp()
     {

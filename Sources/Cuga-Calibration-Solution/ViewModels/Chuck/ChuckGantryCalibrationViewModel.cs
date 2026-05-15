@@ -581,7 +581,7 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
 
         CacheProvider.Set(dto, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+    });
 
     #endregion 校准
 }

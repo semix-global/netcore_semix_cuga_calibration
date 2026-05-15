@@ -382,12 +382,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
             return false;
         }
 
-        if (EnableDependedCalibrationItems(cancellationToken) == false)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Enable Depended Calibration Items Failed!"), HtmlLogUniqueId.LoggingHtml());
-            return false;
-        }
-
         return result;
     }
 
@@ -408,7 +402,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         CacheProvider.SetArray(Calibrations, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+    });
 
     #endregion 校准
 }

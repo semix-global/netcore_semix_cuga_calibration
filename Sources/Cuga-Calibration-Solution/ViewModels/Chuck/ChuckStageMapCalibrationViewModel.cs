@@ -1199,7 +1199,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         CacheProvider.Set(dto, cancellationToken);
         RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+    });
 
     #endregion 校准
 }
