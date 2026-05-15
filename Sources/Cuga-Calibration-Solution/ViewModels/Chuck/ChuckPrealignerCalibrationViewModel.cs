@@ -171,7 +171,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 return true;
 
             case 6:
-                IsCalibrated = true;
                 return true;
 
             default:

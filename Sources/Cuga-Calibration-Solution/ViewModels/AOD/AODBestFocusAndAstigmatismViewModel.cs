@@ -221,7 +221,6 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                         $"{Cache.ProductivityInformation}-{Cache.ApodizationModeEnum.ToHexString()} " +
                         $"best focus and astigmatism calibration ok!");
 
-                    IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                     if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                     return true;

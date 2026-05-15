@@ -115,7 +115,6 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
                     return false;
                 }
 
-                IsCalibrated = isCalibrated;
                 return true;
 
             default:

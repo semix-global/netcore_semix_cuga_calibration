@@ -290,7 +290,6 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
                 ResultDto.IsCalibrated = true;
                 Save(ResultDto, cancellationToken);
-                IsCalibrated = true;
                 return true;
 
             default:

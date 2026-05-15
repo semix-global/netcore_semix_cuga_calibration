@@ -168,7 +168,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                     .Single(t => t.SelectedItem == Cache.MicroscopeLensInformation)
                     .IsCalibrated = true;
 
-                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 ClearCalibrationTemp();

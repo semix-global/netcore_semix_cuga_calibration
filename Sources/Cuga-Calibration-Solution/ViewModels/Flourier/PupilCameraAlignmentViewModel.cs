@@ -104,7 +104,6 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 Cache.IsToggleSelectRectROIDrawableCh3 = false;
                 ResultDto.IsCalibrated = true;
                 Save(ResultDto, cancellationToken);
-                IsCalibrated = true;
                 return true;
 
             default:

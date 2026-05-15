@@ -180,8 +180,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 return true;
 
             case 9:
-                IsCalibrated = true;
-
                 return true;
 
             default:

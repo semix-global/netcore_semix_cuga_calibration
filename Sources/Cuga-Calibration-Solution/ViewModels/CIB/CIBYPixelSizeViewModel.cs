@@ -212,7 +212,6 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
 
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
                 return true;
 

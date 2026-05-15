@@ -309,7 +309,6 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                     .ProductivityInformationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (!IsCalibrated) CalibrationStepIndex = -1;
 
                 return true;

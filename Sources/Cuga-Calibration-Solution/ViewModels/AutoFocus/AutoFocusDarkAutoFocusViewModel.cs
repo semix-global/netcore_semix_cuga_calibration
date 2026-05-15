@@ -146,8 +146,6 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                     return false;
                 }
 
-                IsCalibrated = true;
-
                 return true;
 
             default:

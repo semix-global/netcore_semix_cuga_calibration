@@ -179,7 +179,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
                     .ProductivityInformationStatusList
                     .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;

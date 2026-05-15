@@ -176,7 +176,6 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         if (CalibrationStepIndex == CalibrationStepList.Count - 1)
         {
-            IsCalibrated = true;
             return result;
         }
 

@@ -222,8 +222,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     return false;
                 }
 
-                IsCalibrated = true;
-
                 return true;
 
             default:

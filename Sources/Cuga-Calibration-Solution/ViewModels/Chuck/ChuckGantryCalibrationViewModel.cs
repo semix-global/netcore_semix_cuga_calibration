@@ -185,8 +185,6 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
                     return false;
                 }
 
-                IsCalibrated = true;
-
                 return true;
 
             default:

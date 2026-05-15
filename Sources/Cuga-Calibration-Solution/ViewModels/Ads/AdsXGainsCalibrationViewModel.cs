@@ -192,7 +192,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     }
                 }
 
-                IsCalibrated = isCalibrated;
                 ClearCalibrationTemp();
                 return true;
 

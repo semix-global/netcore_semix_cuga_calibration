@@ -236,8 +236,6 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                     }
                 }
 
-                IsCalibrated = true;
-
                 ClearCalibrationTemp();
                 return true;
 

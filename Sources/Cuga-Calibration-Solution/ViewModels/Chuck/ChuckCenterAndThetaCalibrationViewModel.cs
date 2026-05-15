@@ -184,7 +184,6 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     }
                 }
 
-                IsCalibrated = true;
                 return true;
 
             default:

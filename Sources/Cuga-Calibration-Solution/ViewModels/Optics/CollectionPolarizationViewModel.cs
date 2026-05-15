@@ -99,7 +99,6 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             case 3:
 
                 Save(ResultCollectItemDto, cancellationToken);
-                IsCalibrated = true;
                 return true;
 
             default:

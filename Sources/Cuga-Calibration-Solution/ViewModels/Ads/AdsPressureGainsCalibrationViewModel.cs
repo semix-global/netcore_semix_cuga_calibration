@@ -106,8 +106,6 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
                     return false;
                 }
 
-                IsCalibrated = true;
-
                 return true;
 
             default:

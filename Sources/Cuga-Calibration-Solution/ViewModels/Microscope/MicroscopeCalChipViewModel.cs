@@ -302,7 +302,6 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 return true;
 
             case 12:
-                IsCalibrated = true;
                 return true;
 
             default:
