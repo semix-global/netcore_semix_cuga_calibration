@@ -48,6 +48,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
     private readonly IDialogWindowProvider _dialogWindowProvider;
     private readonly IWindowManagerService _windowManagerService;
     private readonly IMessenger _messenger;
+    private readonly ICacheProvider _defaultCacheProvider;
     private readonly ICacheProvider _cacheProvider;
     private readonly ICacheDatabaseProvider _cacheDatabaseProvider;
     private readonly ISysRecipeInformationService _sysRecipeInformationService;
@@ -61,6 +62,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
         IDialogWindowProvider dialogWindowProvider,
         IWindowManagerService windowManagerService,
         IMessenger messenger,
+        ICacheProvider defaultCacheProvider,
         [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
         ICacheProvider cacheProvider,
         [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
@@ -75,6 +77,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
         _dialogWindowProvider = dialogWindowProvider;
         _windowManagerService = windowManagerService;
         _messenger = messenger;
+        _defaultCacheProvider = defaultCacheProvider;
         _cacheProvider = cacheProvider;
         _cacheDatabaseProvider = cacheDatabaseProvider;
         _sysRecipeInformationService = sysRecipeInformationService;
@@ -263,9 +266,12 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
                     _dialogWindowProvider.ShowDialog("Failed to read recipe database, will apply default values.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     _cacheProvider.Set(new CalibrationRecipeDTO(), CancellationToken.None);
                 }
-
                 RecipeCookie.CalibrationRecipeDto.AdaptIn(calibrationRecipeDto);
                 RecipeCookie.SysRecipeInformationDTO.AdaptIn(SelectRecipeInfoDto);
+
+                (isHas, var calchipRecipeDTO) = _defaultCacheProvider.TryGetOrDefault<CalChipRecipeDTO>();
+                if (isHas == false) _cacheProvider.Set(new CalibrationRecipeDTO(), CancellationToken.None);
+                RecipeCookie.CalChipRecipeDTO.AdaptIn(calchipRecipeDTO);
 
                 Close();
 

@@ -5,7 +5,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.CIB.LineOrientationOffset;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.PixelSize;
@@ -82,22 +81,10 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
     private MicroscopePixelSizeItemDto[] _microscopePixelSizes = [];
 
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
-
-    [ObservableProperty]
-    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
-
-    [ObservableProperty]
-    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
-
-    [ObservableProperty]
     private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
 
     [ObservableProperty]
-    private AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowBrightFieldViewModel>();
-
-    [ObservableProperty]
-    private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     #endregion 缓存
 
@@ -112,8 +99,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
         if (LoadDepends() == false) return false;
 
         MicroscopePixelSizes = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
-        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineOrientationOffsetCache>();
 
@@ -255,59 +240,26 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step2Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
-            AlignmentResultDto alignmentResultDto;
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
 
-            if (Cache.Item.IsDarkFieldAlignment)
-            {
-                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
-                                              t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum &&
-                                              t.ProductivityInformation == Cache.ProductivityInformation)
-                                          ?? new AlignmentCacheDarkField();
+            DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
+                out var dialogResult,
+                DialogButtonsEnum.YesNo,
+                DialogIconEnum.Question);
 
-                if (AlignmentCacheDarkField.IsOk == false)
-                {
-                    var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
-                    Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
-                    AlignmentCacheDarkFields = [.. AlignmentCacheDarkFields, alignmentWindowDarkFieldViewModel.Cache];
-                }
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
 
-                alignmentResultDto = StageViewModel.AlignmentDarkField(
-                    AlignmentCacheDarkField.LowSite1,
-                    AlignmentCacheDarkField.LowSite2,
-                    AlignmentCacheDarkField.HighSite1,
-                    AlignmentCacheDarkField.HighSite2,
-                    Cache.ProductivityInformation,
-                    AlignmentCacheDarkField.LowMag,
-                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
-            }
-            else
-            {
-                if (AlignmentCacheBrightField.IsOk == false)
-                {
-                    var alignmentWindowBrightFieldViewModel = AlignmentWindowBrightFieldViewModel;
-                    Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel) == true, nameof(alignmentWindowBrightFieldViewModel));
-                    AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
-                }
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-                alignmentResultDto = StageViewModel.Alignment(
-                    AlignmentCacheBrightField.LowSite1,
-                    AlignmentCacheBrightField.LowSite2,
-                    AlignmentCacheBrightField.HighSite1,
-                    AlignmentCacheBrightField.HighSite2,
-                    AlignmentCacheBrightField.LowMag,
-                    AlignmentCacheBrightField.HighMag,
-                    AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
-            }
-
-            Cache.Item.AlignmentResult = alignmentResultDto;
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                Cache.Item.IsDarkFieldAlignment,
-                AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous())
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -514,29 +466,10 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                                                          && t.PmtId == Cache.Item.CIBInformation.PMTId);
             Guard.IsNotNull(centerDto);
 
-            if (Cache.Item.IsDarkFieldAlignment == false)
-            {
-                StageViewModel.Alignment(
-                    AlignmentCacheBrightField.LowSite1,
-                    AlignmentCacheBrightField.LowSite2,
-                    AlignmentCacheBrightField.HighSite1,
-                    AlignmentCacheBrightField.HighSite2,
-                    AlignmentCacheBrightField.LowMag,
-                    AlignmentCacheBrightField.HighMag,
-                    AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
-            }
-            else
-            {
-                StageViewModel.AlignmentDarkField(
-                    AlignmentCacheDarkField.LowSite1,
-                    AlignmentCacheDarkField.LowSite2,
-                    AlignmentCacheDarkField.HighSite1,
-                    AlignmentCacheDarkField.HighSite2,
-                    Cache.ProductivityInformation,
-                    AlignmentCacheDarkField.LowMag,
-                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
-            }
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = Cache.Item.IsDarkFieldAlignment;
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
             var errorMessageStringBuilder = new StringBuilder();
 

@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
@@ -55,12 +54,6 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase
     private int _imageWidth = 1000;
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
-
-    [ObservableProperty]
-    private AlignmentResultDto _alignmentResult = new();
-
-    [ObservableProperty]
     private string _brightTemplateFilePath = string.Empty;
 
     [ObservableProperty]
@@ -71,4 +64,7 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     private string _templateImageFilePath = string.Empty;
+
+    [ObservableProperty]
+    private bool _isDarkFieldAlignment;
 }

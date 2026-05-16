@@ -5,6 +5,7 @@
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+           xmlns:enumStage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Alignment"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -67,16 +68,14 @@
                         <hc:UniformSpacingPanel Width="200"
                                                 Orientation="Vertical"
                                                 Spacing="10">
-                            <hc:ComboBox hc:InfoElement.TitleWidth="80"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="Low Mag: "
-                                         hc:InfoElement.Necessary="True"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="80"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="Low Mag: "
                                          SelectedItem="{Binding Cache.LowMag}"
                                          ItemsSource="{Binding MicroscopeLensInformationList}" />
-                            <hc:ComboBox hc:InfoElement.TitleWidth="80"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="Low Size: "
-                                         hc:InfoElement.Necessary="True"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="80"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="Low Size: "
                                          SelectedItem="{Binding Cache.LowSizeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
@@ -91,16 +90,14 @@
                         <hc:UniformSpacingPanel Width="200"
                                                 Orientation="Vertical"
                                                 Spacing="10">
-                            <hc:ComboBox hc:InfoElement.TitleWidth="80"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="High Mag: "
-                                         hc:InfoElement.Necessary="True"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="80"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="High Mag: "
                                          SelectedItem="{Binding Cache.HighMag}"
                                          ItemsSource="{Binding MicroscopeLensInformationList}" />
-                            <hc:ComboBox hc:InfoElement.TitleWidth="80"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="High Size: "
-                                         hc:InfoElement.Necessary="True"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="80"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="High Size: "
                                          SelectedItem="{Binding Cache.HighSizeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
@@ -109,6 +106,7 @@
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
+
                         </hc:UniformSpacingPanel>
                     </GroupBox>
                 </hc:UniformSpacingPanel>
@@ -122,10 +120,9 @@
                                             Spacing="5">
                         <hc:ComboBox Width="300"
                                      HorizontalAlignment="Left"
-                                     hc:InfoElement.TitleWidth="130"
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.Title="Wafer Type: "
-                                     hc:InfoElement.Necessary="True"
+                                     hc:TitleElement.TitleWidth="130"
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Wafer Type: "
                                      SelectedItem="{Binding Cache.AlgorithmWaferTypeEnum}"
                                      ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmWaferTypeEnum}}}">
                             <hc:ComboBox.ItemTemplate>
@@ -136,12 +133,24 @@
                         </hc:ComboBox>
                         <hc:ComboBox Width="300"
                                      HorizontalAlignment="Left"
-                                     hc:InfoElement.TitleWidth="130"
-                                     hc:InfoElement.TitlePlacement="Left"
-                                     hc:InfoElement.Title="BF Template Type: "
-                                     hc:InfoElement.Necessary="True"
+                                     hc:TitleElement.TitleWidth="130"
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="BF Template Type: "
                                      SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
                                      ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
+                            <hc:ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </hc:ComboBox.ItemTemplate>
+                        </hc:ComboBox>
+                        <hc:ComboBox Width="300"
+                                     hc:TitleElement.TitleWidth="130"
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Cal Chip Type: "
+                                     IsEnabled="{Binding IsToolsEnable}"
+                                     SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
+                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumStage:CalChipSiteModelEnum}}}">
                             <hc:ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
@@ -154,7 +163,7 @@
                             Content="OK"
                             Command="{Binding CloseCommand}"
                             Width="100"
-                            Height="50"
+                            Height="80"
                             Margin="10,0"
                             HorizontalAlignment="Right" />
                 </Grid>

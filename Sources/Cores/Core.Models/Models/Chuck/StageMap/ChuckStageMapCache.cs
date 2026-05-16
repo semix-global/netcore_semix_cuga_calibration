@@ -196,6 +196,9 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     [ObservableProperty]
     private Point _threshold;
 
+    [ObservableProperty]
+    private bool _isDarkFieldAlignment;
+
     #region Method
 
     public void GetParam()

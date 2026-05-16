@@ -63,7 +63,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [ObservableProperty]
     public partial AlignmentCacheDarkField Cache { get; set; } = new();
 
-    [field: RecipeCache]
+    [RecipeCache]
     [ObservableProperty]
     public partial AlignmentCacheDarkField[] Caches { get; set; } = [];
 

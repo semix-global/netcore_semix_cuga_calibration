@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
 namespace Core.Recipe.Models;
@@ -14,7 +15,13 @@ public sealed partial class RecipeCookie : ObservableObject
     /// <summary>
     /// 校准当前应用配方
     /// </summary>
-    // [property:DefaultCache]
     [ObservableProperty]
-    private CalibrationRecipeDTO _calibrationRecipeDto = new();
+    public partial CalibrationRecipeDTO CalibrationRecipeDto { get; set; } = new();
+
+    /// <summary>
+    /// CalChip 配方
+    /// </summary>
+    [DefaultCache]
+    [ObservableProperty]
+    public partial CalChipRecipeDTO CalChipRecipeDTO { get; set; } = new();
 }

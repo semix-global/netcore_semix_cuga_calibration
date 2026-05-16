@@ -7,6 +7,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.SC;
 using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Humanizer;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Extensions;
@@ -17,6 +18,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -74,6 +76,9 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     #endregion 缓存
 
@@ -247,25 +252,26 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step2Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
-            var alignmentResult = StageViewModel.Alignment(
-                MicroscopeCalChipCache.LowSite1,
-                MicroscopeCalChipCache.LowSite2,
-                MicroscopeCalChipCache.HighSite1,
-                MicroscopeCalChipCache.HighSite2,
-                MicroscopeCalChipCache.LowMicroscopeLensInformation,
-                MicroscopeCalChipCache.HighMicroscopeLensInformation,
-                MicroscopeCalChipCache.AlgorithmWaferTypeEnum,
-                CalChipSiteModelEnum.DswModel);
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.Item.ProductivityInformation;
 
-            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d));
+            DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
+                out var dialogResult,
+                DialogButtonsEnum.YesNo,
+                DialogIconEnum.Question);
 
-            Cache.Item.AlignmentResult = alignmentResult;
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
+
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous())
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;

@@ -1,13 +1,11 @@
 using Core.Models.Enums.Recipe.Wafer;
-using Core.Models.Helper;
-using Core.Models.Models.Common.Alignment;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Recipe.Models.Wafer;
 using Core.Recipe.Models.Wafer.ReticleMask;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
-using Local.SQL.Cache.Providers.Services.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -18,25 +16,21 @@ namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationRecipeService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public class CalibrationRecipeServiceImpl(
-    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
-    ICacheProvider cacheProvider,
     ILogger<CalibrationRecipeServiceImpl> logger,
+    AlignmentUserControlViewModel alignmentUserControlViewModel,
     StageViewModel stageViewModel) : ICalibrationRecipeService
 {
-    public void GetCorrectWaferMapByOffset(WaferDTO waferDto, bool isAutoAlignment)
+    public async Task GetCorrectWaferMapByOffsetAsync(WaferDTO waferDto, bool isAutoAlignment, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
         var offsetPosition = Point.Origin;
         if (isAutoAlignment)
         {
-            // 对准缓存
-            var alignmentCacheBrightField = cacheProvider.GetOrDefault<AlignmentCacheBrightField>();
-            // 重新对准
-            var alignmentResult = stageViewModel.Alignment(alignmentCacheBrightField.LowSite1, alignmentCacheBrightField.LowSite2,
-                alignmentCacheBrightField.HighSite1, alignmentCacheBrightField.HighSite2,
-                alignmentCacheBrightField.LowMag, alignmentCacheBrightField.HighMag,
-                alignmentCacheBrightField.AlgorithmWaferTypeEnum);
+            alignmentUserControlViewModel.IsDarkFieldAlignment = false;
+            alignmentUserControlViewModel.CalChipSiteModelEnum = calChipSiteModelEnum;
+            await alignmentUserControlViewModel.AlignmentAsync(CancellationToken.None).ConfigureAwait(false);
 
+            var alignmentResult = alignmentUserControlViewModel.AlignmentResult.Clone();
             // 配方对准结果缓存
             var recipeAlignmentResult = waferDto.AlignmentResultDto;
 
@@ -66,6 +60,7 @@ public class CalibrationRecipeServiceImpl(
     public WaferMapDie GetCurrentWaferMapDie(WaferDTO waferDto, Point machinePosition)
     {
         var waferPosition = stageViewModel.MachineToBrightFieldPosition(machinePosition);
+        waferDto.WaferMapDataToWaferMapCanvasDocument();
         return waferDto.WaferMapCanvasDocument.DieModel
             .Single(t => t.Rect.Contains(waferPosition));
     }
@@ -73,6 +68,7 @@ public class CalibrationRecipeServiceImpl(
     public WaferMapReticle GetCurrentWaferMapReticle(WaferDTO waferDto, Point machinePosition)
     {
         var waferPosition = stageViewModel.MachineToBrightFieldPosition(machinePosition);
+        waferDto.WaferMapDataToWaferMapCanvasDocument();
         return waferDto.WaferMapCanvasDocument.ReticleModel
             .Single(t => t.Rect.Contains(waferPosition));
     }
@@ -141,3 +137,4 @@ public class CalibrationRecipeServiceImpl(
         throw new NotImplementedException();
     }
 }
+

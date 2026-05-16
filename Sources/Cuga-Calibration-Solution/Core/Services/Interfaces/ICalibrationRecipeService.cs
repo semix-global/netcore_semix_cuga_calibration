@@ -1,4 +1,5 @@
 using Core.Models.Enums.Recipe.Wafer;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Recipe.Models.Wafer;
 using Core.Recipe.Models.Wafer.ReticleMask;
@@ -14,7 +15,7 @@ public interface ICalibrationRecipeService
     /// </summary>
     /// <param name="waferDto"></param>
     /// <param name="isAutoAlignment"></param>
-    void GetCorrectWaferMapByOffset(WaferDTO waferDto, bool isAutoAlignment);
+    Task GetCorrectWaferMapByOffsetAsync(WaferDTO waferDto, bool isAutoAlignment, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel);
 
     /// <summary>
     /// 获取当前机械坐标所在的 Die

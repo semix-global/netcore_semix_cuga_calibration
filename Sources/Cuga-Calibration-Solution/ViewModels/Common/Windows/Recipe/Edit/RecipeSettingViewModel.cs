@@ -17,7 +17,6 @@ using Net.Utilities.Models;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Windows.Controls;
 
@@ -92,21 +91,6 @@ public sealed partial class RecipeSettingViewModel : ViewModelBase, IRecipient<V
         _messenger.RegisterAll(this);
     }
 
-    [MemberNotNull(nameof(_cancellationTokenSource))]
-    private CancellationToken RefreshToken()
-    {
-        CancelToken();
-        _cancellationTokenSource = new CancellationTokenSource();
-        return _cancellationTokenSource.Token;
-    }
-
-    private void CancelToken()
-    {
-        _cancellationTokenSource?.Cancel();
-        _cancellationTokenSource?.Dispose();
-        _cancellationTokenSource = null;
-    }
-
     [RelayCommand]
     private async Task LoadedAsync()
     {
@@ -119,7 +103,7 @@ public sealed partial class RecipeSettingViewModel : ViewModelBase, IRecipient<V
 
         // 初始化各子 VM
         RecipeCommonSettingViewModel.Initialize(EditDTO);
-        RecipeWaferMapViewModel.Initialize(EditDTO, RefreshToken());
+        RecipeWaferMapViewModel.Initialize(EditDTO);
         await RecipeAlignmentViewModel.InitializeAsync(EditDTO);
 
         IsEditWaferMapEnable = EditDTO.WaferDTO.IsAlignmentResultLegal();
@@ -154,13 +138,13 @@ public sealed partial class RecipeSettingViewModel : ViewModelBase, IRecipient<V
 
     private void CloseAction()
     {
+        RecipeWaferMapViewModel.Dispose();
+
         CloseView(null);
 
         _messenger.Send(ToggleCalibrateEventFactory.RefreshWindow(true));
         _messenger.Send(ToggleRecipeEventFactory.RefreshRecipeManagementView(true));
         _messenger.Send(ToggleRecipeEventFactory.UpdateIsRecipeAlignment(false));
-
-        CancelToken();
     }
 
     [RelayCommand]
