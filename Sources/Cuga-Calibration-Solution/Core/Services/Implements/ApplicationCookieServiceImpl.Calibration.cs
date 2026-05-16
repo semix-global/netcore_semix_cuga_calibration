@@ -62,7 +62,7 @@ public sealed partial class ApplicationCookieServiceImpl
 
         ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibration), calibration);
 
-        calibrationViewModel.UpdateEntryStatus(cancellationToken);
+        calibrationViewModel.UpdateEntryStatus(entry.Cookie.Calibration, cancellationToken);
 
         return (CalibrationDTOBase)calibration;
     }, cancellationToken);
@@ -76,7 +76,7 @@ public sealed partial class ApplicationCookieServiceImpl
         cacheProvider.Set(type, item, cancellationToken);
         ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibration), item);
 
-        calibrationViewModel.UpdateEntryStatus(cancellationToken);
+        calibrationViewModel.UpdateEntryStatus(entry.Cookie.Calibration, cancellationToken);
 
         return Unit.Default;
     }, cancellationToken);
@@ -94,7 +94,7 @@ public sealed partial class ApplicationCookieServiceImpl
 
         ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibrations), calibrations);
 
-        calibrationViewModel.UpdateEntryStatus(cancellationToken);
+        calibrationViewModel.UpdateEntryStatus(entry.Cookie.Calibrations, cancellationToken);
 
         return (CalibrationDTOBase[])calibrations;
     }, cancellationToken);
@@ -108,7 +108,7 @@ public sealed partial class ApplicationCookieServiceImpl
         cacheProvider.SetArray(type, items.Cast<object>().ToArray(), cancellationToken);
         ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibrations), items);
 
-        calibrationViewModel.UpdateEntryStatus(cancellationToken);
+        calibrationViewModel.UpdateEntryStatus(entry.Cookie.Calibrations, cancellationToken);
 
         return Unit.Default;
     }, cancellationToken);

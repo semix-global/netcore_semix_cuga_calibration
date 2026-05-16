@@ -42,7 +42,11 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
     [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
     public partial int CalibrationStepIndex { get; set; } = -1;
 
-    public virtual void UpdateEntryStatus(CancellationToken cancellationToken)
+    public virtual void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+    }
+
+    public virtual void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
     }
 

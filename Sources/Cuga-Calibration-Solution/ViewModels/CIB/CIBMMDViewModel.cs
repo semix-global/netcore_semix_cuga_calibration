@@ -120,8 +120,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBMMDCache>(cancellationToken);
+        Calibratings = ApplicationCookieService.GetCalibrations<CIBMMDDTO>(cancellationToken);
 
-        UpdateEntryStatus(cancellationToken);
+        UpdateEntryStatus([..Calibratings], cancellationToken);
 
         return true;
     }
@@ -1267,9 +1268,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
 
-    public override void UpdateEntryStatus(CancellationToken cancellationToken)
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var calibrations = Guard.IsAssignableToTypeAndReturn<CIBMMDDTO[]>(Entry.Cookie.Calibrations);
+        var temp = Guard.IsAssignableToTypeAndReturn<CIBMMDDTO[]>(calibrations);
         var status = Entry.Status;
 
         var applicationCookieCIBInformations = ApplicationCookie.CIBInformations;
@@ -1281,7 +1282,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            ..calibrations
+            ..temp
                 .Where(t => applicationCookieCIBInformations.Contains(t.CIBInformation))
                 .Select(t =>
                 {
@@ -1294,7 +1295,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         status.TotalCalibrationCount = applicationCookieCIBInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-
         status.Details =
         [
             ..applicationCookieCIBInformations.Select(t =>
