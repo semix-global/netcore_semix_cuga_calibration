@@ -5,7 +5,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentCacheDarkField : AlignmentCacheBase, ICloneable<AlignmentCacheDarkField>
+public partial class AlignmentCacheDarkField : AlignmentCacheBase, ICloneable<AlignmentCacheDarkField>
 {
     /// <summary>
     /// HighSite产率

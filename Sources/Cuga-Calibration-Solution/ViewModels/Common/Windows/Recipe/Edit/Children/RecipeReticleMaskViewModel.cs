@@ -52,6 +52,9 @@ public sealed partial class RecipeReticleMaskViewModel(
     public AlignmentWindowDarkFieldViewModel AlignmentWindowDarkFieldViewModel { get; } = alignmentWindowDarkFieldViewModel;
 
     [ObservableProperty]
+    public partial RecipeReticleMarkViewUserControlViewModel RecipeReticleMarkViewUserControlViewModel { get; set; } = new();
+
+    [ObservableProperty]
     private ReticleMarkDTOItem? _selectReticleMarkItem;
 
     /// <summary>
@@ -59,12 +62,6 @@ public sealed partial class RecipeReticleMaskViewModel(
     /// </summary>
     [ObservableProperty]
     private ObservableCollection<ReticleMarkDTOItem> _editReticleMarkList = [];
-
-    /// <summary>
-    /// 用于 ReticleMaskView 绘制的镜像列表
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<ReticleMarkDTOItem> _reticleMarkList = [];
 
     // 内部引用（由主 VM 注入）
 
@@ -99,7 +96,7 @@ public sealed partial class RecipeReticleMaskViewModel(
         if (obj is MouseButtonEventArgs e)
             e.Handled = true;
 
-        if (EditRecipeTypeName.Contains("Wafer")) RecipeWaferMapViewModel?.NotifyWaferMapView();
+        // if (EditRecipeTypeName.Contains("Wafer")) RecipeWaferMapViewModel?.NotifyWaferMapView();
     }
 
     [RelayCommand]
@@ -111,6 +108,7 @@ public sealed partial class RecipeReticleMaskViewModel(
     private void RefreshReticleView(object obj)
     {
         if (EditingDTO is null) return;
+        RecipeReticleMarkViewUserControlViewModel.WaferDTO = EditingDTO.WaferDTO;
 
         var header = obj switch
         {
@@ -136,7 +134,7 @@ public sealed partial class RecipeReticleMaskViewModel(
         RefreshReticleMaskView();
     }
 
-    private void RefreshReticleMaskView() => ReticleMarkList = [.. EditReticleMarkList];
+    private void RefreshReticleMaskView() => RecipeReticleMarkViewUserControlViewModel.ReticleMarkList = [.. EditReticleMarkList];
 
     [RelayCommand]
     private void AddMask()

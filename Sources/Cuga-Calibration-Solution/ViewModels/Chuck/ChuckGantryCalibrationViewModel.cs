@@ -1,11 +1,11 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.Gantry;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Utilities.SourceGenerators.Attributes;
@@ -19,12 +19,13 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using System.IO;
 
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGantryCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel) : CalibrationViewModelBase
+public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewModelBase
 {
     #region 属性
 
@@ -71,10 +72,10 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
     private ChuckGantryDto _calibration = new();
 
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
+    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     #endregion 缓存
 
@@ -92,7 +93,6 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
 
         (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckGantryCache>();
         Calibration = CacheProvider.GetOrDefault<ChuckGantryDto>();
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
@@ -106,19 +106,6 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (AlignmentCacheBrightField.IsOk == false)
-        {
-            var showDialog = WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel);
-            if (showDialog == false)
-            {
-                DialogWindowProvider.ShowDialog("Alignment Setting is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return false;
-            }
-
-            AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
-        }
-
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
         return true;
     }
 
@@ -212,28 +199,28 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-        await InvokeCalibrateAsync(() =>
-        {
-            var alignmentResultDto = StageViewModel.Alignment(
-                AlignmentCacheBrightField.LowSite1,
-                AlignmentCacheBrightField.LowSite2,
-                AlignmentCacheBrightField.HighSite1,
-                AlignmentCacheBrightField.HighSite2,
-                AlignmentCacheBrightField.LowMag,
-                AlignmentCacheBrightField.HighMag,
-                AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
+        return InvokeCalibrateAsync(async () =>
+         {
+             AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+             AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
-            Cache.P5Angle = alignmentResultDto.Degrees;
+             await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-            Logger.LogHtmlInformation("P5 OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new { Cache.P5Angle }),
-                HtmlLogUniqueId.LoggingHtml());
-            result = true;
-            return result;
-        });
-        return result;
+             var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
+             Cache.P5Angle = alignmentResult.Degrees;
+
+             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+             {
+                 AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
+             }), HtmlLogUniqueId.LoggingHtml());
+
+             StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
+
+             return true;
+         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -450,7 +437,7 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
         CancellationToken cancellationToken)
     {
         var result = true;
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             var detectImageDirectory = ImageFileDirectory;
             var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) =
@@ -481,17 +468,19 @@ public sealed partial class ChuckGantryCalibrationViewModel(AlignmentWindowBrigh
                 }),
                 ImageFileDirectory = detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
-            var alignmentResultDto = StageViewModel.Alignment(
-                AlignmentCacheBrightField.LowSite1,
-                AlignmentCacheBrightField.LowSite2,
-                AlignmentCacheBrightField.HighSite1,
-                AlignmentCacheBrightField.HighSite2,
-                AlignmentCacheBrightField.LowMag,
-                AlignmentCacheBrightField.HighMag,
-                AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
 
-            Cache.P5Angle = alignmentResultDto.Degrees;
-            Logger.LogHtmlInformation("P5 OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new { Cache.P5Angle }), HtmlLogUniqueId.LoggingHtml());
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
+            Cache.P5Angle = alignmentResult.Degrees;
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
 
             var chuckGantryObjDto = new ChuckGantryDto
             {
