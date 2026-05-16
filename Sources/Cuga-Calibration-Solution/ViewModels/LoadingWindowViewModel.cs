@@ -139,7 +139,7 @@ public sealed partial class LoadingWindowViewModel(
 
                 menu.Entry.Name = menu.GetFullName();
 
-                Message = $"Loading {menu.SysMenu.Name} Cache...";
+                Message = $"Loading {menu.Entry.Name} Cache...";
 
                 applicationCookieService.GetCache(menu.Entry.CacheType);
 
@@ -148,7 +148,7 @@ public sealed partial class LoadingWindowViewModel(
                 else
                     applicationCookieService.GetCalibration(menu.Entry.DTOType);
 
-                Message = $"Loading {menu.SysMenu.Name} Cache OK!!!";
+                Message = $"Loading {menu.Entry.Name} Cache OK!!!";
 
                 ProcessValue = ConnectCacheProgress + progressPerItem * (i + 1);
                 await Task.Delay(300).ConfigureAwait(false);

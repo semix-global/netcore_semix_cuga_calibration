@@ -1,16 +1,19 @@
-﻿namespace Core.Models.Models.Common.Cookies;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-public sealed class CalibrationViewModelEntry(
+namespace Core.Models.Models.Common.Cookies;
+
+public sealed partial class CalibrationViewModelEntry(
     Type viewModelType,
     Type cacheType,
     Type dtoType,
     Type? adaptToCUGAType,
     bool isArray,
-    ICalibrationViewModelCookie<CalibrationCacheBase, CalibrationDTOBase> cookie)
+    ICalibrationViewModelCookie<CalibrationCacheBase, CalibrationDTOBase> cookie) : ObservableObject
 {
     public static readonly CalibrationViewModelEntry Default = new(typeof(Empty), typeof(Empty), typeof(Empty), typeof(Empty), false, new Empty());
 
-    public string Name { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial string Name { get; set; } = string.Empty;
 
     public Type ViewModelType { get; } = viewModelType;
 

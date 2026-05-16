@@ -4,11 +4,15 @@ namespace Core.Models.Models.Common.Cookies;
 
 public partial class CalibrationViewModelStatus : ObservableObject
 {
-    public bool IsOk => TotalCalibrationCount > 0 && CalibratedCount + ReviewCount == 2 * TotalCalibrationCount;
+    public bool IsOk => 2 * TotalCalibrationCount > 0 && CalibratedCount + ReviewCount == 2 * TotalCalibrationCount;
 
     public double Progress => TotalCalibrationCount > 0
-        ? (CalibratedCount + ReviewCount) / (TotalCalibrationCount * 2d) * 100d
+        ? (CalibratedCount + ReviewCount) / (2d * TotalCalibrationCount) * 100d
         : 0d;
+
+    public int NotOkCalibratedCount => TotalCalibrationCount - CalibratedCount;
+
+    public int NotOkReviewCount => TotalCalibrationCount - ReviewCount;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Progress))]
@@ -26,5 +30,7 @@ public partial class CalibrationViewModelStatus : ObservableObject
     public partial int ReviewCount { get; set; }
 
     [ObservableProperty]
-    public partial string XamlMessage { get; set; } = string.Empty;
+    public partial IReadOnlyList<Detail> Details { get; set; } = [];
+
+    public sealed record Detail(string Item, bool? IsCalibrated, bool? IsReviewed);
 }

@@ -13,8 +13,8 @@
            xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
-           xmlns:coreConverters="clr-namespace:Core.Utilities.WPF.Converters;assembly=Core.Utilities.WPF"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:cookies="clr-namespace:Core.Models.Models.Common.Cookies;assembly=Core.Models"
            Width="1200"
            Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
@@ -121,18 +121,195 @@
                                                                     EffectBackground="{StaticResource InfoBrush}"
                                                                     Progress="{Binding Entry.Status.Progress}"
                                                                     IsOk="{Binding Entry.Status.IsOk}" />
-                                    <Popup Width="400"
-                                           Height="400"
+                                    <Popup Width="450"
+                                           Height="600"
                                            StaysOpen="False"
-                                           PlacementTarget="{Binding ElementName=ToggleButtonStatus}"
+                                           PlacementTarget="{Binding ElementName=Grid}"
                                            Placement="Right"
                                            AllowsTransparency="True"
                                            PopupAnimation="Slide"
                                            IsOpen="{Binding IsChecked, ElementName=ToggleButtonStatus, Mode=TwoWay}">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                                                <ContentControl Content="{Binding Entry.Status.XamlMessage, Mode=OneWay, Converter={x:Static coreConverters:StringToXamlConverter.Instance}}" />
-                                            </ScrollViewer>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="5" />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Entry.Name}"
+                                                                   HorizontalAlignment="Center"
+                                                                   Style="{StaticResource TextBlockSubTitle}" />
+                                                    </StackPanel>
+                                                    <Separator />
+                                                    <StackPanel>
+                                                        <TextBlock HorizontalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style BasedOn="{StaticResource TextBlockDefault}" TargetType="TextBlock">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Entry.Status.IsOk}" Value="{x:Static constants:Constants.True}">
+                                                                            <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Entry.Status.IsOk}" Value="{x:Static constants:Constants.False}">
+                                                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                            <Run>
+                                                                <Run.Style>
+                                                                    <Style TargetType="Run">
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding Entry.Status.IsOk}" Value="{x:Static constants:Constants.True}">
+                                                                                <Setter Property="Text" Value="OK: " />
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding Entry.Status.IsOk}" Value="{x:Static constants:Constants.False}">
+                                                                                <Setter Property="Text" Value="Not OK: " />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Run.Style>
+                                                            </Run>
+                                                            <Run Text="{Binding Entry.Status.Progress, Mode=OneWay, StringFormat={}{0:0.###}%}" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <Border Style="{StaticResource BorderRegion}">
+                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                            <StackPanel>
+                                                                <TextBlock Text="Calibration"
+                                                                           HorizontalAlignment="Center"
+                                                                           FontSize="13"
+                                                                           FontWeight="Bold"
+                                                                           Style="{StaticResource TextBlockDefaultInfo}" />
+                                                            </StackPanel>
+                                                            <UniformGrid Columns="3">
+                                                                <StackPanel HorizontalAlignment="Center">
+                                                                    <TextBlock Text="Total Count" HorizontalAlignment="Center" />
+                                                                    <TextBlock Text="{Binding Entry.Status.TotalCalibrationCount}"
+                                                                               HorizontalAlignment="Center"
+                                                                               FontWeight="Bold" />
+                                                                </StackPanel>
+                                                                <StackPanel HorizontalAlignment="Center">
+                                                                    <TextBlock Text="OK" HorizontalAlignment="Center" />
+                                                                    <TextBlock Text="{Binding Entry.Status.CalibratedCount}"
+                                                                               HorizontalAlignment="Center"
+                                                                               FontWeight="Bold" />
+                                                                </StackPanel>
+                                                                <StackPanel HorizontalAlignment="Center">
+                                                                    <TextBlock Text="Not Ok" HorizontalAlignment="Center" />
+                                                                    <TextBlock Text="{Binding Entry.Status.NotOkCalibratedCount}"
+                                                                               HorizontalAlignment="Center"
+                                                                               FontWeight="Bold" />
+                                                                </StackPanel>
+                                                            </UniformGrid>
+                                                        </hc:UniformSpacingPanel>
+                                                    </Border>
+                                                    <Border Style="{StaticResource BorderRegion}">
+                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                            <StackPanel>
+                                                                <TextBlock Text="Review"
+                                                                           HorizontalAlignment="Center"
+                                                                           FontSize="13"
+                                                                           FontWeight="Bold"
+                                                                           Style="{StaticResource TextBlockDefaultInfo}" />
+                                                            </StackPanel>
+                                                            <UniformGrid Columns="3">
+                                                                <StackPanel HorizontalAlignment="Center">
+                                                                    <TextBlock Text="Total Count" HorizontalAlignment="Center" />
+                                                                    <TextBlock Text="{Binding Entry.Status.TotalCalibrationCount}"
+                                                                               HorizontalAlignment="Center"
+                                                                               FontWeight="Bold" />
+                                                                </StackPanel>
+                                                                <StackPanel HorizontalAlignment="Center">
+                                                                    <TextBlock Text="OK" HorizontalAlignment="Center" />
+                                                                    <TextBlock Text="{Binding Entry.Status.ReviewCount}"
+                                                                               HorizontalAlignment="Center"
+                                                                               FontWeight="Bold" />
+                                                                </StackPanel>
+                                                                <StackPanel HorizontalAlignment="Center">
+                                                                    <TextBlock Text="Not Ok" HorizontalAlignment="Center" />
+                                                                    <TextBlock Text="{Binding Entry.Status.NotOkReviewCount}"
+                                                                               HorizontalAlignment="Center"
+                                                                               FontWeight="Bold" />
+                                                                </StackPanel>
+                                                            </UniformGrid>
+                                                        </hc:UniformSpacingPanel>
+                                                    </Border>
+                                                </hc:UniformSpacingPanel>
+                                                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                        <StackPanel>
+                                                            <TextBlock Text="Details"
+                                                                       HorizontalAlignment="Center"
+                                                                       FontSize="13"
+                                                                       FontWeight="Bold"
+                                                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                                                        </StackPanel>
+                                                        <ListView Style="{StaticResource ListView.Small}" ItemsSource="{Binding Entry.Status.Details}">
+                                                            <ListView.View>
+                                                                <GridView>
+                                                                    <GridViewColumn Width="200"
+                                                                                    Header="Item"
+                                                                                    DisplayMemberBinding="{Binding Item}" />
+                                                                    <GridViewColumn Width="100" Header="Calibration">
+                                                                        <GridViewColumn.CellTemplate>
+                                                                            <DataTemplate DataType="{x:Type cookies:CalibrationViewModelStatus+Detail}">
+                                                                                <Ellipse Width="10"
+                                                                                         Height="10"
+                                                                                         HorizontalAlignment="Center"
+                                                                                         VerticalAlignment="Center">
+                                                                                    <Ellipse.Style>
+                                                                                        <Style TargetType="Ellipse">
+                                                                                            <Style.Triggers>
+                                                                                                <DataTrigger Binding="{Binding IsCalibrated}" Value="null">
+                                                                                                    <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsCalibrated}" Value="false">
+                                                                                                    <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsCalibrated}" Value="true">
+                                                                                                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                                                                                </DataTrigger>
+                                                                                            </Style.Triggers>
+                                                                                        </Style>
+                                                                                    </Ellipse.Style>
+                                                                                </Ellipse>
+                                                                            </DataTemplate>
+                                                                        </GridViewColumn.CellTemplate>
+                                                                    </GridViewColumn>
+                                                                    <GridViewColumn Width="100" Header="Review">
+                                                                        <GridViewColumn.CellTemplate>
+                                                                            <DataTemplate DataType="{x:Type cookies:CalibrationViewModelStatus+Detail}">
+                                                                                <Ellipse Width="10"
+                                                                                         Height="10"
+                                                                                         HorizontalAlignment="Center"
+                                                                                         VerticalAlignment="Center">
+                                                                                    <Ellipse.Style>
+                                                                                        <Style TargetType="Ellipse">
+                                                                                            <Style.Triggers>
+                                                                                                <DataTrigger Binding="{Binding IsReviewed}" Value="null">
+                                                                                                    <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsReviewed}" Value="false">
+                                                                                                    <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsReviewed}" Value="true">
+                                                                                                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                                                                                </DataTrigger>
+                                                                                            </Style.Triggers>
+                                                                                        </Style>
+                                                                                    </Ellipse.Style>
+                                                                                </Ellipse>
+                                                                            </DataTemplate>
+                                                                        </GridViewColumn.CellTemplate>
+                                                                    </GridViewColumn>
+                                                                </GridView>
+                                                            </ListView.View>
+                                                        </ListView>
+                                                    </hc:UniformSpacingPanel>
+                                                </Border>
+                                            </Grid>
                                         </Border>
                                     </Popup>
                                     <TextBlock Text="{Binding SysMenu.Name}" />
