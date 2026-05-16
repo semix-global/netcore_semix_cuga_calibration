@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -42,7 +42,7 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
     [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
     public partial int CalibrationStepIndex { get; set; } = -1;
 
-    public virtual void UpdateEntryStatus()
+    public virtual void UpdateEntryStatus(CancellationToken cancellationToken)
     {
     }
 
@@ -57,7 +57,6 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
     private void UpdateFailedStatus()
     {
         CalibrationStepIndex = int.MinValue;
-        UpdateEntryStatus();
 
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
@@ -69,7 +68,6 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
     private void UpdateCancelStatus()
     {
         CalibrationStepIndex = int.MinValue;
-        UpdateEntryStatus();
 
         UpdateDisableAll();
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
@@ -80,7 +78,6 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
     private void UpdateWelcomeStatus()
     {
         CalibrationStepIndex = int.MinValue;
-        UpdateEntryStatus();
 
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(true));
@@ -94,7 +91,6 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
     private void UpdateCalibrateStatus()
     {
         CalibrationStepIndex = int.MinValue;
-        UpdateEntryStatus();
 
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(false));
@@ -111,7 +107,6 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
     private void UpdateReviewStatus()
     {
         CalibrationStepIndex = CalibrationStepList.Count - 1;
-        UpdateEntryStatus();
 
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(false));

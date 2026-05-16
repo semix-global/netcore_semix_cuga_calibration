@@ -246,7 +246,10 @@
                                                                        FontWeight="Bold"
                                                                        Style="{StaticResource TextBlockDefaultInfo}" />
                                                         </StackPanel>
-                                                        <ListView Style="{StaticResource ListView.Small}" ItemsSource="{Binding Entry.Status.Details}">
+                                                        <ListView ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                                  Style="{StaticResource ListView.Small}"
+                                                                  ItemsSource="{Binding Entry.Status.Details}">
                                                             <ListView.View>
                                                                 <GridView>
                                                                     <GridViewColumn Width="200"

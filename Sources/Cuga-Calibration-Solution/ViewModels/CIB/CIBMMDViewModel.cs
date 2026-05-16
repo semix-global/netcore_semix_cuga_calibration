@@ -38,6 +38,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Core.Models.Models.Common.Cookies;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -115,31 +116,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
-        LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses =
-            [
-                .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationStatus { SelectedItem = t, IsCalibrated = false })
-            ];
+        Cache = ApplicationCookieService.GetCache<CIBMMDCache>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBMMDCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBMMDDTO>();
-
-        Calibrations =
-        [
-            ..Calibrations
-                .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
-                .Select(t =>
-                {
-                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(cancellationToken);
 
         return true;
     }
@@ -1281,9 +1263,52 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CancellationToken cancellationToken)
+    {
+        var calibrations = Guard.IsAssignableToTypeAndReturn<CIBMMDDTO[]>(Entry.Cookie.Calibrations);
+        var status = Entry.Status;
+
+        var applicationCookieCIBInformations = ApplicationCookie.CIBInformations;
+
+        CalibratingStatuses =
+        [
+            .. applicationCookieCIBInformations.Select(t => new CIBInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            ..calibrations
+                .Where(t => applicationCookieCIBInformations.Contains(t.CIBInformation))
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = applicationCookieCIBInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+
+        status.Details =
+        [
+            ..applicationCookieCIBInformations.Select(t =>
+            {
+                var cibMMD = Calibrations.SingleOrDefault(tt => tt.CIBInformation == t);
+
+                return new CalibrationViewModelStatus.Detail(
+                    t.ToString(),
+                    cibMMD?.IsCalibrated,
+                    cibMMD?.IsVerified
+                );
+            })
+        ];
+    }
 
     #endregion 校准
 }
