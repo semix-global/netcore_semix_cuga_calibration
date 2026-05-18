@@ -16,6 +16,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 namespace CugaCalibration.ViewModels.Microscope;
 
@@ -96,7 +97,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         Cache = ApplicationCookieService.GetCache<MicroscopeFocusCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<MicroscopeFocusItemDto>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

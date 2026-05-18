@@ -37,6 +37,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Core.Models.Models.Common.Cookies;
 using Constants = Net.Utilities.Models.Constants;
@@ -122,7 +123,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<CIBMMDCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBMMDDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

@@ -20,6 +20,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 namespace CugaCalibration.ViewModels.Microscope;
 
@@ -108,7 +109,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
         Cache = ApplicationCookieService.GetCache<MicroscopePixelSizeCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

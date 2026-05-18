@@ -17,6 +17,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 
 namespace CugaCalibration.ViewModels.Microscope;
@@ -114,7 +115,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default)
             Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

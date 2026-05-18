@@ -32,6 +32,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -131,7 +132,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
         Cache = ApplicationCookieService.GetCache<AODBestFocusAndAstigmatismCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<AODBestFocusAndAstigmatismDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
 

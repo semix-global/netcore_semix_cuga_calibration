@@ -27,6 +27,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Core.Models.Models.Common.Pattern;
 
@@ -126,7 +127,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         Cache = ApplicationCookieService.GetCache<CIBLineCentricityCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBLineCentricityDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
 

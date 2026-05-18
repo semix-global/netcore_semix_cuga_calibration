@@ -26,6 +26,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Rect = Net.Utilities.Models.Geometries.Rect;
@@ -162,7 +163,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
 
         Calibrations = ApplicationCookieService.GetCalibrations<PupilCenterChannelSpecularBlockerDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         PupilCenterChannelFlexibleApertureValue = ApplicationCookieService.GetCalibration<PupilCenterChannelFlexibleApertureDTO>(cancellationToken);
 

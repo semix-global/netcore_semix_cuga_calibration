@@ -26,6 +26,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -124,7 +125,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<OpticsRelayCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<OpticsRelayDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

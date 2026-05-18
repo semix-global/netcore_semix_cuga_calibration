@@ -25,6 +25,7 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 using Point = Net.Utilities.Models.Geometries.Point;
@@ -202,7 +203,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
 
         Calibrations = ApplicationCookieService.GetCalibrations<PupilSideChannelSpecularBlockerDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         ClearCalibrationTemp();
 

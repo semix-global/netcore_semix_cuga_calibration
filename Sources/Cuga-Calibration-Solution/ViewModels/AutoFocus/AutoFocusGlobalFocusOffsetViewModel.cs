@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -85,7 +86,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
         Cache = ApplicationCookieService.GetCache<AutoFocusGlobalFocusOffsetCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<AutoFocusGlobalFocusOffsetDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

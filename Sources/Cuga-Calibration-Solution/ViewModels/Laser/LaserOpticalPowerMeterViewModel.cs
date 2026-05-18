@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -84,7 +85,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
         Cache = ApplicationCookieService.GetCache<LaserOpticalPowerMeterCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

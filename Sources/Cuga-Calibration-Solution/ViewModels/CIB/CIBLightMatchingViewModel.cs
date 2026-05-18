@@ -25,6 +25,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -100,7 +101,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<CIBLightMatchingCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBLightMatchingDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

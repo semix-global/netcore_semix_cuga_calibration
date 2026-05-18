@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -89,7 +90,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<LaserAttenuatorCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<LaserAttenuatorDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

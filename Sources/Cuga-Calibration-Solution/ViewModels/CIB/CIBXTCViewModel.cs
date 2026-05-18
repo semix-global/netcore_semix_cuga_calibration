@@ -26,6 +26,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -99,7 +100,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<CIBXTCCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBXTCDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

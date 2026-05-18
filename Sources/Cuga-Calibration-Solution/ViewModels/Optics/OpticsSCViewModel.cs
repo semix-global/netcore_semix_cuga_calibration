@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -99,7 +100,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<OpticsSCCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<OpticsSCDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

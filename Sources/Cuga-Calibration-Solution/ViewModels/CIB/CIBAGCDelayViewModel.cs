@@ -30,6 +30,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -107,7 +108,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<CIBAGCDelayCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBAGCDelayDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

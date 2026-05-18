@@ -26,6 +26,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Core.Models.Models.Common.Cookies;
 using Constants = Net.Utilities.Models.Constants;
@@ -99,7 +100,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<AODAlignmentCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<AODAlignmentDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

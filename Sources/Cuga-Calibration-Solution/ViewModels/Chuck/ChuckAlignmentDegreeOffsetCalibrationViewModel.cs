@@ -20,6 +20,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using Core.Models.Models.Common.Cookies;
 
 namespace CugaCalibration.ViewModels.Chuck;
@@ -98,7 +99,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         StageViewModel.SetAbsoluteStageTheta(0d);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

@@ -33,6 +33,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.Buffers;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Channels;
 
@@ -120,7 +121,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         Cache = ApplicationCookieService.GetCache<CIBXPixelSizeCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }

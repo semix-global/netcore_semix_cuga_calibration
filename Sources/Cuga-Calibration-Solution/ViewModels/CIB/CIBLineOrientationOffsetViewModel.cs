@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -108,7 +109,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
 
-        UpdateEntryStatus([..Calibrations], cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }
