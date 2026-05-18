@@ -121,7 +121,11 @@
                                                               Background="{StaticResource BorderBrush}"
                                                               EffectBackground="{StaticResource InfoBrush}"
                                                               Progress="{Binding Entry.Status.Progress}"
-                                                              IsOk="{Binding Entry.Status.IsOk}" />
+                                                              IsOk="{Binding Entry.Status.IsOk}">
+                                        <wpf:CircleProgressButton.ToolTip>
+                                            <TextBlock Text="{Binding Entry.Status.Progress, Mode=OneWay, StringFormat={}{0:0.###}%}" />
+                                        </wpf:CircleProgressButton.ToolTip>
+                                    </wpf:CircleProgressButton>
                                     <TextBlock Text="{Binding SysMenu.Name}" />
                                 </hc:UniformSpacingPanel>
                             </Grid>
