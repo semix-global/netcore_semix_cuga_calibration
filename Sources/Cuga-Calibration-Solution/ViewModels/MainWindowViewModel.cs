@@ -336,6 +336,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         if (logWindowViewModel.Show() == false) _windowManagerService.ShowWindow(logWindowViewModel);
     }
 
+    [RelayCommand]
+    private void OpenCalibrationStatus(object? parameter)
+    {
+        if (parameter is not CalibrationMenu menu) return;
+
+        var viewModel = HostApplication.GetRequiredService<CalibrationStatusWindowViewModel>();
+        viewModel.Menu = menu;
+
+        _windowManagerService.ShowWindow(viewModel);
+    }
+
     #endregion Command
 
     public void Receive(ValueChangedMessage<ToggleCalibrateEvent> message)
