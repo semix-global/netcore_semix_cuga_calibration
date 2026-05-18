@@ -212,137 +212,153 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     }
 
     [RelayCommand]
-    private void OpenCalibration(string viewModel)
+    private async Task OpenCalibrationAsync(string viewModel)
     {
-        try
+        await Task.Run(() =>
         {
-            if (ActiveItem is not null && ActiveItem?.GetType().FullName != viewModel)
+            try
             {
-                _dialogWindowProvider.ShowDialog("Calibration, cannot be switched", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return;
-            }
+                if (ActiveItem is not null && ActiveItem?.GetType().FullName != viewModel)
+                {
+                    _dialogWindowProvider.ShowDialog("Calibration, cannot be switched", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
-            if (ActiveItem?.GetType().FullName == viewModel) return;
-            // 获取menu中选择的校准大类的服务
-            var abstractCalibrationViewModel = HostApplication.GetRequiredService<CalibrationViewModelBase>(viewModel);
-            if (abstractCalibrationViewModel is not null)
+                    return;
+                }
+
+                if (ActiveItem?.GetType().FullName == viewModel) return;
+
+                var abstractCalibrationViewModel = HostApplication.GetRequiredService<CalibrationViewModelBase>(viewModel);
+                if (abstractCalibrationViewModel is not null)
+                {
+                    ActiveItem = abstractCalibrationViewModel;
+                    Title = $"{ApplicationCookie.Title} {ActiveItem.Name}";
+                }
+                else
+                {
+                    ActiveItem = null;
+                    Title = ApplicationCookie.Title;
+                }
+            }
+            catch (Exception ex)
             {
-                ActiveItem = abstractCalibrationViewModel;
-                Title = $"{ApplicationCookie.Title} {ActiveItem.Name}";
+                _logger.LogError(ex, "{@Name}: Load Calibration View({@ViewModel}) Failed", nameof(MainWindowViewModel), viewModel);
             }
-            else
-            {
-                ActiveItem = null;
-                Title = ApplicationCookie.Title;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "{@Name}: Load Calibration View({@ViewModel}) Failed", nameof(MainWindowViewModel), viewModel);
-        }
-    }
-
-    [RelayCommand]
-    private void ShowCalibrationMenu(CalibrationMenu calibrationMenu)
-    {
-        var viewModel = HostApplication.GetRequiredService<CalibrationMenuWindowViewModel>();
-        viewModel.CalibrationMenu = calibrationMenu;
-
-        _windowManagerService.ShowWindow(viewModel);
+        });
     }
 
     [RelayCommand]
     private async Task OpenToolMenuAsync(SysMenuDTO sysMenu)
     {
-        try
+        await Task.Run(async () =>
         {
-            var viewModel = sysMenu.Component;
-            if (string.IsNullOrWhiteSpace(viewModel)) return;
-
-            var viewModelBase = HostApplication.GetRequiredService<ViewModelBase>(viewModel);
-            if (viewModelBase is null) return;
-            switch (viewModelBase)
+            try
             {
-                case MainWindowViewModel:
-                    switch (sysMenu.Name)
-                    {
-                        case CalibrationConstantsHelper.Export:
-                            if (_dialogWindowProvider.TryShowSaveFilePathDialog(".json", out var exportPath) == true)
-                            {
-                                var (isSuccess, message) = await _calibrationCacheProviderService.TryExportAsync(exportPath, CancellationToken.None);
-                                if (isSuccess)
-                                    _dialogWindowProvider.ShowDialog(message);
-                                else
-                                    _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
-                            }
+                var viewModel = sysMenu.Component;
+                if (string.IsNullOrWhiteSpace(viewModel)) return;
 
-                            break;
+                var viewModelBase = HostApplication.GetRequiredService<ViewModelBase>(viewModel);
+                if (viewModelBase is null) return;
+                switch (viewModelBase)
+                {
+                    case MainWindowViewModel:
+                        switch (sysMenu.Name)
+                        {
+                            case CalibrationConstantsHelper.Export:
+                                if (_dialogWindowProvider.TryShowSaveFilePathDialog(".json", out var exportPath) == true)
+                                {
+                                    var (isSuccess, message) = await _calibrationCacheProviderService.TryExportAsync(exportPath, CancellationToken.None);
+                                    if (isSuccess)
+                                        _dialogWindowProvider.ShowDialog(message);
+                                    else
+                                        _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
+                                }
 
-                        case CalibrationConstantsHelper.Import:
-                            if (_dialogWindowProvider.TryShowSelectFilePathDialog(".json", out var importPath) == true)
-                            {
-                                var (isSuccess, message) = await _calibrationCacheProviderService.TryImportAsync(importPath, CancellationToken.None);
+                                break;
 
-                                if (isSuccess)
-                                    _dialogWindowProvider.ShowDialog(message);
-                                else
-                                    _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
-                            }
+                            case CalibrationConstantsHelper.Import:
+                                if (_dialogWindowProvider.TryShowSelectFilePathDialog(".json", out var importPath) == true)
+                                {
+                                    var (isSuccess, message) = await _calibrationCacheProviderService.TryImportAsync(importPath, CancellationToken.None);
 
-                            break;
-                    }
+                                    if (isSuccess)
+                                        _dialogWindowProvider.ShowDialog(message);
+                                    else
+                                        _dialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Error);
+                                }
 
-                    break;
-                case SaveFileWindowViewModel saveFileWindowViewModel:
-                    _windowManagerService.ShowDialog(saveFileWindowViewModel);
+                                break;
+                        }
 
-                    break;
+                        break;
+                    case SaveFileWindowViewModel saveFileWindowViewModel:
+                        _windowManagerService.ShowDialog(saveFileWindowViewModel);
 
-                case PopupWindowViewModelBase popupWindowViewModel:
-                    if (popupWindowViewModel.Show() == false) _windowManagerService.ShowWindow(popupWindowViewModel);
+                        break;
 
-                    break;
+                    case PopupWindowViewModelBase popupWindowViewModel:
+                        if (popupWindowViewModel.Show() == false) _windowManagerService.ShowWindow(popupWindowViewModel);
 
-                case AlignmentWindowBrightFieldViewModel alignmentWindowViewModel:
-                    alignmentWindowViewModel.IsShowAlign = true;
-                    _windowManagerService.ShowDialog(alignmentWindowViewModel);
-                    break;
+                        break;
 
-                case CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel:
-                    var dialog = _dialogWindowProvider.TryShowSelectFilePathDialog(".jpg", out var filePath);
-                    if (dialog == false) return;
+                    case AlignmentWindowBrightFieldViewModel alignmentWindowViewModel:
+                        alignmentWindowViewModel.IsShowAlign = true;
+                        _windowManagerService.ShowDialog(alignmentWindowViewModel);
+                        break;
 
-                    createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
-                    createDarkImageTemplateWindowViewModel.TemplateFilePath = $"{FileHelper.GetFileFullName(filePath)}_Template";
-                    _windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel);
+                    case CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel:
+                        var dialog = _dialogWindowProvider.TryShowSelectFilePathDialog(".jpg", out var filePath);
+                        if (dialog == false) return;
 
-                    break;
+                        createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
+                        createDarkImageTemplateWindowViewModel.TemplateFilePath = $"{FileHelper.GetFileFullName(filePath)}_Template";
+                        _windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel);
 
-                case ApplicationAboutWindowViewModel applicationAboutWindowViewModel:
-                    _windowManagerService.ShowDialog(applicationAboutWindowViewModel);
-                    break;
+                        break;
 
-                case RecipeManagementViewModel recipeManagementViewModel:
-                    recipeManagementViewModel.IsLoading = false;
-                    _windowManagerService.ShowDialog(recipeManagementViewModel);
-                    break;
+                    case ApplicationAboutWindowViewModel applicationAboutWindowViewModel:
+                        _windowManagerService.ShowDialog(applicationAboutWindowViewModel);
+                        break;
 
-                default:
-                    _windowManagerService.ShowDialog(viewModelBase);
-                    break;
+                    case RecipeManagementViewModel recipeManagementViewModel:
+                        recipeManagementViewModel.IsLoading = false;
+                        _windowManagerService.ShowDialog(recipeManagementViewModel);
+                        break;
+
+                    default:
+                        _windowManagerService.ShowDialog(viewModelBase);
+                        break;
+                }
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "{@Name}: Load Menu View({@ViewModel}) Failed", nameof(MainWindowViewModel), sysMenu.Name);
-        }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{@Name}: Load Menu View({@ViewModel}) Failed", nameof(MainWindowViewModel), sysMenu.Name);
+            }
+        });
     }
 
     [RelayCommand]
-    private void ShowLog()
+    private async Task ShowCalibrationMenuAsync(CalibrationMenu calibrationMenu)
     {
-        var logWindowViewModel = HostApplication.GetRequiredService<LogWindowViewModel>();
-        if (logWindowViewModel.Show() == false) _windowManagerService.ShowWindow(logWindowViewModel);
+        await Task.Run(() =>
+        {
+            var popupWindowViewModelFactory = HostApplication.GetRequiredService<Func<Type, CalibrationMenuWindowViewModel>>();
+            var popupWindowViewModel = popupWindowViewModelFactory(calibrationMenu.Entry.ViewModelType);
+
+            popupWindowViewModel.CalibrationMenu = calibrationMenu;
+
+            if (popupWindowViewModel.Show() == false) _windowManagerService.ShowWindow(popupWindowViewModel);
+        });
+    }
+
+    [RelayCommand]
+    private async Task ShowLogAsync()
+    {
+        await Task.Run(() =>
+        {
+            var logWindowViewModel = HostApplication.GetRequiredService<LogWindowViewModel>();
+
+            if (logWindowViewModel.Show() == false) _windowManagerService.ShowWindow(logWindowViewModel);
+        });
     }
 
     #endregion Command

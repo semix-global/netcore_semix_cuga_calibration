@@ -11,7 +11,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:CircleProgressToggleButton}">
-                    <Grid>
+                    <Grid x:Name="PART_RootGrid">
                         <Ellipse x:Name="PART_ShadowEllipse"
                                  Width="{TemplateBinding Width}"
                                  Height="{TemplateBinding Height}"
@@ -52,6 +52,9 @@
                         <Trigger Property="ToggleButton.IsChecked" Value="True">
                             <Setter TargetName="PART_ShadowEllipse" Property="Opacity" Value="1" />
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="PART_RootGrid" Property="Opacity" Value="0.4" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -69,7 +72,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:CircleProgressButton}">
-                    <Grid>
+                    <Grid x:Name="PART_RootGrid">
                         <Ellipse x:Name="PART_ShadowEllipse"
                                  Width="{TemplateBinding Width}"
                                  Height="{TemplateBinding Height}"
@@ -109,6 +112,9 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="PART_ShadowEllipse" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="PART_RootGrid" Property="Opacity" Value="0.4" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
