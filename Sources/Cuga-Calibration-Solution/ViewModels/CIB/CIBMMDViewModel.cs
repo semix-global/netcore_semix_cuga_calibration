@@ -192,8 +192,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
-                foreach (var cacheCIBInformation in Cache.CIBInformations) CalibratingStatuses.Single(t => t.SelectedItem == cacheCIBInformation).IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 if (IsCalibrated == false) CalibrationStepIndex = -1;

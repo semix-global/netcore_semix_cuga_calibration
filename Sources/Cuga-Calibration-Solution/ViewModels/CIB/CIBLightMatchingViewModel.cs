@@ -195,10 +195,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 return true;
 
             case 4:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 if (IsCalibrated == false) CalibrationStepIndex = -1;

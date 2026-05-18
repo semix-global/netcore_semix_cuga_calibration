@@ -166,10 +166,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                 return true;
 
             case 5:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
