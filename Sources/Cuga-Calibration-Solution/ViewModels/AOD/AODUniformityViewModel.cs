@@ -1,3 +1,4 @@
+using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -103,43 +104,13 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
-        LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses =
-            [
-                .. ApplicationCookie.OpticsMagTypeProductivityInformations
-                    .Select(t => new ProductivityInformationAndLaserLightInformationStatus
-                    {
-                        SelectedItem = t,
-                        Items = [..ApplicationCookie.LaserLightInformations.Select(tt => new LaserLightInformationStatus { SelectedItem = tt })]
-                    })
-            ];
+        Cache = ApplicationCookieService.GetCache<AODUniformityCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<AODUniformityDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODUniformityCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<AODUniformityDTO>();
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
-                            && ApplicationCookie.LaserLightInformations.Contains(t.LaserLightInformation))
-                .Select(t =>
-                {
-                    t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
-
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .Items
-                        .Single(tt => tt.SelectedItem == t.LaserLightInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -1193,9 +1164,47 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<AODUniformityDTO[]>(calibrations);
+        var status = Entry.Status;
+        var infos = ApplicationCookie.OpticsMagTypeProductivityInformations;
+        var lights = ApplicationCookie.LaserLightInformations;
+
+        CalibratingStatuses = [.. infos.Select(t => new ProductivityInformationAndLaserLightInformationStatus
+        {
+            SelectedItem = t,
+            Items = [.. lights.Select(tt => new LaserLightInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+        })];
+
+        Calibrations = [.. temp
+            .Where(t => infos.Contains(t.ProductivityInformation) && lights.Contains(t.LaserLightInformation))
+            .Select(t =>
+            {
+                t.Items = [.. t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
+
+                CalibratingStatuses
+                    .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                    .Items
+                    .Single(tt => tt.SelectedItem == t.LaserLightInformation)
+                    .IsCalibrated = t.IsCalibrated;
+
+                return t;
+            })];
+
+        status.TotalCalibrationCount = infos.Count * lights.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details = [.. infos.SelectMany(t =>
+            lights.Select(l => {
+                var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t && tt.LaserLightInformation == l);
+                return new CalibrationViewModelStatus.Detail($"{t} - {l}", item?.IsCalibrated, item?.IsVerified);
+            }))];
+    }
 
     #endregion 校准
 }

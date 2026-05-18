@@ -1,3 +1,4 @@
+using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
@@ -92,8 +93,8 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
         SynchronizationContextProvider.Send(() =>
         {
@@ -107,14 +108,13 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             ]);
         });
 
-        (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCentricityCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
+        Cache = ApplicationCookieService.GetCache<MicroscopeCentricityCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<MicroscopeCentricityItemDto>(cancellationToken);
 
-        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default)
             Cache.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -522,9 +522,23 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
                 Cache.MicroscopeCentricityCacheItemDic.TryRemove(microscopeFocusCacheItem.Key, out _);
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<MicroscopeCentricityItemDto[]>(calibrations);
+        var status = Entry.Status;
+        Calibrations = [.. temp.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))];
+        status.TotalCalibrationCount = ApplicationCookie.MicroscopeLensInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details = [.. ApplicationCookie.MicroscopeLensInformations.Select(t => {
+            var item = Calibrations.SingleOrDefault(tt => tt.LensInformation == t);
+            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
+        })];
+    }
 
     private void ClearCalibrationTemp()
     {

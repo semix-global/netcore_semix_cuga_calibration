@@ -64,11 +64,12 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilCameraAlignmentCache>();
-        Calibration = CacheProvider.GetOrDefault<PupilCameraAlignmentDTO>();
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<PupilCameraAlignmentCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -370,9 +371,20 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
 
             Calibration = itemDto.Clone();
 
-            CacheProvider.Set(Calibration, cancellationToken);
-            RecipeCacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
+    }
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<PupilCameraAlignmentDTO>(calibration);
+        var status = Entry.Status;
+        Calibration = temp;
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
     }
 
     public static BitmapImage BytesToBitmapImage(byte[] bytes)

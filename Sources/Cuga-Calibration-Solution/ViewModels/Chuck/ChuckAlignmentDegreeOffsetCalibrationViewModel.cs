@@ -88,36 +88,17 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckAlignmentDegreeOffsetCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<ChuckAlignmentDegreeOffsetItemDto>();
-
-        CalibrationStatuses =
-        [
-            ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
-                {
-                    SelectedItem = t,
-                    ProductivityInformationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
-                })
-        ];
-
-        foreach (var calibrationStatus in Calibrations)
-        {
-            var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
-            var status = opticsIlluminationModeEnumStatus
-                .ProductivityInformationStatusList
-                .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
-            if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+        Cache = ApplicationCookieService.GetCache<ChuckAlignmentDegreeOffsetCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<ChuckAlignmentDegreeOffsetItemDto>(cancellationToken);
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
-
         StageViewModel.SetAbsoluteStageTheta(0d);
+
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -204,6 +185,39 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
     }
 
     #endregion 控制校准业务重载
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckAlignmentDegreeOffsetItemDto[]>(calibrations);
+        var status = Entry.Status;
+        var infos = EnumHelper.Enums<OpticsIlluminationModeEnum>();
+
+        CalibrationStatuses =
+        [
+            ..infos
+                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
+                {
+                    SelectedItem = t,
+                    ProductivityInformationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+                })
+        ];
+
+        Calibrations = [.. temp
+            .Where(t => t.ProductivityInformation == ApplicationCookie.OILowProductivityInformation)
+            .Select(t => {
+                var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationMode);
+                var s = opticsIlluminationModeEnumStatus
+                    .ProductivityInformationStatusList
+                    .SingleOrDefault(tt => tt.SelectedItem == t.ProductivityInformation);
+                if (s is not null) s.IsCalibrated = t.IsCalibrated;
+                return t;
+            })];
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details = [];
+    }
 
     #region 校准
 
@@ -399,8 +413,8 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
         ];
         if (isSave == false) return;
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
 
     #endregion 校准

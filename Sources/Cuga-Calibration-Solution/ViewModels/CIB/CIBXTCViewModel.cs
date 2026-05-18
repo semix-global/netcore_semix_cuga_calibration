@@ -1,3 +1,4 @@
+using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -93,31 +94,12 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
+        Cache = ApplicationCookieService.GetCache<CIBXTCCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<CIBXTCDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBXTCCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBXTCDTO>();
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
-                .Select(t =>
-                {
-                    t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
-
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -212,6 +194,31 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             default:
                 return false;
         }
+    }
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<CIBXTCDTO[]>(calibrations);
+        var status = Entry.Status;
+        var infos = ApplicationCookie.OpticsMagTypeProductivityInformations;
+
+        CalibratingStatuses = [.. infos.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })];
+
+        Calibrations = [.. temp
+            .Where(t => infos.Contains(t.ProductivityInformation))
+            .Select(t => {
+                t.Items = [.. t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
+                CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+                return t;
+            })];
+
+        status.TotalCalibrationCount = infos.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details = [.. infos.Select(t => {
+            var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t);
+            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
+        })];
     }
 
     #endregion 控制校准业务
@@ -716,8 +723,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
 
     #endregion 校准

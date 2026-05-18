@@ -60,11 +60,12 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CollectPolarizationCache>();
-        Calibration = CacheProvider.GetOrDefault<CollectPolarizationDTO>();
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<CollectPolarizationCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<CollectPolarizationDTO>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -373,6 +374,17 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         });
     }
 
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<CollectPolarizationDTO>(calibration);
+        var status = Entry.Status;
+        Calibration = temp;
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
+
     private void Save(CollectPolarizationDTO itemDto, CancellationToken cancellationToken)
     {
         InvokeSave(update =>
@@ -382,8 +394,8 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
             Calibration = itemDto.Clone();
 
-            CacheProvider.Set(Calibration, cancellationToken);
-            RecipeCacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
     }
 }

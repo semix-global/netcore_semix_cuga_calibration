@@ -102,12 +102,12 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         await Task.CompletedTask.ConfigureAwait(false);
 
         if (LoadDepends() == false) return false;
-        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
-        Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDTO>();
+        Cache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -634,9 +634,20 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         dto.MicroscopeLensInformation = Cache.LowMicroscopeLensInformation;
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<MicroscopeCalChipDTO>(calibration);
+        var status = Entry.Status;
+        Calibration = temp;
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

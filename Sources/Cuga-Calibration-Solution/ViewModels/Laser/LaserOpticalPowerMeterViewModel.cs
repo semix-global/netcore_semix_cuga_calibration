@@ -1,3 +1,4 @@
+using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -80,27 +81,10 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
         if (LoadDepends() == false) return false;
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
+        Cache = ApplicationCookieService.GetCache<LaserOpticalPowerMeterCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDTO>();
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
-                .Select(t =>
-                {
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -459,9 +443,33 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<LaserOpticalPowerMeterDTO[]>(calibrations);
+        var status = Entry.Status;
+        var infos = ApplicationCookie.OpticsMagTypeProductivityInformations;
+
+        CalibratingStatuses = [.. infos.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })];
+
+        Calibrations = [.. temp
+            .Where(t => infos.Contains(t.ProductivityInformation))
+            .Select(t => {
+                CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+                return t;
+            })];
+
+        status.TotalCalibrationCount = infos.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details = [.. infos.Select(t => {
+            var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t);
+            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
+        })];
+    }
 
     #endregion 校准
 }

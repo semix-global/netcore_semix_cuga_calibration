@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Exceptions;
@@ -130,9 +131,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
         if (LoadDepends() == false) return false;
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsXGainsCache>();
-        Calibration = CacheProvider.GetOrDefault<AdsXGainsItemDto>();
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<AdsXGainsCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<AdsXGainsItemDto>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -1518,9 +1520,22 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
         Calibration = itemDto.Clone();
 
-        CacheProvider.Set(Calibration, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<AdsXGainsItemDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     private void ClearCalibrationTemp()
     {

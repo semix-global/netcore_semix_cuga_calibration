@@ -1,3 +1,4 @@
+using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -92,31 +93,13 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
-        MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses =
-            [
-                .. ApplicationCookie.OpticsIlluminationModeEnums.Select(t => new OpticsIlluminationModeStatus { SelectedItem = t, IsCalibrated = false })
-            ];
+        Cache = ApplicationCookieService.GetCache<OpticsSCCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<OpticsSCDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<OpticsSCCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<OpticsSCDTO>();
-
-        Calibrations =
-        [
-            ..Calibrations
-                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
-                .Select(t =>
-                {
-                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -530,6 +513,30 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<OpticsSCDTO[]>(calibrations);
+        var status = Entry.Status;
+        var infos = ApplicationCookie.OpticsIlluminationModeEnums;
+
+        CalibratingStatuses = [.. infos.Select(t => new OpticsIlluminationModeStatus { SelectedItem = t, IsCalibrated = false })];
+
+        Calibrations = [.. temp
+            .Where(t => infos.Contains(t.OpticsIlluminationModeEnum))
+            .Select(t => {
+                CalibratingStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;
+                return t;
+            })];
+
+        status.TotalCalibrationCount = infos.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details = [.. infos.Select(t => {
+            var item = Calibrations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == t);
+            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
+        })];
+    }
+
     private bool Save(IReadOnlyList<OpticsSCDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
@@ -544,8 +551,8 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
 
     #endregion 校准

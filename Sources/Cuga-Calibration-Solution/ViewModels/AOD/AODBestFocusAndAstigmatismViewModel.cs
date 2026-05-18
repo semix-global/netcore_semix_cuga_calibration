@@ -1,3 +1,4 @@
+using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -121,39 +122,18 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        AODDelays = ApplicationCookieService.GetCalibrations<AODDelayDTO>();
+        AODDelays = ApplicationCookieService.GetCalibrations<AODDelayDTO>(cancellationToken);
 
-        MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
+        MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODBestFocusAndAstigmatismCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<AODBestFocusAndAstigmatismDTO>();
+        Cache = ApplicationCookieService.GetCache<AODBestFocusAndAstigmatismCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<AODBestFocusAndAstigmatismDTO>(cancellationToken);
 
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses =
-                ProductivityInformationAndApodizationStatus.CreateList(ApplicationCookie
-                    .OpticsMagTypeProductivityInformations);
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
-                .Select(t =>
-                {
-                    CalibrationStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .OpticsApodizationModeCalibrationStatusList
-                        .Single(ttt => ttt.SelectedItem == t.ApodizationModeEnum)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         if (Cache.Item.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel)
             StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
@@ -239,7 +219,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     {
         return InvokeCalibrateAsync(() =>
         {
-            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>(cancellationToken);
             var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                       && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (chirpResult is null)
@@ -678,9 +658,39 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 ];
             }
 
-            CacheProvider.SetArray(Calibrations, cancellationToken);
-            RecipeCacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<AODBestFocusAndAstigmatismDTO[]>(calibrations);
+        var status = Entry.Status;
+        var infos = ApplicationCookie.OpticsMagTypeProductivityInformations;
+        var modes = ApplicationCookie.OpticsApodizationModeEnums;
+
+        CalibrationStatuses = ProductivityInformationAndApodizationStatus.CreateList(infos);
+
+        Calibrations = [.. temp
+            .Where(t => infos.Contains(t.ProductivityInformation))
+            .Select(t => {
+                CalibrationStatuses
+                    .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                    .OpticsApodizationModeCalibrationStatusList
+                    .Single(ttt => ttt.SelectedItem == t.ApodizationModeEnum)
+                    .IsCalibrated = t.IsCalibrated;
+                return t;
+            })];
+
+        status.TotalCalibrationCount = infos.Count * modes.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details = [.. infos.SelectMany(t =>
+            modes.Select(a => {
+                var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t && tt.ApodizationModeEnum == a);
+                return new CalibrationViewModelStatus.Detail($"{t} - {a}", item?.IsCalibrated, item?.IsVerified);
+            }))];
+    }
 
     #endregion 校准
 

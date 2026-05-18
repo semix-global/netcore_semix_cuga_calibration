@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
@@ -102,30 +103,12 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        (_, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopePixelSizeCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
+        Cache = ApplicationCookieService.GetCache<MicroscopePixelSizeCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        Calibrations = [.. Calibrations.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))]; // 过滤掉变更静态配置后原来的缓存
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.MicroscopeLensInformations.Select(t => new MicroscopeLensInformationStatus { SelectedItem = t })];
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))
-                .Select(t =>
-                {
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.LensInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -444,9 +427,33 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 Cache.MicroscopePixelSizeCacheItemDic.TryRemove(microscopeFocusCacheItem.Key, out _);
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<MicroscopePixelSizeItemDto[]>(calibrations);
+        var status = Entry.Status;
+        var infos = ApplicationCookie.MicroscopeLensInformations;
+
+        CalibratingStatuses = [.. infos.Select(t => new MicroscopeLensInformationStatus { SelectedItem = t, IsCalibrated = false })];
+
+        Calibrations = [.. temp
+            .Where(t => infos.Contains(t.LensInformation))
+            .Select(t => {
+                CalibratingStatuses.Single(tt => tt.SelectedItem == t.LensInformation).IsCalibrated = t.IsCalibrated;
+                return t;
+            })];
+
+        status.TotalCalibrationCount = infos.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details = [.. infos.Select(t => {
+            var item = Calibrations.SingleOrDefault(tt => tt.LensInformation == t);
+            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
+        })];
+    }
 
     private void ClearCalibrationTemp()
     {

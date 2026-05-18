@@ -91,13 +91,13 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
-        DarkAutoFocus = ApplicationCookieService.GetCalibration<DarkAutoFocusDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        DarkAutoFocus = ApplicationCookieService.GetCalibration<DarkAutoFocusDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AutoFocusCalChipFocusOffsetCache>();
-        Calibration = CacheProvider.GetOrDefault<AutoFocusCalChipFocusOffsetDTO>();
+        Cache = ApplicationCookieService.GetCache<AutoFocusCalChipFocusOffsetCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<AutoFocusCalChipFocusOffsetDTO>(cancellationToken);
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -510,9 +510,20 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(Calibration, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<AutoFocusCalChipFocusOffsetDTO>(calibration);
+        var status = Entry.Status;
+        Calibration = temp;
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

@@ -215,12 +215,13 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
-        PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilSideChannelFlexibleApertureCache>();
-        Calibration = CacheProvider.GetOrDefault<PupilSideChannelFlexibleApertureDTO>();
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<PupilSideChannelFlexibleApertureCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<PupilSideChannelFlexibleApertureDTO>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         Cache.OriginImageFilePathList1 = new ObservableCollection<string>(Enumerable.Repeat("123", 4));
         Cache.OriginImageFilePathList2 = new ObservableCollection<string>(Enumerable.Repeat("123", 4));
@@ -1914,9 +1915,20 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
             Calibration = itemDto.Clone();
 
-            CacheProvider.Set(Calibration, cancellationToken);
-            RecipeCacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
+    }
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<PupilSideChannelFlexibleApertureDTO>(calibration);
+        var status = Entry.Status;
+        Calibration = temp;
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
     }
 
     public static BitmapImage BytesToBitmapImage(byte[] bytes)

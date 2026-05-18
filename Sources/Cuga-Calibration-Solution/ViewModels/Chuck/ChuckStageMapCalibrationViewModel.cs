@@ -117,24 +117,35 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     #region 控制校准业务
 
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckStageMapDto>(calibration);
+        var status = Entry.Status;
+        Calibration = temp;
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
+
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>();
+        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
-        CIBXPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>();
+        CIBXPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken);
 
-        LaserPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBYPixelSizeDTO>();
+        LaserPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken);
 
-        LaserLineCentricityItems = ApplicationCookieService.GetCalibrations<CIBLineCentricityDTO>();
+        LaserLineCentricityItems = ApplicationCookieService.GetCalibrations<CIBLineCentricityDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>();
-        Calibration = CacheProvider.GetOrDefault<ChuckStageMapDto>();
+        Cache = ApplicationCookieService.GetCache<ChuckStageMapCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<ChuckStageMapDto>(cancellationToken);
 
         Cache.IsDarkField = false;
 
@@ -142,7 +153,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -1195,8 +1206,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
 
     #endregion 校准

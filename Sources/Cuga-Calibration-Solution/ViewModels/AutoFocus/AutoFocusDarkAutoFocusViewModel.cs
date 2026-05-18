@@ -82,16 +82,16 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<DarkAutoFocusCache>();
-        Calibration = CacheProvider.GetOrDefault<DarkAutoFocusDTO>();
+        Cache = ApplicationCookieService.GetCache<DarkAutoFocusCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<DarkAutoFocusDTO>(cancellationToken);
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default)
             Cache.MicroscopeLensInformation =
                 CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -1235,9 +1235,20 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<DarkAutoFocusDTO>(calibration);
+        var status = Entry.Status;
+        Calibration = temp;
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

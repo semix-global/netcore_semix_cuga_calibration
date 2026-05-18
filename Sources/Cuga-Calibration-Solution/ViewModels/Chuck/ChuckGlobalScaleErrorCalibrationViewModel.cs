@@ -97,15 +97,15 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckGlobalScaleErrorCache>();
-        Calibration = CacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>();
+        Cache = ApplicationCookieService.GetCache<ChuckGlobalScaleErrorCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<ChuckGlobalScaleErrorDto>(cancellationToken);
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -119,7 +119,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
     protected override async Task<bool> CancelingAsync()
     {
-        if (CacheProvider.GetOrDefault<ChuckGlobalScaleErrorDto>().IsOk == false)
+        if (ApplicationCookieService.GetCalibration<ChuckGlobalScaleErrorDto>(CancellationToken.None).IsOk == false)
             StageViewModel.ResetXYGlobalScale();
 
         return await base.CancelingAsync().ConfigureAwait(false);
@@ -584,9 +584,22 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckGlobalScaleErrorDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     private void ClearCalibrationTemp()
     {

@@ -97,16 +97,16 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckCenterAndThetaCache>();
-        Calibration = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>().SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new());
+        Cache = ApplicationCookieService.GetCache<ChuckCenterAndThetaCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new());
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -572,7 +572,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
                 SelectCenterAndThetaItemDto = chuckCenterAndThetaItemDto.Clone();
 
-                RecipeCacheProvider.Set(Cache, cancellationToken);
+                ApplicationCookieService.SetCache(Cache, cancellationToken);
 
                 if (GetChuckCenterAndThetaScaleResult(SelectCenterAndThetaItemDto, cancellationToken) == false)
                 {
@@ -845,9 +845,22 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckCenterAndThetaItemDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     private void ClearCalibrationTemp()
     {
