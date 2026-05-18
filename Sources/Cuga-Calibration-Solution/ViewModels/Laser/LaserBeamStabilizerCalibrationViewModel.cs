@@ -335,7 +335,9 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
     {
         var temp = Guard.IsAssignableToTypeAndReturn<LaserBeamStabilizerObjDto>(calibration);
         var status = Entry.Status;
+
         Calibration = temp;
+
         status.TotalCalibrationCount = 1;
         status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
         status.ReviewCount = Calibration.IsVerified ? 1 : 0;
