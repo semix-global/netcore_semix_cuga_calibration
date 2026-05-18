@@ -172,10 +172,6 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 return true;
 
             case 3:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -762,30 +758,6 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
         }
     }
 
-    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
-    {
-        var temp = Guard.IsAssignableToTypeAndReturn<GlobalFieldTiltDTO[]>(calibrations);
-        var status = Entry.Status;
-        var infos = ApplicationCookie.OpticsIlluminationModeEnums;
-
-        CalibratingStatuses = [.. infos.Select(t => new OpticsIlluminationModeStatus { SelectedItem = t, IsCalibrated = false })];
-
-        Calibrations = [.. temp
-            .Where(t => infos.Contains(t.OpticsIlluminationModeEnum))
-            .Select(t => {
-                CalibratingStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;
-                return t;
-            })];
-
-        status.TotalCalibrationCount = infos.Count;
-        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. infos.Select(t => {
-            var item = Calibrations.SingleOrDefault(tt => tt.OpticsIlluminationModeEnum == t);
-            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
-        })];
-    }
-
     private bool Save(IReadOnlyList<GlobalFieldTiltDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(Cache);
@@ -803,6 +775,45 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
         ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
         ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<GlobalFieldTiltDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.OpticsIlluminationModeEnums.Select(t => new OpticsIlluminationModeStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temp
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.OpticsIlluminationModeEnums.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.OpticsIlluminationModeEnums.Select(productivityInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.OpticsIlluminationModeEnum == productivityInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    productivityInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
+    }
 
     #endregion 校准
 }

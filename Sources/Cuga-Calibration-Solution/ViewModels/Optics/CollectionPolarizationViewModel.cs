@@ -374,17 +374,6 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         });
     }
 
-    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
-    {
-        var temp = Guard.IsAssignableToTypeAndReturn<CollectPolarizationDTO>(calibration);
-        var status = Entry.Status;
-        Calibration = temp;
-        status.TotalCalibrationCount = 1;
-        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
-        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
-        status.Details = [];
-    }
-
     private void Save(CollectPolarizationDTO itemDto, CancellationToken cancellationToken)
     {
         InvokeSave(update =>
@@ -397,5 +386,18 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
             ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
+    }
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<CollectPolarizationDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
     }
 }
