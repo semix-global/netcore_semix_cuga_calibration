@@ -209,17 +209,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         }
     }
 
-    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
-    {
-        var temp = Guard.IsAssignableToTypeAndReturn<ChuckPrealignerDTO>(calibration);
-        var status = Entry.Status;
-        Calibration = temp;
-        status.TotalCalibrationCount = 1;
-        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
-        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
-        status.Details = [];
-    }
-
     #endregion 控制校准业务重载
 
     #region 校准
@@ -719,6 +708,19 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         ApplicationCookieService.SetCalibration(dto, cancellationToken);
         ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckPrealignerDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

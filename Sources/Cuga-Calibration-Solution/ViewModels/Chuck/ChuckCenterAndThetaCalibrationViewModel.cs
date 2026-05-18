@@ -258,8 +258,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
             {
                 Cache.P5Angle,
                 Cache.ThetaAngle
-            }),
-                HtmlLogUniqueId.LoggingHtml());
+            }), HtmlLogUniqueId.LoggingHtml());
             result = true;
             return result;
         });

@@ -117,17 +117,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     #region 控制校准业务
 
-    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
-    {
-        var temp = Guard.IsAssignableToTypeAndReturn<ChuckStageMapDto>(calibration);
-        var status = Entry.Status;
-        Calibration = temp;
-        status.TotalCalibrationCount = 1;
-        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
-        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
-        status.Details = [];
-    }
-
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -1182,9 +1171,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             }
 
             var plotDicGroup = (from kvp in plotDic
-                                group kvp.Value by kvp.Key.RepeatIndex
+                group kvp.Value by kvp.Key.RepeatIndex
                 into g
-                                select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
             if (plotDicGroup.Count == 0)
                 continue;
 
@@ -1209,6 +1198,19 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         ApplicationCookieService.SetCalibration(dto, cancellationToken);
         ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckStageMapDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }
