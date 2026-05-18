@@ -120,9 +120,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBMMDCache>(cancellationToken);
-        Calibratings = ApplicationCookieService.GetCalibrations<CIBMMDDTO>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<CIBMMDDTO>(cancellationToken);
 
-        UpdateEntryStatus([..Calibratings], cancellationToken);
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -1299,12 +1299,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         [
             ..applicationCookieCIBInformations.Select(t =>
             {
-                var cibMMD = Calibrations.SingleOrDefault(tt => tt.CIBInformation == t);
+                var item = Calibrations.SingleOrDefault(tt => tt.CIBInformation == t);
 
                 return new CalibrationViewModelStatus.Detail(
                     t.ToString(),
-                    cibMMD?.IsCalibrated,
-                    cibMMD?.IsVerified
+                    item?.IsCalibrated,
+                    item?.IsVerified
                 );
             })
         ];

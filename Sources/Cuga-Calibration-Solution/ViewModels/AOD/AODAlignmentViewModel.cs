@@ -27,6 +27,7 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Text;
+using Core.Models.Models.Common.Cookies;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -93,29 +94,12 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
+        Cache = ApplicationCookieService.GetCache<AODAlignmentCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<AODAlignmentDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODAlignmentCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<AODAlignmentDTO>();
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
-                .Select(t =>
-                {
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus([..Calibrations], cancellationToken);
 
         return true;
     }
@@ -509,9 +493,50 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<AODAlignmentDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        var applicationCookieOpticsMagTypeProductivityInformations = ApplicationCookie.OpticsMagTypeProductivityInformations;
+
+        CalibratingStatuses =
+        [
+            .. applicationCookieOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temp
+                .Where(t => applicationCookieOpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = applicationCookieOpticsMagTypeProductivityInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. applicationCookieOpticsMagTypeProductivityInformations.Select(t =>
+            {
+                var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t);
+
+                return new CalibrationViewModelStatus.Detail(
+                    t.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
+    }
 
     #endregion 校准
 }

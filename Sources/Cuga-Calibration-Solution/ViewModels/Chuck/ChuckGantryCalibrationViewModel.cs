@@ -96,6 +96,8 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
 
         Cache = ApplicationCookieService.GetCache<ChuckGantryCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckGantryDto>(cancellationToken);
+        
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
