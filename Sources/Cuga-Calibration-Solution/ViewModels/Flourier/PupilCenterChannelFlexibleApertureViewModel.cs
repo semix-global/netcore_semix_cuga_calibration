@@ -1536,12 +1536,14 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
             ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
     }
-
+    
     public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
     {
         var temp = Guard.IsAssignableToTypeAndReturn<PupilCenterChannelFlexibleApertureDTO>(calibration);
         var status = Entry.Status;
+
         Calibration = temp;
+
         status.TotalCalibrationCount = 1;
         status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
         status.ReviewCount = Calibration.IsVerified ? 1 : 0;
