@@ -719,6 +719,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
     {
         var temp = Guard.IsAssignableToTypeAndReturn<CIBAGCDelayDTO[]>(calibrations);
         var status = Entry.Status;
+
         CalibratingStatuses =
         [
             .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })

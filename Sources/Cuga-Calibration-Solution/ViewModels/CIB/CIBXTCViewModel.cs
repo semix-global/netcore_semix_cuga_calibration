@@ -702,6 +702,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
     {
         var temp = Guard.IsAssignableToTypeAndReturn<CIBXTCDTO[]>(calibrations);
         var status = Entry.Status;
+
         CalibratingStatuses =
         [
             .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })

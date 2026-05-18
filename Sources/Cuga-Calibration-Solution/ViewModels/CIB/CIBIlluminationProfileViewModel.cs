@@ -565,6 +565,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
     {
         var temp = Guard.IsAssignableToTypeAndReturn<CIBIlluminationProfileDTO[]>(calibrations);
         var status = Entry.Status;
+        
         CalibratingStatuses =
         [
             .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })

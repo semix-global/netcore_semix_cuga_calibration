@@ -66,7 +66,7 @@
                  SelectionMode="Single">
             <ListBox.ItemsSource>
                 <MultiBinding Converter="{StaticResource MultiProductivityInformationToOpticsApodizationsCalibrationStatusesConvert}">
-                    <Binding Path="CalibrationStatuses" />
+                    <Binding Path="CalibratingStatuses" />
                     <Binding Path="Cache.ProductivityInformation" />
                 </MultiBinding>
             </ListBox.ItemsSource>

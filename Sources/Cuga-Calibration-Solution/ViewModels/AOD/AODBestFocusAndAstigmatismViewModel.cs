@@ -70,7 +70,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     public partial AODBestFocusAndAstigmatismDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    public partial IReadOnlyList<ProductivityInformationAndApodizationStatus> CalibrationStatuses { get; set; } = [];
+    private IReadOnlyList<ProductivityInformationAndApodizationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -184,27 +184,13 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 return true;
 
             case 5:
-                {
-                    Calibrations =
-                    [
-                        .. Calibrations
-                        .Where(t => t.ProductivityInformation != Cache.ProductivityInformation
-                                    || t.ApodizationModeEnum != Cache.ApodizationModeEnum)
-                    ];
+                DialogWindowProvider.ShowDialog(
+                    $"{Cache.ProductivityInformation}-{Cache.ApodizationModeEnum.ToHexString()} " +
+                    $"best focus and astigmatism calibration ok!");
 
-                    CalibrationStatuses.Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                        .OpticsApodizationModeCalibrationStatusList
-                        .Single(t => t.SelectedItem == Cache.ApodizationModeEnum)
-                        .IsCalibrated = true;
+                if (IsCalibrated == false) CalibrationStepIndex = -1;
 
-                    DialogWindowProvider.ShowDialog(
-                        $"{Cache.ProductivityInformation}-{Cache.ApodizationModeEnum.ToHexString()} " +
-                        $"best focus and astigmatism calibration ok!");
-
-                    if (IsCalibrated == false) CalibrationStepIndex = -1;
-
-                    return true;
-                }
+                return true;
             default:
                 return true;
         }
@@ -666,30 +652,50 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     {
         var temp = Guard.IsAssignableToTypeAndReturn<AODBestFocusAndAstigmatismDTO[]>(calibrations);
         var status = Entry.Status;
-        var infos = ApplicationCookie.OpticsMagTypeProductivityInformations;
-        var modes = ApplicationCookie.OpticsApodizationModeEnums;
 
-        CalibrationStatuses = ProductivityInformationAndApodizationStatus.CreateList(infos);
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationAndApodizationStatus
+            {
+                SelectedItem = t,
+                Items = [.. ApplicationCookie.OpticsApodizationModeEnums.Select(tt => new OpticsApodizationModeStatus { SelectedItem = tt, IsCalibrated = false })]
+            })
+        ];
 
-        Calibrations = [.. temp
-            .Where(t => infos.Contains(t.ProductivityInformation))
-            .Select(t => {
-                CalibrationStatuses
-                    .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                    .OpticsApodizationModeCalibrationStatusList
-                    .Single(ttt => ttt.SelectedItem == t.ApodizationModeEnum)
-                    .IsCalibrated = t.IsCalibrated;
-                return t;
-            })];
+        Calibrations =
+        [
+            .. temp
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                            && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.ApodizationModeEnum))
+                .Select(t =>
+                {
+                    CalibratingStatuses
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .Items
+                        .Single(tt => tt.SelectedItem == t.ApodizationModeEnum)
+                        .IsCalibrated = t.IsCalibrated;
 
-        status.TotalCalibrationCount = infos.Count * modes.Count;
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count * ApplicationCookie.OpticsApodizationModeEnums.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. infos.SelectMany(t =>
-            modes.Select(a => {
-                var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t && tt.ApodizationModeEnum == a);
-                return new CalibrationViewModelStatus.Detail($"{t} - {a}", item?.IsCalibrated, item?.IsVerified);
-            }))];
+        status.Details =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.SelectMany(productivityInformation =>
+                ApplicationCookie.OpticsApodizationModeEnums.Select(opticsApodizationModeEnum =>
+                {
+                    var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == productivityInformation
+                                                                  && tt.ApodizationModeEnum == opticsApodizationModeEnum);
+
+                    return new CalibrationViewModelStatus.Detail(
+                        $"{productivityInformation}/ {opticsApodizationModeEnum}",
+                        item?.IsCalibrated,
+                        item?.IsVerified);
+                }))
+        ];
     }
 
     #endregion 校准

@@ -13,30 +13,26 @@ public partial class ProductivityInformationAndApodizationStatus : ObservableObj
     private ProductivityInformation _selectedItem = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private BindingList<OpticsApodizationModeStatus> _opticsApodizationModeCalibrationStatusList = [];
+    private IReadOnlyList<OpticsApodizationModeStatus> _items = [];
 
-    public bool IsCalibrated => OpticsApodizationModeCalibrationStatusList.All(c => c.IsCalibrated);
+    public bool IsCalibrated => Items.All(c => c.IsCalibrated);
 
-    partial void OnOpticsApodizationModeCalibrationStatusListChanged(BindingList<OpticsApodizationModeStatus>? oldValue, BindingList<OpticsApodizationModeStatus> newValue)
+    partial void OnItemsChanged(IReadOnlyList<OpticsApodizationModeStatus>? oldValue, IReadOnlyList<OpticsApodizationModeStatus> newValue)
     {
-        if (oldValue != null) oldValue.ListChanged -= OnValueOnListChanged;
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
-        newValue.ListChanged += OnValueOnListChanged;
-    }
-
-    private void OnValueOnListChanged(object? o, ListChangedEventArgs listChangedEventArgs)
-    {
-        OnPropertyChanged(nameof(IsCalibrated));
-    }
-
-    public static List<ProductivityInformationAndApodizationStatus> CreateList(IReadOnlyList<ProductivityInformation> productivityInformations) =>
-    [
-        .. productivityInformations.Select(t => new ProductivityInformationAndApodizationStatus
+        foreach (var item in newValue)
         {
-            SelectedItem = t.Clone(),
-            OpticsApodizationModeCalibrationStatusList = [.. EnumHelper.Enums<OpticsApodizationModeEnum>().Select(o => new OpticsApodizationModeStatus { SelectedItem = o, IsCalibrated = false })]
-        })
-    ];
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        OnPropertyChanged(nameof(IsCalibrated));
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(IsCalibrated));
+    }
 }
 
 public partial class OpticsApodizationModeStatus : ObservableObject, IStatus<OpticsApodizationModeEnum>

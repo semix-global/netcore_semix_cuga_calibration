@@ -204,12 +204,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
                 return true;
 
             case 6:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                    .Items
-                    .Single(tt => tt.SelectedItem == Cache.LaserLightInformation)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -1172,38 +1166,52 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
     {
         var temp = Guard.IsAssignableToTypeAndReturn<AODUniformityDTO[]>(calibrations);
         var status = Entry.Status;
-        var infos = ApplicationCookie.OpticsMagTypeProductivityInformations;
-        var lights = ApplicationCookie.LaserLightInformations;
 
-        CalibratingStatuses = [.. infos.Select(t => new ProductivityInformationAndLaserLightInformationStatus
-        {
-            SelectedItem = t,
-            Items = [.. lights.Select(tt => new LaserLightInformationStatus { SelectedItem = tt, IsCalibrated = false })]
-        })];
-
-        Calibrations = [.. temp
-            .Where(t => infos.Contains(t.ProductivityInformation) && lights.Contains(t.LaserLightInformation))
-            .Select(t =>
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationAndLaserLightInformationStatus
             {
-                t.Items = [.. t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
+                SelectedItem = t,
+                Items = [.. ApplicationCookie.LaserLightInformations.Select(tt => new LaserLightInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+            })
+        ];
 
-                CalibratingStatuses
-                    .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                    .Items
-                    .Single(tt => tt.SelectedItem == t.LaserLightInformation)
-                    .IsCalibrated = t.IsCalibrated;
+        Calibrations =
+        [
+            .. temp
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                            && ApplicationCookie.LaserLightInformations.Contains(t.LaserLightInformation))
+                .Select(t =>
+                {
+                    t.Items = [.. t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
 
-                return t;
-            })];
+                    CalibratingStatuses
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .Items
+                        .Single(tt => tt.SelectedItem == t.LaserLightInformation)
+                        .IsCalibrated = t.IsCalibrated;
 
-        status.TotalCalibrationCount = infos.Count * lights.Count;
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count * ApplicationCookie.LaserLightInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. infos.SelectMany(t =>
-            lights.Select(l => {
-                var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t && tt.LaserLightInformation == l);
-                return new CalibrationViewModelStatus.Detail($"{t} - {l}", item?.IsCalibrated, item?.IsVerified);
-            }))];
+        status.Details =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.SelectMany(productivityInformation =>
+                ApplicationCookie.LaserLightInformations.Select(laserLightInformation =>
+                {
+                    var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == productivityInformation
+                                                                  && tt.LaserLightInformation == laserLightInformation);
+
+                    return new CalibrationViewModelStatus.Detail(
+                        $"{productivityInformation}/ {laserLightInformation}",
+                        item?.IsCalibrated,
+                        item?.IsVerified);
+                }))
+        ];
     }
 
     #endregion 校准

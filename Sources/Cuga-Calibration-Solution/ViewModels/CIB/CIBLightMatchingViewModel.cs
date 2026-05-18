@@ -828,6 +828,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     {
         var temp = Guard.IsAssignableToTypeAndReturn<CIBLightMatchingDTO[]>(calibrations);
         var status = Entry.Status;
+
         CalibratingStatuses =
         [
             .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })

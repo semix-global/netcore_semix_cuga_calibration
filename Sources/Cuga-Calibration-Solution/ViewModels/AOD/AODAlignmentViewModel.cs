@@ -176,10 +176,6 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 return true;
 
             case 3:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -502,17 +498,15 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
         var temp = Guard.IsAssignableToTypeAndReturn<AODAlignmentDTO[]>(calibrations);
         var status = Entry.Status;
 
-        var applicationCookieOpticsMagTypeProductivityInformations = ApplicationCookie.OpticsMagTypeProductivityInformations;
-
         CalibratingStatuses =
         [
-            .. applicationCookieOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
         ];
 
         Calibrations =
         [
             .. temp
-                .Where(t => applicationCookieOpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
@@ -521,17 +515,17 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
                 })
         ];
 
-        status.TotalCalibrationCount = applicationCookieOpticsMagTypeProductivityInformations.Count;
+        status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
-            .. applicationCookieOpticsMagTypeProductivityInformations.Select(t =>
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(productivityInformation =>
             {
-                var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t);
+                var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
 
                 return new CalibrationViewModelStatus.Detail(
-                    t.ToString(),
+                    productivityInformation.ToString(),
                     item?.IsCalibrated,
                     item?.IsVerified);
             })

@@ -73,7 +73,7 @@
                  VerticalAlignment="Center"
                  BorderThickness="0"
                  ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
-                 ItemsSource="{Binding CalibrationStatuses}"
+                 ItemsSource="{Binding CalibratingStatuses}"
                  SelectionMode="Single">
             <i:Interaction.Behaviors>
                 <behaviors:ListBoxSelectedItemProductivityInformationAndApodizationStatusBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />
