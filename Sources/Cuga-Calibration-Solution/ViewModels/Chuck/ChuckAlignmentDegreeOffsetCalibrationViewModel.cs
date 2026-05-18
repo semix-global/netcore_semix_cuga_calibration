@@ -111,8 +111,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsIlluminationMode)
-                .ThenBy(t => t.ProductivityInformation)
+                .OrderBy(t => t.ProductivityInformation)
         ];
 
         if (Reviews.All(t => t.IsCalibrated == false))
@@ -198,7 +197,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
             StageViewModel.SetAbsoluteStageTheta(0d);
             CalibratingItem = new ChuckAlignmentDegreeOffsetItemDto
             {
-                OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
                 ProductivityInformation = Cache.ProductivityInformation.Clone(),
                 BrightFieldAlignmentDegree = StageViewModel.GetMachineStageTheta()
             };
@@ -295,7 +293,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
     {
         var chuckAlignmentDegreeOffsetItemDto = reviewDto.Clone();
 
-        Cache.OpticsIlluminationModeEnum = reviewDto.OpticsIlluminationMode;
         Cache.ProductivityInformation = reviewDto.ProductivityInformation;
 
         AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
@@ -318,7 +315,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         var result = Math.Abs(darkFieldAlignmentVerifyResult) < Cache.VerifyThreshold;
 
-        Logger.LogHtmlInformation($"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}-{Cache.ProductivityInformation}-{(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        Logger.LogHtmlInformation($"{Cache.ProductivityInformation}-{(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             Cache.VerifyThreshold,
             CalibrationBrightFieldAlignmentDegree = reviewDto.BrightFieldAlignmentDegree,
@@ -349,9 +346,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
         Calibrations =
         [
             .. Calibrations
-                .Where(t => (
-                    t.ProductivityInformation == itemDto.ProductivityInformation
-                    && t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode) == false),
+                .Where(t => t.ProductivityInformation != itemDto.ProductivityInformation),
             itemDto.Clone()
         ];
         if (isSave == false) return;
@@ -365,17 +360,15 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
         var temp = Guard.IsAssignableToTypeAndReturn<ChuckAlignmentDegreeOffsetItemDto[]>(calibrations);
         var status = Entry.Status;
 
-        var applicationCookieOpticsMagTypeProductivityInformations = ApplicationCookie.OpticsMagTypeProductivityInformations;
-
         CalibratingStatuses =
         [
-            .. applicationCookieOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+            .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
         ];
 
         Calibrations =
         [
             .. temp
-                .Where(t => applicationCookieOpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
@@ -384,12 +377,12 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
                 })
         ];
 
-        status.TotalCalibrationCount = applicationCookieOpticsMagTypeProductivityInformations.Count;
+        status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
-            .. applicationCookieOpticsMagTypeProductivityInformations.Select(productivityInformation =>
+            .. ApplicationCookie.ProductivityInformations.Select(productivityInformation =>
             {
                 var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
 

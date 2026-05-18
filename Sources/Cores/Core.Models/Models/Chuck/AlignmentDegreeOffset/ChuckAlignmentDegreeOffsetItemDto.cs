@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Chuck;
@@ -13,9 +12,6 @@ namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
 [CacheVersion("1.0.0")]
 public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDTOBase<ChuckAlignmentDegreeOffsetItemDto>, IAdaptTo<CalibrationChuckAlignmentDegreeOffsetItem>
 {
-    [ObservableProperty]
-    public partial OpticsIlluminationModeEnum OpticsIlluminationMode { get; set; } = OpticsIlluminationModeEnum.OI;
-
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
@@ -34,7 +30,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDTOBa
 
     public override ChuckAlignmentDegreeOffsetItemDto Clone() => new()
     {
-        OpticsIlluminationMode = OpticsIlluminationMode,
         ProductivityInformation = ProductivityInformation.Clone(),
         BrightFieldAlignmentDegree = BrightFieldAlignmentDegree,
         DarkFieldAlignmentDegree = DarkFieldAlignmentDegree,
@@ -48,7 +43,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetItemDto : CalibrationDTOBa
 
     public CalibrationChuckAlignmentDegreeOffsetItem AdaptTo() => new()
     {
-        CgNIOITypeEnum = OpticsIlluminationMode.ToCgNIOITypeEnum(),
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
         DegreeOffset = DegreeOffset,

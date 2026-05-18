@@ -1,13 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using System.Collections.Concurrent;
+using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.Chuck.AlignmentDegreeOffset;
 
+[CacheVersion("1.0.0")]
 public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBase<ChuckAlignmentDegreeOffsetCache>
 {
     [ObservableProperty]
@@ -23,17 +24,14 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
     public partial AlgorithmWaferTypeEnum AlgorithmWaferTypeEnum { get; set; } = AlgorithmWaferTypeEnum.D300;
 
     [ObservableProperty]
-    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>))]
-    public ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem> Items { get; init; } = [];
+    public ConcurrentDictionary<ProductivityInformation, ChuckAlignmentDegreeOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    public ChuckAlignmentDegreeOffsetCacheItem Item => Items.GetOrAdd((OpticsIlluminationModeEnum, ProductivityInformation), _ => new ChuckAlignmentDegreeOffsetCacheItem());
+    public ChuckAlignmentDegreeOffsetCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new ChuckAlignmentDegreeOffsetCacheItem());
 
     [ObservableProperty]
     public partial double NccTypeTemplateMatchScoreThreshold { get; set; } = 0.8;
@@ -49,9 +47,8 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
         AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
-        Items = new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>(Items.Select(t => new KeyValuePair<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>((t.Key.Item1, t.Key.Item2.Clone()), t.Value.Clone()))),
+        Items = new ConcurrentDictionary<ProductivityInformation, ChuckAlignmentDegreeOffsetCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, ChuckAlignmentDegreeOffsetCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,
         TeachingThreshold = TeachingThreshold,
         VerifyThreshold = VerifyThreshold,
