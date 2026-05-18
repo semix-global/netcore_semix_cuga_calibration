@@ -19,7 +19,7 @@
                                  Fill="{TemplateBinding EffectBackground}"
                                  RenderTransformOrigin="0.5,0.5">
                             <Ellipse.RenderTransform>
-                                <ScaleTransform ScaleX="1.1" ScaleY="1.1" />
+                                <ScaleTransform ScaleX="1.3" ScaleY="1.3" />
                             </Ellipse.RenderTransform>
                             <Ellipse.Effect>
                                 <BlurEffect Radius="{Binding Width, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Ellipse}}" />

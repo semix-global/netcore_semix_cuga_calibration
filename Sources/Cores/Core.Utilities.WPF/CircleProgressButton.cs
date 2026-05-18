@@ -59,7 +59,6 @@ public class CircleProgressButton : Button
     private Ellipse? _progressEllipse;
     private RectangleGeometry? _progressEllipseClipGeometry;
     private Image? _checkMarkImage;
-    private Ellipse? _shadowEllipse;
 
     public override void OnApplyTemplate()
     {
@@ -68,7 +67,6 @@ public class CircleProgressButton : Button
         _progressEllipse = Guard.IsNotNullAndAssignableToTypeAndReturn<Ellipse>(GetTemplateChild("PART_ProgressEllipse"));
         _progressEllipseClipGeometry = Guard.IsNotNullAndAssignableToTypeAndReturn<RectangleGeometry>(GetTemplateChild("PART_ProgressEllipseClipGeometry"));
         _checkMarkImage = Guard.IsNotNullAndAssignableToTypeAndReturn<Image>(GetTemplateChild("PART_CheckMarkImage"));
-        _shadowEllipse = GetTemplateChild("PART_ShadowEllipse") as Ellipse;
 
         Update();
     }

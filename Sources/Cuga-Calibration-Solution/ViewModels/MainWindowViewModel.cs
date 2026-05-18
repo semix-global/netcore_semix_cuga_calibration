@@ -243,6 +243,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     }
 
     [RelayCommand]
+    private void ShowCalibrationMenu(CalibrationMenu calibrationMenu)
+    {
+        var viewModel = HostApplication.GetRequiredService<CalibrationMenuWindowViewModel>();
+        viewModel.CalibrationMenu = calibrationMenu;
+
+        _windowManagerService.ShowWindow(viewModel);
+    }
+
+    [RelayCommand]
     private async Task OpenToolMenuAsync(SysMenuDTO sysMenu)
     {
         try
@@ -334,17 +343,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     {
         var logWindowViewModel = HostApplication.GetRequiredService<LogWindowViewModel>();
         if (logWindowViewModel.Show() == false) _windowManagerService.ShowWindow(logWindowViewModel);
-    }
-
-    [RelayCommand]
-    private void OpenCalibrationStatus(object? parameter)
-    {
-        if (parameter is not CalibrationMenu menu) return;
-
-        var viewModel = HostApplication.GetRequiredService<CalibrationStatusWindowViewModel>();
-        viewModel.Menu = menu;
-
-        _windowManagerService.ShowWindow(viewModel);
     }
 
     #endregion Command

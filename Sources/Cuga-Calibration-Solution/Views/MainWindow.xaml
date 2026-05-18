@@ -14,7 +14,6 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-           xmlns:cookies="clr-namespace:Core.Models.Models.Common.Cookies;assembly=Core.Models"
            Width="1200"
            Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
@@ -114,15 +113,15 @@
                                                         Spacing="10"
                                                         Orientation="Horizontal">
                                     <wpf:CircleProgressButton x:Name="StatusButton"
+                                                              Command="{Binding DataContext.ShowCalibrationMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                              CommandParameter="{Binding}"
                                                               Width="16"
                                                               Height="16"
                                                               Foreground="{StaticResource SuccessBrush}"
                                                               Background="{StaticResource BorderBrush}"
                                                               EffectBackground="{StaticResource InfoBrush}"
                                                               Progress="{Binding Entry.Status.Progress}"
-                                                              IsOk="{Binding Entry.Status.IsOk}"
-                                                              Command="{Binding DataContext.OpenCalibrationStatusCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                              CommandParameter="{Binding}" />
+                                                              IsOk="{Binding Entry.Status.IsOk}" />
                                     <TextBlock Text="{Binding SysMenu.Name}" />
                                 </hc:UniformSpacingPanel>
                             </Grid>

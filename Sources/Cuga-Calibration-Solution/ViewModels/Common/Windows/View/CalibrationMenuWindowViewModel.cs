@@ -8,13 +8,13 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.View;
 
-[IOCAppService(ServiceType = typeof(CalibrationStatusWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CalibrationStatusWindowViewModel(
+[IOCAppService(ServiceType = typeof(CalibrationMenuWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
+public sealed partial class CalibrationMenuWindowViewModel(
     IMessenger messenger,
-    ILogger<CalibrationStatusWindowViewModel> logger) : PopupWindowViewModelBase(messenger, logger)
+    ILogger<CalibrationMenuWindowViewModel> logger) : PopupWindowViewModelBase(messenger, logger)
 {
     [ObservableProperty]
-    public partial CalibrationMenu? Menu { get; set; }
+    public partial CalibrationMenu CalibrationMenu { get; set; } = new();
 
     protected override void Loadeding(CancellationToken cancellationToken)
     {
