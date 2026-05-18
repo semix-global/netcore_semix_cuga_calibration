@@ -146,10 +146,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 return true;
 
             case 2:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.MicroscopeLensInformation)
-                    .IsCalibrated = true;
-
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 ClearCalibrationTemp();
@@ -533,28 +529,44 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
         ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
 
+
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
         var temp = Guard.IsAssignableToTypeAndReturn<MicroscopeFocusItemDto[]>(calibrations);
         var status = Entry.Status;
-        var infos = ApplicationCookie.MicroscopeLensInformations;
 
-        CalibratingStatuses = [.. infos.Select(t => new MicroscopeLensInformationStatus { SelectedItem = t, IsCalibrated = false })];
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.MicroscopeLensInformations.Select(t => new MicroscopeLensInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
 
-        Calibrations = [.. temp
-            .Where(t => infos.Contains(t.LensInformation))
-            .Select(t => {
-                CalibratingStatuses.Single(tt => tt.SelectedItem == t.LensInformation).IsCalibrated = t.IsCalibrated;
-                return t;
-            })];
+        Calibrations =
+        [
+            .. temp
+                .Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.LensInformation).IsCalibrated = t.IsCalibrated;
 
-        status.TotalCalibrationCount = infos.Count;
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.MicroscopeLensInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. infos.Select(t => {
-            var item = Calibrations.SingleOrDefault(tt => tt.LensInformation == t);
-            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
-        })];
+        status.Details =
+        [
+            .. ApplicationCookie.MicroscopeLensInformations.Select(productivityInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.LensInformation == productivityInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    productivityInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
     }
 
     private void ClearCalibrationTemp()

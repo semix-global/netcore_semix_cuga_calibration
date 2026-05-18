@@ -530,14 +530,24 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     {
         var temp = Guard.IsAssignableToTypeAndReturn<MicroscopeCentricityItemDto[]>(calibrations);
         var status = Entry.Status;
+
         Calibrations = [.. temp.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))];
+
         status.TotalCalibrationCount = ApplicationCookie.MicroscopeLensInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. ApplicationCookie.MicroscopeLensInformations.Select(t => {
-            var item = Calibrations.SingleOrDefault(tt => tt.LensInformation == t);
-            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
-        })];
+        status.Details =
+        [
+            .. ApplicationCookie.MicroscopeLensInformations.Select(microscopeLensInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    microscopeLensInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
     }
 
     private void ClearCalibrationTemp()

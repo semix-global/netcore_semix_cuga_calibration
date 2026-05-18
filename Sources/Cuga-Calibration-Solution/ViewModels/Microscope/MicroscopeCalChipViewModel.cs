@@ -642,7 +642,9 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     {
         var temp = Guard.IsAssignableToTypeAndReturn<MicroscopeCalChipDTO>(calibration);
         var status = Entry.Status;
+
         Calibration = temp;
+
         status.TotalCalibrationCount = 1;
         status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
         status.ReviewCount = Calibration.IsVerified ? 1 : 0;
