@@ -1268,7 +1268,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<CIBMMDDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBMMDDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -1278,8 +1278,9 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            ..temp
+            ..temps
                 .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
+                .DistinctBy(t => t.CIBInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;

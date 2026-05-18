@@ -484,8 +484,8 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
             update(dto);
             Calibrations =
             [
-                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto
+                dto,
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }
 
@@ -495,7 +495,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<AODAlignmentDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<AODAlignmentDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -505,8 +505,9 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;

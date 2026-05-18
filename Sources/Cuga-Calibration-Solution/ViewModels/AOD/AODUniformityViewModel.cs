@@ -1164,7 +1164,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<AODUniformityDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<AODUniformityDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -1178,9 +1178,10 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                             && ApplicationCookie.LaserLightInformations.Contains(t.LaserLightInformation))
+                .DistinctBy(t => (t.ProductivityInformation, t.LaserLightInformation))
                 .Select(t =>
                 {
                     t.Items = [.. t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];

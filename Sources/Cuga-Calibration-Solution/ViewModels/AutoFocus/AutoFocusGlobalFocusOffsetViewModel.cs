@@ -397,8 +397,8 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
             update(dto);
             Calibrations =
             [
+                dto,
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
-                dto.Clone()
             ];
         }
 
@@ -420,6 +420,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
         [
             .. temp
                 .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;

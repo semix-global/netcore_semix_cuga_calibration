@@ -429,7 +429,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<MicroscopePixelSizeItemDto[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<MicroscopePixelSizeItemDto[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -439,8 +439,9 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))
+                .DistinctBy(t => t.LensInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.LensInformation).IsCalibrated = t.IsCalibrated;

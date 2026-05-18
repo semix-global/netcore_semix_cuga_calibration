@@ -1030,9 +1030,9 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
 
         Calibrations =
         [
+            itemDto,
             .. Calibrations
-                .Where(t => !(t.ProductivityInformation == itemDto.ProductivityInformation)),
-            itemDto.Clone()
+                .Where(t => (t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode && t.ProductivityInformation == itemDto.ProductivityInformation) == false)
         ];
         if (!isSave) return;
 
@@ -1042,7 +1042,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<PupilSideChannelSpecularBlockerDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<PupilSideChannelSpecularBlockerDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -1056,9 +1056,10 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationMode)
                             && ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => (t.OpticsIlluminationMode, t.ProductivityInformation))
                 .Select(t =>
                 {
                     CalibratingStatuses

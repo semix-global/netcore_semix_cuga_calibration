@@ -460,7 +460,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<AODDelayDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<AODDelayDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -470,8 +470,9 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;

@@ -825,7 +825,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<OpticsRelayDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<OpticsRelayDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -835,8 +835,9 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationModeEnum))
+                .DistinctBy(t => t.OpticsIlluminationModeEnum)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationModeEnum).IsCalibrated = t.IsCalibrated;

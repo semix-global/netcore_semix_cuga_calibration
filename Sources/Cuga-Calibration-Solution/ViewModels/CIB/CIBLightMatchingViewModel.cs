@@ -813,10 +813,10 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             Calibrations =
             [
                 dto,
-                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation
-                                           || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
-                                           || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
-                                           || t.OpticsCollectorPolarizationModeEnum != dto.OpticsCollectorPolarizationModeEnum)
+                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation
+                                            && t.OpticsApodizationModeEnum == dto.OpticsApodizationModeEnum
+                                            && t.OpticsPolarizationModeEnum == dto.OpticsPolarizationModeEnum
+                                            && t.OpticsCollectorPolarizationModeEnum == dto.OpticsCollectorPolarizationModeEnum) == false)
             ];
         }
 
@@ -826,7 +826,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<CIBLightMatchingDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBLightMatchingDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -836,11 +836,12 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
                             && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
                             && ApplicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
                             && ApplicationCookie.OpticsCollectorPolarizationModeEnums.Contains(t.OpticsCollectorPolarizationModeEnum))
+                .DistinctBy(t => (t.ProductivityInformation, t.OpticsApodizationModeEnum, t.OpticsPolarizationModeEnum, t.OpticsCollectorPolarizationModeEnum))
                 .Select(t =>
                 {
                     t.Items = [.. t.Items.Where(i => ApplicationCookie.CIBInformations.Contains(i.CIBInformation))];

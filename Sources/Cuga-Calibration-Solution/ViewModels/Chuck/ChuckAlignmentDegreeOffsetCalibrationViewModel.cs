@@ -345,9 +345,9 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         Calibrations =
         [
+            itemDto,
             .. Calibrations
-                .Where(t => t.ProductivityInformation != itemDto.ProductivityInformation),
-            itemDto.Clone()
+                .Where(t => t.ProductivityInformation != itemDto.ProductivityInformation)
         ];
         if (isSave == false) return;
 
@@ -357,7 +357,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<ChuckAlignmentDegreeOffsetItemDto[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<ChuckAlignmentDegreeOffsetItemDto[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -367,8 +367,9 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;

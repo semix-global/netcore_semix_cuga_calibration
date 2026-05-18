@@ -387,7 +387,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<LaserAttenuatorDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<LaserAttenuatorDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -397,8 +397,9 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;

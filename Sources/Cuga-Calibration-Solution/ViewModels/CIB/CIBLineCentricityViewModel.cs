@@ -666,12 +666,9 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             update(dto);
             Calibrations =
             [
+                dto,
                 .. Calibrations
                     .Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false)
-                    .Where(t =>
-                        t.ProductivityInformation != dto.ProductivityInformation
-                        || ApplicationCookie.CIBInformations.Any(tt => tt.PMTId == t.PmtId)),
-                dto
             ];
         }
 
@@ -681,7 +678,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<CIBLineCentricityDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBLineCentricityDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -691,8 +688,10 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
         Calibrations =
         [
-            .. temp.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
-                               && ApplicationCookie.CIBInformationPMTIds.Contains(t.PmtId))
+            .. temps
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                            && ApplicationCookie.CIBInformationPMTIds.Contains(t.PmtId))
+                .DistinctBy(t => (t.ProductivityInformation, t.PmtId))
         ];
 
         foreach (var calibratingStatus in CalibratingStatuses) calibratingStatus.IsCalibrated = Calibrations.Count(t => t.ProductivityInformation == calibratingStatus.SelectedItem && t.IsCalibrated) == ApplicationCookie.CIBInformationPMTIds.Count;

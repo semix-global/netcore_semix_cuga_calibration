@@ -445,7 +445,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<LaserOpticalPowerMeterDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<LaserOpticalPowerMeterDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -455,8 +455,9 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;

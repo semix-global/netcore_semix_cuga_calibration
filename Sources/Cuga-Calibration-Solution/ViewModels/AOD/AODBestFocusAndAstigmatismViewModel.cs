@@ -638,9 +638,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 Calibrations =
                 [
                     dto,
-                    .. Calibrations.Where(t =>
-                        (t.ProductivityInformation == dto.ProductivityInformation &&
-                         t.ApodizationModeEnum == dto.ApodizationModeEnum) == false)
+                    .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.ApodizationModeEnum == dto.ApodizationModeEnum) == false)
                 ];
             }
 
@@ -650,7 +648,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<AODBestFocusAndAstigmatismDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<AODBestFocusAndAstigmatismDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -664,9 +662,10 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
                             && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.ApodizationModeEnum))
+                .DistinctBy(t => (t.ProductivityInformation, t.ApodizationModeEnum))
                 .Select(t =>
                 {
                     CalibratingStatuses

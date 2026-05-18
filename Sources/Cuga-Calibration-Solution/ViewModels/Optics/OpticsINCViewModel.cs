@@ -466,7 +466,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<OpticsINCDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<OpticsINCDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -476,8 +476,9 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;

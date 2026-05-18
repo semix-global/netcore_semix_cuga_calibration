@@ -504,9 +504,9 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         Calibrations =
         [
+            itemDto,
             .. Calibrations
-                .Where(t => t.LensInformation != itemDto.LensInformation),
-            itemDto.Clone()
+                .Where(t => t.LensInformation != itemDto.LensInformation)
         ];
 
         ReviewList =
@@ -528,10 +528,15 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<MicroscopeCentricityItemDto[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<MicroscopeCentricityItemDto[]>(calibrations);
         var status = Entry.Status;
 
-        Calibrations = [.. temp.Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))];
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))
+                .DistinctBy(t => t.LensInformation)
+        ];
 
         status.TotalCalibrationCount = ApplicationCookie.MicroscopeLensInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);

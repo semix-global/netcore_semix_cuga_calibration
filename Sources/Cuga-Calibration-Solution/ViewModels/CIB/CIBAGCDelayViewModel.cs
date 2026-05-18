@@ -717,7 +717,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<CIBAGCDelayDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBAGCDelayDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -727,8 +727,9 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     t.Items = [.. t.Items.Where(i => ApplicationCookie.CIBInformations.Contains(i.CIBInformation))];

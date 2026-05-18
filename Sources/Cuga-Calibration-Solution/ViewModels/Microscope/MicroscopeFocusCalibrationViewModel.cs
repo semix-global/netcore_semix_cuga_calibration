@@ -532,7 +532,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<MicroscopeFocusItemDto[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<MicroscopeFocusItemDto[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -542,8 +542,9 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.MicroscopeLensInformations.Contains(t.LensInformation))
+                .DistinctBy(t => t.LensInformation)
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.LensInformation).IsCalibrated = t.IsCalibrated;

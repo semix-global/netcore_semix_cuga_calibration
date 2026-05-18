@@ -700,7 +700,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<CIBXTCDTO[]>(calibrations);
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBXTCDTO[]>(calibrations);
         var status = Entry.Status;
 
         CalibratingStatuses =
@@ -710,8 +710,9 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
         Calibrations =
         [
-            .. temp
+            .. temps
                 .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
                     t.Items = [.. t.Items.Where(i => ApplicationCookie.CIBInformations.Contains(i.CIBInformation))];
