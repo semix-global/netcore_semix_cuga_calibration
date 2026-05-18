@@ -118,7 +118,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
     private ObservableCollection<PupilCenterChannelSpecularBlockerDTO> _resultPupilCenterChannelSpecularBlockerDTOList = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -233,10 +233,6 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
                         return false;
                     }
                 }
-
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationStatusList
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
 
                 if (!IsCalibrated) CalibrationStepIndex = -1;
 
@@ -717,36 +713,50 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
     {
         var temp = Guard.IsAssignableToTypeAndReturn<PupilCenterChannelSpecularBlockerDTO[]>(calibrations);
         var status = Entry.Status;
-        var infos = ApplicationCookie.OpticsIlluminationModeEnums;
 
-        CalibrationStatuses =
+        CalibratingStatuses =
         [
-            ..infos
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
+            .. ApplicationCookie.OpticsIlluminationModeEnums.Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
+            {
+                SelectedItem = t,
+                ProductivityInformationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+            })
+        ];
+
+        Calibrations =
+        [
+            .. temp
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationMode)
+                            && ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
                 {
-                    SelectedItem = t,
-                    ProductivityInformationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+                    CalibratingStatuses
+                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationMode)
+                        .ProductivityInformationStatusList
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .IsCalibrated = t.IsCalibrated;
+
+                    return t;
                 })
         ];
 
-        Calibrations = [.. temp
-            .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
-            .Select(t => {
-                var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(tt => tt.SelectedItem == t.OpticsIlluminationMode);
-                var s = opticsIlluminationModeEnumStatus
-                    .ProductivityInformationStatusList
-                    .SingleOrDefault(tt => tt.SelectedItem == t.ProductivityInformation);
-                if (s is not null) s.IsCalibrated = t.IsCalibrated;
-                return t;
-            })];
-
-        status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count;
+        status.TotalCalibrationCount = ApplicationCookie.OpticsIlluminationModeEnums.Count * ApplicationCookie.ProductivityInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. ApplicationCookie.ProductivityInformations.Select(t => {
-            var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t);
-            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
-        })];
+        status.Details =
+        [
+            .. ApplicationCookie.OpticsIlluminationModeEnums.SelectMany(opticsIlluminationModeEnum =>
+                ApplicationCookie.ProductivityInformations.Select(productivityInformation =>
+                {
+                    var item = Calibrations.SingleOrDefault(tt => tt.OpticsIlluminationMode == opticsIlluminationModeEnum
+                                                                  && tt.ProductivityInformation == productivityInformation);
+
+                    return new CalibrationViewModelStatus.Detail(
+                        $"{opticsIlluminationModeEnum}/ {productivityInformation}",
+                        item?.IsCalibrated,
+                        item?.IsVerified);
+                }))
+        ];
     }
 
     private void ClearCalibrationTemp()

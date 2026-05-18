@@ -27,7 +27,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
     [NotifyPropertyChangedFor(nameof(Item))]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, ChuckAlignmentDegreeOffsetCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, ChuckAlignmentDegreeOffsetCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
