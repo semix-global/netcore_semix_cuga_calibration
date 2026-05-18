@@ -43,7 +43,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
     private AutoFocusGlobalFocusOffsetDTO _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -134,7 +134,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                 return true;
 
             case 3:
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 if (IsCalibrated == false) CalibrationStepIndex = -1;
@@ -411,24 +410,39 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
     {
         var temp = Guard.IsAssignableToTypeAndReturn<AutoFocusGlobalFocusOffsetDTO[]>(calibrations);
         var status = Entry.Status;
-        var infos = ApplicationCookie.ProductivityInformations;
 
-        CalibrationStatuses = [.. infos.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })];
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
 
-        Calibrations = [.. temp
-            .Where(t => infos.Contains(t.ProductivityInformation))
-            .Select(t => {
-                CalibrationStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
-                return t;
-            })];
+        Calibrations =
+        [
+            .. temp
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
 
-        status.TotalCalibrationCount = infos.Count;
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. infos.Select(t => {
-            var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t);
-            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
-        })];
+        status.Details =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(productivityInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    productivityInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
     }
 
     #endregion 校准

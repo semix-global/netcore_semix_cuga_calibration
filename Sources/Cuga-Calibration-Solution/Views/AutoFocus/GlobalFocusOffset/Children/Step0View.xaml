@@ -53,7 +53,7 @@
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  BorderThickness="0"
-                 ItemsSource="{Binding CalibrationStatuses}"
+                 ItemsSource="{Binding CalibratingStatuses}"
                  ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                  SelectionMode="Single">
             <b:Interaction.Behaviors>

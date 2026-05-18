@@ -1206,7 +1206,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
                 if (result)
                 {
-                    AfViewModel.SetSensorNscCompensation(0d/* af下发不使用 */, Review.NSCGainResultDTO.NscGain);
+                    AfViewModel.SetSensorNscCompensation(0d /* af下发不使用 */, Review.NSCGainResultDTO.NscGain);
                     await Task.Delay(100, cancellationToken);
 
                     AfViewModel.SetSensorCurrentValue(true, Review.CurrentA);
@@ -1243,7 +1243,9 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
     {
         var temp = Guard.IsAssignableToTypeAndReturn<DarkAutoFocusDTO>(calibration);
         var status = Entry.Status;
+
         Calibration = temp;
+
         status.TotalCalibrationCount = 1;
         status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
         status.ReviewCount = Calibration.IsVerified ? 1 : 0;
