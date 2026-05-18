@@ -852,7 +852,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         ..cibMMDItem.Items, new CIBMMDDTOItem.Item
                         {
                             Gain = Convert.ToDouble(dictionary[keys[0]]),
-                            PMTValue = value is not null && string.IsNullOrWhiteSpace(value.ToString()) == false ? Convert.ToDouble(value) : double.NaN
+                            PMTValue = string.IsNullOrWhiteSpace(value.ToString()) == false ? Convert.ToDouble(value) : double.NaN
                         }
                     ];
                 }
@@ -1273,17 +1273,15 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         var temp = Guard.IsAssignableToTypeAndReturn<CIBMMDDTO[]>(calibrations);
         var status = Entry.Status;
 
-        var applicationCookieCIBInformations = ApplicationCookie.CIBInformations;
-
         CalibratingStatuses =
         [
-            .. applicationCookieCIBInformations.Select(t => new CIBInformationStatus { SelectedItem = t, IsCalibrated = false })
+            .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationStatus { SelectedItem = t, IsCalibrated = false })
         ];
 
         Calibrations =
         [
             ..temp
-                .Where(t => applicationCookieCIBInformations.Contains(t.CIBInformation))
+                .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
                 .Select(t =>
                 {
                     CalibratingStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
@@ -1292,17 +1290,17 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 })
         ];
 
-        status.TotalCalibrationCount = applicationCookieCIBInformations.Count;
+        status.TotalCalibrationCount = ApplicationCookie.CIBInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.ReviewCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
-            ..applicationCookieCIBInformations.Select(t =>
+            .. ApplicationCookie.CIBInformations.Select(cibInformation =>
             {
-                var item = Calibrations.SingleOrDefault(tt => tt.CIBInformation == t);
+                var item = Calibrations.SingleOrDefault(t => t.CIBInformation == cibInformation);
 
                 return new CalibrationViewModelStatus.Detail(
-                    t.ToString(),
+                    cibInformation.ToString(),
                     item?.IsCalibrated,
                     item?.IsVerified
                 );

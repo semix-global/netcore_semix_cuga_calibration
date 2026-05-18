@@ -113,30 +113,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
         return true;
     }
 
-    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
-    {
-        var temp = Guard.IsAssignableToTypeAndReturn<CIBLineOrientationOffsetDTO[]>(calibrations);
-        var status = Entry.Status;
-        var infos = ApplicationCookie.ProductivityInformations;
-
-        CalibratingStatuses = [.. infos.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })];
-
-        Calibrations = [.. temp
-            .Where(t => infos.Contains(t.ProductivityInformation))
-            .Select(t => {
-                CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
-                return t;
-            })];
-
-        status.TotalCalibrationCount = infos.Count;
-        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. infos.Select(t => {
-            var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t);
-            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
-        })];
-    }
-
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -684,6 +660,42 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
         ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
         ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<CIBLineOrientationOffsetDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temp.Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                               && ApplicationCookie.CIBInformationPMTIds.Contains(t.PmtId))
+        ];
+
+        foreach (var calibratingStatus in CalibratingStatuses) calibratingStatus.IsCalibrated = Calibrations.Count(t => t.ProductivityInformation == calibratingStatus.SelectedItem && t.IsCalibrated) == ApplicationCookie.CIBInformationPMTIds.Count;
+
+        status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count * ApplicationCookie.CIBInformationPMTIds.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.ProductivityInformations.SelectMany(productivityInformation =>
+                ApplicationCookie.CIBInformationPMTIds.Select(pmtId =>
+                {
+                    var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == pmtId);
+
+                    return new CalibrationViewModelStatus.Detail(
+                        $"{productivityInformation}/{nameof(CIBInformation.PMTId)}({pmtId})",
+                        item?.IsCalibrated,
+                        item?.IsVerified);
+                }))
+        ];
+    }
 
     #endregion 校准
 }

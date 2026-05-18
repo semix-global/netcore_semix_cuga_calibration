@@ -125,30 +125,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         return true;
     }
 
-    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
-    {
-        var temp = Guard.IsAssignableToTypeAndReturn<CIBXPixelSizeDTO[]>(calibrations);
-        var status = Entry.Status;
-        var infos = ApplicationCookie.ProductivityInformations;
-
-        CalibratingStatuses = [.. infos.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })];
-
-        Calibrations = [.. temp
-            .Where(t => infos.Contains(t.ProductivityInformation))
-            .Select(t => {
-                CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
-                return t;
-            })];
-
-        status.TotalCalibrationCount = infos.Count;
-        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
-        status.Details = [.. infos.Select(t => {
-            var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == t);
-            return new CalibrationViewModelStatus.Detail(t.ToString(), item?.IsCalibrated, item?.IsVerified);
-        })];
-    }
-
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -969,6 +945,45 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
         ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
         ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<CIBXPixelSizeDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temp
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(productivityInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    productivityInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
+    }
 
     #endregion 校准
 }
