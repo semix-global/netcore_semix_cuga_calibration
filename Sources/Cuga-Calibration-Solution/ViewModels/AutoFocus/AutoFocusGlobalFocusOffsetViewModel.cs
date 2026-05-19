@@ -430,7 +430,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
         status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.ProductivityInformations.Select(productivityInformation =>

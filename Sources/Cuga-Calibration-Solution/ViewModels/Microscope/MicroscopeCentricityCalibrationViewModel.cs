@@ -541,7 +541,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         status.TotalCalibrationCount = ApplicationCookie.MicroscopeLensInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.MicroscopeLensInformations.Select(microscopeLensInformation =>

@@ -1290,7 +1290,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         status.TotalCalibrationCount = ApplicationCookie.CIBInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.CIBInformations.Select(cibInformation =>

@@ -799,7 +799,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
         status.TotalCalibrationCount = ApplicationCookie.OpticsIlluminationModeEnums.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.OpticsIlluminationModeEnums.Select(productivityInformation =>

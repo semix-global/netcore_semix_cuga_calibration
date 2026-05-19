@@ -340,7 +340,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
         status.TotalCalibrationCount = 1;
         status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
-        status.ReviewCount = Calibration.IsVerified ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
         status.Details = [];
     }
 

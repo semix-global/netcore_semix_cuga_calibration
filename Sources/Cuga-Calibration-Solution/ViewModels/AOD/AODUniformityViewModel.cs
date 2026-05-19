@@ -1197,7 +1197,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
         status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count * ApplicationCookie.LaserLightInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.OpticsMagTypeProductivityInformations.SelectMany(productivityInformation =>

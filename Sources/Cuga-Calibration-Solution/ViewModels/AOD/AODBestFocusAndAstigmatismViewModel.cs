@@ -676,7 +676,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
         status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count * ApplicationCookie.OpticsApodizationModeEnums.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.OpticsMagTypeProductivityInformations.SelectMany(productivityInformation =>

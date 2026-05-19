@@ -675,7 +675,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
         status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count * ApplicationCookie.CIBInformationPMTIds.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.ProductivityInformations.SelectMany(productivityInformation =>

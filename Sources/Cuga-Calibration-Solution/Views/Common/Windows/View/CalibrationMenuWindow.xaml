@@ -139,7 +139,7 @@
                     <Border Style="{StaticResource BorderRegion}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                             <StackPanel>
-                                <TextBlock Text="Review"
+                                <TextBlock Text="Verify"
                                            HorizontalAlignment="Center"
                                            FontSize="13"
                                            FontWeight="Bold"
@@ -154,13 +154,13 @@
                                 </StackPanel>
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="OK" HorizontalAlignment="Center" />
-                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.ReviewCount}"
+                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.VerifiedCount}"
                                                HorizontalAlignment="Center"
                                                FontWeight="Bold" />
                                 </StackPanel>
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="Not Ok" HorizontalAlignment="Center" />
-                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.NotOkReviewCount}"
+                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.NotOkVerifiedCount}"
                                                HorizontalAlignment="Center"
                                                FontWeight="Bold" />
                                 </StackPanel>
@@ -212,7 +212,7 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Width="100" Header="Review">
+                                    <GridViewColumn Width="100" Header="Verify">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate DataType="{x:Type cookies:CalibrationViewModelStatus+Detail}">
                                                 <Ellipse Width="16"
@@ -223,17 +223,17 @@
                                                     <Ellipse.Style>
                                                         <Style TargetType="Ellipse">
                                                             <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsReviewed}" Value="{x:Null}">
+                                                                <DataTrigger Binding="{Binding IsVerified}" Value="{x:Null}">
                                                                     <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
-                                                                    <Setter Property="ToolTip" Value="Verify None" />
+                                                                    <Setter Property="ToolTip" Value="Verified None" />
                                                                 </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsReviewed}" Value="{x:Static constants:Constants.False}">
+                                                                <DataTrigger Binding="{Binding IsVerified}" Value="{x:Static constants:Constants.False}">
                                                                     <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
-                                                                    <Setter Property="ToolTip" Value="Verify Failed" />
+                                                                    <Setter Property="ToolTip" Value="Verified Failed" />
                                                                 </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsReviewed}" Value="{x:Static constants:Constants.True}">
+                                                                <DataTrigger Binding="{Binding IsVerified}" Value="{x:Static constants:Constants.True}">
                                                                     <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
-                                                                    <Setter Property="ToolTip" Value="Verify Ok" />
+                                                                    <Setter Property="ToolTip" Value="Verified Ok" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>

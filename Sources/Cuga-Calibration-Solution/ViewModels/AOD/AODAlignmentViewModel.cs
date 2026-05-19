@@ -517,7 +517,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
         status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(productivityInformation =>

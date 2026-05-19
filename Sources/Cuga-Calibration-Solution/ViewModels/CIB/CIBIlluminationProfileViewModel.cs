@@ -601,7 +601,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
         status.CalibratedCount = Calibrations.Where(t => t.IsCalibrated)
             .SelectMany(t => t.Items)
             .Count();
-        status.ReviewCount = Calibrations.Where(t => t.IsVerified)
+        status.VerifiedCount = Calibrations.Where(t => t.IsVerified)
             .SelectMany(t => t.Items)
             .Count();
 

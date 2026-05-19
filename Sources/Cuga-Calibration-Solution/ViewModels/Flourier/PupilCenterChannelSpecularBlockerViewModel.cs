@@ -742,7 +742,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
 
         status.TotalCalibrationCount = ApplicationCookie.OpticsIlluminationModeEnums.Count * ApplicationCookie.ProductivityInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
-        status.ReviewCount = Calibrations.Count(t => t.IsVerified);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
             .. ApplicationCookie.OpticsIlluminationModeEnums.SelectMany(opticsIlluminationModeEnum =>
