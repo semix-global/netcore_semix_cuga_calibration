@@ -98,4 +98,5 @@
         <None Remove="Assets\Images\*.*" />
         <Resource Include="Assets\Images\*.*" />
     </ItemGroup>
+
 </Project>
