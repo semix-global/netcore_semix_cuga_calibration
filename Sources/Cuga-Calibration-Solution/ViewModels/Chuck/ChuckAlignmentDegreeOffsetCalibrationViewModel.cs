@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Events;
 using Core.Models.Models;
@@ -32,7 +31,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
     [
-        new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Bright Field P5" },
         new() { StepName = "Dark Field P5" }
@@ -140,15 +138,15 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         switch (CalibrationStepIndex)
         {
-            case 1:
+            case 0:
                 IsDarkFieldAlignment = false;
                 return true;
 
-            case 2:
+            case 1:
                 IsDarkFieldAlignment = true;
                 return true;
 
-            case 3:
+            case 2:
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 return true;
@@ -164,7 +162,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         switch (CalibrationStepIndex)
         {
-            case 3:
+            case 2:
                 IsDarkFieldAlignment = false;
                 return true;
 

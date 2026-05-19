@@ -70,7 +70,7 @@ public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase<CIBYPi
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     public override CIBYPixelSizeCacheItem Clone() => new()
     {
@@ -83,7 +83,6 @@ public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase<CIBYPi
         FindBFMachinePosition = FindBFMachinePosition,
         ImageWidth = ImageWidth,
         IsDarkFieldAlignment = IsDarkFieldAlignment,
-        AlignmentResult = AlignmentResult.Clone(),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,

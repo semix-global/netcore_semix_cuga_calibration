@@ -33,6 +33,7 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
     private readonly IMessenger _messenger;
     private readonly ISynchronizationContextProvider _contextProvider;
     private readonly ICalibrationStatusService _calibrationStatusService;
+    private readonly IApplicationCookieService _applicationCookieService;
     private readonly AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel;
     private readonly StageViewModel _stageViewModel;
     private readonly ApplicationCookie _applicationCookie;
@@ -44,6 +45,7 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
         IMessenger messenger,
         ISynchronizationContextProvider contextProvider,
         ICalibrationStatusService calibrationStatusService,
+        IApplicationCookieService applicationCookieService,
         AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
         StageViewModel stageViewModel,
         ApplicationCookie applicationCookie)
@@ -54,6 +56,7 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
         _messenger = messenger;
         _contextProvider = contextProvider;
         _calibrationStatusService = calibrationStatusService;
+        _applicationCookieService = applicationCookieService;
         _alignmentWindowBrightFieldViewModel = alignmentWindowBrightFieldViewModel;
         _stageViewModel = stageViewModel;
         _applicationCookie = applicationCookie;
@@ -92,7 +95,7 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
         // 对准缓存与普通 Recipe 共享，根据 CalChipSiteModelEnum 查找
         if (_isLoaded == false)
         {
-            MicroscopeCalChip = _calibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+            MicroscopeCalChip = _applicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
             AlignmentCacheBrightFields = _cacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>();
         }
 
@@ -100,9 +103,9 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
 
         AlignmentCacheBrightField = AlignmentCacheBrightFields
             .SingleOrDefault(t => t.CalChipSiteModelEnum == CurrentCalChipSiteModelEnum) ?? new()
-            {
-                CalChipSiteModelEnum = CurrentCalChipSiteModelEnum
-            };
+        {
+            CalChipSiteModelEnum = CurrentCalChipSiteModelEnum
+        };
         AlignmentUserControlViewModel.AlignmentCacheBrightField = AlignmentCacheBrightField.Clone();
 
         _isLoaded = true;

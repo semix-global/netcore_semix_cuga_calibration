@@ -28,7 +28,7 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase<Micros
     public MicroscopeCalChipCacheItem Item => Items.GetOrAdd(CalChipSiteModelEnum, _ => new MicroscopeCalChipCacheItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     [ObservableProperty]
-    private string _verifyQualityError = string.Empty;
+    public partial string VerifyQualityError { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial double SpeedEcsPerSecond { get; set; } = 500;
@@ -52,16 +52,6 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase<Micros
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         Items = new ConcurrentDictionary<CalChipSiteModelEnum, MicroscopeCalChipCacheItem>(Items.Select(t => new KeyValuePair<CalChipSiteModelEnum, MicroscopeCalChipCacheItem>(t.Key, t.Value.Clone()))),
-        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
-        LowSizeEnum = LowSizeEnum,
-        HighSizeEnum = HighSizeEnum,
-        NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,
-        LowSite1 = LowSite1.Clone(),
-        LowSite2 = LowSite2.Clone(),
-        HighSite1 = HighSite1.Clone(),
-        HighSite2 = HighSite2.Clone(),
-        LowSiteTemplateFilePath = LowSiteTemplateFilePath,
-        HighSiteTemplateFilePath = HighSiteTemplateFilePath,
         VerifyQualityError = VerifyQualityError,
         SpeedEcsPerSecond = SpeedEcsPerSecond,
         HalfEcsLength = HalfEcsLength,

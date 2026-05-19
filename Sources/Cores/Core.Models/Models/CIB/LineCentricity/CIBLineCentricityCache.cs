@@ -66,7 +66,7 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase<CI
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private string _brightTemplateFilePath = string.Empty;
+    public partial string BrightTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial string BrightTemplateImageFilePath { get; set; } = string.Empty;
@@ -75,10 +75,10 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase<CI
     public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     public override CIBLineCentricityCacheItem Clone() => new()
     {
@@ -89,12 +89,11 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase<CI
         CIBConfiguration = CIBConfiguration.Clone(),
         FindBFMachinePosition = FindBFMachinePosition,
         ImageWidth = ImageWidth,
-        IsDarkFieldAlignment = IsDarkFieldAlignment,
-        AlignmentResult = AlignmentResult.Clone(),
         BrightTemplateFilePath = BrightTemplateFilePath,
         BrightTemplateImageFilePath = BrightTemplateImageFilePath,
         TemplateFilePath = TemplateFilePath,
         TemplateImageFilePath = TemplateImageFilePath,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,

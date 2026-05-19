@@ -100,7 +100,8 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     [ObservableProperty]
     public partial AODBestFocusAndAstigmatismDTO[] Calibrations { get; set; } = [];
 
-    private AODDelayDTO[] AODDelays { get; set; } = [];
+    [ObservableProperty]
+    public partial AODDelayDTO[] AODDelays { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
@@ -123,11 +124,9 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
-
         AODDelays = ApplicationCookieService.GetCalibrations<AODDelayDTO>(cancellationToken);
-
         MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<AODBestFocusAndAstigmatismCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<AODBestFocusAndAstigmatismDTO>(cancellationToken);

@@ -73,6 +73,7 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
     private readonly IOptions<ApplicationSetting> _options;
     private readonly IDialogWindowProvider _dialogWindowProvider;
     private readonly ICalibrationStatusService _calibrationStatusService;
+    private readonly IApplicationCookieService _applicationCookieService;
     private readonly RecipeCookie _recipeCookie;
     private readonly StageViewModel _stageViewModel;
 
@@ -83,6 +84,7 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
         IOptions<ApplicationSetting> options,
         IDialogWindowProvider dialogWindowProvider,
         ICalibrationStatusService calibrationStatusService,
+        IApplicationCookieService applicationCookieService,
         RecipeCookie recipeCookie,
         CalChipWaferMapViewModel calChipWaferMapViewModel,
         CalChipReticleMaskViewModel calChipReticleMaskViewModel,
@@ -95,6 +97,7 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
         _options = options;
         _dialogWindowProvider = dialogWindowProvider;
         _calibrationStatusService = calibrationStatusService;
+        _applicationCookieService = applicationCookieService;
         _recipeCookie = recipeCookie;
         CalChipWaferMapViewModel = calChipWaferMapViewModel;
         CalChipReticleMaskViewModel = calChipReticleMaskViewModel;
@@ -132,7 +135,7 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
                 CalChipWaferMapViewModel.Initialize(EditDTO);
                 CalChipAlignmentViewModel.Initialize(EditDTO);
                 CalChipReticleMaskViewModel.Initialize(EditDTO);
-                MicroscopeCalChip = _calibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+                MicroscopeCalChip = _applicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
             });
 
             if (MicroscopeCalChip.IsOk == false)

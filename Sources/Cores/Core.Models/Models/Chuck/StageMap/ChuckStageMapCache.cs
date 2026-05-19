@@ -188,7 +188,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
     public partial Point Threshold { get; set; }
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     #region Method
 
@@ -328,6 +328,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
         VerifyGantryThreshold = VerifyGantryThreshold,
         VerifyScaleThreshold = VerifyScaleThreshold,
         Threshold = Threshold,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
