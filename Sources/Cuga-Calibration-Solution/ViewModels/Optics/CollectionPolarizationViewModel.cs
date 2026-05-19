@@ -25,7 +25,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 {
     #region 界面相关
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Haze Wafer Position" },
         new() { StepName = "Set Laser Light And CIB Configuration" },
@@ -60,11 +60,12 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CollectPolarizationCache>();
-        Calibration = CacheProvider.GetOrDefault<CollectPolarizationDTO>();
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<CollectPolarizationCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<CollectPolarizationDTO>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -99,7 +100,6 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             case 3:
 
                 Save(ResultCollectItemDto, cancellationToken);
-                IsCalibrated = true;
                 return true;
 
             default:
@@ -383,8 +383,21 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
             Calibration = itemDto.Clone();
 
-            CacheProvider.Set(Calibration, cancellationToken);
-            RecipeCacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
+    }
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<CollectPolarizationDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
     }
 }

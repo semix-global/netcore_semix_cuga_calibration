@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Net.Utilities.Mapper.Interfaces;
@@ -19,19 +18,19 @@ public sealed partial class AlignmentResultDto : ObservableObject, ICloneable<Al
     /// 对准旋转的角度
     /// </summary>
     [ObservableProperty]
-    private double _degrees;
+    public partial double Degrees { get; set; }
 
     /// <summary>
     /// mark点1坐标
     /// </summary>
     [ObservableProperty]
-    private Point _markPoint1;
+    public partial Point MarkPoint1 { get; set; }
 
     /// <summary>
     /// mark点2坐标
     /// </summary>
     [ObservableProperty]
-    private Point _markPoint2;
+    public partial Point MarkPoint2 { get; set; }
 
     #region Mapper
 
@@ -51,8 +50,6 @@ public sealed partial class AlignmentResultDto : ObservableObject, ICloneable<Al
 
     public AlignmentResultDto AdaptIn(C2MAlignResult obj)
     {
-        Guard.IsNotNull(obj);
-
         Degrees = obj.Degrees;
         MarkPoint1 = obj.EndPoint1.ToPoint();
         MarkPoint2 = obj.EndPoint2.ToPoint();

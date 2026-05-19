@@ -27,7 +27,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Param" },
         new() { StepName = "AB Brightness" },
@@ -82,16 +82,16 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<DarkAutoFocusCache>();
-        Calibration = CacheProvider.GetOrDefault<DarkAutoFocusDTO>();
+        Cache = ApplicationCookieService.GetCache<DarkAutoFocusCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<DarkAutoFocusDTO>(cancellationToken);
 
         if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default)
             Cache.MicroscopeLensInformation =
                 CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -145,8 +145,6 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                         new HtmlComment($"{Name} Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
-
-                IsCalibrated = true;
 
                 return true;
 
@@ -1208,8 +1206,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
                 if (result)
                 {
-                    AfViewModel.SetSensorNscCompensation(Review.NSCGainResultDTO.NscOffset,
-                        Review.NSCGainResultDTO.NscGain);
+                    AfViewModel.SetSensorNscCompensation(0d /* af下发不使用 */, Review.NSCGainResultDTO.NscGain);
                     await Task.Delay(100, cancellationToken);
 
                     AfViewModel.SetSensorCurrentValue(true, Review.CurrentA);
@@ -1238,9 +1235,22 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<DarkAutoFocusDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

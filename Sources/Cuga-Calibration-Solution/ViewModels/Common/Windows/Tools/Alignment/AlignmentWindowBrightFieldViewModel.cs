@@ -38,6 +38,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     private readonly ApplicationCookie _applicationCookie;
     private readonly ICalibrationCacheProvider _calibrationCacheProvider;
     private readonly ICalibrationStatusService _calibrationStatusService;
+    private readonly IApplicationCookieService _applicationCookieService;
     private CancellationTokenSource? _cancellationTokenSource;
 
     [ObservableProperty]
@@ -132,13 +133,15 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         CalibrationSetting calibrationSetting,
         ApplicationCookie applicationCookie,
         ICalibrationCacheProvider calibrationCacheProvider,
-        ICalibrationStatusService calibrationStatusService)
+        ICalibrationStatusService calibrationStatusService,
+        IApplicationCookieService applicationCookieService)
     {
         _dialogWindowProvider = dialogWindowProvider;
         _cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _calibrationCacheProvider = calibrationCacheProvider;
         _calibrationStatusService = calibrationStatusService;
+        _applicationCookieService = applicationCookieService;
         _logger = logger;
         _contextProvider = contextProvider;
         AlignmentParamWindowBrightFieldViewModel = alignmentParamWindowBrightFieldViewModel;
@@ -163,7 +166,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 CancelToken();
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                MicroscopeCalChip = _calibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+                MicroscopeCalChip = _applicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
 
                 Cache.IsVerified = false;
                 Cache.IsOk = false;
@@ -193,8 +196,8 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(
                     Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
-                    ? new Point(0, 0)
-                    : StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition));
+                        ? new Point(0, 0)
+                        : StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition));
             }
             catch (Exception ex)
             {

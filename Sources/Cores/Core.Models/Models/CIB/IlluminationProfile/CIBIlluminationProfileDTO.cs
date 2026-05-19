@@ -10,6 +10,7 @@ using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
@@ -22,35 +23,33 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.CIB.IlluminationProfile;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, ICloneable<CIBIlluminationProfileDTO>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem>
+public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIlluminationProfileDTO>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsApodizationModeEnum _opticsApodizationModeEnum;
+    public partial OpticsApodizationModeEnum OpticsApodizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private OpticsPolarizationModeEnum _opticsPolarizationModeEnum;
+    public partial OpticsPolarizationModeEnum OpticsPolarizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private OpticsCollectorPolarizationModeEnum _opticsCollectorPolarizationModeEnum;
+    public partial OpticsCollectorPolarizationModeEnum OpticsCollectorPolarizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<CIBIlluminationProfileDTOItem> _items = [];
+    public partial IReadOnlyList<CIBIlluminationProfileDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CIBInformation, double>))]
-    private ConcurrentDictionary<CIBInformation, double> _targetPMTValues = [];
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<CIBInformation, double>))]
+    public partial ConcurrentDictionary<CIBInformation, double> TargetPMTValues { get; set; } = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentDictionary<CIBInformation, IScatterPlotControl> _scatterPlotControls = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial ConcurrentDictionary<CIBInformation, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -146,14 +145,14 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 
     #region Mapper
 
-    public CIBIlluminationProfileDTO Clone() => new()
+    public override CIBIlluminationProfileDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         OpticsApodizationModeEnum = OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
-        TargetPMTValues = new ConcurrentDictionary<CIBInformation, double>(TargetPMTValues),
+        TargetPMTValues = new ConcurrentDictionary<CIBInformation, double>(TargetPMTValues.Select(t => new KeyValuePair<CIBInformation, double>(t.Key.Clone(), t.Value))),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -181,13 +180,13 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDtoBase, IClo
 public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, ICloneable<CIBIlluminationProfileDTOItem>, IAdaptTo<CalibrationLaserCIBIlluminationProfileItem.Item>
 {
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<Item> _items = [];
+    public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _window = [];
+    public partial IReadOnlyList<double> Window { get; set; } = [];
 
     partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
     {
@@ -227,13 +226,13 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
     public sealed partial class Item : AODUniformityDTO.WindowItem, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _minRate;
+        public partial double MinRate { get; set; }
 
         [ObservableProperty]
-        private double _maxRate;
+        public partial double MaxRate { get; set; }
 
         [ObservableProperty]
-        private bool _isOk;
+        public partial bool IsOk { get; set; }
 
         public new Item Clone()
         {

@@ -22,31 +22,29 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.Laser.OpticalPowerMeter;
 
 [CacheVersion("1.0.0")]
-public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, ICloneable<LaserOpticalPowerMeterDTO>, IAdaptTo<CalibrationLaserOpticalPower>
+public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDTOBase<LaserOpticalPowerMeterDTO>, IAdaptTo<CalibrationLaserOpticalPower>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private double _maxCoefficient;
+    public partial double MaxCoefficient { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDTOItem> _items = [];
+    public partial IReadOnlyList<LaserOpticalPowerMeterDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    private double _maxMeasurePower;
+    public partial double MaxMeasurePower { get; set; }
 
     [ObservableProperty]
-    private Point _maxMeasurePowerPosition = Point.Origin;
+    public partial Point MaxMeasurePowerPosition { get; set; } = Point.Origin;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -122,7 +120,7 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
 
     #region Mapper
 
-    public LaserOpticalPowerMeterDTO Clone() => new()
+    public override LaserOpticalPowerMeterDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         MaxCoefficient = MaxCoefficient,
@@ -154,10 +152,10 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDtoBase, IClo
 public sealed partial class LaserOpticalPowerMeterDTOItem : ObservableObject, ICloneable<LaserOpticalPowerMeterDTOItem>
 {
     [ObservableProperty]
-    private Point _measurePosition;
+    public partial Point MeasurePosition { get; set; }
 
     [ObservableProperty]
-    private double _measurePower;
+    public partial double MeasurePower { get; set; }
 
     public LaserOpticalPowerMeterDTOItem Clone() => new()
     {

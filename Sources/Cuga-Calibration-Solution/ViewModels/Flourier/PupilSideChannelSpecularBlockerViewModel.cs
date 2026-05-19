@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
@@ -24,6 +25,7 @@ using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 using Point = Net.Utilities.Models.Geometries.Point;
@@ -129,7 +131,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     [ObservableProperty]
     private double _reviewImageCompareCh2;
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Shiny Wafer Position And Productivity Information" },
         new() { StepName = "Pupil Side Channel Specular Blocker Calibration CH1" },
@@ -139,14 +141,14 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     [ObservableProperty]
     private ObservableCollection<RodInformation> _setAllRods =
     [
-        new RodInformation("Rod1", 0), new RodInformation("Rod2", 0), new RodInformation("Rod3", 0), new RodInformation("Rod4", 0), new RodInformation("Rod5", 0), new RodInformation("Rod6", 0),
-        new RodInformation("Rod7", 0), new RodInformation("Rod8", 0), new RodInformation("Rod9", 0), new RodInformation("Rod10", 0), new RodInformation("Rod11", 0), new RodInformation("Rod12", 0),
-        new RodInformation("Rod13", 0), new RodInformation("Rod14", 0), new RodInformation("Rod15", 0), new RodInformation("Rod16", 0), new RodInformation("Rod17", 0), new RodInformation("Rod18", 0),
-        new RodInformation("Rod19", 0), new RodInformation("Rod20", 0), new RodInformation("Rod21", 0), new RodInformation("Rod22", 0), new RodInformation("Rod23", 0), new RodInformation("Rod24", 0),
-        new RodInformation("Rod25", 0), new RodInformation("Rod26", 0), new RodInformation("Rod27", 0), new RodInformation("Rod28", 0), new RodInformation("Rod29", 0), new RodInformation("Rod30", 0),
-        new RodInformation("Rod31", 0), new RodInformation("Rod32", 0), new RodInformation("Rod33", 0), new RodInformation("Rod34", 0), new RodInformation("Rod35", 0), new RodInformation("Rod36", 0),
-        new RodInformation("Rod37", 0), new RodInformation("Rod38", 0), new RodInformation("Rod39", 0), new RodInformation("Rod40", 0), new RodInformation("Rod41", 0), new RodInformation("Rod42", 0),
-        new RodInformation("Rod43", 0), new RodInformation("Rod44", 0), new RodInformation("Rod45", 0), new RodInformation("Rod46", 0)
+        new("Rod1", 0), new("Rod2", 0), new("Rod3", 0), new("Rod4", 0), new("Rod5", 0), new("Rod6", 0),
+        new("Rod7", 0), new("Rod8", 0), new("Rod9", 0), new("Rod10", 0), new("Rod11", 0), new("Rod12", 0),
+        new("Rod13", 0), new("Rod14", 0), new("Rod15", 0), new("Rod16", 0), new("Rod17", 0), new("Rod18", 0),
+        new("Rod19", 0), new("Rod20", 0), new("Rod21", 0), new("Rod22", 0), new("Rod23", 0), new("Rod24", 0),
+        new("Rod25", 0), new("Rod26", 0), new("Rod27", 0), new("Rod28", 0), new("Rod29", 0), new("Rod30", 0),
+        new("Rod31", 0), new("Rod32", 0), new("Rod33", 0), new("Rod34", 0), new("Rod35", 0), new("Rod36", 0),
+        new("Rod37", 0), new("Rod38", 0), new("Rod39", 0), new("Rod40", 0), new("Rod41", 0), new("Rod42", 0),
+        new("Rod43", 0), new("Rod44", 0), new("Rod45", 0), new("Rod46", 0)
     ];
 
     #region Calibrate
@@ -155,7 +157,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     private ObservableCollection<PupilSideChannelSpecularBlockerDTO> _resultPupilSideChannelSpecularBlockerDTOList = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibratingStatuses = [];
 
     #endregion Calibrate
 
@@ -193,34 +195,15 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        PupilCameraAlignmentValue = CalibrationStatusService.GetCalibration<PupilCameraAlignmentDTO>();
-        PupilSideChannelFlexibleApertureValue = CalibrationStatusService.GetCalibration<PupilSideChannelFlexibleApertureDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>(cancellationToken);
+        PupilSideChannelFlexibleApertureValue = ApplicationCookieService.GetCalibration<PupilSideChannelFlexibleApertureDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilSideChannelSpecularBlockerCache>();
+        Cache = ApplicationCookieService.GetCache<PupilSideChannelSpecularBlockerCache>(cancellationToken);
 
-        Calibrations = CacheProvider.GetOrDefaultArray<PupilSideChannelSpecularBlockerDTO>();
+        Calibrations = ApplicationCookieService.GetCalibrations<PupilSideChannelSpecularBlockerDTO>(cancellationToken);
 
-        CalibrationStatuses =
-        [
-            ..ApplicationCookie.OpticsIlluminationModeEnums
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
-                {
-                    SelectedItem = t,
-                    ProductivityInformationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
-                })
-        ];
-
-        foreach (var calibrationStatus in Calibrations)
-        {
-            var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
-            var status = opticsIlluminationModeEnumStatus
-                .ProductivityInformationStatusList
-                .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
-            if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
-        }
-
-        if (!isHasCache) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         ClearCalibrationTemp();
 
@@ -304,13 +287,6 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
                         return false;
                     }
                 }
-
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationStatusList
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
-
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
-                if (!IsCalibrated) CalibrationStepIndex = -1;
 
                 return true;
 
@@ -1053,15 +1029,66 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
 
         Calibrations =
         [
+            itemDto,
             .. Calibrations
-                .Where(t => !(t.ProductivityInformation == itemDto.ProductivityInformation)),
-            itemDto.Clone()
+                .Where(t => (t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode && t.ProductivityInformation == itemDto.ProductivityInformation) == false)
         ];
         if (!isSave) return;
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<PupilSideChannelSpecularBlockerDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.OpticsIlluminationModeEnums.Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
+            {
+                SelectedItem = t,
+                ProductivityInformationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
+            })
+        ];
+
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.OpticsIlluminationModeEnums.Contains(t.OpticsIlluminationMode)
+                            && ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => (t.OpticsIlluminationMode, t.ProductivityInformation))
+                .Select(t =>
+                {
+                    CalibratingStatuses
+                        .Single(tt => tt.SelectedItem == t.OpticsIlluminationMode)
+                        .ProductivityInformationStatusList
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.OpticsIlluminationModeEnums.Count * ApplicationCookie.ProductivityInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.OpticsIlluminationModeEnums.SelectMany(opticsIlluminationModeEnum =>
+                ApplicationCookie.ProductivityInformations.Select(productivityInformation =>
+                {
+                    var item = Calibrations.SingleOrDefault(tt => tt.OpticsIlluminationMode == opticsIlluminationModeEnum
+                                                                  && tt.ProductivityInformation == productivityInformation);
+
+                    return new CalibrationViewModelStatus.Detail(
+                        $"{opticsIlluminationModeEnum}/ {productivityInformation}",
+                        item?.IsCalibrated,
+                        item?.IsVerified);
+                }))
+        ];
+    }
 
     private void ClearCalibrationTemp()
     {

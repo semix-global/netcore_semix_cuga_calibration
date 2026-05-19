@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities.SourceGenerators.Attributes;
 using HalconDotNet;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -141,7 +142,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
     [ObservableProperty]
     private Point _sxPos;
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Haze Wafer Position" },
         new() { StepName = "Horizal Rotate Motor,Gear Lever Calibration" },
@@ -162,9 +163,11 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
     [ObservableProperty]
     private PupilCameraAlignmentDTO _pupilCameraAlignmentValue = new();
 
+    [RecipeCache]
     [ObservableProperty]
     private PupilCenterChannelFlexibleApertureCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private PupilCenterChannelFlexibleApertureDTO _calibration = new();
 
@@ -180,12 +183,13 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        PupilCameraAlignmentValue = CalibrationStatusService.GetCalibration<PupilCameraAlignmentDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilCenterChannelFlexibleApertureCache>();
-        Calibration = CacheProvider.GetOrDefault<PupilCenterChannelFlexibleApertureDTO>();
-        if (!isHasCache) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<PupilCenterChannelFlexibleApertureCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<PupilCenterChannelFlexibleApertureDTO>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         Cache.OriginImageFilePathList12 = new ObservableCollection<string>(Enumerable.Repeat("123", 8));
         Cache.OriginImageFilePathList22 = new ObservableCollection<string>(Enumerable.Repeat("123", 8));
@@ -290,7 +294,6 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
             case 3:
                 ResultDto.IsCalibrated = true;
                 Save(ResultDto, cancellationToken);
-                IsCalibrated = true;
 
                 return true;
 
@@ -1529,9 +1532,22 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
 
             Calibration = itemDto.Clone();
 
-            CacheProvider.Set(Calibration, cancellationToken);
-            RecipeCacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
+    }
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<PupilCenterChannelFlexibleApertureDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
     }
 
     public static BitmapImage BytesToBitmapImage(byte[] bytes)

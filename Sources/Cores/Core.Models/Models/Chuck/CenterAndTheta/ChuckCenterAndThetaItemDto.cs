@@ -12,39 +12,39 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Chuck.CenterAndTheta;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICloneable<ChuckCenterAndThetaItemDto>, IAdaptTo<CalibrationChuckCenterAndThetaObj>
+public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDTOBase<ChuckCenterAndThetaItemDto>, IAdaptTo<CalibrationChuckCenterAndThetaObj>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LowMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private bool _isPositive;
+    public partial bool IsPositive { get; set; }
 
     [ObservableProperty]
-    private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
+    public partial StageDirectionTypeEnum SiteDirection { get; set; } = StageDirectionTypeEnum.Up;
 
     [ObservableProperty]
-    private ChuckGlobalTemplateMatchDtoItem _positiveMatchResult = new();
+    public partial ChuckGlobalTemplateMatchDtoItem PositiveMatchResult { get; set; } = new();
 
     [ObservableProperty]
-    private ChuckGlobalTemplateMatchDtoItem _negativeMatchResult = new();
+    public partial ChuckGlobalTemplateMatchDtoItem NegativeMatchResult { get; set; } = new();
 
     #region Center
 
     [ObservableProperty]
-    private Point _chuckCenterPosition;
+    public partial Point ChuckCenterPosition { get; set; }
 
     [ObservableProperty]
-    private Point _bFCenterStagePosition;
+    public partial Point BFCenterStagePosition { get; set; }
 
     [ObservableProperty]
-    private Point _newBFCenterStagePosition;
+    public partial Point NewBFCenterStagePosition { get; set; }
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     #endregion
 
@@ -54,25 +54,25 @@ public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICl
     /// T轴比例误差系数下发值
     /// </summary>
     [ObservableProperty]
-    private double _appliedScaleT = 1.0;
+    public partial double AppliedScaleT { get; set; } = 1.0;
 
     /// <summary>
     /// 下发T轴比例误差系数后的结果值
     /// </summary>
     [ObservableProperty]
-    private double _resultScaleT = 1.0;
+    public partial double ResultScaleT { get; set; } = 1.0;
 
     /// <summary>
     /// 四个预设点位正反向旋转后的误差值均值(um)
     /// </summary>
     [ObservableProperty]
-    private double _scaleErrorUmAverage;
+    public partial double ScaleErrorUmAverage { get; set; }
 
     /// <summary>
     /// 四个预设点位正反向旋转后的实际角度差值的均值
     /// </summary>
     [ObservableProperty]
-    private double _realAngleOffsetAverage;
+    public partial double RealAngleOffsetAverage { get; set; }
 
     #endregion
 
@@ -168,11 +168,12 @@ public sealed partial class ChuckCenterAndThetaItemDto : CalibrationDtoBase, ICl
 
     #region Mapper
 
-    public ChuckCenterAndThetaItemDto Clone() => new()
+    public override ChuckCenterAndThetaItemDto Clone() => new()
     {
-        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
-        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
         IsPositive = IsPositive,
+        SiteDirection = SiteDirection,
         PositiveMatchResult = PositiveMatchResult.Clone(),
         NegativeMatchResult = NegativeMatchResult.Clone(),
         ChuckCenterPosition = ChuckCenterPosition,

@@ -53,7 +53,7 @@ public static class CalibrationReflectionHelper
     public static (Type dtoType, MethodInfo MethodInfo) WcfModelTypeToCalibrationDtoType(Type wcfObjType)
     {
         // 查找程序集中所有类型，筛选出实现IAdaptTo接口，且接口参数为wcfObjType的类型，返回wcfObjType对应的dto类型
-        var assemblyTypes = typeof(CalibrationDtoBase).Assembly.GetTypes();
+        var assemblyTypes = typeof(CalibrationDTOBase).Assembly.GetTypes();
         var adaptToInterfaceType = typeof(IAdaptTo<>);
         var targetDtoInfo = assemblyTypes.Select(t =>
         {

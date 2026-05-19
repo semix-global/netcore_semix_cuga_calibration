@@ -1,0 +1,253 @@
+<hc:Window x:Class="CugaCalibration.Views.Common.Windows.View.CalibrationMenuWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.View"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:cookies="clr-namespace:Core.Models.Models.Common.Cookies;assembly=Core.Models"
+           xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+           Width="500"
+           Height="600"
+           d:DataContext="{d:DesignInstance Type=viewModels:CalibrationMenuWindowViewModel}"
+           Closed="OnClosed"
+           WindowStartupLocation="CenterScreen"
+           WindowStyle="None"
+           ShowInTaskbar="False"
+           ResizeMode="NoResize"
+           BorderThickness="2"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Background="{StaticResource PrimaryBrush}">
+            <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:CallMethodAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" MethodName="DragMove" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TextBlock Text="{Binding CalibrationMenu.Entry.Name, StringFormat={}{0} Status}"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
+            </StackPanel>
+            <Button Command="{Binding CloseCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonIcon}" TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+        <Border Grid.Row="1"
+                Margin="1"
+                Padding="2"
+                IsEnabled="{Binding IsEnable}"
+                Style="{StaticResource BorderRegion}"
+                Effect="{StaticResource EffectShadow1}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                    <StackPanel>
+                        <TextBlock HorizontalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style BasedOn="{StaticResource TextBlockDefault}" TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CalibrationMenu.Entry.Status.IsOk}" Value="{x:Static constants:Constants.True}">
+                                            <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CalibrationMenu.Entry.Status.IsOk}" Value="{x:Static constants:Constants.False}">
+                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                            <Run>
+                                <Run.Style>
+                                    <Style TargetType="Run">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CalibrationMenu.Entry.Status.IsOk}" Value="{x:Static constants:Constants.True}">
+                                                <Setter Property="Text" Value="Ok,  " />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding CalibrationMenu.Entry.Status.IsOk}" Value="{x:Static constants:Constants.False}">
+                                                <Setter Property="Text" Value="Not Ok, " />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Run.Style>
+                            </Run>
+                            <Run Text="{Binding CalibrationMenu.Entry.Status.Progress, Mode=OneWay, StringFormat={}Percentage of Completion: {0:0.###}%.}" />
+                        </TextBlock>
+                    </StackPanel>
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <StackPanel>
+                                <TextBlock Text="Calibration"
+                                           HorizontalAlignment="Center"
+                                           FontSize="13"
+                                           FontWeight="Bold"
+                                           Style="{StaticResource TextBlockDefaultInfo}" />
+                            </StackPanel>
+                            <UniformGrid Columns="3">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="Total Count" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.TotalCalibrationCount}"
+                                               HorizontalAlignment="Center"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="OK" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.CalibratedCount}"
+                                               HorizontalAlignment="Center"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="Not Ok" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.NotOkCalibratedCount}"
+                                               HorizontalAlignment="Center"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <StackPanel>
+                                <TextBlock Text="Verify"
+                                           HorizontalAlignment="Center"
+                                           FontSize="13"
+                                           FontWeight="Bold"
+                                           Style="{StaticResource TextBlockDefaultInfo}" />
+                            </StackPanel>
+                            <UniformGrid Columns="3">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="Total Count" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.TotalCalibrationCount}"
+                                               HorizontalAlignment="Center"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="OK" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.VerifiedCount}"
+                                               HorizontalAlignment="Center"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="Not Ok" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding CalibrationMenu.Entry.Status.NotOkVerifiedCount}"
+                                               HorizontalAlignment="Center"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                            </UniformGrid>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </hc:UniformSpacingPanel>
+                <GroupBox Grid.Row="2"
+                          Visibility="{Binding CalibrationMenu.Entry.Status.Details, Converter={StaticResource CollectionNotEmptyToVisibilityConverter}}"
+                          Header="Details">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <ListView Grid.Row="1"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  Style="{StaticResource ListView.Small}"
+                                  ItemsSource="{Binding CalibrationMenu.Entry.Status.Details}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Width="190"
+                                                    Header="Item"
+                                                    DisplayMemberBinding="{Binding Item}" />
+                                    <GridViewColumn Width="100" Header="Calibration">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate DataType="{x:Type cookies:CalibrationViewModelStatus+Detail}">
+                                                <Ellipse Width="16"
+                                                         Height="16"
+                                                         HorizontalAlignment="Center"
+                                                         VerticalAlignment="Center"
+                                                         Cursor="Hand">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Null}">
+                                                                    <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Calibrated None" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static constants:Constants.False}">
+                                                                    <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Calibrated Failed" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static constants:Constants.True}">
+                                                                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Calibrated Ok" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Width="100" Header="Verify">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate DataType="{x:Type cookies:CalibrationViewModelStatus+Detail}">
+                                                <Ellipse Width="16"
+                                                         Height="16"
+                                                         HorizontalAlignment="Center"
+                                                         VerticalAlignment="Center"
+                                                         Cursor="Hand">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsVerified}" Value="{x:Null}">
+                                                                    <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Verified None" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsVerified}" Value="{x:Static constants:Constants.False}">
+                                                                    <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Verified Failed" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsVerified}" Value="{x:Static constants:Constants.True}">
+                                                                    <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Verified Ok" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Border>
+                </GroupBox>
+            </Grid>
+        </Border>
+    </Grid>
+</hc:Window>

@@ -10,194 +10,185 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Core.Models.Models.Chuck.StageMap;
 
-public sealed partial class ChuckStageMapCache : CalibrationCacheBase
+public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStageMapCache>
 {
-    private int _rowNumber = 17;
-    private int _columnNumber = 21;
-    private double _waferDiameter = 300_000;
-    private double _columnCellWidth = 15300;
-    private double _rowCellHeight = 16600;
-    private int _calculateContainRowMinCount = 8;
-    private int _calculateContainColumnMinCount = 8;
-    private int _repeatCount = 10;
+    [ObservableProperty]
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+    public partial int BrightFieldRowNumber { get; set; } = 17;
 
     [ObservableProperty]
-    private int _brightFieldRowNumber = 17;
+    public partial int BrightFieldColumnNumber { get; set; } = 21;
 
     [ObservableProperty]
-    private int _brightFieldColumnNumber = 21;
+    public partial double BrightFieldWaferDiameter { get; set; } = 300_000;
 
     [ObservableProperty]
-    private double _brightFieldWaferDiameter = 300_000;
+    public partial double BrightFieldColumnCellWidth { get; set; } = 15300;
 
     [ObservableProperty]
-    private double _brightFieldColumnCellWidth = 15300;
+    public partial double BrightFieldRowCellHeight { get; set; } = 16600;
 
     [ObservableProperty]
-    private double _brightFieldRowCellHeight = 16600;
+    public partial int BrightFieldCalculateContainRowMinCount { get; set; } = 8;
 
     [ObservableProperty]
-    private int _brightFieldCalculateContainRowMinCount = 8;
+    public partial int BrightFieldCalculateContainColumnMinCount { get; set; } = 8;
 
     [ObservableProperty]
-    private int _brightFieldCalculateContainColumnMinCount = 8;
+    public partial int DarkFieldRowNumber { get; set; } = 17;
 
     [ObservableProperty]
-    private int _darkFieldRowNumber = 17;
+    public partial int DarkFieldColumnNumber { get; set; } = 21;
 
     [ObservableProperty]
-    private int _darkFieldColumnNumber = 21;
+    public partial double DarkFieldColumnCellWidth { get; set; } = 15300;
 
     [ObservableProperty]
-    private double _darkFieldColumnCellWidth = 15300;
+    public partial double DarkFieldRowCellHeight { get; set; } = 16600;
 
     [ObservableProperty]
-    private double _darkFieldRowCellHeight = 16600;
+    public partial double DarkFieldWaferDiameter { get; set; } = 300_000;
 
     [ObservableProperty]
-    private double _darkFieldWaferDiameter = 300_000;
+    public partial int DarkFieldCalculateContainRowMinCount { get; set; } = 8;
 
     [ObservableProperty]
-    private int _darkFieldCalculateContainRowMinCount = 8;
+    public partial int DarkFieldCalculateContainColumnMinCount { get; set; } = 8;
 
     [ObservableProperty]
-    private int _darkFieldCalculateContainColumnMinCount = 8;
+    public partial Point BrightFieldFirstStageMapPosition { get; set; }
 
     [ObservableProperty]
-    private Point _brightFieldFirstStageMapPosition;
+    public partial Point DarkFieldFirstStageMapPosition { get; set; }
 
     [ObservableProperty]
-    private Point _darkFieldFirstStageMapPosition;
+    public partial bool IsDarkField { get; set; }
 
     [ObservableProperty]
-    private bool _isDarkField;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial WaferMaskTypeEnum WaferMaskTypeEnum { get; set; } = WaferMaskTypeEnum.DieCorner_LeftTop;
 
     [ObservableProperty]
-    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftTop;
-
-    [ObservableProperty]
-    private int _xWidthPixel = 1000;
+    public partial int XWidthPixel { get; set; } = 1000;
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Number: ")]
     public int RowNumber
     {
-        get => _rowNumber;
-        set => SetProperty(ref _rowNumber, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 17;
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Number: ")]
     public int ColumnNumber
     {
-        get => _columnNumber;
-        set => SetProperty(ref _columnNumber, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 21;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Column Cell Width must be greater than 0.1.")]
     public double ColumnCellWidth
     {
-        get => _columnCellWidth;
-        set => SetProperty(ref _columnCellWidth, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 15300;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Row Cell Height must be greater than 0.1.")]
     public double RowCellHeight
     {
-        get => _rowCellHeight;
-        set => SetProperty(ref _rowCellHeight, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 16600;
 
     [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Chuck Diameter: ")]
     public double WaferDiameter
     {
-        get => _waferDiameter;
-        set => SetProperty(ref _waferDiameter, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 300_000;
 
     [CustomValidation(typeof(ChuckStageMapCache), nameof(ValidateIsOutOfRowNumberRange))]
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Row MinCout: ")]
     public int CalculateContainRowMinCount
     {
-        get => _calculateContainRowMinCount;
-        set => SetProperty(ref _calculateContainRowMinCount, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 8;
 
     [CustomValidation(typeof(ChuckStageMapCache), nameof(ValidateIsOutOfColumnNumberRange))]
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Calculate Contain Column MinCout: ")]
     public int CalculateContainColumnMinCount
     {
-        get => _calculateContainColumnMinCount;
-        set => SetProperty(ref _calculateContainColumnMinCount, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 8;
 
     [ComparisonRange(0, 10, NumberComparisonRangeTypeEnum.LeftOpenAndRightClosedInterval, ErrorMessage = "RepeatCount: ")]
     public int RepeatCount
     {
-        get => _repeatCount;
-        set => SetProperty(ref _repeatCount, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 10;
 
     [ObservableProperty]
-    private double _p5Angle;
+    public partial double P5Angle { get; set; }
 
     [ObservableProperty]
-    private Point _firstStageMapPosition;
+    public partial Point FirstStageMapPosition { get; set; }
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _brightFieldTemplateFilePath = string.Empty;
+    public partial string BrightFieldTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _brightFieldTemplateImageFilePath = string.Empty;
+    public partial string BrightFieldTemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _darkFieldTemplateFilePath = string.Empty;
+    public partial string DarkFieldTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _darkFieldTemplateImageFilePath = string.Empty;
+    public partial string DarkFieldTemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _calibrationAlignmentThreshold = 1.466d;
+    public partial double CalibrationAlignmentThreshold { get; set; } = 1.466d;
 
     [ObservableProperty]
-    private double _calibrationGantryThreshold = 5d;
+    public partial double CalibrationGantryThreshold { get; set; } = 5d;
 
     [ObservableProperty]
-    private double _calibrationScaleThreshold = 5d;
+    public partial double CalibrationScaleThreshold { get; set; } = 5d;
 
     [ObservableProperty]
-    private double _verifyAlignmentThreshold = 1.466d;
+    public partial double VerifyAlignmentThreshold { get; set; } = 1.466d;
 
     [ObservableProperty]
-    private double _verifyGantryThreshold = 1.466d;
+    public partial double VerifyGantryThreshold { get; set; } = 1.466d;
 
     [ObservableProperty]
-    private double _verifyScaleThreshold = 1.466d;
+    public partial double VerifyScaleThreshold { get; set; } = 1.466d;
 
     [ObservableProperty]
-    private Point _threshold;
+    public partial Point Threshold { get; set; }
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     #region Method
 
@@ -287,4 +278,60 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase
     }
 
     #endregion Verify
+
+    public override ChuckStageMapCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        BrightFieldRowNumber = BrightFieldRowNumber,
+        BrightFieldColumnNumber = BrightFieldColumnNumber,
+        BrightFieldWaferDiameter = BrightFieldWaferDiameter,
+        BrightFieldColumnCellWidth = BrightFieldColumnCellWidth,
+        BrightFieldRowCellHeight = BrightFieldRowCellHeight,
+        BrightFieldCalculateContainRowMinCount = BrightFieldCalculateContainRowMinCount,
+        BrightFieldCalculateContainColumnMinCount = BrightFieldCalculateContainColumnMinCount,
+        DarkFieldRowNumber = DarkFieldRowNumber,
+        DarkFieldColumnNumber = DarkFieldColumnNumber,
+        DarkFieldColumnCellWidth = DarkFieldColumnCellWidth,
+        DarkFieldRowCellHeight = DarkFieldRowCellHeight,
+        DarkFieldWaferDiameter = DarkFieldWaferDiameter,
+        DarkFieldCalculateContainRowMinCount = DarkFieldCalculateContainRowMinCount,
+        DarkFieldCalculateContainColumnMinCount = DarkFieldCalculateContainColumnMinCount,
+        BrightFieldFirstStageMapPosition = BrightFieldFirstStageMapPosition,
+        DarkFieldFirstStageMapPosition = DarkFieldFirstStageMapPosition,
+        IsDarkField = IsDarkField,
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        XWidthPixel = XWidthPixel,
+        RowNumber = RowNumber,
+        ColumnNumber = ColumnNumber,
+        WaferDiameter = WaferDiameter,
+        ColumnCellWidth = ColumnCellWidth,
+        RowCellHeight = RowCellHeight,
+        CalculateContainRowMinCount = CalculateContainRowMinCount,
+        CalculateContainColumnMinCount = CalculateContainColumnMinCount,
+        RepeatCount = RepeatCount,
+        P5Angle = P5Angle,
+        FirstStageMapPosition = FirstStageMapPosition,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath,
+        BrightFieldTemplateFilePath = BrightFieldTemplateFilePath,
+        BrightFieldTemplateImageFilePath = BrightFieldTemplateImageFilePath,
+        DarkFieldTemplateFilePath = DarkFieldTemplateFilePath,
+        DarkFieldTemplateImageFilePath = DarkFieldTemplateImageFilePath,
+        CalibrationAlignmentThreshold = CalibrationAlignmentThreshold,
+        CalibrationGantryThreshold = CalibrationGantryThreshold,
+        CalibrationScaleThreshold = CalibrationScaleThreshold,
+        VerifyAlignmentThreshold = VerifyAlignmentThreshold,
+        VerifyGantryThreshold = VerifyGantryThreshold,
+        VerifyScaleThreshold = VerifyScaleThreshold,
+        Threshold = Threshold,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

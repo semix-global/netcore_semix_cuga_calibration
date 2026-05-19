@@ -130,7 +130,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
                         }
                         else
                         {
-                            var calibrationDto = _cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType) as CalibrationDtoBase;
+                            var calibrationDto = _cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType) as CalibrationDTOBase;
                             calibrationCategoryItemObj.IsAnyOk = calibrationDto?.IsCalibrated ?? false;
                         }
 

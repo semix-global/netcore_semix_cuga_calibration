@@ -7,6 +7,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -37,6 +38,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
@@ -55,7 +57,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => string.Join("_", Cache.CIBInformations).Truncate(50);
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select CIB Information" },
         new() { StepName = "Find Haze Position" },
@@ -115,31 +117,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        LaserOpticalPowerMeters = CalibrationStatusService.GetCalibrations<LaserOpticalPowerMeterDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses =
-            [
-                .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationStatus { SelectedItem = t, IsCalibrated = false })
-            ];
+        Cache = ApplicationCookieService.GetCache<CIBMMDCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<CIBMMDDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBMMDCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBMMDDTO>();
-
-        Calibrations =
-        [
-            ..Calibrations
-                .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
-                .Select(t =>
-                {
-                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }
@@ -209,12 +193,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 return true;
 
             case 2:
-                foreach (var cacheCIBInformation in Cache.CIBInformations) CalibratingStatuses.Single(t => t.SelectedItem == cacheCIBInformation).IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
-
-                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
 
@@ -282,7 +261,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         return InvokeCalibrateAsync(() =>
         {
             Guard.IsNotEmpty(Cache.CIBInformations);
-            var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+            var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>(cancellationToken);
             var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                           && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (prescanResult is null)
@@ -302,7 +281,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Cache.GeneratePrescanAODWaveformParam.FlatnessTime = 4800d;
             Cache.GeneratePrescanAODWaveformParam.ZeroSampleCount = 0;
 
-            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>(cancellationToken);
             var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                       && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (chirpResult is null)
@@ -870,7 +849,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         ..cibMMDItem.Items, new CIBMMDDTOItem.Item
                         {
                             Gain = Convert.ToDouble(dictionary[keys[0]]),
-                            PMTValue = value is not null && string.IsNullOrWhiteSpace(value.ToString()) == false ? Convert.ToDouble(value) : double.NaN
+                            PMTValue = string.IsNullOrWhiteSpace(value.ToString()) == false ? Convert.ToDouble(value) : double.NaN
                         }
                     ];
                 }
@@ -1282,9 +1261,50 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBMMDDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.CIBInformations.Select(t => new CIBInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            ..temps
+                .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
+                .DistinctBy(t => t.CIBInformation)
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.CIBInformation).IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.CIBInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.CIBInformations.Select(cibInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.CIBInformation == cibInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    cibInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified
+                );
+            })
+        ];
+    }
 
     #endregion 校准
 }

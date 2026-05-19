@@ -14,96 +14,92 @@ namespace Core.Models.Models.Common.DarkField;
 public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
 {
     [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
+    public partial string RawImageFilePath { get; set; } = string.Empty;
 
     #region X
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _xStrehlRatioPoints = [];
+    public partial IReadOnlyList<Point> XStrehlRatioPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _xStrehlRatioFitPoints = [];
+    public partial IReadOnlyList<Point> XStrehlRatioFitPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<Point>> _xStrehlRatioColumnPoints = [];
+    public partial IReadOnlyList<IReadOnlyList<Point>> XStrehlRatioColumnPoints { get; set; } = [];
 
     [ObservableProperty]
-    private Point _bestXStrehlRatioPoint;
+    public partial Point BestXStrehlRatioPoint { get; set; }
 
     [ObservableProperty]
-    private double _bestXStrehlRatioECS;
+    public partial double BestXStrehlRatioECS { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<Point>> _xIntraRibbonFieldsPoints = [];
+    public partial IReadOnlyList<IReadOnlyList<Point>> XIntraRibbonFieldsPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _xFieldTiltPoints = [];
+    public partial IReadOnlyList<Point> XFieldTiltPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _xFieldTiltFitSlope;
+    public partial double XFieldTiltFitSlope { get; set; }
 
     [ObservableProperty]
-    private double _xFieldTiltFitIntercept;
+    public partial double XFieldTiltFitIntercept { get; set; }
 
     [ObservableProperty]
-    private double _xFieldTiltFitRSquared;
+    public partial double XFieldTiltFitRSquared { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _xFieldTiltFitPoints = [];
+    public partial IReadOnlyList<Point> XFieldTiltFitPoints { get; set; } = [];
 
     #endregion
 
     #region Y
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _yStrehlRatioPoints = [];
+    public partial IReadOnlyList<Point> YStrehlRatioPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _yStrehlRatioFitPoints = [];
+    public partial IReadOnlyList<Point> YStrehlRatioFitPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<Point>> _yStrehlRatioColumnPoints = [];
+    public partial IReadOnlyList<IReadOnlyList<Point>> YStrehlRatioColumnPoints { get; set; } = [];
 
     [ObservableProperty]
-    private Point _bestYStrehlRatioPoint;
+    public partial Point BestYStrehlRatioPoint { get; set; }
 
     [ObservableProperty]
-    private double _bestYStrehlRatioECS;
+    public partial double BestYStrehlRatioECS { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<IReadOnlyList<Point>> _yIntraRibbonFieldsPoints = [];
+    public partial IReadOnlyList<IReadOnlyList<Point>> YIntraRibbonFieldsPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _yFieldTiltPoints = [];
+    public partial IReadOnlyList<Point> YFieldTiltPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _yFieldTiltFitSlope;
+    public partial double YFieldTiltFitSlope { get; set; }
 
     [ObservableProperty]
-    private double _yFieldTiltFitIntercept;
+    public partial double YFieldTiltFitIntercept { get; set; }
 
     [ObservableProperty]
-    private double _yFieldTiltFitRSquared;
+    public partial double YFieldTiltFitRSquared { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _yFieldTiltFitPoints = [];
+    public partial IReadOnlyList<Point> YFieldTiltFitPoints { get; set; } = [];
 
     #endregion
 
     [ObservableProperty]
-    private double _spotAreaPercentMean;
+    public partial double SpotAreaPercentMean { get; set; }
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _xStrehlRatioScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl XStrehlRatioScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _yStrehlRatioScatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl YStrehlRatioScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     public BestFocus()
     {

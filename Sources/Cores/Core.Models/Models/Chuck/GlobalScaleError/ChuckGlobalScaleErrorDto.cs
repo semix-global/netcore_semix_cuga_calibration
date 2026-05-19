@@ -10,40 +10,40 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Chuck.GlobalScaleError;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, ICloneable<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
+public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDTOBase<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LowMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
+    public partial StageDirectionTypeEnum SiteDirection { get; set; } = StageDirectionTypeEnum.Up;
 
     /// <summary>
     /// 当前应用的X/Y轴比例误差系数
     /// </summary>
     [ObservableProperty]
-    private System.Windows.Point _appliedScaleXY = new(1.0, 1.0);
+    public partial System.Windows.Point AppliedScaleXY { get; set; } = new(1.0, 1.0);
 
     /// <summary>
     /// 应用X/Y轴比例误差系数的结果比例
     /// </summary>
     [ObservableProperty]
-    private System.Windows.Point _resultScaleXY;
+    public partial System.Windows.Point ResultScaleXY { get; set; }
 
     /// <summary>
     /// 误差值um（x轴，Y轴）
     /// </summary>
     [ObservableProperty]
-    private Point _scaleErrorValue;
+    public partial Point ScaleErrorValue { get; set; }
 
     [ObservableProperty]
-    private double _p5Angle;
+    public partial double P5Angle { get; set; }
 
     [ObservableProperty]
-    private ChuckGlobalTemplateMatchDtoItem _highSiteMatchResult = new();
+    public partial ChuckGlobalTemplateMatchDtoItem HighSiteMatchResult { get; set; } = new();
 
     public void SetMatchResultInfo(Point point, string findResultImageFilePath)
     {
@@ -93,10 +93,11 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 
     #region Mapper
 
-    public ChuckGlobalScaleErrorDto Clone() => new()
+    public override ChuckGlobalScaleErrorDto Clone() => new()
     {
-        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
-        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        SiteDirection = SiteDirection,
         AppliedScaleXY = AppliedScaleXY,
         ResultScaleXY = ResultScaleXY,
         ScaleErrorValue = ScaleErrorValue,
@@ -125,31 +126,31 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDtoBase, IClon
 public sealed partial class ChuckGlobalTemplateMatchDtoItem : ObservableObject, ICloneable<ChuckGlobalTemplateMatchDtoItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private Point _topPosition = Point.Origin;
+    public partial Point TopPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _leftPosition = Point.Origin;
+    public partial Point LeftPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _bottomPosition = Point.Origin;
+    public partial Point BottomPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _rightPosition = Point.Origin;
+    public partial Point RightPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private string _topFindResultImageFilePath = string.Empty;
+    public partial string TopFindResultImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _bottomFindResultImageFilePath = string.Empty;
+    public partial string BottomFindResultImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _leftFindResultImageFilePath = string.Empty;
+    public partial string LeftFindResultImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _rightFindResultImageFilePath = string.Empty;
+    public partial string RightFindResultImageFilePath { get; set; } = string.Empty;
 
     public ChuckGlobalTemplateMatchDtoItem Clone() => new()
     {

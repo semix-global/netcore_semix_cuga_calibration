@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
@@ -15,19 +14,23 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentSiteDto : ObservableObject, ICloneable<AlignmentSiteDto>, IAdaptTo<C2MSiteDTO>, IAdaptIn<C2MSiteDTO, AlignmentSiteDto>
+public sealed partial class AlignmentSiteDto :
+    ObservableObject,
+    ICloneable<AlignmentSiteDto>,
+    IAdaptTo<C2MSiteDTO>,
+    IAdaptIn<C2MSiteDTO, AlignmentSiteDto>
 {
     [ObservableProperty]
-    private Point _location;
+    public partial Point Location { get; set; }
 
     [ObservableProperty]
-    private AlignmentTemplateDto? _template = new();
+    public partial AlignmentTemplateDto? Template { get; set; } = new();
 
     [ObservableProperty]
-    private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum;
+    public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; }
 
     [ObservableProperty]
-    private double _templateMatchScoreThreshold = 0.8;
+    public partial double TemplateMatchScoreThreshold { get; set; } = 0.8;
 
     public void UpdateTemplateMatchScoreThreshold(CalibrationSetting calibrationSetting)
     {
@@ -61,8 +64,6 @@ public sealed partial class AlignmentSiteDto : ObservableObject, ICloneable<Alig
 
     public AlignmentSiteDto AdaptIn(C2MSiteDTO obj)
     {
-        Guard.IsNotNull(obj);
-
         Location = obj.Location.ToPoint();
         Template = obj.Template is not null ? new AlignmentTemplateDto().AdaptIn(obj.Template) : null;
         AlgorithmTemplateTypeEnum = obj.Algo.ToAlgorithmTemplateTypeEnum();

@@ -1,11 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.AGCDelay;
 
-public sealed partial class CIBAGCDelayCache : CalibrationCacheBase
+public sealed partial class CIBAGCDelayCache : CalibrationCacheBase<CIBAGCDelayCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -20,16 +21,27 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 2;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBAGCDelayCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBAGCDelayCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBAGCDelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBAGCDelayCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBAGCDelayCacheItem());
+
+    public override CIBAGCDelayCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        CalibratingRetryTimes = CalibratingRetryTimes,
+        CalibratingThreshold = CalibratingThreshold,
+        ReviewThreshold = ReviewThreshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, CIBAGCDelayCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBAGCDelayCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
+public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDelayCacheItem>
 {
     [ObservableProperty]
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
@@ -57,4 +69,21 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     public partial int MarkerLengthPixel { get; set; } = 30;
+
+    public override CIBAGCDelayCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        StartCoefficient = StartCoefficient,
+        StepCoefficient = StepCoefficient,
+        StopCoefficient = StopCoefficient,
+        ImageWidth = ImageWidth,
+        TargetPMTValue = TargetPMTValue,
+        MarkerLengthPixel = MarkerLengthPixel,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

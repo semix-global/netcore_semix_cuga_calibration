@@ -69,7 +69,7 @@ public partial class LoginWindowViewModel(
 
                 var tempSysUserDto = await configViewModel.LoginAsync(SysUserDTO, cancellationToken).ConfigureAwait(false);
 
-                await applicationCookieService.UpdateCookieAsync(tempSysUserDto, cancellationToken).ConfigureAwait(false);
+                await applicationCookieService.LoadingSystemMenuCookieAsync(tempSysUserDto, cancellationToken).ConfigureAwait(false);
 
                 CloseView(true);
             }, cancellationToken).ConfigureAwait(false);
@@ -83,7 +83,7 @@ public partial class LoginWindowViewModel(
             }
 
             logger.LogError(ex, "{@Name}: Login failed", nameof(LoginWindowViewModel));
-            dialogWindowProvider.ShowDialog($"Login Failed: {ex.Message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            dialogWindowProvider.ShowDialog($"Login Failed: {ex}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
     }
 

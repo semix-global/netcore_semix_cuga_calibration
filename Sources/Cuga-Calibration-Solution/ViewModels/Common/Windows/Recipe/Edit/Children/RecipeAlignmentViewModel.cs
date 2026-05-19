@@ -114,7 +114,6 @@ public sealed partial class RecipeAlignmentViewModel(
             EditingDTO.WaferDTO.AlignmentResultDto = AlignmentUserControlViewModel.AlignmentResult.Clone();
 
             _isAlignmentResultUpdatedInSession = true;
-
         }
         catch (Exception ex)
         {
@@ -142,7 +141,6 @@ public sealed partial class RecipeAlignmentViewModel(
             Cache.DarkFieldAlignmentDegree = AlignmentUserControlViewModel.AlignmentResult.Degrees;
 
             _isAlignmentResultUpdatedInSession = true;
-
         }
         catch (Exception ex)
         {

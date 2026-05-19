@@ -2,11 +2,11 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Events;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.PixelSize;
@@ -14,24 +14,23 @@ using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckAlignmentDegreeOffsetCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : CalibrationViewModelBase
+public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
-        new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Bright Field P5" },
         new() { StepName = "Dark Field P5" }
@@ -43,7 +42,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
     private ChuckAlignmentDegreeOffsetItemDto _calibratingItem = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibrationStatuses = [];
+    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
 
     #region Review
 
@@ -88,36 +87,17 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckAlignmentDegreeOffsetCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<ChuckAlignmentDegreeOffsetItemDto>();
-
-        CalibrationStatuses =
-        [
-            ..EnumHelper.Enums<OpticsIlluminationModeEnum>()
-                .Select(t => new OpticsIlluminationModeAndProductivityInformationStatus
-                {
-                    SelectedItem = t,
-                    ProductivityInformationStatusList = [.. ApplicationCookie.GetProductivityInformations(t).Select(tt => new ProductivityInformationStatus { SelectedItem = tt, IsCalibrated = false })]
-                })
-        ];
-
-        foreach (var calibrationStatus in Calibrations)
-        {
-            var opticsIlluminationModeEnumStatus = CalibrationStatuses.Single(t => t.SelectedItem == calibrationStatus.OpticsIlluminationMode);
-            var status = opticsIlluminationModeEnumStatus
-                .ProductivityInformationStatusList
-                .SingleOrDefault(t => t.SelectedItem == calibrationStatus.ProductivityInformation);
-            if (status is not null) status.IsCalibrated = calibrationStatus.IsCalibrated;
-        }
+        Cache = ApplicationCookieService.GetCache<ChuckAlignmentDegreeOffsetCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<ChuckAlignmentDegreeOffsetItemDto>(cancellationToken);
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
-
         StageViewModel.SetAbsoluteStageTheta(0d);
+
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }
@@ -130,8 +110,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
         [
             .. Calibrations
                 .Select(t => t.Clone())
-                .OrderBy(t => t.OpticsIlluminationMode)
-                .ThenBy(t => t.ProductivityInformation)
+                .OrderBy(t => t.ProductivityInformation)
         ];
 
         if (Reviews.All(t => t.IsCalibrated == false))
@@ -159,28 +138,16 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         switch (CalibrationStepIndex)
         {
-            case 1:
+            case 0:
                 IsDarkFieldAlignment = false;
                 return true;
 
-            case 2:
+            case 1:
                 IsDarkFieldAlignment = true;
                 return true;
 
-            case 3:
-                Calibrations =
-                [
-                    .. Calibrations
-                        .Where(t => t.OpticsIlluminationMode != Cache.OpticsIlluminationModeEnum
-                                    || t.ProductivityInformation != Cache.ProductivityInformation)
-                ];
-
-                CalibrationStatuses.Single(t => t.SelectedItem == Cache.OpticsIlluminationModeEnum)
-                    .ProductivityInformationStatusList
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation).IsCalibrated = true;
-
-                IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
+            case 2:
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 return true;
 
@@ -195,7 +162,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         switch (CalibrationStepIndex)
         {
-            case 3:
+            case 2:
                 IsDarkFieldAlignment = false;
                 return true;
 
@@ -208,21 +175,8 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
     #region 校准
 
-    [RelayCommand]
-    private Task Step0CalibrateActionAsync()
-    {
-        return InvokeCalibrateAsync(() =>
-        {
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.OpticsIlluminationModeEnum
-            }), HtmlLogUniqueId.LoggingHtml());
-            return true;
-        });
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -235,14 +189,13 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step2CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task<bool> Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
             StageViewModel.SetAbsoluteStageTheta(0d);
             CalibratingItem = new ChuckAlignmentDegreeOffsetItemDto
             {
-                OpticsIlluminationMode = Cache.OpticsIlluminationModeEnum,
                 ProductivityInformation = Cache.ProductivityInformation.Clone(),
                 BrightFieldAlignmentDegree = StageViewModel.GetMachineStageTheta()
             };
@@ -261,7 +214,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
                 Cache.LowMicroscopeLensInformation,
                 Cache.HighMicroscopeLensInformation,
                 CalibratingItem.BrightFieldAlignmentDegree,
-                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous()),
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -269,7 +222,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step3CalibrateActionAsync(CancellationToken cancellationToken)
+    private async Task<bool> Step2CalibrateActionAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -339,7 +292,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
     {
         var chuckAlignmentDegreeOffsetItemDto = reviewDto.Clone();
 
-        Cache.OpticsIlluminationModeEnum = reviewDto.OpticsIlluminationMode;
         Cache.ProductivityInformation = reviewDto.ProductivityInformation;
 
         AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
@@ -362,7 +314,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         var result = Math.Abs(darkFieldAlignmentVerifyResult) < Cache.VerifyThreshold;
 
-        Logger.LogHtmlInformation($"{Cache.OpticsIlluminationModeEnum.ToDescriptionOrString()}-{Cache.ProductivityInformation}-{(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+        Logger.LogHtmlInformation($"{Cache.ProductivityInformation}-{(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             Cache.VerifyThreshold,
             CalibrationBrightFieldAlignmentDegree = reviewDto.BrightFieldAlignmentDegree,
@@ -382,12 +334,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
             return false;
         }
 
-        if (EnableDependedCalibrationItems(cancellationToken) == false)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Enable Depended Calibration Items Failed!"), HtmlLogUniqueId.LoggingHtml());
-            return false;
-        }
-
         return result;
     }
 
@@ -398,17 +344,55 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 
         Calibrations =
         [
+            itemDto,
             .. Calibrations
-                .Where(t => (
-                    t.ProductivityInformation == itemDto.ProductivityInformation
-                    && t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode) == false),
-            itemDto.Clone()
+                .Where(t => t.ProductivityInformation != itemDto.ProductivityInformation)
         ];
         if (isSave == false) return;
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
+    });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<ChuckAlignmentDegreeOffsetItemDto[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(productivityInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    productivityInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
+    }
 
     #endregion 校准
 }

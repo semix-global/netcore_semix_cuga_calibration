@@ -1,11 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.XTC;
 
-public sealed partial class CIBXTCCache : CalibrationCacheBase
+public sealed partial class CIBXTCCache : CalibrationCacheBase<CIBXTCCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -20,16 +21,27 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 1;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBXTCCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBXTCCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBXTCCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBXTCCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBXTCCacheItem());
+
+    public override CIBXTCCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        CalibratingRetryTimes = CalibratingRetryTimes,
+        CalibratingThreshold = CalibratingThreshold,
+        ReviewThreshold = ReviewThreshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, CIBXTCCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBXTCCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class CIBXTCCacheItem : CalibrationCacheBase
+public sealed partial class CIBXTCCacheItem : CalibrationCacheBase<CIBXTCCacheItem>
 {
     [ObservableProperty]
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
@@ -54,4 +66,20 @@ public sealed partial class CIBXTCCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     public partial int PrescanAODWaveformProfileSegmentCount { get; set; } = 10;
+
+    public override CIBXTCCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        PrescanAODWaveformProfileSegmentCount = PrescanAODWaveformProfileSegmentCount,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

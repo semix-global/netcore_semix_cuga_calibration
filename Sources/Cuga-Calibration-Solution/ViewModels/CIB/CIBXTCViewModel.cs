@@ -7,6 +7,7 @@ using Core.Models.Models;
 using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
@@ -25,6 +26,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -39,7 +41,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },
@@ -93,31 +95,12 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
+        Cache = ApplicationCookieService.GetCache<CIBXTCCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<CIBXTCDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBXTCCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBXTCDTO>();
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
-                .Select(t =>
-                {
-                    t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
-
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }
@@ -199,14 +182,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
                 return true;
 
             case 4:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
-
-                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
 
@@ -717,9 +693,71 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBXTCDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
+                .Select(t =>
+                {
+                    t.Items = [.. t.Items.Where(i => ApplicationCookie.CIBInformations.Contains(i.CIBInformation))];
+                    if (t.IsCalibrated) t.IsCalibrated = t.Items.Count == ApplicationCookie.CIBInformations.Count;
+
+                    return t;
+                })
+        ];
+
+        foreach (var calibratingStatus in CalibratingStatuses)
+        {
+            calibratingStatus.IsCalibrated = Calibrations.Where(t => t.ProductivityInformation == calibratingStatus.SelectedItem && t.IsCalibrated)
+                .SelectMany(t => t.Items)
+                .Count() == ApplicationCookie.CIBInformations.Count;
+        }
+
+        status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count * ApplicationCookie.CIBInformations.Count;
+        status.CalibratedCount = Calibrations.Where(t => t.IsCalibrated)
+            .SelectMany(t => t.Items)
+            .Count();
+        status.VerifiedCount = Calibrations.Where(t => t.IsVerified)
+            .SelectMany(t => t.Items)
+            .Count();
+
+        var detailList = new List<CalibrationViewModelStatus.Detail>(status.TotalCalibrationCount);
+        foreach (var productivityInformation in ApplicationCookie.OpticsMagTypeProductivityInformations)
+        {
+            var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+
+            foreach (var cibInformation in ApplicationCookie.CIBInformations)
+            {
+                var itemData = item?.Items?.SingleOrDefault(i => i.CIBInformation == cibInformation);
+
+                detailList.Add(new CalibrationViewModelStatus.Detail(
+                    $"{productivityInformation}/{cibInformation}",
+                    item is not null
+                        ? item.IsCalibrated ? itemData is not null : null
+                        : null,
+                    item is not null
+                        ? item.IsVerified ? itemData is not null : null
+                        : null));
+            }
+        }
+
+        status.Details = detailList;
+    }
 
     #endregion 校准
 }

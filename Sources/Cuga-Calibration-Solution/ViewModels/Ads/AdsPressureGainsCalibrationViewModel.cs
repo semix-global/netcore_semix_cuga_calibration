@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
@@ -19,7 +20,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select a location", DefaultIsNextEnable = true },
         new() { StepName = "Pressure Gains" }
@@ -63,9 +64,10 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AdsPressureGainsCache>();
-        Calibration = CacheProvider.GetOrDefault<AdsPressureGainsDto>();
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<AdsPressureGainsCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<AdsPressureGainsDto>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -105,8 +107,6 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
-
-                IsCalibrated = true;
 
                 return true;
 
@@ -292,9 +292,22 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
         update(Cache);
 
         Calibration = dto.Clone();
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<AdsPressureGainsDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

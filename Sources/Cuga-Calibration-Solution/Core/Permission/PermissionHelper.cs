@@ -21,21 +21,21 @@ public static class PermissionHelper
 
         if (applicationCookie.SysUser.IsAdmin) return;
 
-        var list = applicationCookieService.FindSysMenuListByRecursionComponent(Guard.IsNotNullAndReturn(frameworkElement.DataContext.GetType().FullName));
-        foreach (var detail in list.Where(t => string.IsNullOrWhiteSpace(t.Component) == false && string.IsNullOrWhiteSpace(t.Perms) == false))
+        var sysMenus = applicationCookieService.FindSysMenusByRecursionSysMenuComponent(Guard.IsNotNullAndReturn(frameworkElement.DataContext.GetType().FullName));
+        foreach (var sysMenu in sysMenus.Where(t => string.IsNullOrWhiteSpace(t.Component) == false && string.IsNullOrWhiteSpace(t.Perms) == false))
         {
             // 有权限的不处理
-            if (applicationCookie.RoleSysMenuList.Any(t => t.Id == detail.Id)) continue;
+            if (applicationCookie.CurrentRoleSysMenus.Any(t => t.Id == sysMenu.Id)) continue;
 
-            var type = Type.GetType(detail.Component);
+            var type = Type.GetType(sysMenu.Component);
             if (type is null) continue;
 
             foreach (var findVisualDescendant in DependencyObjectHelper.FindVisualDescendants(frameworkElement, type).OfType<FrameworkElement>())
             {
-                var findName = findVisualDescendant.FindName(detail.Perms!);
+                var findName = findVisualDescendant.FindName(sysMenu.Perms!);
                 if (findName is null) continue;
 
-                switch (detail.MenuTypeEnum)
+                switch (sysMenu.MenuTypeEnum)
                 {
                     case MenuTypeEnum.Readable:
                         var propertyValue = ObjectHelper.GetPropertyValue(findName, nameof(TextBox.IsReadOnly));

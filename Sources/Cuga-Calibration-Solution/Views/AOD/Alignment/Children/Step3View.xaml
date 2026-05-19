@@ -29,7 +29,7 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 4: "
-                           Status="{Binding CalibrationStepList[3].StepName}"
+                           Status="{Binding CalibrationSteps[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"

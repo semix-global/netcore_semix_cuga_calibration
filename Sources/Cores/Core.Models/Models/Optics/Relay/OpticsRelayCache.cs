@@ -3,108 +3,153 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Optics.Relay;
 
-public sealed partial class OpticsRelayCache : CalibrationCacheBase
+public sealed partial class OpticsRelayCache : CalibrationCacheBase<OpticsRelayCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; }
 
     [ObservableProperty]
-    private double _threshold = 0.999;
+    public partial double Threshold { get; set; } = 0.999;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<OpticsIlluminationModeEnum, OpticsRelayCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<OpticsIlluminationModeEnum, OpticsRelayCacheItem>))]
     public ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsRelayCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public OpticsRelayCacheItem Item => Items.GetOrAdd(OpticsIlluminationModeEnum, _ => new OpticsRelayCacheItem());
+
+    public override OpticsRelayCache Clone() => new()
+    {
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        Threshold = Threshold,
+        Items = new ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsRelayCacheItem>(Items.Select(t => new KeyValuePair<OpticsIlluminationModeEnum, OpticsRelayCacheItem>(t.Key, t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase
+public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase<OpticsRelayCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private AlignmentResultDto _alignmentResult = new();
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [ObservableProperty]
-    private Point _dSWFindBFMachinePosition;
+    public partial Point DSWFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private double _opticsIlluminationDegreeAngle = 90;
+    public partial double OpticsIlluminationDegreeAngle { get; set; } = 90;
 
     [ObservableProperty]
-    private double _defaultRelayMotorRatio = 100;
+    public partial double DefaultRelayMotorRatio { get; set; } = 100;
 
     [ObservableProperty]
-    private double _startRelayMotorAbsoluteValue;
+    public partial double StartRelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _stepRelayMotorAbsoluteValue;
+    public partial double StepRelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _stopRelayMotorAbsoluteValue;
+    public partial double StopRelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _centerRoughECS;
+    public partial double CenterRoughECS { get; set; }
 
     [ObservableProperty]
-    private double _rangeRoughECS;
+    public partial double RangeRoughECS { get; set; }
 
     [ObservableProperty]
-    private double _stepRoughECS;
+    public partial double StepRoughECS { get; set; }
 
     [ObservableProperty]
-    private double _rangeRefinedECS;
+    public partial double RangeRefinedECS { get; set; }
 
     [ObservableProperty]
-    private double _stepRefinedECS;
+    public partial double StepRefinedECS { get; set; }
 
     [ObservableProperty]
-    private Point _xZDSWFindBFMachinePosition;
+    public partial Point XZDSWFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private double _xZScanLength;
+    public partial double XZScanLength { get; set; }
 
     [ObservableProperty]
-    private double _startXZRelayMotorAbsoluteValue;
+    public partial double StartXZRelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _stepXZRelayMotorAbsoluteValue;
+    public partial double StepXZRelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _stopXZRelayMotorAbsoluteValue;
+    public partial double StopXZRelayMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _xZCenterECS;
+    public partial double XZCenterECS { get; set; }
 
     [ObservableProperty]
-    private double _xZRangeECS;
+    public partial double XZRangeECS { get; set; }
 
     [ObservableProperty]
-    private OpticsStrehlRatioQualityTypeEnum _opticsStrehlRatioQualityTypeEnum = OpticsStrehlRatioQualityTypeEnum.XStrehlRatio;
+    public partial OpticsStrehlRatioQualityTypeEnum OpticsStrehlRatioQualityTypeEnum { get; set; } = OpticsStrehlRatioQualityTypeEnum.XStrehlRatio;
+
+    public override OpticsRelayCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        ProductivityInformation = ProductivityInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        AlignmentResult = AlignmentResult.Clone(),
+        DSWFindBFMachinePosition = DSWFindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        OpticsIlluminationDegreeAngle = OpticsIlluminationDegreeAngle,
+        DefaultRelayMotorRatio = DefaultRelayMotorRatio,
+        StartRelayMotorAbsoluteValue = StartRelayMotorAbsoluteValue,
+        StepRelayMotorAbsoluteValue = StepRelayMotorAbsoluteValue,
+        StopRelayMotorAbsoluteValue = StopRelayMotorAbsoluteValue,
+        CenterRoughECS = CenterRoughECS,
+        RangeRoughECS = RangeRoughECS,
+        StepRoughECS = StepRoughECS,
+        RangeRefinedECS = RangeRefinedECS,
+        StepRefinedECS = StepRefinedECS,
+        XZDSWFindBFMachinePosition = XZDSWFindBFMachinePosition,
+        XZScanLength = XZScanLength,
+        StartXZRelayMotorAbsoluteValue = StartXZRelayMotorAbsoluteValue,
+        StepXZRelayMotorAbsoluteValue = StepXZRelayMotorAbsoluteValue,
+        StopXZRelayMotorAbsoluteValue = StopXZRelayMotorAbsoluteValue,
+        XZCenterECS = XZCenterECS,
+        XZRangeECS = XZRangeECS,
+        OpticsStrehlRatioQualityTypeEnum = OpticsStrehlRatioQualityTypeEnum,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

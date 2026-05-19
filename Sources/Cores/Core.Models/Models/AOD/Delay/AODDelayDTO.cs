@@ -15,36 +15,30 @@ using System.ComponentModel;
 namespace Core.Models.Models.AOD.Delay;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
+public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<AODDelayDTOItem> _items = [];
+    public partial IReadOnlyList<AODDelayDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PrescanAODDelay), nameof(ChirpAODDelay))]
-    private AODDelayDTOItem? _maxItem;
+    public partial AODDelayDTOItem? MaxItem { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double PrescanAODDelay => MaxItem is not null && MaxItem.AODDelay <= 0 ? Math.Abs(MaxItem.AODDelay) : 0d;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double ChirpAODDelay => MaxItem is not null && MaxItem.AODDelay >= 0 ? Math.Abs(MaxItem.AODDelay) : 0d;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -98,7 +92,7 @@ public sealed partial class AODDelayDTO : CalibrationDtoBase, ICloneable<AODDela
 
     #region Mapper
 
-    public AODDelayDTO Clone() => new()
+    public override AODDelayDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
@@ -128,26 +122,22 @@ public sealed partial class AODDelayDTOItem : ObservableObject, ICloneable<AODDe
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PrescanAODDelay), nameof(ChirpAODDelay))]
-    private double _aODDelay;
+    public partial double AODDelay { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double PrescanAODDelay => AODDelay <= 0 ? Math.Abs(AODDelay) : 0d;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double ChirpAODDelay => AODDelay >= 0 ? Math.Abs(AODDelay) : 0d;
 
     [ObservableProperty]
-    private double _pMTValue;
+    public partial double PMTValue { get; set; }
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
+    public partial string RawImageFilePath { get; set; } = string.Empty;
 
     public AODDelayDTOItem Clone() => new()
     {

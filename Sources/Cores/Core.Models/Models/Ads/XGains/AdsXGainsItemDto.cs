@@ -7,73 +7,73 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Ads.XGains;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AdsXGainsItemDto : CalibrationDtoBase, ICloneable<AdsXGainsItemDto>, IAdaptTo<CalibrationAdsXGainsItem>
+public sealed partial class AdsXGainsItemDto : CalibrationDTOBase<AdsXGainsItemDto>, IAdaptTo<CalibrationAdsXGainsItem>
 {
     [ObservableProperty]
-    private int _index;
+    public partial int Index { get; set; }
 
     [ObservableProperty]
-    private bool _isPositive;
+    public partial bool IsPositive { get; set; }
 
     [ObservableProperty]
-    private double _positiveX1P1;
+    public partial double PositiveX1P1 { get; set; }
 
     [ObservableProperty]
-    private double _positiveX1P2;
+    public partial double PositiveX1P2 { get; set; }
 
     [ObservableProperty]
-    private double _positiveX1P3;
+    public partial double PositiveX1P3 { get; set; }
 
     [ObservableProperty]
-    private double _positiveX2P1;
+    public partial double PositiveX2P1 { get; set; }
 
     [ObservableProperty]
-    private double _positiveX2P2;
+    public partial double PositiveX2P2 { get; set; }
 
     [ObservableProperty]
-    private double _positiveX2P3;
+    public partial double PositiveX2P3 { get; set; }
 
     [ObservableProperty]
-    private List<Point> _positiveX1Plots = [];
+    public partial List<Point> PositiveX1Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _positiveX1SmoothPlots = [];
+    public partial List<Point> PositiveX1SmoothPlots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _positiveX2Plots = [];
+    public partial List<Point> PositiveX2Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _positiveX2SmoothPlots = [];
+    public partial List<Point> PositiveX2SmoothPlots { get; set; } = [];
 
     [ObservableProperty]
-    private double _negativeX3P1;
+    public partial double NegativeX3P1 { get; set; }
 
     [ObservableProperty]
-    private double _negativeX3P2;
+    public partial double NegativeX3P2 { get; set; }
 
     [ObservableProperty]
-    private double _negativeX3P3;
+    public partial double NegativeX3P3 { get; set; }
 
     [ObservableProperty]
-    private double _negativeX4P1;
+    public partial double NegativeX4P1 { get; set; }
 
     [ObservableProperty]
-    private double _negativeX4P2;
+    public partial double NegativeX4P2 { get; set; }
 
     [ObservableProperty]
-    private double _negativeX4P3;
+    public partial double NegativeX4P3 { get; set; }
 
     [ObservableProperty]
-    private List<Point> _negativeX3Plots = [];
+    public partial List<Point> NegativeX3Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _negativeX3SmoothPlots = [];
+    public partial List<Point> NegativeX3SmoothPlots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _negativeX4Plots = [];
+    public partial List<Point> NegativeX4Plots { get; set; } = [];
 
     [ObservableProperty]
-    private List<Point> _negativeX4SmoothPlots = [];
+    public partial List<Point> NegativeX4SmoothPlots { get; set; } = [];
 
     public double GetX1P1()
     {
@@ -215,7 +215,7 @@ public sealed partial class AdsXGainsItemDto : CalibrationDtoBase, ICloneable<Ad
 
     #region Mapper
 
-    public AdsXGainsItemDto Clone() => new()
+    public override AdsXGainsItemDto Clone() => new()
     {
         Index = Index,
         IsPositive = IsPositive,
@@ -225,20 +225,20 @@ public sealed partial class AdsXGainsItemDto : CalibrationDtoBase, ICloneable<Ad
         PositiveX2P1 = PositiveX2P1,
         PositiveX2P2 = PositiveX2P2,
         PositiveX2P3 = PositiveX2P3,
-        PositiveX1Plots = PositiveX1Plots,
-        PositiveX1SmoothPlots = PositiveX1SmoothPlots,
-        PositiveX2Plots = PositiveX2Plots,
-        PositiveX2SmoothPlots = PositiveX2SmoothPlots,
+        PositiveX1Plots = [.. PositiveX1Plots],
+        PositiveX1SmoothPlots = [.. PositiveX1SmoothPlots],
+        PositiveX2Plots = [.. PositiveX2Plots],
+        PositiveX2SmoothPlots = [.. PositiveX2SmoothPlots],
         NegativeX3P1 = NegativeX3P1,
         NegativeX3P2 = NegativeX3P2,
         NegativeX3P3 = NegativeX3P3,
         NegativeX4P1 = NegativeX4P1,
         NegativeX4P2 = NegativeX4P2,
         NegativeX4P3 = NegativeX4P3,
-        NegativeX3Plots = NegativeX3Plots,
-        NegativeX3SmoothPlots = NegativeX3SmoothPlots,
-        NegativeX4Plots = NegativeX4Plots,
-        NegativeX4SmoothPlots = NegativeX4SmoothPlots,
+        NegativeX3Plots = [.. NegativeX3Plots],
+        NegativeX3SmoothPlots = [.. NegativeX3SmoothPlots],
+        NegativeX4Plots = [.. NegativeX4Plots],
+        NegativeX4SmoothPlots = [.. NegativeX4SmoothPlots],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

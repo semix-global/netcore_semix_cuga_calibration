@@ -8,7 +8,6 @@
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:wafer="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckGlobalScaleErrorCalibrationViewModel}"
              d:DesignHeight="1000"
@@ -24,7 +23,7 @@
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Global Scale Error Step 2: "
-                           Status="{Binding CalibrationStepList[1].StepName}"
+                           Status="{Binding CalibrationSteps[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
@@ -55,26 +54,14 @@
                                  hc:TitleElement.Title="Low Magnification: "
                                  hc:TitleElement.TitleWidth="200"
                                  SelectedItem="{Binding Cache.LowMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=LowMagCombobox, Path=SelectedItem}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
                     <hc:ComboBox x:Name="HighMagCombobox"
                                  HorizontalAlignment="Left"
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.Title="High Magnification: "
                                  hc:TitleElement.TitleWidth="200"
                                  SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
                     <hc:ComboBox HorizontalAlignment="Left"
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.Title="Template Mask Type: "

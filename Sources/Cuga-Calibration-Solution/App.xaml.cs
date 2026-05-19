@@ -2,6 +2,7 @@ using Core.Models.Helper;
 using Core.Recipe.Services;
 using Core.Services;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators;
 using CugaCalibration.Core;
 using CugaCalibration.Views;
 using Local.SQL.Cache.Providers;
@@ -73,6 +74,9 @@ public sealed partial class App
             app.InitializeComponent();
             app.MainWindow = HostApplication.GetRequiredService<MainWindow>();
             app.MainWindow.Visibility = Visibility.Visible;
+
+            // todo: 等后续ScottPlot改造好移动到static中
+            CalibrationViewModelEntriesCollector.Init();
 
             // ReSharper disable AccessToDisposedClosure
 

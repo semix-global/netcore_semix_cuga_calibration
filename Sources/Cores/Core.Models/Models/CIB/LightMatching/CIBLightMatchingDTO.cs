@@ -21,49 +21,41 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.CIB.LightMatching;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable<CIBLightMatchingDTO>, IAdaptTo<CalibrationLaserCIBLightMatchingItem>
+public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMatchingDTO>, IAdaptTo<CalibrationLaserCIBLightMatchingItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsApodizationModeEnum _opticsApodizationModeEnum;
+    public partial OpticsApodizationModeEnum OpticsApodizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private OpticsPolarizationModeEnum _opticsPolarizationModeEnum;
+    public partial OpticsPolarizationModeEnum OpticsPolarizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private OpticsCollectorPolarizationModeEnum _opticsCollectorPolarizationModeEnum;
+    public partial OpticsCollectorPolarizationModeEnum OpticsCollectorPolarizationModeEnum { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLightMatchingDTOItem> _items = [];
+    public partial IReadOnlyList<CIBLightMatchingDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentDictionary<int, double> _hazeTargetPMTValues = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial ConcurrentDictionary<int, double> HazeTargetPMTValues { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentDictionary<int, double> _silicaSphereAveragePMTValues = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial ConcurrentDictionary<int, double> SilicaSphereAveragePMTValues { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private double? _silicaSphereTargetPMTValue;
+    [Newtonsoft.Json.JsonIgnore]
+    public partial double? SilicaSphereTargetPMTValue { get; set; }
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ConcurrentDictionary<int, IScatterPlotControl> _scatterPlotControls = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial ConcurrentDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -270,15 +262,15 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 
     #region Mapper
 
-    public CIBLightMatchingDTO Clone() => new()
+    public override CIBLightMatchingDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         OpticsApodizationModeEnum = OpticsApodizationModeEnum,
         OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
         OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum,
         Items = [.. Items.Select(t => t.Clone())],
-        HazeTargetPMTValues = new ConcurrentDictionary<int, double>(HazeTargetPMTValues),
-        SilicaSphereAveragePMTValues = new ConcurrentDictionary<int, double>(SilicaSphereAveragePMTValues),
+        HazeTargetPMTValues = new ConcurrentDictionary<int, double>(HazeTargetPMTValues.Select(t => new KeyValuePair<int, double>(t.Key, t.Value))),
+        SilicaSphereAveragePMTValues = new ConcurrentDictionary<int, double>(SilicaSphereAveragePMTValues.Select(t => new KeyValuePair<int, double>(t.Key, t.Value))),
         SilicaSphereTargetPMTValue = SilicaSphereTargetPMTValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -307,29 +299,23 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDtoBase, ICloneable
 public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneable<CIBLightMatchingDTOItem>, IAdaptTo<CalibrationLaserCIBLightMatchingItem.Item>
 {
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<Item> _hazeItems = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IReadOnlyList<Item> HazeItems { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<Item> _silicaSphereItems = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IReadOnlyList<Item> SilicaSphereItems { get; set; } = [];
 
     [ObservableProperty]
-    private double _digitalGain;
+    public partial double DigitalGain { get; set; }
 
     [ObservableProperty]
-    private double _multiplicativeFactors;
+    public partial double MultiplicativeFactors { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double DigitalGainPlusMultiplicativeFactors => DigitalGain + MultiplicativeFactors;
 
     partial void OnHazeItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
@@ -389,27 +375,25 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
-        private double _pMTValue;
+        public partial double PMTValue { get; set; }
 
         [ObservableProperty]
-        private double _error;
+        public partial double Error { get; set; }
 
         [ObservableProperty]
-        private double _result;
+        public partial double Result { get; set; }
 
         [ObservableProperty]
-        private bool _isOk;
+        public partial bool IsOk { get; set; }
 
         [ObservableProperty]
-        private string _rawImageFilePath = string.Empty;
+        public partial string RawImageFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private string _imageFilePath = string.Empty;
+        public partial string ImageFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        [property: System.Text.Json.Serialization.JsonIgnore]
-        [property: System.Xml.Serialization.XmlIgnore]
-        private IReadOnlyList<Point> _histogram = [];
+        public partial IReadOnlyList<Point> Histogram { get; set; } = [];
 
         public Item Clone() => new()
         {

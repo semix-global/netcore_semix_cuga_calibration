@@ -10,28 +10,28 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Microscope.PixelSize;
 
 [CacheVersion("1.0.0")]
-public sealed partial class MicroscopePixelSizeItemDto : CalibrationDtoBase, ICloneable<MicroscopePixelSizeItemDto>, IAdaptTo<CalibrationMicroscopePixelSizeItem>
+public sealed partial class MicroscopePixelSizeItemDto : CalibrationDTOBase<MicroscopePixelSizeItemDto>, IAdaptTo<CalibrationMicroscopePixelSizeItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private Point _findPosition;
+    public partial Point FindPosition { get; set; }
 
     [ObservableProperty]
-    private Size _pixelSize;
+    public partial Size PixelSize { get; set; }
 
     [ObservableProperty]
-    private string _originFilePath = string.Empty;
+    public partial string OriginFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     #region Mapper
 
-    public MicroscopePixelSizeItemDto Clone() => new()
+    public override MicroscopePixelSizeItemDto Clone() => new()
     {
-        LensInformation = LensInformation,
+        LensInformation = LensInformation.Clone(),
         FindPosition = FindPosition,
         PixelSize = PixelSize,
         OriginFilePath = OriginFilePath,

@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Version;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators;
 using Core.Wcf.Models;
 using Core.Wcf.Models.Ads;
 using Core.Wcf.Models.Chuck;
@@ -36,7 +37,6 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using CacheCollector = Core.Recipe.CacheCollector;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -55,37 +55,6 @@ public class CalibrationCacheProviderServiceImpl(
     RecipeCookie recipeCookie,
     CalibrationSetting calibrationSetting) : ICalibrationCacheProvider
 {
-    private readonly string _saveResultDirectory = Path.Combine(options.Value.AppHomeDirectory, "CalibrationResult");
-
-    public record struct CacheItem(Type Type, bool IsArray);
-
-    private CacheItem[]? _defaultCachesCache;
-    private CacheItem[]? _recipeCachesCache;
-
-    public CacheItem[] DefaultCaches
-    {
-        get
-        {
-            if (_defaultCachesCache == null)
-            {
-                _defaultCachesCache = CollectDefaultCaches();
-            }
-            return _defaultCachesCache;
-        }
-    }
-
-    public CacheItem[] RecipeCaches
-    {
-        get
-        {
-            if (_recipeCachesCache == null)
-            {
-                _recipeCachesCache = CollectRecipeCaches();
-            }
-            return _recipeCachesCache;
-        }
-    }
-
     public async Task<bool> TrySaveAsync(CalibrationVersionDTO calibrationVersionDTO, CancellationToken cancellationToken)
     {
         return await Task.Run(() =>
@@ -162,7 +131,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                 cacheProvider.Set(calibrationVersionDTO, CancellationToken.None);
 
-                FileHelper.SerializeOperate(calibrationObj, Path.Combine(_saveResultDirectory, calibrationVersionDTO.ResultFilePath));
+                FileHelper.SerializeOperate(calibrationObj, Path.Combine(Path.Combine(options.Value.AppHomeDirectory, "CalibrationResult"), calibrationVersionDTO.ResultFilePath));
 
                 return true;
             }
@@ -194,7 +163,7 @@ public class CalibrationCacheProviderServiceImpl(
             try
             {
                 messageBuilder.AppendLine("=== Default Cache Export ===");
-                foreach (var cacheItem in DefaultCaches)
+                foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.DefaultCaches.Concat(CoreRecipeCacheCollector.DefaultCaches.Select(t => new CugaCalibrationSolutionCacheCollector.CacheItem(t.Type, t.IsArray))))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -235,7 +204,7 @@ public class CalibrationCacheProviderServiceImpl(
                         recipeCacheDatabaseProvider.ChangeDatabase(recipeInfo.RecipeNosqlRecipeDbDataSource, cancellationToken);
 
                         var recipeCaches = new JObject();
-                        foreach (var cacheItem in RecipeCaches)
+                        foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.RecipeCaches.Concat(CoreRecipeCacheCollector.RecipeCaches.Select(t => new CugaCalibrationSolutionCacheCollector.CacheItem(t.Type, t.IsArray))))
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
@@ -272,9 +241,9 @@ public class CalibrationCacheProviderServiceImpl(
                 var exportData = new JObject
                 {
                     [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
-                    [nameof(CalibrationDtoBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
-                    [nameof(CacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.Serializer),
-                    [nameof(CacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.Serializer)
+                    [nameof(CalibrationDTOBase.CreatedUserName)] = applicationCookie.SysUser.UserName,
+                    [nameof(CugaCalibrationSolutionCacheCollector.DefaultCaches)] = JObject.FromObject(defaultCaches, PrivateSetterContractResolver.Serializer),
+                    [nameof(CugaCalibrationSolutionCacheCollector.RecipeCaches)] = JObject.FromObject(recipesCaches, PrivateSetterContractResolver.Serializer)
                 };
 
                 FileHelper.SerializeOperate(exportData, filePath);
@@ -311,8 +280,8 @@ public class CalibrationCacheProviderServiceImpl(
 
                 // Import Default Caches
                 messageBuilder.AppendLine("=== Default Cache Import ===");
-                var defaultCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CacheCollector.DefaultCaches)]);
-                foreach (var cacheItem in CacheCollector.DefaultCaches)
+                var defaultCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CugaCalibrationSolutionCacheCollector.DefaultCaches)]);
+                foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.DefaultCaches.Concat(CoreRecipeCacheCollector.DefaultCaches.Select(t => new CugaCalibrationSolutionCacheCollector.CacheItem(t.Type, t.IsArray))))
                 {
                     try
                     {
@@ -354,7 +323,7 @@ public class CalibrationCacheProviderServiceImpl(
                 messageBuilder.AppendLine();
 
                 // Import Recipe Caches
-                var recipesCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CacheCollector.RecipeCaches)]);
+                var recipesCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CugaCalibrationSolutionCacheCollector.RecipeCaches)]);
 
                 var originalRecipeDBPath = recipeCookie.SysRecipeInformationDTO.RecipeNosqlRecipeDbDataSource;
                 Guard.IsNotNullOrEmpty(originalRecipeDBPath);
@@ -391,7 +360,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                             recipeCacheDatabaseProvider.ChangeDatabase(recipe.RecipeNosqlRecipeDbDataSource, cancellationToken);
 
-                            foreach (var cacheItem in CacheCollector.RecipeCaches)
+                            foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.RecipeCaches.Concat(CoreRecipeCacheCollector.RecipeCaches.Select(t => new CugaCalibrationSolutionCacheCollector.CacheItem(t.Type, t.IsArray))))
                             {
                                 try
                                 {
@@ -444,7 +413,7 @@ public class CalibrationCacheProviderServiceImpl(
                     recipeCacheDatabaseProvider.ChangeDatabase(originalRecipeDBPath, cancellationToken);
                 }
 
-                var finalMessage = isOverallSuccess ? "Import completed successfully" : "Import completed with errors";
+                var finalMessage = isOverallSuccess ? "Import completed successfully And Restart Application" : "Import completed with errors And Restart Application";
                 messageBuilder.Insert(0, finalMessage + Environment.NewLine + Environment.NewLine);
 
                 return (isOverallSuccess, messageBuilder.ToString());
@@ -489,40 +458,5 @@ public class CalibrationCacheProviderServiceImpl(
             entity.CreatedUserId = applicationCookie.SysUser.Id;
             entity.CreatedUserName = applicationCookie.SysUser.UserName;
         }
-    }
-
-
-    private static CacheItem[] CollectDefaultCaches()
-    {
-        var list = new List<CacheItem>();
-
-        foreach (var (type, isArray) in CugaCalibrationSolution.CacheCollector.GetDefaultCachesAsEnumerable())
-        {
-            list.Add(new CacheItem(type, isArray));
-        }
-
-        foreach (var (type, isArray) in CacheCollector.GetDefaultCachesAsEnumerable())
-        {
-            list.Add(new CacheItem(type, isArray));
-        }
-
-        return list.Distinct().OrderBy(x => x.Type.FullName).ToArray();
-    }
-
-    private static CacheItem[] CollectRecipeCaches()
-    {
-        var list = new List<CacheItem>();
-
-        foreach (var (type, isArray) in CugaCalibrationSolution.CacheCollector.GetRecipeCachesAsEnumerable())
-        {
-            list.Add(new CacheItem(type, isArray));
-        }
-
-        foreach (var (type, isArray) in CacheCollector.GetRecipeCachesAsEnumerable())
-        {
-            list.Add(new CacheItem(type, isArray));
-        }
-
-        return list.Distinct().OrderBy(x => x.Type.FullName).ToArray();
     }
 }
