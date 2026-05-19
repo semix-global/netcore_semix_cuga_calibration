@@ -20,18 +20,24 @@ public partial class CalibrationViewModelStatus : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsOk))]
     [NotifyPropertyChangedFor(nameof(IsCalibrated))]
     [NotifyPropertyChangedFor(nameof(Progress))]
+    [NotifyPropertyChangedFor(nameof(NotOkCalibratedCount))]
+    [NotifyPropertyChangedFor(nameof(NotOkReviewCount))]
     public partial int TotalCalibrationCount { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsOk))]
     [NotifyPropertyChangedFor(nameof(IsCalibrated))]
     [NotifyPropertyChangedFor(nameof(Progress))]
+    [NotifyPropertyChangedFor(nameof(NotOkCalibratedCount))]
+    [NotifyPropertyChangedFor(nameof(NotOkReviewCount))]
     public partial int CalibratedCount { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsOk))]
     [NotifyPropertyChangedFor(nameof(IsCalibrated))]
     [NotifyPropertyChangedFor(nameof(Progress))]
+    [NotifyPropertyChangedFor(nameof(NotOkCalibratedCount))]
+    [NotifyPropertyChangedFor(nameof(NotOkReviewCount))]
     public partial int ReviewCount { get; set; }
 
     [ObservableProperty]
