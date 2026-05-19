@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using System.Collections.Concurrent;
 using Net.Utilities.Models.Serializations;
+using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.Attenuator;
 

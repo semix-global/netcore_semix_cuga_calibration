@@ -4,10 +4,10 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 

@@ -1,8 +1,9 @@
-using Core.Models.Models.Common.Cookies;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
@@ -18,7 +19,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
-using CommunityToolkit.Diagnostics;
 
 namespace CugaCalibration.ViewModels.Microscope;
 

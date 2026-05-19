@@ -8,7 +8,6 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckPrealignerCalibrationViewModel}"
              d:DesignHeight="1000"
              d:DesignWidth="800"

@@ -2,6 +2,7 @@ using Core.Models.Helper;
 using Core.Recipe.Services;
 using Core.Services;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators;
 using CugaCalibration.Core;
 using CugaCalibration.Views;
 using Local.SQL.Cache.Providers;
@@ -19,7 +20,6 @@ using SourceGenerator.AssemblyMetadata;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
-using Core.Utilities.SourceGenerators;
 
 namespace CugaCalibration;
 

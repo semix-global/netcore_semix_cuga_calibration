@@ -1,10 +1,9 @@
-using System.Runtime.CompilerServices;
-using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities.SourceGenerators.Attributes;
@@ -16,6 +15,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.Laser;

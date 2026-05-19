@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,6 +19,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 

@@ -196,8 +196,8 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(
                     Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
-                    ? new Point(0, 0)
-                    : StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition));
+                        ? new Point(0, 0)
+                        : StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition));
             }
             catch (Exception ex)
             {

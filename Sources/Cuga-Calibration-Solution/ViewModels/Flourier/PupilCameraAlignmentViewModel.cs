@@ -5,6 +5,7 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -13,7 +14,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.WPF.Enums;
 using System.IO;
-using Core.Utilities.SourceGenerators.Attributes;
 using BitmapImage = Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage;
 
 namespace CugaCalibration.ViewModels.Flourier;
@@ -375,7 +375,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
             ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
     }
-    
+
     public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
     {
         var temp = Guard.IsAssignableToTypeAndReturn<PupilCameraAlignmentDTO>(calibration);

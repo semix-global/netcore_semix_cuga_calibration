@@ -103,9 +103,9 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
 
         AlignmentCacheBrightField = AlignmentCacheBrightFields
             .SingleOrDefault(t => t.CalChipSiteModelEnum == CurrentCalChipSiteModelEnum) ?? new AlignmentCacheBrightField
-        {
-            CalChipSiteModelEnum = CurrentCalChipSiteModelEnum
-        };
+            {
+                CalChipSiteModelEnum = CurrentCalChipSiteModelEnum
+            };
         AlignmentUserControlViewModel.AlignmentCacheBrightField = AlignmentCacheBrightField.Clone();
 
         _isLoaded = true;

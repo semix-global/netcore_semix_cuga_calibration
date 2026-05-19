@@ -266,6 +266,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
                     _dialogWindowProvider.ShowDialog("Failed to read recipe database, will apply default values.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     _cacheProvider.Set(new CalibrationRecipeDTO(), CancellationToken.None);
                 }
+
                 RecipeCookie.CalibrationRecipeDto.AdaptIn(calibrationRecipeDto);
                 RecipeCookie.SysRecipeInformationDTO.AdaptIn(SelectRecipeInfoDto);
 

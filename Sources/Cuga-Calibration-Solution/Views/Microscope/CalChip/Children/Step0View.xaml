@@ -5,7 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"

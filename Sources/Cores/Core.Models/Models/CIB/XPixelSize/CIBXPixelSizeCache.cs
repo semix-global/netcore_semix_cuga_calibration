@@ -4,8 +4,8 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
-using System.Collections.Concurrent;
 using Net.Utilities.Models.Serializations;
+using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.XPixelSize;
 

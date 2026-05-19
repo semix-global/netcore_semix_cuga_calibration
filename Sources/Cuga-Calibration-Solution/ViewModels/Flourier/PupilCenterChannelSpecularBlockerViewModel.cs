@@ -4,8 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
@@ -700,7 +700,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
         [
             itemDto,
             .. Calibrations
-                .Where(t => (t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode && t.ProductivityInformation == itemDto.ProductivityInformation) ==false)
+                .Where(t => (t.OpticsIlluminationMode == itemDto.OpticsIlluminationMode && t.ProductivityInformation == itemDto.ProductivityInformation) == false)
         ];
         if (!isSave) return;
 

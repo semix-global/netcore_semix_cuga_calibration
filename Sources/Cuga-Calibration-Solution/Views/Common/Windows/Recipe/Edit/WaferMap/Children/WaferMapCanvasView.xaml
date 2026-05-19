@@ -5,8 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:wpf="clr-namespace:Net.Utilities.WaferMap.WPF;assembly=Net.Utilities.WaferMap.WPF"
-             xmlns:children="clr-namespace:CugaCalibration.Views.Common.Windows.Recipe.Edit.WaferMap.Children"
-             xmlns:children1="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Recipe.Edit.Children"
              d:DataContext="{d:DesignInstance Type=wpf:WaferMapCanvasViewModel,
                                               IsDesignTimeCreatable=True}"
              d:DesignHeight="1200"

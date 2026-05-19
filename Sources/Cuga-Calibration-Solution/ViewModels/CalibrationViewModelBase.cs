@@ -208,7 +208,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
                 ViewEnum = CalibrationItemViewEnum.Loading;
                 await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
-                
+
                 if (await NextingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdatePreviousNextStatus();
@@ -249,7 +249,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                     Logger.LogHtmlInformation($"1. {Name}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
                 }
 
-                End:
+            End:
                 Logger.LogInformation("{@Name}: Next!", Name);
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
         }

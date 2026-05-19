@@ -1,8 +1,8 @@
+using CommunityToolkit.Diagnostics;
+using Net.Utilities.WPF.Converters;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Markup;
-using CommunityToolkit.Diagnostics;
-using Net.Utilities.WPF.Converters;
 
 namespace Core.Utilities.WPF.Converters;
 

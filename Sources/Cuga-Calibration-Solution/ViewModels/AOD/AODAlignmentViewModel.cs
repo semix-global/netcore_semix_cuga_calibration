@@ -5,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.Alignment;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
@@ -28,7 +29,6 @@ using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Core.Models.Models.Common.Cookies;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;

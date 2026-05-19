@@ -96,7 +96,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
 
         Cache = ApplicationCookieService.GetCache<ChuckGantryCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckGantryDto>(cancellationToken);
-        
+
         UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
@@ -200,25 +200,25 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
-         {
-             AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-             AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+        {
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
-             await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-             var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-             Cache.P5Angle = alignmentResult.Degrees;
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
+            Cache.P5Angle = alignmentResult.Degrees;
 
-             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-             {
-                 AlignmentUserControlViewModel.IsDarkFieldAlignment,
-                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
-             }), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
 
-             StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
 
-             return true;
-         });
+            return true;
+        });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]

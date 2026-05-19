@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using System.Collections.Concurrent;
-using Core.Models.Enums.Recipe.Wafer;
 
 namespace Core.Models.Models.Microscope.Focus;
 

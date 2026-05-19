@@ -14,8 +14,8 @@ using Semix.WcfTransfer.DTO;
 
 namespace Core.Models.Models.Common.Alignment;
 
-public sealed partial class AlignmentSiteDto : 
-    ObservableObject, 
+public sealed partial class AlignmentSiteDto :
+    ObservableObject,
     ICloneable<AlignmentSiteDto>,
     IAdaptTo<C2MSiteDTO>,
     IAdaptIn<C2MSiteDTO, AlignmentSiteDto>

@@ -60,7 +60,6 @@ public sealed partial class OpticsBestFocusWindowViewModel(
 
         Results = [];
         MicroscopeCalChipCache = recipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-
     }).ConfigureAwait(false);
 
     protected override bool InvokeDarkFieldImageDTO(DarkFieldImageDTO darkFieldImage)

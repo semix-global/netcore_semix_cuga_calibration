@@ -7,7 +7,6 @@
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:cib="clr-namespace:CugaCalibration.ViewModels.CIB"
              d:DataContext="{d:DesignInstance Type=cib:CIBLineCentricityViewModel}"
              d:DesignWidth="1920"

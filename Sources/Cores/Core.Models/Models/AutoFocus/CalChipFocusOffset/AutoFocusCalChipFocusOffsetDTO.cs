@@ -9,6 +9,7 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
@@ -17,7 +18,6 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
-using Net.Utilities.Models.Serializations;
 
 namespace Core.Models.Models.AutoFocus.CalChipFocusOffset;
 

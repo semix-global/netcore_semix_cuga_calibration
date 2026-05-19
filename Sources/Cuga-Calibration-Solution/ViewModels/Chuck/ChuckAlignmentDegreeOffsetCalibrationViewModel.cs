@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Events;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.PixelSize;
@@ -20,7 +21,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
-using Core.Models.Models.Common.Cookies;
 
 namespace CugaCalibration.ViewModels.Chuck;
 

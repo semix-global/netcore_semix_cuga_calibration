@@ -8,7 +8,6 @@
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:wafer="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckGantryCalibrationViewModel}"
              d:DesignHeight="800"

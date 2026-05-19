@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
@@ -9,6 +7,8 @@ using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.MVVM;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace CugaCalibration.Core.Services.Implements;
 

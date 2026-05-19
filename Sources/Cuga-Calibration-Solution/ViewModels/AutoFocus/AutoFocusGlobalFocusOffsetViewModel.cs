@@ -1,11 +1,10 @@
-using System.Runtime.CompilerServices;
-using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AutoFocus.GlobalFocusOffset;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
@@ -15,6 +14,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.AutoFocus;

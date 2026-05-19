@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Version;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
 using Core.Utilities;
+using Core.Utilities.SourceGenerators;
 using Core.Wcf.Models;
 using Core.Wcf.Models.Ads;
 using Core.Wcf.Models.Chuck;
@@ -36,7 +37,6 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using Core.Utilities.SourceGenerators;
 
 namespace CugaCalibration.Core.Services.Implements;
 

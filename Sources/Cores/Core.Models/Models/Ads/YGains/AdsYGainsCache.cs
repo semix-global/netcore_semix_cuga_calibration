@@ -758,7 +758,6 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache
             if (IsPositive) PositivePlotP = pList;
             else NegativePlotP = pList;
         }
-
     }
 
     public sealed partial class AdsYGainsDichotomySpeedCacheItem : CalibrationCacheBase<AdsYGainsDichotomySpeedCacheItem>

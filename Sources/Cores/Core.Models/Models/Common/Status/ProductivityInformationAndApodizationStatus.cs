@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status.Interfaces;
-using Net.Utilities.Helpers.Helpers.Structs;
 using System.ComponentModel;
 
 namespace Core.Models.Models.Common.Status;

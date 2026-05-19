@@ -6,7 +6,6 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:wafer="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:cib="clr-namespace:CugaCalibration.ViewModels.CIB"
              d:DataContext="{d:DesignInstance Type=cib:CIBYPixelSizeViewModel}"
              d:DesignWidth="1920"

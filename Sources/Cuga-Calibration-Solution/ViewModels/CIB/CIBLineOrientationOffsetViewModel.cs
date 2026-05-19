@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-using Core.Models.Models.Common.Cookies;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,6 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.CIB.LineOrientationOffset;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.PixelSize;
@@ -22,6 +21,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.CIB;
