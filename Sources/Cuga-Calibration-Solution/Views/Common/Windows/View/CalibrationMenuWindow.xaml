@@ -93,16 +93,16 @@
                                     <Style TargetType="Run">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding CalibrationMenu.Entry.Status.IsOk}" Value="{x:Static constants:Constants.True}">
-                                                <Setter Property="Text" Value="OK: " />
+                                                <Setter Property="Text" Value="OK. " />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding CalibrationMenu.Entry.Status.IsOk}" Value="{x:Static constants:Constants.False}">
-                                                <Setter Property="Text" Value="Not OK: " />
+                                                <Setter Property="Text" Value="Not OK. " />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Run.Style>
                             </Run>
-                            <Run Text="{Binding CalibrationMenu.Entry.Status.Progress, Mode=OneWay, StringFormat={}{0:0.###}%}" />
+                            <Run Text="{Binding CalibrationMenu.Entry.Status.Progress, Mode=OneWay, StringFormat={}Percentage of Completion: {0:0.###}%}" />
                         </TextBlock>
                     </StackPanel>
                     <Border Style="{StaticResource BorderRegion}">
@@ -194,12 +194,15 @@
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Null}">
                                                                     <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Not Calibrated" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static constants:Constants.False}">
                                                                     <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Calibrated But Failed" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsCalibrated}" Value="{x:Static constants:Constants.True}">
                                                                     <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Calibrated Ok" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -220,12 +223,15 @@
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsReviewed}" Value="{x:Null}">
                                                                     <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Not Verify" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsReviewed}" Value="{x:Static constants:Constants.False}">
                                                                     <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Verify But Failed" />
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding IsReviewed}" Value="{x:Static constants:Constants.True}">
                                                                     <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                                                    <Setter Property="ToolTip" Value="Verify Ok" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>

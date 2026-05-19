@@ -123,7 +123,7 @@
                                                               Progress="{Binding Entry.Status.Progress}"
                                                               IsOk="{Binding Entry.Status.IsOk}">
                                         <wpf:CircleProgressButton.ToolTip>
-                                            <TextBlock Text="{Binding Entry.Status.Progress, Mode=OneWay, StringFormat={}{0:0.###}%}" />
+                                            <TextBlock Text="{Binding Entry.Status.Progress, Mode=OneWay, StringFormat={}Percentage of Completion: {0:0.###}%}" />
                                         </wpf:CircleProgressButton.ToolTip>
                                     </wpf:CircleProgressButton>
                                     <TextBlock Text="{Binding SysMenu.Name}" />
