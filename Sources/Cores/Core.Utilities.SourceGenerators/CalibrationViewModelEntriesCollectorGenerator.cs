@@ -9,6 +9,7 @@ namespace Core.Utilities.SourceGenerators;
 [Generator(LanguageNames.CSharp)]
 public sealed class CalibrationViewModelEntriesCollectorGenerator : IIncrementalGenerator
 {
+    private const string CalibrationViewModelBaseName = "CugaCalibration.ViewModels.CalibrationViewModelBase";
     private const string AdaptToInterfaceMetadataName = "Net.Utilities.Mapper.Interfaces.IAdaptTo`1";
     private const string AdaptToTargetNamespace = "Core.Wcf.Models";
 
@@ -82,8 +83,25 @@ public sealed class CalibrationViewModelEntriesCollectorGenerator : IIncremental
 
         var containing = context.TargetSymbol.ContainingType;
         if (containing is null || containing.IsGenericType) containing = null;
+        else
+        {
+            var baseType = context.SemanticModel.Compilation.GetTypeByMetadataName(CalibrationViewModelBaseName);
+            if (baseType is null || IsDerivedFrom(containing, baseType) == false) containing = null;
+        }
 
         return (containing, fieldOrPropertyType);
+
+        static bool IsDerivedFrom(ITypeSymbol? type, INamedTypeSymbol baseType)
+        {
+            while (type is not null)
+            {
+                if (SymbolEqualityComparer.Default.Equals(type, baseType)) return true;
+
+                type = type.BaseType;
+            }
+
+            return false;
+        }
     }
 
     private static string GenerateSource(
