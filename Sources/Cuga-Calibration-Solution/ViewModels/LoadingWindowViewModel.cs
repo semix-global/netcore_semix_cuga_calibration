@@ -3,10 +3,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
@@ -37,6 +39,7 @@ public sealed partial class LoadingWindowViewModel(
     ISynchronizationContextProvider contextProvider,
     CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie,
+    IOptions<ApplicationSetting> options,
     string applicationName) : ViewModelBase
 {
     private const int ConnectCount = 11;
@@ -137,7 +140,7 @@ public sealed partial class LoadingWindowViewModel(
             {
                 var menu = calibrationMenus[i];
 
-                menu.Entry.Name = menu.GetFullName();
+                menu.Entry.Name = menu.GetFullName(options.Value);
 
                 Message = $"Loading {menu.Entry.Name} Cache...";
 

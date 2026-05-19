@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Utilities;
+using Local.SQL.DB.Providers.Models.Entities;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Models.Enums;
 
@@ -31,7 +33,7 @@ public sealed partial class CalibrationMenu : ObservableObject
         }
     }
 
-    public string GetFullName()
+    public string GetFullName(ApplicationSetting applicationSetting)
     {
         var linkedList = new LinkedList<string>();
         linkedList.AddLast(SysMenu.Name);
@@ -39,11 +41,13 @@ public sealed partial class CalibrationMenu : ObservableObject
         var current = SysMenu.Parent;
         while (current is not null)
         {
+            if (current.Name == applicationSetting.CalibrationMenuName) break;
+
             linkedList.AddFirst(current.Name);
 
             current = current.Parent;
         }
 
-        return string.Join(" / ", linkedList);
+        return string.Join("/", linkedList);
     }
 }

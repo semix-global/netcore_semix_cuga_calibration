@@ -444,7 +444,7 @@ public class CalibrationCacheProviderServiceImpl(
                     recipeCacheDatabaseProvider.ChangeDatabase(originalRecipeDBPath, cancellationToken);
                 }
 
-                var finalMessage = isOverallSuccess ? "Import completed successfully" : "Import completed with errors";
+                var finalMessage = isOverallSuccess ? "Import completed successfully And Restart Application" : "Import completed with errors And Restart Application";
                 messageBuilder.Insert(0, finalMessage + Environment.NewLine + Environment.NewLine);
 
                 return (isOverallSuccess, messageBuilder.ToString());
