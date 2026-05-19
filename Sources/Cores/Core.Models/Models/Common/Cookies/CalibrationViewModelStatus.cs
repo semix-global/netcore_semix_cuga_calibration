@@ -6,6 +6,8 @@ public partial class CalibrationViewModelStatus : ObservableObject
 {
     public bool IsOk => 2 * TotalCalibrationCount > 0 && CalibratedCount + ReviewCount == 2 * TotalCalibrationCount;
 
+    public bool IsCalibrated => TotalCalibrationCount > 0 && CalibratedCount == TotalCalibrationCount;
+
     public double Progress => TotalCalibrationCount > 0
         ? (CalibratedCount + ReviewCount) / (2d * TotalCalibrationCount) * 100d
         : 0d;
@@ -15,18 +17,21 @@ public partial class CalibrationViewModelStatus : ObservableObject
     public int NotOkReviewCount => TotalCalibrationCount - ReviewCount;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Progress))]
     [NotifyPropertyChangedFor(nameof(IsOk))]
+    [NotifyPropertyChangedFor(nameof(IsCalibrated))]
+    [NotifyPropertyChangedFor(nameof(Progress))]
     public partial int TotalCalibrationCount { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Progress))]
     [NotifyPropertyChangedFor(nameof(IsOk))]
+    [NotifyPropertyChangedFor(nameof(IsCalibrated))]
+    [NotifyPropertyChangedFor(nameof(Progress))]
     public partial int CalibratedCount { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Progress))]
     [NotifyPropertyChangedFor(nameof(IsOk))]
+    [NotifyPropertyChangedFor(nameof(IsCalibrated))]
+    [NotifyPropertyChangedFor(nameof(Progress))]
     public partial int ReviewCount { get; set; }
 
     [ObservableProperty]

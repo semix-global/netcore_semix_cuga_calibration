@@ -111,7 +111,7 @@ public partial class CalibrationViewModelBase
 
     public string VerifyHtmlFileLogName => string.IsNullOrWhiteSpace(VerifyFileName) ? "Verify" : $"Verify-{FileHelper.RemoveInvalidFileName(VerifyFileName)}";
 
-    public bool IsCalibrated => Entry.Status.IsOk;
+    public bool IsCalibrated => Entry.Status.IsCalibrated;
 
     #endregion
 
