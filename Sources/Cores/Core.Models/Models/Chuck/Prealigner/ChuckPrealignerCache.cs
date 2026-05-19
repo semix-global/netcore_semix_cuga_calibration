@@ -210,6 +210,6 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

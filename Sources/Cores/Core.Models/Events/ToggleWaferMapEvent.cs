@@ -13,7 +13,7 @@ public static class ToggleWaferMapEventFactory
     {
         return new ValueChangedMessage<ToggleWaferMapEvent>(new ToggleWaferMapEvent
         {
-            IsRefreshWaferMap = value,
+            IsRefreshWaferMap = value
         });
     }
 }

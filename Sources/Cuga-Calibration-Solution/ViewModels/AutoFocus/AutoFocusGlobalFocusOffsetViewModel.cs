@@ -397,7 +397,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
             Calibrations =
             [
                 dto,
-                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation),
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }
 

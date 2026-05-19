@@ -123,7 +123,7 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 
     public Point GetStartPosition()
@@ -426,7 +426,7 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache
             AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
             AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
             Id = Id,
-            Expiration = Expiration,
+            Expiration = Expiration
         };
 
         public void SetAdsY1(double y1)
@@ -833,7 +833,7 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache
             AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
             AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
             Id = Id,
-            Expiration = Expiration,
+            Expiration = Expiration
         };
     }
 }

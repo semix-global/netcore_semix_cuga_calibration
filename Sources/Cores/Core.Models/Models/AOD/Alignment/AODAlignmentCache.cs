@@ -31,7 +31,7 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase<AODAlignmen
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -90,6 +90,6 @@ public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase<AODAlig
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

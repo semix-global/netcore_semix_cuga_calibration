@@ -56,7 +56,7 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase<AODUniform
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -127,6 +127,6 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase<AODUni
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

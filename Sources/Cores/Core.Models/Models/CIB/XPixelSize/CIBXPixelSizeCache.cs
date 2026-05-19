@@ -36,7 +36,7 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase<CIBXPixelS
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -107,6 +107,6 @@ public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase<CIBXPi
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

@@ -42,7 +42,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -57,6 +57,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetCacheItem : CalibrationCa
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

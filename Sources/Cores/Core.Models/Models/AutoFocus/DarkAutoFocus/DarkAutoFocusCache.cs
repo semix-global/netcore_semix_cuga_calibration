@@ -145,6 +145,6 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase<DarkAutoFo
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

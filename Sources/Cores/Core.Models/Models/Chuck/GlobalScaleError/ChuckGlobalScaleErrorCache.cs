@@ -170,6 +170,6 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase<Ch
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

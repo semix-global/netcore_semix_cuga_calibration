@@ -57,7 +57,7 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase<AODB
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -148,6 +148,6 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase<
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

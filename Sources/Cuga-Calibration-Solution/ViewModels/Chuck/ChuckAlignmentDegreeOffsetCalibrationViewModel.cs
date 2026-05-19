@@ -25,7 +25,7 @@ using Core.Models.Models.Common.Cookies;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckAlignmentDegreeOffsetCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : CalibrationViewModelBase
+public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -214,7 +214,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
                 Cache.LowMicroscopeLensInformation,
                 Cache.HighMicroscopeLensInformation,
                 CalibratingItem.BrightFieldAlignmentDegree,
-                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous()),
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;

@@ -18,6 +18,6 @@ public sealed partial class AdsPressureGainsCache : CalibrationCacheBase<AdsPres
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

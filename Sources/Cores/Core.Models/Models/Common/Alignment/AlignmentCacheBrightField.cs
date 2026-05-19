@@ -24,6 +24,6 @@ public sealed partial class AlignmentCacheBrightField : AlignmentCacheBase, IClo
         Result = Result,
         IsVerified = IsVerified,
         IsOk = IsOk,
-        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        CalChipSiteModelEnum = CalChipSiteModelEnum
     };
 }

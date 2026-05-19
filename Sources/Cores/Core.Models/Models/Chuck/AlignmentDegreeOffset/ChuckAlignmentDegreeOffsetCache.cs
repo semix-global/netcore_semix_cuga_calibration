@@ -55,7 +55,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 

@@ -63,7 +63,7 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase<CIBLigh
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -94,6 +94,6 @@ public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase<CIB
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

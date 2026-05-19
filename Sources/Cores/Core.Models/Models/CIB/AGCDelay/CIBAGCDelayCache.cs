@@ -37,7 +37,7 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase<CIBAGCDelayC
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -84,6 +84,6 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

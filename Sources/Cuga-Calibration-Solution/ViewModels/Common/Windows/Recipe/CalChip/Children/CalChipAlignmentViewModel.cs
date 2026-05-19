@@ -102,7 +102,7 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
         MicroscopeCalChip.CalChipSiteModelEnum = CurrentCalChipSiteModelEnum;
 
         AlignmentCacheBrightField = AlignmentCacheBrightFields
-            .SingleOrDefault(t => t.CalChipSiteModelEnum == CurrentCalChipSiteModelEnum) ?? new()
+            .SingleOrDefault(t => t.CalChipSiteModelEnum == CurrentCalChipSiteModelEnum) ?? new AlignmentCacheBrightField
         {
             CalChipSiteModelEnum = CurrentCalChipSiteModelEnum
         };

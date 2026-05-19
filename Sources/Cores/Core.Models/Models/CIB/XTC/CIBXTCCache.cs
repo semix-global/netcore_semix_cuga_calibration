@@ -37,7 +37,7 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase<CIBXTCCache>
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 

@@ -38,7 +38,7 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLin
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -97,6 +97,6 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase<CI
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

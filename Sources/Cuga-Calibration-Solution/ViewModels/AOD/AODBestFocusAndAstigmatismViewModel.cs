@@ -519,7 +519,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                         Cache.Item.CIBConfiguration,
                         Cache.Item.LaserLightInformation,
                         IsKeepRawImageCIBProfileModeEnum =
-                            Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTVoltage,
+                            Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTVoltage
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     // 下发默认Prescan波形
@@ -575,7 +575,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                                     })))
                         ]),
                         AstigmastimVerifyResult =
-                            new HtmlQuote(selectedReviewItem.ResultDTO.ToFlatnessHtmlAnonymous()),
+                            new HtmlQuote(selectedReviewItem.ResultDTO.ToFlatnessHtmlAnonymous())
                     });
 
                     if (selectedReviewItem.IsOk)
@@ -733,7 +733,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             $"spectralDensity: {spectralDensity}",
             HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
-                Result = new HtmlQuote(astigmatismDTOItem.ToFlatnessHtmlAnonymous()),
+                Result = new HtmlQuote(astigmatismDTOItem.ToFlatnessHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
     }
 
@@ -811,7 +811,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 Logger.LogHtmlError("Best Focus Error", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                 {
                     darkFieldRawScanImage.RawImageFilePath,
-                    Exception = ex,
+                    Exception = ex
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 

@@ -332,6 +332,6 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

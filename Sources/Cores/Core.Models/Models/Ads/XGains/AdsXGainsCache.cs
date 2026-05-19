@@ -107,7 +107,7 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase<AdsXGainsCache
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 
     public Point GetStartPosition()
@@ -355,7 +355,7 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase<AdsXGainsCache
             AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
             AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
             Id = Id,
-            Expiration = Expiration,
+            Expiration = Expiration
         };
 
         public double GetX1()
@@ -654,7 +654,7 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase<AdsXGainsCache
             AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
             AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
             Id = Id,
-            Expiration = Expiration,
+            Expiration = Expiration
         };
     }
 }

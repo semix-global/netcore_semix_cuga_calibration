@@ -114,14 +114,14 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     [ObservableProperty]
     private ObservableCollection<RodInformation> _setAllRods =
     [
-        new RodInformation("Rod1", 0), new RodInformation("Rod2", 0), new RodInformation("Rod3", 0), new RodInformation("Rod4", 0), new RodInformation("Rod5", 0), new RodInformation("Rod6", 0),
-        new RodInformation("Rod7", 0), new RodInformation("Rod8", 0), new RodInformation("Rod9", 0), new RodInformation("Rod10", 0), new RodInformation("Rod11", 0), new RodInformation("Rod12", 0),
-        new RodInformation("Rod13", 0), new RodInformation("Rod14", 0), new RodInformation("Rod15", 0), new RodInformation("Rod16", 0), new RodInformation("Rod17", 0), new RodInformation("Rod18", 0),
-        new RodInformation("Rod19", 0), new RodInformation("Rod20", 0), new RodInformation("Rod21", 0), new RodInformation("Rod22", 0), new RodInformation("Rod23", 0), new RodInformation("Rod24", 0),
-        new RodInformation("Rod25", 0), new RodInformation("Rod26", 0), new RodInformation("Rod27", 0), new RodInformation("Rod28", 0), new RodInformation("Rod29", 0), new RodInformation("Rod30", 0),
-        new RodInformation("Rod31", 0), new RodInformation("Rod32", 0), new RodInformation("Rod33", 0), new RodInformation("Rod34", 0), new RodInformation("Rod35", 0), new RodInformation("Rod36", 0),
-        new RodInformation("Rod37", 0), new RodInformation("Rod38", 0), new RodInformation("Rod39", 0), new RodInformation("Rod40", 0), new RodInformation("Rod41", 0), new RodInformation("Rod42", 0),
-        new RodInformation("Rod43", 0), new RodInformation("Rod44", 0), new RodInformation("Rod45", 0), new RodInformation("Rod46", 0)
+        new("Rod1", 0), new("Rod2", 0), new("Rod3", 0), new("Rod4", 0), new("Rod5", 0), new("Rod6", 0),
+        new("Rod7", 0), new("Rod8", 0), new("Rod9", 0), new("Rod10", 0), new("Rod11", 0), new("Rod12", 0),
+        new("Rod13", 0), new("Rod14", 0), new("Rod15", 0), new("Rod16", 0), new("Rod17", 0), new("Rod18", 0),
+        new("Rod19", 0), new("Rod20", 0), new("Rod21", 0), new("Rod22", 0), new("Rod23", 0), new("Rod24", 0),
+        new("Rod25", 0), new("Rod26", 0), new("Rod27", 0), new("Rod28", 0), new("Rod29", 0), new("Rod30", 0),
+        new("Rod31", 0), new("Rod32", 0), new("Rod33", 0), new("Rod34", 0), new("Rod35", 0), new("Rod36", 0),
+        new("Rod37", 0), new("Rod38", 0), new("Rod39", 0), new("Rod40", 0), new("Rod41", 0), new("Rod42", 0),
+        new("Rod43", 0), new("Rod44", 0), new("Rod45", 0), new("Rod46", 0)
     ];
 
     // 所有电线杆集合（绑定到 ListBox）

@@ -127,7 +127,7 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
                     AlignmentCacheBrightFields = [.. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(), .. _cacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>()];
                     AlignmentCacheBrightField = AlignmentCacheBrightFields
                         .SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum
-                            , new()
+                            , new AlignmentCacheBrightField
                             {
                                 CalChipSiteModelEnum = CalChipSiteModelEnum
                             });

@@ -25,7 +25,7 @@ public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -88,6 +88,6 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCac
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

@@ -25,7 +25,7 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGantryCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewModelBase
+public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 

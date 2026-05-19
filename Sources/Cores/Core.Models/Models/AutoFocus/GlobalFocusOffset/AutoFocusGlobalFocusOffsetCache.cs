@@ -57,7 +57,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBa
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }
 
@@ -96,6 +96,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetCacheItem : CalibrationCac
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
-        Expiration = Expiration,
+        Expiration = Expiration
     };
 }

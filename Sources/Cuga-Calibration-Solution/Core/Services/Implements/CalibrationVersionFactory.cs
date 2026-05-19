@@ -26,7 +26,7 @@ public class CalibrationVersionFactory(ICacheProvider cacheProvider) : ICalibrat
         {
             Id = dto.Id,
             Version = SQLiteHelper.GetTableInfo(type).Version,
-            TypeFullName = type.AssemblyQualifiedName ?? string.Empty,
+            TypeFullName = type.AssemblyQualifiedName ?? string.Empty
         };
     }
 
@@ -40,7 +40,7 @@ public class CalibrationVersionFactory(ICacheProvider cacheProvider) : ICalibrat
         {
             Id = dto.Id,
             Version = SQLiteHelper.GetTableInfo(type).Version,
-            TypeFullName = type.AssemblyQualifiedName ?? string.Empty,
+            TypeFullName = type.AssemblyQualifiedName ?? string.Empty
         };
     }
 
