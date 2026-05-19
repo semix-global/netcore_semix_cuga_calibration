@@ -25,7 +25,7 @@ public sealed partial class ApplicationCookieServiceImpl(
     ICalibrationStageService calibrationStageServiceImpl,
     ICacheProvider cacheProvider,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
-    ICacheProvider reciCacheProvider,
+    ICacheProvider recipeCacheProvider,
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options,
     ILogger<ApplicationCookieServiceImpl> logger) : IApplicationCookieService

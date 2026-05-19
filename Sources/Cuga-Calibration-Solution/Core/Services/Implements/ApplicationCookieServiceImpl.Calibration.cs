@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
@@ -22,11 +23,11 @@ public sealed partial class ApplicationCookieServiceImpl
 
         if (ReferenceEquals(entry.Cookie.Cache, ObjectHelper.GetFieldValue(type, null, nameof(CalibrationCacheBase<>.Default), flags: ObjectHelper.AllBindingFlags | BindingFlags.FlattenHierarchy)) == false) return ObjectHelper.InvokeMethod<CalibrationCacheBase>(entry.Cookie.Cache, nameof(ICloneable<>.Clone), null);
 
-        if (reciCacheProvider.TryGetOrDefault(entry.CacheType, out var cache) == false)
+        if (recipeCacheProvider.TryGetOrDefault(type, out var cache) == false)
         {
-            cache = Guard.IsNotNullAndReturn(Activator.CreateInstance(entry.CacheType));
+            cache = Guard.IsNotNullAndReturn(Activator.CreateInstance(type));
 
-            reciCacheProvider.Set(entry.CacheType, cache, cancellationToken);
+            recipeCacheProvider.Set(type, cache, cancellationToken);
         }
 
         ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Cache), cache);
@@ -34,12 +35,12 @@ public sealed partial class ApplicationCookieServiceImpl
         return ObjectHelper.InvokeMethod<CalibrationCacheBase>(cache, nameof(ICloneable<>.Clone), null);
     }, cancellationToken);
 
-    public void SetCache(Type type, CalibrationCacheBase item, CancellationToken cancellationToken = default) => Invoke(() =>
+    public void SetCache(Type type, CalibrationCacheBase cache, CancellationToken cancellationToken = default) => Invoke(() =>
     {
         var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.CacheType == type);
 
-        reciCacheProvider.Set(item, cancellationToken);
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Cache), item);
+        recipeCacheProvider.Set(type, cache, cancellationToken);
+        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Cache), cache);
 
         return Unit.Default;
     }, cancellationToken);
@@ -53,11 +54,11 @@ public sealed partial class ApplicationCookieServiceImpl
 
         var calibrationViewModel = Guard.IsAssignableToTypeAndReturn<CalibrationViewModelBase>(HostApplication.GetRequiredService(entry.ViewModelType));
 
-        if (cacheProvider.TryGetOrDefault(entry.DTOType, out var calibration) == false)
+        if (cacheProvider.TryGetOrDefault(type, out var calibration) == false)
         {
-            calibration = Guard.IsNotNullAndReturn(Activator.CreateInstance(entry.DTOType));
+            calibration = Guard.IsNotNullAndReturn(Activator.CreateInstance(type));
 
-            cacheProvider.Set(entry.DTOType, calibration, cancellationToken);
+            cacheProvider.Set(type, calibration, cancellationToken);
         }
 
         ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibration), calibration);
@@ -67,14 +68,14 @@ public sealed partial class ApplicationCookieServiceImpl
         return (CalibrationDTOBase)calibration;
     }, cancellationToken);
 
-    public void SetCalibration(Type type, CalibrationDTOBase item, CancellationToken cancellationToken = default) => Invoke(() =>
+    public void SetCalibration(Type type, CalibrationDTOBase calibration, CancellationToken cancellationToken = default) => Invoke(() =>
     {
         var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.DTOType == type && e.IsArray == false);
 
         var calibrationViewModel = Guard.IsAssignableToTypeAndReturn<CalibrationViewModelBase>(HostApplication.GetRequiredService(entry.ViewModelType));
 
-        cacheProvider.Set(type, item, cancellationToken);
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibration), item);
+        cacheProvider.Set(type, calibration, cancellationToken);
+        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibration), calibration);
 
         calibrationViewModel.UpdateEntryStatus(entry.Cookie.Calibration, cancellationToken);
 
@@ -89,8 +90,8 @@ public sealed partial class ApplicationCookieServiceImpl
 
         var calibrationViewModel = Guard.IsAssignableToTypeAndReturn<CalibrationViewModelBase>(HostApplication.GetRequiredService(entry.ViewModelType));
 
-        if (cacheProvider.TryGetOrDefaultArray(entry.DTOType, out var calibrations) == false)
-            cacheProvider.SetArray(entry.DTOType, calibrations, cancellationToken);
+        if (cacheProvider.TryGetOrDefaultArray(type, out var calibrations) == false)
+            cacheProvider.SetArray(type, (object[])Array.CreateInstance(type, 0), cancellationToken);
 
         ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibrations), calibrations);
 
@@ -99,14 +100,14 @@ public sealed partial class ApplicationCookieServiceImpl
         return (CalibrationDTOBase[])calibrations;
     }, cancellationToken);
 
-    public void SetCalibrations(Type type, CalibrationDTOBase[] items, CancellationToken cancellationToken = default) => Invoke(() =>
+    public void SetCalibrations(Type type, CalibrationDTOBase[] calibrations, CancellationToken cancellationToken = default) => Invoke(() =>
     {
         var entry = ApplicationCookie.CalibrationViewModelEntries.Values.Single(e => e.DTOType == type && e.IsArray);
 
         var calibrationViewModel = Guard.IsAssignableToTypeAndReturn<CalibrationViewModelBase>(HostApplication.GetRequiredService(entry.ViewModelType));
 
-        cacheProvider.SetArray(type, items.Cast<object>().ToArray(), cancellationToken);
-        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibrations), items);
+        cacheProvider.SetArray(type, Unsafe.As<object[]>(calibrations), cancellationToken);
+        ObjectHelper.SetPropertyValue(entry.Cookie, nameof(entry.Cookie.Calibrations), calibrations);
 
         calibrationViewModel.UpdateEntryStatus(entry.Cookie.Calibrations, cancellationToken);
 
