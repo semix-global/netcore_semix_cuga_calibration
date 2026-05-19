@@ -21,7 +21,7 @@
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="10">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Chuck Prealigner Step 4: "
-                           Status="{Binding CalibrationStepList[3].StepName}"
+                           Status="{Binding CalibrationSteps[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">

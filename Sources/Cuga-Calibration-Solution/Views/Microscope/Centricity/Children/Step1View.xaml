@@ -30,23 +30,23 @@
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="1">
                                     <Setter Property="Subject" Value="Microscope Centricity Step 2:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[1].StepName}" />
+                                    <Setter Property="Status" Value="{Binding CalibrationSteps[1].StepName}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="2">
                                     <Setter Property="Subject" Value="Microscope Centricity Step 3:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[2].StepName}" />
+                                    <Setter Property="Status" Value="{Binding CalibrationSteps[2].StepName}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="3">
                                     <Setter Property="Subject" Value="Microscope Centricity Step 4:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[3].StepName}" />
+                                    <Setter Property="Status" Value="{Binding CalibrationSteps[3].StepName}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="4">
                                     <Setter Property="Subject" Value="Microscope Centricity Step 5:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[4].StepName}" />
+                                    <Setter Property="Status" Value="{Binding CalibrationSteps[4].StepName}" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="5">
                                     <Setter Property="Subject" Value="Microscope Centricity Step 6:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[5].StepName}" />
+                                    <Setter Property="Status" Value="{Binding CalibrationSteps[5].StepName}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

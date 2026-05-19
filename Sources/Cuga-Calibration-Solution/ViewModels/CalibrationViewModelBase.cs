@@ -170,7 +170,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
             CheckStatus();
             await Task.Run(async () =>
             {
-                CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = CalibrationStepList[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
+                CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = CalibrationSteps[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
 
                 ViewEnum = CalibrationItemViewEnum.Loading;
                 await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
@@ -204,7 +204,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
             CheckStatus();
             await Task.Run(async () =>
             {
-                CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = CalibrationStepList[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
+                CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = CalibrationSteps[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
 
                 ViewEnum = CalibrationItemViewEnum.Loading;
                 await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
@@ -216,7 +216,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                     return;
                 }
 
-                if (CalibrationStepIndex == CalibrationStepList.Count - 1)
+                if (CalibrationStepIndex == CalibrationSteps.Count - 1)
                 {
                     Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
 
@@ -291,7 +291,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
     protected async Task<bool> InvokeCalibrateAsync(Func<Task<bool>> func, string comment = "")
     {
-        Logger.LogHtmlInformation($"{CalibrationStepIndex + 1}. {CalibrationStepList[CalibrationStepIndex].StepName}{(string.IsNullOrWhiteSpace(comment) ? string.Empty : $"[{comment}]")}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation($"{CalibrationStepIndex + 1}. {CalibrationSteps[CalibrationStepIndex].StepName}{(string.IsNullOrWhiteSpace(comment) ? string.Empty : $"[{comment}]")}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
         var result = false;
         try
@@ -301,13 +301,13 @@ public partial class CalibrationViewModelBase : ViewModelBase
             {
                 UpdateDisableAll();
 
-                result = CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = await func.Invoke().ConfigureAwait(false);
+                result = CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = await func.Invoke().ConfigureAwait(false);
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
             return result;
         }
         catch (Exception ex)
         {
-            result = CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
+            result = CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = false;
 
             if (ex is OperationCanceledException)
             {
@@ -324,7 +324,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         finally
         {
             UpdatePreviousNextStatus();
-            if (CalibrationStepIndex == CalibrationStepList.Count - 1 || result == false)
+            if (CalibrationStepIndex == CalibrationSteps.Count - 1 || result == false)
             {
                 Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.HandleCalibration)}" +
                                                                           $"_{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +

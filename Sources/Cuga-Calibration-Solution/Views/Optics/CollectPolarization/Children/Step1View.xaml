@@ -26,7 +26,7 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Collect Polarization Calibration Step 2: "
-                           Status="{Binding CalibrationStepList[1].StepName}"
+                           Status="{Binding CalibrationSteps[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">

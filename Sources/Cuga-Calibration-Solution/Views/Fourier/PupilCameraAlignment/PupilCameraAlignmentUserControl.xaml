@@ -83,7 +83,7 @@
                             VerticalAlignment="Center"
                             FontSize="10"
                             StepIndex="{Binding CalibrationStepIndex}"
-                            ItemsSource="{Binding CalibrationStepList}">
+                            ItemsSource="{Binding CalibrationSteps}">
                     <hc:StepBar.ItemTemplate>
                         <DataTemplate />
                     </hc:StepBar.ItemTemplate>

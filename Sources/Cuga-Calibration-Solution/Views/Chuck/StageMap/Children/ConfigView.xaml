@@ -22,7 +22,7 @@
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
             <hc:Shield Subject="Config Step: "
-                       Status="{Binding CalibrationStepList[0].StepName}"
+                       Status="{Binding CalibrationSteps[0].StepName}"
                        Color="{StaticResource InfoBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">

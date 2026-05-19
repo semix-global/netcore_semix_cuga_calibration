@@ -27,7 +27,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 {
     #region 属性
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Param" },
         new() { StepName = "AB Brightness" },

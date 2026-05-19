@@ -36,7 +36,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => $"{Cache.ProductivityInformation.ToString()}";
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },

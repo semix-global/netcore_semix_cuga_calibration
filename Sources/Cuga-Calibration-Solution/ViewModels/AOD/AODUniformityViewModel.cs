@@ -46,7 +46,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => $"{Cache.ProductivityInformation}-{Cache.LaserLightInformation}";
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Select Laser Light Information" },

@@ -34,7 +34,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => Cache.OpticsIlluminationModeEnum.Humanize();
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Optics Illumination Mode" },
         new() { StepName = "Image Param" },

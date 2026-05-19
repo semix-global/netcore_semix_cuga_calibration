@@ -48,7 +48,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName)}-{Cache.ProductivityInformation}";
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Config" },
         new() { StepName = "BF P5", StepIndex = 1 },

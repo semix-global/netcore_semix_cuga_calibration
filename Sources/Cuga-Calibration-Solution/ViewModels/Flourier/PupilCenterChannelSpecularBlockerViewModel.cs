@@ -107,7 +107,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
     [ObservableProperty]
     private double _reviewImageCompareCh3;
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Shiny Wafer Position And Productivity Information" },
         new() { StepName = "Pupil Center Channel Specular Blocker Calibration" }

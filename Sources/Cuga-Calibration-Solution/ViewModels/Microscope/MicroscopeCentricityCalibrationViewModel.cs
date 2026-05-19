@@ -31,7 +31,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.MicroscopeLensInformation.LensName);
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } = new List<CalibrationItemStep>();
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } = new List<CalibrationItemStep>();
 
     #region 界面相关
 
@@ -99,7 +99,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
         SynchronizationContextProvider.Send(() =>
         {
-            Guard.IsAssignableToTypeAndReturn<List<CalibrationItemStep>>(CalibrationStepList).AddRange([
+            Guard.IsAssignableToTypeAndReturn<List<CalibrationItemStep>>(CalibrationSteps).AddRange([
                 new CalibrationItemStep { StepName = "Select a location" },
                 .. ApplicationCookie.MicroscopeLensInformations
                     .Select(t => t)
@@ -175,7 +175,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
             if (SaveResult() == false)
                 result = false;
 
-        if (CalibrationStepIndex == CalibrationStepList.Count - 1)
+        if (CalibrationStepIndex == CalibrationSteps.Count - 1)
         {
             return result;
         }

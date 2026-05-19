@@ -24,7 +24,7 @@
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Microscope Pixel Size Step 3: "
-                           Status="{Binding CalibrationStepList[2].StepName}"
+                           Status="{Binding CalibrationSteps[2].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Microscope Pixel Size Step : "
                            Status="{Binding CalibrationStepName}"

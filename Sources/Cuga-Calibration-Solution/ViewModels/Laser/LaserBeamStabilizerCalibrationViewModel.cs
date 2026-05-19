@@ -19,7 +19,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 {
     #region 属性
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select time interval", DefaultIsNextEnable = true },
         new() { StepName = "Beam Stabilizer calibration" }
@@ -164,7 +164,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
                 LaserViewModel.AdjustBeamStabilizer(false);
                 if (!isSecondCalibrateSuccess)
                 {
-                    CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
+                    CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = false;
                     Logger.LogHtmlError("Beam Stabilizer calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
                         FirstLaserBeamStabilizerObjDto.CurrentPDPosition1,
@@ -220,7 +220,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
                 if (!isSecondCalibrateSuccess)
                 {
-                    CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
+                    CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = false;
 
                     Logger.LogHtmlError("Verify Beam Stabilizer calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {

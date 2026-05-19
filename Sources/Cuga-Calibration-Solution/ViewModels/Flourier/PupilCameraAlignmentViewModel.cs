@@ -26,7 +26,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     [ObservableProperty]
     private Point _sxPos;
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Haze Wafer Position" },
         new() { StepName = "Get And Save CH1 Image" },

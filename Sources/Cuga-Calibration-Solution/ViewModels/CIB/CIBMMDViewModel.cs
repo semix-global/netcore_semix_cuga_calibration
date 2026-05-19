@@ -57,7 +57,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     public override string CalibrateFileName => string.Join("_", Cache.CIBInformations).Truncate(50);
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select CIB Information" },
         new() { StepName = "Find Haze Position" },

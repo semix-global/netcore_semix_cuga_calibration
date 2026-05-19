@@ -33,7 +33,7 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "P5" },
         new() { StepName = "Low Mag Base Position" },

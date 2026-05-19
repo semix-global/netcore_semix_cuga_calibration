@@ -53,7 +53,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity" },
         new() { StepName = "Select Optics Apodization Mode" },

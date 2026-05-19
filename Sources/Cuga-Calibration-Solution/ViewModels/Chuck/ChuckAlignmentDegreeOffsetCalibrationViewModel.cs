@@ -29,7 +29,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
 {
     #region 属性
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Bright Field P5" },

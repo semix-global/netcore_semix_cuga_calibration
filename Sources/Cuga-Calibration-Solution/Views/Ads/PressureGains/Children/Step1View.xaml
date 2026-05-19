@@ -19,7 +19,7 @@
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Ads Pressure Gains Step 2: "
-                           Status="{Binding CalibrationStepList[1].StepName}"
+                           Status="{Binding CalibrationSteps[1].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Find Focus Position: "

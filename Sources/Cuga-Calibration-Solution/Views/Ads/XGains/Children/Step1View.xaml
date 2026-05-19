@@ -28,7 +28,7 @@
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="1">
                                     <Setter Property="Subject" Value="Ads X Gains Step 2:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationStepList[1].StepName}" />
+                                    <Setter Property="Status" Value="{Binding CalibrationSteps[1].StepName}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

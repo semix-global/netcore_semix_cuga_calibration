@@ -27,7 +27,7 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 1: "
-                           Status="{Binding CalibrationStepList[0].StepName}"
+                           Status="{Binding CalibrationSteps[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "

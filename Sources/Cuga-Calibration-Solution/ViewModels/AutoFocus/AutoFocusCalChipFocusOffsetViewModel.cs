@@ -32,7 +32,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override IReadOnlyList<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Chuck Param" },
         new() { StepName = "Chuck AF ECS" },
@@ -408,7 +408,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                     Result = new HtmlQuote(CalibratingItem.CurrentItem.ToFlatnessHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                if (CalibrationStepIndex != CalibrationStepList.Count - 1)
+                if (CalibrationStepIndex != CalibrationSteps.Count - 1)
                     return true;
 
                 CalibratingItem.IsCalibrated = true;
