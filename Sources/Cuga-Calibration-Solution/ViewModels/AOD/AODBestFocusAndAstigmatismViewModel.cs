@@ -71,7 +71,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     public partial AODBestFocusAndAstigmatismDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationAndApodizationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationAndApodizationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
