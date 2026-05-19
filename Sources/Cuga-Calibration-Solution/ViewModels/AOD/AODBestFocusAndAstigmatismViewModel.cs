@@ -185,11 +185,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 return true;
 
             case 5:
-                DialogWindowProvider.ShowDialog(
-                    $"{Cache.ProductivityInformation}-{Cache.ApodizationModeEnum.ToHexString()} " +
-                    $"best focus and astigmatism calibration ok!");
-
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
+                DialogWindowProvider.ShowDialog($"{Cache.ProductivityInformation}-{Cache.ApodizationModeEnum.ToHexString()} best focus and astigmatism calibration ok!");
 
                 return true;
             default:

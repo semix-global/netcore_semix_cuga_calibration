@@ -147,7 +147,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
                 return true;
 
             case 2:
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 ClearCalibrationTemp();
 

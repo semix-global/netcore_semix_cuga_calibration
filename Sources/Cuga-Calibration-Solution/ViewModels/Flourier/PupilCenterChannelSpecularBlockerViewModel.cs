@@ -235,8 +235,6 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
                     }
                 }
 
-                if (!IsCalibrated) CalibrationStepIndex = -1;
-
                 return true;
 
             default:

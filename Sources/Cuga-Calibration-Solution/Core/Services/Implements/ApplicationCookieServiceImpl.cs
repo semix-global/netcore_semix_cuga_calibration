@@ -62,6 +62,8 @@ public sealed partial class ApplicationCookieServiceImpl(
                     .ToArray();
                 calibrationItem.Children = children;
 
+                foreach (var child in children) child.SysMenu.Parent = calibrationItem.SysMenu;
+
                 foreach (var item in children
                              .Where(t => calibrationMenus.Any(p => p.SysMenu.ParentId == t.SysMenu.Id && p.SysMenu.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
                 {
@@ -84,6 +86,8 @@ public sealed partial class ApplicationCookieServiceImpl(
                     .OrderBy(t => t.OrderNum)
                     .ToList();
                 calibrationItem.ChildList = children;
+
+                foreach (var child in children) child.Parent = calibrationItem;
 
                 foreach (var item in children.Where(item => applicationCookie.CurrentRoleSysMenus.Any(p => p.ParentId == item.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
                 {

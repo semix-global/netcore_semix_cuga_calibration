@@ -195,8 +195,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             case 2:
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
-
                 return true;
 
             default:

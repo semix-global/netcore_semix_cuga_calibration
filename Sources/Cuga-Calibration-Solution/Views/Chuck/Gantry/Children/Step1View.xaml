@@ -59,26 +59,14 @@
                                  hc:TitleElement.Title="Low Magnification: "
                                  hc:TitleElement.TitleWidth="200"
                                  SelectedItem="{Binding Cache.LowMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=LowMagCombobox, Path=SelectedItem}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
                     <hc:ComboBox x:Name="HighMagCombobox"
                                  HorizontalAlignment="Left"
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.Title="High Magnification: "
                                  hc:TitleElement.TitleWidth="200"
                                  SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
                     <hc:ComboBox HorizontalAlignment="Left"
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.Title="Template Mask Type: "

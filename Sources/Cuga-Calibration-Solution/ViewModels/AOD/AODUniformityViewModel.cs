@@ -207,8 +207,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
             case 6:
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
-
                 return true;
 
             default:

@@ -39,13 +39,7 @@
                                  hc:TitleElement.Title="High Magnification: "
                                  hc:TitleElement.TitleWidth="150"
                                  SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=HighMagCombobox, Path=SelectedItem}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
                     <StackPanel>
                         <TextBlock Text="Result: Find High Position1"
                                    HorizontalAlignment="Center"

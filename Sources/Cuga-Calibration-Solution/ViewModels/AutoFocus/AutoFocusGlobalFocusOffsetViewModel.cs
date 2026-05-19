@@ -137,8 +137,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
             case 3:
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
-
                 return true;
 
             default:

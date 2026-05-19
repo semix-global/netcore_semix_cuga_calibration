@@ -60,11 +60,6 @@
                                     <TextBlock Text="{Binding LensName}" />
                                 </DataTemplate>
                             </hc:ComboBox.ItemTemplate>
-                            <b:Interaction.Triggers>
-                                <b:EventTrigger EventName="SelectionChanged">
-                                    <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=MagCombobox, Path=SelectedItem}" />
-                                </b:EventTrigger>
-                            </b:Interaction.Triggers>
                         </hc:ComboBox>
                         <hc:ComboBox HorizontalAlignment="Left"
                                      hc:TitleElement.TitlePlacement="Left"

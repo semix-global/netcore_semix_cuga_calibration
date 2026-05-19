@@ -178,38 +178,26 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     }
 
     [RelayCommand(CanExecute = nameof(IsCalibrateEnable))]
-    private Task CalibrateAsync()
-    {
-        return ActiveItem?.CalibrateAsync() ?? Task.CompletedTask;
-    }
+    private async Task CalibrateAsync() => await (ActiveItem?.CalibrateAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 
     [RelayCommand(CanExecute = nameof(IsReviewEnable))]
-    private Task ReviewAsync()
-    {
-        return ActiveItem?.ReviewAsync() ?? Task.CompletedTask;
-    }
+    private async Task ReviewAsync() => await (ActiveItem?.ReviewAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 
     [RelayCommand(CanExecute = nameof(IsCancelEnable))]
     private async Task CancelAsync()
     {
-        var completedTask = ActiveItem?.CancelAsync() ?? Task.CompletedTask;
-        await completedTask.ConfigureAwait(false);
+        await (ActiveItem?.CancelAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 
         if (ActiveItem is not null) ActiveItem = null;
+
         Title = ApplicationCookie.Title;
     }
 
     [RelayCommand(CanExecute = nameof(IsPreviousEnable))]
-    private Task PreviousAsync()
-    {
-        return ActiveItem?.PreviousAsync() ?? Task.CompletedTask;
-    }
+    private async Task PreviousAsync() => await (ActiveItem?.PreviousAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 
     [RelayCommand(CanExecute = nameof(IsNextEnable))]
-    private Task NextAsync()
-    {
-        return ActiveItem?.NextAsync() ?? Task.CompletedTask;
-    }
+    private async Task NextAsync() => await (ActiveItem?.NextAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 
     [RelayCommand]
     private async Task OpenCalibrationAsync(string viewModel)

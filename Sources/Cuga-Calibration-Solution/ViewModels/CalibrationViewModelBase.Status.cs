@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Enums;
 using Core.Models.Events;
 using Core.Models.Models;
-using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.Events;
 using System.Diagnostics.CodeAnalysis;
 
@@ -128,27 +127,11 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsReviewEnable(false));
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
-        if (IsCalibrated)
-        {
-            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
-            HtmlLogUniqueId = Guid.NewGuid();
-            DialogWindowProvider.ShowDialog($"Calibration {Name} Ok!");
 
-            UpdateWelcomeStatus();
-        }
-        else
-        {
-            UpdatePreviousStatus();
-            UpdateNextStatus();
+        UpdatePreviousStatus();
+        UpdateNextStatus();
 
-            ViewEnum = CalibrationItemViewEnum.Calibration;
-        }
-    }
-
-    private void UpdateDisableAll()
-    {
-        Messenger.Send(ToggleCalibrateEventFactory.Disable());
-        Messenger.Send(PopupWindowEventFactory.DisableIsPopupWindowEnable());
+        ViewEnum = CalibrationItemViewEnum.Calibration;
     }
 
     private void UpdatePreviousStatus()
@@ -159,5 +142,19 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
     private void UpdateNextStatus()
     {
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsNextEnable(0 <= CalibrationStepIndex && CalibrationStepIndex < CalibrationStepList.Count && CalibrationStepList[CalibrationStepIndex].StepIsNextEnable));
+    }
+
+    private void UpdateDisableAll()
+    {
+        Messenger.Send(ToggleCalibrateEventFactory.Disable());
+        Messenger.Send(PopupWindowEventFactory.DisableIsPopupWindowEnable());
+    }
+
+    public void Receive(PropertyChangedMessage<bool> message)
+    {
+        if (message is not { Sender: CalibrationItemStep, PropertyName: nameof(CalibrationItemStep.StepIsNextEnable) }) return;
+
+        UpdateNextStatus();
+        OnPropertyChanged(nameof(CalibrationProgress));
     }
 }

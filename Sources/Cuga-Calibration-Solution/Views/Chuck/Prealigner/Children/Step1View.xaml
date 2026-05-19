@@ -54,13 +54,7 @@
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.Title="Low Magnification: "
                                  SelectedItem="{Binding Cache.LowMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                        <b:Interaction.Triggers>
-                            <b:EventTrigger EventName="SelectionChanged">
-                                <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=LowMagCombobox, Path=SelectedItem}" />
-                            </b:EventTrigger>
-                        </b:Interaction.Triggers>
-                    </hc:ComboBox>
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
                     <StackPanel>
                         <TextBlock Text="Wafer Param"
                                    HorizontalAlignment="Center"

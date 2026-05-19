@@ -127,8 +127,6 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
             case 1:
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
-
                 return true;
 
             default:

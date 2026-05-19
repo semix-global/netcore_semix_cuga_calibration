@@ -160,7 +160,7 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
                 return true;
 
             case 2:
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 ClearCalibrationTemp();
 

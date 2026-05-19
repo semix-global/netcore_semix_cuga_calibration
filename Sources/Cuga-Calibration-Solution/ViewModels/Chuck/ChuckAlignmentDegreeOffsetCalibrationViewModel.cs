@@ -149,7 +149,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel() : C
                 return true;
 
             case 3:
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
                 return true;
 

@@ -182,8 +182,6 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
             case 4:
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
-
                 return true;
 
             default:

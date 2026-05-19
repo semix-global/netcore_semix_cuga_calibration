@@ -169,8 +169,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             case 5:
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
-
                 return true;
 
             default:
