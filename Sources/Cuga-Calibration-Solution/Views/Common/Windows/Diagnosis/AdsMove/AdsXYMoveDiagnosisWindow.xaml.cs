@@ -17,7 +17,7 @@ public partial class AdsXYMoveDiagnosisWindow
     {
         if (DataContext is AdsXYMoveDiagnosisWindowViewModel viewModel)
         {
-            var selectedItem = dataGrid?.SelectedItem as CugaCalibration.ViewModels.Common.Windows.Diagnosis.Position;
+            var selectedItem = dataGrid?.SelectedItem as Position;
             if (selectedItem != null)
             {
                 viewModel.OnSelectionChangedCommand(selectedItem);

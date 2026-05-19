@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -12,7 +13,7 @@ using ScottPlot;
 
 namespace Core.Models.Models.CIB.MMD;
 
-public sealed partial class CIBMMDCache : CalibrationCacheBase
+public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
 {
     [ObservableProperty]
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
@@ -170,8 +171,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     // ReSharper disable UnusedParameterInPartialMethod
@@ -226,7 +225,64 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
         }
     }
 
-    public sealed partial class MMDConfiguration : ObservableObject
+    public override CIBMMDCache Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBInformations = [.. CIBInformations.Select(t => t.Clone())],
+        HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        ProductivityInformation = ProductivityInformation.Clone(),
+        PrescanFrequency = PrescanFrequency,
+        GeneratePrescanAODWaveformParam = GeneratePrescanAODWaveformParam.Clone(),
+        ChirpFrequency = ChirpFrequency,
+        GenerateChirpAODWaveformParam = GenerateChirpAODWaveformParam.Clone(),
+        MeasurePowerNoisesCount = MeasurePowerNoisesCount,
+        MeasurePowerWaitTime = MeasurePowerWaitTime,
+        PMTValueWaitTime = PMTValueWaitTime,
+        StartCoefficient = StartCoefficient,
+        StepCoefficient = StepCoefficient,
+        StopCoefficient = StopCoefficient,
+        MeasurePowerSequenceCommonRatio = MeasurePowerSequenceCommonRatio,
+        MeasurePowerNotUseODFilterMinValue = MeasurePowerNotUseODFilterMinValue,
+        MMDMeasurePowerRangeRatio = MMDMeasurePowerRangeRatio,
+        StartGain = StartGain,
+        StepGain = StepGain,
+        StopGain = StopGain,
+        ProtectedPMTValue = ProtectedPMTValue,
+        ProtectedOverflowProtectedPMTValueCount = ProtectedOverflowProtectedPMTValueCount,
+        ImageWidth = ImageWidth,
+        DarkCurrent = DarkCurrent,
+        Denominator = Denominator,
+        ScaleFactor = ScaleFactor,
+        MinValidFraction = MinValidFraction,
+        MaxValidFraction = MaxValidFraction,
+        VerifyMinLogGain = VerifyMinLogGain,
+        VerifyMaxLogGain = VerifyMaxLogGain,
+        SmoothLogGainMul128U12BitWindow = SmoothLogGainMul128U12BitWindow,
+        SmoothGainS16BitWindow = SmoothGainS16BitWindow,
+        MMDConfigurations = [.. MMDConfigurations.Select(t => t.Clone())],
+        PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
+        PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],
+        ChirpAODWaveformResultFilePath = ChirpAODWaveformResultFilePath,
+        ChirpAODWaveformProfiles = [.. ChirpAODWaveformProfiles.Select(t => t.Clone())],
+        OriginMeasurePowerPoints = [.. OriginMeasurePowerPoints],
+        MeasurePowerPoints = [.. MeasurePowerPoints],
+        P0 = P0,
+        P1 = P1,
+        P2 = P2,
+        P3 = P3,
+        RSquared = RSquared,
+        FitMeasurePowerPoints = [.. FitMeasurePowerPoints],
+        ODFilterRatio = ODFilterRatio,
+        NotUseODFilterMeasurePowerPoints = [.. NotUseODFilterMeasurePowerPoints],
+        UseODFilterMeasurePowerPoints = [.. UseODFilterMeasurePowerPoints],
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
+
+    public sealed partial class MMDConfiguration : ObservableObject, ICloneable<MMDConfiguration>
     {
         [ObservableProperty]
         public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
@@ -236,5 +292,12 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase
 
         [ObservableProperty]
         public partial double PowerRate { get; set; } = 1d;
+
+        public MMDConfiguration Clone() => new()
+        {
+            CIBInformation = CIBInformation.Clone(),
+            FilterMinGain = FilterMinGain,
+            PowerRate = PowerRate
+        };
     }
 }

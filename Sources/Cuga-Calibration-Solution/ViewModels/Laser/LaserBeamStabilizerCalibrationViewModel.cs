@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
@@ -18,7 +19,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select time interval", DefaultIsNextEnable = true },
         new() { StepName = "Beam Stabilizer calibration" }
@@ -59,14 +60,14 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
         if (LoadDepends() == false) return false;
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserBeamStabilizerCache>();
-        Calibration = CacheProvider.GetOrDefault<LaserBeamStabilizerObjDto>();
+        Cache = ApplicationCookieService.GetCache<LaserBeamStabilizerCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<LaserBeamStabilizerObjDto>(cancellationToken);
 
         Cache.Threshold = Cache.Threshold == 0 ? 25 : Cache.Threshold;
         FirstLaserBeamStabilizerObjDto = new LaserBeamStabilizerObjDto { Interval = 30 };
         SynchronizationContextProvider.Send(LaserBeamStabilizerObjDtoList.Clear);
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -115,7 +116,6 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
                     return false;
                 }
 
-                IsCalibrated = isCalibrated;
                 return true;
 
             default:
@@ -164,7 +164,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
                 LaserViewModel.AdjustBeamStabilizer(false);
                 if (!isSecondCalibrateSuccess)
                 {
-                    CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
+                    CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = false;
                     Logger.LogHtmlError("Beam Stabilizer calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
                         FirstLaserBeamStabilizerObjDto.CurrentPDPosition1,
@@ -204,7 +204,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
             ReviewDto.IsVerified = false;
 
-            CacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
 
             SynchronizationContextProvider.Send(LaserBeamStabilizerObjDtoList.Clear);
 
@@ -220,7 +220,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
                 if (!isSecondCalibrateSuccess)
                 {
-                    CalibrationStepList[CalibrationStepIndex].StepIsNextEnable = false;
+                    CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = false;
 
                     Logger.LogHtmlError("Verify Beam Stabilizer calibration result failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
@@ -327,9 +327,22 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<LaserBeamStabilizerObjDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

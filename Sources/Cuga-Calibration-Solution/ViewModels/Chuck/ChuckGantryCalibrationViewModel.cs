@@ -25,7 +25,7 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGantryCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewModelBase
+public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewModelBase
 {
     #region 属性
 
@@ -33,7 +33,7 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "P5" },
         new() { StepName = "Low Mag Base Position" },
@@ -89,15 +89,15 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
-
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckGantryCache>();
-        Calibration = CacheProvider.GetOrDefault<ChuckGantryDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<ChuckGantryCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<ChuckGantryDto>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -185,8 +185,6 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
                     return false;
                 }
 
-                IsCalibrated = true;
-
                 return true;
 
             default:
@@ -202,25 +200,25 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
     private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
-         {
-             AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-             AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+        {
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
-             await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-             var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-             Cache.P5Angle = alignmentResult.Degrees;
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
+            Cache.P5Angle = alignmentResult.Degrees;
 
-             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-             {
-                 AlignmentUserControlViewModel.IsDarkFieldAlignment,
-                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
-             }), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
 
-             StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
 
-             return true;
-         });
+            return true;
+        });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -579,9 +577,22 @@ public sealed partial class ChuckGantryCalibrationViewModel() : CalibrationViewM
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
+    });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckGantryDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

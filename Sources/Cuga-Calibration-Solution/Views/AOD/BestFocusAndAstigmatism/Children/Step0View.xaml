@@ -29,7 +29,7 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 1: "
-                           Status="{Binding CalibrationStepList[0].StepName}"
+                           Status="{Binding CalibrationSteps[0].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Productivity Information: "
@@ -73,7 +73,7 @@
                  VerticalAlignment="Center"
                  BorderThickness="0"
                  ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
-                 ItemsSource="{Binding CalibrationStatuses}"
+                 ItemsSource="{Binding CalibratingStatuses}"
                  SelectionMode="Single">
             <i:Interaction.Behaviors>
                 <behaviors:ListBoxSelectedItemProductivityInformationAndApodizationStatusBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" />

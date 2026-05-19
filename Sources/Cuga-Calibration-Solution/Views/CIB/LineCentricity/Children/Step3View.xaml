@@ -7,7 +7,6 @@
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:cib="clr-namespace:CugaCalibration.ViewModels.CIB"
              d:DataContext="{d:DesignInstance Type=cib:CIBLineCentricityViewModel}"
              d:DesignWidth="1920"
@@ -27,7 +26,7 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 4: "
-                           Status="{Binding CalibrationStepList[3].StepName}"
+                           Status="{Binding CalibrationSteps[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Productivity Information: "
@@ -59,11 +58,6 @@
                                     <TextBlock Text="{Binding LensName}" />
                                 </DataTemplate>
                             </hc:ComboBox.ItemTemplate>
-                            <b:Interaction.Triggers>
-                                <b:EventTrigger EventName="SelectionChanged">
-                                    <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=MagCombobox, Path=SelectedItem}" />
-                                </b:EventTrigger>
-                            </b:Interaction.Triggers>
                         </hc:ComboBox>
                         <hc:ComboBox HorizontalAlignment="Left"
                                      hc:TitleElement.TitleWidth="160"

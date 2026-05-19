@@ -12,88 +12,82 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.CIB.LineOrientationOffset;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDtoBase, ICloneable<CIBLineOrientationOffsetDTO>, IAdaptTo<CalibrationCIBLineOrientationOffsetItem>
+public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDTOBase<CIBLineOrientationOffsetDTO>, IAdaptTo<CalibrationCIBLineOrientationOffsetItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _pmtId;
+    public partial int PmtId { get; set; }
 
     [ObservableProperty]
-    private Point _startPosition;
+    public partial Point StartPosition { get; set; }
 
     [ObservableProperty]
-    private Point _endPosition;
+    public partial Point EndPosition { get; set; }
 
     [ObservableProperty]
-    private Point _findPosition;
+    public partial Point FindPosition { get; set; }
 
     [ObservableProperty]
-    private Point _forwardFindDarkMachinePosition;
+    public partial Point ForwardFindDarkMachinePosition { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(XOffset))]
-    private Point _reverseFindDarkMachinePosition;
+    public partial Point ReverseFindDarkMachinePosition { get; set; }
 
     public double XOffset => ReverseFindDarkMachinePosition.X - ForwardFindDarkMachinePosition.X;
 
     [ObservableProperty]
-    private string _forwardFilePath = string.Empty;
+    public partial string ForwardFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _reverseFilePath = string.Empty;
+    public partial string ReverseFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     #region Mapper
 
-    public CIBLineOrientationOffsetDTO Clone()
+    public override CIBLineOrientationOffsetDTO Clone() => new()
     {
-        return new CIBLineOrientationOffsetDTO
-        {
-            ProductivityInformation = ProductivityInformation.Clone(),
-            MicroscopeLensInformation = MicroscopeLensInformation,
-            PmtId = PmtId,
-            FindPosition = FindPosition,
-            StartPosition = StartPosition,
-            EndPosition = EndPosition,
-            ForwardFindDarkMachinePosition = ForwardFindDarkMachinePosition,
-            ReverseFindDarkMachinePosition = ReverseFindDarkMachinePosition,
-            ForwardFilePath = ForwardFilePath,
-            ReverseFilePath = ReverseFilePath,
-            TemplateFilePath = TemplateFilePath,
-            TemplateImageFilePath = TemplateImageFilePath,
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck,
-            Id = Id,
-            Expiration = Expiration
-        };
-    }
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        ProductivityInformation = ProductivityInformation.Clone(),
+        PmtId = PmtId,
+        StartPosition = StartPosition,
+        EndPosition = EndPosition,
+        FindPosition = FindPosition,
+        ForwardFindDarkMachinePosition = ForwardFindDarkMachinePosition,
+        ReverseFindDarkMachinePosition = ReverseFindDarkMachinePosition,
+        ForwardFilePath = ForwardFilePath,
+        ReverseFilePath = ReverseFilePath,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
+    };
 
-    public CalibrationCIBLineOrientationOffsetItem AdaptTo()
+    public CalibrationCIBLineOrientationOffsetItem AdaptTo() => new()
     {
-        return new CalibrationCIBLineOrientationOffsetItem
-        {
-            CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
-            CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
-            CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
-            Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
-            PmtId = PmtId,
-            XOffset = XOffset,
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredCalibrate = IsRequiredSelfCheck
-        };
-    }
+        CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
+        CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
+        CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
+        Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
+        PmtId = PmtId,
+        XOffset = XOffset,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredCalibrate = IsRequiredSelfCheck
+    };
 
     #endregion Mapper
 }

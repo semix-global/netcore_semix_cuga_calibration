@@ -12,35 +12,35 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
 [CacheVersion("1.0.0")]
-public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoBase, ICloneable<PupilSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>
+public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDTOBase<PupilSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationMode = OpticsIlluminationModeEnum.OI;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationMode { get; set; } = OpticsIlluminationModeEnum.OI;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public Point _cgFFBoxBeginPositionCh1 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh1 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public Point _cgFFBoxBeginPositionCh2 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh2 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh1 = [];
+    public partial List<int> CgFFBoxBeginAndEndNumberCh1 { get; set; } = [];
 
     [ObservableProperty]
-    public List<int> _cgFFBoxBeginAndEndNumberCh2 = [];
+    public partial List<int> CgFFBoxBeginAndEndNumberCh2 { get; set; } = [];
 
     [ObservableProperty]
-    public List<double> _cgFFBoxMoveDownPercentListCh1 = [0.3];
+    public partial List<double> CgFFBoxMoveDownPercentListCh1 { get; set; } = [0.3];
 
     [ObservableProperty]
-    public List<double> _cgFFBoxMoveDownPercentListCh2 = [0.3];
+    public partial List<double> CgFFBoxMoveDownPercentListCh2 { get; set; } = [0.3];
 
     #region Mapper
 
-    public PupilSideChannelSpecularBlockerDTO Clone()
+    public override PupilSideChannelSpecularBlockerDTO Clone()
     {
         return new PupilSideChannelSpecularBlockerDTO
         {
@@ -48,10 +48,10 @@ public sealed partial class PupilSideChannelSpecularBlockerDTO : CalibrationDtoB
             ProductivityInformation = ProductivityInformation.Clone(),
             CgFFBoxBeginPositionCh1 = CgFFBoxBeginPositionCh1,
             CgFFBoxBeginPositionCh2 = CgFFBoxBeginPositionCh2,
-            CgFFBoxBeginAndEndNumberCh1 = CgFFBoxBeginAndEndNumberCh1,
-            CgFFBoxBeginAndEndNumberCh2 = CgFFBoxBeginAndEndNumberCh2,
-            CgFFBoxMoveDownPercentListCh1 = CgFFBoxMoveDownPercentListCh1,
-            CgFFBoxMoveDownPercentListCh2 = CgFFBoxMoveDownPercentListCh2,
+            CgFFBoxBeginAndEndNumberCh1 = [.. CgFFBoxBeginAndEndNumberCh1],
+            CgFFBoxBeginAndEndNumberCh2 = [.. CgFFBoxBeginAndEndNumberCh2],
+            CgFFBoxMoveDownPercentListCh1 = [.. CgFFBoxMoveDownPercentListCh1],
+            CgFFBoxMoveDownPercentListCh2 = [.. CgFFBoxMoveDownPercentListCh2],
 
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,

@@ -10,37 +10,37 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Microscope.Centricity;
 
 [CacheVersion("1.0.0")]
-public sealed partial class MicroscopeCentricityItemDto : CalibrationDtoBase, ICloneable<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>
+public sealed partial class MicroscopeCentricityItemDto : CalibrationDTOBase<MicroscopeCentricityItemDto>, IAdaptTo<CalibrationMicroscopeCentricityItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private Point _centricityPosition;
+    public partial Point CentricityPosition { get; set; }
 
     [ObservableProperty]
-    private Point _offset;
+    public partial Point Offset { get; set; }
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _templateScore;
+    public partial double TemplateScore { get; set; }
 
     [ObservableProperty]
-    private double _templateAngle;
+    public partial double TemplateAngle { get; set; }
 
     #region Mapper
 
-    public MicroscopeCentricityItemDto Clone() => new()
+    public override MicroscopeCentricityItemDto Clone() => new()
     {
-        LensInformation = LensInformation,
+        LensInformation = LensInformation.Clone(),
         CentricityPosition = CentricityPosition,
         Offset = Offset,
         FilePath = FilePath,

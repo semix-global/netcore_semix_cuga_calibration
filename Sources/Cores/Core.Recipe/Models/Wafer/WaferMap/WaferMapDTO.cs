@@ -18,6 +18,6 @@ public sealed partial class WaferMapDTO : ObservableObject, ICloneable<WaferMapD
     {
         WaferMapDataDTO = WaferMapDataDTO.Clone(),
         OriginDieDTO = OriginDieDTO.Clone(),
-        OriginReticleDTO = OriginReticleDTO.Clone(),
+        OriginReticleDTO = OriginReticleDTO.Clone()
     };
 }

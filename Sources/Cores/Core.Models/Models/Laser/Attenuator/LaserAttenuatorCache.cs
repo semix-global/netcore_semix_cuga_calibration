@@ -1,41 +1,64 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Laser.Attenuator;
 
-public sealed partial class LaserAttenuatorCache : CalibrationCacheBase
+public sealed partial class LaserAttenuatorCache : CalibrationCacheBase<LaserAttenuatorCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private double _threshold = 0.999;
+    public partial double Threshold { get; set; } = 0.999;
 
     [ObservableProperty]
-    private double _rateThreshold = 0.05;
+    public partial double RateThreshold { get; set; } = 0.05;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, LaserAttenuatorCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, LaserAttenuatorCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, LaserAttenuatorCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public LaserAttenuatorCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new LaserAttenuatorCacheItem());
+
+    public override LaserAttenuatorCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        Threshold = Threshold,
+        RateThreshold = RateThreshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, LaserAttenuatorCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, LaserAttenuatorCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase
+public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase<LaserAttenuatorCacheItem>
 {
     [ObservableProperty]
-    private double _waitTime = 5;
+    public partial double WaitTime { get; set; } = 5;
 
     [ObservableProperty]
-    private double _startCoefficient = 0.01;
+    public partial double StartCoefficient { get; set; } = 0.01;
 
     [ObservableProperty]
-    private double _stepCoefficient = 0.02;
+    public partial double StepCoefficient { get; set; } = 0.02;
 
     [ObservableProperty]
-    private double _stopCoefficient = 1;
+    public partial double StopCoefficient { get; set; } = 1;
+
+    public override LaserAttenuatorCacheItem Clone() => new()
+    {
+        WaitTime = WaitTime,
+        StartCoefficient = StartCoefficient,
+        StepCoefficient = StepCoefficient,
+        StopCoefficient = StopCoefficient,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

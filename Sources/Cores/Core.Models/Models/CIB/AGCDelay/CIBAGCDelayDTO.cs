@@ -22,7 +22,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.CIB.AGCDelay;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
+public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
 {
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
@@ -32,14 +32,10 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial Point[] LaserLightInformationPMTVoltageValuePoints { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
@@ -47,14 +43,10 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial ConcurrentDictionary<CIBInformation, double> TargetPixelValues { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial ConcurrentDictionary<CIBInformation, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
     #region Partial Method
@@ -168,12 +160,12 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDtoBase, ICloneable<CIBA
 
     #region Mapper
 
-    public CIBAGCDelayDTO Clone() => new()
+    public override CIBAGCDelayDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Coefficient = Coefficient,
         Items = [.. Items.Select(t => t.Clone())],
-        TargetPixelValues = new ConcurrentDictionary<CIBInformation, double>(TargetPixelValues),
+        TargetPixelValues = new ConcurrentDictionary<CIBInformation, double>(TargetPixelValues.Select(t => new KeyValuePair<CIBInformation, double>(t.Key.Clone(), t.Value))),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -201,8 +193,6 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IReadOnlyList<Item> Items { get; set; } = [];
 
     [ObservableProperty]

@@ -11,104 +11,101 @@ using Point = Net.Utilities.Models.Geometries.Point;
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 [CacheVersion("1.0.0")]
-public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDtoBase, ICloneable<PupilSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>
+public sealed partial class PupilSideChannelFlexibleApertureDTO : CalibrationDTOBase<PupilSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>
 {
     [ObservableProperty]
-    private Point _cgFFBoxBeginPositionCh1 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh1 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _cgFFBoxEndPositionCh1 = Point.Origin;
+    public partial Point CgFFBoxEndPositionCh1 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _cgFFBoxBeginPositionCh2 = Point.Origin;
+    public partial Point CgFFBoxBeginPositionCh2 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _cgFFBoxEndPositionCh2 = Point.Origin;
+    public partial Point CgFFBoxEndPositionCh2 { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber1Ch1;
+    public partial int CgFFBoxBeginNumber1Ch1 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber2Ch1;
+    public partial int CgFFBoxBeginNumber2Ch1 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber1Ch2;
+    public partial int CgFFBoxBeginNumber1Ch2 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxBeginNumber2Ch2;
+    public partial int CgFFBoxBeginNumber2Ch2 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber1Ch1;
+    public partial int CgFFBoxEndNumber1Ch1 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber2Ch1;
+    public partial int CgFFBoxEndNumber2Ch1 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber1Ch2;
+    public partial int CgFFBoxEndNumber1Ch2 { get; set; }
 
     [ObservableProperty]
-    private int _cgFFBoxEndNumber2Ch2;
+    public partial int CgFFBoxEndNumber2Ch2 { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh1 = [];
+    public partial ObservableCollection<int> CgFFBoxRodWidthListCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<int> _cgFFBoxRodWidthListCh2 = [];
+    public partial ObservableCollection<int> CgFFBoxRodWidthListCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh1 = [];
+    public partial ObservableCollection<double> CgFFBoxHeightRelationPercentListCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _cgFFBoxHeightRelationPercentListCh2 = [];
+    public partial ObservableCollection<double> CgFFBoxHeightRelationPercentListCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListFirstCh1 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectListFirstCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListFirstCh2 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectListFirstCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private double _cgFFBoxAllRodsBeginPercentCh1;
+    public partial double CgFFBoxAllRodsBeginPercentCh1 { get; set; }
 
     [ObservableProperty]
-    private double _cgFFBoxAllRodsBeginPercentCh2;
+    public partial double CgFFBoxAllRodsBeginPercentCh2 { get; set; }
 
     #region Mapper
 
-    public PupilSideChannelFlexibleApertureDTO Clone()
+    public override PupilSideChannelFlexibleApertureDTO Clone() => new()
     {
-        return new PupilSideChannelFlexibleApertureDTO
-        {
-            CgFFBoxBeginPositionCh1 = CgFFBoxBeginPositionCh1,
-            CgFFBoxBeginPositionCh2 = CgFFBoxBeginPositionCh2,
-            CgFFBoxEndPositionCh1 = CgFFBoxEndPositionCh1,
-            CgFFBoxEndPositionCh2 = CgFFBoxEndPositionCh2,
-            CgFFBoxBeginNumber1Ch1 = CgFFBoxBeginNumber1Ch1,
-            CgFFBoxBeginNumber2Ch1 = CgFFBoxBeginNumber2Ch1,
-            CgFFBoxBeginNumber1Ch2 = CgFFBoxBeginNumber1Ch2,
-            CgFFBoxBeginNumber2Ch2 = CgFFBoxBeginNumber2Ch2,
-            CgFFBoxEndNumber1Ch1 = CgFFBoxEndNumber1Ch1,
-            CgFFBoxEndNumber2Ch1 = CgFFBoxEndNumber2Ch1,
-            CgFFBoxEndNumber1Ch2 = CgFFBoxEndNumber1Ch2,
-            CgFFBoxEndNumber2Ch2 = CgFFBoxEndNumber2Ch2,
-            CgFFBoxRodWidthListCh1 = CgFFBoxRodWidthListCh1,
-            CgFFBoxRodWidthListCh2 = CgFFBoxRodWidthListCh2,
-            CgFFBoxHeightRelationPercentListCh1 = CgFFBoxHeightRelationPercentListCh1,
-            CgFFBoxHeightRelationPercentListCh2 = CgFFBoxHeightRelationPercentListCh2,
+        CgFFBoxBeginPositionCh1 = CgFFBoxBeginPositionCh1,
+        CgFFBoxBeginPositionCh2 = CgFFBoxBeginPositionCh2,
+        CgFFBoxEndPositionCh1 = CgFFBoxEndPositionCh1,
+        CgFFBoxEndPositionCh2 = CgFFBoxEndPositionCh2,
+        CgFFBoxBeginNumber1Ch1 = CgFFBoxBeginNumber1Ch1,
+        CgFFBoxBeginNumber2Ch1 = CgFFBoxBeginNumber2Ch1,
+        CgFFBoxBeginNumber1Ch2 = CgFFBoxBeginNumber1Ch2,
+        CgFFBoxBeginNumber2Ch2 = CgFFBoxBeginNumber2Ch2,
+        CgFFBoxEndNumber1Ch1 = CgFFBoxEndNumber1Ch1,
+        CgFFBoxEndNumber2Ch1 = CgFFBoxEndNumber2Ch1,
+        CgFFBoxEndNumber1Ch2 = CgFFBoxEndNumber1Ch2,
+        CgFFBoxEndNumber2Ch2 = CgFFBoxEndNumber2Ch2,
+        CgFFBoxRodWidthListCh1 = new ObservableCollection<int>([.. CgFFBoxRodWidthListCh1]),
+        CgFFBoxRodWidthListCh2 = new ObservableCollection<int>([.. CgFFBoxRodWidthListCh2]),
+        CgFFBoxHeightRelationPercentListCh1 = new ObservableCollection<double>([.. CgFFBoxHeightRelationPercentListCh1]),
+        CgFFBoxHeightRelationPercentListCh2 = new ObservableCollection<double>([.. CgFFBoxHeightRelationPercentListCh2]),
 
-            CurrentImageRectListFirstCh1 = CurrentImageRectListFirstCh1,
-            CurrentImageRectListFirstCh2 = CurrentImageRectListFirstCh2,
+        CurrentImageRectListFirstCh1 = new ObservableCollection<Rect>([.. CurrentImageRectListFirstCh1]),
+        CurrentImageRectListFirstCh2 = new ObservableCollection<Rect>([.. CurrentImageRectListFirstCh2]),
 
-            CgFFBoxAllRodsBeginPercentCh1 = CgFFBoxAllRodsBeginPercentCh1,
-            CgFFBoxAllRodsBeginPercentCh2 = CgFFBoxAllRodsBeginPercentCh2,
+        CgFFBoxAllRodsBeginPercentCh1 = CgFFBoxAllRodsBeginPercentCh1,
+        CgFFBoxAllRodsBeginPercentCh2 = CgFFBoxAllRodsBeginPercentCh2,
 
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredSelfCheck = IsRequiredSelfCheck,
-            Id = Id,
-            Expiration = Expiration
-        };
-    }
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
+    };
 
     public CalibrationPupilSideChannelFlexibleAperture AdaptTo() => new()
     {

@@ -48,7 +48,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName)}-{Cache.ProductivityInformation}";
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Config" },
         new() { StepName = "BF P5", StepIndex = 1 },
@@ -123,18 +123,18 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        ChuckCenter = CalibrationStatusService.GetCalibration<ChuckCenterAndThetaItemDto>();
+        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
-        CIBXPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
+        CIBXPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken);
 
-        LaserPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
+        LaserPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken);
 
-        LaserLineCentricityItems = CalibrationStatusService.GetCalibrations<CIBLineCentricityDTO>();
+        LaserLineCentricityItems = ApplicationCookieService.GetCalibrations<CIBLineCentricityDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>();
-        Calibration = CacheProvider.GetOrDefault<ChuckStageMapDto>();
+        Cache = ApplicationCookieService.GetCache<ChuckStageMapCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<ChuckStageMapDto>(cancellationToken);
 
         Cache.IsDarkField = false;
 
@@ -142,7 +142,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -221,8 +221,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     Logger.LogError("{@Name} Error: Save Failed!", Name);
                     return false;
                 }
-
-                IsCalibrated = true;
 
                 return true;
 
@@ -1197,9 +1195,22 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
+    });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckStageMapDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

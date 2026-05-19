@@ -611,7 +611,7 @@ private bool _isCalibrated;
 /// 校准步骤名称列表
 /// </summary>
 [ObservableProperty]
-private List<CalibrationItemStep> _calibrationStepList = [];
+private IReadOnlyList<CalibrationItemStep> _calibrationStepList = [];
 ```
 
 ```csharp

@@ -49,6 +49,15 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Update="Core\Services\Interfaces\IApplicationCookieService*.cs">
+            <DependentUpon>IApplicationCookieService.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Core\Services\Implements\ApplicationCookieServiceImpl*.cs">
+            <DependentUpon>ApplicationCookieServiceImpl.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\CalibrationViewModelBase*.cs">
+            <DependentUpon>CalibrationViewModelBase.cs</DependentUpon>
+        </Compile>
         <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveform*.cs">
             <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(AODWaveform(?:Common|ElectrodeOffset|ElectrodeInitialize)).*', 'Abstract$1WindowViewModel.cs'))</DependentUpon>
         </Compile>
@@ -89,4 +98,5 @@
         <None Remove="Assets\Images\*.*" />
         <Resource Include="Assets\Images\*.*" />
     </ItemGroup>
+
 </Project>

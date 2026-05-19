@@ -3,10 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapCalibrationViewModel}"
              d:DesignHeight="800"
@@ -21,12 +19,12 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="{Binding CalibrationStepList[1].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
-                           Status="{Binding CalibrationStepList[1].StepName}"
+                <hc:Shield Subject="{Binding CalibrationSteps[1].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
+                           Status="{Binding CalibrationSteps[1].StepName}"
                            Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityReConverter}}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="{Binding CalibrationStepList[5].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
-                           Status="{Binding CalibrationStepList[5].StepName}"
+                <hc:Shield Subject="{Binding CalibrationSteps[5].StepIndex, StringFormat='Chuck Stage Map Step {0}'}"
+                           Status="{Binding CalibrationSteps[5].StepName}"
                            Visibility="{Binding Cache.IsDarkField, Converter={StaticResource Boolean2VisibilityConverter}}"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>

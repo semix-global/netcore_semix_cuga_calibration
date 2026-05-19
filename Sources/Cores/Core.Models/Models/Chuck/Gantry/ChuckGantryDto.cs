@@ -9,52 +9,52 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Chuck.Gantry;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckGantryDto : CalibrationDtoBase, ICloneable<ChuckGantryDto>, IAdaptTo<CalibrationChuckGantry>
+public sealed partial class ChuckGantryDto : CalibrationDTOBase<ChuckGantryDto>, IAdaptTo<CalibrationChuckGantry>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LowMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private Point _position1;
+    public partial Point Position1 { get; set; }
 
     [ObservableProperty]
-    private string _filePath1 = string.Empty;
+    public partial string FilePath1 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _templateScore1;
+    public partial double TemplateScore1 { get; set; }
 
     [ObservableProperty]
-    private double _templateAngle1;
+    public partial double TemplateAngle1 { get; set; }
 
     [ObservableProperty]
-    private Point _position2;
+    public partial Point Position2 { get; set; }
 
     [ObservableProperty]
-    private string _filePath2 = string.Empty;
+    public partial string FilePath2 { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _templateScore2;
+    public partial double TemplateScore2 { get; set; }
 
     [ObservableProperty]
-    private double _templateAngle2;
+    public partial double TemplateAngle2 { get; set; }
 
     [ObservableProperty]
-    private double _offset;
+    public partial double Offset { get; set; }
 
     [ObservableProperty]
-    private double _h;
+    public partial double H { get; set; }
 
     public double Slope => Math.Atan((Position2.X - Position1.X) / (Position2.Y - Position1.Y));
 
     #region Mapper
 
-    public ChuckGantryDto Clone() => new()
+    public override ChuckGantryDto Clone() => new()
     {
-        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
-        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
         Position1 = Position1,
         FilePath1 = FilePath1,
         TemplateScore1 = TemplateScore1,

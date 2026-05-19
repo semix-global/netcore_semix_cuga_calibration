@@ -11,56 +11,52 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.CIB.XPixelSize;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
+public sealed partial class CIBXPixelSizeDTO : CalibrationDTOBase<CIBXPixelSizeDTO>, IAdaptTo<CalibrationLaserXPixelSizeItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private double _xPixelSize;
+    public partial double XPixelSize { get; set; }
 
     [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
+    public partial string RawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SlideItemPoints))]
-    private IReadOnlyList<CIBXPixelSizeDTOItem> _slideItems = [];
+    public partial IReadOnlyList<CIBXPixelSizeDTOItem> SlideItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _slideSplitDifferences = [];
+    public partial IReadOnlyList<double> SlideSplitDifferences { get; set; } = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VerifyItemPoints))]
-    private IReadOnlyList<CIBXPixelSizeDTOItem> _verifyItems = [];
+    public partial IReadOnlyList<CIBXPixelSizeDTOItem> VerifyItems { get; set; } = [];
 
     [ObservableProperty]
-    private string _verifyRawImageFilePath = string.Empty;
+    public partial string VerifyRawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _xPixelSizeDelta;
+    public partial double XPixelSizeDelta { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public IReadOnlyList<Point> SlideItemPoints => [.. SlideItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public IReadOnlyList<Point> VerifyItemPoints => [.. VerifyItems.Select(t => new Point(t.MatchPoint.X, t.Score))];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _verifySplitDifferences = [];
+    public partial IReadOnlyList<double> VerifySplitDifferences { get; set; } = [];
 
     #region Mapper
 
-    public CIBXPixelSizeDTO Clone() => new()
+    public override CIBXPixelSizeDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
@@ -68,9 +64,9 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
         XPixelSize = XPixelSize,
         XPixelSizeDelta = XPixelSizeDelta,
         RawImageFilePath = RawImageFilePath,
-        SlideItems = [.. SlideItems],
+        SlideItems = [.. SlideItems.Select(t => t.Clone())],
         SlideSplitDifferences = [.. SlideSplitDifferences],
-        VerifyItems = [.. VerifyItems],
+        VerifyItems = [.. VerifyItems.Select(t => t.Clone())],
         VerifySplitDifferences = [.. VerifySplitDifferences],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -93,13 +89,11 @@ public sealed partial class CIBXPixelSizeDTO : CalibrationDtoBase, ICloneable<CI
     #endregion Mapper
 }
 
-public sealed class CIBXPixelSizeDTOItem
+public sealed class CIBXPixelSizeDTOItem : ICloneable<CIBXPixelSizeDTOItem>
 {
     public long StartPixel { get; init; }
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public byte[] Buffer { get; init; } = [];
 
     public SizeI SizeI { get; init; }
@@ -111,4 +105,15 @@ public sealed class CIBXPixelSizeDTOItem
     public string ImageFilePath { get; set; } = string.Empty;
 
     public bool IsMatchOk { get; set; }
+
+    public CIBXPixelSizeDTOItem Clone() => new()
+    {
+        StartPixel = StartPixel,
+        Buffer = [.. Buffer],
+        SizeI = SizeI,
+        MatchPoint = MatchPoint,
+        Score = Score,
+        ImageFilePath = ImageFilePath,
+        IsMatchOk = IsMatchOk
+    };
 }

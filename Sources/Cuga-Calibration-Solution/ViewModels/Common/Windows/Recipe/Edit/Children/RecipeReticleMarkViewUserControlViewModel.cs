@@ -20,5 +20,4 @@ public sealed partial class RecipeReticleMarkViewUserControlViewModel : ViewMode
     private ObservableCollection<ReticleMarkDTOItem> _reticleMarkList = [];
 
     #endregion
-
 }

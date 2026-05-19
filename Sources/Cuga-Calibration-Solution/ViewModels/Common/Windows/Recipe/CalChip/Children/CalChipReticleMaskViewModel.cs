@@ -59,6 +59,7 @@ public sealed partial class CalChipReticleMaskViewModel(
 
     [ObservableProperty]
     public partial CalChipSiteModelEnum CurrentCalChipSiteModelEnum { get; set; }
+
     public string TemplateFileDirectory { get; set; } = string.Empty;
 
     public CalChipWaferMapViewModel? CalChipWaferMapViewModel { get; set; }
@@ -306,4 +307,3 @@ public sealed partial class CalChipReticleMaskViewModel(
         return EditReticleMarkList[indexed.Index] ?? throw new NullReferenceException(nameof(SelectReticleMarkItem));
     }
 }
-

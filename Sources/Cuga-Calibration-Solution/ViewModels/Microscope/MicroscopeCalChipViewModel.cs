@@ -33,7 +33,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "DSW Left Top Position" },
         new() { StepName = "DSW Right Bottom Position" },
@@ -102,12 +102,12 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         await Task.CompletedTask.ConfigureAwait(false);
 
         if (LoadDepends() == false) return false;
-        MicroscopePixelSizes = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<MicroscopeCalChipCache>();
-        Calibration = CacheProvider.GetOrDefault<MicroscopeCalChipDTO>();
+        Cache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -302,7 +302,6 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 return true;
 
             case 12:
-                IsCalibrated = true;
                 return true;
 
             default:
@@ -635,9 +634,22 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         dto.MicroscopeLensInformation = Cache.LowMicroscopeLensInformation;
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<MicroscopeCalChipDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

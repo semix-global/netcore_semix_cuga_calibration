@@ -5,6 +5,7 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -25,7 +26,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     [ObservableProperty]
     private Point _sxPos;
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Haze Wafer Position" },
         new() { StepName = "Get And Save CH1 Image" },
@@ -43,9 +44,11 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     [ObservableProperty]
     private MicroscopeCalChipDTO _microscopeCalChip = new();
 
+    [RecipeCache]
     [ObservableProperty]
     private PupilCameraAlignmentCache _cache = new();
 
+    [DefaultCache]
     [ObservableProperty]
     private PupilCameraAlignmentDTO _calibration = new();
 
@@ -61,11 +64,12 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         if (LoadDepends() == false)
             return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<PupilCameraAlignmentCache>();
-        Calibration = CacheProvider.GetOrDefault<PupilCameraAlignmentDTO>();
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        Cache = ApplicationCookieService.GetCache<PupilCameraAlignmentCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>(cancellationToken);
+
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -101,7 +105,6 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 Cache.IsToggleSelectRectROIDrawableCh3 = false;
                 ResultDto.IsCalibrated = true;
                 Save(ResultDto, cancellationToken);
-                IsCalibrated = true;
                 return true;
 
             default:
@@ -368,9 +371,22 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
 
             Calibration = itemDto.Clone();
 
-            CacheProvider.Set(Calibration, cancellationToken);
-            RecipeCacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
+    }
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<PupilCameraAlignmentDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
     }
 
     public static BitmapImage BytesToBitmapImage(byte[] bytes)

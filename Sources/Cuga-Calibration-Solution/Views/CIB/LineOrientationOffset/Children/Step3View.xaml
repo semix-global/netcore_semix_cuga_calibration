@@ -9,7 +9,6 @@
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:wafer="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBLineOrientationOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -28,7 +27,7 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 4: "
-                           Status="{Binding CalibrationStepList[3].StepName}"
+                           Status="{Binding CalibrationSteps[3].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
@@ -75,11 +74,6 @@
                                             <TextBlock Text="{Binding LensName}" />
                                         </DataTemplate>
                                     </hc:ComboBox.ItemTemplate>
-                                    <b:Interaction.Triggers>
-                                        <b:EventTrigger EventName="SelectionChanged">
-                                            <b:InvokeCommandAction Command="{Binding MagnificationSelectedCommand}" CommandParameter="{Binding ElementName=MagCombobox, Path=SelectedItem}" />
-                                        </b:EventTrigger>
-                                    </b:Interaction.Triggers>
                                 </hc:ComboBox>
                                 <hc:ComboBox HorizontalAlignment="Left"
                                              hc:TitleElement.TitleWidth="220"

@@ -7,29 +7,29 @@ using Net.Utilities.Mapper.Interfaces;
 namespace Core.Models.Models.Optics.CollectPolarization;
 
 [CacheVersion("1.0.0")]
-public sealed partial class CollectPolarizationDTO : CalibrationDtoBase, ICloneable<CollectPolarizationDTO>, IAdaptTo<CalibrationCollectionPolarization>
+public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectPolarizationDTO>, IAdaptTo<CalibrationCollectionPolarization>
 {
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH1;
+    public partial double PolarizationPositionNDFSCH1 { get; set; }
 
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH2;
+    public partial double PolarizationPositionNDFSCH2 { get; set; }
 
     [ObservableProperty]
-    private double _polarizationPositionNDFSCH3;
+    public partial double PolarizationPositionNDFSCH3 { get; set; }
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH1;
+    public partial double PolarizationPositionNDFPCH1 { get; set; }
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH2;
+    public partial double PolarizationPositionNDFPCH2 { get; set; }
 
     [ObservableProperty]
-    private double _polarizationPositionNDFPCH3;
+    public partial double PolarizationPositionNDFPCH3 { get; set; }
 
     #region Mapper
 
-    public CollectPolarizationDTO Clone() => new()
+    public override CollectPolarizationDTO Clone() => new()
     {
         PolarizationPositionNDFSCH1 = PolarizationPositionNDFSCH1,
         PolarizationPositionNDFSCH2 = PolarizationPositionNDFSCH2,

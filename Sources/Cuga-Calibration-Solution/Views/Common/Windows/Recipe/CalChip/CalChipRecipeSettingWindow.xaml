@@ -8,7 +8,6 @@
            xmlns:calChip="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Recipe.CalChip"
            xmlns:calChipViews="clr-namespace:CugaCalibration.Views.Common.Windows.Recipe.CalChip"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
-           xmlns:alignment="clr-namespace:CugaCalibration.Views.Common.Windows.Recipe.Edit.Alignment"
            xmlns:waferMap="clr-namespace:CugaCalibration.Views.Common.Windows.Recipe.Edit.WaferMap"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            Title="CalChip Recipe Setting"
