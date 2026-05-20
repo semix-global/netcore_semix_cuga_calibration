@@ -19,8 +19,6 @@ public sealed partial class AODWaveformElectrodeInitializeStep0<TItem> : Observa
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
     private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657

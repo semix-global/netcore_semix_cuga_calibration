@@ -7,6 +7,7 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using Net.Utilities.Models.Serializations;
 
 namespace Core.Recipe.Models;
 
@@ -16,32 +17,22 @@ public sealed partial class CalChipRecipeDTO : ObservableCacheBase, ICloneable<C
     [NotifyPropertyChangedFor(nameof(CurrentItem))]
     public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<CalChipSiteModelEnum, CalChipRecipeDTOItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<CalChipSiteModelEnum, CalChipRecipeDTOItem>))]
     public ConcurrentDictionary<CalChipSiteModelEnum, CalChipRecipeDTOItem> Results { get; private set; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CalChipRecipeDTOItem CurrentItem => Results.GetOrAdd(CalChipSiteModelEnum, _ => new CalChipRecipeDTOItem { CalChipSiteModelEnum = CalChipSiteModelEnum });
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CalChipRecipeDTOItem DSWItem => Results.Get(CalChipSiteModelEnum.DswModel);
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CalChipRecipeDTOItem HazeItem => Results.Get(CalChipSiteModelEnum.HazeModel);
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CalChipRecipeDTOItem ShinyWaferItem => Results.Get(CalChipSiteModelEnum.ShinyWaferModel);
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CalChipRecipeDTOItem UndefinedItem => Results.Get(CalChipSiteModelEnum.UndefinedModel);
 
     public CalChipRecipeDTO Clone() => new()
